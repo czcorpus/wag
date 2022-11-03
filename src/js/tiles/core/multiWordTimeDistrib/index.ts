@@ -30,6 +30,7 @@ import { PriorityValueFactory } from '../../../priority';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { IConcordanceApi } from '../../../api/abstract/concordance';
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 /**
@@ -75,6 +76,9 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
         const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
         const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/MultiWordTimeDistribTile/authenticate")} :
+            {};
         pipe(
             apiUrlList,
             List.forEach(
@@ -85,14 +89,16 @@ export class MultiWordTimeDistTile implements ITileProvider {
                             cache,
                             conf.apiType,
                             url,
-                            appServices
+                            appServices,
+                            apiOptions,
                         ),
                         createFreqApiInstance(
                             conf.apiType,
                             cache,
                             url,
                             appServices,
-                            conf
+                            conf,
+                            apiOptions
                         )
                     ]
                 )
@@ -197,3 +203,7 @@ export const init:TileFactory<TimeDistTileConf> = {
 
     create: (args) => new MultiWordTimeDistTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

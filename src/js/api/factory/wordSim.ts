@@ -25,7 +25,7 @@ import { CNCWord2VecSimApi } from '../vendor/wdglance/wordSim';
 import { IApiServices } from '../../appServices';
 
 
-export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string,  apiServices:IApiServices, cache:IAsyncKeyValueStore):IWordSimApi<{}> {
+export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore):IWordSimApi<{}> {
 	switch (apiIdent) {
 		case CoreApiGroup.WDGLANCE:
 			return new CNCWord2VecSimApi(cache, apiURL, srcInfoURL, apiServices);

@@ -24,6 +24,7 @@ import { WordFormsModel } from './model';
 import { QueryType } from '../../../query/index';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/wordForms';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -61,6 +62,9 @@ export class WordFormsTile implements ITileProvider {
         this.widthFract = widthFract;
         this.waitForTiles = waitForTiles;
         this.label = this.appServices.importExternalMessage(conf.label || 'wordforms__main_label');
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
+            {};
         this.model = new WordFormsModel({
             dispatcher,
             initialState: {
@@ -80,7 +84,8 @@ export class WordFormsTile implements ITileProvider {
                 cache,
                 apiURL: conf.apiURL,
                 srcInfoURL: conf.srcInfoURL,
-                apiServices: appServices
+                apiServices: appServices,
+                apiOptions
             }),
             queryMatches,
             queryDomain: domain1,
@@ -152,3 +157,7 @@ export const init:TileFactory<WordFormsTileConf> = {
 
     create: (args) => new WordFormsTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

@@ -17,7 +17,7 @@
  */
 
 import { IActionDispatcher, StatelessModel } from 'kombo';
-import { HTTP, List } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 
@@ -29,8 +29,7 @@ import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { TileServerActionFactory } from '../../../server/tileActions';
-import { serverHttpRequest, ServerHTTPRequestError } from '../../../server/request';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
@@ -85,7 +84,9 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === "kontextApi" ? {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} : undefined;
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} :
+            {};
         const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
@@ -201,33 +202,5 @@ export const init:TileFactory<ConcordanceTileConf> = {
 }
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    (serverConf) => serverConf.kontextApi ?
-        ({
-            method: HTTP.Method.POST,
-            name: 'authenticate',
-            handler: (req, resp, next) => {
-                const data = new URLSearchParams();
-                data.set('t', serverConf.kontextApi.token);
-                serverHttpRequest<{x_api_key:string}>({
-                    url: serverConf.kontextApi.authenticateURL,
-                    method: HTTP.Method.POST,
-                    headers: {"content-type": 'application/x-www-form-urlencoded'},
-                    data
-                }).subscribe({
-                    next: data => {
-                        resp.json(data);
-                    },
-                    error: (err:ServerHTTPRequestError) => {
-                        resp.status(err.status).send(err);
-                    }
-                })
-            }
-        }) :
-        ({
-            method: HTTP.Method.POST,
-            name: 'authenticate',
-            handler: (req, resp, next) => {
-                resp.sendStatus(HTTP.Status.NotImplemented);
-            }
-        })
+    kontextApiAuthActionFactory,
 ];
