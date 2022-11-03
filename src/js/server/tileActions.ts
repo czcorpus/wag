@@ -19,6 +19,7 @@
 import { HTTP } from 'cnc-tskit';
 import { RequestHandler } from 'express';
 import { ServerConf } from '../conf';
+import { serverHttpRequest, ServerHTTPRequestError } from './request';
 
 /**
  * TileServerAction defines a custom action which can be defined
@@ -35,3 +36,35 @@ export interface TileServerAction {
 }
 
 export type TileServerActionFactory = (sc:ServerConf) => TileServerAction;
+
+export function kontextApiAuthActionFactory(serverConf:ServerConf):TileServerAction {
+    return serverConf.kontextApi ?
+        ({
+            method: HTTP.Method.POST,
+            name: 'authenticate',
+            handler: (req, resp, next) => {
+                const data = new URLSearchParams();
+                data.set('t', serverConf.kontextApi.token);
+                serverHttpRequest<{x_api_key:string}>({
+                    url: serverConf.kontextApi.authenticateURL,
+                    method: HTTP.Method.POST,
+                    headers: {"content-type": 'application/x-www-form-urlencoded'},
+                    data
+                }).subscribe({
+                    next: data => {
+                        resp.json(data);
+                    },
+                    error: (err:ServerHTTPRequestError) => {
+                        resp.status(err.status).send(err);
+                    }
+                })
+            }
+        }) :
+        ({
+            method: HTTP.Method.POST,
+            name: 'authenticate',
+            handler: (req, resp, next) => {
+                resp.sendStatus(HTTP.Status.NotImplemented);
+            }
+        })
+}

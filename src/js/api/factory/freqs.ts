@@ -22,12 +22,18 @@ import { CoreApiGroup } from '../coreGroups';
 import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI } from '../vendor/kontext/freqs';
 import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs';
 import { IApiServices } from '../../appServices';
+import { TokenApiWrapper } from '../vendor/kontext/tokenApiWrapper';
 
 
-export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices):IFreqDistribAPI<{}> {
+export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IFreqDistribAPI<{}> {
     switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
             return new KontextFreqDistribAPI(cache, apiURL, apiServices);
+        case CoreApiGroup.KONTEXT_API:
+            return new Proxy(
+                new KontextFreqDistribAPI(cache, apiURL, apiServices),
+                new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+            );
         case CoreApiGroup.NOSKE:
             return new NoskeFreqDistribAPI(cache, apiURL, apiServices);
         default:
@@ -36,10 +42,15 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
 }
 
 
-export function createMultiBlockApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices):IMultiBlockFreqDistribAPI<{}> {
+export function createMultiBlockApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IMultiBlockFreqDistribAPI<{}> {
     switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
             return new KontextMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
+        case CoreApiGroup.KONTEXT_API:
+            return new Proxy(
+                new KontextMultiBlockFreqDistribAPI(cache, apiURL, apiServices),
+                new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+            );
         case CoreApiGroup.NOSKE:
             return new NoskeMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
         default:

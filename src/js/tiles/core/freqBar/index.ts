@@ -30,6 +30,7 @@ import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface FreqBarTileConf extends TileConf {
@@ -96,6 +97,9 @@ export class FreqBarTile implements ITileProvider {
                     new ConcApi(cache, conf.subqueryMode.concApiURL, appServices)
                 ) :
                 defaultModelFactory;
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/FreqBarTile/authenticate")} :
+            {};
         this.model = modelFact(
             this.dispatcher,
             tileId,
@@ -103,7 +107,7 @@ export class FreqBarTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -200,3 +204,7 @@ export const init:TileFactory<FreqBarTileConf>  = {
     },
     create: (args) => new FreqBarTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

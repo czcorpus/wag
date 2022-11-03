@@ -27,6 +27,7 @@ import { LocalizedConfMsg } from '../../../types';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -111,14 +112,17 @@ export class MergeCorpFreqTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/MergeCorpFreqTile/authenticate")} :
+            {};
         this.model = new MergeCorpFreqModel({
             dispatcher: this.dispatcher,
             tileId,
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices),
-            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
@@ -216,3 +220,7 @@ export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
     create: (args) => new MergeCorpFreqTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

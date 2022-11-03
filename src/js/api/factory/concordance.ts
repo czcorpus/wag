@@ -17,7 +17,6 @@
  */
 import { DataApi, IAsyncKeyValueStore } from '../../types';
 import { IConcordanceApi } from '../abstract/concordance';
-import { ConcTokenApi as ConcTokenApi017} from '../vendor/kontext/concordance/v017api';
 import { ConcApi as ConcApi015} from '../vendor/kontext/concordance/v015';
 import { ConcApi as NoskeConcApi } from '../vendor/noske/concordance';
 import { ConcApi as LCCConcApi } from '../vendor/lcc/concordance';
@@ -25,9 +24,10 @@ import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve';
 import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
 import { IApiServices, IAppServices } from '../../appServices';
+import { TokenApiWrapper } from '../vendor/kontext/tokenApiWrapper';
 
 
-export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions?:{}):IConcordanceApi<{}> {
+export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IConcordanceApi<{}> {
 
  	switch (apiIdent) {
 		case CoreApiGroup.FCS_V1:
@@ -35,7 +35,10 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
  		case CoreApiGroup.KONTEXT:
 			return new ConcApi015(cache, apiURL, apiServices);
 		case CoreApiGroup.KONTEXT_API:
-			return new ConcTokenApi017(cache, apiURL, apiServices, apiOptions["authenticateURL"]);
+			return new Proxy(
+				new ConcApi015(cache, apiURL, apiServices),
+				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+			);
 		case CoreApiGroup.NOSKE:
 			return new NoskeConcApi(cache, apiURL, apiServices);
 		case CoreApiGroup.LCC:
