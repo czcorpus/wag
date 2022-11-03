@@ -20,7 +20,7 @@ import { concatMap, map } from 'rxjs/operators';
 import { List, HTTP, URL, Dict, pipe, tuple } from 'cnc-tskit';
 
 import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
 import { QueryMatch } from '../../../../../query';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../../abstract/concordance';
 import { ConcordanceMinState } from '../../../../../models/tiles/concordance';
@@ -37,8 +37,6 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
 
     protected readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
-
     private readonly cache:IAsyncKeyValueStore;
 
     private readonly srcInfoService:CorpusInfoAPI;
@@ -50,10 +48,6 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
         this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
-    }
-
-    getHeaders() {
-        return this.apiServices.getApiHeaders(this.apiURL) || {};
     }
 
     getSupportedViewModes():Array<ViewMode> {
@@ -205,7 +199,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 url,
                 argsBody,
                 {
-                    headers: this.getHeaders(),
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
                     contentType
                 }
             )
@@ -233,7 +227,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                             format: 'json'
                         },
                         {
-                            headers: this.getHeaders()
+                            headers: this.apiServices.getApiHeaders(this.apiURL)
                         }
                     ) :
                     rxOf({
