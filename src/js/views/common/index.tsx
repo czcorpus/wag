@@ -59,6 +59,7 @@ export interface GlobalComponents {
         backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
         htmlClass?:string;
         error?:string;
+        children:React.ReactNode;
     }>;
 
     ErrorBoundary:React.ComponentClass;
@@ -67,6 +68,7 @@ export interface GlobalComponents {
         onCloseClick?:()=>void;
         title:string;
         tileClass?:string;
+        children?:React.ReactNode;
     }>;
 
     HorizontalBlockSwitch:React.FC<{
@@ -200,7 +202,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 )
             )}
             <button type="submit">
-                {props.values.label}
+                {typeof props.values.label === 'string' ?
+                    props.values.label :
+                    props.values.label['en-US']
+                }
             </button>
         </S.BacklinkForm>;
     }
@@ -423,7 +428,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <ErrorBoundary /> -------------------------------------------
 
-    class ErrorBoundary extends React.Component<{}, {error: string|null}> {
+    class ErrorBoundary extends React.Component<{children:React.ReactNode;}, {error: string|null}> {
 
         constructor(props) {
             super(props);
@@ -457,7 +462,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <ModalBox /> -------------------------------------------
 
-    class ModalBox extends React.PureComponent<{onCloseClick:()=>void; title:string; tileClass?:string}> {
+    class ModalBox extends React.PureComponent<{
+        onCloseClick:()=>void;
+        title:string;
+        tileClass?:string;
+        children:React.ReactNode;
+    }> {
 
         private ref:React.RefObject<HTMLButtonElement>;
 
@@ -746,7 +756,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const Paginator:React.FC<{
         page: number;
         numPages: number;
-        
+
         onPrev: () => void;
         onNext: () => void;
     }> = (props) => {

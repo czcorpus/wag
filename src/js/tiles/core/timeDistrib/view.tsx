@@ -27,6 +27,7 @@ import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model'
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
 import * as S from './style';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -255,6 +256,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
+            const tooltipFormatter:Formatter<ValueType, NameType> = (value, name, data) => {
+                if (Array.isArray(value)) {
+                    return value.every(v => Boolean(v)) ? [value.join(' ~ '), name] : null
+                }
+                return '' + value;
+            };
             const data = mergeDataSets(this.props.data1, this.props.data2).filter(v => Boolean(v.datetime));
             return (
                 <ResponsiveContainer width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
@@ -270,7 +277,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
                         <YAxis />
                         <Tooltip isAnimationActive={false}
-                                formatter={(value, name, data) => (value.every(v => Boolean(v)) ? [value.join(' ~ '), name] : null)}
+                                formatter={tooltipFormatter}
                                 content={globComponents.AlignedRechartsTooltip} />
                         <Area type="linear"
                                 dataKey="ipmInterval1"

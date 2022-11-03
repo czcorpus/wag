@@ -115,6 +115,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         height:string|number;
         isMobile:boolean;
         handleZoom:(category:string) => void;
+        children:React.ReactNode;
     }> = (props) => {
         if (props.isMobile) {
             return (
@@ -155,9 +156,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     cursor={false}
                     isAnimationActive={false}
                     separator=""
-                    formatter={(value, name, props) =>
+                    formatter={(value, name, props):any =>
                         <span>
-                            {props.payload.root.name}<br/>{' -> '}{props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)} % ({value} ipm)
+                            {props.payload.root.name}
+                            <br/>{' -> '}
+                            {props.payload.name}: {(100*parseInt(value)/(props.payload.root.value as number)).toFixed(2)} % ({value} ipm)
                         </span>
                     }
                     content={globComponents.AlignedRechartsTooltip} />

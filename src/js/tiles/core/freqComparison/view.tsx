@@ -27,6 +27,7 @@ import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from 
 import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
 
 import * as S from './style';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 
 const CHART_LABEL_MAX_LEN = 15;
@@ -93,6 +94,7 @@ export function init(
         width:string|number;
         height:string|number;
         isMobile:boolean;
+        children:React.ReactNode;
 
     }> = (props) => {
         if (props.isMobile) {
@@ -155,6 +157,15 @@ export function init(
         ).length;
         const yAxisWidth = Math.max(60, maxLabelLength * (-4 * props.widthFract + 20));
         const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
+        const tooltipFormatter:Formatter<ValueType, NameType> = (value, name, props) => {
+            if (typeof value === 'number') {
+                return [
+                    `${value}%, ${props.payload.data[name].ipm} ipm, ${ut.translate('global__frequency')}, ${props.payload.data[name].freq}`,
+                    name
+                ]
+            }
+            return ['??', '??'];
+        };
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
@@ -169,7 +180,7 @@ export function init(
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
                         content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={(index)=>theme.cmpCategoryColor(index, props.words.length)}/>}
-                        formatter={(value, name, props) => ([[[value, '%'], [props.payload.data[name].ipm, `ipm, ${ut.translate('global__frequency')}`], [props.payload.data[name].freq, '']], name])} />
+                        formatter={tooltipFormatter} />
                 </ChartWrapper>
             </div>
         );

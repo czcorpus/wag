@@ -29,8 +29,7 @@ import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { TileServerAction } from '../../../server/tileActions';
-import { ServerConf } from '../../../conf';
+import { TileServerActionFactory } from '../../../server/tileActions';
 import { serverHttpRequest, ServerHTTPRequestError } from '../../../server/request';
 
 
@@ -201,7 +200,7 @@ export const init:TileFactory<ConcordanceTileConf> = {
     create: (args) => new ConcordanceTile(args)
 }
 
-export const serverActions:() => Array<(serverConf:ServerConf) => TileServerAction> = () => [
+export const serverActions:() => Array<TileServerActionFactory> = () => [
     (serverConf) => serverConf.kontextApi ?
         ({
             method: HTTP.Method.POST,

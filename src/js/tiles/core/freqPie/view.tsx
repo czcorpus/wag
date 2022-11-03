@@ -50,6 +50,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
         width:string|number;
         height:string|number;
+        children:React.ReactNode;
 
     }> = (props) => {
         if (props.isMobile) {

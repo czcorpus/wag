@@ -79,7 +79,12 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
                         {i > 0 ? ', ' : ''}
                         <button type="submit"  name="themeId" value={v.themeId}
                                 disabled={v.themeId === props.currTheme}
-                                className={v.themeId === props.currTheme ? 'current' : null}>{v.themeLabel}</button>
+                                className={v.themeId === props.currTheme ? 'current' : null}>
+                            {typeof v.themeLabel === 'string' ?
+                                v.themeLabel :
+                                v.themeLabel['en-US']
+                            }
+                        </button>
                     </React.Fragment>
                 ), props.themes)}
                 </span>

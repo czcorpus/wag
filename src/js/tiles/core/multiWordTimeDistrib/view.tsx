@@ -28,6 +28,7 @@ import { MultiWordTimeDistribModel, MultiWordTimeDistribModelState } from './mod
 import { List, pipe } from 'cnc-tskit';
 
 import * as S from './style';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 
 interface ChartDataPoint {
@@ -240,7 +241,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
             let domainY:[number, number]|[number, string];
             let tickFormatterY:(fracValue:number, index:number)=>string;
-            let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[Array<[number|string, string]>, string];
+            let tooltipFormatter:Formatter<ValueType, NameType> = (value, name, item) => ['??', '??'];
             let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
             let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];
             switch (this.props.units) {
@@ -253,26 +254,30 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     );
                     domainY = [0, domainMax];
                     tickFormatterY = fracValue => `${ut.formatNumber(fracValue * 100)} %`;
-                    tooltipFormatter = (fracValue, name, formatterProps) => [
-                        [
-                            [100 * fracValue, '%'],
-                            [formatterProps.payload.ipmNorm * fracValue, 'ipm']
-                        ],
-                        name
-                    ];
+                    tooltipFormatter = (fracValue, name, formatterProps) => {
+                        if (typeof fracValue === 'number') {
+                            return [
+                                `${100 * fracValue}% (${formatterProps.payload.ipmNorm * fracValue} ipm`,
+                                name
+                            ];
+                        }
+                        return ['??', '??'];
+                    }
                 break;
                 case 'ipm':
                     keyFn1 = idx => v => v.ipmValues[idx];
                     keyFn2 = idx => v => v.ipmIntervals[idx];
                     domainY = [0, 'auto'];
                     tickFormatterY = ipmValue => `${ut.formatNumber(ipmValue)} ipm`;
-                    tooltipFormatter = (ipmValue, name, formatterProps) => [
-                        [
-                            [100 * ipmValue/formatterProps.payload.ipmNorm, '%'],
-                            [ipmValue, 'ipm']
-                        ],
-                        name
-                    ];
+                    tooltipFormatter = (ipmValue, name, formatterProps) => {
+                        if (typeof ipmValue === 'number') {
+                            return [
+                                `${100 * ipmValue/formatterProps.payload.ipmNorm}% (${ipmValue} ipm)`,
+                                name
+                            ];
+                        }
+                        return ['??', '??'];
+                    };
                 break;
             }
 
@@ -290,12 +295,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
                         <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} />
                         <Tooltip isAnimationActive={false}
-                            formatter={(value, name, formatterProps) => {
-                                if (Array.isArray(value)) {
-                                    return null;
-                                }
-                                return tooltipFormatter(value, name, formatterProps);
-                            }}
+                            formatter={tooltipFormatter}
                             content = {<globComponents.AlignedRechartsTooltip multiWord={true} colors={idx => theme.cmpCategoryColor(idx, this.props.words.length)}/>}
                         />
                         {List.map(
