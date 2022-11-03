@@ -28,6 +28,7 @@ import { CollocationApi, SrchContextType } from '../../../api/abstract/collocati
 import { createInstance } from '../../../api/factory/collocations';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -80,7 +81,10 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        this.api = createInstance(conf.apiType, conf.apiURL, appServices, cache);
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")} :
+            {};
+        this.api = createInstance(conf.apiType, conf.apiURL, appServices, cache, apiOptions);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -88,7 +92,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            concApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,
@@ -193,3 +197,7 @@ export const init:TileFactory.TileFactory<CollocationsTileConf> = {
     },
     create: (args) => new CollocationsTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

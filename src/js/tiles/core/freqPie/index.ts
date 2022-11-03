@@ -29,6 +29,7 @@ import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 declare var require:any;
 require('./style.less');
@@ -81,6 +82,9 @@ export class FreqPieTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/FreqPieTile/authenticate")} :
+            {};
         const modelFact = conf.subqueryMode ?
             subqModelFactory(
                 conf.subqueryMode,
@@ -93,7 +97,7 @@ export class FreqPieTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -193,3 +197,7 @@ export const init:TileFactory.TileFactory<FreqPieTileConf> = {
     },
     create: (args) => new FreqPieTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

@@ -21,8 +21,9 @@ import { QueryType } from '../../../query/index';
 import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../page/tile';
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
-import { createMatchingDocsApiInstance } from './apiFactory';
+import { createMatchingDocsApiInstance } from '../../../api/factory/matchingDocs';
 import { List } from 'cnc-tskit';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 
@@ -77,6 +78,9 @@ export class MatchingDocsTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        const apiOptions = conf.apiType === "kontextApi" ?
+            {authenticateURL: appServices.createActionUrl("/MatchingDocsTile/authenticate")} :
+            {};
 
         this.model = new MatchingDocsModel({
             dispatcher: this.dispatcher,
@@ -85,7 +89,7 @@ export class MatchingDocsTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices, appServices.getApiHeaders(conf.apiURL), cache),
+            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices, appServices.getApiHeaders(conf.apiURL), cache, apiOptions),
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -180,3 +184,7 @@ export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = {
 
     create: (args) => new MatchingDocsTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

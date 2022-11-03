@@ -16,30 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError, concatMap, tap } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit';
 
-import { ajax$ } from '../../../../../page/ajax';
-import { IAsyncKeyValueStore } from '../../../../../types';
-import { ConcResponse } from '../../../../abstract/concordance';
-import { IApiServices } from '../../../../../appServices';
-import { ConcQueryArgs, ConcViewArgs, FilterServerArgs, QuickFilterRequestArgs } from '../../types';
-import { ConcApi } from '../v015/index';
+import { ajax$ } from '../../../page/ajax';
+import { IApiServices } from '../../../appServices';
+import { DataApi } from '../../../types';
 
 
+export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
 
-export class ConcTokenApi extends ConcApi {
+    private readonly apiServices:IApiServices;
+
+    private readonly apiURL:string;
 
     private readonly authenticateURL:string;
 
-    constructor(
-        cache:IAsyncKeyValueStore,
-        apiURL:string,
-        apiServices:IApiServices,
-        authenticateURL:string
-    ) {
-        super(cache, apiURL, apiServices);
+    constructor(apiServices:IApiServices, apiURL:string, authenticateURL:string) {
+        this.apiServices = apiServices;
+        this.apiURL = apiURL;
         this.authenticateURL = authenticateURL;
     }
 
@@ -55,17 +51,24 @@ export class ConcTokenApi extends ConcApi {
         );
     }
 
-    call(args:ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs):Observable<ConcResponse> {
-        return super.call(args).pipe(
-            catchError((err, _) => {
-                if (err.status === HTTP.Status.Forbidden) {
-                    return this.authenticate().pipe(
-                        concatMap(_ => super.call(args))
-                    );
-                } else {
-                    throwError(() => err);
-                }
-            })
-        )
+    get(target:V, prop:string, receiver) {
+        if (prop === 'call') {
+            return (args:T) => {
+                return target.call(args).pipe(
+                    catchError((err, _) => {
+                        if (err.status === HTTP.Status.Forbidden) {
+                            return this.authenticate().pipe(
+                                concatMap(_ => target.call(args))
+                            );
+                        } else {
+                            throwError(() => err);
+                        }
+                    })
+                )
+            }
+        } else {
+            return target[prop];
+        }
     }
+
 }
