@@ -22,7 +22,7 @@ import { IAppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { isSubqueryPayload } from '../../../query/index';
-import { SpeechesApi, SpeechReqArgs } from './api';
+import { SpeechesApi, SpeechReqArgs } from '../../../api/vendor/kontext/speeches';
 import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { isWebDelegateApi, SystemMessageType } from '../../../types';
