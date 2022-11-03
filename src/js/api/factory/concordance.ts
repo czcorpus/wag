@@ -46,7 +46,7 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
  		default:
  			throw new Error(`Concordance tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
  	}
- }
+}
 
 
  export function createSourceInfoApiInstance(apiIdent:string, apiURL:string, apiServices:IAppServices):DataApi<{}, {}> {

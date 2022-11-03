@@ -44,4 +44,4 @@ export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiS
 			throw new Error(`API type "${apiIdent}" not supported for collocations.`);
 	}
 
- }
+}

@@ -30,6 +30,7 @@ import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 
@@ -87,7 +88,7 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} :
             {};
         const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);

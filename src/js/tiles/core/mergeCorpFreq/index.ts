@@ -28,6 +28,7 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -103,7 +104,7 @@ export class MergeCorpFreqTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/MergeCorpFreqTile/authenticate")} :
             {};
         this.model = new MergeCorpFreqModel({

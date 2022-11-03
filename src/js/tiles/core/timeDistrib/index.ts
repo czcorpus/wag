@@ -31,6 +31,7 @@ import { IConcordanceApi } from '../../../api/abstract/concordance';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -76,7 +77,7 @@ export class TimeDistTile implements ITileProvider {
 
         const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
         const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
             {};
         pipe(

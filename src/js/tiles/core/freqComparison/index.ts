@@ -29,6 +29,7 @@ import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 
@@ -83,7 +84,7 @@ export class FreqComparisonTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/FreqComparisonTile/authenticate")} :
             {};
 

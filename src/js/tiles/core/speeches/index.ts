@@ -26,6 +26,7 @@ import { SpeechesApi } from '../../../api/vendor/kontext/speeches';
 import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches';
 import { pipe, Color, List } from 'cnc-tskit';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -72,7 +73,7 @@ export class SpeechesTile implements ITileProvider {
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
         const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/SpeechesTile/authenticate")} :
             {};
         this.model = new SpeechesModel({

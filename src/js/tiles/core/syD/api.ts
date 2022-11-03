@@ -29,6 +29,8 @@ import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
 import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
 
 
 export interface RequestArgs {
@@ -345,4 +347,20 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             )
         );
     }
+}
+
+export function createSyDInstance(apiType:string, apiURL:string, concApiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):SyDAPI {
+
+	switch (apiType) {
+		case CoreApiGroup.KONTEXT:
+            return new SyDAPI(cache, apiURL, concApiURL, apiServices);
+        case CoreApiGroup.KONTEXT_API:
+            return new Proxy(
+				new SyDAPI(cache, apiURL, concApiURL, apiServices),
+				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+			);
+		default:
+			throw new Error(`API type "${apiType}" not supported for SyD.`);
+	}
+
 }

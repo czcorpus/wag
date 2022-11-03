@@ -28,6 +28,7 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 declare var require:any;
@@ -74,7 +75,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreasTile/authenticate")} :
             {};
         this.model = new MultiWordGeoAreasModel({
