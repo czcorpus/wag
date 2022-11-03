@@ -334,7 +334,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         const s3$ = createRequests(concQ2C1$, args.corp1, args.fcrit1);
         const s4$ = createRequests(concQ2C2$, args.corp2, args.fcrit2);
 
-        return forkJoin(...s1$, ...s2$, ...s3$, ...s4$).pipe(
+        return forkJoin([...s1$, ...s2$, ...s3$, ...s4$]).pipe(
             concatMap(
                 (data) => {
                     return rxOf({
