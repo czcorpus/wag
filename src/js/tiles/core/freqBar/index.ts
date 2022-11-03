@@ -31,6 +31,7 @@ import { init as viewInit } from './view';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 export interface FreqBarTileConf extends TileConf {
@@ -97,7 +98,7 @@ export class FreqBarTile implements ITileProvider {
                     new ConcApi(cache, conf.subqueryMode.concApiURL, appServices)
                 ) :
                 defaultModelFactory;
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/FreqBarTile/authenticate")} :
             {};
         this.model = modelFact(

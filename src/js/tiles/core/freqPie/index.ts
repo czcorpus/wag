@@ -30,6 +30,7 @@ import { StatelessModel } from 'kombo';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 export interface FreqPieTileConf extends TileConf {
@@ -83,7 +84,7 @@ export class FreqPieTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/FreqPieTile/authenticate")} :
             {};
         const modelFact = conf.subqueryMode ?
