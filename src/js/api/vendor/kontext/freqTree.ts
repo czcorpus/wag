@@ -18,13 +18,12 @@
 import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { ConcApi } from './concordance/v015';
 import { ViewMode } from '../../abstract/concordance';
 import { QueryMatch } from '../../../query';
-import { HTTPResponse } from './freqs';
+import { HTTPResponse, SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from './freqs';
 import { IApiServices } from '../../../appServices';
 import { Dict, List, pipe } from 'cnc-tskit';
 
@@ -58,41 +57,23 @@ export interface BacklinkArgs {
 }
 
 
-interface CoreQueryArgs {
-    corpname:string;
-    pagesize?:number;
-    flimit:number;
-    fpage:number;
-    ftt_include_empty:number;
-    format:'json';
-}
-
-
-export interface SingleCritQueryArgs extends CoreQueryArgs {
-    fcrit:string;
-}
-
-export interface WordDataApi<T, U> {
+export interface WordDataApi<T, U, V> {
     call(queryArgs:T, concId:string, filter:{[attr:string]:string}):Observable<U>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails>;
+    callVariants(args:T, lemma:QueryMatch, concId: string):Observable<V>
 }
 
-export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResponse> {
+export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResponse, APIVariantsResponse> {
 
-    private readonly apiURL:string;
+    private readonly concApi:ConcApi;
 
-    private readonly concApiFilter:ConcApi;
-
-    private readonly apiServices:IApiServices;
-
-    private readonly cache:IAsyncKeyValueStore;
+    private readonly freqApi:SimpleKontextFreqDistribAPI;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
-        this.concApiFilter = new ConcApi(cache, apiURL, apiServices);
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, concApi: ConcApi, freqApi: SimpleKontextFreqDistribAPI) {
+        this.concApi = concApi;
+        this.freqApi = freqApi;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -105,12 +86,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
     }
 
     callVariants(args:SingleCritQueryArgs, lemma:QueryMatch, concId: string):Observable<APIVariantsResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
-            this.apiURL + '/freqs',
-            {...args, q: `~${concId}`},
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
-        ).pipe(
+        return this.freqApi.call({...args, q: `~${concId}`}).pipe(
             map<HTTPResponse, APIVariantsResponse>(resp => ({
                 lemma: lemma,
                 fcrit: args.fcrit,
@@ -132,7 +108,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
                 ([key, value]) => `<${key.split('.')[0]} ${key.split('.')[1].split(' ')[0]}="${value}"/>`
             )
         ).join(' & ');
-        return this.concApiFilter.call({
+        return this.concApi.call({
             type: 'quickFilterQueryArgs',
             corpname: args.corpname,
             q: `~${concId}`,
@@ -147,12 +123,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
             kwicrightctx: '1',
             format:'json'
         }).pipe(mergeMap(x =>
-            cachedAjax$<HTTPResponse>(this.cache)(
-                'GET',
-                this.apiURL + '/freqs',
-                {...args, q: `~${x.concPersistenceID}`},
-                {headers: this.apiServices.getApiHeaders(this.apiURL)}
-            ).pipe(
+            this.freqApi.call({...args, q: `~${x.concPersistenceID}`}).pipe(
                 map<HTTPResponse, APILeafResponse>(
                     resp => ({
                         filter: filter,

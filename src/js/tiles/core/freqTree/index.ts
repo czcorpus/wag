@@ -27,11 +27,15 @@ import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFact
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { findCurrQueryMatch } from '../../../models/query';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface FreqTreeTileConf extends TileConf {
+    apiType:string;
     apiURL:string;
     corpname:string;
     fcritTrees:Array<Array<string>>; // trees of 2 levels
@@ -79,14 +83,20 @@ export class FreqTreeTile implements ITileProvider {
             conf.treeLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.treeLabels)];
 
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/FreqTreeTile/authenticate")} :
+            {};
+        const concApi = createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
+        const freqApi = createSimpleFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
+
         this.model = defaultModelFactory(
             this.dispatcher,
             tileId,
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            new ConcApi(cache, conf.apiURL, appServices),
-            new FreqTreeAPI(cache, conf.apiURL, appServices),
+            concApi,
+            new FreqTreeAPI(cache, conf.apiURL, appServices, concApi, freqApi),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -178,3 +188,7 @@ export const init:TileFactory<FreqTreeTileConf>  = {
     sanityCheck: (args) => [],
     create: (args) => new FreqTreeTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

@@ -25,13 +25,13 @@ import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from 
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../models/tiles/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions, DataLoadedPayload } from './actions';
+import { Actions } from './actions';
 import { QueryMatch } from '../../../query/index';
-import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
+import { ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { callWithExtraVal } from '../../../api/util';
 import { Actions as ConcActions } from '../concordance/actions';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 
 
 export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
@@ -49,7 +49,7 @@ export interface FreqComparisonModelArgs {
     waitForTiles:Array<number>;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    concApi:IConcordanceApi<{}>;
+    concApi:ConcApi;
     freqTreeApi:FreqTreeAPI;
     backlink:Backlink|null;
     initState:FreqTreeModelState;
@@ -60,7 +60,7 @@ type SingleQuerySingleBlockArgs = {queryId:number; blockId:number; lemma:QueryMa
 
 export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
 
-    protected readonly concApi:IConcordanceApi<{}>;
+    protected readonly concApi:ConcApi;
 
     protected readonly freqTreeApi:FreqTreeAPI;
 
@@ -194,8 +194,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -203,14 +203,14 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error: err
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -349,8 +349,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 acc.concIds[args.queryId] = args.concId;
                 return acc;
             }, {concIds: List.map(_ => null, state.lemmaVariants), dataTree: {}})
-        ).subscribe(
-            acc => {
+        ).subscribe({
+            next: acc => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -362,7 +362,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     }
                 });
             },
-            error => {
+            error: error => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -375,7 +375,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     error: error
                 });
             }
-        );
+        });
     }
 }
 
@@ -385,7 +385,7 @@ export const factory = (
     waitForTiles:Array<number>,
     waitForTilesTimeoutSecs:number,
     appServices:IAppServices,
-    concApi:IConcordanceApi<{}>,
+    concApi:ConcApi,
     freqTreeApi:FreqTreeAPI,
     backlink:Backlink|null,
     initState:FreqTreeModelState) => {
