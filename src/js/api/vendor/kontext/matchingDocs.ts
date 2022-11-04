@@ -21,7 +21,7 @@ import { Observable } from 'rxjs';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { HTTP, List } from 'cnc-tskit';
 import { map, mergeMap } from 'rxjs/operators';
-import { SingleCritQueryArgs, HTTPResponse } from './freqs';
+import { SingleCritQueryArgs, HTTPResponse, SimpleKontextFreqDistribAPI } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../../page/tile';
 import { IApiServices } from '../../../appServices';
@@ -43,11 +43,14 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
 
     protected readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    protected readonly freqApi:SimpleKontextFreqDistribAPI;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, freqApi: SimpleKontextFreqDistribAPI) {
         this.cache = cache;
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.freqApi = freqApi;
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<KontextFreqBacklinkArgs> {
@@ -99,12 +102,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
     }
 
     call(args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            HTTP.Method.GET,
-            this.apiURL + '/freqs',
-            args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
-        ).pipe(
+        return this.freqApi.call(args).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: List.map(
                     v => ({
