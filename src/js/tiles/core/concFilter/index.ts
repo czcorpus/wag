@@ -22,13 +22,10 @@ import { QueryType } from '../../../query/index';
 import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs } from '../../../page/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ViewMode } from '../../../api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../types';
 import { TileWait } from '../../../models/tileSync';
 import { List } from 'cnc-tskit';
-import { CoreApiGroup } from '../../../api/coreGroups';
-import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
 import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 

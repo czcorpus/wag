@@ -25,7 +25,7 @@ import { IApiServices } from '../../../appServices';
 import { DataApi } from '../../../types';
 
 
-export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
+class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
 
     private readonly apiServices:IApiServices;
 
@@ -70,5 +70,8 @@ export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
             return target[prop];
         }
     }
+}
 
+export function wrapApiWithTokenAuth<T, U, V extends DataApi<T, U>>(api:V, apiServices:IApiServices, apiURL:string, authURL:string):V {
+    return new Proxy(api, new TokenApiWrapper(apiServices, apiURL, authURL));
 }

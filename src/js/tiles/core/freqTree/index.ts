@@ -31,7 +31,7 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface FreqTreeTileConf extends TileConf {
@@ -190,5 +190,5 @@ export const init:TileFactory<FreqTreeTileConf>  = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];
