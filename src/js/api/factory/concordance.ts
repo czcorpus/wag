@@ -24,7 +24,7 @@ import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve';
 import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
 import { IApiServices, IAppServices } from '../../appServices';
-import { TokenApiWrapper } from '../vendor/kontext/tokenApiWrapper';
+import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 
 export function createKontextConcApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {
@@ -33,9 +33,11 @@ export function createKontextConcApiInstance(cache:IAsyncKeyValueStore, apiIdent
 		case CoreApiGroup.KONTEXT:
 			return new ConcApi015(cache, apiURL, apiServices);
 	   	case CoreApiGroup.KONTEXT_API:
-		   	return new Proxy(
+			return wrapApiWithTokenAuth(
 				new ConcApi015(cache, apiURL, apiServices),
-				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+				apiServices,
+				apiURL,
+				apiOptions["authenticateURL"],
 			);
 		default:
 			throw new Error(`Concordance tile Kontext API "${apiIdent}" not found. Supported values are: ${CoreApiGroup.KONTEXT} and ${CoreApiGroup.KONTEXT_API}`);

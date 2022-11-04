@@ -25,7 +25,7 @@ import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
 import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
-import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
+import { wrapApiWithTokenAuth } from '../../../api/vendor/kontext/tokenApiWrapper';
 
 declare var require:any;
 require('./style.less');
@@ -90,9 +90,11 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            api: new Proxy(
+            api: wrapApiWithTokenAuth(
 				new TreqSubsetsAPI(cache, conf.apiURL, appServices),
-				new TokenApiWrapper(appServices, conf.apiURL, apiOptions["authenticateURL"]),
+				appServices,
+                conf.apiURL,
+                apiOptions["authenticateURL"],
 			),
             queryMatches,
             waitForColorsTile: waitForTiles[0]
