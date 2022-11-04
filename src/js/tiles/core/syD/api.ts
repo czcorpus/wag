@@ -18,20 +18,16 @@
 import { forkJoin, Observable, of as rxOf } from 'rxjs';
 import { concatMap, share } from 'rxjs/operators';
 
-import { ajax$ } from '../../../page/ajax';
-import {
-    ConcApi
-} from '../../../api/vendor/kontext/concordance/v015';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
-import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/freqs';
-import { MultiDict } from '../../../multidict';
+import { SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from '../../../api/vendor/kontext/freqs';
 import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
 import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
 import { CoreApiGroup } from '../../../api/coreGroups';
-import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
+import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
 
 
 export interface RequestArgs {
@@ -74,20 +70,16 @@ export interface StrippedFreqResponse {
 
 export class SyDAPI implements DataApi<RequestArgs, Response> {
 
-    private readonly apiURL:string;
-
-    private readonly apiServices:IApiServices;
-
     private readonly concApi:ConcApi;
 
+    private readonly freqApi:SimpleKontextFreqDistribAPI;
+
     constructor(
-        apiURL:string,
-        apiServices:IApiServices,
         concApi:ConcApi,
+        freqApi:SimpleKontextFreqDistribAPI,
     ) {
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
         this.concApi = concApi;
+        this.freqApi = freqApi;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -287,23 +279,18 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                     concatMap(
                         (resp) => {
                             const [data, reqId] = resp;
-                            const args1 = new MultiDict();
-                            args1.set('q', '~' + data.concPersistenceID);
-                            args1.set('corpname', corpname);
-                            args1.set('fcrit', fcrit);
-                            args1.set('flimit', args.flimit);
-                            args1.set('freq_sort', args.freq_sort);
-                            args1.set('fpage', args.fpage);
-                            args1.set('ftt_include_empty', args.ftt_include_empty);
-                            args1.set('format', args.format);
+                            const args1: SingleCritQueryArgs = {
+                                q: '~' + data.concPersistenceID,
+                                corpname,
+                                fcrit,
+                                flimit: parseInt(args.flimit),
+                                freq_sort: args.freq_sort,
+                                fpage: parseInt(args.fpage),
+                                ftt_include_empty: parseInt(args.ftt_include_empty),
+                                format: args.format,
+                            } as SingleCritQueryArgs;
 
-                            return ajax$<FreqsHTTPResponse>(
-                                'GET',
-                                this.apiURL + '/freqs',
-                                args1,
-                                {headers: this.apiServices.getApiHeaders(this.apiURL)}
-
-                            ).pipe(
+                            return this.freqApi.call(args1).pipe(
                                 concatMap(
                                     (resp) => rxOf({
                                         conc_persistence_op_id: resp.conc_persistence_op_id,
@@ -353,12 +340,11 @@ export function createSyDInstance(apiType:string, apiURL:string, concApiURL:stri
 
 	switch (apiType) {
 		case CoreApiGroup.KONTEXT:
-            return new SyDAPI(apiURL, apiServices, createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions));
         case CoreApiGroup.KONTEXT_API:
-            return new Proxy(
-				new SyDAPI(apiURL, apiServices, createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions)),
-				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
-			);
+            return new SyDAPI(
+                createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions),
+                createSimpleFreqApiInstance(cache, apiType, apiURL, apiServices, apiOptions),
+            )
 		default:
 			throw new Error(`API type "${apiType}" not supported for SyD.`);
 	}
