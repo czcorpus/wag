@@ -31,6 +31,7 @@ import { IApiServices } from '../../../appServices';
 import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
 
 export interface RequestArgs {
@@ -80,14 +81,13 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
     private readonly concApi:ConcApi;
 
     constructor(
-        cache:IAsyncKeyValueStore,
         apiURL:string,
-        concApiURL:string,
-        apiServices:IApiServices
+        apiServices:IApiServices,
+        concApi:ConcApi,
     ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.concApi = new ConcApi(cache, concApiURL, apiServices);
+        this.concApi = concApi;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -353,10 +353,10 @@ export function createSyDInstance(apiType:string, apiURL:string, concApiURL:stri
 
 	switch (apiType) {
 		case CoreApiGroup.KONTEXT:
-            return new SyDAPI(cache, apiURL, concApiURL, apiServices);
+            return new SyDAPI(apiURL, apiServices, createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions));
         case CoreApiGroup.KONTEXT_API:
             return new Proxy(
-				new SyDAPI(cache, apiURL, concApiURL, apiServices),
+				new SyDAPI(apiURL, apiServices, createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions)),
 				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
 			);
 		default:
