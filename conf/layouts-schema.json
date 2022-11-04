@@ -32,8 +32,7 @@
                         }
                     ]
                 },
-                "groupTemplate": {
-                },
+                "groupTemplate": {},
                 "tiles": {
                     "items": {
                         "allOf": [

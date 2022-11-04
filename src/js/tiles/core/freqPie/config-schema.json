@@ -26,6 +26,13 @@
                 }
             ]
         },
+        "freqType": {
+            "enum": [
+                "text-types",
+                "tokens"
+            ],
+            "type": "string"
+        },
         "critLabels": {
             "anyOf": [
                 {
@@ -145,6 +152,7 @@
         "flimit",
         "fpage",
         "freqSort",
+        "freqType",
         "fttIncludeEmpty",
         "maxNumCategories",
         "tileType"

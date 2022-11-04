@@ -236,8 +236,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(
                         this.tileId, this.appServices.getISO639UILang(), state.corpName)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -245,7 +245,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -253,7 +253,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -376,7 +376,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     }
 
     private handleDataLoad(state:ConcFilterModelState, ignoreConc:boolean, seDispatch:SEDispatcher) {
-        this.suspendWithTimeout(
+        this.waitForActionWithTimeout(
             this.waitForTilesTimeoutSecs * 1000,
             TileWait.create(this.waitForTiles, ()=>false),
             (action:Action<{tileId:number}>, syncData) => {

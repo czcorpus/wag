@@ -20,8 +20,8 @@ import { Observable, of as rxOf } from 'rxjs';
 import { IAsyncKeyValueStore, HTTPHeaders, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types';
 import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../page/ajax';
-import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo';
-import { LineElementType } from '../../../api/abstract/concordance';
+import { CorpusInfoAPI } from './corpusInfo';
+import { LineElementType } from '../../abstract/concordance';
 import { IApiServices } from '../../../appServices';
 import { Backlink } from '../../../page/tile';
 
@@ -62,15 +62,15 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
 
     private readonly apiUrl:string;
 
-    private readonly headers:HTTPHeaders;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiUrl:string, apiServices:IApiServices, headers:HTTPHeaders) {
+    private readonly apiServices:IApiServices;
+
+    constructor(cache:IAsyncKeyValueStore, apiUrl:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiUrl = apiUrl;
-        this.headers = headers;
         this.srcInfoService = new CorpusInfoAPI(cache, apiUrl, apiServices);
+        this.apiServices = apiServices;
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -88,7 +88,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
                 this.apiUrl + '/widectx',
                 args,
                 {
-                    headers: this.headers
+                    headers: this.apiServices.getApiHeaders(this.apiUrl)
                 }
             );
 

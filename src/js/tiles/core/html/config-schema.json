@@ -90,6 +90,8 @@
                 "elasticsearch",
                 "fcsv1",
                 "kontext",
+                "kontextApi",
+                "kontextLiveattrs",
                 "lcc",
                 "noske",
                 "treq",

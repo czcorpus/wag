@@ -29,6 +29,9 @@ import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
 import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
 
 export interface RequestArgs {
@@ -78,14 +81,13 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
     private readonly concApi:ConcApi;
 
     constructor(
-        cache:IAsyncKeyValueStore,
         apiURL:string,
-        concApiURL:string,
-        apiServices:IApiServices
+        apiServices:IApiServices,
+        concApi:ConcApi,
     ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.concApi = new ConcApi(cache, concApiURL, apiServices);
+        this.concApi = concApi;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -334,7 +336,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         const s3$ = createRequests(concQ2C1$, args.corp1, args.fcrit1);
         const s4$ = createRequests(concQ2C2$, args.corp2, args.fcrit2);
 
-        return forkJoin(...s1$, ...s2$, ...s3$, ...s4$).pipe(
+        return forkJoin([...s1$, ...s2$, ...s3$, ...s4$]).pipe(
             concatMap(
                 (data) => {
                     return rxOf({
@@ -345,4 +347,20 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             )
         );
     }
+}
+
+export function createSyDInstance(apiType:string, apiURL:string, concApiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):SyDAPI {
+
+	switch (apiType) {
+		case CoreApiGroup.KONTEXT:
+            return new SyDAPI(apiURL, apiServices, createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions));
+        case CoreApiGroup.KONTEXT_API:
+            return new Proxy(
+				new SyDAPI(apiURL, apiServices, createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions)),
+				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+			);
+		default:
+			throw new Error(`API type "${apiType}" not supported for SyD.`);
+	}
+
 }

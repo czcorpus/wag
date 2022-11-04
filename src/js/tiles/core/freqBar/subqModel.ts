@@ -100,7 +100,7 @@ export class SubqFreqBarModel extends FreqBarModel {
             GlobalActions.RequestQueryResponse.name,
             null,
             (state, action, dispatch) => {
-                this.suspendWithTimeout(
+                this.waitForActionWithTimeout(
                     this.waitForTilesTimeoutSecs * 1000,
                     Dict.map(_ => true, this.waitForTiles),
                     (action, syncData) => {
@@ -114,8 +114,8 @@ export class SubqFreqBarModel extends FreqBarModel {
                             merge(...subqueries.map(
                                 subq => this.loadFreq(state, state.corpname, subq.v.value, subq.critIdx))
 
-                            ).subscribe(
-                                (data:FreqLoadResult) => {
+                            ).subscribe({
+                                next: (data:FreqLoadResult) => {
                                         const block = data.resp.blocks[0];
                                         dispatch<typeof Actions.TileDataLoaded>({
                                             name: Actions.TileDataLoaded.name,
@@ -137,7 +137,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                             }
                                         });
                                 },
-                                error => {
+                                error: error => {
                                     dispatch<typeof Actions.TileDataLoaded>({
                                         name: Actions.TileDataLoaded.name,
                                         payload: {
@@ -152,7 +152,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                     });
                                     console.error(error);
                                 }
-                            );
+                            });
                             const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
                             return Dict.hasValue(true, ans) ? ans : null;
                         }

@@ -29,6 +29,7 @@ import { createInstance } from '../../../api/factory/collocations';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 
@@ -82,7 +83,7 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")} :
             {};
         this.api = createInstance(conf.apiType, conf.apiURL, appServices, cache, apiOptions);

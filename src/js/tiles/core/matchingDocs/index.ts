@@ -24,6 +24,7 @@ import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from '../../../api/factory/matchingDocs';
 import { List } from 'cnc-tskit';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 export interface MatchingDocsTileConf extends TileConf {
@@ -78,7 +79,7 @@ export class MatchingDocsTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === "kontextApi" ?
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/MatchingDocsTile/authenticate")} :
             {};
 
