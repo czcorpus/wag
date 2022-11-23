@@ -37,6 +37,15 @@ interface LogActionArgs {
 }
 
 
+function extractRemoteIP(req:Request):string {
+    const xff = req.headers['x-forwarded-for']
+    if (xff != undefined) {
+        return Array.isArray(xff) ? xff[0] : xff;
+    }
+    return req.socket.remoteAddress;
+}
+
+
 export function logAction({
     actionWriter,
     req,
@@ -46,14 +55,13 @@ export function logAction({
     userConf,
     isMobileClient
 }:LogActionArgs):Observable<ActionLogRecord> {
-
     return rxOf({
             action: httpAction.substring(1, httpAction.length - 1),
             userId,
             datetime,
             queryType: userConf ? userConf.queryType : null,
             request: {
-                origin: req.connection.remoteAddress,
+                origin: extractRemoteIP(req),
                 userAgent: req.headers['user-agent'],
                 referer: req.headers['referer']
             },
