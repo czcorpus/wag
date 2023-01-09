@@ -24,6 +24,8 @@ import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
 
 
 export interface PackageGroup {
@@ -63,6 +65,7 @@ export class TreqSubsetsTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        const apiOptions = {authenticateURL: appServices.createActionUrl("/TreqSubsetsTile/authenticate")};
         this.model = new TreqSubsetModel({
             dispatcher,
             appServices,
@@ -88,7 +91,10 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            api: new TreqSubsetsAPI(cache, conf.apiURL, appServices),
+            api: new Proxy(
+				new TreqSubsetsAPI(cache, conf.apiURL, appServices),
+				new TokenApiWrapper(appServices, conf.apiURL, apiOptions["authenticateURL"]),
+			),
             queryMatches,
             waitForColorsTile: waitForTiles[0]
         });
@@ -157,3 +163,7 @@ export const init:TileFactory<TreqSubsetsTileConf> = {
 
     create: (args) => new TreqSubsetsTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

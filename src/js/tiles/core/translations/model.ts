@@ -122,8 +122,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -131,14 +131,14 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 }
                             });
                         },
-                        (error) => {
+                        error: (error) => {
                             console.error(error);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
             }
         );
