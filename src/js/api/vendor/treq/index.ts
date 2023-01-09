@@ -24,22 +24,22 @@ import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubset
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
 import { HTTP } from 'cnc-tskit';
-import { AjaxError } from 'rxjs/ajax';
+import { Backlink } from '../../../page/tile';
 
 
 export type SearchPackages = {[domain2:string]:Array<string>};
 
 export interface RequestArgs {
-    left:string;
-    right:string;
-    viceslovne:string;
-    regularni:string;
-    lemma:string;
-    aJeA:string;
-    hledejKde:string;
-    hledejCo:string;
+    from:string;
+    to:string;
+    multiword:boolean;
+    regex:boolean;
+    lemma:boolean;
+    ci:boolean;
+    pkgs:Array<string>;
+    query:string;
+    asc:boolean;
     order:string;
-    api:'true';
 }
 
 
@@ -190,16 +190,16 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 
     stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {
         return {
-            left: state.domain1,
-            right: state.domain2,
-            viceslovne: query.split(' ').length > 1 ? '1' : '0',
-            regularni: '0',
-            lemma: '1',
-            aJeA: '1',
-            hledejKde: state.searchPackages.join(','),
-            hledejCo: query,
-            order: 'percDesc',
-            api: 'true'
+            from: state.domain1,
+            to: state.domain2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            pkgs: state.searchPackages,
+            query: query,
+            order: 'perc',
+            asc: false,
         };
     }
 
@@ -225,16 +225,16 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
 
     stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
         return {
-            left: state.domain1,
-            right: state.domain2,
-            viceslovne: query.split(' ').length > 1 ? '1' : '0',
-            regularni: '0',
-            lemma: '1',
-            aJeA: '1',
-            hledejKde: packages.join(','),
-            hledejCo: query,
-            order: 'percDesc',
-            api: 'true'
+            from: state.domain1,
+            to: state.domain2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            pkgs: packages,
+            query: query,
+            order: 'perc',
+            asc: false,
         };
     }
 
