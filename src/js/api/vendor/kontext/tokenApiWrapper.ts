@@ -56,7 +56,7 @@ export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
             return (args:T) => {
                 return target.call(args).pipe(
                     catchError((err, _) => {
-                        if (err.status === HTTP.Status.Forbidden) {
+                        if (err.status === HTTP.Status.Forbidden || err.status === HTTP.Status.Unauthorized) {
                             return this.authenticate().pipe(
                                 concatMap(_ => target.call(args))
                             );

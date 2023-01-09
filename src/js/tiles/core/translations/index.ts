@@ -23,6 +23,7 @@ import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { createInstance as createApiInstance } from '../../../api/factory/translations';
+import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 declare var require:any;
 require('./style.less');
@@ -60,6 +61,7 @@ export class TranslationsTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        const apiOptions = {authenticateURL: appServices.createActionUrl("/TranslationsTile/authenticate")};
         this.model = new TranslationsModel({
             dispatcher,
             appServices,
@@ -76,7 +78,7 @@ export class TranslationsTile implements ITileProvider {
                 domain2: domain2
             },
             tileId,
-            api: createApiInstance(conf.apiType, conf.apiURL, appServices, cache),
+            api: createApiInstance(conf.apiType, conf.apiURL, appServices, cache, apiOptions),
             backlink: conf.backlink || null,
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed
@@ -144,3 +146,7 @@ export const init:TileFactory.TileFactory<TranslationsTileConf> = {
 
     create: (args) => new TranslationsTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    kontextApiAuthActionFactory,
+];

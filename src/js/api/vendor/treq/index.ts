@@ -161,7 +161,7 @@ class TreqAPICaller {
     call(args:RequestArgs):Observable<TranslationResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
-            this.apiURL,
+            `${this.apiURL}/api/v1/`,
             args
 
         ).pipe(
@@ -178,6 +178,15 @@ class TreqAPICaller {
                 })
             )
         );
+    }
+
+    getBackLink(backlink:Backlink):Backlink {
+        return {
+            label: 'Treq',
+            method: HTTP.Method.GET,
+            ...(backlink || {}),
+            url: (backlink?.url ? backlink.url : this.apiURL) + '/index.php',
+        }
     }
 }
 
