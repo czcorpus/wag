@@ -55,7 +55,8 @@ export function korpusApiAuthActionFactory(serverConf:ServerConf):TileServerActi
                         if (data[0] == "Invalid credentials") {
                             resp.status(401).send("Invalid credentials");
                         } else {
-                            resp.json(data.headers['set-cookie'][0].split(";")[0].split("="));
+                            const sessionCookie = data.headers['set-cookie'][0].split(";")[0].split("=");
+                            resp.json(sessionCookie);
                         }
                     },
                     error: (err:ServerHTTPRequestError) => {
