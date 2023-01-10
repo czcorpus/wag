@@ -463,7 +463,7 @@ export interface ServerConf {
         path?:string;
         ttl?:number;
     };
-    kontextApi?:{
+    korpusApi?:{
         authenticateURL:string;
         token:string;
     }

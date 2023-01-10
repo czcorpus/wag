@@ -27,7 +27,7 @@ import { LocalizedConfMsg } from '../../../types';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -211,5 +211,5 @@ export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];

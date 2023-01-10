@@ -27,7 +27,7 @@ import { MapLoader } from './mapLoader';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -176,5 +176,5 @@ export const init:TileFactory.TileFactory<MultiWordGeoAreasTileConf> = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];

@@ -29,7 +29,7 @@ import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
@@ -202,5 +202,5 @@ export const init:TileFactory.TileFactory<FreqPieTileConf> = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];

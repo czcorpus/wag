@@ -40,13 +40,13 @@ export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
     }
 
     authenticate() {
-        return ajax$<{x_api_key: string}>(
+        return ajax$<[string, string]>(
             HTTP.Method.POST,
             this.authenticateURL,
             {},
         ).pipe(
-            tap(({x_api_key}) => {
-                this.apiServices.setApiKeyHeader(this.apiURL, 'X-Api-Key', x_api_key);
+            tap(([cookie, value]) => {
+                this.apiServices.setApiKeyHeader(this.apiURL, 'X-Api-Key', value);
             }),
         );
     }

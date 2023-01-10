@@ -162,7 +162,8 @@ class TreqAPICaller {
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
             `${this.apiURL}/api/v1/`,
-            args
+            args,
+            {headers: this.appServices.getApiHeaders(this.apiURL)},
 
         ).pipe(
             map(

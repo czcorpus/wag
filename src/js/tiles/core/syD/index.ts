@@ -23,7 +23,7 @@ import { SydModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { CoreApiGroup } from '../../../api/coreGroups';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 declare var require:any;
 require('./style.less');
@@ -152,5 +152,5 @@ export const init:TileFactory.TileFactory<SyDTileConf> = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];
