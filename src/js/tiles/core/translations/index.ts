@@ -23,7 +23,7 @@ import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { createInstance as createApiInstance } from '../../../api/factory/translations';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface TranslationsTileConf extends TileConf {
@@ -150,5 +150,5 @@ export const init:TileFactory<TranslationsTileConf> = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];
