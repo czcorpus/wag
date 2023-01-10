@@ -45,7 +45,7 @@ export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
             this.authenticateURL,
             {},
         ).pipe(
-            tap(([cookie, value]) => {
+            tap(([sessionCookie, value]) => {
                 this.apiServices.setApiKeyHeader(this.apiURL, 'X-Api-Key', value);
             }),
         );
