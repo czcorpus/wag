@@ -19,7 +19,7 @@
 import { HTTP } from 'cnc-tskit';
 import { RequestHandler } from 'express';
 import { ServerConf } from '../conf';
-import { serverHttpRequest, ServerHTTPRequestError } from './request';
+import { fullServerHttpRequest, ServerHTTPRequestError } from './request';
 
 /**
  * TileServerAction defines a custom action which can be defined
@@ -37,22 +37,27 @@ export interface TileServerAction {
 
 export type TileServerActionFactory = (sc:ServerConf) => TileServerAction;
 
-export function kontextApiAuthActionFactory(serverConf:ServerConf):TileServerAction {
-    return serverConf.kontextApi ?
+export function korpusApiAuthActionFactory(serverConf:ServerConf):TileServerAction {
+    return serverConf.korpusApi ?
         ({
             method: HTTP.Method.POST,
             name: 'authenticate',
             handler: (req, resp, next) => {
                 const data = new URLSearchParams();
-                data.set('t', serverConf.kontextApi.token);
-                serverHttpRequest<{x_api_key:string}>({
-                    url: serverConf.kontextApi.authenticateURL,
+                data.set('personal_access_token', serverConf.korpusApi.token);
+                fullServerHttpRequest<Array<string>>({
+                    url: serverConf.korpusApi.authenticateURL,
                     method: HTTP.Method.POST,
                     headers: {"content-type": 'application/x-www-form-urlencoded'},
                     data
                 }).subscribe({
                     next: data => {
-                        resp.json(data);
+                        if (data[0] == "Invalid credentials") {
+                            resp.status(401).send("Invalid credentials");
+                        } else {
+                            const sessionCookie = data.headers['set-cookie'][0].split(";")[0].split("=");
+                            resp.json(sessionCookie);
+                        }
                     },
                     error: (err:ServerHTTPRequestError) => {
                         resp.status(err.status).send(err);

@@ -25,7 +25,7 @@ import { LocalizedConfMsg } from '../../../types';
 import { SpeechesApi } from '../../../api/vendor/kontext/speeches';
 import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches';
 import { pipe, Color, List } from 'cnc-tskit';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -183,5 +183,5 @@ export const init:TileFactory<SpeechesTileConf> = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];

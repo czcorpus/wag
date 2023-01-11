@@ -29,7 +29,7 @@ import { TileWait } from '../../../models/tileSync';
 import { List } from 'cnc-tskit';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { TokenApiWrapper } from '../../../api/vendor/kontext/tokenApiWrapper';
-import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
 
@@ -175,5 +175,5 @@ export const init:TileFactory<ConcFilterTileConf> = {
 };
 
 export const serverActions:() => Array<TileServerActionFactory> = () => [
-    kontextApiAuthActionFactory,
+    korpusApiAuthActionFactory,
 ];

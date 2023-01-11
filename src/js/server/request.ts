@@ -18,7 +18,7 @@
 
 import { Observable } from 'rxjs';
 import { HTTP } from 'cnc-tskit';
-import axios, { Method, AxiosError } from 'axios';
+import axios, { Method, AxiosError, AxiosResponse } from 'axios';
 
 /**
  *
@@ -61,6 +61,33 @@ export function serverHttpRequest<T>({url, method, params, data, auth, headers}:
         }).then(
             (resp) => {
                 observer.next(resp.data);
+                observer.complete();
+            },
+            (err:AxiosError) => {
+                observer.error(new ServerHTTPRequestError(
+                    err.response ? err.response.status : -1,
+                    err.response ? err.response.statusText : '-',
+                    `Request failed: ${err.message}`,
+                ));
+            }
+        );
+    });
+}
+
+// return full response including headers, not only data
+export function fullServerHttpRequest<T>({url, method, params, data, auth, headers}:ServerHTTPRequestConf):Observable<AxiosResponse<T>> {
+    return new Observable<AxiosResponse<T>>((observer) => {
+        axios.request<T>({
+            method: method as Method, // here we assume that HTTP.Method is a subset of Method
+            url,
+            params,
+            data,
+            auth,
+            headers
+
+        }).then(
+            (resp) => {
+                observer.next(resp);
                 observer.complete();
             },
             (err:AxiosError) => {

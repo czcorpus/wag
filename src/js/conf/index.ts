@@ -484,7 +484,7 @@ export interface ServerConf {
         ttl?:number;
         secret?:string;
     };
-    kontextApi?:{
+    korpusApi?:{
         authenticateURL:string;
         token:string;
     }

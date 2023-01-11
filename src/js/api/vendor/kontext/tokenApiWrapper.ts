@@ -40,13 +40,13 @@ export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
     }
 
     authenticate() {
-        return ajax$<{x_api_key: string}>(
+        return ajax$<[string, string]>(
             HTTP.Method.POST,
             this.authenticateURL,
             {},
         ).pipe(
-            tap(({x_api_key}) => {
-                this.apiServices.setApiKeyHeader(this.apiURL, 'X-Api-Key', x_api_key);
+            tap(([sessionCookie, value]) => {
+                this.apiServices.setApiKeyHeader(this.apiURL, 'X-Api-Key', value);
             }),
         );
     }
@@ -56,7 +56,7 @@ export class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
             return (args:T) => {
                 return target.call(args).pipe(
                     catchError((err, _) => {
-                        if (err.status === HTTP.Status.Forbidden) {
+                        if (err.status === HTTP.Status.Forbidden || err.status === HTTP.Status.Unauthorized) {
                             return this.authenticate().pipe(
                                 concatMap(_ => target.call(args))
                             );
