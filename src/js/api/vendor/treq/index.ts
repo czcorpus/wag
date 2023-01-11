@@ -36,7 +36,7 @@ export interface RequestArgs {
     regex:boolean;
     lemma:boolean;
     ci:boolean;
-    pkgs:Array<string>;
+    'pkgs[i]':Array<string>;
     query:string;
     asc:boolean;
     order:string;
@@ -206,7 +206,7 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
             regex: false,
             lemma: true,
             ci: true,
-            pkgs: state.searchPackages,
+            'pkgs[i]': state.searchPackages,
             query: query,
             order: 'perc',
             asc: false,
@@ -241,7 +241,7 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
             regex: false,
             lemma: true,
             ci: true,
-            pkgs: packages,
+            'pkgs[i]': packages,
             query: query,
             order: 'perc',
             asc: false,
