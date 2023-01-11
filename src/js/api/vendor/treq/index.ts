@@ -57,8 +57,8 @@ export interface PageArgs {
 interface HTTPResponseLine {
     freq:string;
     perc:string;
-    left:string;
-    righ:string;
+    from:string;
+    to:string;
 }
 
 interface HTTPResponse {
@@ -159,9 +159,9 @@ class TreqAPICaller {
     }
 
     call(args:RequestArgs):Observable<TranslationResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             HTTP.Method.GET,
-            this.apiURL,
+            `${this.apiURL}/api/v1/`,
             args,
             {headers: this.appServices.getApiHeaders(this.apiURL)},
 
@@ -171,9 +171,9 @@ class TreqAPICaller {
                     translations: this.mergeByLowercase(resp.lines.map(v => ({
                         freq: parseInt(v.freq),
                         score: parseFloat(v.perc),
-                        word: v.left,
-                        firstTranslatLc: v.righ.toLowerCase(),
-                        translations: [v.righ],
+                        word: v.from,
+                        firstTranslatLc: v.to.toLowerCase(),
+                        translations: [v.to],
                         interactionId: ''
                     }))).slice(0, 10)
                 })
