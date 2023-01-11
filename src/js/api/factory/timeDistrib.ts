@@ -22,7 +22,7 @@ import { IAsyncKeyValueStore } from '../../types';
 import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
 import { TimeDistribApi } from '../abstract/timeDistrib';
 import { IApiServices } from '../../appServices';
-import { TokenApiWrapper } from '../vendor/kontext/tokenApiWrapper';
+import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 interface ApiConf {
 	fcrit:string;
@@ -41,9 +41,11 @@ export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, ap
                 conf.flimit
 			);
 		case CoreApiGroup.KONTEXT_API:
-			return new Proxy(
+			return wrapApiWithTokenAuth(
 				new KontextTimeDistribApi(cache, apiURL, apiServices, conf.fcrit, conf.flimit),
-				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+				apiServices,
+				apiURL,
+				apiOptions["authenticateURL"],
 			);
 		case CoreApiGroup.NOSKE:
 			return new NoskeTimeDistribApi(

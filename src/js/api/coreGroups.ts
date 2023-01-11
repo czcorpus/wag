@@ -39,6 +39,7 @@ export enum CoreApiGroup {
 	KONTEXT = 'kontext',
 	KONTEXT_LIVEATTRS = 'kontextLiveattrs',  // kontext with liveattrs support
 	KONTEXT_API = 'kontextApi',
+	KONTEXT_API_LIVEATTRS = 'kontextApiLiveattrs',  // kontext api with liveattrs support
 
 	/**
 	 * Leipzig Corpora Collection

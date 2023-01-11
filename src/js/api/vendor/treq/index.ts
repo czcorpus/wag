@@ -159,7 +159,7 @@ class TreqAPICaller {
     }
 
     call(args:RequestArgs):Observable<TranslationResponse> {
-        return ajax$<HTTPResponse>(
+        return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
             `${this.apiURL}/api/v1/`,
             args,
