@@ -62,9 +62,15 @@ export function encodeArgs(obj:{}):string {
         if (obj[p] !== undefined) {
             const val = obj[p] !== null ? obj[p] : '';
             if (Array.isArray(val)) {
-                val.forEach(item => {
-                    ans.push(encodeURIComponent(p) + '=' + exportValue(item));
-                });
+                if (p.endsWith('[i]')) {
+                    val.forEach((item, i) => {
+                        ans.push(encodeURIComponent(p.replace('[i]', `[${i}]`)) + '=' + exportValue(item));
+                    });
+                } else {
+                    val.forEach(item => {
+                        ans.push(encodeURIComponent(p) + '=' + exportValue(item));
+                    });
+                }
 
             } else if (val !== undefined) {
                 ans.push(encodeURIComponent(p) + '=' + exportValue(val));
