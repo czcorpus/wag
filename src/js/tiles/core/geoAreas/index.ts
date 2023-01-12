@@ -25,6 +25,8 @@ import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
 import { createApiInstance } from '../../../api/factory/freqs';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 declare var require:any;
@@ -71,13 +73,16 @@ export class GeoAreasTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/GeoAreasTile/authenticate")} :
+            {};
         this.model = new GeoAreasModel({
             dispatcher,
             tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
-            api: createApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            api: createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             mapLoader: new MapLoader(cache, appServices),
             initState: {
                 isBusy: isBusy,
@@ -163,3 +168,7 @@ export const init:TileFactory.TileFactory<GeoAreasTileConf> = {
 
     sanityCheck: (args) => []
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

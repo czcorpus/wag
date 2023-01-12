@@ -16,15 +16,36 @@
  * limitations under the License.
  */
 
-import { CoreApiGroup } from '../../../api/coreGroups';
-import { IAudioUrlGenerator } from '../../../api/abstract/audio';
-import { KontextAudioLinkGenerator } from '../../../api/vendor/kontext/audio';
+import { CoreApiGroup } from '../coreGroups';
+import { IAudioUrlGenerator } from '../abstract/audio';
+import { KontextAudioLinkGenerator } from '../vendor/kontext/audio';
+import { SpeechesApi } from '../vendor/kontext/speeches';
+import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
+import { IAsyncKeyValueStore } from '../../types';
+import { IApiServices } from '../../appServices';
 
+export function createSpeechesApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SpeechesApi {
+
+	switch (apiIdent) {
+		case CoreApiGroup.KONTEXT:
+			return new SpeechesApi(cache, apiURL, apiServices);
+		case CoreApiGroup.KONTEXT_API:
+			return wrapApiWithTokenAuth(
+				new SpeechesApi(cache, apiURL, apiServices),
+				apiServices,
+				apiURL,
+				apiOptions["authenticateURL"],
+			);
+		default:
+			throw new Error(`API type "${apiIdent}" not supported for speeches.`);
+	}
+}
 
 export function createAudioUrlGeneratorInstance(apiIdent:string, rootUrl:string):IAudioUrlGenerator {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
+		case CoreApiGroup.KONTEXT_API:
 			return new KontextAudioLinkGenerator(rootUrl);
 		default:
 			return null;

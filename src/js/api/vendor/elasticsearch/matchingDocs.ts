@@ -18,7 +18,7 @@ import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { map } from 'rxjs/operators';
 import { IApiServices } from '../../../appServices';
 
@@ -56,14 +56,14 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):null {
@@ -89,7 +89,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
             'GET',
             this.apiURL,
             args,
-            {headers: this.customHeaders},
+            {headers: this.apiServices.getApiHeaders(this.apiURL)},
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.hits.hits.map(v => ({

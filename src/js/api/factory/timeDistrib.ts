@@ -22,13 +22,14 @@ import { IAsyncKeyValueStore } from '../../types';
 import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
 import { TimeDistribApi } from '../abstract/timeDistrib';
 import { IApiServices } from '../../appServices';
+import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 interface ApiConf {
 	fcrit:string;
 	flimit:number;
 }
 
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, conf:ApiConf):TimeDistribApi {
+export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, conf:ApiConf, apiOptions:{}):TimeDistribApi {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
@@ -38,6 +39,13 @@ export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, ap
 				apiServices,
                 conf.fcrit,
                 conf.flimit
+			);
+		case CoreApiGroup.KONTEXT_API:
+			return wrapApiWithTokenAuth(
+				new KontextTimeDistribApi(cache, apiURL, apiServices, conf.fcrit, conf.flimit),
+				apiServices,
+				apiURL,
+				apiOptions["authenticateURL"],
 			);
 		case CoreApiGroup.NOSKE:
 			return new NoskeTimeDistribApi(

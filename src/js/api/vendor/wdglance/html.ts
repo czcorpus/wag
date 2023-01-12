@@ -20,7 +20,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { cachedAjax$, ResponseType } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { IAsyncKeyValueStore } from '../../../types';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IGeneralHtmlAPI } from '../../abstract/html';
@@ -41,13 +41,13 @@ export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
     }
 
@@ -68,7 +68,10 @@ export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs> {
             'GET',
             this.apiURL,
             queryArgs,
-            {headers: this.customHeaders, responseType: ResponseType.TEXT}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                responseType: ResponseType.TEXT
+            }
 
         ).pipe(
             catchError(

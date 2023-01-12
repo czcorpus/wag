@@ -18,15 +18,18 @@
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
-import { SyDAPI } from './api';
+import { createSyDInstance } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 declare var require:any;
 require('./style.less');
 
 export interface SyDTileConf extends TileConf {
+    apiType:string;
     apiURL:string;
     concApiURL:string;
     corp1:string;
@@ -59,6 +62,9 @@ export class SyDTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/SyDTile/authenticate")} :
+            {};
         this.model = new SydModel(
             dispatcher,
             {
@@ -79,7 +85,7 @@ export class SyDTile implements ITileProvider {
             waitForTiles[0],
             queryMatches,
             appServices,
-            new SyDAPI(cache, conf.apiURL, conf.concApiURL, appServices)
+            createSyDInstance(conf.apiType, conf.apiURL, conf.concApiURL, appServices, cache, apiOptions),
         );
         this.label = appServices.importExternalMessage(conf.label || 'syd_main_label');
         this.view = viewInit(dispatcher, ut, this.model);
@@ -144,3 +150,7 @@ export const init:TileFactory.TileFactory<SyDTileConf> = {
 
     create: (args) => new SyDTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

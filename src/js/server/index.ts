@@ -26,7 +26,7 @@ import * as translations from 'translations';
 import * as winston from 'winston';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Ident, tuple } from 'cnc-tskit';
+import { Dict, Ident, List, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
 
@@ -39,6 +39,8 @@ import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../types';
 import { createQueryLogInstance } from './queryLog/factory';
 import { WinstonActionWriter } from './actionLog/winstonWriter';
+import { getCustomTileServerActions } from '../page/tileLoader';
+import { ApiServices } from './apiServices';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
@@ -70,7 +72,7 @@ function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataRea
 }
 
 
-forkJoin( // load core configs
+forkJoin([ // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
         process.env.SERVER_CONF :
         path.resolve(__dirname, '../conf/server.json')),
@@ -79,7 +81,7 @@ forkJoin( // load core configs
         path.resolve(__dirname, '../conf/wdglance.json')),
     parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json')),
 
-).pipe(
+]).pipe(
     concatMap( // load layouts config
         ([serverConf, clientConf, pkgInfo]) => (typeof clientConf.layouts === 'string' ?
             parseJsonConfig<DomainLayoutsConfig>(clientConf.layouts) :
@@ -140,14 +142,7 @@ forkJoin( // load core configs
 
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,
-            {
-                getApiHeaders: (apiUrl:string) => ({}),
-
-                translateResourceMetadata: (corpname:string, value:keyof CommonTextStructures) => value,
-
-                getCommonResourceStructure: (corpname:string, struct:keyof CommonTextStructures) => typeof clientConf.dataReadability === 'string' ?
-                        struct : (clientConf.dataReadability.commonStructures[corpname] || {})[struct]
-            }
+            new ApiServices(clientConf)
         );
 
         const toolbar = createToolbarInstance(serverConf.toolbar);
@@ -179,6 +174,22 @@ forkJoin( // load core configs
         console.info = (msg:string,...args:Array<any>) => logger.info(msg,...args);
         console.warn = (msg:string, ...args:Array<any>) => logger.warn(msg, ...args);
         console.error = (msg:string, ...args:Array<any>) => logger.error(msg, ...args);
+
+        Dict.forEach(
+            (tileActions, tileName) => {
+                List.forEach(
+                    tileActionFactory => {
+                        const tileAction = tileActionFactory(serverConf);
+                        app[tileAction.method.toLowerCase()](
+                            `/${tileName}/${tileAction.name}`,
+                            tileAction.handler
+                        )
+                    },
+                    tileActions
+                )
+            },
+            getCustomTileServerActions()
+        );
 
         wdgRouter({
             serverConf: serverConf,

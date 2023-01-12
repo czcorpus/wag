@@ -17,7 +17,7 @@
  */
 
 import { IConcordanceApi, ViewMode, ConcResponse, LineElement } from '../../abstract/concordance';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { ConcordanceMinState } from '../../../models/tiles/concordance';
 import { QueryMatch } from '../../../query';
 import { Observable } from 'rxjs';
@@ -73,7 +73,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -82,7 +82,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
@@ -112,7 +112,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 offset: args.offset,
                 limit: args.limit
             },
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(

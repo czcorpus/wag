@@ -16,18 +16,31 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore, HTTPHeaders } from '../../../types';
-import { CoreApiGroup } from '../../../api/coreGroups';
-import { KontextMatchingDocsAPI } from '../../../api/vendor/kontext/matchingDocs';
-import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs';
-import { ElasticsearchMatchingDocsAPI } from '../../../api/vendor/elasticsearch/matchingDocs';
-import { IApiServices } from '../../../appServices';
+import { IAsyncKeyValueStore } from '../../types';
+import { CoreApiGroup } from '../coreGroups';
+import { KontextMatchingDocsAPI } from '../vendor/kontext/matchingDocs';
+import { MatchingDocsAPI } from '../abstract/matchingDocs';
+import { ElasticsearchMatchingDocsAPI } from '../vendor/elasticsearch/matchingDocs';
+import { IApiServices } from '../../appServices';
+import { createSimpleFreqApiInstance } from './freqs';
 
 
-export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):MatchingDocsAPI<{}> {
+export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):MatchingDocsAPI<{}> {
 	switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
-			return new KontextMatchingDocsAPI(cache, apiURL, apiServices);
+		case CoreApiGroup.KONTEXT_API:
+            return new KontextMatchingDocsAPI(
+				cache,
+				apiURL,
+				apiServices,
+				createSimpleFreqApiInstance(
+					cache,
+					apiIdent,
+					apiURL,
+					apiServices,
+					apiOptions
+				)
+			);
 		case CoreApiGroup.ELASTICSEARCH:
 			return new ElasticsearchMatchingDocsAPI(cache, apiURL, apiServices);
 		default:

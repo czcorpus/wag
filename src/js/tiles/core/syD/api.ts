@@ -18,17 +18,16 @@
 import { forkJoin, Observable, of as rxOf } from 'rxjs';
 import { concatMap, share } from 'rxjs/operators';
 
-import { ajax$ } from '../../../page/ajax';
-import {
-    ConcApi
-} from '../../../api/vendor/kontext/concordance/v015';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
-import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/freqs';
-import { MultiDict } from '../../../multidict';
-import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from '../../../api/vendor/kontext/freqs';
+import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
-import { AttrViewMode, ConcQueryArgs } from '../../../api/vendor/kontext/types';
+import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
+import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
 
 
 export interface RequestArgs {
@@ -71,16 +70,16 @@ export interface StrippedFreqResponse {
 
 export class SyDAPI implements DataApi<RequestArgs, Response> {
 
-    private readonly apiURL:string;
-
-    private readonly customHeaders:HTTPHeaders;
-
     private readonly concApi:ConcApi;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, apiServices:IApiServices) {
-        this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
-        this.concApi = new ConcApi(cache, concApiURL, apiServices);
+    private readonly freqApi:SimpleKontextFreqDistribAPI;
+
+    constructor(
+        concApi:ConcApi,
+        freqApi:SimpleKontextFreqDistribAPI,
+    ) {
+        this.concApi = concApi;
+        this.freqApi = freqApi;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -280,23 +279,18 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                     concatMap(
                         (resp) => {
                             const [data, reqId] = resp;
-                            const args1 = new MultiDict();
-                            args1.set('q', '~' + data.concPersistenceID);
-                            args1.set('corpname', corpname);
-                            args1.set('fcrit', fcrit);
-                            args1.set('flimit', args.flimit);
-                            args1.set('freq_sort', args.freq_sort);
-                            args1.set('fpage', args.fpage);
-                            args1.set('ftt_include_empty', args.ftt_include_empty);
-                            args1.set('format', args.format);
+                            const args1: SingleCritQueryArgs = {
+                                q: '~' + data.concPersistenceID,
+                                corpname,
+                                fcrit,
+                                flimit: parseInt(args.flimit),
+                                freq_sort: args.freq_sort,
+                                fpage: parseInt(args.fpage),
+                                ftt_include_empty: parseInt(args.ftt_include_empty),
+                                format: args.format,
+                            } as SingleCritQueryArgs;
 
-                            return ajax$<FreqsHTTPResponse>(
-                                'GET',
-                                this.apiURL + '/freqs',
-                                args1,
-                                {headers: this.customHeaders}
-
-                            ).pipe(
+                            return this.freqApi.call(args1).pipe(
                                 concatMap(
                                     (resp) => rxOf({
                                         conc_persistence_op_id: resp.conc_persistence_op_id,
@@ -329,7 +323,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         const s3$ = createRequests(concQ2C1$, args.corp1, args.fcrit1);
         const s4$ = createRequests(concQ2C2$, args.corp2, args.fcrit2);
 
-        return forkJoin(...s1$, ...s2$, ...s3$, ...s4$).pipe(
+        return forkJoin([...s1$, ...s2$, ...s3$, ...s4$]).pipe(
             concatMap(
                 (data) => {
                     return rxOf({
@@ -340,4 +334,19 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             )
         );
     }
+}
+
+export function createSyDInstance(apiType:string, apiURL:string, concApiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):SyDAPI {
+
+	switch (apiType) {
+		case CoreApiGroup.KONTEXT:
+        case CoreApiGroup.KONTEXT_API:
+            return new SyDAPI(
+                createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions),
+                createSimpleFreqApiInstance(cache, apiType, apiURL, apiServices, apiOptions),
+            )
+		default:
+			throw new Error(`API type "${apiType}" not supported for SyD.`);
+	}
+
 }

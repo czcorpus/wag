@@ -235,8 +235,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(
                         this.tileId, this.appServices.getISO639UILang(), state.corpName)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
@@ -244,7 +244,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
@@ -252,7 +252,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
                             });
                         }
-                    );
+                    });
                 }
             }
         );

@@ -16,12 +16,11 @@
 */
 import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../../models/tiles/matchingDocs';
 import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
-import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { HTTP, List } from 'cnc-tskit';
 import { map } from 'rxjs/operators';
-import { SingleCritQueryArgs, HTTPResponse } from './freqs';
+import { SingleCritQueryArgs, HTTPResponse, SimpleKontextFreqDistribAPI } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../../page/tile';
 import { IApiServices } from '../../../appServices';
@@ -31,17 +30,20 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    protected readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
+    protected readonly cache:IAsyncKeyValueStore;
 
-    private readonly srcInfoService:CorpusInfoAPI;
+    protected readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    protected readonly freqApi:SimpleKontextFreqDistribAPI;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, freqApi: SimpleKontextFreqDistribAPI) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.freqApi = freqApi;
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<KontextFreqBacklinkArgs> {
@@ -89,12 +91,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
     }
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            HTTP.Method.GET,
-            this.apiURL + '/freqs',
-            args,
-            {headers: this.customHeaders}
-        ).pipe(
+        return this.freqApi.call(args).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.Blocks[0].Items.map(v => ({
                         name: v.Word.map(v => v.n).join(' '),

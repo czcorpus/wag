@@ -19,7 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { share, map, tap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { DataApi, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { List } from 'cnc-tskit';
 import { IApiServices } from '../../../appServices';
 
@@ -48,7 +48,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -57,7 +57,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.corpora = {};
     }
 
@@ -68,7 +68,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
                 'GET',
                 this.apiURL + '/corpora/availableCorpora',
                 {},
-                {headers: this.customHeaders}
+                {headers: this.apiServices.getApiHeaders(this.apiURL)}
             ).pipe(
                 share(),
                 map(

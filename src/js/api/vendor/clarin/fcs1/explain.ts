@@ -18,7 +18,7 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DataApi, HTTPHeaders, SourceDetails } from '../../../../types';
+import { DataApi, SourceDetails } from '../../../../types';
 import { HTTP } from 'cnc-tskit';
 import { XMLParser, XMLNode } from '../../../../page/xml';
 import { ajax$, ResponseType } from '../../../../page/ajax';
@@ -93,11 +93,11 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
 
     private readonly parser:XMLParser;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     constructor(url:string, apiServices:IApiServices) {
         this.url = url;
-        this.customHeaders = apiServices.getApiHeaders(url) || {};
+        this.apiServices = apiServices;
         this.parser = new XMLParser();
     }
 
@@ -109,7 +109,7 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
                 'x-fcs-endpoint-description': args['x-fcs-endpoint-description']
             },
             {
-                headers: this.customHeaders,
+                headers: this.apiServices.getApiHeaders(this.url),
                 responseType: ResponseType.TEXT
             }
 

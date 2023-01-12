@@ -22,9 +22,11 @@ import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '.
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../types';
-import { SpeechesApi } from './api';
-import { createAudioUrlGeneratorInstance } from './impl';
+import { SpeechesApi } from '../../../api/vendor/kontext/speeches';
+import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches';
 import { pipe, Color, List } from 'cnc-tskit';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -71,11 +73,14 @@ export class SpeechesTile implements ITileProvider {
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
         const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/SpeechesTile/authenticate")} :
+            {};
         this.model = new SpeechesModel({
             dispatcher,
             tileId,
             appServices,
-            api: new SpeechesApi(cache, conf.apiURL, appServices, appServices.getApiHeaders(conf.apiURL)),
+            api: createSpeechesApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             backlink: conf.backlink || null,
             waitForTiles,
             waitForTilesTimeoutSecs,
@@ -178,3 +183,7 @@ export const init:TileFactory.TileFactory<SpeechesTileConf> = {
 
     create: (args) => new SpeechesTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

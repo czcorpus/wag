@@ -20,7 +20,7 @@ import { concatMap, map } from 'rxjs/operators';
 import { List, HTTP, URL, Dict, pipe, tuple } from 'cnc-tskit';
 
 import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
 import { QueryMatch } from '../../../../../query';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../../abstract/concordance';
 import { ConcordanceMinState } from '../../../../../models/tiles/concordance';
@@ -35,17 +35,17 @@ import { ConcQueryArgs, ConcViewArgs, FilterServerArgs, QuickFilterRequestArgs }
 
 export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs> {
 
-    private readonly apiURL:string;
-
-    private readonly customHeaders:HTTPHeaders;
+    protected readonly apiURL:string;
 
     private readonly cache:IAsyncKeyValueStore;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
+    protected readonly apiServices:IApiServices;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
@@ -199,7 +199,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 url,
                 argsBody,
                 {
-                    headers: this.customHeaders,
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
                     contentType
                 }
             )
@@ -227,7 +227,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                             format: 'json'
                         },
                         {
-                            headers: this.customHeaders
+                            headers: this.apiServices.getApiHeaders(this.apiURL)
                         }
                     ) :
                     rxOf({

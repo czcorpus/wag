@@ -24,22 +24,22 @@ import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubset
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
 import { HTTP } from 'cnc-tskit';
-import { AjaxError } from 'rxjs/ajax';
+import { Backlink } from '../../../page/tile';
 
 
 export type SearchPackages = {[domain2:string]:Array<string>};
 
 export interface RequestArgs {
-    left:string;
-    right:string;
-    viceslovne:string;
-    regularni:string;
-    lemma:string;
-    aJeA:string;
-    hledejKde:string;
-    hledejCo:string;
+    from:string;
+    to:string;
+    multiword:boolean;
+    regex:boolean;
+    lemma:boolean;
+    ci:boolean;
+    'pkgs[i]':Array<string>;
+    query:string;
+    asc:boolean;
     order:string;
-    api:'true';
 }
 
 
@@ -57,8 +57,8 @@ export interface PageArgs {
 interface HTTPResponseLine {
     freq:string;
     perc:string;
-    left:string;
-    righ:string;
+    from:string;
+    to:string;
 }
 
 interface HTTPResponse {
@@ -161,8 +161,9 @@ class TreqAPICaller {
     call(args:RequestArgs):Observable<TranslationResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
-            this.apiURL,
-            args
+            `${this.apiURL}/api/v1/`,
+            args,
+            {headers: this.appServices.getApiHeaders(this.apiURL)},
 
         ).pipe(
             map(
@@ -170,14 +171,23 @@ class TreqAPICaller {
                     translations: this.mergeByLowercase(resp.lines.map(v => ({
                         freq: parseInt(v.freq),
                         score: parseFloat(v.perc),
-                        word: v.left,
-                        firstTranslatLc: v.righ.toLowerCase(),
-                        translations: [v.righ],
+                        word: v.from,
+                        firstTranslatLc: v.to.toLowerCase(),
+                        translations: [v.to],
                         interactionId: ''
                     }))).slice(0, 10)
                 })
             )
         );
+    }
+
+    getBackLink(backlink:Backlink):Backlink {
+        return {
+            label: 'Treq',
+            method: HTTP.Method.GET,
+            ...(backlink || {}),
+            url: (backlink?.url ? backlink.url : this.apiURL) + '/index.php',
+        }
     }
 }
 
@@ -190,16 +200,16 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 
     stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {
         return {
-            left: state.domain1,
-            right: state.domain2,
-            viceslovne: query.split(' ').length > 1 ? '1' : '0',
-            regularni: '0',
-            lemma: '1',
-            aJeA: '1',
-            hledejKde: state.searchPackages.join(','),
-            hledejCo: query,
-            order: 'percDesc',
-            api: 'true'
+            from: state.domain1,
+            to: state.domain2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            'pkgs[i]': state.searchPackages,
+            query: query,
+            order: 'perc',
+            asc: false,
         };
     }
 
@@ -225,16 +235,16 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
 
     stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
         return {
-            left: state.domain1,
-            right: state.domain2,
-            viceslovne: query.split(' ').length > 1 ? '1' : '0',
-            regularni: '0',
-            lemma: '1',
-            aJeA: '1',
-            hledejKde: packages.join(','),
-            hledejCo: query,
-            order: 'percDesc',
-            api: 'true'
+            from: state.domain1,
+            to: state.domain2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            'pkgs[i]': packages,
+            query: query,
+            order: 'perc',
+            asc: false,
         };
     }
 

@@ -19,7 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { Ident, HTTP } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim';
 import { map, catchError } from 'rxjs/operators';
 import { WordSimModelState } from '../../../models/tiles/wordSim';
@@ -51,15 +51,20 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     private readonly srcInfoApi:InternalResourceInfoApi;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, srcInfoURL:string, apiServices:IApiServices) {
+    constructor(
+        cache:IAsyncKeyValueStore,
+        apiURL:string,
+        srcInfoURL:string,
+        apiServices:IApiServices
+    ) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, apiServices) : null;
     }
@@ -113,7 +118,7 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
                 limit: queryArgs.limit,
                 minScore: queryArgs.minScore
             },
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             catchError(

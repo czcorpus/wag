@@ -27,6 +27,8 @@ import { MapLoader } from './mapLoader';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 declare var require:any;
@@ -73,6 +75,9 @@ export class MultiWordGeoAreasTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreasTile/authenticate")} :
+            {};
         this.model = new MultiWordGeoAreasModel({
             dispatcher,
             tileId,
@@ -80,8 +85,8 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
-            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices),
-            freqApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             mapLoader: new MapLoader(cache, appServices),
             initState: {
                 isBusy: isBusy,
@@ -169,3 +174,7 @@ export const init:TileFactory.TileFactory<MultiWordGeoAreasTileConf> = {
 
     create: (args) => new MultiWordGeoAreasTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

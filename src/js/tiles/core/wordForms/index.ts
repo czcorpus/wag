@@ -24,6 +24,8 @@ import { WordFormsModel } from './model';
 import { QueryType } from '../../../query/index';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/wordForms';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -58,6 +60,9 @@ export class WordFormsTile implements ITileProvider {
         this.widthFract = widthFract;
         this.waitForTiles = waitForTiles;
         this.label = this.appServices.importExternalMessage(conf.label || 'wordforms__main_label');
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
+            {};
         this.model = new WordFormsModel({
             dispatcher,
             initialState: {
@@ -76,7 +81,8 @@ export class WordFormsTile implements ITileProvider {
                 cache,
                 apiURL: conf.apiURL,
                 srcInfoURL: conf.srcInfoURL,
-                apiServices: appServices
+                apiServices: appServices,
+                apiOptions
             }),
             queryMatches,
             queryDomain: domain1,
@@ -147,3 +153,7 @@ export const init:TileFactory.TileFactory<WordFormsTileConf> = {
 
     create: (args) => new WordFormsTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

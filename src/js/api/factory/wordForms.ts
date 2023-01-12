@@ -22,6 +22,7 @@ import { IAsyncKeyValueStore } from '../../types';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
 import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms';
 import { IApiServices } from '../../appServices';
+import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 
 export interface ApiFactoryArgs {
@@ -30,15 +31,23 @@ export interface ApiFactoryArgs {
     srcInfoURL:string;
     apiURL:string;
     apiServices:IApiServices;
+    apiOptions:{};
 }
 
 
-export function createApiInstance({apiIdent, cache, srcInfoURL, apiServices, apiURL}:ApiFactoryArgs):IWordFormsApi {
+export function createApiInstance({apiIdent, cache, srcInfoURL, apiServices, apiURL, apiOptions}:ApiFactoryArgs):IWordFormsApi {
     switch (apiIdent) {
         case CoreApiGroup.WDGLANCE:
             return new WordFormsWdglanceAPI(cache, apiURL, srcInfoURL, apiServices);
         case CoreApiGroup.KONTEXT:
             return new WordFormsKontextApi(cache, apiURL, apiServices);
+        case CoreApiGroup.KONTEXT_API:
+            return wrapApiWithTokenAuth(
+				new WordFormsKontextApi(cache, apiURL, apiServices),
+				apiServices,
+				apiURL,
+				apiOptions["authenticateURL"],
+			);
         default:
  			throw new Error(`WordForms tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
     }

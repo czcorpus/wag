@@ -28,6 +28,8 @@ import { init as viewInit } from './view';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 
@@ -82,6 +84,9 @@ export class FreqComparisonTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/FreqComparisonTile/authenticate")} :
+            {};
 
         this.model = defaultModelFactory(
             this.dispatcher,
@@ -89,8 +94,8 @@ export class FreqComparisonTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices),
-            createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -193,3 +198,7 @@ export const init:TileFactory.TileFactory<FreqComparisonTileConf>  = {
     },
     create: (args) => new FreqComparisonTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

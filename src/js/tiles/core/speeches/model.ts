@@ -23,7 +23,7 @@ import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../query/index';
-import { SpeechesApi, SpeechReqArgs } from './api';
+import { SpeechesApi, SpeechReqArgs } from '../../../api/vendor/kontext/speeches';
 import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { SystemMessageType } from '../../../types';

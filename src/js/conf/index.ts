@@ -463,6 +463,10 @@ export interface ServerConf {
         path?:string;
         ttl?:number;
     };
+    korpusApi?:{
+        authenticateURL:string;
+        token:string;
+    }
 }
 
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {

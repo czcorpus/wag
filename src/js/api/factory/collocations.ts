@@ -23,13 +23,21 @@ import { CollocationApi } from '../abstract/collocations';
 import { LccCollAPI } from '../vendor/lcc/cooccurrences';
 import { NoskeCollAPI } from '../vendor/noske/collocations';
 import { IApiServices } from '../../appServices';
+import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 
-export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore):CollocationApi<{}> {
+export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):CollocationApi<{}> {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
             return new KontextCollAPI(cache, apiURL, apiServices);
+        case CoreApiGroup.KONTEXT_API:
+            return wrapApiWithTokenAuth(
+				new KontextCollAPI(cache, apiURL, apiServices),
+				apiServices,
+				apiURL,
+				apiOptions["authenticateURL"],
+			);
         case CoreApiGroup.LCC:
             return new LccCollAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
@@ -38,4 +46,4 @@ export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiS
 			throw new Error(`API type "${apiIdent}" not supported for collocations.`);
 	}
 
- }
+}

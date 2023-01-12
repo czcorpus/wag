@@ -30,6 +30,9 @@ import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
 
 
@@ -90,11 +93,13 @@ export class FreqBarTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/FreqBarTile/authenticate")} :
+            {};
         const modelFact = conf.subqueryMode ?
                 subqModelFactory(
                     conf.subqueryMode,
-                    new ConcApi(cache, conf.subqueryMode.concApiURL, appServices)
+                    createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions)
                 ) :
                 defaultModelFactory;
         this.model = modelFact(
@@ -104,7 +109,7 @@ export class FreqBarTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -200,3 +205,7 @@ export const init:TileFactory.TileFactory<FreqBarTileConf>  = {
     },
     create: (args) => new FreqBarTile(args)
 };
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

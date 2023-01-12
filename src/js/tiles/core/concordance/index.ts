@@ -29,6 +29,8 @@ import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
+import { CoreApiGroup } from '../../../api/coreGroups';
 
 
 
@@ -86,7 +88,10 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices);
+        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
+            {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} :
+            {};
+        const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
@@ -199,3 +204,7 @@ export const init:TileFactory.TileFactory<ConcordanceTileConf> = {
     },
     create: (args) => new ConcordanceTile(args)
 }
+
+export const serverActions:() => Array<TileServerActionFactory> = () => [
+    korpusApiAuthActionFactory,
+];

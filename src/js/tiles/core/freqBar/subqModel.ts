@@ -32,7 +32,6 @@ import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../api/util';
 import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs';
 import { CorePosAttribute } from '../../../types';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export class SubqFreqBarModelArgs {
