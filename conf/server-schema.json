@@ -47,7 +47,16 @@
                 "password": {
                     "type": "string"
                 },
+                "sourceCorpusId": {
+                    "type": "string"
+                },
+                "sourceInfoPassword": {
+                    "type": "string"
+                },
                 "sourceInfoUrl": {
+                    "type": "string"
+                },
+                "sourceInfoUsername": {
                     "type": "string"
                 },
                 "urlArgs": {
@@ -201,6 +210,21 @@
         },
         "freqDB": {
             "$ref": "#/definitions/WordFreqDbConf"
+        },
+        "korpusApi": {
+            "properties": {
+                "authenticateURL": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "authenticateURL",
+                "token"
+            ],
+            "type": "object"
         },
         "langCookie": {
             "$ref": "#/definitions/LangCookieSetup"
