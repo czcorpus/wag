@@ -27,6 +27,7 @@ import { AudioPlayer } from './page/audioPlayer';
 import { MultiDict } from './multidict';
 import { DataReadabilityMapping, CommonTextStructures } from './conf';
 import { AjaxError } from 'rxjs/ajax';
+import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage';
 
 
 export interface IApiServices {
@@ -135,7 +136,7 @@ export class AppServices implements IAppServices {
 
     private readonly domainNames:{[k:string]:string};
 
-    private readonly sessionStorage:Storage;
+    private readonly sessionStorage:ISimpleSessionStorage;
 
     constructor({notifications, uiLang, domainNames, translator, staticUrlCreator, actionUrlCreator, dataReadability,
             apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
@@ -151,7 +152,9 @@ export class AppServices implements IAppServices {
         this.mobileModeTest = mobileModeTest;
         this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
         this.audioPlayer = new AudioPlayer();
-        this.sessionStorage = window.sessionStorage;
+        this.sessionStorage = typeof window === 'undefined' ?
+            new DummySessionStorage() :
+            window.sessionStorage;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
