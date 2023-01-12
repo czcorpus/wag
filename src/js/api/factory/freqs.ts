@@ -19,10 +19,25 @@
 import { IAsyncKeyValueStore } from '../../types';
 import { IFreqDistribAPI, IMultiBlockFreqDistribAPI } from '../abstract/freqs';
 import { CoreApiGroup } from '../coreGroups';
-import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI } from '../vendor/kontext/freqs';
+import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI, SimpleKontextFreqDistribAPI } from '../vendor/kontext/freqs';
 import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs';
 import { IApiServices } from '../../appServices';
 import { TokenApiWrapper } from '../vendor/kontext/tokenApiWrapper';
+
+
+export function createSimpleFreqApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SimpleKontextFreqDistribAPI {
+    switch (apiIdent) {
+        case CoreApiGroup.KONTEXT:
+            return new SimpleKontextFreqDistribAPI(cache, apiURL, apiServices);
+        case CoreApiGroup.KONTEXT_API:
+            return new Proxy(
+                new SimpleKontextFreqDistribAPI(cache, apiURL, apiServices),
+                new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+            );
+        default:
+            throw new Error(`Simple freq API ${apiIdent} not implemented`);
+    }
+}
 
 
 export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IFreqDistribAPI<{}> {

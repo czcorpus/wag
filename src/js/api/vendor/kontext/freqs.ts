@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails, DataApi } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
@@ -96,6 +96,36 @@ interface CoreQueryArgs {
 export interface SingleCritQueryArgs extends CoreQueryArgs {
     fcrit:string;
 }
+
+
+/**
+ *
+ */
+export class SimpleKontextFreqDistribAPI implements DataApi<SingleCritQueryArgs, HTTPResponse> {
+
+    private readonly apiURL:string;
+
+    private readonly apiServices:IApiServices;
+
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+        this.cache = cache;
+        this.apiURL = apiURL;
+        this.apiServices = apiServices;
+    }
+
+    call(args:SingleCritQueryArgs):Observable<HTTPResponse> {
+        return cachedAjax$<HTTPResponse>(this.cache)(
+            'GET',
+            this.apiURL + '/freqs',
+            args,
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+
+        )
+    }
+}
+
 
 /**
  * FreqDistribAPI represents a simplified variant where we ask
