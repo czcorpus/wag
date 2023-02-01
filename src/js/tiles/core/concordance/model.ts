@@ -398,11 +398,15 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             ),
             reduce(
-                (acc, [resp,]) => ({
-                    concIds: List.concat([resp.concPersistenceID], acc.concIds),
-                    isEmpty: acc.isEmpty && resp.lines.length === 0
-                }),
-                {concIds: [], isEmpty: true}
+                (acc, [resp, queryIdx]) => {
+                    const concIds = [...acc.concIds];
+                    concIds[queryIdx] = resp.concPersistenceID;
+                    return {
+                        concIds,
+                        isEmpty: acc.isEmpty && resp.lines.length === 0
+                    };
+                },
+                {concIds: List.repeat(_ => undefined, this.queryMatches.length), isEmpty: true}
             )
 
         ).subscribe({
