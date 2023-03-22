@@ -235,6 +235,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
                         isMobile={props.isMobile}
                         isAnswerMode={props.isAnswerMode}
                         error={props.error}
+                        onMount={()=>undefined}
                             />
                 </section>
                 <footer>
