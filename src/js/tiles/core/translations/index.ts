@@ -110,7 +110,7 @@ export class TranslationsTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {

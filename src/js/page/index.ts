@@ -36,7 +36,7 @@ import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from '../types';
 import { HTTPAction } from '../server/routes/actions';
 import { MultiDict } from '../multidict';
-import { HTTP, Client, tuple, List } from 'cnc-tskit';
+import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';
 
@@ -111,7 +111,12 @@ function mountReactComponent({
 }
 
 
-function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:ActionDispatcher, tileMap:TileIdentMap) {
+function initTelemetry(
+    config:ClientConf,
+    appServices:IAppServices,
+    dispatcher:ActionDispatcher,
+    tileMap:TileIdentMap
+) {
     // telemetry capture
     if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
         merge(
@@ -123,7 +128,11 @@ function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:A
                         actionName: action.name,
                         isSubquery: isSubqueryPayload(payload) as boolean,
                         isMobile: appServices.isMobileMode(),
-                        tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+                        tileName: (pipe(
+                            tileMap,
+                            Dict.toEntries(),
+                            List.find(([k, v]) => v === payload['tileId'])
+                        ) || [null])[0]
                     });
                 });
             }),
@@ -160,7 +169,12 @@ function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:A
 }
 
 
-export function initClient(mountElement:HTMLElement, config:ClientConf, userSession:UserConf, queryMatches:RecognizedQueries) {
+export function initClient(
+    mountElement:HTMLElement,
+    config:ClientConf,
+    userSession:UserConf,
+    queryMatches:RecognizedQueries
+) {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';

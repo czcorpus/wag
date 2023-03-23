@@ -154,7 +154,12 @@ function isCachedValue<T>(v:any):v is CachedValue<T> {
 }
 
 
-export const cachedAjax$ = <T>(cache:IAsyncKeyValueStore) => (method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> => {
+export const cachedAjax$ = <T>(
+    cache:IAsyncKeyValueStore
+) => (
+    method:string, url:string, args:AjaxArgs, options?:AjaxOptions
+):Observable<T> => {
+
     const key = url + (args instanceof MultiDict ? JSON.stringify(args.items()) : JSON.stringify(args));
     return cache.get<T>(key).pipe(
         concatMap(
@@ -170,10 +175,9 @@ export const cachedAjax$ = <T>(cache:IAsyncKeyValueStore) => (method:string, url
         tap(
             (v:T|CachedValue<T>) => {
                 if (!isCachedValue(v)) {
-                    cache.set(key, v).subscribe(
-                        () => undefined,
-                        (err) => console.error('error request caching ', err)
-                    )
+                    cache.set(key, v).subscribe({
+                        error: error => console.error('error request caching ', error)
+                    })
                 }
             }
         ),
