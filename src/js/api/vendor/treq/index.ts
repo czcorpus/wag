@@ -1,5 +1,6 @@
 /*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2022 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -15,15 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable, of as rxOf, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
-import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubsetsAPI } from '../../abstract/translations';
-import { TranslationsModelState, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
+import {
+    WordTranslation,
+    TranslationAPI,
+    TranslationResponse,
+    TranslationSubsetsAPI
+} from '../../abstract/translations';
+import {
+    TranslationsModelState,
+    TranslationsSubsetsModelState
+} from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 import { Backlink } from '../../../page/tile';
 
 
@@ -167,16 +176,25 @@ class TreqAPICaller {
 
         ).pipe(
             map(
-                resp => ({
-                    translations: this.mergeByLowercase(resp.lines.map(v => ({
-                        freq: parseInt(v.freq),
-                        score: parseFloat(v.perc),
-                        word: v.from,
-                        firstTranslatLc: v.to.toLowerCase(),
-                        translations: [v.to],
-                        interactionId: ''
-                    }))).slice(0, 10)
-                })
+                resp => {
+                    if (!resp) {
+                        throw new Error('Empty response from Treq server');
+                    }
+                    return {
+                        translations: this.mergeByLowercase(
+                            List.map(
+                                v => ({
+                                    freq: parseInt(v.freq),
+                                    score: parseFloat(v.perc),
+                                    word: v.from,
+                                    firstTranslatLc: v.to.toLowerCase(),
+                                    translations: [v.to],
+                                    interactionId: ''
+                                }),
+                                resp.lines
+                            )).slice(0, 10)
+                    };
+                }
             )
         );
     }

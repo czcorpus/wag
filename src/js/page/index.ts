@@ -18,7 +18,7 @@
 /// <reference path="../translations.d.ts" />
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
 import { isSubqueryPayload, RecognizedQueries } from '../query/index';
@@ -36,7 +36,7 @@ import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from '../types';
 import { HTTPAction } from '../server/routes/actions';
 import { MultiDict } from '../multidict';
-import { HTTP, Client, tuple, List } from 'cnc-tskit';
+import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';
 
@@ -53,51 +53,70 @@ interface MountArgs {
 }
 
 
-function mountReactComponent({component, mountElement, layout, dispatcher, appServices, queryMatches, homepage, userSession}:MountArgs) {
+function mountReactComponent({
+    component,
+    mountElement,
+    layout,
+    dispatcher,
+    appServices,
+    queryMatches,
+    homepage,
+    userSession
+}:MountArgs) {
     if (!userSession.error || userSession.error[0] === 0) {
-        ReactDOM.hydrate(
-            React.createElement(
-                component,
-                {
-                    layout: layout,
-                    homepageSections: homepage,
-                    isMobile: appServices.isMobileMode(),
-                    isAnswerMode: userSession.answerMode,
-                    error: userSession.error
-                }
-            ),
-            mountElement,
-            () => {
-                if (userSession.error) {
-                    dispatcher.dispatch<typeof Actions.SetEmptyResult>({
-                        name: Actions.SetEmptyResult.name,
-                        payload: {
-                            error: userSession.error
+        const onMount = () => {
+            if (userSession.error) {
+                dispatcher.dispatch<typeof Actions.SetEmptyResult>({
+                    name: Actions.SetEmptyResult.name,
+                    payload: {
+                        error: userSession.error
+                    }
+                });
+
+            } else if (userSession.answerMode) {
+                if (queryMatches[0].find(v => v.isCurrent)) {
+                    dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
+                        name: Actions.RequestQueryResponse.name,
+                        payload:{
+                            focusedTile: window.location.hash.replace('#', '') || undefined
                         }
                     });
 
-                } else if (userSession.answerMode) {
-                    if (queryMatches[0].find(v => v.isCurrent)) {
-                        dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
-                            name: Actions.RequestQueryResponse.name,
-                            payload:{
-                                focusedTile: window.location.hash.replace('#', '') || undefined
-                            }
-                        });
-
-                    } else {
-                        dispatcher.dispatch<typeof Actions.SetEmptyResult>({
-                            name: Actions.SetEmptyResult.name
-                        });
-                    }
+                } else {
+                    dispatcher.dispatch<typeof Actions.SetEmptyResult>({
+                        name: Actions.SetEmptyResult.name
+                    });
                 }
             }
+        };
+
+        const rootComp = React.createElement(
+            component,
+            {
+                layout,
+                homepageSections: homepage,
+                isMobile: appServices.isMobileMode(),
+                isAnswerMode: userSession.answerMode,
+                error: userSession.error,
+                onMount
+            }
         );
+
+        const root = hydrateRoot(
+            mountElement,
+            rootComp
+        );
+        root.render(rootComp);
     }
 }
 
 
-function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:ActionDispatcher, tileMap:TileIdentMap) {
+function initTelemetry(
+    config:ClientConf,
+    appServices:IAppServices,
+    dispatcher:ActionDispatcher,
+    tileMap:TileIdentMap
+) {
     // telemetry capture
     if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
         merge(
@@ -109,7 +128,11 @@ function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:A
                         actionName: action.name,
                         isSubquery: isSubqueryPayload(payload) as boolean,
                         isMobile: appServices.isMobileMode(),
-                        tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+                        tileName: (pipe(
+                            tileMap,
+                            Dict.toEntries(),
+                            List.find(([k, v]) => v === payload['tileId'])
+                        ) || [null])[0]
                     });
                 });
             }),
@@ -146,7 +169,12 @@ function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:A
 }
 
 
-export function initClient(mountElement:HTMLElement, config:ClientConf, userSession:UserConf, queryMatches:RecognizedQueries) {
+export function initClient(
+    mountElement:HTMLElement,
+    config:ClientConf,
+    userSession:UserConf,
+    queryMatches:RecognizedQueries
+) {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';

@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
-import { HTTP, List } from 'cnc-tskit'
+import { HTTP, List, pipe } from 'cnc-tskit'
 
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
@@ -60,8 +60,16 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly appServices:IAppServices;
 
-    constructor({dispatcher, appServices, initialState, tileId, api, backlink, queryMatches,
-                scaleColorGen}:TranslationModelArgs) {
+    constructor({
+        dispatcher,
+        appServices,
+        initialState,
+        tileId,
+        api,
+        backlink,
+        queryMatches,
+        scaleColorGen}:TranslationModelArgs) {
+
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
@@ -70,8 +78,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -81,8 +89,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionHandler(
+            Actions.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -98,8 +106,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
-            GlobalActions.EnableAltViewMode.name,
+        this.addActionHandler(
+            GlobalActions.EnableAltViewMode,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -107,8 +115,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
-            GlobalActions.DisableAltViewMode.name,
+        this.addActionHandler(
+            GlobalActions.DisableAltViewMode,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -116,27 +124,31 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionHandler(
+            GlobalActions.GetSourceInfo,
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe({
+                    this.api.getSourceDescription(
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        action.payload['corpusId']
+
+                    ).subscribe({
                         next: (data) => {
-                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
+                            dispatch(
+                                GlobalActions.GetSourceInfoDone,
+                                {
                                     data
                                 }
-                            });
+                            );
                         },
                         error: (error) => {
                             console.error(error);
-                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
+                            dispatch(
+                                GlobalActions.GetSourceInfoDone,
                                 error
-                            });
+                            );
                         }
                     });
                 }
@@ -160,19 +172,23 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
         this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
             .pipe(
                 map(item => {
-                    const lines = item.translations
-                        .filter(x => x.freq >= state.minItemFreq)
-                        .slice(0, state.maxNumLines);
                     const colors = this.scaleColorGen(0)
-                    return lines.map((line, i) => ({
-                            freq: line.freq,
-                            score: line.score,
-                            word: line.word,
-                            translations: line.translations,
-                            firstTranslatLc: line.firstTranslatLc,
-                            interactionId: line.interactionId,
-                            color: colors(i)
-                    }));
+                    return pipe(
+                        item.translations,
+                        List.filter(x => x.freq >= state.minItemFreq),
+                        List.slice(0, state.maxNumLines),
+                        List.map(
+                            (line, i) => ({
+                                freq: line.freq,
+                                score: line.score,
+                                word: line.word,
+                                translations: line.translations,
+                                firstTranslatLc: line.firstTranslatLc,
+                                interactionId: line.interactionId,
+                                color: colors(i)
+                            })
+                        )
+                    );
                 })
             )
             .subscribe({
@@ -214,7 +230,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             domain2: state.domain2,
                             data: {translations: []}
                         },
-                        error: error
+                        error
                     });
                     console.error(error);
                 }

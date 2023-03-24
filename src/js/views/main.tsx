@@ -44,6 +44,7 @@ export interface WdglanceMainProps {
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;
+    onMount:()=>void
 }
 
 function mkTileSectionId(tileId:number):string {
@@ -1335,6 +1336,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <WdglanceMain /> ------------------------------
 
     const WdglanceMain:React.FC<WdglanceMainProps> = (props) => {
+
+        React.useEffect(
+            () => {
+                props.onMount();
+            },
+            []
+        );
+
         return (
             <S.WdglanceMain>
                 <GlobalStyle createStaticUrl={ut.createStaticUrl} />
