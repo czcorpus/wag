@@ -406,7 +406,7 @@ class Deployer(object):
         """
         for item in self._conf.wag_conf_files:
             src_path = os.path.join(self._conf.app_config_dir, item)
-            dst_path = os.path.join(arch_path, os.path.basename(self._conf.app_config_dir), item)
+            dst_path = os.path.join(arch_path, self._conf.config_dir_name, item)
             self.shell_cmd('cp', '-p', src_path, dst_path)
 
     @description('Updating data from repository')
