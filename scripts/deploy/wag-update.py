@@ -19,6 +19,7 @@
 Required config:
 {
     'appDir': '/path/to/the/web/application',
+    'configDirName': 'conf',
     'workingDir': '/path/to/working/dir/for/git/repo',
     'archiveDir': '/path/to/store/all/the/installed/versions',
     'appConfigDir': '/path/to/wag/conf/dir',
@@ -50,6 +51,7 @@ DEFAULT_DATETIME_FORMAT = '%Y-%m-%d-%H-%M-%S'
 FILES = ('assets', 'conf', 'dist', 'dist-server', 'html', 'package.json')
 DEPLOY_MESSAGE_FILE = '.deploy_info'
 INVALIDATION_FILE = '.invalid'
+CONFIG_DIR_NAME = 'configDirName'
 APP_DIR = 'appDir'
 WORKING_DIR = 'workingDir'
 ARCHIVE_DIR = 'archiveDir'
@@ -263,6 +265,10 @@ class Configuration:
         self._data = data
 
     @property
+    def config_dir_name(self) -> str:
+        return self._data.get(CONFIG_DIR_NAME, 'conf')
+
+    @property
     def wag_conf_files(self) -> List[str]:
         return [
             self._kc_aliases[k]
@@ -371,7 +377,7 @@ class Deployer(object):
         arch_path = os.path.join(self._conf.archive_dir, date.strftime(DEFAULT_DATETIME_FORMAT))
         if not os.path.isdir(arch_path):
             os.makedirs(arch_path)
-        os.makedirs(os.path.join(arch_path, 'conf'))
+        os.makedirs(os.path.join(arch_path, self._conf.config_dir_name))
         return arch_path
 
     @description('Copying built project to the archive')
@@ -386,7 +392,7 @@ class Deployer(object):
         Raises:
             ShellCommandError
         """
-        for item in FILES:
+        for item in FILES + [self._conf.config_dir_name]:
             src_path = os.path.join(self._conf.working_dir, item)
             self.shell_cmd('cp', '-r', '-p', src_path, arch_path)
 
@@ -431,6 +437,14 @@ class Deployer(object):
                 fw.write(message + '\n\n')
             fw.write(commit_info.decode('utf-8') + '\n')
 
+    @description('Adding authoritative configs to source directory')
+    def update_src_configs(self):
+        for item in self._conf.wag_conf_files:
+            src_path = os.path.join(self._conf.app_config_dir, item)
+            dst_path = os.path.join(
+                self._conf.working_dir, self._conf.config_dir_name, item)
+            self.shell_cmd('cp', '-p', src_path, dst_path)
+
     @description('Building project using Webpack')
     def build_project(self):
         self.shell_cmd('npm', 'start', 'build:production')
@@ -446,7 +460,7 @@ class Deployer(object):
         Args:
             arch_path (str): path to an archive
         """
-        for item in chain(FILES, (DEPLOY_MESSAGE_FILE, 'conf')):
+        for item in chain(FILES, (DEPLOY_MESSAGE_FILE, self._conf.config_dir_name)):
             self.shell_cmd('cp', '-r', '-p', os.path.join(arch_path, item), self._conf.app_dir)
 
     @description('Comparing current and new package.json for changed dependencies')
@@ -474,6 +488,7 @@ class Deployer(object):
         """
         self.update_from_repository()
         self.update_npm_deps()
+        self.update_src_configs()
         self.build_project()
         arch_path = self.create_archive(date)
         self.copy_configuration(arch_path)
