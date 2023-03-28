@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, concatMap, reduce, tap } from 'rxjs/operators';
+import { map, concatMap, reduce, tap, scan } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
@@ -51,7 +51,7 @@ export interface ConcFilterModelState {
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Array<Line>;
-    concPersistenceIds:Array<string>;
+    concPersistenceId:string;
     metadataAttrs:Array<{value:string; label:string}>;
     visibleMetadataLine:number;
 }
@@ -59,7 +59,7 @@ export interface ConcFilterModelState {
 type AllSubqueries = Array<SubQueryItem<RangeRelatedSubqueryValue>>;
 
 interface SourceLoadingData {
-    concordanceIds:Array<string>;
+    concordanceId:string;
     subqueries:AllSubqueries;
 }
 
@@ -82,7 +82,7 @@ export interface ConcFilterModelArgs {
 }
 
 
-export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWait<boolean>> {
+export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly api:ConcApi;
 
@@ -125,7 +125,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 state.isBusy = true;
                 state.error = null;
                 state.lines = [];
-                state.concPersistenceIds = List.repeat(() => '', this.queryMatches.length);
+                state.concPersistenceId = null;
             },
             (state, action, dispatch) => {
                 this.handleDataLoad(state, false, dispatch);
@@ -137,7 +137,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.lines = state.lines.concat(action.payload.data);
-                    state.concPersistenceIds[action.payload.queryId] = action.payload.baseConcId;
+                    state.concPersistenceId = action.payload.baseConcId;
                 }
             }
         );
@@ -404,31 +404,50 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                         ans.subqueries = List.concat(ans.subqueries, action.payload.subqueries);
 
                     } else if (isConcLoadedPayload(payload)) {
-                        ans.concordanceIds = [...payload.concPersistenceIDs];
+                        ans.concordanceId = List.head(payload.concPersistenceIDs); // we do not support cmp query
                     }
                     return ans;
                 },
-                {concordanceIds: state.concPersistenceIds, subqueries:[]} as SourceLoadingData
+                {concordanceId: state.concPersistenceId, subqueries:[]} as SourceLoadingData
             ),
             concatMap(
-                ({concordanceIds, subqueries}) => rxOf(...pipe(
-                    concordanceIds,
-                    List.flatMap(concId => List.map(sq => tuple(concId, sq), subqueries)),
-                    List.map(([concId, subq], queryId) => tuple(concId, subq, queryId))
+                ({concordanceId, subqueries}) => rxOf(...pipe(
+                    subqueries,
+                    List.map((subq, queryId) => tuple(concordanceId, subq, queryId))
                 ))
             ),
             concatMap(
                 ([concId, subq, queryId]) => this.loadFilteredConcs(state, concId, queryId, subq)
             ),
+            // select only unique concordance lines
+            scan(
+                ([used,,,], [baseConcId, queryId, resp]) => {
+                    let lines: Array<Line>;
+                    if (used.size === 0) {
+                        lines = resp.lines.slice(0, state.itemsPerSrc);
+
+                    } else {
+                        lines = List.filter(v => !used.has(v.toknum), resp.lines).slice(0, state.itemsPerSrc);
+                        if (lines.length < state.itemsPerSrc) {
+                            lines.concat(List.filter(v => used.has(v.toknum), resp.lines).slice(0, state.itemsPerSrc - lines.length))
+                        }
+                    }
+                    lines.forEach(line => {
+                        used = used.add(line.toknum)
+                    });
+                    return tuple(used, baseConcId, queryId, lines);
+                },
+                tuple(new Set<number>(), undefined, undefined, undefined)
+            ),
             tap(
-                ([baseConcId, queryId, resp]) => {
+                ([,baseConcId, queryId, resp]) => {
                     seDispatch<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>({
                         name: GlobalActionName.TilePartialDataLoaded,
                         payload: {
                             tileId: this.tileId,
                             queryId: queryId,
                             data: normalizeTypography(resp.lines.slice(0, state.itemsPerSrc)),
-                            baseConcId: baseConcId
+                            baseConcId
                         }
                     });
                 }
