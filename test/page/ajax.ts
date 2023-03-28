@@ -34,7 +34,7 @@ describe('ajax$', function () {
             status: null,
             responseText: null,
             responseType: null
-        }));
+        }) as any);
     });
 
     this.beforeEach(function () {

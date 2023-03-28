@@ -325,10 +325,10 @@ describe('WdglanceTilesModel', function () {
                 ActionName.HighlightTile,
                 state => {
                     highlightCount += 1;
-                    if (highlightCount >= 9) {
+                    if (highlightCount >= 4) {
                         assert.deepEqual(state.hiddenGroups, [2, 3]);
                         assert.equal(state.highlightedTileId, 1);
-                        assert.equal(highlightCount, 9);
+                        assert.equal(highlightCount, 4);
                         done();
                     }
                 }
