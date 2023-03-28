@@ -92,7 +92,7 @@ export class ConcFilterTile implements ITileProvider {
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[domain2] : null,
                 posAttrs: conf.posAttrs,
                 lines: [],
-                concPersistenceIds: [],
+                concPersistenceId: null,
                 viewMode: ViewMode.SENT,
                 attrVmode: 'mouseover',
                 itemsPerSrc: 1,
