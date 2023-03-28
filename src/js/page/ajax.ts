@@ -206,7 +206,7 @@ export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:Ajax
         url: callArgs.url,
         body: callArgs.requestBody,
         method: callArgs.method,
-        responseType: callArgs.responseType,
+        responseType: callArgs.responseType as XMLHttpRequestResponseType,
         headers: headers
-    }).pipe(map<AjaxResponse, T>(v => v.response));
+    }).pipe(map<AjaxResponse<T>, T>(v => v.response));
 }
