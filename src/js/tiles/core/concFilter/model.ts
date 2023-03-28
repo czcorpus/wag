@@ -50,7 +50,7 @@ export interface ConcFilterModelState {
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Array<Line>;
-    concPersistenceIds:Array<string>;
+    concPersistenceId:string;
     metadataAttrs:Array<{value:string; label:string}>;
     visibleMetadataLine:number;
     backlink:BacklinkWithArgs<{}>;
@@ -59,7 +59,7 @@ export interface ConcFilterModelState {
 type AllSubqueries = Array<SubQueryItem<RangeRelatedSubqueryValue>>;
 
 interface SourceLoadingData {
-    concordanceIds:Array<string>;
+    concordanceId:string;
     subqueries:AllSubqueries;
 }
 
@@ -119,31 +119,33 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.queryMatches = queryMatches;
         this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action)  => {
                 state.isBusy = true;
                 state.error = null;
                 state.lines = [];
-                state.concPersistenceIds = List.repeat(() => '', this.queryMatches.length);
+                state.concPersistenceId = null;
             },
             (state, action, dispatch) => {
                 this.handleDataLoad(state, false, dispatch);
             }
         );
 
-        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
-            Actions.PartialTileDataLoaded.name,
+        this.addActionHandler(
+            Actions.PartialTileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.lines = state.lines.concat(action.payload.data);
-                    state.concPersistenceIds[action.payload.queryId] = action.payload.baseConcId;
+                    state.concPersistenceId = action.payload.baseConcId;
                 }
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.DEBUG_logActions();
+
+        this.addActionHandler(
+            Actions.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -155,8 +157,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
-            GlobalActions.SubqItemHighlighted.name,
+        this.addActionHandler(
+            GlobalActions.SubqItemHighlighted,
             (state, action) => {
                 const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
                 if (srchIdx > -1) {
@@ -174,8 +176,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                }
             }
         );
-        this.addActionHandler<typeof GlobalActions.SubqItemDehighlighted>(
-            GlobalActions.SubqItemDehighlighted.name,
+        this.addActionHandler(
+            GlobalActions.SubqItemDehighlighted,
             (state, action) => {
                 const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
                 if (srchIdx > -1) {
@@ -193,8 +195,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 }
             }
         );
-        this.addActionHandler<typeof GlobalActions.SubqChanged>(
-            GlobalActions.SubqChanged.name,
+        this.addActionHandler(
+            GlobalActions.SubqChanged,
             (state, action) => {
                 if (Dict.hasKey(action.payload.tileId.toFixed()), this.waitForTiles) {
                     state.isBusy = true;
@@ -205,32 +207,32 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 this.handleDataLoad(state, true, dispatch);
             }
         );
-        this.addActionHandler<typeof GlobalActions.TileAreaClicked>(
-            GlobalActions.TileAreaClicked.name,
+        this.addActionHandler(
+            GlobalActions.TileAreaClicked,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = -1;
                 }
             }
         );
-        this.addActionHandler<typeof Actions.ShowLineMetadata>(
-            Actions.ShowLineMetadata.name,
+        this.addActionHandler(
+            Actions.ShowLineMetadata,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = action.payload.idx;
                 }
             }
         );
-        this.addActionHandler<typeof Actions.HideLineMetadata>(
-            Actions.HideLineMetadata.name,
+        this.addActionHandler(
+            Actions.HideLineMetadata,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = -1;
                 }
             }
         );
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionHandler(
+            GlobalActions.GetSourceInfo,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -405,17 +407,16 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                         ans.subqueries = List.concat(ans.subqueries, action.payload.subqueries);
 
                     } else if (isConcLoadedPayload(payload)) {
-                        ans.concordanceIds = [...payload.concPersistenceIDs];
+                        ans.concordanceId = List.head(payload.concPersistenceIDs); // we do not support cmp query
                     }
                     return ans;
                 },
-                {concordanceIds: state.concPersistenceIds, subqueries:[]} as SourceLoadingData
+                {concordanceId: state.concPersistenceId, subqueries:[]} as SourceLoadingData
             ),
             concatMap(
-                ({concordanceIds, subqueries}) => rxOf(...pipe(
-                    concordanceIds,
-                    List.flatMap(concId => List.map(sq => tuple(concId, sq), subqueries)),
-                    List.map(([concId, subq], queryId) => tuple(concId, subq, queryId))
+                ({concordanceId, subqueries}) => rxOf(...pipe(
+                    subqueries,
+                    List.map((subq, queryId) => tuple(concordanceId, subq, queryId))
                 ))
             ),
             concatMap(
@@ -427,6 +428,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     let lines: Array<Line>;
                     if (used.size === 0) {
                         lines = resp.lines.slice(0, state.itemsPerSrc);
+
                     } else {
                         lines = List.filter(v => !used.has(v.toknum), resp.lines).slice(0, state.itemsPerSrc);
                         if (lines.length < state.itemsPerSrc) {
