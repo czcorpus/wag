@@ -60,8 +60,9 @@ class TokenApiWrapper<T, U, V extends DataApi<T, U>> {
                             return this.authenticate().pipe(
                                 concatMap(_ => target.call(args))
                             );
+
                         } else {
-                            throwError(() => err);
+                            throw err;
                         }
                     })
                 )
