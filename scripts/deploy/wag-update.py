@@ -410,7 +410,7 @@ class Deployer(object):
             self.shell_cmd('cp', '-p', src_path, dst_path)
 
     @description('copy libraries')
-    def copy_libraries(self)
+    def copy_libraries(self):
         src_path = os.path.join(self._conf.working_dir, 'node_modules')  # because of server deps
         dst_path = os.path.join(self._conf.app_dir)
         self.shell_cmd('cp', '-r', '-p', src_path, dst_path)
