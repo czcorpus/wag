@@ -470,6 +470,7 @@ class Deployer(object):
         """
         for item in chain(FILES, (DEPLOY_MESSAGE_FILE, self._conf.config_dir_name)):
             self.shell_cmd('cp', '-r', '-p', os.path.join(arch_path, item), self._conf.app_dir)
+        self.copy_libraries()
 
     @description('Comparing current and new package.json for changed dependencies')
     def update_npm_deps(self):
@@ -500,7 +501,6 @@ class Deployer(object):
         self.build_project()
         arch_path = self.create_archive(date)
         self.copy_configuration(arch_path)
-        self.copy_libraries()
         self.record_deployment_info(arch_path, message)
         self.copy_app_to_archive(arch_path)
         self.remove_current_deployment()
