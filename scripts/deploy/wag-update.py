@@ -409,6 +409,14 @@ class Deployer(object):
             dst_path = os.path.join(arch_path, self._conf.config_dir_name, item)
             self.shell_cmd('cp', '-p', src_path, dst_path)
 
+    @description('copy libraries')
+    def copy_libraries(self)
+        src_path = os.path.join(self._conf.working_dir, 'node_modules')  # because of server deps
+        dst_path = os.path.join(self._conf.app_dir)
+        self.shell_cmd('cp', '-r', '-p', src_path, dst_path)
+        src_path = os.path.join(self._conf.working_dir, 'src')  # because of schemas (TODO prune)
+        self.shell_cmd('cp', '-r', '-p', src_path, dst_path)
+
     @description('Updating data from repository')
     def update_from_repository(self):
         working_dir = self._conf.working_dir
@@ -492,6 +500,7 @@ class Deployer(object):
         self.build_project()
         arch_path = self.create_archive(date)
         self.copy_configuration(arch_path)
+        self.copy_libraries()
         self.record_deployment_info(arch_path, message)
         self.copy_app_to_archive(arch_path)
         self.remove_current_deployment()
