@@ -64,7 +64,7 @@ WAG_CONF_CUSTOM = 'wagConfCustom'
 TARGET_SYMLINKS = 'targetSymlinks'
 GLOBAL_CONF_PATH = os.environ.get('GLOBAL_CONF_PATH', '/usr/local/etc/wag-deploy.json')
 WAG_CONF_FILES = (
-    'layouts.json', 'server.json', 'server2.json', 'themes-cnc.json', 'themes.json',
+    'layouts.json', 'server1.json', 'server2.json', 'themes-cnc.json', 'themes.json',
     'wdglance.json')
 
 
