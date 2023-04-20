@@ -142,8 +142,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             }
         );
 
-        this.DEBUG_logActions();
-
         this.addActionHandler(
             Actions.TileDataLoaded,
             (state, action) => {
