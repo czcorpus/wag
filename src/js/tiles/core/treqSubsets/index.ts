@@ -24,7 +24,6 @@ import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
-import { wrapApiWithTokenAuth } from '../../../api/vendor/kontext/tokenApiWrapper';
 
 
 export interface PackageGroup {
@@ -90,12 +89,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            api: wrapApiWithTokenAuth(
-				new TreqSubsetsAPI(cache, conf.apiURL, appServices),
-				appServices,
-                conf.apiURL,
-                apiOptions["authenticateURL"],
-			),
+            api: new TreqSubsetsAPI(cache, conf.apiURL, appServices),
             queryMatches,
             waitForColorsTile: waitForTiles[0]
         });

@@ -22,7 +22,6 @@ import { CoreApiGroup } from '../coreGroups';
 import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI, SimpleKontextFreqDistribAPI } from '../vendor/kontext/freqs';
 import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs';
 import { IApiServices } from '../../appServices';
-import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 
 export function createSimpleFreqApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SimpleKontextFreqDistribAPI {
@@ -30,12 +29,7 @@ export function createSimpleFreqApiInstance(cache:IAsyncKeyValueStore, apiIdent:
         case CoreApiGroup.KONTEXT:
             return new SimpleKontextFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
-            return wrapApiWithTokenAuth(
-				new SimpleKontextFreqDistribAPI(cache, apiURL, apiServices),
-				apiServices,
-				apiURL,
-				apiOptions["authenticateURL"],
-			);
+            return new SimpleKontextFreqDistribAPI(cache, apiURL, apiServices);
         default:
             throw new Error(`Simple freq API ${apiIdent} not implemented`);
     }
@@ -47,12 +41,7 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
         case CoreApiGroup.KONTEXT:
             return new KontextFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
-            return wrapApiWithTokenAuth(
-				new KontextFreqDistribAPI(cache, apiURL, apiServices),
-				apiServices,
-				apiURL,
-				apiOptions["authenticateURL"],
-			);
+            return new KontextFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
             return new NoskeFreqDistribAPI(cache, apiURL, apiServices);
         default:
@@ -66,12 +55,7 @@ export function createMultiBlockApiInstance(cache:IAsyncKeyValueStore, apiIdent:
         case CoreApiGroup.KONTEXT:
             return new KontextMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
-            return wrapApiWithTokenAuth(
-				new KontextMultiBlockFreqDistribAPI(cache, apiURL, apiServices),
-				apiServices,
-				apiURL,
-				apiOptions["authenticateURL"],
-			);
+            return new KontextMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
             return new NoskeMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
         default:
