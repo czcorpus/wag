@@ -204,7 +204,6 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
 }
 
 function testGroupedAuth(
-    request:Request,
     currResp:Response,
     items:Array<GroupedAuth>
 ):Observable<any> {
@@ -249,7 +248,7 @@ function testGroupedAuth(
                                                 c.key,
                                                 c.value,
                                                 {
-                                                    domain: request.headers.host,
+                                                    domain: conf.cookieDomain,
                                                     secure: true
                                                 }
                                             )
@@ -316,7 +315,6 @@ export function queryAction({
                 appServices
             }),
             groupedAuth: testGroupedAuth(
-                req,
                 res,
                 services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
