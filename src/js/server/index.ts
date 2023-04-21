@@ -38,7 +38,6 @@ import { createToolbarInstance } from './toolbar/factory';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../types';
 import { WinstonActionWriter } from './actionLog/winstonWriter';
-import { getCustomTileServerActions } from '../page/tileLoader';
 import { ApiServices } from './apiServices';
 
 
@@ -201,22 +200,6 @@ forkJoin([ // load core configs
         console.info = (msg:string,...args:Array<any>) => logger.info(msg,...args);
         console.warn = (msg:string, ...args:Array<any>) => logger.warn(msg, ...args);
         console.error = (msg:string, ...args:Array<any>) => logger.error(msg, ...args);
-
-        Dict.forEach(
-            (tileActions, tileName) => {
-                List.forEach(
-                    tileActionFactory => {
-                        const tileAction = tileActionFactory(serverConf);
-                        app[tileAction.method.toLowerCase()](
-                            `/${tileName}/${tileAction.name}`,
-                            tileAction.handler
-                        )
-                    },
-                    tileActions
-                )
-            },
-            getCustomTileServerActions()
-        );
 
         wdgRouter({
             serverConf,
