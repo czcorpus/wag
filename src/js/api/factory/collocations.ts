@@ -23,7 +23,6 @@ import { CollocationApi } from '../abstract/collocations';
 import { LccCollAPI } from '../vendor/lcc/cooccurrences';
 import { NoskeCollAPI } from '../vendor/noske/collocations';
 import { IApiServices } from '../../appServices';
-import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 
 export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):CollocationApi<{}> {
@@ -32,12 +31,7 @@ export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiS
 		case CoreApiGroup.KONTEXT:
             return new KontextCollAPI(cache, apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
-            return wrapApiWithTokenAuth(
-				new KontextCollAPI(cache, apiURL, apiServices),
-				apiServices,
-				apiURL,
-				apiOptions["authenticateURL"],
-			);
+			return new KontextCollAPI(cache, apiURL, apiServices);
         case CoreApiGroup.LCC:
             return new LccCollAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:

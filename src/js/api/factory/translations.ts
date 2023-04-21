@@ -21,18 +21,12 @@ import { TranslationAPI } from '../abstract/translations';
 import { TreqAPI } from '../vendor/treq';
 import { CoreApiGroup } from '../coreGroups';
 import { IAppServices } from '../../appServices';
-import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 
 
 export function createInstance(apiIdent:string, apiURL:string, appServices:IAppServices, cache:IAsyncKeyValueStore, apiOptions:{}):TranslationAPI<{}, {}> {
 	switch (apiIdent) {
         case CoreApiGroup.TREQ:
-			return wrapApiWithTokenAuth(
-				new TreqAPI(cache, apiURL, appServices),
-				appServices,
-				apiURL,
-				apiOptions["authenticateURL"],
-			);
+			return new TreqAPI(cache, apiURL, appServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
 	}

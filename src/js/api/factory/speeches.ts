@@ -20,7 +20,6 @@ import { CoreApiGroup } from '../coreGroups';
 import { IAudioUrlGenerator } from '../abstract/audio';
 import { KontextAudioLinkGenerator } from '../vendor/kontext/audio';
 import { SpeechesApi } from '../vendor/kontext/speeches';
-import { wrapApiWithTokenAuth } from '../vendor/kontext/tokenApiWrapper';
 import { IAsyncKeyValueStore } from '../../types';
 import { IApiServices } from '../../appServices';
 
@@ -30,12 +29,7 @@ export function createSpeechesApiInstance(cache:IAsyncKeyValueStore, apiIdent:st
 		case CoreApiGroup.KONTEXT:
 			return new SpeechesApi(cache, apiURL, apiServices);
 		case CoreApiGroup.KONTEXT_API:
-			return wrapApiWithTokenAuth(
-				new SpeechesApi(cache, apiURL, apiServices),
-				apiServices,
-				apiURL,
-				apiOptions["authenticateURL"],
-			);
+			return new SpeechesApi(cache, apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for speeches.`);
 	}
