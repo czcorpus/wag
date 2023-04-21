@@ -464,6 +464,7 @@ export interface GroupedAuth {
     authenticateUrl:string;
     token:string;
     cookieName:string;
+    cookieDomain:string;
 }
 
 /**
