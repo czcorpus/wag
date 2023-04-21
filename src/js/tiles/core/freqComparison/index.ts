@@ -28,7 +28,6 @@ import { init as viewInit } from './view';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -198,7 +197,3 @@ export const init:TileFactory<FreqComparisonTileConf>  = {
     },
     create: (args) => new FreqComparisonTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

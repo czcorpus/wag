@@ -23,7 +23,6 @@ import { SydModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { CoreApiGroup } from '../../../api/coreGroups';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface SyDTileConf extends TileConf {
@@ -151,7 +150,3 @@ export const init:TileFactory<SyDTileConf> = {
 
     create: (args) => new SyDTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

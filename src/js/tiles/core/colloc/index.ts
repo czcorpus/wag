@@ -23,12 +23,11 @@ import { QueryType } from '../../../query/index';
 import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink, TileFactoryArgs } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations';
 import { createInstance } from '../../../api/factory/collocations';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -199,7 +198,3 @@ export const init:TileFactory<CollocationsTileConf> = {
     },
     create: (args) => new CollocationsTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

@@ -23,14 +23,12 @@ import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { SubqueryModeConf } from '../../../models/tiles/freq';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqBarModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
@@ -205,7 +203,3 @@ export const init:TileFactory<FreqBarTileConf>  = {
     },
     create: (args) => new FreqBarTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

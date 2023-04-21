@@ -30,7 +30,6 @@ import { PriorityValueFactory } from '../../../priority';
 import { IConcordanceApi } from '../../../api/abstract/concordance';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -206,7 +205,3 @@ export const init:TileFactory<TimeDistTileConf> = {
 
     create: (args) => new TimeDistTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];
