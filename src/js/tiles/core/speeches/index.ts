@@ -18,14 +18,12 @@
 import { StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink, TileFactoryArgs } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../types';
-import { SpeechesApi } from '../../../api/vendor/kontext/speeches';
 import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches';
 import { pipe, Color, List } from 'cnc-tskit';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -181,7 +179,3 @@ export const init:TileFactory<SpeechesTileConf> = {
 
     create: (args) => new SpeechesTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

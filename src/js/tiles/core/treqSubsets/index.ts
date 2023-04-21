@@ -24,7 +24,6 @@ import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { wrapApiWithTokenAuth } from '../../../api/vendor/kontext/tokenApiWrapper';
 
 
@@ -165,7 +164,3 @@ export const init:TileFactory<TreqSubsetsTileConf> = {
 
     create: (args) => new TreqSubsetsTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

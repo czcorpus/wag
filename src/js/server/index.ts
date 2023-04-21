@@ -28,6 +28,7 @@ import { concatMap, map, tap } from 'rxjs/operators';
 import { Dict, Ident, List, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
+import { CookieJar, Cookie } from 'tough-cookie';
 
 import { ClientStaticConf, ServerConf, DomainLayoutsConfig, DomainAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
 import { validateTilesConf } from '../conf/validation';
@@ -56,7 +57,6 @@ function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf
     }
 }
 
-
 function loadColorsConf(clientConf:ClientStaticConf):Observable<ColorsConf> {
     return typeof clientConf.colors === 'string' ?
         parseJsonConfig(clientConf.colors) :
@@ -68,6 +68,31 @@ function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataRea
         parseJsonConfig(clientConf.dataReadability) :
         rxOf(clientConf.dataReadability);
 }
+
+function createCookieJarMiddleware() {
+
+    return (req: express.Request, res: express.Response, next) => {
+        const cookieJar = new CookieJar();
+        const cookiesSrc = req.headers['cookie'];
+
+        if (cookiesSrc) {
+            const cookies = Array.isArray(cookiesSrc) ? cookiesSrc : [cookiesSrc];
+            const proto = req.headers['x-forwarded-proto'] ?
+                req.headers['x-forwarded-proto'] : req.protocol;
+            List.forEach(
+                cookieHeader => {
+                    const cookie = Cookie.parse(cookieHeader);
+                    const domain = req ? req.headers['host'] : 'localhost';
+                    const url = `${proto}://${domain}`;
+                    cookieJar.setCookieSync(cookie, url);
+                },
+                cookies
+            );
+        }
+        req['cookieJar'] = cookieJar;
+        next();
+    };
+  }
 
 
 forkJoin([ // load core configs
@@ -123,6 +148,7 @@ forkJoin([ // load core configs
         const app = express();
         const FileStore = sessionFileStore(session)
         app.set('query parser', 'simple');
+        app.set('trust proxy', true);
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
         app.use(cookieParser());
@@ -139,6 +165,7 @@ forkJoin([ // load core configs
             resave: true,
             saveUninitialized: true
         }));
+        app.use(createCookieJarMiddleware());
 
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,

@@ -27,9 +27,7 @@ import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
@@ -203,6 +201,3 @@ export const init:TileFactory<FreqPieTileConf> = {
     create: (args) => new FreqPieTile(args)
 };
 
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

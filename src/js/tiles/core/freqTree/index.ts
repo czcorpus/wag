@@ -23,7 +23,7 @@ import { FreqTreeAPI } from '../../../api/vendor/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../models/tiles/freqTree';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
@@ -31,7 +31,6 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
-import { korpusApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 
 
 export interface FreqTreeTileConf extends TileConf {
@@ -188,7 +187,3 @@ export const init:TileFactory<FreqTreeTileConf>  = {
     sanityCheck: (args) => [],
     create: (args) => new FreqTreeTile(args)
 };
-
-export const serverActions:() => Array<TileServerActionFactory> = () => [
-    korpusApiAuthActionFactory,
-];

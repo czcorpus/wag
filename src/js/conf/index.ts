@@ -458,6 +458,14 @@ export interface LangCookieSetup {
     domain?:string;
 }
 
+export interface GroupedAuth {
+    ident:string;
+    preflightUrl?:string;
+    authenticateUrl:string;
+    token:string;
+    cookieName:string;
+}
+
 /**
  * Server side app configuration.
  */
@@ -484,10 +492,7 @@ export interface ServerConf {
         ttl?:number;
         secret?:string;
     };
-    korpusApi?:{
-        authenticateURL:string;
-        token:string;
-    }
+    groupedAuth?:Array<GroupedAuth>
 }
 
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {

@@ -15,17 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, response } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map, reduce, tap } from 'rxjs/operators';
-import { Dict, pipe, HTTP, List } from 'cnc-tskit';
+import { catchError, concatMap, map, reduce, tap } from 'rxjs/operators';
+import { Dict, pipe, HTTP, List, Rx } from 'cnc-tskit';
+import { CookieJar, Cookie } from 'tough-cookie';
 
 import { IAppServices } from '../../appServices';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index';
 import { QueryValidator } from '../../query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf } from '../../conf';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth } from '../../conf';
 import { init as viewInit } from '../../views/layout/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -40,6 +41,7 @@ import { maxQueryWordsForQueryType } from '../../conf/validation';
 import { Actions } from '../../models/actions';
 import { HTTPAction } from './actions';
 import { logAction } from '../actionLog/common';
+import { fullServerHttpRequest, serverHttpRequest } from '../request';
 
 
 interface MkRuntimeClientConfArgs {
@@ -201,6 +203,68 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
     })
 }
 
+function testGroupedAuth(
+    request:Request,
+    currResp:Response,
+    items:Array<GroupedAuth>
+):Observable<any> {
+    return rxOf(...items).pipe(
+        concatMap(
+            item => serverHttpRequest<any>({
+                url: item.preflightUrl,
+                method: HTTP.Method.GET
+            }).pipe(
+                map(
+                    resp => ({authorized: true, conf: item})
+                ),
+                catchError(
+                    err => {
+                        return rxOf({authorized: false, conf: item})
+                    }
+                )
+            )
+        ),
+        concatMap(
+            ({authorized, conf}) => {
+                return authorized ?
+                    rxOf(true) :
+                     fullServerHttpRequest<any>({
+                        url: conf.authenticateUrl,
+                        method: HTTP.Method.POST,
+                        data: {
+                            personal_access_token:  conf.token
+                        },
+                        headers: {
+                            'content-type': 'application/x-www-form-urlencoded'
+                        }
+                    }).pipe(
+                        map(
+                            resp => {
+                                const cookies = resp.headers['set-cookie'];
+                                if (cookies) {
+                                    List.forEach(
+                                        cookieHeader => {
+                                            const c = Cookie.parse(cookieHeader);
+                                            currResp.cookie(
+                                                c.key,
+                                                c.value,
+                                                {
+                                                    domain: request.headers.host,
+                                                    secure: true
+                                                }
+                                            )
+                                        },
+                                        cookies
+                                    )
+                                }
+                                return true;
+                            }
+                        )
+                    );
+            }
+        )
+    );
+}
 
 export interface QueryActionArgs {
     services:Services;
@@ -213,7 +277,17 @@ export interface QueryActionArgs {
     next:NextFunction;
 }
 
-export function queryAction({services, answerMode, httpAction, queryType, uiLang, req, res, next}:QueryActionArgs) {
+export function queryAction({
+    services,
+    answerMode,
+    httpAction,
+    queryType,
+    uiLang,
+    req,
+    res,
+    next
+}:QueryActionArgs) {
+
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang);
     // until now there should be no exceptions throw
@@ -241,6 +315,10 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
                 themeId: req.cookies[THEME_COOKIE_NAME] || '',
                 appServices
             }),
+            groupedAuth: testGroupedAuth(
+                req,
+                res,
+                services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
                         services.db
