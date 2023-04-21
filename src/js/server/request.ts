@@ -19,6 +19,8 @@
 import { Observable } from 'rxjs';
 import { HTTP } from 'cnc-tskit';
 import axios, { Method, AxiosError, AxiosResponse } from 'axios';
+import { wrapper } from 'axios-cookiejar-support';
+import { CookieJar } from 'tough-cookie';
 
 /**
  *
@@ -30,6 +32,7 @@ export interface ServerHTTPRequestConf { // TODO make this parametrizable to pre
     data?:{[k:string]:string|number|boolean|any};
     auth?:{username:string, password: string};
     headers?:{[k:string]:string};
+    cookies?:CookieJar;
 }
 
 export class ServerHTTPRequestError extends Error {
@@ -48,9 +51,19 @@ export class ServerHTTPRequestError extends Error {
     }
 }
 
-export function serverHttpRequest<T>({url, method, params, data, auth, headers}:ServerHTTPRequestConf):Observable<T> {
+export function serverHttpRequest<T>({
+    url,
+    method,
+    params,
+    data,
+    auth,
+    headers,
+    cookies
+}:ServerHTTPRequestConf):Observable<T> {
+
     return new Observable<T>((observer) => {
-        axios.request<T>({
+        const client = wrapper(axios.create(cookies));
+        client.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
             url,
             params,
@@ -75,9 +88,18 @@ export function serverHttpRequest<T>({url, method, params, data, auth, headers}:
 }
 
 // return full response including headers, not only data
-export function fullServerHttpRequest<T>({url, method, params, data, auth, headers}:ServerHTTPRequestConf):Observable<AxiosResponse<T>> {
+export function fullServerHttpRequest<T>({
+    url,
+    method,
+    params,
+    data,
+    auth,
+    headers,
+    cookies
+}:ServerHTTPRequestConf):Observable<AxiosResponse<T>> {
     return new Observable<AxiosResponse<T>>((observer) => {
-        axios.request<T>({
+        const client = wrapper(axios.create(cookies));
+        client.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
             url,
             params,
