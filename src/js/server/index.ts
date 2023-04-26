@@ -72,26 +72,20 @@ function createCookieJarMiddleware() {
 
     return (req: express.Request, res: express.Response, next) => {
         const cookieJar = new CookieJar();
-        const cookiesSrc = req.headers['cookie'];
-
-        if (cookiesSrc) {
-            const cookies = Array.isArray(cookiesSrc) ? cookiesSrc : [cookiesSrc];
-            const proto = req.headers['x-forwarded-proto'] ?
+        const domain = req ? req.headers['host'] : 'localhost';
+        const protocol = req.headers['x-forwarded-proto'] ?
                 req.headers['x-forwarded-proto'] : req.protocol;
-            List.forEach(
-                cookieHeader => {
-                    const cookie = Cookie.parse(cookieHeader);
-                    const domain = req ? req.headers['host'] : 'localhost';
-                    const url = `${proto}://${domain}`;
-                    cookieJar.setCookieSync(cookie, url);
-                },
-                cookies
-            );
-        }
+        List.forEach(
+            ([cname, cvalue]) => {
+                const cookie = Cookie.parse(`${cname}=${cvalue}`);
+                cookieJar.setCookieSync(cookie, `${protocol}://${domain}`);
+            },
+            Object.entries(req.cookies)
+        );
         req['cookieJar'] = cookieJar;
         next();
     };
-  }
+}
 
 
 forkJoin([ // load core configs
