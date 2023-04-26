@@ -49,14 +49,20 @@ export class ServerHTTPRequestError extends Error {
     }
 }
 
-function upgradeHeadersWithCookies(headers:any, cookies:{[k:string]:string}):void {
+function upgradeHeadersWithCookies(headers:any, cookies:{[k:string]:string}):{[k:string]:string} {
+    if (!headers) {
+        headers = {};
+    }
     const rawCookies = pipe(
         cookies,
         Dict.toEntries(),
         List.map(([k, v]) => `${k}=${v};`),
         x => x.join(' ')
     );
-    headers['Cookie'] = headers['Cookie'] ? ' ' + rawCookies : rawCookies;
+    headers['Cookie'] = headers['Cookie'] ?
+        headers['Cookie'] + ' ' + rawCookies :
+        rawCookies;
+    return headers;
 }
 
 export function serverHttpRequest<T>({
@@ -71,14 +77,13 @@ export function serverHttpRequest<T>({
 
     return new Observable<T>((observer) => {
         const client = axios.create();
-        upgradeHeadersWithCookies(headers, cookies);
         client.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
             url,
             params,
             data,
             auth,
-            headers
+            headers: upgradeHeadersWithCookies(headers, cookies)
 
         }).then(
             (resp) => {
@@ -108,14 +113,13 @@ export function fullServerHttpRequest<T>({
 }:ServerHTTPRequestConf):Observable<AxiosResponse<T>> {
     return new Observable<AxiosResponse<T>>((observer) => {
         const client = axios.create();
-        upgradeHeadersWithCookies(headers, cookies);
         client.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
             url,
             params,
             data,
             auth,
-            headers
+            headers: upgradeHeadersWithCookies(headers, cookies)
 
         }).then(
             (resp) => {

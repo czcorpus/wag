@@ -242,7 +242,7 @@ function testGroupedAuth(
                             resp => {
                                 const cookies = resp.headers['set-cookie'];
                                 if (cookies) {
-                                    currResp.header['set-cookie'] = cookies;
+                                    currResp.header('set-cookie', cookies);
                                 }
                                 return true;
                             }
@@ -304,7 +304,7 @@ export function queryAction({
             }),
             groupedAuth: testGroupedAuth(
                 res,
-                req.cookies,
+                req,
                 services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
