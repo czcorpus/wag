@@ -25,10 +25,9 @@ import * as translations from 'translations';
 import * as winston from 'winston';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Dict, Ident, List, tuple } from 'cnc-tskit';
+import { Ident, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
-import { CookieJar, Cookie } from 'tough-cookie';
 
 import { ClientStaticConf, ServerConf, DomainLayoutsConfig, DomainAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
 import { validateTilesConf } from '../conf/validation';
@@ -67,26 +66,6 @@ function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataRea
         parseJsonConfig(clientConf.dataReadability) :
         rxOf(clientConf.dataReadability);
 }
-
-function createCookieJarMiddleware() {
-
-    return (req: express.Request, res: express.Response, next) => {
-        const cookieJar = new CookieJar();
-        const domain = req ? req.headers['host'] : 'localhost';
-        const protocol = req.headers['x-forwarded-proto'] ?
-                req.headers['x-forwarded-proto'] : req.protocol;
-        List.forEach(
-            ([cname, cvalue]) => {
-                const cookie = Cookie.parse(`${cname}=${cvalue}`);
-                cookieJar.setCookieSync(cookie, `${protocol}://${domain}`);
-            },
-            Object.entries(req.cookies)
-        );
-        req['cookieJar'] = cookieJar;
-        next();
-    };
-}
-
 
 forkJoin([ // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -158,7 +137,6 @@ forkJoin([ // load core configs
             resave: true,
             saveUninitialized: true
         }));
-        app.use(createCookieJarMiddleware());
 
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,

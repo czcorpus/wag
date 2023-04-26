@@ -19,7 +19,6 @@ import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { catchError, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
-import { CookieJar, Cookie } from 'tough-cookie';
 
 import { IAppServices } from '../../appServices';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index';
@@ -205,7 +204,7 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
 
 function testGroupedAuth(
     currResp:Response,
-    cookieJar:CookieJar,
+    req:Request,
     items:Array<GroupedAuth>
 ):Observable<any> {
     return rxOf(...items).pipe(
@@ -213,7 +212,7 @@ function testGroupedAuth(
             item => serverHttpRequest<any>({
                 url: item.preflightUrl,
                 method: HTTP.Method.GET,
-                cookies: cookieJar
+                cookies: req.cookies
             }).pipe(
                 map(
                     resp => ({authorized: true, conf: item})
@@ -243,20 +242,7 @@ function testGroupedAuth(
                             resp => {
                                 const cookies = resp.headers['set-cookie'];
                                 if (cookies) {
-                                    List.forEach(
-                                        cookieHeader => {
-                                            const c = Cookie.parse(cookieHeader);
-                                            currResp.cookie(
-                                                c.key,
-                                                c.value,
-                                                {
-                                                    domain: conf.cookieDomain,
-                                                    secure: true
-                                                }
-                                            )
-                                        },
-                                        cookies
-                                    )
+                                    currResp.header['set-cookie'] = cookies;
                                 }
                                 return true;
                             }
@@ -318,7 +304,7 @@ export function queryAction({
             }),
             groupedAuth: testGroupedAuth(
                 res,
-                req['cookieJar'],
+                req.cookies,
                 services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?

@@ -17,10 +17,8 @@
  */
 
 import { Observable } from 'rxjs';
-import { HTTP } from 'cnc-tskit';
+import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import axios, { Method, AxiosError, AxiosResponse } from 'axios';
-import { wrapper } from 'axios-cookiejar-support';
-import { CookieJar } from 'tough-cookie';
 
 /**
  *
@@ -32,7 +30,7 @@ export interface ServerHTTPRequestConf { // TODO make this parametrizable to pre
     data?:{[k:string]:string|number|boolean|any};
     auth?:{username:string, password: string};
     headers?:{[k:string]:string};
-    cookies?:CookieJar;
+    cookies?:{[k:string]:string};
 }
 
 export class ServerHTTPRequestError extends Error {
@@ -51,6 +49,16 @@ export class ServerHTTPRequestError extends Error {
     }
 }
 
+function upgradeHeadersWithCookies(headers:any, cookies:{[k:string]:string}):void {
+    const rawCookies = pipe(
+        cookies,
+        Dict.toEntries(),
+        List.map(([k, v]) => `${k}=${v};`),
+        x => x.join(' ')
+    );
+    headers['Cookie'] = headers['Cookie'] ? ' ' + rawCookies : rawCookies;
+}
+
 export function serverHttpRequest<T>({
     url,
     method,
@@ -62,7 +70,8 @@ export function serverHttpRequest<T>({
 }:ServerHTTPRequestConf):Observable<T> {
 
     return new Observable<T>((observer) => {
-        const client = wrapper(axios.create(cookies));
+        const client = axios.create();
+        upgradeHeadersWithCookies(headers, cookies);
         client.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
             url,
@@ -98,7 +107,8 @@ export function fullServerHttpRequest<T>({
     cookies
 }:ServerHTTPRequestConf):Observable<AxiosResponse<T>> {
     return new Observable<AxiosResponse<T>>((observer) => {
-        const client = wrapper(axios.create(cookies));
+        const client = axios.create();
+        upgradeHeadersWithCookies(headers, cookies);
         client.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
             url,
