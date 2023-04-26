@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Request, Response, NextFunction, response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { catchError, concatMap, map, reduce, tap } from 'rxjs/operators';
-import { Dict, pipe, HTTP, List, Rx } from 'cnc-tskit';
+import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 import { CookieJar, Cookie } from 'tough-cookie';
 
 import { IAppServices } from '../../appServices';
@@ -205,13 +205,15 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
 
 function testGroupedAuth(
     currResp:Response,
+    cookieJar:CookieJar,
     items:Array<GroupedAuth>
 ):Observable<any> {
     return rxOf(...items).pipe(
         concatMap(
             item => serverHttpRequest<any>({
                 url: item.preflightUrl,
-                method: HTTP.Method.GET
+                method: HTTP.Method.GET,
+                cookies: cookieJar
             }).pipe(
                 map(
                     resp => ({authorized: true, conf: item})
@@ -316,6 +318,7 @@ export function queryAction({
             }),
             groupedAuth: testGroupedAuth(
                 res,
+                req['cookieJar'],
                 services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
