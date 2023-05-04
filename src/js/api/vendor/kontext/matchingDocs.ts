@@ -146,6 +146,7 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
                     },
                     {
                         headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true,
                         contentType: 'application/json',
                     }
                 ).pipe(

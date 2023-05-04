@@ -21,7 +21,7 @@ import { share, map } from 'rxjs/operators';
 import { cachedAjax$ } from '../../../page/ajax';
 import { DataApi, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { IApiServices } from '../../../appServices';
-import { List } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 
 
 interface HTTPResponse {
@@ -67,10 +67,13 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
 
     call(args:QueryArgs):Observable<CorpusDetails> {
         return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
+            HTTP.Method.GET,
             this.apiURL + '/corpora/ajax_get_corp_details',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             share(),

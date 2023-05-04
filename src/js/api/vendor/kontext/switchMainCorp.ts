@@ -60,7 +60,10 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
                     format:'json'
                 }),
             {},
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(
