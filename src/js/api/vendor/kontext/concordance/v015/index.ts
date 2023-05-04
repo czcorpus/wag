@@ -201,6 +201,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 argsBody,
                 {
                     headers: this.apiServices.getApiHeaders(this.apiURL),
+                    withCredentials: true,
                     contentType
                 }
             )
