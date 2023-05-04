@@ -167,7 +167,10 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
@@ -258,7 +261,10 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map<HTTPResponse, APIBlockResponse>(

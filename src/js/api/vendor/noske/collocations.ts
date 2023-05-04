@@ -125,7 +125,10 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
             'GET',
             this.apiURL + '/collx',
             queryArgs,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(

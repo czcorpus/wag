@@ -118,7 +118,10 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
                 limit: queryArgs.limit,
                 minScore: queryArgs.minScore
             },
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             catchError(

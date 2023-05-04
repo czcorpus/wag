@@ -110,6 +110,7 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
             },
             {
                 headers: this.apiServices.getApiHeaders(this.url),
+                withCredentials: true,
                 responseType: ResponseType.TEXT
             }
 

@@ -106,7 +106,10 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
                         limit: queryArgs.limit,
                         minSim: queryArgs.minSim
                     },
-                    {headers: this.apiServices.getApiHeaders(this.apiURL)}
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true
+                    }
                 )
             ),
             map(resp => ({

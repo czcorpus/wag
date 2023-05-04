@@ -204,7 +204,10 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
@@ -305,7 +308,10 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map<HTTPResponse, APIBlockResponse>(

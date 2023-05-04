@@ -51,7 +51,10 @@ export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, So
             'GET',
             this.apiURL + HTTPAction.SOURCE_INFO,
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(
