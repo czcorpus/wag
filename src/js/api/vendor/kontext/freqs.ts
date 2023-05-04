@@ -101,7 +101,7 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
 
 
 /**
- * 
+ *
  */
  export class SimpleKontextFreqDistribAPI implements DataApi<SingleCritQueryArgs, HTTPResponse> {
 
@@ -122,7 +122,10 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         )
     }

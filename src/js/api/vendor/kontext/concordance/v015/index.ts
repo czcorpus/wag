@@ -207,7 +207,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
 
         ).pipe(
             concatMap(
-                resp => args.pagesize > 0 ?
+                resp => parseInt(args.pagesize + '')  > 0 ?
                     cachedAjax$<ConcViewResponse>(this.cache)(
                         HTTP.Method.GET,
                         URL.join(this.apiURL, 'view'),
@@ -228,7 +228,8 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                             format: 'json'
                         },
                         {
-                            headers: this.apiServices.getApiHeaders(this.apiURL)
+                            headers: this.apiServices.getApiHeaders(this.apiURL),
+                            withCredentials: true
                         }
                     ) :
                     rxOf({

@@ -59,7 +59,10 @@ export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
 			HTTP.Method.GET,
 			this.url + '/wordlist',
 			args,
-			{headers: this.apiServices.getApiHeaders(this.url)}
+			{
+				headers: this.apiServices.getApiHeaders(this.url),
+				withCredentials: true
+			}
 		);
 	}
 }

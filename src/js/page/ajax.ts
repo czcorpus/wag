@@ -38,15 +38,17 @@ export interface AjaxOptions {
     responseType?:ResponseType;
     accept?:string;
     headers?:HTTPHeaders;
+    withCredentials?:boolean;
 }
 
 interface AjaxRequestProps {
-    accept:string,
-    contentType:string,
-    responseType:XMLHttpRequestResponseType,
-    method:string,
-    requestBody:string,
-    url:string
+    accept:string;
+    contentType:string;
+    responseType:XMLHttpRequestResponseType;
+    method:string;
+    requestBody:string;
+    url:string;
+    withCredentials?:boolean;
 }
 
 export type AjaxArgs = MultiDict|{[key:string]:any}|string;
@@ -138,7 +140,8 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
         responseType: options.responseType,
         method: method,
         requestBody: body,
-        url: url
+        url,
+        withCredentials: options.withCredentials
     }
 };
 
@@ -211,6 +214,7 @@ export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:Ajax
         body: callArgs.requestBody,
         method: callArgs.method,
         responseType: callArgs.responseType,
-        headers: headers
+        withCredentials: callArgs.withCredentials,
+        headers
     }).pipe(map<AjaxResponse<T>, T>(v => v.response));
 }

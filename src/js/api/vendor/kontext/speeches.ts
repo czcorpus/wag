@@ -17,7 +17,7 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { IAsyncKeyValueStore, HTTPHeaders, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types';
 import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../page/ajax';
 import { CorpusInfoAPI } from './corpusInfo';
@@ -88,7 +88,8 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
                 this.apiUrl + '/widectx',
                 args,
                 {
-                    headers: this.apiServices.getApiHeaders(this.apiUrl)
+                    headers: this.apiServices.getApiHeaders(this.apiUrl),
+                    withCredentials: true
                 }
             );
 

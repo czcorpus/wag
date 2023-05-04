@@ -124,7 +124,10 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
             'GET',
             this.apiURL + this.API_PATH,
             queryArgs,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(

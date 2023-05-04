@@ -58,7 +58,10 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
             ,
             this.apiURL + '/reduce',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(data => ({
