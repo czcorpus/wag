@@ -65,7 +65,10 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                 ['pos', args.pos.join(' ')],
                 ['srchRange', args.srchRange]
             ]),
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(data => ({

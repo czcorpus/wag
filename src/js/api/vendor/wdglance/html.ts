@@ -72,6 +72,7 @@ export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs>, WebDelegateApi 
             queryArgs,
             {
                 headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true,
                 responseType: ResponseType.TEXT
             }
 

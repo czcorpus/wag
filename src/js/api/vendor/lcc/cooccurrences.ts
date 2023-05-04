@@ -95,7 +95,10 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
             {
                 limit: queryArgs.limit
             },
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(

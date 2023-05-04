@@ -112,7 +112,10 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 offset: args.offset,
                 limit: args.limit
             },
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(

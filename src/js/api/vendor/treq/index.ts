@@ -172,7 +172,10 @@ class TreqAPICaller {
             HTTP.Method.GET,
             `${this.apiURL}/api/v1/`,
             args,
-            {headers: this.appServices.getApiHeaders(this.apiURL)},
+            {
+                headers: this.appServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            },
 
         ).pipe(
             map(

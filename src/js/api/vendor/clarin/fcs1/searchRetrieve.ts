@@ -190,6 +190,7 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
             args,
             {
                 headers: this.apiServices.getApiHeaders(this.url),
+                withCredentials: true,
                 responseType: ResponseType.TEXT
             }
 

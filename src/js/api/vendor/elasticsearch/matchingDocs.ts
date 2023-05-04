@@ -91,7 +91,10 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
             'GET',
             this.apiURL,
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)},
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            },
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.hits.hits.map(v => ({

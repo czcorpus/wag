@@ -74,7 +74,10 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
             'GET',
             this.apiURL,
             queryArgs,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             map(

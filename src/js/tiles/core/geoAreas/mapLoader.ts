@@ -38,6 +38,7 @@ export class MapLoader implements DataApi<string, string> {
             this.appServices.createStaticUrl(file),
             {},
             {
+                withCredentials: true,
                 responseType: ResponseType.TEXT
             }
         );

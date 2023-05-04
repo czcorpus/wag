@@ -122,7 +122,10 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
             'GET',
             this.apiURL + '/corp_info',
             args,
-            {headers: this.apiServices.getApiHeaders(this.apiURL)}
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
 
         ).pipe(
             share(),
