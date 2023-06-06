@@ -336,8 +336,8 @@ export function queryAction({
                 isMobileClient: clientIsLikelyMobile(req)
             }).subscribe();
         })
-    ).subscribe(
-        ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
+    ).subscribe({
+        next: ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
             const queryMatchesExtended = List.map(
                 (queryMatches, queryIdx) => {
                     const mergedMatches = addWildcardMatches([...queryMatches]);
@@ -413,7 +413,7 @@ export function queryAction({
                 repositoryUrl: services.repositoryUrl
             }));
         },
-        (err:Error) => {
+        error: (err:Error) => {
             services.errorLog.error(err.message, {trace: err.stack});
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
@@ -441,5 +441,5 @@ export function queryAction({
                 error: error
             }));
         }
-    );
+    });
 }
