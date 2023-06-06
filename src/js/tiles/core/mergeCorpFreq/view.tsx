@@ -170,7 +170,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         isAnimationActive={false}
                                         name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
                                     {List.map(
-                                        (entry, i) => <Cell key={`cell-${index}`} fill={colorFn(i)} />,
+                                        (entry, i) => <Cell key={`cell-${index}`} />,
                                     transformedData)}
                                 </Bar>
                             ),
