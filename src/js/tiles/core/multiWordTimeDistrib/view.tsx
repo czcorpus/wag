@@ -257,9 +257,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     tooltipFormatter = (fracValue, name, formatterProps) => {
                         if (typeof fracValue === 'number') {
                             return [
-                                `${100 * fracValue}% (${formatterProps.payload.ipmNorm * fracValue} ipm`,
+                                `${100 * fracValue}% (${formatterProps.payload.ipmNorm * fracValue} ipm)`,
                                 name
                             ];
+                        } else if (Array.isArray(fracValue)) {
+                            return null; // remove confidence interval data from tooltip
                         }
                         return ['??', '??'];
                     }
@@ -275,12 +277,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 `${100 * ipmValue/formatterProps.payload.ipmNorm}% (${ipmValue} ipm)`,
                                 name
                             ];
+                        } else if (Array.isArray(ipmValue)) {
+                            return null; // remove confidence interval data from tooltip
                         }
                         return ['??', '??'];
                     };
                 break;
             }
-
             return (
                 <ResponsiveContainer key='chartContainer' width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
                     <AreaChart
