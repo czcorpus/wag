@@ -159,7 +159,7 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
             map(({freq, fill}) => {
                 freq.data = List.map(f => {
                     const id = f.searchValues[0];
-                    f.displayValues = List.map(attr => fill.data[id][attr], args.displayAttrs);
+                    f.displayValues = List.map(attr => fill[id][attr.replace('.', '_')], args.displayAttrs);
                     return f;
                 }, freq.data);
                 return freq
