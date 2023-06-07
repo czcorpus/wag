@@ -143,7 +143,7 @@ export class KorpusFreqDB implements IFreqDB {
         )
     }
 
-    private loadData(value:string, type:string):Observable<HTTPDataResponse> {
+    private loadData(value:string, type:string, ci:boolean):Observable<HTTPDataResponse> {
         const words = value.split(' ');
         const fcritLocation = List.init(words.length > 1 ? this.ngramFcrit.split(':') : this.fcrit.split(':')).join(':');
 
@@ -177,7 +177,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 feats: [{
                                     type: type,
                                     value: word,
-                                    ci: true
+                                    ci: ci
                                 }]
                             }]
                         }),
@@ -204,7 +204,7 @@ export class KorpusFreqDB implements IFreqDB {
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
         const fcrit = word.includes(' ') ? this.ngramFcrit : this.fcrit;
 
-        return forkJoin([this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word')]).pipe(
+        return forkJoin([this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word', true)]).pipe(
             concatMap(([rsc, data]) => rxOf(...pipe(
                 data.data,
                 List.reduce<DataBlock, Array<[string, string, Array<PosItem>]>>(
@@ -297,7 +297,7 @@ export class KorpusFreqDB implements IFreqDB {
     ):Observable<Array<QueryMatch>> {
 
         const fcrit = lemma.includes(' ') ? this.ngramFcrit : this.fcrit;
-        return this.loadData(lemma, ':form:attr:cnc:w:lemma').pipe(
+        return this.loadData(lemma, ':form:attr:cnc:w:lemma', false).pipe(
             map(data => List.reduce(
                 (acc, curr) => {
                     if (curr[fcrit]) {
