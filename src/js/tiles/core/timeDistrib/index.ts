@@ -131,7 +131,8 @@ export class TimeDistTile implements ITileProvider {
                 wordCmp: '',
                 zoom: [null, null],
                 refArea: [null, null],
-                backlinks: []
+                backlinks: [],
+                subcBacklinkLabel: conf.subcBacklinkLabel || {},
             },
             tileId: tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,

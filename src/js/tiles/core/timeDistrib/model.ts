@@ -78,6 +78,7 @@ export interface TimeDistribModelState extends MinSingleCritFreqState {
     refArea:[number,number];
     zoom:[number, number];
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
+    subcBacklinkLabel:{[subc:string]:string};
 }
 
 
@@ -385,7 +386,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
+    private getFreqs(state:TimeDistribModelState, response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
         response.pipe(
             map(
                 ([resp, args]) => {
@@ -403,6 +404,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             args.freqApi.createBackLink(args.freqApi.getBackLink(this.backlink), resp.corpName, args.concId) :
                             args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
                     };
+                    if (Dict.hasKey(args.subcName, state.subcBacklinkLabel)) {
+                        ans.backlink.label = state.subcBacklinkLabel[args.subcName];
+                    }
                     if (args.targetId === SubchartID.MAIN) {
                         ans.data = dataFull;
                         ans.wordMainLabel = args.wordMainLabel;
@@ -551,7 +555,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     args
                 ))
             );
-            this.getFreqs(proc, dispatch);
+            this.getFreqs(state, proc, dispatch);
 
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(
@@ -614,7 +618,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 )
             );
 
-            this.getFreqs(data, dispatch);
+            this.getFreqs(state, data, dispatch);
         }
     }
 }
