@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf, Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { CorpSrchTileConf, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
 
 
@@ -36,6 +36,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     flimit:number;
 
     posQueryGenerator:[string, string];
+
+    subcBacklinkLabel?:{[subc:string]:string};
 }
 
 

@@ -43,6 +43,12 @@
             "minItems": 2,
             "maxItems": 2
         },
+        "subcBacklinkLabel": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
         "corpname": {
             "type": "string"
         },
