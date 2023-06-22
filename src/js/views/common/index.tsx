@@ -282,6 +282,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                     {pipe(
                         Array.isArray(props.backlink) ? props.backlink : [props.backlink],
                         List.filter(v => !!v),
+                        List.sortAlphaBy(v => typeof v.label === 'string' ? v.label : v.label['en-US']),
                         List.map((item, i) =>
                             <React.Fragment key={`${item.label}:${i}`}>
                                 {i > 0 ? <span>, </span> : null}
