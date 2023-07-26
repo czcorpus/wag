@@ -150,6 +150,10 @@
       {
         "path": "core/wordSim",
         "conf_name": "WordSimTileConf"
+      },
+      {
+        "path": "core/syntacticColls",
+        "conf_name": "SyntacticCollsTileConf"
       }
     ]
   }
