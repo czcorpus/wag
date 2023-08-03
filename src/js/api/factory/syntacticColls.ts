@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 
-import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
+import { IAsyncKeyValueStore } from '../../types';
+import { CoreApiGroup } from '../coreGroups';
+import { IApiServices } from '../../appServices';
+import { MquerySyntacticCollsAPI } from '../vendor/mquery/syntacticColls';
+import { SyntacticCollsApi } from '../abstract/syntacticColls';
 
-export const SyntacticColls = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    flex-flow: space-between;
-    gap: 10px;
-`;
 
-export const SCollsWordCloud = styled.div`
-    flex-grow: 1;
-`;
+export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):SyntacticCollsApi<any> {
 
-export const SCollsTable = styled.div`
-    flex-grow: 1;
-`;
+	switch (apiIdent) {
+		case CoreApiGroup.MQUERY:
+            return new MquerySyntacticCollsAPI(cache, apiURL, apiServices);
+		default:
+			throw new Error(`API type "${apiIdent}" not supported for syntactic collocations.`);
+	}
+
+}

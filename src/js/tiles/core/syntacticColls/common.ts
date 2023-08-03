@@ -17,11 +17,16 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions';
+import { SCollsFreqRowResponse } from '../../../api/vendor/mquery/syntacticColls';
+import { SCollsQueryType } from '../../../models/tiles/syntacticColls';
 
 
 export class Actions {
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {
+        qType: SCollsQueryType;
+        data: Array<SCollsFreqRowResponse>;
+    }> = {
         name: GlobalActions.TileDataLoaded.name
     };
 

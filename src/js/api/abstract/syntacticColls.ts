@@ -16,20 +16,15 @@
  * limitations under the License.
  */
 
-import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
+import { SCollsData, SyntacticCollsModelState } from "../../models/tiles/syntacticColls";
+import { ResourceApi } from "../../types";
+import { SCollsQueryType } from "../vendor/mquery/syntacticColls";
 
-export const SyntacticColls = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    flex-flow: space-between;
-    gap: 10px;
-`;
+export interface SyntacticCollsApi<T> extends ResourceApi<T, [SCollsQueryType, SCollsData]> {
 
-export const SCollsWordCloud = styled.div`
-    flex-grow: 1;
-`;
+    /**
+     * @param dataSpec is either an ID of an existing concordance or a query
+     */
+    stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):T;
 
-export const SCollsTable = styled.div`
-    flex-grow: 1;
-`;
+}

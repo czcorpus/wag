@@ -10,6 +10,9 @@
         "corpname": {
             "type": "string"
         },
+        "maxItems": {
+            "type": "number"
+        },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
             "type": "string"
@@ -73,6 +76,7 @@
         "apiType",
         "apiURL",
         "corpname",
+        "maxItems",
         "tileType"
     ],
     "definitions": {
