@@ -1,8 +1,18 @@
 {
     "en-US": {
-        "syntactic_colls__main_label": "Syntactic collocations"
+        "syntactic_colls__main_label": "Syntactic collocations",
+        "syntactic_colls__heading_noun-modified-by": "Noun modified by",
+        "syntactic_colls__heading_modifiers-of": "Modifiers of",
+        "syntactic_colls__heading_verbs-subject": "Verbs subject",
+        "syntactic_colls__heading_verbs-object": "Verbs object",
+        "syntactic_colls__tooltip_score": "score"
     },
     "cs-CZ": {
-        "syntactic_colls__main_label": "Syntaktické kolokace"
+        "syntactic_colls__main_label": "Syntaktické kolokace",
+        "syntactic_colls__heading_noun-modified-by": "Noun modified by UNTRANSLATED",
+        "syntactic_colls__heading_modifiers-of": "Modifiers of UNTRANSLATED",
+        "syntactic_colls__heading_verbs-subject": "Verbs subject UNTRANSLATED",
+        "syntactic_colls__heading_verbs-object": "Verbs object UNTRANSLATED",
+        "syntactic_colls__tooltip_score": "hodnota"
     }
 }

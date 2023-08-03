@@ -16,12 +16,32 @@
  * limitations under the License.
  */
 
+import { SCollsQueryType } from "../../api/vendor/mquery/syntacticColls";
+import { QueryMatch } from "../../query";
+
+export interface SCollsDataRow {
+    word:string;
+    freq:number;
+    norm:number;
+    ipm:number;
+    collWeight:number;
+}
+
+export type SCollsData = Array<SCollsDataRow>;
+
 export interface SyntacticCollsModelState {
     isBusy:boolean;
     tileId:number;
-    isTweakMode:boolean;
+    isMobile:boolean;
     isAltViewMode:boolean;
     error:string|null;
     widthFract:number;
     corpname:string;
+    queryMatch:QueryMatch;
+    data:{
+        [SCollsQueryType.NOUN_MODIFIED_BY]:SCollsData;
+        [SCollsQueryType.MODIFIERS_OF]:SCollsData;
+        [SCollsQueryType.VERBS_OBJECT]:SCollsData;
+        [SCollsQueryType.VERBS_SUBJECT]:SCollsData;
+    };
 }

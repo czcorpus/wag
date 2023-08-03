@@ -57,6 +57,11 @@ export enum CoreApiGroup {
 	TREQ = 'treq',
 
 	/**
+	 * Mquery (CNC app)
+	 */
+	MQUERY = 'mquery',
+
+	/**
 	 * Embedded API functions
 	 */
 	WDGLANCE = 'wdglance',

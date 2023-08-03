@@ -21,12 +21,16 @@ import { QueryType } from '../../../query/index';
 import { SyntacticCollsModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { findCurrQueryMatch } from '../../../models/query';
+import { createInstance } from '../../../api/factory/syntacticColls';
+import { SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
     apiURL:string;
     apiType:string;
     corpname:string;
+    maxItems:number;
 }
 
 /**
@@ -55,7 +59,6 @@ export class SyntacticCollsTile implements ITileProvider {
         waitForTilesTimeoutSecs, widthFract, conf, isBusy,
         queryMatches, cache, queryType
     }:TileFactoryArgs<SyntacticCollsTileConf>) {
-
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -69,15 +72,23 @@ export class SyntacticCollsTile implements ITileProvider {
             appServices: appServices,
             backlink: conf.backlink || null,
             queryType: queryType,
-            apiType: conf.apiType,
+            maxItems: conf.maxItems,
+            api: createInstance(conf.apiType, conf.apiURL, appServices, cache, {}),
             initState: {
                 isBusy: isBusy,
-                isTweakMode: false,
+                isMobile: appServices.isMobileMode(),
                 isAltViewMode: false,
                 tileId: tileId,
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
+                queryMatch: findCurrQueryMatch(queryMatches[0]),
+                data: {
+                    [SCollsQueryType.MODIFIERS_OF]:null,
+                    [SCollsQueryType.NOUN_MODIFIED_BY]:null,
+                    [SCollsQueryType.VERBS_OBJECT]:null,
+                    [SCollsQueryType.VERBS_SUBJECT]:null,
+                },
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
@@ -122,7 +133,7 @@ export class SyntacticCollsTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModel():StatelessModel<{}>|null {

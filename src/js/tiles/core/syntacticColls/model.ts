@@ -21,7 +21,11 @@ import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions } from './common';
 import { Backlink } from '../../../page/tile';
 import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
-import { QueryType } from '../../../query/index';
+import { QueryType } from '../../../query';
+import { concat } from 'rxjs';
+import { SyntacticCollsApi } from '../../../api/abstract/syntacticColls';
+import { Dict } from 'cnc-tskit';
+import { SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
 
 
 export interface SyntacticCollsModelArgs {
@@ -33,7 +37,8 @@ export interface SyntacticCollsModelArgs {
     waitForTilesTimeoutSecs:number;
     backlink:Backlink;
     queryType:QueryType;
-    apiType:string;
+    api:SyntacticCollsApi<any>;
+    maxItems:number;
 }
 
 
@@ -49,11 +54,13 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly queryType:QueryType;
 
-    private readonly apiType:string;
-
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, initState, backlink, queryType, apiType}:SyntacticCollsModelArgs) {
+    private readonly api:SyntacticCollsApi<any>;
+
+    private readonly maxItems:number;
+
+    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, initState, backlink, queryType, api, maxItems}:SyntacticCollsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -61,40 +68,74 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         this.appServices = appServices;
         this.backlink = backlink;
         this.queryType = queryType;
-        this.apiType = apiType;
+        this.api = api;
+        this.maxItems = maxItems;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableAltViewMode,
+            action => action.payload.ident === this.tileId,
+            (state, action) => {state.isAltViewMode = true}
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableAltViewMode,
+            action => action.payload.ident === this.tileId,
+            (state, action) => {state.isAltViewMode = false}
+        );
+
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: false,
-                    }
-                })
+                concat(
+                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.NOUN_MODIFIED_BY)),
+                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.MODIFIERS_OF)),
+                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.VERBS_OBJECT)),
+                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.VERBS_SUBJECT)),
+                ).subscribe({
+                    next: ([qType, data]) => {
+                        seDispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: false,
+                                data,
+                                qType,
+                            }
+                        })
+                    },
+                    error: (error) => {
+                        seDispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            error,
+                        })
+                    },
+                });
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
+                if (action.error) {
+                    console.error(action.error);
                     state.isBusy = false;
-                    if (action.error) {
-                        console.error(action.error);
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
+                } else {
+                    state.data[action.payload.qType] = action.payload.data.slice(0, this.maxItems);
+                    if (Dict.every(v => !!v, state.data)) {
+                        state.isBusy = false;
                     }
                 }
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionHandler(
+            GlobalActions.GetSourceInfo,
             (state, action) => {},
             (state, action, seDispatch) => {},
         );
