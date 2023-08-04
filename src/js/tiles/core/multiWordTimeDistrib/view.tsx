@@ -257,7 +257,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     tooltipFormatter = (fracValue, name, formatterProps) => {
                         if (typeof fracValue === 'number') {
                             return [
-                                `${100 * fracValue}% (${formatterProps.payload.ipmNorm * fracValue} ipm)`,
+                                `${ut.formatNumber(100 * fracValue)}% (${ut.formatNumber(formatterProps.payload.ipmNorm * fracValue)} ipm)`,
                                 name
                             ];
                         } else if (Array.isArray(fracValue)) {
@@ -274,7 +274,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     tooltipFormatter = (ipmValue, name, formatterProps) => {
                         if (typeof ipmValue === 'number') {
                             return [
-                                `${100 * ipmValue/formatterProps.payload.ipmNorm}% (${ipmValue} ipm)`,
+                                `${ut.formatNumber(100 * ipmValue/formatterProps.payload.ipmNorm)}% (${ut.formatNumber(ipmValue)} ipm)`,
                                 name
                             ];
                         } else if (Array.isArray(ipmValue)) {
