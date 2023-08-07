@@ -121,7 +121,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             },
             (state, action, dispatch) => {
                 const conc$ = this.waitForTiles.length > 0 ?
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         pipe(
                             this.waitForTiles,
@@ -172,7 +172,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     state.data[action.payload.queryId] = pipe(
                         state.data[action.payload.queryId],
                         List.concat(action.payload.data.length > 0 ?
-                            action.payload.data :
+                            List.sortAlphaBy(v => v.name, action.payload.data) :
                             [{
                                 sourceId: action.payload.sourceId,
                                 name: action.payload.valuePlaceholder,
@@ -413,15 +413,15 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 ),
                 true
             )
-        ).subscribe(
-            (isEmpty) => dispatch<typeof Actions.TileDataLoaded>({
+        ).subscribe({
+            next: (isEmpty) => dispatch<typeof Actions.TileDataLoaded>({
                 name: Actions.TileDataLoaded.name,
                 payload: {
                     tileId: this.tileId,
                     isEmpty: isEmpty
                 }
             }),
-            err => {
+            error: err => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: GlobalActions.TileDataLoaded.name,
                     error: err,
@@ -431,6 +431,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     }
                 });
             }
-        );
+        });
     }
 }
