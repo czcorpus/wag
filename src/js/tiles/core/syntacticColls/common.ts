@@ -17,8 +17,7 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { SCollsFreqRowResponse } from '../../../api/vendor/mquery/syntacticColls';
-import { SCollsQueryType } from '../../../models/tiles/syntacticColls';
+import { SCollsFreqRowResponse, SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
 
 
 export class Actions {
