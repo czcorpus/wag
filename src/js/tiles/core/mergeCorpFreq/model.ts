@@ -172,7 +172,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     state.data[action.payload.queryId] = pipe(
                         state.data[action.payload.queryId],
                         List.concat(action.payload.data.length > 0 ?
-                            List.sortAlphaBy(v => v.name, action.payload.data) :
+                            action.payload.data :
                             [{
                                 sourceId: action.payload.sourceId,
                                 name: action.payload.valuePlaceholder,
@@ -183,7 +183,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 uniqueColor: false
                             }]
                         ),
-                        List.filter(v => !!v.name)
+                        List.filter(v => !!v.name),
+                        List.sortAlphaBy(v => {
+                            const idx = List.findIndex(s => s.uuid === v.sourceId, state.sources);
+                            return `${idx}${v.name}`;
+                        })
                     );
                 }
             }
