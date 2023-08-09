@@ -58,6 +58,7 @@ export enum SCollsQueryType {
     VERBS_SUBJECT = 'verbs-subject',
     VERBS_OBJECT = 'verbs-object',
 }
+export type SCollsQueryTypeValue = `${SCollsQueryType}`;
 
 export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest> {
 

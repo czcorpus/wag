@@ -23,7 +23,7 @@ import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInstance } from '../../../api/factory/syntacticColls';
-import { SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
+import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
@@ -31,6 +31,7 @@ export interface SyntacticCollsTileConf extends TileConf {
     apiType:string;
     corpname:string;
     maxItems:number;
+    displayTypes:Array<SCollsQueryTypeValue>;
 }
 
 /**
@@ -83,12 +84,8 @@ export class SyntacticCollsTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
-                data: {
-                    [SCollsQueryType.MODIFIERS_OF]:null,
-                    [SCollsQueryType.NOUN_MODIFIED_BY]:null,
-                    [SCollsQueryType.VERBS_OBJECT]:null,
-                    [SCollsQueryType.VERBS_SUBJECT]:null,
-                },
+                data: {},
+                displayTypes: conf.displayTypes,
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
