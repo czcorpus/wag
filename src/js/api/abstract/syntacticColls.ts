@@ -18,13 +18,13 @@
 
 import { SCollsData, SyntacticCollsModelState } from "../../models/tiles/syntacticColls";
 import { ResourceApi } from "../../types";
-import { SCollsQueryType } from "../vendor/mquery/syntacticColls";
+import { SCollsQueryType, SCollsQueryTypeValue } from "../vendor/mquery/syntacticColls";
 
 export interface SyntacticCollsApi<T> extends ResourceApi<T, [SCollsQueryType, SCollsData]> {
 
     /**
      * @param dataSpec is either an ID of an existing concordance or a query
      */
-    stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):T;
+    stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryTypeValue):T;
 
 }
