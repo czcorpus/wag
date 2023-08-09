@@ -257,6 +257,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 word,
                                 lemma,
                                 pos,
+                                upos: [], // TODO
                                 ipm: 0,
                                 flevel: null,
                                 abs: 0,
@@ -322,6 +323,7 @@ export class KorpusFreqDB implements IFreqDB {
                                     word: curr._name,
                                     lemma: lemma,
                                     pos: pos,
+                                    upos: [], // TODO
                                     ipm: ipm,
                                     flevel: calcFreqBand(ipm),
                                     abs: curr[fcrit],
