@@ -104,15 +104,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <S.SyntacticColls>
                         {this.props.isAltViewMode ? [
-                            this.renderTable(SCollsQueryType.NOUN_MODIFIED_BY),
-                            this.renderTable(SCollsQueryType.MODIFIERS_OF),
-                            this.renderTable(SCollsQueryType.VERBS_OBJECT),
-                            this.renderTable(SCollsQueryType.VERBS_SUBJECT),
-                        ]: [
                             this.renderWordCloud(SCollsQueryType.NOUN_MODIFIED_BY),
                             this.renderWordCloud(SCollsQueryType.MODIFIERS_OF),
                             this.renderWordCloud(SCollsQueryType.VERBS_OBJECT),
                             this.renderWordCloud(SCollsQueryType.VERBS_SUBJECT),
+                        ]: [
+                            this.renderTable(SCollsQueryType.NOUN_MODIFIED_BY),
+                            this.renderTable(SCollsQueryType.MODIFIERS_OF),
+                            this.renderTable(SCollsQueryType.VERBS_OBJECT),
+                            this.renderTable(SCollsQueryType.VERBS_SUBJECT),
                         ]}
                     </S.SyntacticColls>
                 </globalCompontents.TileWrapper>
