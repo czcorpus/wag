@@ -105,6 +105,7 @@ export class KontextFreqDB implements IFreqDB {
                         lemma: item.Word[0].n,
                         word: word,
                         pos: importQueryPosWithLabel(pos, posTable, appServices),
+                        upos: [], // TODO
                         abs: item.freq,
                         ipm: ipm,
                         arf: -1,

@@ -45,7 +45,7 @@ export interface PosItem {
 }
 
 /**
- * A lisit of common single-letter
+ * A list of common single-letter
  * codes for different part of speech types.
  */
 export enum PoSValues {
@@ -61,6 +61,31 @@ export enum PoSValues {
     INTERJECTION = 'I',
     PUNCTUATION = 'Z',
     UNKNOWN = 'X'
+}
+
+/**
+ * A list of universal dependencies
+ * codes for different part of speech types.
+ * https://universaldependencies.org/u/pos/
+ */
+export enum UPoSValues {
+    NOUN = 'NOUN',
+    PROPER_NOUN = 'PROPN',
+    ADJECTIVE = 'ADJ',
+    PRONOUN = 'PRON',
+    NUMERAL = 'NUM',
+    VERB = 'VERB',
+    ADVERB = 'ADV',
+    PARTICLE = 'PART',
+    INTERJECTION = 'INTJ',
+    PUNCTUATION = 'PUNCT',
+    ADPOSITION = 'ADP',
+    AUXILIARY = 'AUX',
+    COORD_CONJUNCTION = 'CCONJ',
+    SUBORD_CONJUNCTION = 'SCONJ',
+    DETERMINER = 'DET',
+    SYMBOL = 'SYM',
+    OTHER = 'X',
 }
 
 /**
@@ -116,6 +141,81 @@ export const posTable = {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
         'en-US': 'unknown or undetermined part of speech'
     }
+};
+
+/**
+ * A mapping between universal dependenciese part of speech
+ * codes and their respective labels in different
+ * languages.
+ */
+export const uposTable = {
+    [UPoSValues.NOUN]: {
+        'cs-CZ': 'podstatné jméno',
+        'en-US': 'noun'
+    },
+    [UPoSValues.PROPER_NOUN]: {
+        'cs-CZ': 'vlastní jméno',
+        'en-US': 'proper noun'
+    },
+	[UPoSValues.ADJECTIVE]: {
+        'cs-CZ': 'přídavné jméno',
+        'en-US': 'adjective'},
+	[UPoSValues.PRONOUN]: {
+        'cs-CZ': 'zájmeno',
+        'en-US': 'pronoun'
+    },
+	[UPoSValues.NUMERAL]: {
+        'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi',
+        'en-US': 'numeral'
+    },
+	[UPoSValues.VERB]: {
+        'cs-CZ': 'sloveso',
+        'en-US': 'verb'
+    },
+	[UPoSValues.ADVERB]: {
+        'cs-CZ': 'příslovce',
+        'en-US': 'adverb'
+    },
+	[UPoSValues.ADPOSITION]: {
+        'cs-CZ': 'předložka',
+        'en-US': 'preposition'
+    },
+	[UPoSValues.COORD_CONJUNCTION]: {
+        'cs-CZ': 'spojka souřadná',
+        'en-US': 'coordinating conjunction'
+    },
+    [UPoSValues.SUBORD_CONJUNCTION]: {
+        'cs-CZ': 'spojka podřadná',
+        'en-US': 'subordinating conjunction'
+    },
+	[UPoSValues.PARTICLE]: {
+        'cs-CZ': 'částice',
+        'en-US': 'particle'
+    },
+	[UPoSValues.INTERJECTION]: {
+        'cs-CZ': 'citoslovce',
+        'en-US': 'interjection'
+    },
+	[UPoSValues.PUNCTUATION]: {
+        'cs-CZ': 'interpunkce',
+        'en-US': 'punctuation'
+    },
+    [UPoSValues.AUXILIARY]: {
+        'cs-CZ': 'pomocné sloveso',
+        'en-US': 'auxiliary'
+    },
+    [UPoSValues.DETERMINER]: {
+        'cs-CZ': 'determiner',
+        'en-US': 'determiner'
+    },
+    [UPoSValues.SYMBOL]: {
+        'cs-CZ': 'symbol',
+        'en-US': 'symbol'
+    },
+    [UPoSValues.OTHER]: {
+        'cs-CZ': 'neznámý nebo neurčený slovní druh',
+        'en-US': 'unknown or undetermined part of speech'
+    },
 };
 
 // source: https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
@@ -216,7 +316,7 @@ export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:
             s.split(' '),
             List.map(
                 v => {
-                    if (Object.values<string>(PoSValues).indexOf(v.toUpperCase()) > -1) {
+                    if (Object.keys(postable).indexOf(v.toUpperCase()) > -1) {
                         const ident = v.toUpperCase();
                         return {
                             value: ident,

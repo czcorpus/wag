@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, merge, empty, forkJoin, of as rxOf } from 'rxjs';
+import { Observable, merge, empty, forkJoin, of as rxOf, EMPTY } from 'rxjs';
 import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
@@ -24,7 +24,7 @@ import { QueryMatch, calcFreqBand } from '../../../../query/index';
 import { IFreqDB } from '../../freqdb';
 import { FreqDbOptions } from '../../../../conf';
 import { serverHttpRequest } from '../../../request';
-import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../../postag';
+import { importQueryPosWithLabel, posTable, posTagsEqual, uposTable } from '../../../../postag';
 import { SourceDetails } from '../../../../types';
 import { CouchStoredSourceInfo } from './sourceInfo';
 
@@ -107,6 +107,7 @@ interface HTTPNgramDoc {
     _rev:string;
     lemma:string;
     pos:string;
+    upos:string;
     count:number;
     arf:number;
     forms:Array<{
@@ -205,6 +206,7 @@ export class CouchFreqDB implements IFreqDB {
                 word: word,
                 lemma: v.lemma,
                 pos: importQueryPosWithLabel(v.pos, posTable, appServices),
+                upos: importQueryPosWithLabel(v.upos, uposTable, appServices),
                 abs: v.count,
                 ipm: v.count / this.corpusSize * 1e6,
                 flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
@@ -215,10 +217,10 @@ export class CouchFreqDB implements IFreqDB {
     }
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
-        return forkJoin(
+        return forkJoin([
             this.queryExact(Views.BY_WORD, word),
-            this.queryExact(Views.BY_LEMMA, word)
-        ).pipe(
+            this.queryExact(Views.BY_LEMMA, word),
+        ]).pipe(
             map(([resp1, resp2]) => this.mergeDocs(List.concat(resp1.rows, resp2.rows), word, appServices))
         )
     }
@@ -257,7 +259,7 @@ export class CouchFreqDB implements IFreqDB {
                                 }
                             )
                         ) :
-                        empty()
+                        EMPTY
                 }
             ),
             map(
@@ -275,6 +277,7 @@ export class CouchFreqDB implements IFreqDB {
                     v => ({
                         lemma: v.lemma,
                         pos: importQueryPosWithLabel(v.pos, posTable, appServices),
+                        upos: importQueryPosWithLabel(v.upos, uposTable, appServices),
                         ipm: v.count / this.corpusSize * 1e6,
                         flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
                         word: lemma,
@@ -312,6 +315,7 @@ export class CouchFreqDB implements IFreqDB {
                         ([pos, form]) => ({
                             lemma: lemma,
                             pos: importQueryPosWithLabel(pos, posTable, appServices),
+                            upos: [], // TODO
                             ipm: form.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
                             word: form.word,

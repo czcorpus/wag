@@ -97,6 +97,7 @@ export function calcFreqBand(ipm:number):FreqBand {
 export interface QueryMatchCore {
     lemma:string; // space-based value for a multi-word query
     pos:Array<PosItem>; // each word of a multi-word query
+    upos:Array<PosItem>; // each word of a multi-word query
     ipm:number;
     flevel:FreqBand|null;
     isNonDict?:boolean;
@@ -151,6 +152,7 @@ export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
                 const wildCard:QueryMatch = {
                     lemma: matches[0].lemma,
                     pos: [],
+                    upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
                     flevel: calcFreqBand(List.foldl((acc, m) => acc + m.ipm, 0, matches)),
                     isNonDict: false,

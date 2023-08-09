@@ -69,6 +69,7 @@ export class SqliteFreqDB implements IFreqDB {
             ipm: row['ipm'] !== undefined ? row['ipm'] : -1,
             flevel: null,
             pos: importQueryPosWithLabel(row['pos'], posTable, appServices),
+            upos: [], // TODO
             isCurrent: isCurrent
         };
     }
@@ -101,6 +102,7 @@ export class SqliteFreqDB implements IFreqDB {
                                         ipm: row['ipm'],
                                         arf: row['arf'],
                                         pos: importQueryPosWithLabel(pos, posTable, appServices),
+                                        upos: [], // TODO
                                         flevel: calcFreqBand(row['ipm']),
                                         isCurrent: false
                                     });
