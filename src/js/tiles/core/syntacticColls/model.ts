@@ -24,7 +24,7 @@ import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { QueryType } from '../../../query';
 import { concat } from 'rxjs';
 import { SyntacticCollsApi } from '../../../api/abstract/syntacticColls';
-import { Dict } from 'cnc-tskit';
+import { Dict, List } from 'cnc-tskit';
 import { SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
 
 
@@ -90,12 +90,10 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                concat(
-                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.NOUN_MODIFIED_BY)),
-                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.MODIFIERS_OF)),
-                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.VERBS_OBJECT)),
-                    this.api.call(this.api.stateToArgs(state, SCollsQueryType.VERBS_SUBJECT)),
-                ).subscribe({
+                concat(...List.map(qType =>
+                    this.api.call(this.api.stateToArgs(state, qType)),
+                    state.displayTypes,
+                )).subscribe({
                     next: ([qType, data]) => {
                         seDispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
@@ -127,7 +125,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     state.error = this.appServices.normalizeHttpApiError(action.error);
                 } else {
                     state.data[action.payload.qType] = action.payload.data.slice(0, this.maxItems);
-                    if (Dict.every(v => !!v, state.data)) {
+                    if (List.every(qType => !!state.data[qType], state.displayTypes)) {
                         state.isBusy = false;
                     }
                 }

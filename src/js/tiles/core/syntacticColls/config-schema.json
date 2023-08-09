@@ -13,6 +13,18 @@
         "maxItems": {
             "type": "number"
         },
+        "displayTypes": {
+            "type": "array",
+            "items": {
+                "enum": [
+                    "modifiers-of",
+                    "noun-modified-by",
+                    "verbs-object",
+                    "verbs-subject"
+                ],
+                "type": "string"
+            }
+        },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
             "type": "string"
@@ -76,6 +88,7 @@
         "apiType",
         "apiURL",
         "corpname",
+        "displayTypes",
         "maxItems",
         "tileType"
     ],

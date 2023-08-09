@@ -27,7 +27,7 @@ import { init as wordCloudViewInit } from '../../../views/wordCloud';
 import * as S from './style';
 import { SCollsDataRow, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { List } from 'cnc-tskit';
-import { SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
+import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc';
 
 
@@ -51,7 +51,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             super(props);
         }
 
-        renderWordCloud(qType:SCollsQueryType) {
+        renderWordCloud(qType:SCollsQueryTypeValue) {
             return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
                 {this.props.data[qType] ?
@@ -68,7 +68,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             </S.SCollsWordCloud>
         }
 
-        renderTable(qType:SCollsQueryType) {
+        renderTable(qType:SCollsQueryTypeValue) {
             return <S.SCollsTable key={`table:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
                 {this.props.data[qType] ?
@@ -103,17 +103,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={[]} supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <S.SyntacticColls>
-                        {this.props.isAltViewMode ? [
-                            this.renderTable(SCollsQueryType.NOUN_MODIFIED_BY),
-                            this.renderTable(SCollsQueryType.MODIFIERS_OF),
-                            this.renderTable(SCollsQueryType.VERBS_OBJECT),
-                            this.renderTable(SCollsQueryType.VERBS_SUBJECT),
-                        ]: [
-                            this.renderWordCloud(SCollsQueryType.NOUN_MODIFIED_BY),
-                            this.renderWordCloud(SCollsQueryType.MODIFIERS_OF),
-                            this.renderWordCloud(SCollsQueryType.VERBS_OBJECT),
-                            this.renderWordCloud(SCollsQueryType.VERBS_SUBJECT),
-                        ]}
+                        {this.props.isAltViewMode ?
+                            List.map(qType => this.renderWordCloud(qType), this.props.displayTypes) :
+                            List.map(qType => this.renderTable(qType), this.props.displayTypes)
+                        }
                     </S.SyntacticColls>
                 </globalCompontents.TileWrapper>
             );

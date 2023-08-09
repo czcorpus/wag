@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SCollsQueryType } from "../../api/vendor/mquery/syntacticColls";
+import { SCollsQueryType, SCollsQueryTypeValue } from "../../api/vendor/mquery/syntacticColls";
 import { QueryMatch } from "../../query";
 
 export interface SCollsDataRow {
@@ -38,10 +38,6 @@ export interface SyntacticCollsModelState {
     widthFract:number;
     corpname:string;
     queryMatch:QueryMatch;
-    data:{
-        [SCollsQueryType.NOUN_MODIFIED_BY]:SCollsData;
-        [SCollsQueryType.MODIFIERS_OF]:SCollsData;
-        [SCollsQueryType.VERBS_OBJECT]:SCollsData;
-        [SCollsQueryType.VERBS_SUBJECT]:SCollsData;
-    };
+    data:{[key in SCollsQueryType]?:SCollsData};
+    displayTypes:Array<SCollsQueryTypeValue>;
 }
