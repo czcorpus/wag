@@ -17,7 +17,7 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { catchError, concatMap, map, reduce, tap } from 'rxjs/operators';
+import { catchError, concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
@@ -61,8 +61,8 @@ function mkRuntimeClientConf({
 
     return forkJoin([
         forkJoin(
-            List.map(item =>
-                appServices.importExternalText(
+            List.map(
+                item => appServices.importExternalText(
                     item.contents,
                     loadFile
 
@@ -74,6 +74,8 @@ function mkRuntimeClientConf({
                 ),
                 conf.homepage.tiles
             )
+        ).pipe(
+            defaultIfEmpty([])
         ),
         conf.homepage.footer ?
             appServices.importExternalText(conf.homepage.footer, loadFile) : rxOf(undefined)
@@ -249,7 +251,8 @@ function testGroupedAuth(
                         )
                     );
             }
-        )
+        ),
+        defaultIfEmpty(true) // = no grouped authentication required => user has implicit grouped authentication
     );
 }
 
