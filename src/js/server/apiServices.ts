@@ -42,7 +42,7 @@ export class ApiServices {
     getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures) {
         return typeof this.clientConf.dataReadability === 'string' ?
                 struct :
-                (this.clientConf.dataReadability.commonStructures[corpname] || {})[struct];
+                (this.clientConf.dataReadability?.commonStructures[corpname] || {})[struct];
     }
 
     importExternalMessage(label:string|{[lang:string]:string}) {

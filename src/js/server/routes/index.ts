@@ -338,22 +338,22 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     isMobileClient: clientIsLikelyMobile(req)
                 }).subscribe();
             })
-        ).subscribe(
-            (conf) => {
+        ).subscribe({
+            next: (conf) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({
                     resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.query1Domain}/${conf.queries[0].word}`),
                     error: null
                 }));
             },
-            (err:Error) => {
+            error: (err:Error) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.status(HTTP.Status.BadRequest).send({
                     resultURL: null,
                     error: err.message
                 });
             }
-        )
+        })
     });
 
     app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
@@ -467,15 +467,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 })
             )
         )
-        .subscribe(
-            (data) => {
+        .subscribe({
+            next: (data) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({result: data}));
             },
-            (err:Error) => {
+            error: (err:Error) => {
                 jsonOutputError(res, err);
             }
-        );
+        });
     });
 
     app.get(HTTPAction.WORD_FORMS, (req, res) => {
@@ -536,15 +536,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     )
             )
 
-        ).subscribe(
-            (data) => {
+        ).subscribe({
+            next: (data) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({result: data}));
             },
-            (err:Error) => {
+            error: (err:Error) => {
                 jsonOutputError(res, err);
             }
-        );
+        });
     });
 
 
@@ -596,15 +596,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     return db.getSourceDescription(uiLang, getQueryValue(req, 'corpname')[0]);
                 }
             )
-        ).subscribe(
-            (data) => {
+        ).subscribe({
+            next: (data) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({result: data}));
             },
-            (err:Error) => {
+            error: (err:Error) => {
                 jsonOutputError(res, err);
             }
-        );
+        });
     })
 
     app.use(function (req, res, next) {

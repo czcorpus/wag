@@ -24,7 +24,7 @@ import { List } from 'cnc-tskit';
 
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
 import { QueryType, QueryMatch } from '../../src/js/query/index';
-import { PoSValues } from '../../src/js/postag';
+import { PoSValues, UPoSValues } from '../../src/js/postag';
 import { Forms } from '../../src/js/page/forms';
 import { SystemMessageType } from '../../src/js/types';
 import { Actions } from '../../src/js/models/actions';
@@ -33,8 +33,8 @@ import { Actions } from '../../src/js/models/actions';
 describe('QueryFormModel', function () {
     function setupModel(initialStateOverrides = {}):TestModelWrapper<QueryFormModel, QueryFormModelState> {
         const initialQueryMatches = [[
-            {word: 'test', lemma: 'test', pos: [], isCurrent: true} as QueryMatch,
-            {word: 'test', lemma: 'test', pos: [{value: PoSValues.VERB, label:'verb'}], isCurrent: false} as QueryMatch
+            {word: 'test', lemma: 'test', upos: [], pos: [], isCurrent: true} as QueryMatch,
+            {word: 'test', lemma: 'test', upos: [{value: UPoSValues.VERB, label:'verb'}], pos: [{value: PoSValues.VERB, label:'verb'}], isCurrent: false} as QueryMatch
         ]];
 
         return new TestModelWrapper(
