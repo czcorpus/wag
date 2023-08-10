@@ -17,7 +17,7 @@
  */
 
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TreqSubsetModel } from './model';
 import { TreqSubsetsAPI } from '../../../api/vendor/treq';
 import {init as viewInit} from './view';
@@ -149,6 +149,10 @@ export class TreqSubsetsTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs } from '../../../page/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
@@ -123,7 +123,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -152,6 +152,10 @@ export class WordSimTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

@@ -21,7 +21,7 @@ import { Ident, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
@@ -183,6 +183,10 @@ export class FreqComparisonTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

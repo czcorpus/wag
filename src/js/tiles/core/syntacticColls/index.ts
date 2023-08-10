@@ -24,6 +24,7 @@ import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } 
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInstance } from '../../../api/factory/syntacticColls';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
+import { tuple } from 'cnc-tskit';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
@@ -118,7 +119,7 @@ export class SyntacticCollsTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -147,6 +148,10 @@ export class SyntacticCollsTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getAltViewIcon():[string, string] {
+        return tuple('wcloud-view.svg', 'wcloud-view_s.svg');
     }
 }
 

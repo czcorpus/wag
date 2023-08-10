@@ -78,7 +78,8 @@ const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, domain1:str
             widthFract: tile.getWidthFract(),
             maxTileHeight: maxTileHeight,
             helpURL: helpURL,
-            supportsReloadOnError: tile.exposeModel() !== null // TODO this inference is debatable
+            supportsReloadOnError: tile.exposeModel() !== null, // TODO this inference is debatable
+            altViewIcon: tile.getAltViewIcon()
         });
         if (!support) {
             tile.disable();

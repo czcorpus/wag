@@ -21,7 +21,7 @@ import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { HtmlModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createApiInstance } from '../../../api/factory/html';
 import { IGeneralHtmlAPI } from '../../../api/abstract/html';
@@ -117,7 +117,7 @@ export class HtmlTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -146,6 +146,10 @@ export class HtmlTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

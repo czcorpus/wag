@@ -623,8 +623,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const AltViewButton:React.FC<{
         isAltView:boolean;
         tileId:number;
+        icon:string;
+        lightIcon:string;
 
     }> = (props) => {
+
+        const icon = ut.createStaticUrl(props.icon);
+        const lightIcon = ut.createStaticUrl(props.lightIcon);
 
         const handleClick = () => {
             if (props.isAltView) {
@@ -652,8 +657,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="AltViewButton bar-button">
                 <button type="button" onClick={handleClick} title={label}>
-                    <img src={ut.createStaticUrl(props.isAltView ? 'alt-view_s.svg' : 'alt-view.svg')}
-                            alt={ut.translate('global__img_alt_alt_view')} />
+                    <img src={props.isAltView ? lightIcon : icon} alt={ut.translate('global__img_alt_alt_view')} />
                 </button>
             </span>
         );
@@ -793,6 +797,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         supportsCurrQuery:boolean;
         tileResultFlag:TileResultFlagRec;
         isHighlighted:boolean;
+        altViewIcon:[string, string];
 
     }, {}> {
 
@@ -840,7 +845,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             null
                         }
                         {this.props.tile.supportsAltView ?
-                            <AltViewButton tileId={this.props.tile.tileId} isAltView={this.props.isAltViewMode} />  :
+                            <AltViewButton
+                                tileId={this.props.tile.tileId}
+                                isAltView={this.props.isAltViewMode}
+                                icon={this.props.altViewIcon[0]}
+                                lightIcon={this.props.altViewIcon[1]} />  :
                             null
                         }
                         {this.props.tile.supportsTweakMode ?
@@ -1048,7 +1057,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
                                             tileResultFlag={props.tileResultFlags[tile.tileId]}
-                                            isHighlighted={props.highlightedTileId === tile.tileId} />)
+                                            isHighlighted={props.highlightedTileId === tile.tileId}
+                                            altViewIcon={tile.altViewIcon} />)
                     )}
                     </S.Tiles>
                 );

@@ -22,7 +22,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/common';
 import { Theme } from './theme';
 import { IAppServices } from '../appServices';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, tuple } from 'cnc-tskit';
 
 
 export interface Backlink {
@@ -173,6 +173,8 @@ export interface TileFrameProps {
     maxTileHeight:string;
 
     issueReportingUrl:string;
+
+    altViewIcon:[string, string];
 }
 
 /**
@@ -258,6 +260,8 @@ export interface ITileProvider {
     supportsMultiWordQueries():boolean;
 
     getIssueReportingUrl():string|null;
+
+    getAltViewIcon():[string, string];
 }
 
 /**
@@ -328,3 +332,6 @@ export interface TileFactory<T> {
      */
     create(args:TileFactoryArgs<T>):ITileProvider;
 }
+
+
+export const DEFAULT_ALT_VIEW_ICON = tuple('alt-view.svg', 'alt-view_s.svg');
