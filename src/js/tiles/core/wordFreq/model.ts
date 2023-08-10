@@ -223,6 +223,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         word: args.variant.word,
                         lemma: args.variant.lemma,
                         pos: List.map(v => v.value, args.variant.pos),
+                        upos: List.map(v => v.value, args.variant.upos),
                         srchRange: state.sfwRowRange
                     }) :
                     rxOf<{result:Array<SimilarFreqWord>}>({

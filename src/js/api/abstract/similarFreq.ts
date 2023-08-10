@@ -26,6 +26,7 @@ export interface RequestArgs {
     word:string;
     lemma:string;
     pos:Array<string>;
+    upos:Array<string>;
     srchRange:number;
 }
 
