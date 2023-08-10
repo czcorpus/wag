@@ -364,6 +364,7 @@ export function queryAction({
                             lemma: null,
                             word: userConf.queries[queryIdx].word,
                             pos: [],
+                            upos: [],
                             abs: 0,
                             ipm: 0,
                             arf: 0,
