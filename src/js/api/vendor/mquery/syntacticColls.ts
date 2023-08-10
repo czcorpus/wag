@@ -47,6 +47,7 @@ export interface SCollsRequest {
     },
     args:{
         w:string;
+        pos?:string;
     }
 }
 
