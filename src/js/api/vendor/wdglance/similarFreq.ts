@@ -63,6 +63,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                 ['word', args.word],
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(' ')],
+                ['upos', args.upos.join(' ')],
                 ['srchRange', args.srchRange]
             ]),
             {
@@ -78,6 +79,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                         v => ({
                             lemma: v.lemma,
                             pos: v.pos,
+                            upos: v.upos,
                             ipm: v.ipm,
                             flevel: calcFreqBand(v.ipm)
                         })
