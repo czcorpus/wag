@@ -75,14 +75,18 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
     }
 
     stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
+        const args = {
+            w: state.queryMatch.lemma,
+        };
+        if (state.queryMatch.upos.length > 0) {
+            args['pos'] = state.queryMatch.upos[0].value;
+        }
         return {
             params: {
                 corpname: state.corpname,
                 queryType: queryType,
             },
-            args: {
-                w: state.queryMatch.lemma,
-            }
+            args
         };
     }
 
