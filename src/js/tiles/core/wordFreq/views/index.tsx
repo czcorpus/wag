@@ -82,8 +82,9 @@ export function init(
                     <SingleWordProfile searchedWord={props.queryMatches[0]}
                         similarFreqWords={props.similarFreqWords[0]}
                         expandLemmaPos={props.expandLemmaPos}
-                        tileId={props.tileId} /> :
-                    <MultiWordProfile matches={props.queryMatches} />
+                        tileId={props.tileId}
+                        mainPosAttr={props.mainPosAttr} /> :
+                    <MultiWordProfile matches={props.queryMatches} mainPosAttr={props.mainPosAttr} />
                 }
                 <AuxChart queryMatches={props.queryMatches} isMobile={props.isMobile} widthFract={props.widthFract}
                         tileName={props.tileName} />

@@ -308,6 +308,8 @@ export interface TileFactoryArgs<T> {
     conf:T;
 
     cache:IAsyncKeyValueStore;
+
+    mainPosAttr:MainPosAttrValues;
 }
 
 /**

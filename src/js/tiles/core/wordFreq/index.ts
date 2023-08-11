@@ -55,7 +55,7 @@ export class WordFreqTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract,
-        conf, isBusy, cache, queryType}:TileFactoryArgs<WordFreqTileConf>
+        conf, isBusy, cache, queryType, mainPosAttr}:TileFactoryArgs<WordFreqTileConf>
     ) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -73,6 +73,7 @@ export class WordFreqTile implements ITileProvider {
                 sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib,
                 expandLemmaPos: null,
+                mainPosAttr,
             },
             tileId,
             api: conf.apiURL ?

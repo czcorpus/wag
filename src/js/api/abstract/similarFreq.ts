@@ -33,6 +33,7 @@ export interface RequestArgs {
 export interface SimilarFreqWord {
     lemma:string;
     pos:Array<PosItem>;
+    upos:Array<PosItem>;
     ipm:number;
     flevel:FreqBand|null;
 }
