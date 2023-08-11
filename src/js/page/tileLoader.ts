@@ -130,7 +130,8 @@ export const mkTileFactory = (
                 theme,
                 conf,
                 isBusy: true,
-                cache
+                cache,
+                mainPosAttr: layoutManager.getLayoutMainPosAttr(queryType),
             };
             const errs = tileFactory.sanityCheck(args);
             if (!List.empty(errs)) {

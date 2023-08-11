@@ -82,6 +82,7 @@ export class Actions {
         word:string;
         lemma:string;
         pos:Array<string>;
+        upos:Array<string>;
 
     }> = {
         name:'MAIN_CHANGE_CURR_QUERY_MATCH'

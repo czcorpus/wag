@@ -26,7 +26,7 @@ import { Theme } from './page/theme';
 import { ScreenProps } from './page/hostPage';
 import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index';
 import { ITileProvider, TileFrameProps, TileConf } from './page/tile';
-import { ClientConf, UserConf } from './conf';
+import { ClientConf, MainPosAttrValues, UserConf } from './conf';
 import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout';
 import { Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
@@ -132,7 +132,6 @@ export function createRootComponent({config, userSession, queryMatches, appServi
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
-
         searchDomains: config.searchDomains,
         layout: layoutManager,
         maxCmpQueries: 10,

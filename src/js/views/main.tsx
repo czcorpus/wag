@@ -36,6 +36,7 @@ import { timer } from 'rxjs';
 import * as S from './style';
 import * as SC from './common/style';
 import { GlobalStyle } from './layout/style';
+import { MainPosAttrValues } from '../conf';
 
 
 export interface WdglanceMainProps {
@@ -385,6 +386,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queries:Array<string>;
         lemmaSelectorModalVisible:boolean;
         modalSelections:Array<number>;
+        mainPosAttr:MainPosAttrValues;
 
     }> = (props) => {
 
@@ -395,17 +397,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     queryIdx: queryIdx,
                     word: lemmaVar.word,
                     lemma: lemmaVar.lemma,
-                    pos: List.map(p => p.value, lemmaVar.pos)
+                    pos: List.map(p => p.value, lemmaVar.pos),
+                    upos: List.map(p => p.value, lemmaVar.upos),
                 }
             });
         };
 
         const mkAltLabel = (v:QueryMatch) => {
-            if (v.pos.length === 0) {
+            if (v[props.mainPosAttr].length === 0) {
                 return ut.translate('global__alt_expr_any');
 
             } else {
-                return List.map(v => v.label, v.pos).join(' ');
+                return List.map(v => v.label, v[props.mainPosAttr]).join(' ');
             }
         };
 
@@ -454,7 +457,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             props.matches[0],
                                             List.filter(v => !v.isCurrent),
                                             List.map(
-                                                (v, i) => <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                                (v, i) => <li key={`${v.lemma}:${v[props.mainPosAttr]}:${i}`}>
                                                     {i > 0 ? <span>, </span> : null}
                                                     <a onClick={mkHandleClick(0, v)}>{v.lemma} ({mkAltLabel(v)})</a>
                                                 </li>
@@ -483,7 +486,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         <ul>
                                             {List.map(
                                                 (v, i) => (
-                                                    <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                                    <li key={`${v.lemma}:${v[props.mainPosAttr]}:${i}`}>
                                                         <label>
                                                             <input type="radio" name={`lemma_${queryIdx}`}
                                                                     checked={props.modalSelections[queryIdx] === i}
@@ -581,7 +584,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {this.props.isAnswerMode ?
                         <LemmaSelector matches={this.props.queryMatches} queries={this.props.queries.map(v => v.value)}
                                 lemmaSelectorModalVisible={this.props.lemmaSelectorModalVisible}
-                                modalSelections={this.props.modalSelections} /> :
+                                modalSelections={this.props.modalSelections} mainPosAttr={this.props.mainPosAttr} /> :
                         null
                     }
                 </S.WdglanceControls>

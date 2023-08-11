@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../appServices';
 import { QueryType, QueryTypeMenuItem } from '../query/index';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, ServiceTile, isServiceTile } from '../conf';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, ServiceTile, isServiceTile, MainPosAttrValues } from '../conf';
 import { TileIdentMap } from '../types';
 import { List, Dict, pipe } from 'cnc-tskit';
 
@@ -41,6 +41,7 @@ export interface TileGroup {
 
 
 interface LayoutCore {
+    mainPosAttr:MainPosAttrValues;
     label:string;
     groups:Array<TileGroup>;
     services:Array<{
@@ -73,6 +74,7 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
             appServices:IAppServices, defaultLabel:string):LayoutCore {
     return gc !== undefined ?
         {
+            mainPosAttr: gc.mainPosAttr,
             label: appServices.importExternalMessage(gc.label?? defaultLabel),
             groups: pipe(
                     gc.groups || [],
@@ -120,6 +122,7 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
             )
         } :
         {
+            mainPosAttr: 'pos',
             label: '',
             groups: [],
             services: []
@@ -196,6 +199,10 @@ export class LayoutManager {
 
     getLayoutGroups(queryType:QueryType):Array<TileGroup> {
         return this.getLayout(queryType).groups;
+    }
+
+    getLayoutMainPosAttr(queryType:QueryType):MainPosAttrValues {
+        return this.getLayout(queryType).mainPosAttr;
     }
 
     private getLayout(queryType:QueryType):LayoutCore {

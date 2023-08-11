@@ -29,6 +29,7 @@ import { QueryValidator } from '../query/validation';
 import { Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../page/layout';
+import { MainPosAttrValues } from '../conf';
 
 
 export interface QueryFormModelState {
@@ -48,6 +49,7 @@ export interface QueryFormModelState {
     maxCmpQueries:number;
     lemmaSelectorModalVisible:boolean;
     modalSelections:Array<number>;
+    mainPosAttr:MainPosAttrValues;
 }
 
 export const findCurrQueryMatch = (queryMatches:Array<QueryMatch>):QueryMatch => {
@@ -94,7 +96,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 state.queryMatches[action.payload.queryIdx] = List.map(
                     v => ({
                         ...v,
-                        isCurrent: matchesPos(v, action.payload.pos) && v.word == action.payload.word &&
+                        isCurrent: matchesPos(v, action.payload[state.mainPosAttr]) && v.word == action.payload.word &&
                                 v.lemma === action.payload.lemma ? true : false
                     }),
                     group
@@ -231,13 +233,13 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
     private submitCurrLemma(state:QueryFormModelState):void {
         const args = new MultiDict();
-        args.set('pos', findCurrQueryMatch(state.queryMatches[0]).pos.map(v => v.value).join(' '));
+        args.set(state.mainPosAttr, findCurrQueryMatch(state.queryMatches[0])[state.mainPosAttr].map(v => v.value).join(' '));
         args.set('lemma', findCurrQueryMatch(state.queryMatches[0]).lemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:
                 state.queryMatches.slice(1).forEach(m => {
-                    args.add('pos', findCurrQueryMatch(m).pos.map(v => v.value).join(' '));
+                    args.add(state.mainPosAttr, findCurrQueryMatch(m)[state.mainPosAttr].map(v => v.value).join(' '));
                     args.add('lemma', findCurrQueryMatch(m).lemma);
                 });
         }
@@ -367,7 +369,8 @@ export const defaultFactory = ({dispatcher, appServices, query1Domain, query2Dom
             modalSelections: List.map(
                 v => v.findIndex(v2 => v2.isCurrent),
                 queryMatches
-            )
+            ),
+            mainPosAttr: layout.getLayoutMainPosAttr(queryType),
         }
     );
 };
