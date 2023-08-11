@@ -105,7 +105,7 @@ function mkRuntimeClientConf({
                     v => ({
                         themeId: v.themeId,
                         themeLabel: appServices.importExternalMessage(v.themeLabel),
-                        description: appServices.importExternalMessage(v.description)
+                        description: v.description ? appServices.importExternalMessage(v.description) : ''
                     }),
                     getThemeList(conf)
                 ),

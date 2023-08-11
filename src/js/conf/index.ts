@@ -271,14 +271,14 @@ export interface ClientConf {
     rootUrl:string;
     hostUrl:string;
     runtimeAssetsUrl:string;
-    favicon:FaviconConf|null;
+    favicon?:FaviconConf;
 	corpInfoApiUrl:string;
-    dataReadability:DataReadabilityMapping;
-    logo:LogoConf|null;
-    colors:ColorTheme;
+    dataReadability?:DataReadabilityMapping;
+    logo?:LogoConf;
+    colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
     reqCacheTTL:number;
-    onLoadInit:Array<string>;
+    onLoadInit?:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
     homepage:{

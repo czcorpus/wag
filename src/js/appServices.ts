@@ -19,7 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
-import { HTTPHeaders, SystemMessageType } from './types';
+import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
 import { SystemNotifications } from './page/notifications';
 import { HTTPAction } from './server/routes/actions';
@@ -40,7 +40,7 @@ export interface IApiServices {
 
     getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures):string|undefined;
 
-    importExternalMessage(label:string|{[lang:string]:string}):string;
+    importExternalMessage(label:LocalizedConfMsg):string;
 }
 
 
