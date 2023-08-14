@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
 import { ViewMode } from '../../../api/abstract/concordance';
@@ -126,7 +126,7 @@ export class ConcFilterTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(TileWait.create([], ()=>false), (_, syncData)=>syncData);
+        this.model.waitForAction(TileWait.create([], ()=>false), (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -141,8 +141,13 @@ export class ConcFilterTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -155,10 +160,6 @@ export class ConcFilterTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

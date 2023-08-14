@@ -18,6 +18,7 @@
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
 import { Actions } from '../models/actions';
 import { List, Dict } from 'cnc-tskit';
+import { ITileProvider, ITileReloader } from '../page/tile';
 
 
 
@@ -38,7 +39,7 @@ interface RetryTileLoadState {
  * able to handle tile dependencies too (=> single tile reload may
  * trigger a number of other tiles to reload too).
  */
-export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
+export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements ITileReloader {
 
     private readonly reloadDispatcher:IFullActionControl;
 
@@ -127,15 +128,15 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
         }
     }
 
-    registerModel(ident:number, model:StatelessModel<{}>, blockers:Array<number>):void {
+    registerModel(tile:ITileProvider, model:StatelessModel<{}>):void {
         if (model) {
             this.state.models = {
                 ...this.state.models,
-                ...{[ident.toFixed()]:
+                ...{[tile.getIdent().toFixed()]:
                     {
                         model: model,
                         isError: false,
-                        blockers: blockers
+                        blockers: tile.getBlockingTiles()
                     }
                 }
             };

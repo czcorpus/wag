@@ -17,7 +17,7 @@
  */
 
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TreqSubsetModel } from './model';
 import { TreqSubsetsAPI } from '../../../api/vendor/treq';
 import {init as viewInit} from './view';
@@ -120,7 +120,7 @@ export class TreqSubsetsTile implements ITileProvider {
     }
 
     disable():void {
-        // TODO
+        this.model.waitForAction({}, (_, sd) => sd);
     }
 
     getWidthFract():number {
@@ -135,8 +135,13 @@ export class TreqSubsetsTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -149,10 +154,6 @@ export class TreqSubsetsTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

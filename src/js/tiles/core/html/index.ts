@@ -21,7 +21,7 @@ import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { HtmlModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createApiInstance } from '../../../api/factory/html';
 import { IGeneralHtmlAPI } from '../../../api/abstract/html';
@@ -132,8 +132,13 @@ export class HtmlTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -146,10 +151,6 @@ export class HtmlTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

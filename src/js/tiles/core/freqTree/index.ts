@@ -23,7 +23,7 @@ import { FreqTreeAPI } from '../../../api/vendor/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../models/tiles/freqTree';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
@@ -161,8 +161,13 @@ export class FreqTreeTile implements ITileProvider {
         return false;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -173,16 +178,8 @@ export class FreqTreeTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
-    }
-
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

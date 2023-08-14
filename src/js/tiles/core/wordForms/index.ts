@@ -18,7 +18,7 @@
 import { StatelessModel } from 'kombo';
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
+import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../query/index';
@@ -117,7 +117,9 @@ export class WordFormsTile implements ITileProvider {
         return qt === QueryType.SINGLE_QUERY;
     }
 
-    disable():void {} // ??
+    disable():void {
+        this.model.waitForAction({}, (_, sd) => sd);
+    }
 
     getWidthFract():number {
         return this.widthFract;
@@ -131,8 +133,13 @@ export class WordFormsTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     /**
@@ -148,10 +155,6 @@ export class WordFormsTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

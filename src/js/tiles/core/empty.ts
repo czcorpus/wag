@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { QueryType } from '../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, TileComponent } from '../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent } from '../../page/tile';
 
 
 /**
@@ -69,8 +69,12 @@ export class EmptyTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():null {
-        return null;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        return false;
     }
 
     getBlockingTiles():Array<number> {
@@ -83,9 +87,5 @@ export class EmptyTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }

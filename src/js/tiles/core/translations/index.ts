@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { SearchPackages } from '../../../api/vendor/treq';
 import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
@@ -124,8 +124,13 @@ export class TranslationsTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -138,10 +143,6 @@ export class TranslationsTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

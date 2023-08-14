@@ -21,7 +21,7 @@ import { List, Maths, pipe } from 'cnc-tskit';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
 import { MultiWordTimeDistribModel } from './model';
 import { init as viewInit } from './view';
@@ -165,7 +165,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -180,8 +180,13 @@ export class MultiWordTimeDistTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -194,10 +199,6 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
     getIssueReportingUrl():null {
         return null;
-    }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
     }
 }
 

@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from '../../../api/factory/matchingDocs';
@@ -155,8 +155,13 @@ export class MatchingDocsTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -170,11 +175,6 @@ export class MatchingDocsTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
-
-    getAltViewIcon():[string, string] {
-        return DEFAULT_ALT_VIEW_ICON;
-    }
-
 }
 
 export const init:TileFactory<MatchingDocsTileConf>  = {

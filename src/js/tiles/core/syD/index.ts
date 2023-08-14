@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { createSyDInstance } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';
@@ -127,8 +127,9 @@ export class SyDTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
