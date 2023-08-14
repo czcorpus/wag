@@ -22,7 +22,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/common';
 import { Theme } from './theme';
 import { IAppServices } from '../appServices';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, tuple } from 'cnc-tskit';
 
 
 export interface Backlink {
@@ -173,6 +173,8 @@ export interface TileFrameProps {
     maxTileHeight:string;
 
     issueReportingUrl:string;
+
+    altViewIcon:[string, string];
 }
 
 /**
@@ -245,10 +247,17 @@ export interface ITileProvider {
     supportsAltView():boolean;
 
     /**
-     * If returned then the model will be available for
-     * possible manual tile reload in case of an error.
+     * Register tile reloading model for cases when
+     * a tile fails to respond to a query properly.
+     *
+     * In case the tile does not support (or does not
+     * want to support) reloading, the method should
+     * do nothing and return false. Tiles supporting
+     * reloading which actually register themselves
+     * must return true. Othewise, WaG won't be able
+     * to recognize wich tiles to trigger.
      */
-    exposeModel():StatelessModel<{}>|null;
+    registerReloadModel(model:ITileReloader):boolean;
 
     /**
      * Return a list of tiles this tile depends on
@@ -258,6 +267,8 @@ export interface ITileProvider {
     supportsMultiWordQueries():boolean;
 
     getIssueReportingUrl():string|null;
+
+    getAltViewIcon():[string, string];
 }
 
 /**
@@ -327,4 +338,17 @@ export interface TileFactory<T> {
      * Create a new tile instance
      */
     create(args:TileFactoryArgs<T>):ITileProvider;
+}
+
+
+export const DEFAULT_ALT_VIEW_ICON = tuple('alt-view.svg', 'alt-view_s.svg');
+
+
+/**
+ * ITileReloader represents a model which is able
+ * to register a tile model and trigger a reload action
+ * in case the tile fails to load data.
+ */
+export interface ITileReloader {
+    registerModel(tile:ITileProvider, model:StatelessModel<{}>):void;
 }

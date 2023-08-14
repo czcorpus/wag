@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs } from '../../../page/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
@@ -123,7 +123,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -138,8 +138,13 @@ export class WordSimTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {

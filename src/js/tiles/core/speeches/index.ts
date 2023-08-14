@@ -18,7 +18,7 @@
 import { StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../types';
@@ -140,8 +140,8 @@ export class SpeechesTile implements ITileProvider {
         return qt === QueryType.SINGLE_QUERY;
     }
 
-    // TODO ??
     disable():void {
+        this.model.waitForAction({}, (_, sd) => sd);
     }
 
     getWidthFract():number {
@@ -156,8 +156,13 @@ export class SpeechesTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {

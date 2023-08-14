@@ -20,10 +20,11 @@ import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { SyntacticCollsModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader } from '../../../page/tile';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInstance } from '../../../api/factory/syntacticColls';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
+import { tuple } from 'cnc-tskit';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
@@ -118,7 +119,7 @@ export class SyntacticCollsTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -133,8 +134,13 @@ export class SyntacticCollsTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return tuple('wcloud-view.svg', 'wcloud-view_s.svg');
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {

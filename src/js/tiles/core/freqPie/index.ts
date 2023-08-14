@@ -22,7 +22,7 @@ import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { SubqueryModeConf } from '../../../models/tiles/freq';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
@@ -157,7 +157,7 @@ export class FreqPieTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -172,8 +172,13 @@ export class FreqPieTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {

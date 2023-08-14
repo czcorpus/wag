@@ -49,10 +49,26 @@ interface AttachTileArgs {
     helpURL:string;
     issueReportingURL:string;
     maxTileHeight:string;
+    retryLoadModel:RetryTileLoad;
 }
 
-const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, domain1:string, domain2:string, appServices:IAppServices) =>
-    ({data, tileName, tile, helpURL, issueReportingURL, maxTileHeight}:AttachTileArgs):void => {
+const mkAttachTile = (
+    queryType:QueryType,
+    isMultiWordQuery:boolean,
+    domain1:string,
+    domain2:string,
+    appServices:IAppServices
+
+    ) =>
+    ({
+        data,
+        tileName,
+        tile,
+        helpURL,
+        issueReportingURL,
+        maxTileHeight,
+        retryLoadModel
+    }:AttachTileArgs):void => {
         const support = tile.supportsQueryType(queryType, domain1, domain2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
         let reasonDisabled = undefined;
         if (!tile.supportsQueryType(queryType, domain1, domain2)) {
@@ -78,7 +94,8 @@ const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, domain1:str
             widthFract: tile.getWidthFract(),
             maxTileHeight: maxTileHeight,
             helpURL: helpURL,
-            supportsReloadOnError: tile.exposeModel() !== null // TODO this inference is debatable
+            supportsReloadOnError: tile.registerReloadModel(retryLoadModel),
+            altViewIcon: tile.getAltViewIcon()
         });
         if (!support) {
             tile.disable();
@@ -171,16 +188,12 @@ export function createRootComponent({config, userSession, queryMatches, appServi
                 tile,
                 helpURL: appServices.importExternalMessage(tileConf.helpURL),
                 issueReportingURL: config.issueReportingUrl,
-                maxTileHeight: tileConf.maxTileHeight
+                maxTileHeight: tileConf.maxTileHeight,
+                retryLoadModel
             });
-            const model = tile.exposeModel();
-            retryLoadModel.registerModel(
-                tilesMap[tileId],
-                model,
-                tile.getBlockingTiles()
-            );
+
             if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-                model.suspend({}, (_, syncData) => syncData);
+                tile.disable();
             }
         },
         config.tiles

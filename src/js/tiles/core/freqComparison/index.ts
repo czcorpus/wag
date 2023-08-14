@@ -21,7 +21,7 @@ import { Ident, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
@@ -150,7 +150,7 @@ export class FreqComparisonTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -165,8 +165,13 @@ export class FreqComparisonTile implements ITileProvider {
         return true;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
@@ -175,10 +180,6 @@ export class FreqComparisonTile implements ITileProvider {
 
     supportsMultiWordQueries():boolean {
         return true;
-    }
-
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
     }
 
     getIssueReportingUrl():null {

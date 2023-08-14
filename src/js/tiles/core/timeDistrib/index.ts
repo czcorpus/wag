@@ -21,7 +21,7 @@ import { List, Maths, pipe, tuple } from 'cnc-tskit';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel, LoadingStatus } from './model';
 import { init as viewInit } from './view';
@@ -168,7 +168,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(TileWait.create([], ()=>false), (_, syncData)=>syncData);
+        this.model.waitForAction(TileWait.create([], ()=>false), (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -183,8 +183,13 @@ export class TimeDistTile implements ITileProvider {
         return false;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {

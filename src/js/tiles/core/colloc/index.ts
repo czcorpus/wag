@@ -23,7 +23,7 @@ import { QueryType } from '../../../query/index';
 import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
 import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations';
 import { createInstance } from '../../../api/factory/collocations';
 import { createApiInstance } from '../../../api/factory/concordance';
@@ -152,7 +152,7 @@ export class CollocationsTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
@@ -167,8 +167,13 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    exposeModel():StatelessModel<{}>|null {
-        return this.model;
+    getAltViewIcon():[string, string] {
+        return DEFAULT_ALT_VIEW_ICON;
+    }
+
+    registerReloadModel(model:ITileReloader):boolean {
+        model.registerModel(this, this.model);
+        return true;
     }
 
     getBlockingTiles():Array<number> {
