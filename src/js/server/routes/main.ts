@@ -25,7 +25,7 @@ import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../que
 import { QueryValidator } from '../../query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth } from '../../conf';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth, mergeToEmptyLayoutConf } from '../../conf';
 import { init as viewInit } from '../../views/layout/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -86,7 +86,6 @@ function mkRuntimeClientConf({
                 const qt = QueryType[queryType]
                 maxQueryWords[qt] = serverConf.freqDB[qt] ? serverConf.freqDB[qt].maxQueryWords : 1;
             }
-
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
@@ -115,7 +114,7 @@ function mkRuntimeClientConf({
                         conf.tiles[domain],
                         Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
                     ),
-                layouts: {...emptyLayoutConf(), ...conf.layouts[domain]},
+                layouts: mergeToEmptyLayoutConf(conf.layouts[domain]),
                 searchDomains: pipe(
                     conf.searchDomains,
                     Dict.keys(),

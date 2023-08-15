@@ -320,6 +320,15 @@ export function emptyLayoutConf():LayoutsConfig {
     };
 }
 
+export function mergeToEmptyLayoutConf(other:LayoutsConfig):LayoutsConfig {
+    const layout = emptyLayoutConf();
+    return {
+        single: {...layout.single, ...other.single},
+        cmp: {...layout.cmp, ...other.single},
+        translat: {...layout.translat, ...other.translat}
+    };
+}
+
 export function getAppliedThemeConf(conf:ClientStaticConf, themeId?:string):ColorTheme|undefined {
     let ans:ColorTheme;
     const colors = conf.colors;
