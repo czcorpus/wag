@@ -23,7 +23,7 @@ import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { IFreqDB } from '../freqdb';
-import { importQueryPos, importQueryPosWithLabel, posTable } from '../../../postag';
+import { importQueryPos, importQueryPosWithLabel } from '../../../postag';
 import { SourceDetails } from '../../../types';
 import { MainPosAttrValues } from '../../../conf';
 
