@@ -24,6 +24,7 @@ import { QueryMatch } from '../../../../query/index';
 import { List } from 'cnc-tskit';
 
 import * as S from '../style';
+import { MainPosAttrValues } from '../../../../conf';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -34,6 +35,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const MultiWordProfile:React.FC<{
         matches:Array<QueryMatch>;
+        mainPosAttr:MainPosAttrValues;
 
     }> = (props) => {
         return (

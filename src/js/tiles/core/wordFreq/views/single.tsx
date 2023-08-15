@@ -25,8 +25,7 @@ import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
 import { QueryMatch } from '../../../../query/index';
 import { List, pipe } from 'cnc-tskit';
 import { Actions } from '../actions';
-
-import * as S from '../style';
+import { MainPosAttrValues } from '../../../../conf';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -40,6 +39,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Array<SimilarFreqWord>;
         expandLemmaPos:string;
         tileId:number;
+        mainPosAttr:MainPosAttrValues;
 
     }> = (props) => {
 
@@ -96,7 +96,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         <span className="squareb"> [</span>
                                         {pipe(
                                             words,
-                                            List.map(word => word.pos),
+                                            List.map(word => word[props.mainPosAttr]),
                                             List.map(wordPos => List.map(pos => lemma === props.expandLemmaPos ? pos.label : pos.value, wordPos).join(' '))
                                         ).join(', ')}
                                         <span className="squareb">]</span>
@@ -116,6 +116,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SrchWordInfo:React.FC<{
         data:QueryMatch;
+        mainPosAttr:MainPosAttrValues;
 
     }> = (props) => (
         <>
@@ -132,7 +133,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <dd><strong>{props.data.lemma}</strong></dd>
                     <dt>{ut.translate('wordfreq__pos')}:</dt>
                     <dd>
-                    {props.data.pos.length > 0 ?
+                    {props.data[props.mainPosAttr].length > 0 ?
                         List.map(
                             (pos, i) => (
                                 <React.Fragment key={`${i}:${pos.value}`}>
@@ -142,7 +143,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <span className="squareb">]</span>
                                 </React.Fragment>
                             ),
-                            props.data.pos
+                            props.data[props.mainPosAttr]
                         ) :
                         ut.translate('wordfreq__pos_not_specified')
                     }
@@ -175,12 +176,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         searchedWord:QueryMatch;
         expandLemmaPos:string;
         tileId:number;
+        mainPosAttr:MainPosAttrValues;
 
     }> = (props) => (
         <div>
             <dl className="info">
-                {props.searchedWord ? <SrchWordInfo data={props.searchedWord} /> : null}
-                {props.similarFreqWords.length > 0 && props.searchedWord.abs > 0 ? <SimilarFreqWords data={props.similarFreqWords} expandLemmaPos={props.expandLemmaPos} tileId={props.tileId} /> : null}
+                {props.searchedWord ? <SrchWordInfo data={props.searchedWord} mainPosAttr={props.mainPosAttr} /> : null}
+                {props.similarFreqWords.length > 0 && props.searchedWord.abs > 0 ? <SimilarFreqWords data={props.similarFreqWords} expandLemmaPos={props.expandLemmaPos} tileId={props.tileId} mainPosAttr={props.mainPosAttr} /> : null}
             </dl>
         </div>
     );

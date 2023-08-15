@@ -25,6 +25,8 @@ export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 
 export const THEME_COOKIE_NAME = 'wag_theme';
 
+export type MainPosAttrValues = 'pos'|'upos';
+
 export interface UserQuery {
     word:string;
     pos:Array<string>;
@@ -139,6 +141,7 @@ export interface GroupLayoutConfig {
 export type GroupItemConfig = GroupLayoutConfig|ServiceTile|string;
 
 export interface LayoutConfigCommon {
+    mainPosAttr:MainPosAttrValues;
     groups:Array<GroupItemConfig>;
     label?:LocalizedConfMsg;
     useLayout?:string;
@@ -271,14 +274,14 @@ export interface ClientConf {
     rootUrl:string;
     hostUrl:string;
     runtimeAssetsUrl:string;
-    favicon:FaviconConf|null;
+    favicon?:FaviconConf;
 	corpInfoApiUrl:string;
-    dataReadability:DataReadabilityMapping;
-    logo:LogoConf|null;
-    colors:ColorTheme;
+    dataReadability?:DataReadabilityMapping;
+    logo?:LogoConf;
+    colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
     reqCacheTTL:number;
-    onLoadInit:Array<string>;
+    onLoadInit?:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
     homepage:{
@@ -302,14 +305,17 @@ export interface ClientConf {
 export function emptyLayoutConf():LayoutsConfig {
     return {
         single: {
-            groups: []
+            groups: [],
+            mainPosAttr: 'pos'
         },
         cmp: {
-            groups: []
+            groups: [],
+            mainPosAttr: 'pos'
         },
         translat: {
             groups: [],
-            targetDomains: []
+            targetDomains: [],
+            mainPosAttr: 'pos'
         }
     };
 }

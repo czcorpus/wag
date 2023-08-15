@@ -27,6 +27,7 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index';
 import { List, pipe } from 'cnc-tskit';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo';
+import { MainPosAttrValues } from '../../../conf';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -52,6 +53,8 @@ export interface SummaryModelState {
     flevelDistrb:Array<FlevelDistribItem>;
 
     expandLemmaPos:string;
+
+    mainPosAttr:MainPosAttrValues;
 }
 
 
@@ -118,8 +121,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     rxOf([]) :
                     this.loadExtendedFreqInfo(state)
 
-                ).subscribe(
-                    (data) => {
+                ).subscribe({
+                    next: (data) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
                             payload: {
@@ -129,7 +132,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             }
                         });
                     },
-                    (error) => {
+                    error: (error) => {
                         console.error(error);
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
@@ -141,7 +144,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             }
                         });
                     }
-                );
+                });
             }
         );
         this.addActionHandler<typeof Actions.TileDataLoaded>(
@@ -181,8 +184,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         domain: this.queryDomain,
                         corpname: state.corpname,
 
-                    }).subscribe(
-                        data => {
+                    }).subscribe({
+                        next: data => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -190,14 +193,14 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                 }
                             });
                         },
-                        error => {
+                        error: error => {
                             console.error(error);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -230,6 +233,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         result: [{
                             lemma: '?',
                             pos: [],
+                            upos: [],
                             ipm: 0,
                             flevel: null
                         }]
@@ -240,6 +244,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     v => ({
                         lemma: v.lemma,
                         pos: v.pos,
+                        upos: v.upos,
                         ipm: v.ipm,
                         flevel: calcFreqBand(v.ipm)
                     }),

@@ -23,6 +23,7 @@ import { GlobalComponents } from '../views/common';
 import { Theme } from './theme';
 import { IAppServices } from '../appServices';
 import { HTTP, tuple } from 'cnc-tskit';
+import { MainPosAttrValues } from '../conf';
 
 
 export interface Backlink {
@@ -318,6 +319,8 @@ export interface TileFactoryArgs<T> {
     conf:T;
 
     cache:IAsyncKeyValueStore;
+
+    mainPosAttr:MainPosAttrValues;
 }
 
 /**
