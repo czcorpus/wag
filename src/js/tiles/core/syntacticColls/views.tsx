@@ -27,11 +27,16 @@ import { init as wordCloudViewInit } from '../../../views/wordCloud';
 import * as S from './style';
 import { SCollsDataRow, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { List } from 'cnc-tskit';
-import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
+import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:SyntacticCollsModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:SyntacticCollsModel
+):TileComponent {
 
     const globalCompontents = ut.getComponents();
     const WordCloud = wordCloudViewInit<SCollsDataRow>(dispatcher, ut, theme);
@@ -45,20 +50,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <SyntacticCollsTile /> -------------------------------------
 
-    class SyntacticCollsTile extends React.PureComponent<SyntacticCollsModelState & CoreTileComponentProps> {
+    const SyntacticCollsTile:React.FC<SyntacticCollsModelState & CoreTileComponentProps> = (props) => {
 
-        constructor(props) {
-            super(props);
-        }
-
-        renderWordCloud(qType:SCollsQueryTypeValue) {
+        const renderWordCloud = (qType:SCollsQueryTypeValue) => {
             return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
-                {this.props.data[qType] ?
-                    <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
-                            key={qType} widthFract={this.props.widthFract} render={(width:number, height:number) => (
-                        <WordCloud width={width} height={height} isMobile={this.props.isMobile}
-                            data={this.props.data[qType]}
+                {props.data[qType] ?
+                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                            key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
+                        <WordCloud width={width} height={height} isMobile={props.isMobile}
+                            data={props.data[qType]}
                             font={theme.infoGraphicsFont}
                             dataTransform={dataTransform}
                         />
@@ -66,14 +67,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     null
                 }
             </S.SCollsWordCloud>
-        }
+        };
 
-        renderTable(qType:SCollsQueryTypeValue) {
+        const renderTable = (qType:SCollsQueryTypeValue) => {
             return <S.SCollsTable key={`table:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
-                {this.props.data[qType] ?
-                    <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
-                            key={qType} widthFract={this.props.widthFract} render={(width:number, height:number) => (
+                {props.data[qType] ?
+                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                            key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
                         <table className='data'>
                             <tbody>
                                 <tr>
@@ -82,35 +83,38 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <th key="ipm">ipm</th>
                                     <th key="score">collWeight</th>
                                 </tr>
-                                {List.map((row, i) => <tr key={i}>
-                                    <td key="word" className="word">{row.word}</td>
-                                    <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
-                                    <td key="ipm" className="num">{ut.formatNumber(row.ipm)}</td>
-                                    <td key="score" className="num">{ut.formatNumber(row.collWeight, 5)}</td>
-                                </tr>, this.props.data[qType])}
+                                {List.map(
+                                    (row, i) => (
+                                        <tr key={i}>
+                                            <td key="word" className="word">{row.word}</td>
+                                            <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
+                                            <td key="ipm" className="num">{ut.formatNumber(row.ipm)}</td>
+                                            <td key="score" className="num">{ut.formatNumber(row.collWeight, 5)}</td>
+                                        </tr>
+                                    ),
+                                    props.data[qType]
+                                )}
                             </tbody>
                         </table>
                     )}/> :
                     null
                 }
             </S.SCollsTable>
-        }
+        };
 
-        render() {
-            return (
-                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={true} sourceIdent={{corp: this.props.corpname}}
-                        backlink={[]} supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <S.SyntacticColls>
-                        {this.props.isAltViewMode ?
-                            List.map(qType => this.renderWordCloud(qType), this.props.displayTypes) :
-                            List.map(qType => this.renderTable(qType), this.props.displayTypes)
-                        }
-                    </S.SyntacticColls>
-                </globalCompontents.TileWrapper>
-            );
-        }
+        return (
+            <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={true} sourceIdent={{corp: props.corpname}}
+                    backlink={[]} supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <S.SyntacticColls>
+                    {props.isAltViewMode ?
+                        List.map(qType => renderWordCloud(qType), props.displayTypes) :
+                        List.map(qType => renderTable(qType), props.displayTypes)
+                    }
+                </S.SyntacticColls>
+            </globalCompontents.TileWrapper>
+        );
     }
 
     return BoundWithProps<CoreTileComponentProps, SyntacticCollsModelState>(SyntacticCollsTile, model);
