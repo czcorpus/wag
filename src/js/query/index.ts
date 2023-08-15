@@ -18,6 +18,7 @@
 
 import { pipe, List } from 'cnc-tskit';
 import { PosItem, posTagsEqual } from '../postag';
+import { MainPosAttrValues } from '../conf';
 
 
 export enum QueryType {
@@ -139,8 +140,8 @@ export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
     );
 }
 
-export function matchesPos(lv:QueryMatchCore, pos:Array<string>):boolean {
-    return posTagsEqual(List.map(v => v.value, lv.pos), pos);
+export function matchesPos(lv:QueryMatchCore, mainPosAttr:MainPosAttrValues, pos:Array<string>):boolean {
+    return posTagsEqual(List.map(v => v.value, lv[mainPosAttr]), pos);
 }
 
 export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {

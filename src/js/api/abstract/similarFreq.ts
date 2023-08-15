@@ -19,14 +19,19 @@
 import { FreqBand } from '../../query';
 import { DataApi } from '../../types';
 import { PosItem } from '../../postag';
+import { MainPosAttrValues } from '../../conf';
 
 
 export interface RequestArgs {
     domain:string;
     word:string;
     lemma:string;
+
+    /**
+     * Please note that here can be either WaG's `pos` or `upos`
+     */
     pos:Array<string>;
-    upos:Array<string>;
+    mainPosAttr:MainPosAttrValues;
     srchRange:number;
 }
 

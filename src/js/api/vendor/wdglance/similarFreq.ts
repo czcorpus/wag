@@ -26,6 +26,7 @@ import { MultiDict } from '../../../multidict';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq';
 import { HTTPAction } from '../../../server/routes/actions';
 import { IApiServices } from '../../../appServices';
+import { PosItem, posTagsEqual } from '../../../postag';
 
 
 interface HTTPResponse {
@@ -63,7 +64,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                 ['word', args.word],
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(' ')],
-                ['upos', args.upos.join(' ')],
+                ['mainPosAttr', args.mainPosAttr],
                 ['srchRange', args.srchRange]
             ]),
             {
@@ -84,7 +85,12 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                             flevel: calcFreqBand(v.ipm)
                         })
                     ),
-                    List.filter(item => item.lemma !== args.lemma || !matchesPos(item, args.pos))
+                    List.filter(
+                        item => (
+                            item.lemma !== args.lemma ||
+                            !matchesPos(item, args.mainPosAttr, args.pos)
+                        )
+                    )
                 )
             }))
         );

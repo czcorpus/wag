@@ -96,7 +96,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 state.queryMatches[action.payload.queryIdx] = List.map(
                     v => ({
                         ...v,
-                        isCurrent: matchesPos(v, action.payload[state.mainPosAttr]) && v.word == action.payload.word &&
+                        isCurrent: matchesPos(
+                            v, state.mainPosAttr, action.payload[state.mainPosAttr]) && v.word == action.payload.word &&
                                 v.lemma === action.payload.lemma ? true : false
                     }),
                     group
@@ -233,13 +234,13 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
     private submitCurrLemma(state:QueryFormModelState):void {
         const args = new MultiDict();
-        args.set(state.mainPosAttr, findCurrQueryMatch(state.queryMatches[0])[state.mainPosAttr].map(v => v.value).join(' '));
+        args.set('pos', findCurrQueryMatch(state.queryMatches[0])[state.mainPosAttr].map(v => v.value).join(' '));
         args.set('lemma', findCurrQueryMatch(state.queryMatches[0]).lemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:
                 state.queryMatches.slice(1).forEach(m => {
-                    args.add(state.mainPosAttr, findCurrQueryMatch(m)[state.mainPosAttr].map(v => v.value).join(' '));
+                    args.add('pos', findCurrQueryMatch(m)[state.mainPosAttr].map(v => v.value).join(' '));
                     args.add('lemma', findCurrQueryMatch(m).lemma);
                 });
         }
@@ -341,8 +342,20 @@ export interface DefaultFactoryArgs {
     maxQueryWords:{[k in QueryType]?:number};
 }
 
-export const defaultFactory = ({dispatcher, appServices, query1Domain, query2Domain, queryType, queryMatches,
-        isAnswerMode, uiLanguages, searchDomains, layout, maxCmpQueries, maxQueryWords}:DefaultFactoryArgs) => {
+export const defaultFactory = ({
+    dispatcher,
+    appServices,
+    query1Domain,
+    query2Domain,
+    queryType,
+    queryMatches,
+    isAnswerMode,
+    uiLanguages,
+    searchDomains,
+    layout,
+    maxCmpQueries,
+    maxQueryWords
+}:DefaultFactoryArgs) => {
 
     return new QueryFormModel(
         dispatcher,

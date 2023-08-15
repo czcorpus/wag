@@ -180,7 +180,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 if (action.payload.tileId === this.tileId) {
                     this.sourceInfoApi.call({
                         tileId: this.tileId,
-                        queryType: queryType,
+                        queryType,
                         domain: this.queryDomain,
                         corpname: state.corpname,
 
@@ -225,8 +225,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         domain: args.lang,
                         word: args.variant.word,
                         lemma: args.variant.lemma,
-                        pos: List.map(v => v.value, args.variant.pos),
-                        upos: List.map(v => v.value, args.variant.upos),
+                        pos: state.mainPosAttr === 'pos' ?
+                            List.map(v => v.value, args.variant.pos) :
+                            List.map(v => v.value, args.variant.upos),
+                        mainPosAttr: state.mainPosAttr,
                         srchRange: state.sfwRowRange
                     }) :
                     rxOf<{result:Array<SimilarFreqWord>}>({

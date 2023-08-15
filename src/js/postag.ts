@@ -24,7 +24,8 @@
  */
 
 import { IAppServices } from './appServices';
-import { pipe, List } from 'cnc-tskit';
+import { pipe, List, Dict, tuple } from 'cnc-tskit';
+import { MainPosAttrValues } from './conf';
 
 /**
  * PosQueryExport exports a normalized part of speech value
@@ -93,7 +94,8 @@ export enum UPoSValues {
  * codes and their respective labels in different
  * languages.
  */
-export const posTable = {
+
+const posTable = {
     [PoSValues.NOUN]: {
         'cs-CZ': 'podstatné jméno',
         'en-US': 'noun'
@@ -148,7 +150,7 @@ export const posTable = {
  * codes and their respective labels in different
  * languages.
  */
-export const uposTable = {
+const uposTable = {
     [UPoSValues.NOUN]: {
         'cs-CZ': 'podstatné jméno',
         'en-US': 'noun'
@@ -293,11 +295,11 @@ export function posQueryFactory(fnName:string):PosQueryExport {
  * values. In normal case the returned value is equal
  * to the entered one.
  */
-export function importQueryPos(s:string):string {
+export function importQueryPos(s:string, posAttr:MainPosAttrValues):string {
+    const usedValues = posAttr === 'pos' ? PoSValues : UPoSValues;
     return List.map(
         v => {
-            Object.values(PoSValues).indexOf
-            if (Object.values<string>(PoSValues).indexOf(v.toUpperCase()) > -1) {
+            if (Object.values<string>(usedValues).indexOf(v.toUpperCase()) > -1) {
                 return v.toUpperCase();
             }
             throw new Error(`Invalid PoS value [${v}]`);
@@ -310,17 +312,23 @@ export function importQueryPos(s:string):string {
  * Imports a string-encoded, possibly multi-word-based PoS
  * along with localized label.
  */
-export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:string]:string}}, appServices:IAppServices):Array<PosItem> {
+export function importQueryPosWithLabel(s:string, posAttr:MainPosAttrValues, appServices:IAppServices):Array<PosItem> {
+    const labels = posAttr === 'pos' ? posTable : uposTable;
+    const usedValues = pipe(
+        Object.entries(posAttr === 'pos' ? PoSValues : UPoSValues),
+        List.map(([k, v]) => tuple(v, k)),
+        Dict.fromEntries()
+    );
     return s ?
         pipe(
             s.split(' '),
             List.map(
                 v => {
-                    if (Object.keys(postable).indexOf(v.toUpperCase()) > -1) {
+                    if (Dict.hasKey(v.toUpperCase(), usedValues)) {
                         const ident = v.toUpperCase();
                         return {
                             value: ident,
-                            label: appServices.importExternalMessage(postable[ident])
+                            label: appServices.importExternalMessage(labels[ident])
                         };
                     }
                     throw new Error(`Invalid PoS value [${v}]`);

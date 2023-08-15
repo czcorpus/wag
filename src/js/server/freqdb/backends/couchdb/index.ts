@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, merge, empty, forkJoin, of as rxOf, EMPTY } from 'rxjs';
+import { Observable, merge, forkJoin, of as rxOf, EMPTY } from 'rxjs';
 import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
 import { IAppServices, IApiServices } from '../../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../../query/index';
 import { IFreqDB } from '../../freqdb';
-import { FreqDbOptions } from '../../../../conf';
+import { FreqDbOptions, MainPosAttrValues } from '../../../../conf';
 import { serverHttpRequest } from '../../../request';
-import { importQueryPosWithLabel, posTable, posTagsEqual, uposTable } from '../../../../postag';
+import { importQueryPosWithLabel, posTagsEqual } from '../../../../postag';
 import { SourceDetails } from '../../../../types';
 import { CouchStoredSourceInfo } from './sourceInfo';
 
@@ -40,6 +40,7 @@ Document structure:
         {"word":"asi","count":66556,"arf":34748.076}
     ],
     "pos":"T",
+    "upos": "PART",
     "arf":34748.076,
     "is_pname":false,
     "count":66556
@@ -196,7 +197,12 @@ export class CouchFreqDB implements IFreqDB {
         );
     }
 
-    private mergeDocs(items:Array<{doc:HTTPNgramDoc}>, word:string, appServices:IAppServices):Array<QueryMatch> {
+    private mergeDocs(
+        items:Array<{doc:HTTPNgramDoc}>,
+        word:string,
+        posAttr:MainPosAttrValues,
+        appServices:IAppServices
+    ):Array<QueryMatch> {
         return pipe(
             items,
             List.map(v => v.doc),
@@ -205,8 +211,8 @@ export class CouchFreqDB implements IFreqDB {
             List.map<HTTPNgramDoc, QueryMatch>(v => ({
                 word: word,
                 lemma: v.lemma,
-                pos: importQueryPosWithLabel(v.pos, posTable, appServices),
-                upos: importQueryPosWithLabel(v.upos, uposTable, appServices),
+                pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
+                upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
                 abs: v.count,
                 ipm: v.count / this.corpusSize * 1e6,
                 flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
@@ -216,21 +222,32 @@ export class CouchFreqDB implements IFreqDB {
         );
     }
 
-    findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
+    findQueryMatches(
+        appServices:IAppServices,
+        word:string,
+        posAttr:MainPosAttrValues,
+        minFreq:number
+    ):Observable<Array<QueryMatch>> {
         return forkJoin([
             this.queryExact(Views.BY_WORD, word),
             this.queryExact(Views.BY_LEMMA, word),
         ]).pipe(
-            map(([resp1, resp2]) => this.mergeDocs(List.concat(resp1.rows, resp2.rows), word, appServices))
+            map(([resp1, resp2]) => this.mergeDocs(List.concat(resp1.rows, resp2.rows), word, posAttr, appServices))
         )
     }
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(
+        appServices:IAppServices,
+        lemma:string,
+        pos:Array<string>,
+        posAttr:MainPosAttrValues,
+        rng:number
+    ):Observable<Array<QueryMatch>> {
         const view = this.getViewByLemmaWords(lemma);
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             concatMap(
                 resp => {
-                    const srch = List.find(v => v.doc.lemma === lemma && pos.join(' ') === v.doc.pos, resp.rows);
+                    const srch = List.find(v => v.doc.lemma === lemma && pos.join(' ') === v.doc[posAttr], resp.rows);
                     return pos.length === 1 && srch ?
                         merge(
                             // we must search for exact frequency separately to prevent
@@ -276,8 +293,8 @@ export class CouchFreqDB implements IFreqDB {
                 values => List.map(
                     v => ({
                         lemma: v.lemma,
-                        pos: importQueryPosWithLabel(v.pos, posTable, appServices),
-                        upos: importQueryPosWithLabel(v.upos, uposTable, appServices),
+                        pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
+                        upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
                         ipm: v.count / this.corpusSize * 1e6,
                         flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
                         word: lemma,
@@ -291,7 +308,12 @@ export class CouchFreqDB implements IFreqDB {
         );
     }
 
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
+    getWordForms(
+        appServices:IAppServices,
+        lemma:string,
+        pos:Array<string>,
+        posAttr:MainPosAttrValues
+    ):Observable<Array<QueryMatch>> {
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             map(resp => {
                 const srch = pos.length === 0 ?
@@ -306,16 +328,16 @@ export class CouchFreqDB implements IFreqDB {
                 return pipe(
                     srch,
                     List.flatMap(
-                        v => List.map(form => tuple(v.doc.pos, form), v.doc.forms)
+                        v => List.map(form => tuple(v.doc.pos, v.doc.upos, form), v.doc.forms)
                     ),
                     List.sortBy(
-                        ([,form]) => form.count
+                        ([,,form]) => form.count
                     ),
                     List.map(
-                        ([pos, form]) => ({
+                        ([pos, upos, form]) => ({
                             lemma: lemma,
-                            pos: importQueryPosWithLabel(pos, posTable, appServices),
-                            upos: [], // TODO
+                            pos: importQueryPosWithLabel(pos, 'pos', appServices),
+                            upos: importQueryPosWithLabel(pos, 'upos', appServices),
                             ipm: form.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
                             word: form.word,

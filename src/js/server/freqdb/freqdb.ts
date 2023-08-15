@@ -20,20 +20,37 @@ import { Observable } from 'rxjs';
 import { QueryMatch } from '../../query/index';
 import { IAppServices } from '../../appServices';
 import { SourceDetails } from '../../types';
+import { MainPosAttrValues } from '../../conf';
 
 
 export interface IFreqDB {
 
-    findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>>;
+    findQueryMatches(
+        appServices:IAppServices,
+        word:string,
+        posAttr:MainPosAttrValues,
+        minFreq:number
+    ):Observable<Array<QueryMatch>>;
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>>;
+    getSimilarFreqWords(
+        appServices:IAppServices,
+        lemma:string,
+        pos:Array<string>,
+        posAttr:MainPosAttrValues,
+        rng:number
+    ):Observable<Array<QueryMatch>>;
 
     /**
      * Find words with similar frequency as the one specified by lemma and pos.
      * The 'pos' argument specifies possibly multi-word PoS information (that is why
      * we use array type).
      */
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>>;
+    getWordForms(
+        appServices:IAppServices,
+        lemma:string,
+        pos:Array<string>,
+        posAttr:MainPosAttrValues
+    ):Observable<Array<QueryMatch>>;
 
     getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails>;
 }

@@ -38,7 +38,8 @@ import { HTTPAction } from '../server/routes/actions';
 import { MultiDict } from '../multidict';
 import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
-import { TileGroup } from './layout';
+import { LayoutManager, TileGroup } from './layout';
+import { TileConf } from './tile';
 
 
 interface MountArgs {
@@ -169,6 +170,15 @@ function initTelemetry(
 }
 
 
+export const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
+    const ans = {};
+    Object.keys(config).forEach((k, i) => {
+        ans[k] = i;
+    });
+    return ans;
+};
+
+
 export function initClient(
     mountElement:HTMLElement,
     config:ClientConf,
@@ -226,7 +236,10 @@ export function initClient(
     );
 
     try {
-        const [WdglanceMain, layout, tileMap] = createRootComponent({
+
+        const tileIdentMap = attachNumericTileIdents(config.tiles);
+        const layoutManager = new LayoutManager(config.layouts, tileIdentMap, appServices);
+        const {component, tileGroups} = createRootComponent({
             config,
             userSession,
             queryMatches,
@@ -234,16 +247,17 @@ export function initClient(
             dispatcher,
             onResize: windowResize$,
             viewUtils,
+            layoutManager,
             cache: initStore('requests', config.reqCacheTTL)
         });
-        console.info('tile map: ', tileMap); // DEBUG TODO
+        console.info('tile map: ', tileIdentMap); // DEBUG TODO
 
-        initTelemetry(config, appServices, dispatcher, tileMap);
+        initTelemetry(config, appServices, dispatcher, tileIdentMap);
         mountReactComponent({
             userSession,
-            component: WdglanceMain,
+            component,
             mountElement,
-            layout,
+            layout: tileGroups,
             dispatcher,
             appServices,
             queryMatches,

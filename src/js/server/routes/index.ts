@@ -33,7 +33,7 @@ import { queryAction, importQueryRequest } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../types';
-import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf';
 import { init as viewInit } from '../../views/layout/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
@@ -181,7 +181,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: false, httpAction: HTTPAction.MAIN, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.MAIN,
+            queryType: QueryType.SINGLE_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -209,7 +218,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (db) => {
-                    return db.findQueryMatches(appServices, getQueryValue(req, 'q')[0], 1);
+                    return db.findQueryMatches(
+                        appServices,
+                        getQueryValue(req, 'q')[0],
+                        getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues, // TODO validate
+                        1
+                    );
                 }
             )
         ).subscribe({
@@ -423,7 +437,14 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             isMobileClient: clientIsLikelyMobile(req)
         }).subscribe();
 
-        new Observable<{domain:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
+        new Observable<{
+            domain:string;
+            word:string;
+            lemma:string;
+            pos:Array<string>;
+            posAttr:MainPosAttrValues,
+            rng:number;
+        }>((observer) => {
             if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
                 observer.error(
                     new ServerHTTPRequestError(HTTP.Status.BadRequest, `Invalid range provided, srchRange = ${req.query.srchRange}`));
@@ -433,11 +454,13 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
 
             } else {
+                const posAttr = getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues;
                 observer.next({
                     domain: getQueryValue(req, 'domain')[0],
                     word: getQueryValue(req, 'word')[0],
                     lemma: getQueryValue(req, 'lemma')[0],
-                    pos: List.map(v => importQueryPos(v), pos),
+                    pos: List.map(v => importQueryPos(v, posAttr), pos),
+                    posAttr: getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues, // TODO validate
                     rng: Math.min(
                         parseInt(getQueryValue(req, 'srchRange')[0]),
                         services.serverConf.freqDB.single ?
@@ -455,6 +478,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                         appServices,
                         data.lemma,
                         data.pos,
+                        data.posAttr,
                         data.rng
                     )
             ),
@@ -514,16 +538,24 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             isMobileClient: clientIsLikelyMobile(req)
         }).subscribe();
 
-        new Observable<{domain:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
+        new Observable<{
+            domain:string;
+            word:string;
+            lemma:string;
+            pos:Array<string>,
+            posAttr:MainPosAttrValues
+        }>((observer) => {
             if (freqDb === undefined) {
                 observer.error(
                     new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${req.query.lang}] not defined`));
             }
+            const posAttr = getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues;
             observer.next({
                 domain: getQueryValue(req, 'domain')[0],
                 word: getQueryValue(req, 'word')[0],
                 lemma: getQueryValue(req, 'lemma')[0],
-                pos: List.map(v => importQueryPos(v), getQueryValue(req, 'pos'))
+                pos: List.map(v => importQueryPos(v, posAttr), getQueryValue(req, 'pos')),
+                posAttr
             });
 
         }).pipe(
@@ -532,7 +564,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     .getWordForms(
                         appServices,
                         args.lemma,
-                        args.pos
+                        args.pos,
+                        args.posAttr
                     )
             )
 
