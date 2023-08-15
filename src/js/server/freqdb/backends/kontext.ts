@@ -24,8 +24,8 @@ import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { ConcViewResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance/v015/common';
 import { HTTPResponse as FreqsHttpResponse } from '../../../api/vendor/kontext/freqs';
-import { FreqDbOptions } from '../../../conf';
-import { importQueryPosWithLabel, posTable } from '../../../postag';
+import { FreqDbOptions, MainPosAttrValues } from '../../../conf';
+import { importQueryPosWithLabel } from '../../../postag';
 import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo';
 import { CorpusDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
@@ -94,7 +94,7 @@ export class KontextFreqDB implements IFreqDB {
         });
     }
 
-    findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
+    findQueryMatches(appServices:IAppServices, word:string, posAttr:MainPosAttrValues, minFreq:number):Observable<Array<QueryMatch>> {
         return this.loadConcordance(word).pipe(
             concatMap(v => this.loadFreqs(v.conc_persistence_op_id)),
             map(v => List.map(
@@ -104,7 +104,7 @@ export class KontextFreqDB implements IFreqDB {
                     const ans:QueryMatch = {
                         lemma: item.Word[0].n,
                         word: word,
-                        pos: importQueryPosWithLabel(pos, posTable, appServices),
+                        pos: importQueryPosWithLabel(pos, posAttr, appServices),
                         upos: [], // TODO
                         abs: item.freq,
                         ipm: ipm,
@@ -119,7 +119,7 @@ export class KontextFreqDB implements IFreqDB {
         )
     }
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, posAttr:MainPosAttrValues, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<Array<QueryMatch>>((observer) => {
             observer.next([]);
             observer.complete();

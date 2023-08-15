@@ -82,13 +82,12 @@ export const mkTileFactory = (
     queryType:QueryType,
     domain1:string,
     domain2:string,
-    tileIdentMap:{[ident:string]:number},
     cache:IAsyncKeyValueStore) => (
             confName:string,
             conf:TileConf):ITileProvider|null => {
 
-        if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, tileIdentMap[confName])) {
-            return new EmptyTile(tileIdentMap[confName]);
+        if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, layoutManager.getTileNumber(confName))) {
+            return new EmptyTile(layoutManager.getTileNumber(confName));
 
         } else {
             const tileFactory = tileFactories[conf.tileType];
@@ -99,7 +98,7 @@ export const mkTileFactory = (
                 throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`);
             }
             const args = {
-                tileId: tileIdentMap[confName],
+                tileId: layoutManager.getTileNumber(confName),
                 dispatcher,
                 ut: viewUtils,
                 queryMatches,
@@ -108,10 +107,10 @@ export const mkTileFactory = (
                 domain2: domain2,
                 queryType,
                 waitForTiles: List.map(
-                    v => tileIdentMap[v],
+                    v => layoutManager.getTileNumber(v),
                     importDependentTilesList(
-                        layoutManager.getTileWaitFor(queryType, tileIdentMap[confName]),
-                        layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
+                        layoutManager.getTileWaitFor(queryType, layoutManager.getTileNumber(confName)),
+                        layoutManager.getTileReadSubqFrom(queryType, layoutManager.getTileNumber(confName))
                     )
                 ),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
@@ -120,13 +119,13 @@ export const mkTileFactory = (
                         if (!conf.compatibleSubqProviders || !conf.compatibleSubqProviders.includes(v)) {
                             console.warn(`Tile '${v}' not officially supported as subquery provider by '${confName}'`);
                         }
-                        return tileIdentMap[v];
+                        return layoutManager.getTileNumber(v);
                     },
                     importDependentTilesList(
-                        layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
+                        layoutManager.getTileReadSubqFrom(queryType, layoutManager.getTileNumber(confName))
                     )
                 ),
-                widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
+                widthFract: layoutManager.getTileWidthFract(queryType, layoutManager.getTileNumber(confName)),
                 theme,
                 conf,
                 isBusy: true,

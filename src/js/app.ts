@@ -102,14 +102,6 @@ const mkAttachTile = (
         }
 };
 
-const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
-    const ans = {};
-    Object.keys(config).forEach((k, i) => {
-        ans[k] = i;
-    });
-    return ans;
-};
-
 
 export interface InitIntArgs {
     config:ClientConf;
@@ -120,18 +112,30 @@ export interface InitIntArgs {
     onResize:Observable<ScreenProps>;
     viewUtils:ViewUtils<GlobalComponents>;
     cache:IAsyncKeyValueStore;
+    layoutManager:LayoutManager;
 }
 
 
-export function createRootComponent({config, userSession, queryMatches, appServices, dispatcher,
-    onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Array<TileGroup>, TileIdentMap] {
+export function createRootComponent({
+    config,
+    userSession,
+    queryMatches,
+    appServices,
+    dispatcher,
+    onResize,
+    viewUtils,
+    layoutManager,
+    cache
+}:InitIntArgs):{
+    component:React.FunctionComponent<WdglanceMainProps>,
+    tileGroups:Array<TileGroup>,
+    mainPosAttr:MainPosAttrValues
+ } {
 
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
 
     const tiles:Array<TileFrameProps> = [];
-    const tilesMap = attachNumericTileIdents(config.tiles);
-    const layoutManager = new LayoutManager(config.layouts, tilesMap, appServices);
     const theme = new Theme(config.colors);
 
     const qType = userSession.queryType as QueryType; // TODO validate
@@ -165,7 +169,6 @@ export function createRootComponent({config, userSession, queryMatches, appServi
         qType,
         userSession.query1Domain,
         userSession.query2Domain,
-        tilesMap,
         cache
     );
 
@@ -248,5 +251,9 @@ export function createRootComponent({config, userSession, queryMatches, appServi
         }
     );
 
-    return [component, layoutManager.getLayoutGroups(qType), tilesMap];
+    return {
+        component,
+        tileGroups: layoutManager.getLayoutGroups(qType),
+        mainPosAttr: layoutManager.getLayoutMainPosAttr(qType)
+    };
 }

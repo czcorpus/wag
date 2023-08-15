@@ -25,6 +25,7 @@ import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { IFreqDB } from '../freqdb';
 import { importQueryPos, importQueryPosWithLabel, posTable } from '../../../postag';
 import { SourceDetails } from '../../../types';
+import { MainPosAttrValues } from '../../../conf';
 
 
 /*
@@ -60,7 +61,7 @@ export class SqliteFreqDB implements IFreqDB {
         this.corpusSize = corpusSize;
     }
 
-    private exportRow(appServices:IAppServices, row:{[key:string]:any}, isCurrent:boolean, word:string=''):QueryMatch {
+    private exportRow(appServices:IAppServices, row:{[key:string]:any}, isCurrent:boolean, posAttr:MainPosAttrValues, word:string=''):QueryMatch {
         return {
             word: word, // TODO different type here ?
             lemma: row['value'],
@@ -68,13 +69,18 @@ export class SqliteFreqDB implements IFreqDB {
             arf: row['arf'],
             ipm: row['ipm'] !== undefined ? row['ipm'] : -1,
             flevel: null,
-            pos: importQueryPosWithLabel(row['pos'], posTable, appServices),
+            pos: importQueryPosWithLabel(row['pos'], posAttr, appServices),
             upos: [], // TODO
             isCurrent: isCurrent
         };
     }
 
-    findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
+    findQueryMatches(
+        appServices:IAppServices,
+        word:string,
+        posAttr:MainPosAttrValues,
+        minFreq:number
+    ):Observable<Array<QueryMatch>> {
         return new Observable<QueryMatch>((observer) => {
             const srchWord = word.toLowerCase();
             if(this.db) {
@@ -94,14 +100,14 @@ export class SqliteFreqDB implements IFreqDB {
 
                             } else {
                                 try {
-                                    const pos = importQueryPos(row['pos']);
+                                    const pos = importQueryPos(row['pos'], posAttr);
                                     observer.next({
                                         word: srchWord,
                                         lemma: row['lemma'],
                                         abs: row['abs'],
                                         ipm: row['ipm'],
                                         arf: row['arf'],
-                                        pos: importQueryPosWithLabel(pos, posTable, appServices),
+                                        pos: importQueryPosWithLabel(pos, posAttr, appServices),
                                         upos: [], // TODO
                                         flevel: calcFreqBand(row['ipm']),
                                         isCurrent: false
@@ -135,7 +141,7 @@ export class SqliteFreqDB implements IFreqDB {
         )
     }
 
-    private getNearFreqItems(appServices:IAppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> {
+    private getNearFreqItems(appServices:IAppServices, val:QueryMatch, posAttr:MainPosAttrValues, whereSgn:number, limit:number):Observable<QueryMatch> {
         return new Observable<QueryMatch>((observer) => {
             const sql = ['SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm FROM lemma WHERE is_pname = 0'];
             const args:Array<any> = [this.corpusSize];
@@ -169,7 +175,7 @@ export class SqliteFreqDB implements IFreqDB {
                         observer.error(err);
 
                     } else {
-                        observer.next(this.exportRow(appServices, row, false));
+                        observer.next(this.exportRow(appServices, row, false, posAttr));
                     }
                 },
                 (err) => {
@@ -184,7 +190,7 @@ export class SqliteFreqDB implements IFreqDB {
         });
     }
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, posAttr:MainPosAttrValues, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<QueryMatch>((observer) => {
             const sql = ['SELECT value, pos, SUM(`count`) AS abs, CAST(`count` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf ' +
                             'FROM lemma WHERE value = ?'];
@@ -200,7 +206,7 @@ export class SqliteFreqDB implements IFreqDB {
                         observer.error(err);
 
                     } else {
-                        observer.next(this.exportRow(appServices, row, true));
+                        observer.next(this.exportRow(appServices, row, true, posAttr));
                         observer.complete();
                     }
                 }
@@ -208,8 +214,8 @@ export class SqliteFreqDB implements IFreqDB {
         }).pipe(
             concatMap(
                 ans => merge(
-                    this.getNearFreqItems(appServices, ans, 1, rng),
-                    this.getNearFreqItems(appServices, ans, -1, rng),
+                    this.getNearFreqItems(appServices, ans, posAttr, 1, rng),
+                    this.getNearFreqItems(appServices, ans, posAttr, -1, rng),
                     rxOf(ans)
 
                 )

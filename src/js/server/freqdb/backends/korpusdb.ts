@@ -23,8 +23,8 @@ import { List, HTTP, tuple, pipe } from 'cnc-tskit';
 import { IFreqDB } from '../freqdb';
 import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
-import { FreqDbOptions } from '../../../conf';
-import { importQueryPosWithLabel, PosItem, posTable, posTagsEqual } from '../../../postag';
+import { FreqDbOptions, MainPosAttrValues } from '../../../conf';
+import { importQueryPosWithLabel, PosItem, posTagsEqual } from '../../../postag';
 import { SourceDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
 import { CouchStoredSourceInfo } from './couchdb/sourceInfo';
@@ -201,7 +201,7 @@ export class KorpusFreqDB implements IFreqDB {
         )
     }
 
-    findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
+    findQueryMatches(appServices:IAppServices, word:string, posAttr:MainPosAttrValues, minFreq:number):Observable<Array<QueryMatch>> {
         const fcrit = word.includes(' ') ? this.ngramFcrit : this.fcrit;
 
         return forkJoin([this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word', true)]).pipe(
@@ -219,7 +219,7 @@ export class KorpusFreqDB implements IFreqDB {
                                     slot => slot._fillers[0][':form:attr:cnc:w:tag'][0],
                                     curr._slots
                                 ).join(' '),
-                                posTable,
+                                posAttr,
                                 appServices
                             );
                             const exists = List.some(
@@ -244,6 +244,7 @@ export class KorpusFreqDB implements IFreqDB {
                     appServices,
                     lemma,
                     List.map(p => p.value, pos),
+                    posAttr,
                     rsc
                 ).pipe(
                     map(wordForms =>
@@ -283,7 +284,13 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(
+        appServices:IAppServices,
+        lemma:string,
+        pos:Array<string>,
+        posAttr:MainPosAttrValues,
+        rng:number
+    ):Observable<Array<QueryMatch>> {
         return new Observable<Array<QueryMatch>>((observer) => {
             observer.next([]);
             observer.complete();
@@ -294,6 +301,7 @@ export class KorpusFreqDB implements IFreqDB {
         appServices:IAppServices,
         lemma:string,
         pos:Array<string>,
+        posAttr:MainPosAttrValues,
         resources:HTTPResourcesResponse
     ):Observable<Array<QueryMatch>> {
 
@@ -304,7 +312,7 @@ export class KorpusFreqDB implements IFreqDB {
                     if (curr[fcrit]) {
                         const wordPos = importQueryPosWithLabel(
                             List.map(slot => slot._fillers[0][':form:attr:cnc:w:tag'][0], curr._slots).join(' '),
-                            posTable,
+                            posAttr,
                             appServices
                         );
                         if (List.empty(pos) || posTagsEqual(pos, List.map(v => v.value, wordPos))) {
@@ -342,13 +350,14 @@ export class KorpusFreqDB implements IFreqDB {
         );
     }
 
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
+    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>, posAttr:MainPosAttrValues):Observable<Array<QueryMatch>> {
         return this.loadResources().pipe(
             concatMap(
                 res => this.getWordFormsUsingResources(
                     appServices,
                     lemma,
                     pos,
+                    posAttr,
                     res
                 )
             )

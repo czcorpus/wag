@@ -18,14 +18,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { catchError, concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
-import { Dict, pipe, HTTP, List } from 'cnc-tskit';
+import { Dict, pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index';
 import { QueryValidator } from '../../query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
-         emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth } from '../../conf';
+         errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth, mergeToEmptyLayoutConf, MainPosAttrValues } from '../../conf';
 import { init as viewInit } from '../../views/layout/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -41,6 +41,8 @@ import { Actions } from '../../models/actions';
 import { HTTPAction } from './actions';
 import { logAction } from '../actionLog/common';
 import { fullServerHttpRequest, serverHttpRequest } from '../request';
+import { LayoutManager } from '../../page/layout';
+import { attachNumericTileIdents } from '../../page';
 
 
 interface MkRuntimeClientConfArgs {
@@ -86,7 +88,6 @@ function mkRuntimeClientConf({
                 const qt = QueryType[queryType]
                 maxQueryWords[qt] = serverConf.freqDB[qt] ? serverConf.freqDB[qt].maxQueryWords : 1;
             }
-
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
@@ -115,7 +116,7 @@ function mkRuntimeClientConf({
                         conf.tiles[domain],
                         Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
                     ),
-                layouts: {...emptyLayoutConf(), ...conf.layouts[domain]},
+                layouts: mergeToEmptyLayoutConf(conf.layouts[domain]),
                 searchDomains: pipe(
                     conf.searchDomains,
                     Dict.keys(),
@@ -156,7 +157,14 @@ interface ImportQueryReqArgs {
     answerMode:boolean;
 }
 
-export function importQueryRequest({services, appServices, req, queryType, uiLang, answerMode}:ImportQueryReqArgs):Observable<UserConf> {
+export function importQueryRequest({
+    services,
+    appServices,
+    req,
+    queryType,
+    uiLang,
+    answerMode
+}:ImportQueryReqArgs):Observable<UserConf> {
     const validator = new QueryValidator(appServices);
     return new Observable<UserConf>(observer => {
         try {
@@ -284,7 +292,27 @@ export function queryAction({
     importQueryRequest({
         services, appServices, req, queryType, uiLang, answerMode
     }).pipe(
-        concatMap(userConf => forkJoin({
+        concatMap(
+            userConf => Rx.zippedWith(
+                userConf,
+                mkRuntimeClientConf({
+                    conf: services.clientConf,
+                    serverConf: services.serverConf,
+                    domain: userConf.query1Domain,
+                    themeId: req.cookies[THEME_COOKIE_NAME] || '',
+                    appServices
+                })
+            )
+        ),
+        map(
+            ([runtimeConf, userConf]) => tuple(
+                runtimeConf,
+                userConf,
+                new LayoutManager(runtimeConf.layouts, attachNumericTileIdents(runtimeConf.tiles), appServices)
+            )
+        ),
+        concatMap(
+            ([runtimeConf, userConf, layoutManager]) => forkJoin({
             appServices: rxOf(appServices),
             dispatcher: rxOf(dispatcher),
             viewUtils: rxOf(viewUtils),
@@ -298,13 +326,8 @@ export function queryAction({
                 }
             ),
             hostPageEnv: services.toolbar.get(userConf.uiLang, mkPageReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-            runtimeConf: mkRuntimeClientConf({
-                conf: services.clientConf,
-                serverConf: services.serverConf,
-                domain: userConf.query1Domain,
-                themeId: req.cookies[THEME_COOKIE_NAME] || '',
-                appServices
-            }),
+            runtimeConf: rxOf(runtimeConf),
+            layoutManager: rxOf(layoutManager),
             groupedAuth: testGroupedAuth(
                 res,
                 req,
@@ -316,6 +339,7 @@ export function queryAction({
                             .findQueryMatches(
                                 appServices,
                                 query.word,
+                                layoutManager.getLayoutMainPosAttr(userConf.queryType),
                                 getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
                             ) :
                         rxOf<Array<QueryMatch>>([]),
@@ -340,7 +364,16 @@ export function queryAction({
             }).subscribe();
         })
     ).subscribe({
-        next: ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
+        next: ({
+            userConf,
+            hostPageEnv,
+            runtimeConf,
+            qMatchesEachQuery,
+            appServices,
+            dispatcher,
+            viewUtils,
+            layoutManager
+        }) => {
             const queryMatchesExtended = List.map(
                 (queryMatches, queryIdx) => {
                     const mergedMatches = addWildcardMatches([...queryMatches]);
@@ -348,8 +381,11 @@ export function queryAction({
                         let matchIdx = 0;
                         if (userConf.queries[queryIdx]) {
                             const srchIdx = List.findIndex(
-                                v => matchesPos(v, userConf.queries[queryIdx].pos)
-                                        && (v.lemma === userConf.queries[queryIdx].lemma || !userConf.queries[queryIdx].lemma),
+                                v => matchesPos(
+                                    v,
+                                    layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                                    userConf.queries[queryIdx].pos
+                                ) && (v.lemma === userConf.queries[queryIdx].lemma || !userConf.queries[queryIdx].lemma),
                                 mergedMatches
                             );
                             if (srchIdx >= 0) {
@@ -376,14 +412,15 @@ export function queryAction({
                 },
                 qMatchesEachQuery
             );
-            const [rootView, layout,] = createRootComponent({
+            const {component, tileGroups,} = createRootComponent({
                 config: runtimeConf,
                 userSession: userConf,
                 queryMatches: queryMatchesExtended,
-                appServices: appServices,
-                dispatcher: dispatcher,
+                appServices,
+                dispatcher,
                 onResize: new Observable((_) => undefined),
-                viewUtils: viewUtils,
+                viewUtils,
+                layoutManager,
                 cache: initDummyStore('dummy-server-store')
             });
 
@@ -408,8 +445,8 @@ export function queryAction({
                 userConfig: userConf,
                 clientConfig: runtimeConf,
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
-                rootView,
-                layout,
+                rootView: component,
+                layout: tileGroups,
                 homepageSections: [...runtimeConf.homepage.tiles],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode,

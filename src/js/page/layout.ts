@@ -140,7 +140,10 @@ export class LayoutManager {
 
     private readonly queryTypes:Array<QueryTypeMenuItem>;
 
+    private readonly tileMap:TileIdentMap;
+
     constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:IAppServices) {
+        this.tileMap = tileMap;
         this.layoutSingle = importLayout(
             layouts.single,
             tileMap,
@@ -270,5 +273,9 @@ export class LayoutManager {
 
     getQueryTypesMenuItems():Array<QueryTypeMenuItem> {
         return this.queryTypes;
+    }
+
+    getTileNumber(tileId:string):number {
+        return this.tileMap[tileId];
     }
 }
