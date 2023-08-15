@@ -73,7 +73,8 @@ describe('QueryFormModel', function () {
                         [QueryType.CMP_QUERY]: 2,
                         [QueryType.TRANSLAT_QUERY]: 1,
                     },
-                    ...initialStateOverrides
+                    ...initialStateOverrides,
+                    mainPosAttr: 'pos'
                 }
             ),
             {
