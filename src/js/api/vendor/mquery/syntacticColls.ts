@@ -20,8 +20,9 @@ import { Observable, map, of } from 'rxjs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { IApiServices } from '../../../appServices';
-import { SCollsData, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
-import { SyntacticCollsApi } from '../../abstract/syntacticColls';
+import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
+import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls';
+import { tuple } from 'cnc-tskit';
 
 
 export interface SCollsFreqRowResponse {
@@ -37,6 +38,7 @@ export interface SCollsApiResponse {
     concSize:number;
     corpusSize:number;
     freqs:Array<SCollsFreqRowResponse>;
+    examplesQueryTpl:string;
 }
 
 
@@ -60,6 +62,7 @@ export enum SCollsQueryType {
     VERBS_OBJECT = 'verbs-object',
 }
 export type SCollsQueryTypeValue = `${SCollsQueryType}`;
+
 
 export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest> {
 
@@ -107,9 +110,65 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
             }
 
         ).pipe(
-            map(data => ([request.params.queryType, data.freqs])),
+            map(data => (
+                tuple(
+                    request.params.queryType,
+                    {
+                        rows: data.freqs,
+                        examplesQueryTpl: data.examplesQueryTpl
+                    }
+                )
+            )),
         );
     }
 
 }
 
+
+export interface SCERequestArgs {
+    params:{
+        corpname:string;
+    }
+    args:{
+        query:string;
+    }
+}
+
+export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesApi<SCERequestArgs> {
+
+    private readonly apiURL:string;
+
+    private readonly apiServices:IApiServices;
+
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+        this.apiURL = apiURL;
+        this.apiServices = apiServices;
+        this.cache = cache;
+    }
+
+    stateToArgs(state:SyntacticCollsModelState, query:string):SCERequestArgs {
+        return {
+            params: {
+                corpname: state.corpname,
+            },
+            args: {
+                query
+            }
+        };
+    }
+
+    call(request:SCERequestArgs):Observable<SCollsExamples> {
+        return cachedAjax$<SCollsExamples>(this.cache)(
+            'GET',
+            this.apiURL + `/conc-examples/${request.params.corpname}`,
+            request.args,
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true
+            }
+        )
+    }
+
+}

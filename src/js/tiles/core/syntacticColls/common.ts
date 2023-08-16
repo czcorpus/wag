@@ -17,16 +17,38 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { SCollsFreqRowResponse, SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
+import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
+import { SCollsData, SCollsExamples } from '../../../models/tiles/syntacticColls';
 
 
 export class Actions {
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {
-        qType: SCollsQueryType;
-        data: Array<SCollsFreqRowResponse>;
+        qType:SCollsQueryType;
+        data:SCollsData;
     }> = {
         name: GlobalActions.TileDataLoaded.name
     };
+
+    static ShowExampleWindow:Action<{
+        tileId:number;
+        data:SCollsExamples;
+    }> = {
+        name: 'SYNTACTIC_COLLS_SHOW_EXAMPLE_WINDOW'
+    };
+
+    static HideExampleWindow:Action<{
+        tileId:number;
+    }> = {
+        name: 'SYNTACTIC_COLLS_HIDE_EXAMPLE_WINDOW'
+    };
+
+    static ClickForExample:Action<{
+        tileId:number;
+        qType:SCollsQueryTypeValue;
+        word:string;
+    }> = {
+        name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'
+    }
 
 }

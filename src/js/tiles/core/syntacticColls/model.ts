@@ -23,9 +23,8 @@ import { Backlink } from '../../../page/tile';
 import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { QueryType } from '../../../query';
 import { concat } from 'rxjs';
-import { SyntacticCollsApi } from '../../../api/abstract/syntacticColls';
-import { Dict, List } from 'cnc-tskit';
-import { SCollsQueryType } from '../../../api/vendor/mquery/syntacticColls';
+import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls';
+import { List } from 'cnc-tskit';
 
 
 export interface SyntacticCollsModelArgs {
@@ -38,6 +37,7 @@ export interface SyntacticCollsModelArgs {
     backlink:Backlink;
     queryType:QueryType;
     api:SyntacticCollsApi<any>;
+    eApi:SyntacticCollsExamplesApi<any>;
     maxItems:number;
 }
 
@@ -58,9 +58,23 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly api:SyntacticCollsApi<any>;
 
+    private readonly eApi:SyntacticCollsExamplesApi<any>;
+
     private readonly maxItems:number;
 
-    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, initState, backlink, queryType, api, maxItems}:SyntacticCollsModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        waitForTile,
+        waitForTilesTimeoutSecs,
+        appServices,
+        initState,
+        backlink,
+        queryType,
+        api,
+        eApi,
+        maxItems
+    }:SyntacticCollsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -69,6 +83,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         this.backlink = backlink;
         this.queryType = queryType;
         this.api = api;
+        this.eApi = eApi;
         this.maxItems = maxItems;
 
         this.addActionSubtypeHandler(
@@ -119,16 +134,67 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             Actions.TileDataLoaded,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
+                state.exampleWindowData = undefined;
                 if (action.error) {
                     console.error(action.error);
                     state.isBusy = false;
                     state.error = this.appServices.normalizeHttpApiError(action.error);
+
                 } else {
-                    state.data[action.payload.qType] = action.payload.data.slice(0, this.maxItems);
+                    state.data[action.payload.qType] = action.payload.data;
+                    state.data[action.payload.qType].rows = state.data[action.payload.qType].rows.slice(0, this.maxItems);
                     if (List.every(qType => !!state.data[qType], state.displayTypes)) {
                         state.isBusy = false;
                     }
                 }
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ClickForExample,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.isBusy = true;
+            },
+            (state, action, dispatch) => {
+                const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
+                this.eApi.call(this.eApi.stateToArgs(state, q)).pipe(
+
+                ).subscribe({
+                    next: (data) => {
+                        dispatch(
+                            Actions.ShowExampleWindow,
+                            {
+                                tileId: this.tileId,
+                                data
+                            }
+                        );
+                    },
+                    error: (error) => {
+                        dispatch({
+                            name: Actions.ShowExampleWindow.name,
+                            payload: { tileId: this.tileId },
+                            error
+                        });
+                    }
+                })
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ShowExampleWindow,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.isBusy = false;
+                state.exampleWindowData = action.payload.data;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.HideExampleWindow,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.exampleWindowData = undefined;
             }
         );
 

@@ -27,7 +27,18 @@ export interface SCollsDataRow {
     collWeight:number;
 }
 
-export type SCollsData = Array<SCollsDataRow>;
+export interface SCollsData {
+    rows:Array<SCollsDataRow>;
+    examplesQueryTpl:string;
+}
+
+export interface ScollExampleLine {
+    text:string;
+}
+
+export interface SCollsExamples {
+    lines:Array<ScollExampleLine>;
+}
 
 export interface SyntacticCollsModelState {
     isBusy:boolean;
@@ -40,4 +51,5 @@ export interface SyntacticCollsModelState {
     queryMatch:QueryMatch;
     data:{[key in SCollsQueryType]?:SCollsData};
     displayTypes:Array<SCollsQueryTypeValue>;
+    exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
