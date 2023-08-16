@@ -19,15 +19,25 @@
 import { IAsyncKeyValueStore } from '../../types';
 import { CoreApiGroup } from '../coreGroups';
 import { IApiServices } from '../../appServices';
-import { MquerySyntacticCollsAPI } from '../vendor/mquery/syntacticColls';
-import { SyntacticCollsApi } from '../abstract/syntacticColls';
+import { MquerySyntacticCollsAPI, MquerySyntacticCollsExamplesApi } from '../vendor/mquery/syntacticColls';
+import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../abstract/syntacticColls';
+import { tuple } from 'cnc-tskit';
 
 
-export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):SyntacticCollsApi<any> {
+export function createInstance(
+	apiIdent:string,
+	apiURL:string,
+	apiServices:IApiServices,
+	cache:IAsyncKeyValueStore,
+	apiOptions:{}
+):[SyntacticCollsApi<any>, SyntacticCollsExamplesApi<any>] {
 
 	switch (apiIdent) {
 		case CoreApiGroup.MQUERY:
-            return new MquerySyntacticCollsAPI(cache, apiURL, apiServices);
+            return tuple(
+				new MquerySyntacticCollsAPI(cache, apiURL, apiServices),
+				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)
+			);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for syntactic collocations.`);
 	}

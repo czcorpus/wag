@@ -25,10 +25,11 @@ import { SyntacticCollsModel } from './model';
 import { init as wordCloudViewInit } from '../../../views/wordCloud';
 
 import * as S from './style';
-import { SCollsDataRow, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
+import { SCollsDataRow, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { List } from 'cnc-tskit';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc';
+import { Actions } from './common';
 
 
 export function init(
@@ -48,6 +49,27 @@ export function init(
         interactionId: v.word,
     });
 
+    // ------------------- <Examples /> ------------------------
+
+    const Examples:React.FC<{
+        data:SCollsExamples;
+        onClose:()=>void;
+    }> = (props) => (
+        <S.Examples>
+            <div className="toolbar">
+                <a onClick={props.onClose} className="close">
+                    <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                </a>
+            </div>
+            {List.map(
+                (line, i) => (
+                    <p key={`${i}:${line.text.substring(0, 5)}`}>{line.text}</p>
+                ),
+                props.data.lines
+            )}
+        </S.Examples>
+    );
+
     // -------------- <SyntacticCollsTile /> -------------------------------------
 
     const SyntacticCollsTile:React.FC<SyntacticCollsModelState & CoreTileComponentProps> = (props) => {
@@ -59,7 +81,7 @@ export function init(
                     <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                             key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
                         <WordCloud width={width} height={height} isMobile={props.isMobile}
-                            data={props.data[qType]}
+                            data={props.data[qType].rows}
                             font={theme.infoGraphicsFont}
                             dataTransform={dataTransform}
                         />
@@ -69,6 +91,26 @@ export function init(
             </S.SCollsWordCloud>
         };
 
+        const handleWordClick = (word:string, qType:SCollsQueryTypeValue) => () => {
+            dispatcher.dispatch(
+                Actions.ClickForExample,
+                {
+                    tileId: props.tileId,
+                    word,
+                    qType
+                }
+            )
+        };
+
+        const handleExamplesClick = () => {
+            dispatcher.dispatch(
+                Actions.HideExampleWindow,
+                {
+                    tileId: props.tileId
+                }
+            );
+        };
+
         const renderTable = (qType:SCollsQueryTypeValue) => {
             return <S.SCollsTable key={`table:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
@@ -76,23 +118,27 @@ export function init(
                     <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                             key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
                         <table className='data'>
-                            <tbody>
+                            <thead>
                                 <tr>
                                     <th key="word">word</th>
                                     <th key="freq">freq</th>
                                     <th key="ipm">ipm</th>
-                                    <th key="score">collWeight</th>
+                                    <th key="score">score</th>
                                 </tr>
+                            </thead>
+                            <tbody>
                                 {List.map(
                                     (row, i) => (
                                         <tr key={i}>
-                                            <td key="word" className="word">{row.word}</td>
+                                            <td key="word" className="word">
+                                                <a onClick={handleWordClick(row.word, qType)}>{row.word}</a>
+                                            </td>
                                             <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
                                             <td key="ipm" className="num">{ut.formatNumber(row.ipm)}</td>
                                             <td key="score" className="num">{ut.formatNumber(row.collWeight, 5)}</td>
                                         </tr>
                                     ),
-                                    props.data[qType]
+                                    props.data[qType].rows
                                 )}
                             </tbody>
                         </table>
@@ -108,9 +154,15 @@ export function init(
                     backlink={[]} supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.SyntacticColls>
-                    {props.isAltViewMode ?
-                        List.map(qType => renderWordCloud(qType), props.displayTypes) :
-                        List.map(qType => renderTable(qType), props.displayTypes)
+                    <div className="tables">
+                        {props.isAltViewMode ?
+                            List.map(qType => renderWordCloud(qType), props.displayTypes) :
+                            List.map(qType => renderTable(qType), props.displayTypes)
+                        }
+                    </div>
+                    {props.exampleWindowData ?
+                        <Examples data={props.exampleWindowData} onClose={handleExamplesClick} /> :
+                        null
                     }
                 </S.SyntacticColls>
             </globalCompontents.TileWrapper>

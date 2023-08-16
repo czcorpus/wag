@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { SCollsData, SyntacticCollsModelState } from "../../models/tiles/syntacticColls";
-import { ResourceApi } from "../../types";
+import { SCollsData, SCollsExamples, SyntacticCollsModelState } from "../../models/tiles/syntacticColls";
+import { DataApi, ResourceApi } from "../../types";
 import { SCollsQueryType, SCollsQueryTypeValue } from "../vendor/mquery/syntacticColls";
 
 export interface SyntacticCollsApi<T> extends ResourceApi<T, [SCollsQueryType, SCollsData]> {
@@ -26,5 +26,12 @@ export interface SyntacticCollsApi<T> extends ResourceApi<T, [SCollsQueryType, S
      * @param dataSpec is either an ID of an existing concordance or a query
      */
     stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryTypeValue):T;
+
+}
+
+
+export interface SyntacticCollsExamplesApi<T> extends DataApi<T, SCollsExamples> {
+
+    stateToArgs(state:SyntacticCollsModelState, query:string):T;
 
 }

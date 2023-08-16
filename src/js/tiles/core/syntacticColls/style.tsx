@@ -20,10 +20,15 @@ import styled from 'styled-components';
 import * as theme from '../../../views/common/theme';
 
 export const SyntacticColls = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    flex-flow: space-between;
-    gap: 10px;
+
+    position:relative;
+
+    .tables {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 10px;
+    }
+
 `;
 
 export const SCollsWordCloud = styled.div`
@@ -32,4 +37,38 @@ export const SCollsWordCloud = styled.div`
 
 export const SCollsTable = styled.div`
     flex-grow: 1;
+
+    h2 {
+        text-align: center;
+        font-size: 1.3em;
+    }
+`;
+
+
+export const Examples = styled.div`
+
+    position: absolute;
+    top: 5em;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #efefef;
+    border: ${theme.defaultBorderStyle};
+    border-radius: ${theme.defaultBorderRadius};
+    padding: 0.7em;
+    width: 90%;
+
+    .toolbar {
+
+        display: flex;
+        justify-content: end;
+
+        a.close {
+
+            cursor: pointer;
+
+            img {
+                width: 1.5em;
+            }
+        }
+    }
 `;

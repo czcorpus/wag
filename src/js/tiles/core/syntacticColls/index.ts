@@ -66,6 +66,7 @@ export class SyntacticCollsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        const [api, eApi] = createInstance(conf.apiType, conf.apiURL, appServices, cache, {});
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -75,7 +76,8 @@ export class SyntacticCollsTile implements ITileProvider {
             backlink: conf.backlink || null,
             queryType: queryType,
             maxItems: conf.maxItems,
-            api: createInstance(conf.apiType, conf.apiURL, appServices, cache, {}),
+            api,
+            eApi,
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
@@ -87,6 +89,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: {},
                 displayTypes: conf.displayTypes,
+                exampleWindowData: undefined
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
