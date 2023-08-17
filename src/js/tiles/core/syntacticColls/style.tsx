@@ -51,23 +51,52 @@ export const Examples = styled.div`
     top: 5em;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #efefef;
+    background-color: #fefefe;
     border: ${theme.defaultBorderStyle};
     border-radius: ${theme.defaultBorderRadius};
+    box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
     padding: 0.7em;
     width: 90%;
+
+    > div.texts {
+        display: flex;
+        flex-direction: column;
+
+        > p {
+            margin: 0;
+            padding: 0.5em 1em 0.5em 1em;
+        }
+
+        > p:not(:first-child) {
+            border-top: 1px solid #cfcfcf;
+        }
+    }
 
     .toolbar {
 
         display: flex;
-        justify-content: end;
+        align-items: center;
+        margin-bottom: 1em;
 
-        a.close {
+        h3 {
+            display: inline;
+            margin: 0;
+            padding-left: 1em;
+        }
 
-            cursor: pointer;
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-grow: 1;
 
-            img {
-                width: 1.5em;
+            a.close {
+
+                cursor: pointer;
+
+                img {
+                    width: 1.5em;
+                }
             }
         }
     }

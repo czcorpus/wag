@@ -25,7 +25,9 @@ import { SyntacticCollsModel } from './model';
 import { init as wordCloudViewInit } from '../../../views/wordCloud';
 
 import * as S from './style';
-import { SCollsDataRow, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
+import {
+    SCollsDataRow, SCollsExamples, SyntacticCollsModelState, mkScollExampleLineHash
+} from '../../../models/tiles/syntacticColls';
 import { List } from 'cnc-tskit';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc';
@@ -57,16 +59,34 @@ export function init(
     }> = (props) => (
         <S.Examples>
             <div className="toolbar">
-                <a onClick={props.onClose} className="close">
-                    <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
-                </a>
+                <h3>Examples</h3>
+                <div className="controls">
+                    <a onClick={props.onClose} className="close">
+                        <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                    </a>
+                </div>
             </div>
+            <div className="texts">
             {List.map(
                 (line, i) => (
-                    <p key={`${i}:${line.text.substring(0, 5)}`}>{line.text}</p>
+                    <p key={`${i}:${mkScollExampleLineHash(line)}`}>
+                        {List.map(
+                            (token, j) => (
+                                <React.Fragment key={`t:${i}:${j}`}>
+                                    {j > 0 ? <span> </span> : ''}
+                                    {token.strong ?
+                                        <strong>{token.word}</strong> :
+                                        <span>{token.word}</span>
+                                    }
+                                </React.Fragment>
+                            ),
+                            line.text
+                        )}
+                    </p>
                 ),
                 props.data.lines
             )}
+            </div>
         </S.Examples>
     );
 

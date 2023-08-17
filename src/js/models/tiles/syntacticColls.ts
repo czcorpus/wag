@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { Ident, List, pipe } from "cnc-tskit";
 import { SCollsQueryType, SCollsQueryTypeValue } from "../../api/vendor/mquery/syntacticColls";
 import { QueryMatch } from "../../query";
 
@@ -32,12 +33,27 @@ export interface SCollsData {
     examplesQueryTpl:string;
 }
 
+export interface Token {
+    word:string;
+    strong:boolean;
+}
+
 export interface ScollExampleLine {
-    text:string;
+    text:Array<Token>;
 }
 
 export interface SCollsExamples {
     lines:Array<ScollExampleLine>;
+}
+
+export function mkScollExampleLineHash(line:ScollExampleLine):string {
+    return Ident.hashCode(
+        pipe(
+            line.text,
+            List.map(x => x.word),
+            x => x.join(' ')
+        )
+    );
 }
 
 export interface SyntacticCollsModelState {
