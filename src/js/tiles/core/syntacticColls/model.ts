@@ -25,6 +25,7 @@ import { QueryType } from '../../../query';
 import { concat } from 'rxjs';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls';
 import { List } from 'cnc-tskit';
+import { SystemMessageType } from '../../../types';
 
 
 export interface SyntacticCollsModelArgs {
@@ -123,6 +124,12 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     error: (error) => {
                         seDispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: true,
+                                data: undefined,
+                                qType: undefined,
+                            },
                             error,
                         })
                     },
@@ -139,6 +146,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     console.error(action.error);
                     state.isBusy = false;
                     state.error = this.appServices.normalizeHttpApiError(action.error);
+                    this.appServices.showMessage(SystemMessageType.ERROR, state.error);
 
                 } else {
                     state.data[action.payload.qType] = action.payload.data;
