@@ -65,6 +65,10 @@ export const Examples = styled.div`
         > p {
             margin: 0;
             padding: 0.5em 1em 0.5em 1em;
+
+            strong {
+                color: ${theme.colorLogoPink};
+            }
         }
 
         > p:not(:first-child) {

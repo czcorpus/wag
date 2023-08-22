@@ -32,6 +32,11 @@ export interface SyntacticCollsApi<T> extends ResourceApi<T, [SCollsQueryType, S
 
 export interface SyntacticCollsExamplesApi<T> extends DataApi<T, SCollsExamples> {
 
+    /**
+     *
+     * @param state
+     * @param query CQL query to obtain examples
+     */
     stateToArgs(state:SyntacticCollsModelState, query:string):T;
 
 }

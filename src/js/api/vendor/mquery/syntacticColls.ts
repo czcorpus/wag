@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map, of } from 'rxjs';
+import { Observable, map, of, tap } from 'rxjs';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
@@ -168,7 +168,7 @@ export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesAp
                 headers: this.apiServices.getApiHeaders(this.apiURL),
                 withCredentials: true
             }
-        )
+        );
     }
 
 }
