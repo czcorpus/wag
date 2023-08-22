@@ -28,7 +28,7 @@ import * as S from './style';
 import {
     SCollsDataRow, SCollsExamples, SyntacticCollsModelState, mkScollExampleLineHash
 } from '../../../models/tiles/syntacticColls';
-import { List } from 'cnc-tskit';
+import { Dict, List, pipe } from 'cnc-tskit';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc';
 import { Actions } from './common';
@@ -53,6 +53,13 @@ export function init(
 
     // ------------------- <Examples /> ------------------------
 
+    const attrsToStr = (v:{[key:string]:string}):string => pipe(
+        v,
+        Dict.toEntries(),
+        List.map(([k, v]) => `${k}: ${v}`),
+        x => x.join(', ')
+    );
+
     const Examples:React.FC<{
         data:SCollsExamples;
         onClose:()=>void;
@@ -75,8 +82,8 @@ export function init(
                                 <React.Fragment key={`t:${i}:${j}`}>
                                     {j > 0 ? <span> </span> : ''}
                                     {token.strong ?
-                                        <strong>{token.word}</strong> :
-                                        <span>{token.word}</span>
+                                        <strong title={attrsToStr(token.attrs)}>{token.word}</strong> :
+                                        <span title={attrsToStr(token.attrs)}>{token.word}</span>
                                     }
                                 </React.Fragment>
                             ),

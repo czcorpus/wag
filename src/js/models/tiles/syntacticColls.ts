@@ -36,6 +36,7 @@ export interface SCollsData {
 export interface Token {
     word:string;
     strong:boolean;
+    attrs:{[name:string]:string};
 }
 
 export interface ScollExampleLine {

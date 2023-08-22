@@ -166,7 +166,9 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, dispatch) => {
                 const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
-                this.eApi.call(this.eApi.stateToArgs(state, q)).pipe(
+                this.eApi.call(
+                    this.eApi.stateToArgs(state, q)
+                ).pipe(
 
                 ).subscribe({
                     next: (data) => {
