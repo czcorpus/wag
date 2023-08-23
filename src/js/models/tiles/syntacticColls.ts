@@ -70,5 +70,6 @@ export interface SyntacticCollsModelState {
     queryMatch:QueryMatch;
     data:{[key in SCollsQueryType]?:SCollsData};
     displayTypes:Array<SCollsQueryTypeValue>;
+    examplesCache:{[key:string]:SCollsExamples};
     exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }

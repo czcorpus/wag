@@ -22,9 +22,10 @@ import { Actions } from './common';
 import { Backlink } from '../../../page/tile';
 import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { QueryType } from '../../../query';
-import { concat, map } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { concat, of as rxOf } from 'rxjs';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls';
-import { List } from 'cnc-tskit';
+import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types';
 
 
@@ -166,31 +167,32 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, dispatch) => {
                 const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
-                this.eApi.call(
-                    this.eApi.stateToArgs(state, q)
-                ).pipe(
-                    map(
-                        data => ({
-                            ...data,
-                            word1: state.queryMatch.word,
-                            word2: action.payload.word
-                        })
+                (Dict.hasKey(q, state.examplesCache) ?
+                    rxOf(state.examplesCache[q]) :
+                    this.eApi.call(this.eApi.stateToArgs(state, q)).pipe(
+                        map(
+                            data => ({
+                                ...data,
+                                word1: state.queryMatch.word,
+                                word2: action.payload.word
+                            })
+                        )
                     )
-
                 ).subscribe({
                     next: (data) => {
                         dispatch(
                             Actions.ShowExampleWindow,
                             {
                                 tileId: this.tileId,
-                                data
+                                data,
+                                query: q
                             }
                         );
                     },
                     error: (error) => {
                         dispatch({
                             name: Actions.ShowExampleWindow.name,
-                            payload: { tileId: this.tileId },
+                            payload: { tileId: this.tileId, query: q },
                             error
                         });
                     }
@@ -204,6 +206,14 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             (state, action) => {
                 state.isBusy = false;
                 state.exampleWindowData = action.payload.data;
+                if (!Dict.hasKey(action.payload.query, state.examplesCache)) {
+                    state.examplesCache[action.payload.query] = action.payload.data;
+                }
+            },
+            (state, action, dispatch) => {
+                if (action.error) {
+                    this.appServices.showMessage(SystemMessageType.ERROR, action.error);
+                }
             }
         );
 
