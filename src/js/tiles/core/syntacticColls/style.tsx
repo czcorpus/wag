@@ -29,6 +29,10 @@ export const SyntacticColls = styled.div`
         gap: 10px;
     }
 
+    td.word a {
+        cursor: pointer;
+    }
+
 `;
 
 export const SCollsWordCloud = styled.div`
@@ -48,7 +52,7 @@ export const SCollsTable = styled.div`
 export const Examples = styled.div`
 
     position: absolute;
-    top: 5em;
+    top: 4em;
     left: 50%;
     transform: translateX(-50%);
     background-color: #fefefe;
@@ -83,9 +87,19 @@ export const Examples = styled.div`
         margin-bottom: 1em;
 
         h3 {
-            display: inline;
+            display: flex;
+            align-items: center;
             margin: 0;
             padding-left: 1em;
+
+            span.words {
+                color: ${theme.colorLogoPink};
+                font-weight: normal;
+
+                span.plus {
+                    color: ${theme.colorDefaultText};
+                }
+            }
         }
 
         .controls {

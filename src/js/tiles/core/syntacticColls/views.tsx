@@ -63,12 +63,15 @@ export function init(
     const Examples:React.FC<{
         data:SCollsExamples;
         onClose:()=>void;
-    }> = (props) => (
+    }> = ({data, onClose}) => (
         <S.Examples>
             <div className="toolbar">
-                <h3>Examples</h3>
+                <h3>
+                    {ut.translate('syntactic_colls__conc_examples')}{':\u00a0'}
+                    <span className="words">{data.word1} <span className="plus">+</span> {data.word2}</span>
+                </h3>
                 <div className="controls">
-                    <a onClick={props.onClose} className="close">
+                    <a onClick={onClose} className="close">
                         <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                     </a>
                 </div>
@@ -91,7 +94,7 @@ export function init(
                         )}
                     </p>
                 ),
-                props.data.lines
+                data.lines
             )}
             </div>
         </S.Examples>
@@ -147,10 +150,10 @@ export function init(
                         <table className='data'>
                             <thead>
                                 <tr>
-                                    <th key="word">word</th>
-                                    <th key="freq">freq</th>
-                                    <th key="ipm">ipm</th>
-                                    <th key="score">score</th>
+                                    <th key="word">{ut.translate('syntactic_colls__tab_hd_word')}</th>
+                                    <th key="freq">{ut.translate('syntactic_colls__tab_hd_freq')}</th>
+                                    <th key="ipm">{ut.translate('syntactic_colls__tab_hd_ipm')}</th>
+                                    <th key="score">{ut.translate('syntactic_colls__tab_hd_score')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -161,8 +164,8 @@ export function init(
                                                 <a onClick={handleWordClick(row.word, qType)}>{row.word}</a>
                                             </td>
                                             <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
-                                            <td key="ipm" className="num">{ut.formatNumber(row.ipm)}</td>
-                                            <td key="score" className="num">{ut.formatNumber(row.collWeight, 5)}</td>
+                                            <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
+                                            <td key="score" className="num">{ut.formatNumber(row.collWeight, 4)}</td>
                                         </tr>
                                     ),
                                     props.data[qType].rows

@@ -45,6 +45,8 @@ export interface ScollExampleLine {
 
 export interface SCollsExamples {
     lines:Array<ScollExampleLine>;
+    word1:string;
+    word2:string;
 }
 
 export function mkScollExampleLineHash(line:ScollExampleLine):string {

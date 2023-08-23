@@ -22,7 +22,7 @@ import { Actions } from './common';
 import { Backlink } from '../../../page/tile';
 import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { QueryType } from '../../../query';
-import { concat } from 'rxjs';
+import { concat, map } from 'rxjs';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls';
 import { List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types';
@@ -169,6 +169,13 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 this.eApi.call(
                     this.eApi.stateToArgs(state, q)
                 ).pipe(
+                    map(
+                        data => ({
+                            ...data,
+                            word1: state.queryMatch.word,
+                            word2: action.payload.word
+                        })
+                    )
 
                 ).subscribe({
                     next: (data) => {
