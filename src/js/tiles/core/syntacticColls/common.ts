@@ -32,6 +32,7 @@ export class Actions {
 
     static ShowExampleWindow:Action<{
         tileId:number;
+        query:string;
         data:SCollsExamples;
     }> = {
         name: 'SYNTACTIC_COLLS_SHOW_EXAMPLE_WINDOW'

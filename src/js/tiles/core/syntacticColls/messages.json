@@ -5,7 +5,12 @@
         "syntactic_colls__heading_modifiers-of": "Modifiers of",
         "syntactic_colls__heading_verbs-subject": "Verbs subject",
         "syntactic_colls__heading_verbs-object": "Verbs object",
-        "syntactic_colls__tooltip_score": "score"
+        "syntactic_colls__tooltip_score": "score",
+        "syntactic_colls__conc_examples": "Examples",
+        "syntactic_colls__tab_hd_word": "Word",
+        "syntactic_colls__tab_hd_freq": "Abs. frequency",
+        "syntactic_colls__tab_hd_ipm": "Instances per mil.",
+        "syntactic_colls__tab_hd_score": "Collocation score"
     },
     "cs-CZ": {
         "syntactic_colls__main_label": "Syntaktické kolokace",
@@ -13,6 +18,11 @@
         "syntactic_colls__heading_modifiers-of": "Modifiers of UNTRANSLATED",
         "syntactic_colls__heading_verbs-subject": "Verbs subject UNTRANSLATED",
         "syntactic_colls__heading_verbs-object": "Verbs object UNTRANSLATED",
-        "syntactic_colls__tooltip_score": "hodnota"
+        "syntactic_colls__tooltip_score": "hodnota",
+        "syntactic_colls__conc_examples": "Příklady",
+        "syntactic_colls__tab_hd_word": "Slovo",
+        "syntactic_colls__tab_hd_freq": "Abs. frekvence",
+        "syntactic_colls__tab_hd_ipm": "Výskytů na milion",
+        "syntactic_colls__tab_hd_score": "Kolokační skóre"
     }
 }

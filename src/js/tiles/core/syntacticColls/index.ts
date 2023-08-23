@@ -89,6 +89,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: {},
                 displayTypes: conf.displayTypes,
+                examplesCache: {},
                 exampleWindowData: undefined
             }
         });

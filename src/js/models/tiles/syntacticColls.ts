@@ -45,6 +45,8 @@ export interface ScollExampleLine {
 
 export interface SCollsExamples {
     lines:Array<ScollExampleLine>;
+    word1:string;
+    word2:string;
 }
 
 export function mkScollExampleLineHash(line:ScollExampleLine):string {
@@ -68,5 +70,6 @@ export interface SyntacticCollsModelState {
     queryMatch:QueryMatch;
     data:{[key in SCollsQueryType]?:SCollsData};
     displayTypes:Array<SCollsQueryTypeValue>;
+    examplesCache:{[key:string]:SCollsExamples};
     exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
