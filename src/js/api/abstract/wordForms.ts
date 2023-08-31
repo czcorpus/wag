@@ -24,6 +24,7 @@ export interface RequestArgs {
     domain:string;
     lemma:string;
     pos:Array<string>;
+    corpName:string;
 }
 
 export function isRequestArgs(v:RequestArgs|RequestConcArgs):v is RequestArgs {
@@ -52,4 +53,7 @@ export interface Response {
 export interface IWordFormsApi extends ResourceApi<RequestArgs|RequestConcArgs, Response> {
 
     createBacklink(args:RequestArgs|RequestConcArgs, backlink:Backlink):BacklinkWithArgs<any>;
+
+    supportsMultiWordQueries():boolean;
+
 }

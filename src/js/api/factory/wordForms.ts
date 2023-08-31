@@ -18,6 +18,7 @@
 
 import { IWordFormsApi } from '../abstract/wordForms';
 import { WordFormsAPI as WordFormsKontextApi } from '../vendor/kontext/wordForms';
+import { WordFormsAPI as WordFormsMqueryApi } from '../vendor/mquery/wordForms';
 import { IAsyncKeyValueStore } from '../../types';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
 import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms';
@@ -42,6 +43,8 @@ export function createApiInstance({apiIdent, cache, srcInfoURL, apiServices, api
             return new WordFormsKontextApi(cache, apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
             return new WordFormsKontextApi(cache, apiURL, apiServices);
+        case CoreApiGroup.MQUERY:
+            return new WordFormsMqueryApi(cache, apiURL, apiServices);
         default:
  			throw new Error(`WordForms tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
     }

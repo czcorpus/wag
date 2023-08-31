@@ -23,7 +23,7 @@ import { IAsyncKeyValueStore, SourceDetails, ResourceApi } from '../../../types'
 import { HTTP } from 'cnc-tskit';
 import { cachedAjax$ } from '../../../page/ajax';
 import { QueryMatch, QueryType } from '../../../query';
-import { RequestArgs, Response } from '../../abstract/wordForms';
+import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms';
 import { HTTPAction } from '../../../server/routes/actions';
 import { InternalResourceInfoApi } from './freqDbSourceInfo';
 import { IApiServices } from '../../../appServices';
@@ -35,7 +35,7 @@ export interface HTTPResponse {
 }
 
 
-export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> {
+export class WordFormsWdglanceAPI implements IWordFormsApi {
 
     private readonly apiUrl:string;
 
@@ -93,6 +93,10 @@ export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> 
 
     createBacklink(args:RequestArgs, backlink:Backlink) {
         return null
+    }
+
+    supportsMultiWordQueries():boolean {
+        return true;
     }
 
 }

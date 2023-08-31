@@ -142,7 +142,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile >= 0) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
@@ -182,14 +182,34 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
                 } else {
                     const variant = findCurrQueryMatch(this.queryMatches[0]);
-                    this.fetchWordForms(
-                        {
-                            domain: this.queryDomain,
-                            lemma: variant.lemma,
-                            pos: List.map(v => v.value, variant.pos)
-                        },
-                        dispatch
-                    );
+                    if (variant.pos.length > 1 && !this.api.supportsMultiWordQueries()) {
+                        const err = Error("Current WordForms API does'nt support multi word queries!");
+                        console.error(err);
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            error: err,
+                            payload: {
+                                tileId: this.tileId,
+                                queryId: 0,
+                                isEmpty: true,
+                                data: [],
+                                subqueries: [],
+                                domain1: null,
+                                domain2: null,
+                                backlink: null,
+                            }
+                        });
+                    } else {
+                        this.fetchWordForms(
+                            {
+                                domain: this.queryDomain,
+                                lemma: variant.lemma,
+                                pos: List.map(v => v.value, variant.pos),
+                                corpName: state.corpname,
+                            },
+                            dispatch
+                        );
+                    }
                 }
 
             }
@@ -264,8 +284,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 };
             }))
 
-        ).subscribe(
-            (data) => {
+        ).subscribe({
+            next: (data) => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -289,7 +309,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     }
                 });
             },
-            (err) => {
+            error: (err) => {
                 console.error(err);
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -306,6 +326,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     }
                 });
             }
-        );
+        });
     }
 }
