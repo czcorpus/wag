@@ -55,7 +55,7 @@ export class WordFormsAPI implements IWordFormsApi {
         }
         return cachedAjax$<Array<LemmaItem>>(this.cache)(
             'GET',
-            this.apiURL + '/word-forms/' + args.corpName,
+            `${this.apiURL}/word-forms/${args.corpName}`,
             params,
             {
                 headers: this.apiServices.getApiHeaders(this.apiURL),
@@ -82,8 +82,12 @@ export class WordFormsAPI implements IWordFormsApi {
         return null;
     }
 
-    createBacklink(args:RequestConcArgs, backlink:Backlink):BacklinkWithArgs<BacklinkArgs> {
-        return null;
+    createBacklink(args:RequestArgs, backlink:Backlink) {
+        return null
+    }
+
+    supportsMultiWordQueries():boolean {
+        return false;
     }
 
 }

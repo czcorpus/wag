@@ -53,4 +53,7 @@ export interface Response {
 export interface IWordFormsApi extends ResourceApi<RequestArgs|RequestConcArgs, Response> {
 
     createBacklink(args:RequestArgs|RequestConcArgs, backlink:Backlink):BacklinkWithArgs<any>;
+
+    supportsMultiWordQueries():boolean;
+
 }

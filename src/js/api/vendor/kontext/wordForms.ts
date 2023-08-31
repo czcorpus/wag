@@ -107,4 +107,8 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
         return this.fapi.getBackLink(backlink)
     }
 
+    supportsMultiWordQueries():boolean {
+        return true;
+    }
+
 }
