@@ -142,7 +142,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile >= 0) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
@@ -186,7 +186,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         {
                             domain: this.queryDomain,
                             lemma: variant.lemma,
-                            pos: List.map(v => v.value, variant.pos)
+                            pos: List.map(v => v.value, variant.pos),
+                            corpName: state.corpname,
                         },
                         dispatch
                     );
@@ -264,8 +265,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 };
             }))
 
-        ).subscribe(
-            (data) => {
+        ).subscribe({
+            next: (data) => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -289,7 +290,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     }
                 });
             },
-            (err) => {
+            error: (err) => {
                 console.error(err);
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -306,6 +307,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     }
                 });
             }
-        );
+        });
     }
 }

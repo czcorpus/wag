@@ -24,6 +24,7 @@ export interface RequestArgs {
     domain:string;
     lemma:string;
     pos:Array<string>;
+    corpName:string;
 }
 
 export function isRequestArgs(v:RequestArgs|RequestConcArgs):v is RequestArgs {

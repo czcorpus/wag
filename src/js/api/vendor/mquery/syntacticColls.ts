@@ -23,21 +23,13 @@ import { IApiServices } from '../../../appServices';
 import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls';
 import { tuple } from 'cnc-tskit';
-
-
-export interface SCollsFreqRowResponse {
-    word:string;
-    freq:number;
-    norm:number;
-    ipm:number;
-    collWeight:number;
-}
+import { FreqRowResponse } from './common';
 
 
 export interface SCollsApiResponse {
     concSize:number;
     corpusSize:number;
-    freqs:Array<SCollsFreqRowResponse>;
+    freqs:Array<FreqRowResponse>;
     examplesQueryTpl:string;
 }
 
