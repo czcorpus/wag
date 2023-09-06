@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
+import { SEDispatcher, StatelessModel, Action, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List } from 'cnc-tskit';
@@ -79,6 +79,7 @@ export interface TimeDistribModelState extends MinSingleCritFreqState {
     zoom:[number, number];
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
     subcBacklinkLabel:{[subc:string]:string};
+    eventSource?:EventSource;
 }
 
 
@@ -105,12 +106,13 @@ interface DataFetchArgsForeignConc {
 }
 
 export interface TimeDistribModelArgs {
-    dispatcher:IActionQueue;
+    dispatcher:IActionDispatcher;
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
     apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
+    eventSourceUrl:string;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -153,9 +155,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
+    private readonly eventSource:EventSource;
 
     constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs, apiFactory, appServices,
-                queryMatches, queryDomain, backlink}:TimeDistribModelArgs) {
+                queryMatches, queryDomain, backlink, eventSourceUrl}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
@@ -165,6 +168,43 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.backlink = backlink;
+
+        if (eventSourceUrl !== undefined) {
+            // TODO try-catch because server can't initialize EventSource
+            try {
+                this.eventSource = new EventSource(eventSourceUrl);
+                this.eventSource.onmessage = (e) => {
+                    dispatcher.dispatch<typeof Actions.TileDataUpdate>({
+                        name: Actions.TileDataUpdate.name,
+                        payload: {
+                            tileId: this.tileId,
+                            data: List.map(v => ({
+                                datetime: v['word'],
+                                freq: v['freq'],
+                                ipm: v['ipm'],
+                                ipmInterval: [0, 0],
+                                norm: v['norm'],
+                            }), JSON.parse(e.data).freqs),
+                            backlink: null,
+                        }
+                    });
+                    // TODO handle close
+                };
+                /*
+                this.eventSource.onerror = (e) => {
+                    dispatcher.dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: true,
+                        },
+                        error: new Error('Error while getting events from server'),
+                    });
+                };
+                */
+
+            } catch {}
+        }
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -176,12 +216,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.loadData(
-                    state,
-                    dispatch,
-                    SubchartID.MAIN,
-                    rxOf(findCurrQueryMatch(this.queryMatches[0]))
-                );
+                if (!this.eventSource) {
+                    this.loadData(
+                        state,
+                        dispatch,
+                        SubchartID.MAIN,
+                        rxOf(findCurrQueryMatch(this.queryMatches[0]))
+                    );
+                }
             }
         );
 
@@ -218,7 +260,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state.backlinks.push(action.payload.backlink);
                     }
                 }
-                return state;
+            }
+        );
+
+        this.addActionHandler<typeof Actions.TileDataUpdate>(
+            Actions.TileDataUpdate.name,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (action.payload.data) {
+                        state.data = this.mergeChunks([], action.payload.data, state.alphaLevel);
+                    }
+                }
             }
         );
 
@@ -259,14 +311,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             },
             (state, action, dispatch) => {
-                this.loadData(
-                    state,
-                    dispatch,
-                    SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
-                        map(v => v.result[0])
-                    )
-                );
+                if (!this.eventSource) {
+                    this.loadData(
+                        state,
+                        dispatch,
+                        SubchartID.SECONDARY,
+                        this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
+                            map(v => v.result[0])
+                        )
+                    );
+                }
             }
         );
 
@@ -277,8 +331,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload['tileId'] === this.tileId) {
                     const [concApi,] = this.apiFactory.getHighestPriorityValue();
                     concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -287,7 +341,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -297,7 +351,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 }
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -429,8 +483,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 (acc, payload) => acc && (payload.dataCmp || payload.data || []).length === 0,
                 true
             )
-        ).subscribe(
-            isEmpty => {
+        ).subscribe({
+            next: isEmpty => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload:{
@@ -439,7 +493,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     }
                 });
             },
-            error => {
+            error: error => {
                 console.error(error);
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -450,7 +504,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     error
                 });
             }
-        );
+        });
     }
 
     private loadConcordance(state:TimeDistribModelState, queryMatch:QueryMatch, subcnames:Array<string>,
@@ -509,7 +563,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<QueryMatch>):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
-            const proc = this.suspendWithTimeout(
+            const proc = this.waitForActionWithTimeout(
                 this.waitForTilesTimeoutSecs * 1000,
                 TileWait.create([this.waitForTile], () => false),
                 (action:Action<{tileId:number}>, syncData) => {

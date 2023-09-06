@@ -123,6 +123,10 @@ export class Actions {
         name: GlobalActions.TilePartialDataLoaded.name
     };
 
+    static TileDataUpdate:Action<DataLoadedPayload> = {
+        name: 'TIME_DISTRIB_TILE_DATA_UPDATE'
+    };
+
 }
 
 export enum SubchartID {
