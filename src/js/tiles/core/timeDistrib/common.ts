@@ -65,6 +65,7 @@ export interface DataItemWithWCI {
 export interface MqueryStreamData {
     count:number;
     total:number;
+    error:string;
     entries:{
         concSize:number;
         corpusSize:number;
