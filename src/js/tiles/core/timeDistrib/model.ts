@@ -677,20 +677,29 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         eventSource.onmessage = (e) => {
             const dataKey = dimension === Dimension.FIRST ? 'data' : 'dataCmp';
             const message = JSON.parse(e.data) as MqueryStreamData;
-            dispatcher.dispatch<typeof Actions.TileDataUpdate>({
-                name: Actions.TileDataUpdate.name,
-                payload: {
-                    tileId: this.tileId,
-                    [dataKey]: List.map(v => ({
-                        datetime: v.word,
-                        freq: v.freq,
-                        ipm: v.ipm,
-                        ipmInterval: [0, 0],
-                        norm: v.norm,
-                    }), message.entries.freqs),
-                    backlink: null,
-                }
-            });
+            if (message.error) {
+                dispatcher.dispatch<typeof Actions.TileDataUpdate>({
+                    name: Actions.TileDataUpdate.name,
+                    error: new Error(message.error)
+                });
+
+            } else {
+                dispatcher.dispatch<typeof Actions.TileDataUpdate>({
+                    name: Actions.TileDataUpdate.name,
+                    payload: {
+                        tileId: this.tileId,
+                        [dataKey]: List.map(v => ({
+                            datetime: v.word,
+                            freq: v.freq,
+                            ipm: v.ipm,
+                            ipmInterval: [0, 0],
+                            norm: v.norm,
+                        }), message.entries.freqs),
+                        backlink: null,
+                    }
+                });
+            }
+
             if (message.count >= message.total) {
                 eventSource.close();
                 dispatcher.dispatch<typeof Actions.TileDataLoaded>({
