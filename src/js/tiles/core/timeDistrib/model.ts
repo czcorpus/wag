@@ -27,7 +27,7 @@ import { MinSingleCritFreqState } from '../../../models/tiles/freq';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
+import { DataItemWithWCI, SubchartID, DataLoadedPayload, MqueryStreamData } from './common';
 import { Actions } from './common';
 import { callWithExtraVal } from '../../../api/util';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
@@ -35,7 +35,7 @@ import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/til
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
-import { isWebDelegateApi } from '../../../types';
+import { SystemMessageType, isWebDelegateApi } from '../../../types';
 
 
 export enum FreqFilterQuantity {
@@ -80,6 +80,7 @@ export interface TimeDistribModelState extends MinSingleCritFreqState {
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
     subcBacklinkLabel:{[subc:string]:string};
     eventSource?:EventSource;
+    cmpEventSource?:EventSource;
 }
 
 
@@ -155,7 +156,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
-    private readonly eventSource:EventSource;
+    private readonly eventSourceUrl:string;
 
     constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs, apiFactory, appServices,
                 queryMatches, queryDomain, backlink, eventSourceUrl}:TimeDistribModelArgs) {
@@ -168,46 +169,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.backlink = backlink;
+        this.eventSourceUrl = eventSourceUrl;
 
-        if (eventSourceUrl !== undefined) {
-            // TODO try-catch because server can't initialize EventSource
-            try {
-                this.eventSource = new EventSource(eventSourceUrl);
-                this.eventSource.onmessage = (e) => {
-                    dispatcher.dispatch<typeof Actions.TileDataUpdate>({
-                        name: Actions.TileDataUpdate.name,
-                        payload: {
-                            tileId: this.tileId,
-                            data: List.map(v => ({
-                                datetime: v['word'],
-                                freq: v['freq'],
-                                ipm: v['ipm'],
-                                ipmInterval: [0, 0],
-                                norm: v['norm'],
-                            }), JSON.parse(e.data).freqs),
-                            backlink: null,
-                        }
-                    });
-                    // TODO handle close
-                };
-                /*
-                this.eventSource.onerror = (e) => {
-                    dispatcher.dispatch<typeof Actions.TileDataLoaded>({
-                        name: Actions.TileDataLoaded.name,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: true,
-                        },
-                        error: new Error('Error while getting events from server'),
-                    });
-                };
-                */
-
-            } catch {}
-        }
-
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.data = [];
                 state.backlinks = [];
@@ -216,7 +181,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (!this.eventSource) {
+                if (this.eventSourceUrl) {
+                    dispatch(
+                        Actions.UseEventSource,
+                        {
+                            tileId: this.tileId,
+                            dimension: Dimension.FIRST,
+                            queryMatch: findCurrQueryMatch(this.queryMatches[0]),
+                        },
+                    );
+                } else {
                     this.loadData(
                         state,
                         dispatch,
@@ -227,91 +201,119 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            GlobalActions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.TileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.loadingStatus = LoadingStatus.IDLE;
-                    if (action.error) {
-                        state.data = [];
-                        state.dataCmp = [];
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
-                    }
+                state.loadingStatus = LoadingStatus.IDLE;
+                if (action.error) {
+                    state.data = [];
+                    state.dataCmp = [];
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
                 }
             }
         );
 
-        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
-            Actions.PartialTileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.PartialTileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    if (action.payload.data) {
-                        state.data = this.mergeChunks(state.data, action.payload.data, state.alphaLevel);
+                if (action.payload.data) {
+                    state.data = this.mergeChunks(state.data, action.payload.data, state.alphaLevel);
 
-                    } else if (action.payload.dataCmp) {
-                        state.dataCmp = this.mergeChunks(state.dataCmp, action.payload.dataCmp, state.alphaLevel);
-                    }
-                    if (action.payload.wordMainLabel) {
-                        state.wordMainLabel = action.payload.wordMainLabel;
-                    }
-                    if (this.backlink?.isAppUrl) {
-                        state.backlinks = [createAppBacklink(this.backlink)];
-                    } else {
-                        state.backlinks.push(action.payload.backlink);
-                    }
+                } else if (action.payload.dataCmp) {
+                    state.dataCmp = this.mergeChunks(state.dataCmp, action.payload.dataCmp, state.alphaLevel);
+                }
+                if (action.payload.wordMainLabel) {
+                    state.wordMainLabel = action.payload.wordMainLabel;
+                }
+                if (this.backlink?.isAppUrl) {
+                    state.backlinks = [createAppBacklink(this.backlink)];
+                } else {
+                    state.backlinks.push(action.payload.backlink);
                 }
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataUpdate>(
-            Actions.TileDataUpdate.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataUpdate,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    if (action.payload.data) {
-                        state.data = this.mergeChunks([], action.payload.data, state.alphaLevel);
-                    }
+                if (action.payload.data) {
+                    state.data = this.mergeChunks([], action.payload.data, state.alphaLevel);
+                }
+                if (action.payload.dataCmp) {
+                    state.dataCmp = this.mergeChunks([], action.payload.dataCmp, state.alphaLevel);
                 }
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
-            GlobalActions.EnableTileTweakMode.name,
+        this.addActionSubtypeHandler(
+            Actions.UseEventSource,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isTweakMode = true;
+                const eventSource = this.createEventSource(dispatcher, action.payload.queryMatch, action.payload.dimension);
+                if (action.payload.dimension === Dimension.FIRST) {
+                    state.eventSource = eventSource;
+                } else {
+                    state.cmpEventSource = eventSource;
                 }
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
-            GlobalActions.DisableTileTweakMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableTileTweakMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isTweakMode = false;
-                }
+                state.isTweakMode = true;
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeCmpWord>(
-            Actions.ChangeCmpWord.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableTileTweakMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.wordCmpInput = action.payload.value;
-                }
+                state.isTweakMode = false;
             }
         );
 
-        this.addActionHandler<typeof Actions.SubmitCmpWord>(
-            Actions.SubmitCmpWord.name,
+        this.addActionSubtypeHandler(
+            Actions.ChangeCmpWord,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.loadingStatus = LoadingStatus.BUSY_LOADING_CMP;
-                    state.wordCmp = state.wordCmpInput.trim();
-                    state.dataCmp = []
-                }
+                state.wordCmpInput = action.payload.value;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.SubmitCmpWord,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.loadingStatus = LoadingStatus.BUSY_LOADING_CMP;
+                state.wordCmp = state.wordCmpInput.trim();
+                state.dataCmp = [];
             },
             (state, action, dispatch) => {
-                if (!this.eventSource) {
+                if (this.eventSourceUrl) {
+                    this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
+                        map(v => v.result[0])
+                    ).subscribe({
+                        next: v => {
+                            dispatch(
+                                Actions.UseEventSource,
+                                {
+                                    tileId: this.tileId,
+                                    dimension: Dimension.SECOND,
+                                    queryMatch: v,
+                                },
+                            );
+                        },
+                        error: err => {
+                            this.appServices.showMessage(SystemMessageType.ERROR, err);
+                        }
+                    });
+
+                } else {
                     this.loadData(
                         state,
                         dispatch,
@@ -324,81 +326,75 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }
         );
 
-        this.addActionHandler(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            action => action.payload.tileId === this.tileId,
             (state, action) => state,
             (state, action, dispatch) => {
-                if (action.payload['tileId'] === this.tileId) {
-                    const [concApi,] = this.apiFactory.getHighestPriorityValue();
-                    concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe({
-                        next: (data) => {
-                            dispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    tileId: this.tileId,
-                                    data: data
-                                }
-                            });
-                        },
-                        error: (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId
-                                }
-                            });
-                        }
-                    });
-                }
+                const [concApi,] = this.apiFactory.getHighestPriorityValue();
+                concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                .subscribe({
+                    next: (data) => {
+                        dispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                tileId: this.tileId,
+                                data: data
+                            }
+                        });
+                    },
+                    error: (err) => {
+                        console.error(err);
+                        dispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error: err,
+                            payload: {
+                                tileId: this.tileId
+                            }
+                        });
+                    }
+                });
             }
         );
 
-        this.addActionHandler<typeof Actions.ZoomMouseLeave>(
-            Actions.ZoomMouseLeave.name,
+        this.addActionSubtypeHandler(
+            Actions.ZoomMouseLeave,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.refArea = [null, null];
-                }
+                state.refArea = [null, null];
             }
         );
-        this.addActionHandler<typeof Actions.ZoomMouseDown>(
-            Actions.ZoomMouseDown.name,
+        this.addActionSubtypeHandler(
+            Actions.ZoomMouseDown,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.refArea = [action.payload.value, action.payload.value];
-                }
+                state.refArea = [action.payload.value, action.payload.value];
             }
         );
-        this.addActionHandler<typeof Actions.ZoomMouseMove>(
-            Actions.ZoomMouseMove.name,
+        this.addActionSubtypeHandler(
+            Actions.ZoomMouseMove,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.refArea[1] = action.payload.value;
-                }
+                state.refArea[1] = action.payload.value;
             }
         );
-        this.addActionHandler<typeof Actions.ZoomMouseUp>(
-            Actions.ZoomMouseUp.name,
+        this.addActionSubtypeHandler(
+            Actions.ZoomMouseUp,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    if (state.refArea[1] !== state.refArea[0]) {
-                        state.zoom = state.refArea[1] > state.refArea[0] ?
-                            [state.refArea[0], state.refArea[1]] :
-                            [state.refArea[1], state.refArea[0]];
-                    }
-                    state.refArea = [null, null];
+                if (state.refArea[1] !== state.refArea[0]) {
+                    state.zoom = state.refArea[1] > state.refArea[0] ?
+                        [state.refArea[0], state.refArea[1]] :
+                        [state.refArea[1], state.refArea[0]];
                 }
+                state.refArea = [null, null];
             }
         );
-        this.addActionHandler<typeof Actions.ZoomReset>(
-            Actions.ZoomReset.name,
+        this.addActionSubtypeHandler(
+            Actions.ZoomReset,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.zoom = [null, null]
-                }
+                state.zoom = [null, null]
             }
         );
     }
@@ -674,5 +670,41 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
             this.getFreqs(state, data, dispatch);
         }
+    }
+
+    private createEventSource(dispatcher:IActionDispatcher, queryMatch:QueryMatch, dimension:Dimension):EventSource {
+        const eventSource = new EventSource(this.eventSourceUrl + `?q=[lemma="${queryMatch.lemma}"]`);
+        eventSource.onmessage = (e) => {
+            const dataKey = dimension === Dimension.FIRST ? 'data' : 'dataCmp';
+            const message = JSON.parse(e.data) as MqueryStreamData;
+            dispatcher.dispatch<typeof Actions.TileDataUpdate>({
+                name: Actions.TileDataUpdate.name,
+                payload: {
+                    tileId: this.tileId,
+                    [dataKey]: List.map(v => ({
+                        datetime: v.word,
+                        freq: v.freq,
+                        ipm: v.ipm,
+                        ipmInterval: [0, 0],
+                        norm: v.norm,
+                    }), message.entries.freqs),
+                    backlink: null,
+                }
+            });
+            if (message.count >= message.total) {
+                eventSource.close();
+                dispatcher.dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: false,
+                    }
+                });
+            }
+        };
+        eventSource.onerror = (e) => {
+            console.log(e);
+        };
+        return eventSource;
     }
 }

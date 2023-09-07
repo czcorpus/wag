@@ -18,6 +18,9 @@
 import { Action } from 'kombo';
 import { CorpSrchTileConf, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
+import { Dimension } from './model';
+import { QueryMatch } from '../../../query';
+import { FreqRowResponse } from '../../../api/vendor/mquery/common';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -57,6 +60,17 @@ export interface DataItemWithWCI {
     ipm:number;
     norm:number;
     ipmInterval:[number, number];
+}
+
+export interface MqueryStreamData {
+    count:number;
+    total:number;
+    entries:{
+        concSize:number;
+        corpusSize:number;
+        searchSize:number;
+        freqs:FreqRowResponse[];
+    };
 }
 
 export class Actions {
@@ -125,6 +139,15 @@ export class Actions {
 
     static TileDataUpdate:Action<DataLoadedPayload> = {
         name: 'TIME_DISTRIB_TILE_DATA_UPDATE'
+    };
+
+    static UseEventSource:Action<{
+        tileId:number;
+        dimension:Dimension;
+        queryMatch:QueryMatch;
+
+    }> = {
+        name: 'TIME_DISTRIB_USE_EVENT_SOURCE'
     };
 
 }
