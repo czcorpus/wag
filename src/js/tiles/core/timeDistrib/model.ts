@@ -676,7 +676,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private createEventSource(dispatcher:IActionDispatcher, queryMatch:QueryMatch, dimension:Dimension):EventSource {
         const args = pipe(
             {
-                q: `[lemma="${queryMatch.lemma}"`,
+                q: `[lemma="${queryMatch.lemma}"]`,
                 attr: 'text.pubDateYear'
             },
             Dict.map(
