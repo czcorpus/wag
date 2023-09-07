@@ -673,7 +673,15 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private createEventSource(dispatcher:IActionDispatcher, queryMatch:QueryMatch, dimension:Dimension):EventSource {
-        const eventSource = new EventSource(this.eventSourceUrl + `?q=[lemma="${queryMatch.lemma}"]`);
+        const url = this.appServices.createActionUrl(
+            this.eventSourceUrl,
+
+            {
+                q: `[lemma="${queryMatch.lemma}"`,
+                attr: 'text.pubDateYear'
+            }
+        );
+        const eventSource = new EventSource(url);
         eventSource.onmessage = (e) => {
             const dataKey = dimension === Dimension.FIRST ? 'data' : 'dataCmp';
             const message = JSON.parse(e.data) as MqueryStreamData;
