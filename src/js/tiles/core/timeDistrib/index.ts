@@ -79,31 +79,37 @@ export class TimeDistTile implements ITileProvider {
         const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
             {};
-        pipe(
-            apiUrlList,
-            List.forEach(
-                (url, i) => apiFactory.addInstance(
-                    i,
-                    tuple(
-                        createConcApiInstance(
-                            cache,
-                            conf.apiType,
-                            url,
-                            appServices,
-                            apiOptions,
-                        ),
-                        createFreqApiInstance(
-                            conf.apiType,
-                            cache,
-                            url,
-                            appServices,
-                            conf,
-                            apiOptions,
+
+        var eventSourceUrl;
+        if (conf.apiType === CoreApiGroup.MQUERY) {
+            eventSourceUrl = (typeof conf.apiURL === 'string' ? conf.apiURL : conf.apiURL[0]) + '/text-types-chunked/' + conf.corpname;
+        } else {
+            pipe(
+                apiUrlList,
+                List.forEach(
+                    (url, i) => apiFactory.addInstance(
+                        i,
+                        tuple(
+                            createConcApiInstance(
+                                cache,
+                                conf.apiType,
+                                url,
+                                appServices,
+                                apiOptions,
+                            ),
+                            createFreqApiInstance(
+                                conf.apiType,
+                                cache,
+                                url,
+                                appServices,
+                                conf,
+                                apiOptions,
+                            )
                         )
                     )
                 )
-            )
-        );
+            );
+        }
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
@@ -138,6 +144,7 @@ export class TimeDistTile implements ITileProvider {
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             apiFactory,
+            eventSourceUrl: eventSourceUrl,
             appServices: appServices,
             queryMatches,
             queryDomain: domain1,
