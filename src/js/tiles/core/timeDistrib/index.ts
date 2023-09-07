@@ -82,7 +82,7 @@ export class TimeDistTile implements ITileProvider {
 
         var eventSourceUrl;
         if (conf.apiType === CoreApiGroup.MQUERY) {
-            eventSourceUrl = (typeof conf.apiURL === 'string' ? conf.apiURL : conf.apiURL[0]) + '/text-types-chunked/' + conf.corpname;
+            eventSourceUrl = (typeof conf.apiURL === 'string' ? conf.apiURL : conf.apiURL[0]) + '/text-types-streamed/' + conf.corpname;
         } else {
             pipe(
                 apiUrlList,
