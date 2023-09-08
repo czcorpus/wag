@@ -220,10 +220,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.tileId === this.tileId,
             (state, action) => {
                 if (action.payload.data) {
-                    state.data = this.mergeChunks(state.data, action.payload.data, state.alphaLevel);
+                    state.data = this.mergeChunks(
+                        action.payload.overwritePrevious ? [] : state.data, action.payload.data, state.alphaLevel);
 
                 } else if (action.payload.dataCmp) {
-                    state.dataCmp = this.mergeChunks(state.dataCmp, action.payload.dataCmp, state.alphaLevel);
+                    state.dataCmp = this.mergeChunks(
+                        action.payload.overwritePrevious ? [] : state.dataCmp, action.payload.dataCmp, state.alphaLevel);
                 }
                 if (action.payload.wordMainLabel) {
                     state.wordMainLabel = action.payload.wordMainLabel;
@@ -232,19 +234,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state.backlinks = [createAppBacklink(this.backlink)];
                 } else {
                     state.backlinks.push(action.payload.backlink);
-                }
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.TileDataUpdate,
-            action => action.payload.tileId === this.tileId,
-            (state, action) => {
-                if (action.payload.data) {
-                    state.data = this.mergeChunks([], action.payload.data, state.alphaLevel);
-                }
-                if (action.payload.dataCmp) {
-                    state.dataCmp = this.mergeChunks([], action.payload.dataCmp, state.alphaLevel);
                 }
             }
         );
@@ -698,16 +687,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             const dataKey = dimension === Dimension.FIRST ? 'data' : 'dataCmp';
             const message = JSON.parse(e.data) as MqueryStreamData;
             if (message.error) {
-                dispatcher.dispatch<typeof Actions.TileDataUpdate>({
-                    name: Actions.TileDataUpdate.name,
+                dispatcher.dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     error: new Error(message.error)
                 });
 
             } else {
-                dispatcher.dispatch<typeof Actions.TileDataUpdate>({
-                    name: Actions.TileDataUpdate.name,
+                dispatcher.dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
+                        overwritePrevious: true,
                         [dataKey]: List.map(v => ({
                             datetime: v.word,
                             freq: v.freq,
