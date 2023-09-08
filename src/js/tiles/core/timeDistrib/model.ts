@@ -673,7 +673,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         }
     }
 
-    private createEventSource(dispatcher:IActionDispatcher, queryMatch:QueryMatch, dimension:Dimension):EventSource {
+    private createEventSource(
+        dispatcher:IActionDispatcher,
+        queryMatch:QueryMatch,
+        dimension:Dimension):EventSource
+    {
         const args = pipe(
             {
                 q: `[lemma="${queryMatch.lemma}"]`,
@@ -689,6 +693,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             x => x.join('&')
         );
         const eventSource = new EventSource(this.eventSourceUrl + '?' + args);
+        const procChunks:{[k:number]:number} = {};
         eventSource.onmessage = (e) => {
             const dataKey = dimension === Dimension.FIRST ? 'data' : 'dataCmp';
             const message = JSON.parse(e.data) as MqueryStreamData;
@@ -715,7 +720,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 });
             }
 
-            if (message.count >= message.total) {
+            if (message.chunkNum) { // valid chunk nums start with 1 (see Mquery docs)
+                procChunks[message.chunkNum] = (new Date().getTime()) / 1000;
+            }
+
+            const totalProc = pipe(
+                procChunks,
+                Dict.filter((v, k) => !!v),
+                Dict.size()
+            );
+
+            if (totalProc >= message.totalChunks) {
                 eventSource.close();
                 dispatcher.dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
