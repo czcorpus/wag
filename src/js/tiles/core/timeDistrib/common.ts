@@ -46,6 +46,7 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
 export interface DataLoadedPayload {
     tileId:number;
+    overwritePrevious?:boolean;
     data?:Array<DataItemWithWCI>;
     dataCmp?:Array<DataItemWithWCI>;
     wordMainLabel?:string;
@@ -138,9 +139,6 @@ export class Actions {
         name: GlobalActions.TilePartialDataLoaded.name
     };
 
-    static TileDataUpdate:Action<DataLoadedPayload> = {
-        name: 'TIME_DISTRIB_TILE_DATA_UPDATE'
-    };
 
     static UseEventSource:Action<{
         tileId:number;
