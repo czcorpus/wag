@@ -242,9 +242,15 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             Actions.UseEventSource,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                const eventSource = this.createEventSource(dispatcher, action.payload.queryMatch, action.payload.dimension);
+                const eventSource = this.createEventSource(
+                    state,
+                    dispatcher,
+                    action.payload.queryMatch,
+                    action.payload.dimension
+                );
                 if (action.payload.dimension === Dimension.FIRST) {
                     state.eventSource = eventSource;
+
                 } else {
                     state.cmpEventSource = eventSource;
                 }
@@ -663,14 +669,15 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private createEventSource(
+        state:TimeDistribModelState,
         dispatcher:IActionDispatcher,
         queryMatch:QueryMatch,
         dimension:Dimension):EventSource
     {
         const args = pipe(
             {
-                q: `[lemma="${queryMatch.lemma}"]`,
-                attr: 'text.pubDateYear'
+                q: `[lemma="${queryMatch.lemma}"]`, // TODO hardcoded `lemma`
+                fcrit: state.fcrit
             },
             Dict.map(
                 (v, k) => encodeURIComponent(v)
