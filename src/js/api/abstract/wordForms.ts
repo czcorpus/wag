@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { MainPosAttrValues } from '../../conf';
 import { Backlink, BacklinkWithArgs } from '../../page/tile';
 import { ResourceApi } from '../../types';
 
@@ -24,6 +25,7 @@ export interface RequestArgs {
     domain:string;
     lemma:string;
     pos:Array<string>;
+    mainPosAttr:MainPosAttrValues;
     corpName:string;
 }
 

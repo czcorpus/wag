@@ -28,6 +28,7 @@ import { RecognizedQueries } from '../../../query/index';
 import { IAppServices } from '../../../appServices';
 import { isWebDelegateApi } from '../../../types';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
+import { MainPosAttrValues } from '../../../conf';
 
 
 
@@ -42,6 +43,7 @@ export interface WordFormsModelState {
     freqFilterAlphaLevel:Maths.AlphaLevel;
     data:Array<WordFormItem>;
     backlink:BacklinkWithArgs<{}>;
+    mainPosAttr:MainPosAttrValues;
 }
 
 /**
@@ -206,6 +208,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                 lemma: variant.lemma,
                                 pos: List.map(v => v.value, variant.pos),
                                 corpName: state.corpname,
+                                mainPosAttr: state.mainPosAttr
                             },
                             dispatch
                         );
