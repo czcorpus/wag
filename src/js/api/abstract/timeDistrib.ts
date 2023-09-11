@@ -61,11 +61,12 @@ export interface TimeDistribResponse {
     subcorpName?:string;
     concPersistenceID?:string;
     data:Array<TimeDistribItem>;
+    overwritePrevious?:boolean;
 }
 
 /**
  * A general bare-bones interface for TimeDistrib function.
  */
 export interface TimeDistribApi extends DataApi<TimeDistribArgs, TimeDistribResponse> {
-    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery?:string):BacklinkWithArgs<{}>
+    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery?:string):BacklinkWithArgs<{}>;
 }

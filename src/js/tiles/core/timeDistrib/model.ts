@@ -27,7 +27,7 @@ import { MinSingleCritFreqState } from '../../../models/tiles/freq';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { DataItemWithWCI, SubchartID, DataLoadedPayload, MqueryStreamData } from './common';
+import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
 import { Actions } from './common';
 import { callWithExtraVal } from '../../../api/util';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
@@ -35,7 +35,7 @@ import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/til
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
-import { SystemMessageType, isWebDelegateApi } from '../../../types';
+import { isWebDelegateApi } from '../../../types';
 
 
 export enum FreqFilterQuantity {
@@ -48,11 +48,6 @@ export enum FreqFilterQuantity {
 export enum AlignType {
     RIGHT = 'right',
     LEFT = 'left'
-}
-
-export enum Dimension {
-    FIRST = 1,
-    SECOND = 2
 }
 
 export enum LoadingStatus {
@@ -79,8 +74,6 @@ export interface TimeDistribModelState extends MinSingleCritFreqState {
     zoom:[number, number];
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
     subcBacklinkLabel:{[subc:string]:string};
-    eventSource?:EventSource;
-    cmpEventSource?:EventSource;
 }
 
 
@@ -113,7 +106,6 @@ export interface TimeDistribModelArgs {
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
     apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
-    eventSourceUrl:string;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -156,11 +148,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
-    private readonly eventSourceUrl:string;
-
 
     constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs, apiFactory, appServices,
-                queryMatches, queryDomain, backlink, eventSourceUrl}:TimeDistribModelArgs) {
+                queryMatches, queryDomain, backlink}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
@@ -170,7 +160,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.backlink = backlink;
-        this.eventSourceUrl = eventSourceUrl;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -182,23 +171,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (this.eventSourceUrl) {
-                    dispatch(
-                        Actions.UseEventSource,
-                        {
-                            tileId: this.tileId,
-                            dimension: Dimension.FIRST,
-                            queryMatch: findCurrQueryMatch(this.queryMatches[0]),
-                        },
-                    );
-                } else {
-                    this.loadData(
-                        state,
-                        dispatch,
-                        SubchartID.MAIN,
-                        rxOf(findCurrQueryMatch(this.queryMatches[0]))
-                    );
-                }
+                this.loadData(
+                    state,
+                    dispatch,
+                    SubchartID.MAIN,
+                    rxOf(findCurrQueryMatch(this.queryMatches[0]))
+                );
             }
         );
 
@@ -239,25 +217,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
 
         this.addActionSubtypeHandler(
-            Actions.UseEventSource,
-            action => action.payload.tileId === this.tileId,
-            (state, action) => {
-                const eventSource = this.createEventSource(
-                    state,
-                    dispatcher,
-                    action.payload.queryMatch,
-                    action.payload.dimension
-                );
-                if (action.payload.dimension === Dimension.FIRST) {
-                    state.eventSource = eventSource;
-
-                } else {
-                    state.cmpEventSource = eventSource;
-                }
-            }
-        );
-
-        this.addActionSubtypeHandler(
             GlobalActions.EnableTileTweakMode,
             action => action.payload.ident === this.tileId,
             (state, action) => {
@@ -290,35 +249,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.dataCmp = [];
             },
             (state, action, dispatch) => {
-                if (this.eventSourceUrl) {
+                this.loadData(
+                    state,
+                    dispatch,
+                    SubchartID.SECONDARY,
                     this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
                         map(v => v.result[0])
-                    ).subscribe({
-                        next: v => {
-                            dispatch(
-                                Actions.UseEventSource,
-                                {
-                                    tileId: this.tileId,
-                                    dimension: Dimension.SECOND,
-                                    queryMatch: v,
-                                },
-                            );
-                        },
-                        error: err => {
-                            this.appServices.showMessage(SystemMessageType.ERROR, err);
-                        }
-                    });
-
-                } else {
-                    this.loadData(
-                        state,
-                        dispatch,
-                        SubchartID.SECONDARY,
-                        this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
-                            map(v => v.result[0])
-                        )
-                    );
-                }
+                    )
+                );
             }
         );
 
@@ -446,11 +384,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     let ans:DataLoadedPayload = {
                         tileId: this.tileId,
                         concId: args.concId,
+                        overwritePrevious: resp.overwritePrevious,
                         backlink: isWebDelegateApi(args.freqApi) ?
                             args.freqApi.createBackLink(args.freqApi.getBackLink(this.backlink), resp.corpName, args.concId) :
                             args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
                     };
-                    if (Dict.hasKey(args.subcName, state.subcBacklinkLabel)) {
+                    if (ans.backlink && Dict.hasKey(args.subcName, state.subcBacklinkLabel)) {
                         ans.backlink.label = state.subcBacklinkLabel[args.subcName];
                     }
                     if (args.targetId === SubchartID.MAIN) {
@@ -607,7 +546,33 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             const data = lemmaVariant.pipe(
                 mergeMap((lv:QueryMatch) => {
                     if (lv) {
-                        return this.loadConcordance(state, lv, state.subcnames, target);
+                        const [concApi, freqApi] = this.apiFactory.getRandomValue();
+                        if (concApi === null) {
+                            return rxOf<[ConcResponse, DataFetchArgsOwn]>([
+                                {
+                                    query: `[lemma="${lv.lemma}"]`,
+                                    corpName: state.corpname,
+                                    subcorpName: state.subcnames[0],
+                                    lines: [],
+                                    concsize: 0,
+                                    arf: 0,
+                                    ipm: 0,
+                                    messages: [],
+                                    concPersistenceID: null
+                                },
+                                {
+                                    concId: null,
+                                    subcName: state.subcnames[0],
+                                    wordMainLabel: '',
+                                    targetId: target,
+                                    origQuery: `[lemma="${lv.lemma}"]`,
+                                    freqApi
+                                }
+                            ]);
+
+                        } else {
+                            return this.loadConcordance(state, lv, state.subcnames, target);
+                        }
 
                     } else {
                         const [,freqApi] = this.apiFactory.getRandomValue();
@@ -649,6 +614,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 args
                             );
 
+                        } else if (concResp.query) {
+                            return callWithExtraVal(
+                                args.freqApi,
+                                {
+                                    corpName: state.corpname,
+                                    subcorpName: args.subcName,
+                                    concIdent: concResp.query
+                                },
+                                args
+                            );
+
                         } else {
                             return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
                                 {
@@ -668,82 +644,4 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         }
     }
 
-    private createEventSource(
-        state:TimeDistribModelState,
-        dispatcher:IActionDispatcher,
-        queryMatch:QueryMatch,
-        dimension:Dimension):EventSource
-    {
-        const args = pipe(
-            {
-                q: `[lemma="${queryMatch.lemma}"]`, // TODO hardcoded `lemma`
-                fcrit: state.fcrit
-            },
-            Dict.map(
-                (v, k) => encodeURIComponent(v)
-            ),
-            Dict.toEntries(),
-            List.map(
-                ([k, v]) => `${k}=${v}`
-            ),
-            x => x.join('&')
-        );
-        const eventSource = new EventSource(this.eventSourceUrl + '?' + args);
-        const procChunks:{[k:number]:number} = {};
-        eventSource.onmessage = (e) => {
-            const dataKey = dimension === Dimension.FIRST ? 'data' : 'dataCmp';
-            const message = JSON.parse(e.data) as MqueryStreamData;
-            if (message.error) {
-                dispatcher.dispatch<typeof Actions.PartialTileDataLoaded>({
-                    name: Actions.PartialTileDataLoaded.name,
-                    error: new Error(message.error)
-                });
-
-            } else {
-                dispatcher.dispatch<typeof Actions.PartialTileDataLoaded>({
-                    name: Actions.PartialTileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        overwritePrevious: true,
-                        [dataKey]: List.map(
-                            v => ({
-                                datetime: v.word,
-                                freq: v.freq,
-                                ipm: v.ipm,
-                                ipmInterval: [0, 0],
-                                norm: message.entries.concSize,
-                            }),
-                            message.entries.freqs
-                        ),
-                        backlink: null,
-                    }
-                });
-            }
-
-            if (message.chunkNum) { // valid chunk nums start with 1 (see Mquery docs)
-                procChunks[message.chunkNum] = (new Date().getTime()) / 1000;
-            }
-
-            const totalProc = pipe(
-                procChunks,
-                Dict.filter((v, k) => !!v),
-                Dict.size()
-            );
-
-            if (totalProc >= message.totalChunks) {
-                eventSource.close();
-                dispatcher.dispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: false,
-                    }
-                });
-            }
-        };
-        eventSource.onerror = (e) => {
-            console.log(e);
-        };
-        return eventSource;
-    }
 }
