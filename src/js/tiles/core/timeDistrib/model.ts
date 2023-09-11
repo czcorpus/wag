@@ -705,13 +705,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     payload: {
                         tileId: this.tileId,
                         overwritePrevious: true,
-                        [dataKey]: List.map(v => ({
-                            datetime: v.word,
-                            freq: v.freq,
-                            ipm: v.ipm,
-                            ipmInterval: [0, 0],
-                            norm: v.norm,
-                        }), message.entries.freqs),
+                        [dataKey]: List.map(
+                            v => ({
+                                datetime: v.word,
+                                freq: v.freq,
+                                ipm: v.ipm,
+                                ipmInterval: [0, 0],
+                                norm: message.entries.concSize,
+                            }),
+                            message.entries.freqs
+                        ),
                         backlink: null,
                     }
                 });
