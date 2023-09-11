@@ -77,7 +77,6 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
             isMobile: false, // TODO should we detect the mode on server too
             isAnswerMode: false,
             version: services.version,
-            scriptNonce: services.scriptNonce,
             repositoryUrl: services.repositoryUrl,
             error: error
         }));
