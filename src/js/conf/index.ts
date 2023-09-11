@@ -508,7 +508,8 @@ export interface ServerConf {
         ttl?:number;
         secret?:string;
     };
-    groupedAuth?:Array<GroupedAuth>
+    groupedAuth?:Array<GroupedAuth>;
+    CSPDomains?:Array<string>;
 }
 
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {

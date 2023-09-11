@@ -50,6 +50,7 @@ export interface HtmlBodyProps {
     error:[number, string];
     version:string;
     repositoryUrl:string;
+    scriptNonce:string;
     issueReportingUrl?:string;
 }
 
@@ -254,7 +255,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
                 )}
                 <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
                 <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
-                <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
+                <script nonce={props.scriptNonce} type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
             </body>
         );
     }
