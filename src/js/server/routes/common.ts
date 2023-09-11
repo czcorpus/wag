@@ -211,6 +211,7 @@ export function renderResult({
         isAnswerMode,
         homepageSections,
         version,
+        services,
         repositoryUrl,
         error}:RenderResultArgs):string {
 
@@ -245,6 +246,7 @@ export function renderResult({
                         version,
                         repositoryUrl,
                         error,
+                        scriptNonce: services.scriptNonce,
                         issueReportingUrl: clientConfig.issueReportingUrl
                     }
                 )

@@ -97,4 +97,5 @@ export interface Services {
     translations:{[loc:string]:{[key:string]:string}};
     errorLog:winston.Logger;
     actionWriter:IActionWriter;
+    scriptNonce:string;
 }

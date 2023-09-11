@@ -77,6 +77,7 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
             isMobile: false, // TODO should we detect the mode on server too
             isAnswerMode: false,
             version: services.version,
+            scriptNonce: services.scriptNonce,
             repositoryUrl: services.repositoryUrl,
             error: error
         }));
@@ -253,7 +254,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const cookieDomain = services.serverConf.langCookie?.domain;
 
         if (!cookieName) {
-            langSwitchError({req, res, services, messageKey: 'global__language_switching_not_conf'});
+            langSwitchError({
+                req,
+                res,
+                services,
+                messageKey: 'global__language_switching_not_conf',
+            });
 
         } else if (Dict.hasKey(newUiLang, services.serverConf.languages)) {
             res.cookie(

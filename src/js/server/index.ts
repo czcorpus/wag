@@ -28,6 +28,7 @@ import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
+import { randomBytes } from 'crypto';
 
 import { ClientStaticConf, ServerConf, DomainLayoutsConfig, DomainAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
 import { validateTilesConf } from '../conf/validation';
@@ -138,6 +139,14 @@ forkJoin([ // load core configs
             saveUninitialized: true
         }));
 
+        const scriptNonce = randomBytes(16).toString("base64");
+        app.use(function(req, res, next) {
+            const domains = serverConf.CSPDomains || [];
+            const items = ['script-src', '\'self\'', `'nonce-${scriptNonce}'`,...domains];
+            res.setHeader('Content-Security-Policy', items.join(' '));
+            next();
+        });
+
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,
             new ApiServices(clientConf)
@@ -183,7 +192,8 @@ forkJoin([ // load core configs
             errorLog: logger,
             actionWriter: new WinstonActionWriter(logger),
             version: pkgInfo.version,
-            repositoryUrl: pkgInfo.repository.url
+            repositoryUrl: pkgInfo.repository.url,
+            scriptNonce
         })(app);
 
         const server = app.listen(serverConf.port, serverConf.address, () => {
