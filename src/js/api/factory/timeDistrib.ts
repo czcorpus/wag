@@ -22,6 +22,7 @@ import { IAsyncKeyValueStore } from '../../types';
 import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
 import { TimeDistribApi } from '../abstract/timeDistrib';
 import { IApiServices } from '../../appServices';
+import { MQueryTimeDistribStreamApi } from '../vendor/mquery/timeDistrib';
 
 interface ApiConf {
 	fcrit:string;
@@ -54,6 +55,14 @@ export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, ap
 				apiServices,
 				conf.fcrit,
 				conf.flimit
+			);
+		case CoreApiGroup.MQUERY:
+			return new MQueryTimeDistribStreamApi(
+				cache,
+				apiURL,
+				apiServices,
+                conf.fcrit,
+                conf.flimit
 			);
 		default:
 			throw new Error(`TimeDistrib API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
