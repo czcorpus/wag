@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { List, Maths, pipe, tuple } from 'cnc-tskit';
 
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
