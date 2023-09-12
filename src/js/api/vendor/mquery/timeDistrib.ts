@@ -67,7 +67,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
             const args = pipe(
                 {
                     q: queryArgs.concIdent,
-                    attr: this.fcrit,
+                    fcrit: this.fcrit,
                     flimit: this.flimit,
                 },
                 Dict.map(
@@ -85,6 +85,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
             eventSource.onmessage = (e) => {
                 const message = JSON.parse(e.data) as MqueryStreamData;
                 if (message.error) {
+                    eventSource.close();
                     o.error(new Error(message.error));
 
                 } else {
@@ -95,7 +96,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                             v => ({
                                 datetime: v.word,
                                 freq: v.freq,
-                                norm: v.norm,
+                                norm: message.entries.concSize,
                             }),
                             message.entries.freqs,
                         ),
