@@ -96,7 +96,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                             v => ({
                                 datetime: v.word,
                                 freq: v.freq,
-                                norm: message.entries.corpusSize,
+                                norm: v.norm,
                             }),
                             message.entries.freqs,
                         ),
