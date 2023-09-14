@@ -175,7 +175,7 @@ export interface TileFrameProps {
 
     issueReportingUrl:string;
 
-    altViewIcon:[string, string];
+    altViewIcon:AltViewIconProps;
 }
 
 /**
@@ -197,7 +197,13 @@ export interface CoreTileComponentProps {
  */
 export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.FC<CoreTileComponentProps>;
 
-export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.FC<{}>
+export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.FC<{}>;
+
+export interface AltViewIconProps {
+    baseImg:string;
+    highlightedImg:string;
+    inlineCss:{[k:string]:string};
+}
 
 /**
  * ITileProvider specifes an object which encapsulates an implementation
@@ -269,7 +275,7 @@ export interface ITileProvider {
 
     getIssueReportingUrl():string|null;
 
-    getAltViewIcon():[string, string];
+    getAltViewIcon():AltViewIconProps;
 }
 
 /**
@@ -344,7 +350,11 @@ export interface TileFactory<T> {
 }
 
 
-export const DEFAULT_ALT_VIEW_ICON = tuple('alt-view.svg', 'alt-view_s.svg');
+export const DEFAULT_ALT_VIEW_ICON:AltViewIconProps = {
+    baseImg: 'alt-view.svg',
+    highlightedImg: 'alt-view_s.svg',
+    inlineCss: {}
+};
 
 
 /**

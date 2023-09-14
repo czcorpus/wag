@@ -20,7 +20,7 @@ import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { SyntacticCollsModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInstance } from '../../../api/factory/syntacticColls';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
@@ -138,8 +138,12 @@ export class SyntacticCollsTile implements ITileProvider {
         return true;
     }
 
-    getAltViewIcon():[string, string] {
-        return tuple('wcloud-view.svg', 'wcloud-view_s.svg');
+    getAltViewIcon():AltViewIconProps {
+        return {
+            baseImg: 'wcloud-view.svg',
+            highlightedImg: 'wcloud-view_s.svg',
+            inlineCss: {width: '2.2em'}
+        };
     }
 
     registerReloadModel(model:ITileReloader):boolean {

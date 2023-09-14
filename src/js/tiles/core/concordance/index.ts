@@ -23,7 +23,7 @@ import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
@@ -172,7 +172,7 @@ export class ConcordanceTile implements ITileProvider {
         return false;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

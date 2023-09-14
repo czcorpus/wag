@@ -20,7 +20,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
@@ -147,7 +147,7 @@ export class GeoAreasTile implements ITileProvider {
         return true;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
