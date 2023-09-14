@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NoskeFreqDistribAPI } from './freqs';
@@ -43,16 +43,13 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
 
     private readonly freqApi:IFreqDistribAPI<{}>;
 
-    private readonly fcrit:string;
-
-    private readonly flimit:number;
+    private readonly customArgs:CustomArgs;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, fcrit:string, flimit:number) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
         this.freqApi = new NoskeFreqDistribAPI(cache, apiURL, apiServices);
-        this.fcrit = fcrit;
-        this.flimit = flimit;
+        this.customArgs = customArgs;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -87,8 +84,8 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
             q: processConcId(queryArgs.concIdent),
-            fcrit: this.fcrit,
-            flimit: this.flimit,
+            fcrit: this.customArgs['fcrit'],
+            flimit: this.customArgs['flimit'],
             freq_sort: 'rel',
             fpage: 1,
             format: 'json'

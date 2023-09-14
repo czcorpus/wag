@@ -18,6 +18,7 @@
 import { Action } from 'kombo';
 import { BacklinkWithArgs, CorpSrchTileConf } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
+import { CustomArgs } from '../../../api/abstract/timeDistrib';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -27,6 +28,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     apiURL:string|Array<string>;
 
     apiPriority?:Array<number>;
+
+    customApiArgs?:CustomArgs;
 
     /**
      * E.g. doc.pubyear

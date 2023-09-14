@@ -99,7 +99,11 @@ export class TimeDistTile implements ITileProvider {
                             cache,
                             url,
                             appServices,
-                            conf,
+                            {
+                                ...conf.customApiArgs,
+                                fcrit: conf.fcrit,
+                                flimit: '' + conf.flimit
+                            },
                             apiOptions,
                         )
                     )
@@ -126,6 +130,7 @@ export class TimeDistTile implements ITileProvider {
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: [],
                 dataCmp: [],
+                customApiArgs: conf.customApiArgs ? conf.customApiArgs : {},
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
                 wordMainLabel: '',

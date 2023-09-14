@@ -63,6 +63,7 @@ export interface TimeDistribModelState extends MinSingleCritFreqState {
     subcDesc:string;
     alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
+    customApiArgs:{[k:string]:string};
     isTweakMode:boolean;
     data:Array<DataItemWithWCI>;
     dataCmp:Array<DataItemWithWCI>;
@@ -149,8 +150,18 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private readonly backlink:Backlink;
 
 
-    constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs, apiFactory, appServices,
-                queryMatches, queryDomain, backlink}:TimeDistribModelArgs) {
+    constructor({
+        dispatcher,
+        initState,
+        tileId,
+        waitForTile,
+        waitForTilesTimeoutSecs,
+        apiFactory,
+        appServices,
+        queryMatches,
+        queryDomain,
+        backlink
+    }:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
@@ -370,7 +381,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(state:TimeDistribModelState, response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
+    private getFreqs(
+        state:TimeDistribModelState,
+        response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>,
+        seDispatch:SEDispatcher
+    ) {
         response.pipe(
             map(
                 ([resp, args]) => {

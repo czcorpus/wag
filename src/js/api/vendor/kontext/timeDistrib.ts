@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FreqSort, KontextFreqDistribAPI, BacklinkArgs as FreqBacklinkArgs } from './freqs';
@@ -42,16 +42,13 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
 
     private readonly freqApi:KontextFreqDistribAPI;
 
-    private readonly fcrit:string;
-
-    private readonly flimit:number;
+    private readonly customArgs:CustomArgs;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, fcrit:string, flimit:number) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
         this.freqApi = new KontextFreqDistribAPI(cache, apiURL, apiServices);
-        this.fcrit = fcrit;
-        this.flimit = flimit;
+        this.customArgs = customArgs;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -90,9 +87,9 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
                 corpname: corpname,
                 usesubcorp: backlink.subcname,
                 q: `~${concId}`,
-                fcrit: [this.fcrit],
+                fcrit: [this.customArgs['fcrit']],
                 freq_type: 'text-types',
-                flimit: this.flimit,
+                flimit: parseInt(this.customArgs['flimit']),
                 freq_sort: FreqSort.REL,
                 fpage: 1,
                 ftt_include_empty: 0
@@ -105,9 +102,9 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
             q: `~${queryArgs.concIdent}`,
-            fcrit: this.fcrit,
+            fcrit: this.customArgs['fcrit'],
             freq_type: 'text-types',
-            flimit: this.flimit,
+            flimit: parseInt(this.customArgs['flimit']),
             freq_sort: FreqSort.REL,
             fpage: 1,
             ftt_include_empty: 0,

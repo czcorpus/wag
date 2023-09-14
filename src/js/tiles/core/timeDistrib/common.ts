@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 import { CorpSrchTileConf, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { FreqRowResponse } from '../../../api/vendor/mquery/common';
+import { CustomArgs } from '../../../api/abstract/timeDistrib';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -28,6 +28,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     apiURL:string|Array<string>;
 
     apiPriority?:Array<number>;
+
+    customApiArgs?:CustomArgs;
 
     /**
      * E.g. doc.pubyear

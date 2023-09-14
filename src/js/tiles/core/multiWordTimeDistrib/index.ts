@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { List, Maths, pipe } from 'cnc-tskit';
 
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
@@ -97,7 +97,11 @@ export class MultiWordTimeDistTile implements ITileProvider {
                             cache,
                             url,
                             appServices,
-                            conf,
+                            {
+                                ...conf.customApiArgs,
+                                fcrit: conf.fcrit,
+                                flimit: '' + conf.flimit
+                            },
                             apiOptions
                         )
                     ]

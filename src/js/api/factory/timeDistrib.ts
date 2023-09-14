@@ -20,16 +20,18 @@ import { KontextTimeDistribApi } from '../vendor/kontext/timeDistrib';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
 import { IAsyncKeyValueStore } from '../../types';
 import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
-import { TimeDistribApi } from '../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi } from '../abstract/timeDistrib';
 import { IApiServices } from '../../appServices';
 import { MQueryTimeDistribStreamApi } from '../vendor/mquery/timeDistrib';
 
-interface ApiConf {
-	fcrit:string;
-	flimit:number;
-}
-
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, conf:ApiConf, apiOptions:{}):TimeDistribApi {
+export function createApiInstance(
+	apiIdent:string,
+	cache:IAsyncKeyValueStore,
+	apiURL:string,
+	apiServices:IApiServices,
+	conf:CustomArgs,
+	apiOptions:{}
+):TimeDistribApi {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
@@ -37,32 +39,28 @@ export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, ap
 				cache,
 				apiURL,
 				apiServices,
-                conf.fcrit,
-                conf.flimit
+                conf
 			);
 		case CoreApiGroup.KONTEXT_API:
 			return new KontextTimeDistribApi(
 				cache,
 				apiURL,
 				apiServices,
-                conf.fcrit,
-                conf.flimit
+                conf
 			);
 		case CoreApiGroup.NOSKE:
 			return new NoskeTimeDistribApi(
 				cache,
 				apiURL,
 				apiServices,
-				conf.fcrit,
-				conf.flimit
+				conf
 			);
 		case CoreApiGroup.MQUERY:
 			return new MQueryTimeDistribStreamApi(
 				cache,
 				apiURL,
 				apiServices,
-                conf.fcrit,
-                conf.flimit
+                conf
 			);
 		default:
 			throw new Error(`TimeDistrib API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);

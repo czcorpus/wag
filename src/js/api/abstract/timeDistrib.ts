@@ -29,11 +29,17 @@ export interface TimeDistribArgs {
 
     subcorpName?:string;
 
+    fromYear?:string;
+
+    toYear?:string;
+
     /**
      * This can be either a CQL-ish query or a concordance persistence ID
      */
     concIdent:string;
 }
+
+export type CustomArgs = {[k:string]:string};
 
 /**
  *
