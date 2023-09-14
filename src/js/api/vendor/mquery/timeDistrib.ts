@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
@@ -44,14 +44,11 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
     private readonly apiURL:string;
 
-    private readonly fcrit:string;
+    private readonly customArgs:CustomArgs;
 
-    private readonly flimit:number;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, fcrit:string, flimit:number) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
         this.apiURL = apiURL;
-        this.fcrit = fcrit;
-        this.flimit = flimit;
+        this.customArgs = customArgs;
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -66,9 +63,8 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         return new Observable(o => {
             const args = pipe(
                 {
+                    ...this.customArgs,
                     q: queryArgs.concIdent,
-                    fcrit: this.fcrit,
-                    flimit: this.flimit,
                 },
                 Dict.map(
                     (v, k) => encodeURIComponent(v)
