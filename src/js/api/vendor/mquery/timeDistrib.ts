@@ -75,7 +75,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                 ),
                 x => x.join('&')
             );
-            const eventSource = new EventSource(`${this.apiURL}/text-types-streamed/${queryArgs.corpName}?${args}`);
+            const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
             const procChunks:{[k:number]:number} = {};
 
             eventSource.onmessage = (e) => {
