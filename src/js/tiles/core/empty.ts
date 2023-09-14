@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { QueryType } from '../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent } from '../../page/tile';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent } from '../../page/tile';
 
 
 /**
@@ -69,7 +69,7 @@ export class EmptyTile implements ITileProvider {
         return false;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

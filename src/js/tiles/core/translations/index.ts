@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { SearchPackages } from '../../../api/vendor/treq';
 import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
@@ -124,7 +124,7 @@ export class TranslationsTile implements ITileProvider {
         return true;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

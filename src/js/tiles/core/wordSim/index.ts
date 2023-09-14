@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
@@ -138,7 +138,7 @@ export class WordSimTile implements ITileProvider {
         return true;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

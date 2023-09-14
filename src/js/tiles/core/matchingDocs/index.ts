@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from '../../../api/factory/matchingDocs';
@@ -155,7 +155,7 @@ export class MatchingDocsTile implements ITileProvider {
         return false;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

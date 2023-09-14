@@ -19,7 +19,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index';
-import { Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
@@ -197,7 +197,7 @@ export class MergeCorpFreqTile implements ITileProvider {
         return true;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

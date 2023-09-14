@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
 
 import { __Template__Model } from './model';
 import { init as viewInit } from './views';
@@ -115,7 +115,7 @@ export class __Template__Tile implements ITileProvider {
         return true;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 

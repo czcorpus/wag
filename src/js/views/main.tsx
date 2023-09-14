@@ -23,7 +23,7 @@ import { tap } from 'rxjs/operators';
 import { Input } from '../page/forms';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types';
 import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index';
-import { TileFrameProps } from '../page/tile';
+import { AltViewIconProps, TileFrameProps } from '../page/tile';
 import { TileGroup } from '../page/layout';
 import { Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
@@ -626,20 +626,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const AltViewButton:React.FC<{
         isAltView:boolean;
         tileId:number;
-        icon:string;
-        lightIcon:string;
+        altIconProps:AltViewIconProps;
 
-    }> = (props) => {
+    }> = ({isAltView, tileId, altIconProps:{baseImg, highlightedImg, inlineCss}}) => {
 
-        const icon = ut.createStaticUrl(props.icon);
-        const lightIcon = ut.createStaticUrl(props.lightIcon);
+        const icon = ut.createStaticUrl(baseImg);
+        const lightIcon = ut.createStaticUrl(highlightedImg);
 
         const handleClick = () => {
-            if (props.isAltView) {
+            if (isAltView) {
                 dispatcher.dispatch<typeof Actions.DisableAltViewMode>({
                     name: Actions.DisableAltViewMode.name,
                     payload: {
-                        ident: props.tileId
+                        ident: tileId
                     }
                 });
 
@@ -647,20 +646,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 dispatcher.dispatch<typeof Actions.DisableAltViewMode>({
                     name: Actions.EnableAltViewMode.name,
                     payload: {
-                        ident: props.tileId
+                        ident: tileId
                     }
                 });
             }
         };
 
-        const label = props.isAltView ?
+        const label = isAltView ?
                 ut.translate('global__switch_to_default_view') :
                 ut.translate('global__switch_to_alt_view');
 
         return (
             <span className="AltViewButton bar-button">
                 <button type="button" onClick={handleClick} title={label}>
-                    <img src={props.isAltView ? lightIcon : icon} alt={ut.translate('global__img_alt_alt_view')} />
+                    <img
+                        src={isAltView ? lightIcon : icon}
+                        alt={ut.translate('global__img_alt_alt_view')}
+                        style={inlineCss} />
                 </button>
             </span>
         );
@@ -800,7 +802,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         supportsCurrQuery:boolean;
         tileResultFlag:TileResultFlagRec;
         isHighlighted:boolean;
-        altViewIcon:[string, string];
+        altViewIcon:AltViewIconProps;
 
     }, {}> {
 
@@ -851,8 +853,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <AltViewButton
                                 tileId={this.props.tile.tileId}
                                 isAltView={this.props.isAltViewMode}
-                                icon={this.props.altViewIcon[0]}
-                                lightIcon={this.props.altViewIcon[1]} />  :
+                                altIconProps={this.props.altViewIcon} />  :
                             null
                         }
                         {this.props.tile.supportsTweakMode ?

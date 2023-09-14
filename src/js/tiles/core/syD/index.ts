@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { createSyDInstance } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';
@@ -144,7 +144,7 @@ export class SyDTile implements ITileProvider {
         return null;
     }
 
-    getAltViewIcon():[string, string] {
+    getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 }
