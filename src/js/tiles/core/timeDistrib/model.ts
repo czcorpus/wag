@@ -57,12 +57,10 @@ export enum LoadingStatus {
 
 export interface TimeDistribModelState {
     corpname:string;
-    fpage:number;
-    fmaxitems?:number;
-    concId?:string;
-    error:string;
     subcnames:Array<string>;
     subcDesc:string;
+    concId?:string;
+    error:string;
     alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
     customApiArgs:{[k:string]:string};
