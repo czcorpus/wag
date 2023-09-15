@@ -221,7 +221,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     return db.findQueryMatches(
                         appServices,
                         getQueryValue(req, 'q')[0],
-                        getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues, // TODO validate
+                        getQueryValue(
+                            req,
+                            'mainPosAttr',
+                            services.clientConf.layouts[queryDomain][QueryType.SINGLE_QUERY].mainPosAttr,
+                        )[0] as MainPosAttrValues, // TODO validate
                         1
                     );
                 }

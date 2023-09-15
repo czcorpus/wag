@@ -337,7 +337,7 @@ export class CouchFreqDB implements IFreqDB {
                         ([pos, upos, form]) => ({
                             lemma: lemma,
                             pos: importQueryPosWithLabel(pos, 'pos', appServices),
-                            upos: importQueryPosWithLabel(pos, 'upos', appServices),
+                            upos: importQueryPosWithLabel(upos, 'upos', appServices),
                             ipm: form.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
                             word: form.word,
