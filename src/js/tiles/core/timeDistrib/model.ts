@@ -578,7 +578,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 {
                                     concId: null,
                                     subcName: state.subcnames[0],
-                                    wordMainLabel: '',
+                                    wordMainLabel: lv.lemma,
                                     targetId: target,
                                     origQuery: `[lemma="${lv.lemma}"]`,
                                     freqApi
