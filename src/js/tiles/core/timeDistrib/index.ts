@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { List, Maths, pipe, tuple } from 'cnc-tskit';
+import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
 
-import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
 import { QueryType } from '../../../query/index';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
@@ -99,11 +98,7 @@ export class TimeDistTile implements ITileProvider {
                             cache,
                             url,
                             appServices,
-                            {
-                                ...conf.customApiArgs,
-                                fcrit: conf.fcrit,
-                                flimit: '' + conf.flimit
-                            },
+                            conf.customApiArgs,
                             apiOptions,
                         )
                     )
@@ -120,13 +115,6 @@ export class TimeDistTile implements ITileProvider {
                 subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
-                fcrit: conf.fcrit,
-                freqType: 'text-types',
-                flimit: conf.flimit,
-                freqSort: FreqSort.REL,
-                fpage: 1,
-                fttIncludeEmpty: false,
-                fmaxitems: 100,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: [],
                 dataCmp: [],
@@ -214,7 +202,37 @@ export class TimeDistTile implements ITileProvider {
 
 export const init:TileFactory<TimeDistTileConf> = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        let ans = [];
+        switch (args.conf.apiType) {
+            case CoreApiGroup.MQUERY:
+                if (!Dict.hasKey('attr', args.conf.customApiArgs) && !Dict.hasKey('fcrit', args.conf.customApiArgs)) {
+                    ans.push(new Error(`${args.conf.tileType}: missing \`attr\` or \`fcrit\` in \`customApiArgs\``));
+
+                } else if (Dict.hasKey('attr', args.conf.customApiArgs) && Dict.hasKey('fcrit', args.conf.customApiArgs)) {
+                    ans.push(new Error(`${args.conf.tileType}: Only one \`attr\` or \`fcrit\` can be defined in \`customApiArgs\``));
+                }
+                if (!Dict.hasKey('maxItems', args.conf.customApiArgs)) {
+                    ans.push(new Error(`${args.conf.tileType}: missing \`maxItems\` in \`customApiArgs\``));
+                }
+                break;
+
+            case CoreApiGroup.KONTEXT:
+            case CoreApiGroup.KONTEXT_API:
+            case CoreApiGroup.NOSKE:
+                if (!Dict.hasKey('fcrit', args.conf.customApiArgs)) {
+                    ans.push(new Error(`${args.conf.tileType}: missing \`fcrit\` in \`customApiArgs\``));
+                }
+                if (!Dict.hasKey('flimit', args.conf.customApiArgs)) {
+                    ans.push(new Error(`${args.conf.tileType}: missing \`flimit\` in \`customApiArgs\``));
+                }
+                break;
+
+            default:
+                ans.push(new Error(`${args.conf.tileType}: unknown api type \`${args.conf.apiType}\``));
+        }
+        return ans;
+    },
 
     create: (args) => new TimeDistTile(args)
 };

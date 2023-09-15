@@ -23,6 +23,12 @@
                 "type": "number"
             }
         },
+        "customApiArgs": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
         "fcrit": {
             "description": "E.g. doc.pubyear",
             "type": "string"
