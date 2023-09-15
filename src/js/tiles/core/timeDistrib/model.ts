@@ -23,7 +23,6 @@ import { Dict, Maths, pipe, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribApi } from '../../../api/abstract/timeDistrib';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
@@ -56,9 +55,12 @@ export enum LoadingStatus {
     BUSY_LOADING_CMP = 2,
 }
 
-export interface TimeDistribModelState extends MinSingleCritFreqState {
-    error:string;
+export interface TimeDistribModelState {
     corpname:string;
+    fpage:number;
+    fmaxitems?:number;
+    concId?:string;
+    error:string;
     subcnames:Array<string>;
     subcDesc:string;
     alphaLevel:Maths.AlphaLevel;

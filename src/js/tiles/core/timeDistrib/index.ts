@@ -99,11 +99,7 @@ export class TimeDistTile implements ITileProvider {
                             cache,
                             url,
                             appServices,
-                            {
-                                ...conf.customApiArgs,
-                                fcrit: conf.fcrit,
-                                flimit: '' + conf.flimit
-                            },
+                            conf.customApiArgs,
                             apiOptions,
                         )
                     )
@@ -120,12 +116,7 @@ export class TimeDistTile implements ITileProvider {
                 subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
-                fcrit: conf.fcrit,
-                freqType: 'text-types',
-                flimit: conf.flimit,
-                freqSort: FreqSort.REL,
                 fpage: 1,
-                fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: [],

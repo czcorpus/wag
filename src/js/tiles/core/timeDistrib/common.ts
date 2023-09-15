@@ -31,13 +31,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     customApiArgs?:CustomArgs;
 
-    /**
-     * E.g. doc.pubyear
-     */
-    fcrit:string;
-
-    flimit:number;
-
     posQueryGenerator:[string, string];
 
     subcBacklinkLabel?:{[subc:string]:string};
