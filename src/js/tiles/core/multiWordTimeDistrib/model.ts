@@ -374,7 +374,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                     origQuery: args.origQuery,
                     backlink: isWebDelegateApi(args.freqApi) ?
                             args.freqApi.createBackLink(args.freqApi.getBackLink(this.backlink), resp.corpName, args.concId) :
-                            args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId) 
+                            args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
                 };
             }),
             tap(
