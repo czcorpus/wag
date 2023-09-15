@@ -23,12 +23,11 @@
                 "type": "number"
             }
         },
-        "fcrit": {
-            "description": "E.g. doc.pubyear",
-            "type": "string"
-        },
-        "flimit": {
-            "type": "number"
+        "customApiArgs": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
         },
         "posQueryGenerator": {
             "type": "array",
@@ -141,8 +140,6 @@
         "apiType",
         "apiURL",
         "corpname",
-        "fcrit",
-        "flimit",
         "posQueryGenerator",
         "tileType"
     ],
