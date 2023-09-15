@@ -212,6 +212,9 @@ export const init:TileFactory<TimeDistTileConf> = {
                 } else if (Dict.hasKey('attr', args.conf.customApiArgs) && Dict.hasKey('fcrit', args.conf.customApiArgs)) {
                     ans.push(new Error(`${args.conf.tileType}: Only one \`attr\` or \`fcrit\` can be defined in \`customApiArgs\``));
                 }
+                if (!Dict.hasKey('maxItems', args.conf.customApiArgs)) {
+                    ans.push(new Error(`${args.conf.tileType}: missing \`maxItems\` in \`customApiArgs\``));
+                }
                 break;
 
             case CoreApiGroup.KONTEXT:
