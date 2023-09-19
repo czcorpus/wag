@@ -96,8 +96,8 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
 
     call(request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
         const url = this.isFcoll ?
-        this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}` :
-        this.apiURL + `/fcoll/${request.params.corpname}/${request.params.queryType}`
+        this.apiURL + `/fcoll/${request.params.corpname}/${request.params.queryType}` :
+        this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}`
         return cachedAjax$<SCollsApiResponse>(this.cache)(
             'GET',
             url,
