@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map, of, tap } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
@@ -64,10 +64,13 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    private readonly isFcoll:boolean;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, isFcoll:boolean=false) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.cache = cache;
+        this.isFcoll = isFcoll;
     }
 
     stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
@@ -92,9 +95,12 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
     }
 
     call(request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
+        const url = this.isFcoll ?
+        this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}` :
+        this.apiURL + `/fcoll/${request.params.corpname}/${request.params.queryType}`
         return cachedAjax$<SCollsApiResponse>(this.cache)(
             'GET',
-            this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}`,
+            url,
             request.args,
             {
                 headers: this.apiServices.getApiHeaders(this.apiURL),
