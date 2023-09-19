@@ -38,6 +38,11 @@ export function createInstance(
 				new MquerySyntacticCollsAPI(cache, apiURL, apiServices),
 				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)
 			);
+		case CoreApiGroup.MQUERY_X:
+			return tuple(
+				new MquerySyntacticCollsAPI(cache, apiURL, apiServices, true),
+				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)
+			);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for syntactic collocations.`);
 	}
