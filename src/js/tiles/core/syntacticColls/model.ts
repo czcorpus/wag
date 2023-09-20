@@ -22,8 +22,8 @@ import { Actions } from './common';
 import { Backlink } from '../../../page/tile';
 import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { QueryType } from '../../../query';
-import { map, tap } from 'rxjs/operators';
-import { concat, of as rxOf } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { merge, of as rxOf } from 'rxjs';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls';
 import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types';
@@ -107,7 +107,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                concat(...List.map(qType =>
+                merge(...List.map(qType =>
                     this.api.call(this.api.stateToArgs(state, qType)),
                     state.displayTypes,
                 )).subscribe({
