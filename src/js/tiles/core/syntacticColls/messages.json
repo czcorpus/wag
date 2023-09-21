@@ -10,7 +10,8 @@
         "syntactic_colls__tab_hd_word": "Word",
         "syntactic_colls__tab_hd_freq": "Abs. frequency",
         "syntactic_colls__tab_hd_ipm": "Instances per mil.",
-        "syntactic_colls__tab_hd_score": "Collocation score"
+        "syntactic_colls__tab_hd_score": "Collocation score",
+        "syntactic_colls__no_data": "No data"
     },
     "cs-CZ": {
         "syntactic_colls__main_label": "Syntaktické kolokace",
@@ -23,6 +24,7 @@
         "syntactic_colls__tab_hd_word": "Slovo",
         "syntactic_colls__tab_hd_freq": "Abs. frekvence",
         "syntactic_colls__tab_hd_ipm": "Výskytů na milion",
-        "syntactic_colls__tab_hd_score": "Kolokační skóre"
+        "syntactic_colls__tab_hd_score": "Kolokační skóre",
+        "syntactic_colls__no_data": "Žádná data"
     }
 }

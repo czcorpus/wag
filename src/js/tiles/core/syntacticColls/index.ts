@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { SyntacticCollsModel } from './model';
@@ -24,7 +24,6 @@ import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, I
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInstance } from '../../../api/factory/syntacticColls';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
-import { tuple } from 'cnc-tskit';
 
 
 export interface SyntacticCollsTileConf extends TileConf {

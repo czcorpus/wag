@@ -104,18 +104,22 @@ export function init(
 
     const SyntacticCollsTile:React.FC<SyntacticCollsModelState & CoreTileComponentProps> = (props) => {
 
+        const isEmpty = (qType:SCollsQueryTypeValue) => props.data[qType].rows.length === 0;
+
         const renderWordCloud = (qType:SCollsQueryTypeValue) => {
             return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
                 {props.data[qType] ?
-                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                            key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
-                        <WordCloud width={width} height={height} isMobile={props.isMobile}
-                            data={props.data[qType].rows}
-                            font={theme.infoGraphicsFont}
-                            dataTransform={dataTransform}
-                        />
-                    )}/> :
+                    isEmpty(qType) ?
+                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
+                            <WordCloud width={width} height={height} isMobile={props.isMobile}
+                                data={props.data[qType].rows}
+                                font={theme.infoGraphicsFont}
+                                dataTransform={dataTransform}
+                            />
+                        )}/> :
                     null
                 }
             </S.SCollsWordCloud>
@@ -145,34 +149,36 @@ export function init(
             return <S.SCollsTable key={`table:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
                 {props.data[qType] ?
-                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                            key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
-                        <table className='data'>
-                            <thead>
-                                <tr>
-                                    <th key="word">{ut.translate('syntactic_colls__tab_hd_word')}</th>
-                                    <th key="freq">{ut.translate('syntactic_colls__tab_hd_freq')}</th>
-                                    <th key="ipm">{ut.translate('syntactic_colls__tab_hd_ipm')}</th>
-                                    <th key="score">{ut.translate('syntactic_colls__tab_hd_score')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {List.map(
-                                    (row, i) => (
-                                        <tr key={i}>
-                                            <td key="word" className="word">
-                                                <a onClick={handleWordClick(row.word, qType)}>{row.word}</a>
-                                            </td>
-                                            <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
-                                            <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
-                                            <td key="score" className="num">{ut.formatNumber(row.collWeight, 4)}</td>
-                                        </tr>
-                                    ),
-                                    props.data[qType].rows
-                                )}
-                            </tbody>
-                        </table>
-                    )}/> :
+                    isEmpty(qType) ?
+                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
+                            <table className='data'>
+                                <thead>
+                                    <tr>
+                                        <th key="word">{ut.translate('syntactic_colls__tab_hd_word')}</th>
+                                        <th key="freq">{ut.translate('syntactic_colls__tab_hd_freq')}</th>
+                                        <th key="ipm">{ut.translate('syntactic_colls__tab_hd_ipm')}</th>
+                                        <th key="score">{ut.translate('syntactic_colls__tab_hd_score')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {List.map(
+                                        (row, i) => (
+                                            <tr key={i}>
+                                                <td key="word" className="word">
+                                                    <a onClick={handleWordClick(row.word, qType)}>{row.word}</a>
+                                                </td>
+                                                <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
+                                                <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
+                                                <td key="score" className="num">{ut.formatNumber(row.collWeight, 4)}</td>
+                                            </tr>
+                                        ),
+                                        props.data[qType].rows
+                                    )}
+                                </tbody>
+                            </table>
+                        )}/> :
                     null
                 }
             </S.SCollsTable>
