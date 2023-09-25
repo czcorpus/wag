@@ -61,7 +61,10 @@ export enum CoreApiGroup {
 	 */
 	MQUERY = 'mquery',
 
-	MQUERY_X = 'mquery_x',
+	/**
+	 * SCollEx - cnc syntactic collocation explorer
+	 */
+	SCOLLEX = 'scollex',
 
 	/**
 	 * Embedded API functions
