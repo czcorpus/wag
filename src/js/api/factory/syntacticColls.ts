@@ -38,7 +38,7 @@ export function createInstance(
 				new MquerySyntacticCollsAPI(cache, apiURL, apiServices),
 				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)
 			);
-		case CoreApiGroup.MQUERY_X:
+		case CoreApiGroup.SCOLLEX:
 			return tuple(
 				new MquerySyntacticCollsAPI(cache, apiURL, apiServices, true),
 				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)

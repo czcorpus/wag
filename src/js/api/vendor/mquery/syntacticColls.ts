@@ -64,13 +64,18 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
 
     private readonly cache:IAsyncKeyValueStore;
 
-    private readonly isFcoll:boolean;
+    private readonly isScollex:boolean;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, isFcoll:boolean=false) {
+    constructor(
+        cache:IAsyncKeyValueStore,
+        apiURL:string,
+        apiServices:IApiServices,
+        isScollex:boolean=false
+    ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.cache = cache;
-        this.isFcoll = isFcoll;
+        this.isScollex = isScollex;
     }
 
     stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
@@ -95,8 +100,8 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
     }
 
     call(request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
-        const url = this.isFcoll ?
-        this.apiURL + `/fcoll/${request.params.corpname}/${request.params.queryType}` :
+        const url = this.isScollex ?
+        this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}` :
         this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}`
         return cachedAjax$<SCollsApiResponse>(this.cache)(
             'GET',
