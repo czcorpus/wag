@@ -160,6 +160,7 @@ export function init(
                                         <th key="freq">{ut.translate('syntactic_colls__tab_hd_freq')}</th>
                                         <th key="ipm">{ut.translate('syntactic_colls__tab_hd_ipm')}</th>
                                         <th key="score">{ut.translate('syntactic_colls__tab_hd_score')}</th>
+                                        <th key="cooc-score">{ut.translate('syntactic_colls__tab_hd_cooc_score')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -172,6 +173,7 @@ export function init(
                                                 <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
                                                 <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
                                                 <td key="score" className="num">{ut.formatNumber(row.collWeight, 4)}</td>
+                                                <td key="cooc-score" className="num">{ut.formatNumber(row.coOccScore, 4)}</td>
                                             </tr>
                                         ),
                                         props.data[qType].rows
