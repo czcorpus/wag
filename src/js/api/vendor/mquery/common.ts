@@ -22,4 +22,5 @@ export interface FreqRowResponse {
     norm:number;
     ipm:number;
     collWeight:number;
+    coOccScore:number;
 }

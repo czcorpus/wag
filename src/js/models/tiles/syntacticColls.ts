@@ -26,6 +26,7 @@ export interface SCollsDataRow {
     norm:number;
     ipm:number;
     collWeight:number;
+    coOccScore:number;
 }
 
 export interface SCollsData {
