@@ -352,7 +352,7 @@ export function queryAction({
             })
         ),
         // log action
-        tap(({appServices, hostPageEnv, userConf}) => {
+        tap(({appServices, hostPageEnv, userConf, qMatchesEachQuery}) => {
             logAction({
                 actionWriter: services.actionWriter,
                 req,
@@ -360,7 +360,11 @@ export function queryAction({
                 datetime: appServices.getISODatetime(),
                 userId: hostPageEnv.userId,
                 userConf,
-                isMobileClient: clientIsLikelyMobile(req)
+                isMobileClient: clientIsLikelyMobile(req),
+                hasMatch: List.some(
+                    search => List.some(item => !List.empty(item.pos), search),
+                    qMatchesEachQuery
+                )
             }).subscribe();
         })
     ).subscribe({

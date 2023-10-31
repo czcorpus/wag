@@ -34,6 +34,7 @@ interface LogActionArgs {
     userId:number|null;
     userConf:UserConf|null;
     isMobileClient:boolean|null;
+    hasMatch:boolean|null;
 }
 
 
@@ -53,7 +54,8 @@ export function logAction({
     datetime,
     userId,
     userConf,
-    isMobileClient
+    isMobileClient,
+    hasMatch
 }:LogActionArgs):Observable<ActionLogRecord> {
     return rxOf({
             action: httpAction.substring(1, httpAction.length - 1),
@@ -72,6 +74,7 @@ export function logAction({
                 [HTTPAction.SEARCH, HTTPAction.COMPARE, HTTPAction.TRANSLATE, HTTPAction.EMBEDDED_SEARCH]
             ),
             isMobileClient,
+            hasMatch,
             hasPosSpecification: userConf ? List.some(query => List.size(query.pos) > 0, userConf.queries) : false
         }).pipe(
             tap(

@@ -33,6 +33,7 @@ export interface ActionLogRecord {
     hasPosSpecification:boolean;
     isQuery:boolean;
     isMobileClient:boolean;
+    hasMatch:boolean;
 }
 
 export interface IActionWriter {

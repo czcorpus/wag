@@ -135,7 +135,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userConf: null,
             isMobileClient: clientIsLikelyMobile(req),
-            userId: null
+            userId: null,
+            hasMatch: null
         }).subscribe();
         rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
             concatMap(
@@ -202,7 +203,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userId: null,
             userConf: null,
-            isMobileClient: clientIsLikelyMobile(req)
+            isMobileClient: clientIsLikelyMobile(req),
+            hasMatch: null
         }).subscribe();
         const queryDomain = getQueryValue(req, 'domain')[0];
         new Observable<IFreqDB>((observer) => {
@@ -250,7 +252,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userId: null,
             userConf: null,
-            isMobileClient: clientIsLikelyMobile(req)
+            isMobileClient: clientIsLikelyMobile(req),
+            hasMatch: null
         }).subscribe();
         const newUiLang = req.body.lang;
         const cookieName = services.serverConf.langCookie?.name;
@@ -358,7 +361,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     datetime: appServices.getISODatetime(),
                     userId: null,
                     userConf,
-                    isMobileClient: clientIsLikelyMobile(req)
+                    isMobileClient: clientIsLikelyMobile(req),
+                    hasMatch: null
                 }).subscribe();
             })
         ).subscribe({
@@ -443,7 +447,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userId: null,
             userConf: null,
-            isMobileClient: clientIsLikelyMobile(req)
+            isMobileClient: clientIsLikelyMobile(req),
+            hasMatch: null
         }).subscribe();
 
         new Observable<{
@@ -544,7 +549,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userId: null,
             userConf: null,
-            isMobileClient: clientIsLikelyMobile(req)
+            isMobileClient: clientIsLikelyMobile(req),
+            hasMatch: null
         }).subscribe();
 
         new Observable<{
@@ -599,7 +605,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userId: null,
             userConf: null,
-            isMobileClient: clientIsLikelyMobile(req)
+            isMobileClient: clientIsLikelyMobile(req),
+            hasMatch: null
         }).subscribe();
 
         res.cookie(THEME_COOKIE_NAME, req.body.themeId, {expires: new Date(Date.now() + 3600 * 24 * 365)});
@@ -615,7 +622,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             datetime: appServices.getISODatetime(),
             userId: null,
             userConf: null,
-            isMobileClient: clientIsLikelyMobile(req)
+            isMobileClient: clientIsLikelyMobile(req),
+            hasMatch: null
         }).subscribe();
 
         const uiLang = getLangFromCookie(req, services).split('-')[0];
