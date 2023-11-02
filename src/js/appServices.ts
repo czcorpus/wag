@@ -25,7 +25,7 @@ import { SystemNotifications } from './page/notifications';
 import { HTTPAction } from './server/routes/actions';
 import { AudioPlayer } from './page/audioPlayer';
 import { MultiDict } from './multidict';
-import { DataReadabilityMapping, CommonTextStructures } from './conf';
+import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf';
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage';
 
@@ -68,7 +68,7 @@ export interface IAppServices extends IApiServices {
 
     isMobileMode():boolean;
 
-    queryLemmaDbApi(domain:string, q:string):Observable<LemmaDbResponse>;
+    queryLemmaDbApi(domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
 
@@ -312,8 +312,8 @@ export class AppServices implements IAppServices {
             AppServices.SESSION_STORAGE_API_KEYS_ENTRY, JSON.stringify(apiKeyHeaders));
     }
 
-    queryLemmaDbApi(domain:string, q:string):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call({domain, q});
+    queryLemmaDbApi(domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call({domain, q, mainPosAttr});
     }
 
     getISO639UILang():string {
