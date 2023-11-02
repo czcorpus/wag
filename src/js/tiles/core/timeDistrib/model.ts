@@ -35,6 +35,7 @@ import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
 import { isWebDelegateApi } from '../../../types';
+import { MainPosAttrValues } from '../../../conf';
 
 
 export enum FreqFilterQuantity {
@@ -64,6 +65,7 @@ export interface TimeDistribModelState {
     alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
     customApiArgs:{[k:string]:string};
+    mainPosAttr:MainPosAttrValues;
     isTweakMode:boolean;
     data:Array<DataItemWithWCI>;
     dataCmp:Array<DataItemWithWCI>;
@@ -264,7 +266,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state,
                     dispatch,
                     SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
+                    this.appServices.queryLemmaDbApi(
+                        this.queryDomain,
+                        state.wordCmp,
+                        state.mainPosAttr
+                    ).pipe(
                         map(v => v.result[0])
                     )
                 );

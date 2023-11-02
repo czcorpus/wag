@@ -65,7 +65,7 @@ export class TimeDistTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
-        widthFract, queryMatches, domain1, conf, isBusy, cache
+        widthFract, queryMatches, domain1, conf, isBusy, cache, mainPosAttr
     }:TileFactoryArgs<TimeDistTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -114,6 +114,7 @@ export class TimeDistTile implements ITileProvider {
                 corpname: conf.corpname,
                 subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
+                mainPosAttr,
                 concId: null,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: [],

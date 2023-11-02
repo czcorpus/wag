@@ -21,11 +21,13 @@ import { DataApi } from '../types';
 import { HTTP } from 'cnc-tskit';
 import { QueryMatch } from '../query';
 import { ajax$ } from '../page/ajax';
+import { MainPosAttrValues } from '../conf';
 
 
 interface LemmaDbRequestArgs {
     domain:string;
     q:string;
+    mainPosAttr:MainPosAttrValues;
 }
 
 
