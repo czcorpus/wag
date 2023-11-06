@@ -324,7 +324,7 @@ export function mergeToEmptyLayoutConf(other:LayoutsConfig):LayoutsConfig {
     const layout = emptyLayoutConf();
     return {
         single: {...layout.single, ...other.single},
-        cmp: {...layout.cmp, ...other.single},
+        cmp: {...layout.cmp, ...other.cmp},
         translat: {...layout.translat, ...other.translat}
     };
 }
