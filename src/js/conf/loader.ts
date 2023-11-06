@@ -140,26 +140,28 @@ export function useCommonLayouts(layouts:DomainLayoutsConfig):DomainLayoutsConfi
                     const [d, qt] = layout.useLayout.split('.'); // get domain and query type
                     layout.groups = JSON.parse(JSON.stringify(layouts[d][qt].groups)); // deep copy
 
-                    layout.groups = List.map(group => {
-                        if (typeof group !== 'string' && !isServiceTile(group)) {
-                            group.tiles = List.reduce((tiles, tile) => {
-                                // replace referenced tile
-                                if (Dict.hasKey(tile.ref, layout.replace)) {
-                                    tile.tile = layout.replace[tile.ref];
-                                }
-                                tiles.push(tile);
+                    layout.groups = List.map(
+                        group => {
+                            if (typeof group !== 'string' && !isServiceTile(group)) {
+                                group.tiles = List.reduce((tiles, tile) => {
+                                    // replace referenced tile
+                                    if (Dict.hasKey(tile.ref, layout.replace)) {
+                                        tile.tile = layout.replace[tile.ref];
+                                    }
+                                    tiles.push(tile);
 
-                                // add more tiles after referenced one
-                                if (Dict.hasKey(tile.ref, layout.insertAfter)) {
-                                    tiles = tiles.concat(layout.insertAfter[tile.ref]);
-                                }
+                                    // add more tiles after referenced one
+                                    if (Dict.hasKey(tile.ref, layout.insertAfter)) {
+                                        tiles = tiles.concat(layout.insertAfter[tile.ref]);
+                                    }
 
-                                return tiles;
-                            }, [], group.tiles)
-                        }
-
-                        return group
-                    }, layout.groups);
+                                    return tiles;
+                                }, [], group.tiles)
+                            }
+                            return group
+                        },
+                        layout.groups
+                    );
                 }
 
                 return layout;

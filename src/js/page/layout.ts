@@ -262,12 +262,17 @@ export class LayoutManager {
         return this.getLayout(queryType).services.find(v => v.tileId === tileId) !== undefined;
     }
 
-    isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
-        return this.isServiceOf(queryType, tileId) ||
+    /**
+     * Test whether provided tile (identified either by its numeric ID or its string identifier)
+     * belongs to the current layout. Service tiles are examined too.
+     */
+    isInCurrentLayout(queryType:QueryType, tileId:number|string):boolean {
+        const tTileId = typeof tileId === 'string' ? this.getTileNumber(tileId) : tileId;
+        return this.isServiceOf(queryType, tTileId) ||
             pipe(
                 this.getLayout(queryType).groups,
                 List.flatMap(v => v.tiles),
-                List.some(v => v.tileId === tileId)
+                List.some(v => v.tileId === tTileId)
             );
     }
 
