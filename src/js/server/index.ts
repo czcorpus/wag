@@ -30,7 +30,10 @@ import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 
-import { ClientStaticConf, ServerConf, DomainLayoutsConfig, DomainAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
+import {
+    ClientStaticConf, ServerConf, DomainLayoutsConfig,
+    DomainAnyTileConf, isTileDBConf, ColorsConf,
+    DataReadabilityMapping } from '../conf';
 import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts } from '../conf/loader';
 import { wdgRouter } from './routes/index';

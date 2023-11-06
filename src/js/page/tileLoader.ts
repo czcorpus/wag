@@ -85,7 +85,6 @@ export const mkTileFactory = (
     cache:IAsyncKeyValueStore) => (
             confName:string,
             conf:TileConf):ITileProvider|null => {
-
         if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, layoutManager.getTileNumber(confName))) {
             return new EmptyTile(layoutManager.getTileNumber(confName));
 

@@ -25,7 +25,7 @@ import { Observable } from 'rxjs';
 import { Theme } from './page/theme';
 import { ScreenProps } from './page/hostPage';
 import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index';
-import { ITileProvider, TileFrameProps, TileConf } from './page/tile';
+import { ITileProvider, TileFrameProps } from './page/tile';
 import { ClientConf, MainPosAttrValues, UserConf } from './conf';
 import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout';
 import { Actions } from './models/actions';
@@ -37,7 +37,7 @@ import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';
 import { IAppServices } from './appServices';
-import { IAsyncKeyValueStore, TileIdentMap } from './types';
+import { IAsyncKeyValueStore } from './types';
 import { mkTileFactory } from './page/tileLoader';
 import { List, pipe, Dict } from 'cnc-tskit';
 
@@ -131,7 +131,6 @@ export function createRootComponent({
     tileGroups:Array<TileGroup>,
     mainPosAttr:MainPosAttrValues
  } {
-
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
 
@@ -181,24 +180,26 @@ export function createRootComponent({
         appServices
     );
     const retryLoadModel = new RetryTileLoad(dispatcher);
-    Dict.forEach(
-        (tileConf, tileId) => {
-            const tile = factory(tileId, tileConf);
-            attachTile({
-                data: tiles,
-                tileName: tileId,
-                tile,
-                helpURL: appServices.importExternalMessage(tileConf.helpURL),
-                issueReportingURL: config.issueReportingUrl,
-                maxTileHeight: tileConf.maxTileHeight,
-                retryLoadModel
-            });
+    pipe(
+        config.tiles,
+        Dict.forEach(
+            (tileConf, tileId) => {
+                const tile = factory(tileId, tileConf);
+                attachTile({
+                    data: tiles,
+                    tileName: tileId,
+                    tile,
+                    helpURL: appServices.importExternalMessage(tileConf.helpURL),
+                    issueReportingURL: config.issueReportingUrl,
+                    maxTileHeight: tileConf.maxTileHeight,
+                    retryLoadModel
+                });
 
-            if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-                tile.disable();
-            }
-        },
-        config.tiles
+                if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
+                    tile.disable();
+                }
+            },
+        )
     );
 
     const tilesModel = new WdglanceTilesModel(

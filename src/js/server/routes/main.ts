@@ -60,7 +60,6 @@ function mkRuntimeClientConf({
     themeId,
     appServices
 }:MkRuntimeClientConfArgs):Observable<ClientConf> {
-
     return forkJoin([
         forkJoin(
             List.map(
