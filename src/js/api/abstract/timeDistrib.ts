@@ -19,7 +19,7 @@
 // This module contains types for APIs willing to implement 'timeDistrib'
 // tile-compatible resource access.
 
-import { DataApi } from '../../types';
+import { ResourceApi } from '../../types';
 import { BacklinkWithArgs, Backlink } from '../../page/tile';
 
 
@@ -73,6 +73,6 @@ export interface TimeDistribResponse {
 /**
  * A general bare-bones interface for TimeDistrib function.
  */
-export interface TimeDistribApi extends DataApi<TimeDistribArgs, TimeDistribResponse> {
+export interface TimeDistribApi extends ResourceApi<TimeDistribArgs, TimeDistribResponse> {
     createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery?:string):BacklinkWithArgs<{}>;
 }
