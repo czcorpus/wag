@@ -23,6 +23,7 @@ import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { IApiServices } from '../../../appServices';
 import { Dict, List, pipe } from 'cnc-tskit';
 import { FreqRowResponse } from './common';
+import { CorpusInfoAPI } from './corpusInfo';
 
 export interface MqueryStreamData {
     chunkNum:number;
@@ -46,13 +47,16 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
     private readonly customArgs:CustomArgs;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
         this.apiURL = apiURL;
         this.customArgs = customArgs;
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return null;
+        return this.srcInfoService.call({tileId, corpname, lang});
     }
 
     createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<{}> {

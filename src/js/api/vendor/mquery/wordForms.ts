@@ -17,14 +17,14 @@
  */
 import { Observable, map } from 'rxjs';
 
-import { IWordFormsApi, RequestArgs, RequestConcArgs, Response } from '../../abstract/wordForms';
+import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { IApiServices } from '../../../appServices';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink } from '../../../page/tile';
 import { cachedAjax$ } from '../../../page/ajax';
 import { FreqRowResponse } from './common';
 import { Ident, List } from 'cnc-tskit';
-import { BacklinkArgs } from '../kontext/freqs';
+import { CorpusInfoAPI } from './corpusInfo';
 
 
 export interface LemmaItem {
@@ -42,10 +42,13 @@ export class WordFormsAPI implements IWordFormsApi {
 
     private readonly apiServices:IApiServices;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
         this.apiServices = apiServices;
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -79,7 +82,7 @@ export class WordFormsAPI implements IWordFormsApi {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return null;
+        return this.srcInfoService.call({tileId, corpname, lang});
     }
 
     createBacklink(args:RequestArgs, backlink:Backlink) {
