@@ -20,7 +20,7 @@ import * as React from 'react';
 
 import { GlobalComponents } from '.';
 import { SourceCitation } from '../../api/abstract/sourceInfo';
-import { List } from 'cnc-tskit';
+import { Color, List } from 'cnc-tskit';
 import { CorpusDetails } from '../../types';
 
 import * as S from './style';
@@ -84,10 +84,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
+        const mkStyle = (bgCol:string) => ({
+            color: Color.color2str(Color.textColorFromBg(Color.importColor(1, bgCol))),
+            backgroundColor: bgCol
+        });
+
         const renderKeywords = () => {
             if (props.data.keywords && props.data.keywords.length > 0) {
                 return props.data.keywords.map(kw =>
-                    <span key={kw.name} className="keyword" style={{backgroundColor: kw.color}}>{kw.name}</span>
+                    <span key={kw.name} className="keyword" style={mkStyle(kw.color)}>
+                        {kw.name}
+                    </span>
                 );
             } else {
                 return '-';
