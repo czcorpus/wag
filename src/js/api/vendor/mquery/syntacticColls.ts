@@ -24,6 +24,7 @@ import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../m
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls';
 import { tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common';
+import { CorpusInfoAPI } from './corpusInfo';
 
 
 export interface SCollsApiResponse {
@@ -66,6 +67,8 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
 
     private readonly isScollex:boolean;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(
         cache:IAsyncKeyValueStore,
         apiURL:string,
@@ -76,6 +79,7 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
         this.apiServices = apiServices;
         this.cache = cache;
         this.isScollex = isScollex;
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
@@ -95,8 +99,7 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        // TODO
-        return of({} as SourceDetails);
+        return this.srcInfoService.call({tileId, corpname, lang});
     }
 
     call(request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {

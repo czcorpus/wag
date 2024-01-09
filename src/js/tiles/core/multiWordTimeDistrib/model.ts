@@ -279,14 +279,14 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    const [concApi,] = this.apiFactory.getHighestPriorityValue();
-                    concApi.getSourceDescription(
+                    const [, freqApi] = this.apiFactory.getHighestPriorityValue();
+                    freqApi.getSourceDescription(
                         this.tileId,
                         this.appServices.getISO639UILang(),
                         action.payload.corpusId
 
-                    ).subscribe(
-                        (data) => {
+                    ).subscribe({
+                        next: data => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -295,7 +295,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                                 }
                             });
                         },
-                        (err) => {
+                        error: err => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -305,7 +305,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                                 }
                             });
                         }
-                    );
+                    });
                 }
             }
         );
