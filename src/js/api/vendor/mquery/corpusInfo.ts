@@ -30,7 +30,7 @@ interface HTTPResponse {
     size:number;
     web_url:string;
     attrlist:Array<{name:string, size:number}>;
-    citation_info?:{
+    citationInfo?:{
         article_ref:Array<string>;
         default_ref:string;
         other_bibliography:string;
@@ -87,9 +87,9 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
                     attrList: resp.attrlist,
                     citationInfo: {
                         sourceName: resp.corpname,
-                        main: resp.citation_info?.default_ref,
-                        papers: resp.citation_info?.article_ref || [],
-                        otherBibliography: resp.citation_info?.other_bibliography || undefined
+                        main: resp.citationInfo?.default_ref,
+                        papers: resp.citationInfo?.article_ref || [],
+                        otherBibliography: resp.citationInfo?.other_bibliography || undefined
                     },
                     structure: {
                         numTokens: resp.size,
