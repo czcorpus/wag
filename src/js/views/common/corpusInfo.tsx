@@ -20,7 +20,7 @@ import * as React from 'react';
 
 import { GlobalComponents } from '.';
 import { SourceCitation } from '../../api/abstract/sourceInfo';
-import { Color, List } from 'cnc-tskit';
+import { Color, List, pipe, tuple } from 'cnc-tskit';
 import { CorpusDetails } from '../../types';
 
 import * as S from './style';
@@ -85,8 +85,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const mkStyle = (bgCol:string) => ({
-            color: Color.color2str(Color.textColorFromBg(Color.importColor(1, bgCol))),
-            backgroundColor: bgCol
+            color: pipe(
+                bgCol,
+                Color.importColor(1),
+                Color.textColorFromBg(),
+                Color.color2str()
+            ),
+            backgroundColor: pipe(
+                bgCol,
+                Color.importColor(1),
+                ([r, g, b, o]) => {
+                    return tuple(r, g, b, 0.6)
+                },
+                Color.color2str()
+            )
         });
 
         const renderKeywords = () => {
