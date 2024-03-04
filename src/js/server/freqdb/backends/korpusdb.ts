@@ -144,7 +144,7 @@ export class KorpusFreqDB implements IFreqDB {
             this.resourcesCache !== null ?
                 rxOf(this.resourcesCache) :
                 serverHttpRequest<HTTPResourcesResponse>({
-                    url: this.apiURL + '/api/meta',
+                    url: new URL('/api/meta/', this.apiURL).href,
                     method: HTTP.Method.GET,
                     headers: this.apiServices.getApiHeaders(this.apiURL)
                 }).pipe(
@@ -159,7 +159,7 @@ export class KorpusFreqDB implements IFreqDB {
                 resp => {
                     // KorpusDB returning incorrect status code workaround
                     if (typeof resp !== 'object') {
-                        throw new Error('Invalid response type');
+                        throw new Error(`Invalid response type: ${typeof resp} `);
                     }
                     return resp;
                 }
@@ -174,7 +174,7 @@ export class KorpusFreqDB implements IFreqDB {
                 this.fcrit.split(':')).join(':');
 
         return serverHttpRequest<HTTPDataResponse>({
-            url: this.apiURL + '/api/cunits/_view',
+            url: new URL('/api/cunits/_view', this.apiURL).href,
             method: HTTP.Method.POST,
             data: {
                 feats:[':form:attr:cnc:w', fcritLocation],
@@ -219,7 +219,7 @@ export class KorpusFreqDB implements IFreqDB {
                 resp => {
                     // KorpusDB returning incorrect status code workaround
                     if (typeof resp !== 'object') {
-                        throw new Error('Invalid response type');
+                        throw new Error(`Invalid response type: ${typeof resp}`);
                     }
                     return resp;
                 }
