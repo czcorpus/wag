@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, reduce } from 'rxjs/operators';
+import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { List, HTTP, tuple, pipe } from 'cnc-tskit';
 
 import { IFreqDB } from '../freqdb';
@@ -54,7 +54,16 @@ export interface ResourceInfo {
 export interface HTTPResourcesResponse {
     code:number;
     message:string;
-    data:Array<{[type:string]:{[attr:string]:ResourceInfo}}>;
+    data:Array<{
+        cats:unknown;
+        resources:{
+            corpus:{[attr:string]:ResourceInfo};
+            struct_attr:{[attr:string]:ResourceInfo};
+        }
+        uis:unknown;
+        user:unknown;
+        groupmap:unknown;
+    }>;
 }
 
 
@@ -104,16 +113,22 @@ export class KorpusFreqDB implements IFreqDB {
 
     private readonly ngramFcrit:string;
 
-    private readonly normPath:string[];
+    private readonly normPath:string;
 
     private readonly sourceInfoApi:CouchStoredSourceInfo|undefined;
+
+    /**
+     * Resources response is basically a large, fixed set of properties and
+     * objects so it is reasonable to keep it cached.
+     */
+    private resourcesCache:HTTPResourcesResponse|null;
 
     constructor(apiUrl:string, apiServices:IApiServices, options:FreqDbOptions) {
         this.apiURL = apiUrl;
         this.apiServices = apiServices;
         this.fcrit = options.korpusDBCrit;
         this.ngramFcrit = options.korpusDBNgramCrit;
-        this.normPath = options.korpusDBNorm.split('/');
+        this.normPath = options.korpusDBNorm;
         this.sourceInfoApi = options.sourceInfoUrl ?
             new CouchStoredSourceInfo(
                 options.sourceInfoUrl,
@@ -125,12 +140,21 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     private loadResources():Observable<HTTPResourcesResponse> {
-        return serverHttpRequest<HTTPResourcesResponse>({
-            url: this.apiURL + '/api/meta/resources',
-            method: HTTP.Method.GET,
-            headers: this.apiServices.getApiHeaders(this.apiURL)
-
-        }).pipe(
+        return (
+            this.resourcesCache !== null ?
+                rxOf(this.resourcesCache) :
+                serverHttpRequest<HTTPResourcesResponse>({
+                    url: this.apiURL + '/api/meta',
+                    method: HTTP.Method.GET,
+                    headers: this.apiServices.getApiHeaders(this.apiURL)
+                }).pipe(
+                    tap(
+                        resp => {
+                            this.resourcesCache = resp;
+                        }
+                    )
+                )
+        ).pipe(
             map(
                 resp => {
                     // KorpusDB returning incorrect status code workaround
@@ -145,7 +169,9 @@ export class KorpusFreqDB implements IFreqDB {
 
     private loadData(value:string, type:string, ci:boolean):Observable<HTTPDataResponse> {
         const words = value.split(' ');
-        const fcritLocation = List.init(words.length > 1 ? this.ngramFcrit.split(':') : this.fcrit.split(':')).join(':');
+        const fcritLocation = List.init(words.length > 1 ?
+                this.ngramFcrit.split(':') :
+                this.fcrit.split(':')).join(':');
 
         return serverHttpRequest<HTTPDataResponse>({
             url: this.apiURL + '/api/cunits/_view',
@@ -316,7 +342,7 @@ export class KorpusFreqDB implements IFreqDB {
                             appServices
                         );
                         if (List.empty(pos) || posTagsEqual(pos, List.map(v => v.value, wordPos))) {
-                            const total = resources.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
+                            const total = resources.data[0].resources.corpus[this.normPath].params.size_tokens;
                             const ipm = 1000000 * curr[fcrit] /  total;
                             // aggregate items with identical word
                             const ident = List.findIndex(obj => obj.word === curr._name, acc);
@@ -370,11 +396,11 @@ export class KorpusFreqDB implements IFreqDB {
             this.loadResources().pipe(
                 map(res => ({
                     tileId: -1,
-                    title: res.data[0][this.normPath[0]][this.normPath[1]].label[uiLang],
-                    description: res.data[0][this.normPath[0]][this.normPath[1]].description,
+                    title: res.data[0].resources.corpus[this.normPath].label[uiLang],
+                    description: res.data[0].resources.corpus[this.normPath].description,
                     author: '',
                     structure: {
-                        numTokens: res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens
+                        numTokens: res.data[0].resources.corpus[this.normPath].params.size_tokens
                     }
                 }))
             );
