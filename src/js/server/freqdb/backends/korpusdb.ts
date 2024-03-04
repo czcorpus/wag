@@ -137,6 +137,7 @@ export class KorpusFreqDB implements IFreqDB {
                 apiServices
             ) :
             undefined;
+        this.resourcesCache = null;
     }
 
     private loadResources():Observable<HTTPResourcesResponse> {
