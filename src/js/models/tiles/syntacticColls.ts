@@ -21,9 +21,9 @@ import { SCollsQueryType, SCollsQueryTypeValue } from "../../api/vendor/mquery/s
 import { QueryMatch } from "../../query";
 
 export interface SCollsDataRow {
-    word:string;
+    value:string;
     freq:number;
-    norm:number;
+    base:number;
     ipm:number;
     collWeight:number;
     coOccScore:number;

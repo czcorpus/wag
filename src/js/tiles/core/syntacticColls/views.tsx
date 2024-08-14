@@ -45,10 +45,10 @@ export function init(
     const WordCloud = wordCloudViewInit<SCollsDataRow>(dispatcher, ut, theme);
 
     const dataTransform = (v:SCollsDataRow):WordCloudItemCalc => ({
-        text: v.word,
+        text: v.value,
         value: v.collWeight,
         tooltip: [{label: ut.translate('syntactic_colls__tooltip_score'), value: ut.formatNumber(v.collWeight, 5)}],
-        interactionId: v.word,
+        interactionId: v.value,
     });
 
     // ------------------- <Examples /> ------------------------
@@ -168,7 +168,7 @@ export function init(
                                         (row, i) => (
                                             <tr key={i}>
                                                 <td key="word" className="word">
-                                                    <a onClick={handleWordClick(row.word, qType)}>{row.word}</a>
+                                                    <a onClick={handleWordClick(row.value, qType)}>{row.value}</a>
                                                 </td>
                                                 <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
                                                 <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>

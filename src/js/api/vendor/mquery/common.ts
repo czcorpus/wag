@@ -17,9 +17,9 @@
  */
 
 export interface FreqRowResponse {
-    word:string;
+    value:string;
     freq:number;
-    norm:number;
+    base:number;
     ipm:number;
     collWeight:number;
     coOccScore:number;

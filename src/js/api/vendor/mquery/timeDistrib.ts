@@ -94,9 +94,9 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                         subcorpName: queryArgs.subcorpName,
                         data: List.map(
                             v => ({
-                                datetime: v.word,
+                                datetime: v.value,
                                 freq: v.freq,
-                                norm: v.norm,
+                                norm: v.base,
                             }),
                             message.entries.freqs,
                         ),

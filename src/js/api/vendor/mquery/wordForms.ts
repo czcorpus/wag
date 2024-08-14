@@ -69,7 +69,7 @@ export class WordFormsAPI implements IWordFormsApi {
                 return {
                     forms: List.map(
                         item => ({
-                            value: item.word,
+                            value: item.value,
                             freq: item.freq,
                             ratio: item.freq / total,
                             interactionId: Ident.puid(),
