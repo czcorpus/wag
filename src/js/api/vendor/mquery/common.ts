@@ -17,7 +17,7 @@
  */
 
 export interface FreqRowResponse {
-    value:string;
+    word:string;
     freq:number;
     base:number;
     ipm:number;

@@ -22,7 +22,7 @@ import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { IApiServices } from '../../../appServices';
 import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls';
-import { tuple } from 'cnc-tskit';
+import { List, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common';
 import { CorpusInfoAPI } from './corpusInfo';
 
@@ -120,7 +120,17 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
                 tuple(
                     request.params.queryType,
                     {
-                        rows: data.freqs,
+                        rows: List.map(
+                            row => ({
+                                value: row.word,
+                                freq: row.freq,
+                                base: row.base,
+                                ipm: row.ipm,
+                                collWeight: row.collWeight,
+                                coOccScore: row.coOccScore
+                            }),
+                            data.freqs
+                        ),
                         examplesQueryTpl: data.examplesQueryTpl
                     }
                 )
