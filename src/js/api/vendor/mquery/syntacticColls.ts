@@ -136,7 +136,7 @@ export interface SCERequestArgs {
         corpname:string;
     }
     args:{
-        query:string;
+        q:string;
     }
 }
 
@@ -154,13 +154,13 @@ export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesAp
         this.cache = cache;
     }
 
-    stateToArgs(state:SyntacticCollsModelState, query:string):SCERequestArgs {
+    stateToArgs(state:SyntacticCollsModelState, q:string):SCERequestArgs {
         return {
             params: {
                 corpname: state.corpname,
             },
             args: {
-                query
+                q
             }
         };
     }
