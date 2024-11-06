@@ -22,7 +22,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/common';
 import { Theme } from './theme';
 import { IAppServices } from '../appServices';
-import { HTTP, tuple } from 'cnc-tskit';
+import { HTTP } from 'cnc-tskit';
 import { MainPosAttrValues } from '../conf';
 
 
@@ -39,6 +39,17 @@ export interface BacklinkWithArgs<T> {
     label:LocalizedConfMsg;
     method:HTTP.Method;
     args:AnyInterface<T>;
+}
+
+export type AnyBacklink<T> = BacklinkWithArgs<T>|Array<BacklinkWithArgs<T>>;
+
+function isBacklinkWithArgs<T>(bl:AnyBacklink<T>|undefined|null): bl is BacklinkWithArgs<T> {
+    return bl !== null && !Array.isArray(bl) && typeof bl == 'object' && typeof bl['url'] === 'string';
+}
+
+export function backlinkIsValid<T>(backlink:AnyBacklink<T>):boolean {
+    return Array.isArray(backlink) && backlink.length > 0 ||
+        isBacklinkWithArgs(backlink) && !!backlink.url;
 }
 
 export function createAppBacklink(backlink:Backlink):BacklinkWithArgs<{}> {
