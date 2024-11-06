@@ -23,7 +23,7 @@ import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
 import { MultiDict } from '../../multidict';
 import { SystemMessageType, SourceDetails } from '../../types';
 import { ScreenProps } from '../../page/hostPage';
-import { BacklinkWithArgs } from '../../page/tile';
+import { AnyBacklink, backlinkIsValid, BacklinkWithArgs } from '../../page/tile';
 import { Actions } from '../../models/actions';
 
 import * as S from './style';
@@ -246,7 +246,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const SourceReference:React.FC<{
         tileId:number;
         data:SourceInfo|Array<SourceInfo>|undefined;
-        backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>|undefined;
+        backlink:AnyBacklink<{}>|undefined|null;
 
     }> = (props) => {
 
@@ -275,21 +275,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                     ) :
                     null
                 }
-                {!Array.isArray(props.backlink) && props.backlink || Array.isArray(props.backlink) && !List.empty(props.backlink) ?
+                {backlinkIsValid(props.backlink) ?
                     <>
-                    ,{'\u00a0'}
-                    {ut.translate('global__more_info')}:{'\u00a0'}
-                    {pipe(
-                        Array.isArray(props.backlink) ? props.backlink : [props.backlink],
-                        List.filter(v => !!v),
-                        List.sortAlphaBy(v => typeof v.label === 'string' ? v.label : v.label['en-US']),
-                        List.map((item, i) =>
-                            <React.Fragment key={`${item.label}:${i}`}>
-                                {i > 0 ? <span>, </span> : null}
-                                <BacklinkForm values={item} />
-                            </React.Fragment>
-                        )
-                    )}
+                        ,{'\u00a0'}
+                        {ut.translate('global__more_info')}:{'\u00a0'}
+                        {pipe(
+                            Array.isArray(props.backlink) ? props.backlink : [props.backlink],
+                            List.filter(v => !!v),
+                            List.sortAlphaBy(v => typeof v.label === 'string' ? v.label : v.label['en-US']),
+                            List.map((item, i) =>
+                                <React.Fragment key={`${item.label}:${i}`}>
+                                    {i > 0 ? <span>, </span> : null}
+                                    <BacklinkForm values={item} />
+                                </React.Fragment>
+                            )
+                        )}
                     </> :
                     null
                 }
