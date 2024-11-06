@@ -275,7 +275,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                     ) :
                     null
                 }
-                {props.backlink ?
+                {!Array.isArray(props.backlink) && props.backlink || Array.isArray(props.backlink) && !List.empty(props.backlink) ?
                     <>
                     ,{'\u00a0'}
                     {ut.translate('global__more_info')}:{'\u00a0'}
