@@ -61,6 +61,7 @@ export enum PoSValues {
     PARTICLE = 'T',
     INTERJECTION = 'I',
     PUNCTUATION = 'Z',
+    FOREIGN = 'F',
     UNKNOWN = 'X'
 }
 
@@ -138,6 +139,10 @@ const posTable = {
 	[PoSValues.PUNCTUATION]: {
         'cs-CZ': 'interpunkce',
         'en-US': 'punctuation'
+    },
+    [PoSValues.FOREIGN]: {
+        'cs-CZ': 'cizí slovo',
+        'en-US': 'foreign word'
     },
     [PoSValues.UNKNOWN]: {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
