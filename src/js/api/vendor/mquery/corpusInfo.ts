@@ -68,7 +68,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
     call(args:QueryArgs):Observable<CorpusDetails> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
-            this.apiURL + `/corpus/${args.corpname}/info`,
+            this.apiURL + `/info/${args.corpname}`,
             {lang: args.lang},
             {
                 headers: this.apiServices.getApiHeaders(this.apiURL),
