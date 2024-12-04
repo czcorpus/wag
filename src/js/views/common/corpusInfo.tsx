@@ -104,7 +104,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const renderKeywords = () => {
             if (props.data.keywords && props.data.keywords.length > 0) {
                 return props.data.keywords.map(kw =>
-                    <span key={kw.name} className="keyword" style={mkStyle(kw.color)}>
+                    <span key={kw.name} className="keyword" style={kw.color ? mkStyle(kw.color) : undefined}>
                         {kw.name}
                     </span>
                 );

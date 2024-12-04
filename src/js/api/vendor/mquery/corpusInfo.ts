@@ -25,19 +25,26 @@ import { HTTP, List } from 'cnc-tskit';
 
 
 interface HTTPResponse {
-    corpname:string;
-    description:string;
-    size:number;
-    web_url:string;
-    attrlist:Array<{name:string, size:number}>;
-    citationInfo?:{
-        article_ref:Array<string>;
-        default_ref:string;
-        other_bibliography:string;
-    };
-    structlist:Array<{name:string; size:number}>;
-    messages:Array<any>; // TODO
-    keywords:Array<{name:string, color:string}>;
+    corpus: {
+        data: {
+            corpname:string;
+            description:string;
+            size:number;
+            attrList:Array<{name:string, size:number, description?:string}>;
+            structList:Array<{name:string; size:number, description?:string}>;
+            textProperties:Array<string>;
+            webUrl:string;
+            citationInfo?:{
+                default_ref:string;
+                article_ref:Array<string>;
+                other_bibliography:string;
+            };
+            srchKeywords:Array<string>;
+        },
+        resultType:'corpusInfo';
+        error?:string;
+    },
+    locale: string;
 }
 
 export interface QueryArgs {
@@ -80,24 +87,24 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
             map<HTTPResponse, CorpusDetails>(
                 (resp) => ({
                     tileId: args.tileId,
-                    title: resp.corpname,
-                    description: resp.description,
+                    title: resp.corpus.data.corpname,
+                    description: resp.corpus.data.description,
                     author: '', // TODO
-                    href: resp.web_url,
-                    attrList: resp.attrlist,
+                    href: resp.corpus.data.webUrl,
+                    attrList: resp.corpus.data.attrList,
                     citationInfo: {
-                        sourceName: resp.corpname,
-                        main: resp.citationInfo?.default_ref,
-                        papers: resp.citationInfo?.article_ref || [],
-                        otherBibliography: resp.citationInfo?.other_bibliography || undefined
+                        sourceName: resp.corpus.data.corpname,
+                        main: resp.corpus.data.citationInfo?.default_ref,
+                        papers: resp.corpus.data.citationInfo?.article_ref || [],
+                        otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
                     },
                     structure: {
-                        numTokens: resp.size,
-                        numSentences: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'sentence')),
-                        numParagraphs: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'paragraph')),
-                        numDocuments: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'document'))
+                        numTokens: resp.corpus.data.size,
+                        numSentences: findStructSize(resp.corpus.data.structList, this.apiServices.getCommonResourceStructure(resp.corpus.data.corpname, 'sentence')),
+                        numParagraphs: findStructSize(resp.corpus.data.structList, this.apiServices.getCommonResourceStructure(resp.corpus.data.corpname, 'paragraph')),
+                        numDocuments: findStructSize(resp.corpus.data.structList, this.apiServices.getCommonResourceStructure(resp.corpus.data.corpname, 'document'))
                     },
-                    keywords: resp.keywords
+                    keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
                 })
             )
         );

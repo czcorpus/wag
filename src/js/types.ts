@@ -84,7 +84,7 @@ export interface SourceDetails {
     author:string;
     href?:string;
     citationInfo?:SourceCitation;
-    keywords?:Array<{name:string, color:string}>;
+    keywords?:Array<{name:string, color?:string}>;
 }
 
 export interface CorpusDetails extends SourceDetails {
