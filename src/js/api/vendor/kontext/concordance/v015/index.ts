@@ -184,6 +184,8 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
     call(args:ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs):Observable<ConcResponse> {
         const corpname = args.type === 'concQueryArgs' ? args.queries[0].corpname : args.corpname;
         const [url, contentType, argsBody] = this.createActionUrl(args);
+        const headers = this.apiServices.getApiHeaders(this.apiURL);
+        headers['X-Is-Web-App'] = '1';
         return (args.type === 'concViewArgs' ?
             rxOf({
                 Q: [],
@@ -200,7 +202,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 url,
                 argsBody,
                 {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
+                    headers,
                     withCredentials: true,
                     contentType
                 }

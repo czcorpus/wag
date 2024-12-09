@@ -66,12 +66,14 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
     }
 
     call(args:QueryArgs):Observable<CorpusDetails> {
+        const headers = this.apiServices.getApiHeaders(this.apiURL);
+        headers['X-Is-Web-App'] = '1';
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
             this.apiURL + '/corpora/ajax_get_corp_details',
             args,
             {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
+                headers,
                 withCredentials: true
             }
 

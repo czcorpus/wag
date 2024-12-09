@@ -82,13 +82,15 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
     }
 
     call(args:SpeechReqArgs):Observable<SpeechResponse> {
+        const headers = this.apiServices.getApiHeaders(this.apiUrl);
+        headers['X-Is-Web-App'] = '1';
         if (args.pos !== undefined) {
             return cachedAjax$<SpeechResponse>(this.cache)(
                 HTTP.Method.GET,
                 this.apiUrl + '/widectx',
                 args,
                 {
-                    headers: this.apiServices.getApiHeaders(this.apiUrl),
+                    headers,
                     withCredentials: true
                 }
             );

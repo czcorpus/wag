@@ -120,12 +120,14 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
     }
 
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
+        const headers = this.apiServices.getApiHeaders(this.apiURL);
+        headers['X-Is-Web-App'] = '1';
         return cachedAjax$<HttpApiResponse>(this.cache)(
             'GET',
             this.apiURL + this.API_PATH,
             queryArgs,
             {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
+                headers,
                 withCredentials: true
             }
 

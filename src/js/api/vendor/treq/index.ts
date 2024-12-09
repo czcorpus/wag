@@ -168,12 +168,14 @@ class TreqAPICaller {
     }
 
     call(args:RequestArgs):Observable<TranslationResponse> {
+        const headers = this.appServices.getApiHeaders(this.apiURL);
+        headers['X-Is-Web-App'] = '1';
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
             `${this.apiURL}/api/v1/`,
             args,
             {
-                headers: this.appServices.getApiHeaders(this.apiURL),
+                headers,
                 withCredentials: true
             },
 
