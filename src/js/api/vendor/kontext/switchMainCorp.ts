@@ -48,7 +48,8 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
     }
 
     call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
-
+        const headers = this.apiServices.getApiHeaders(this.apiURL);
+        headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(
             HTTP.Method.POST,
             this.apiURL + '/switch_main_corp?' +
@@ -61,7 +62,7 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
                 }),
             {},
             {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
+                headers,
                 withCredentials: true
             }
 

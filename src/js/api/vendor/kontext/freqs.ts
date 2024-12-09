@@ -200,12 +200,14 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
     }
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
+        const headers = this.apiServices.getApiHeaders(this.apiURL);
+        headers['X-Is-Web-App'] = '1';
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL + '/freqs',
             args,
             {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
+                headers,
                 withCredentials: true
             }
 
