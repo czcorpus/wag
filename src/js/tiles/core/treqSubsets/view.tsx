@@ -45,8 +45,7 @@ export function init(
         maxValue:number;
         width:number;
         color:string;
-        onMouseOver:(e:React.MouseEvent, values:TooltipValues)=>void;
-        onMouseMove:(e:React.MouseEvent)=>void;
+        onMouseMove:(e:React.MouseEvent, values:TooltipValues)=>void;
         onMouseOut:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
@@ -79,8 +78,7 @@ export function init(
                         height={14} />
                 <rect x={0} y={0} width={100} height={30}
                         fill="transparent"
-                        onMouseOver={(e) => props.onMouseOver(e, tooltipVals)}
-                        onMouseMove={props.onMouseMove}
+                        onMouseMove={(e) => props.onMouseMove(e, tooltipVals)}
                         onMouseOut={props.onMouseOut} />
                 </g>
             </S.SimpleBar>
@@ -95,8 +93,7 @@ export function init(
         maxNumLines:number;
         chartWidthPx:number;
         highlightedRowIdx:number;
-        onMouseOver:(e:React.MouseEvent, values:TooltipValues)=>void;
-        onMouseMove:(e:React.MouseEvent)=>void;
+        onMouseMove:(e:React.MouseEvent, values:TooltipValues)=>void;
         onMouseOut:(e:React.MouseEvent)=>void;
 
     }> = React.memo((props) => {
@@ -121,7 +118,6 @@ export function init(
                                         abs={v.abs}
                                         maxValue={100}
                                         color={row.color}
-                                        onMouseOver={props.onMouseOver}
                                         onMouseMove={props.onMouseMove}
                                         onMouseOut={props.onMouseOut}  />
                                 </td>
@@ -199,16 +195,24 @@ export function init(
             };
             this.handleMouseMove = this.handleMouseMove.bind(this);
             this.handleMouseOut = this.handleMouseOut.bind(this);
-            this.handleMouseOver = this.handleMouseOver.bind(this);
         }
 
-        handleMouseOver(e:React.MouseEvent, values:TooltipValues) {
-            this.setState({
-                tooltipVisible: true,
-                tooltipX: this.state.tooltipX,
-                tooltipY: this.state.tooltipY,
-                tooltipValues: values
-            });
+        handleMouseMove(e:React.MouseEvent, values:TooltipValues) {
+            if (this.state.tooltipVisible) {
+                this.setState({
+                    tooltipVisible: true,
+                    tooltipX: e.pageX,
+                    tooltipY: e.pageY,
+                    tooltipValues: values
+                });
+            } else {
+                this.setState({
+                    tooltipVisible: true,
+                    tooltipX: this.state.tooltipX,
+                    tooltipY: this.state.tooltipY,
+                    tooltipValues: values
+                });
+            }
         }
 
         handleMouseOut() {
@@ -217,15 +221,6 @@ export function init(
                 tooltipX: 0,
                 tooltipY: 0,
                 tooltipValues: null
-            });
-        }
-
-        handleMouseMove(e:React.MouseEvent) {
-            this.setState({
-                tooltipVisible: true,
-                tooltipX: e.pageX,
-                tooltipY: e.pageY,
-                tooltipValues: this.state.tooltipValues
             });
         }
 
@@ -239,7 +234,6 @@ export function init(
                         maxNumLines={this.props.maxNumLines}
                         chartWidthPx={this.props.chartWidthPx}
                         onMouseMove={this.handleMouseMove} onMouseOut={this.handleMouseOut}
-                        onMouseOver={this.handleMouseOver}
                         highlightedRowIdx={this.props.highlightedRowIdx} />
                 </div>
             );
