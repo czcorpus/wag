@@ -150,7 +150,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             (state, action, seDispatch) => {
                 const conc$ = this.waitForTile >= 0 ?
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action:Action, syncData) => {
@@ -211,6 +211,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.srchRangeType = action.payload.ctxType;
+                    state.backlinks = [];
                 }
             },
             (state, action, seDispatch) => {
@@ -229,8 +230,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.collApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -238,7 +239,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -246,7 +247,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -318,8 +319,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
 
     private reloadAllData(state:CollocModelState, reqArgs:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):void {
-        this.loadCollocations(state, reqArgs, seDispatch).subscribe(
-            (isEmpty) => {
+        this.loadCollocations(state, reqArgs, seDispatch).subscribe({
+            next: (isEmpty) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -328,7 +329,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     }
                 })
             },
-            (err) => {
+            error: (err) => {
                 this.appServices.showMessage(SystemMessageType.ERROR, err);
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -339,7 +340,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     error: err
                 });
             }
-        );
+        });
     }
 
     private loadCollocations(state:CollocModelState, concIds:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):Observable<boolean> {
