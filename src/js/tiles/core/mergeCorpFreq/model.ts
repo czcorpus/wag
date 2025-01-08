@@ -213,8 +213,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 if (action.payload.tileId === this.tileId) {
                     this.freqApi.getSourceDescription(this.tileId,
                         this.appServices.getISO639UILang(), action.payload.corpusId)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: data => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -223,7 +223,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 }
                             });
                         },
-                        (err) => {
+                        error: err => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -233,7 +233,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 }
                             });
                         }
-                    );
+                    });
                 }
             }
         );
