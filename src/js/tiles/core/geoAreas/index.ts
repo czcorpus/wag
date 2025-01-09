@@ -24,7 +24,7 @@ import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, 
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
-import { createApiInstance } from '../../../api/factory/freqs';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
 
@@ -81,7 +81,7 @@ export class GeoAreasTile implements ITileProvider {
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
-            api: createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            api: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             mapLoader: new MapLoader(cache, appServices),
             initState: {
                 isBusy: isBusy,

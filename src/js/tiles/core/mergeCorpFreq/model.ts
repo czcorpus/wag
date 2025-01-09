@@ -152,7 +152,16 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                             }
                         })
                     ) :
-                    this.loadConcordances(state);
+                    this.concApi === null ?
+                        rxOf(...state.sources).pipe(
+                            mergeMap(source => rxOf(
+                                ...List.map(
+                                    (v, i) => [i, source, v.lemma] as [number, ModelSourceArgs, string],
+                                    state.queryMatches
+                                ),
+                            )),
+                        ) :
+                        this.loadConcordances(state);
                 this.loadFreqs(conc$, dispatch);
             }
         );
@@ -161,7 +170,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    if (this.backlink.isAppUrl && state.appBacklink === null) {
+                    if (this.backlink !== null && this.backlink.isAppUrl && state.appBacklink === null) {
                         state.appBacklink = createAppBacklink(this.backlink);
                     }
 

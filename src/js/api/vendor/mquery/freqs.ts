@@ -46,10 +46,13 @@ interface MQueryFreqArgs {
     corpname:string;
     path:'freqs'|'text-types';
     queryArgs:{
+        subcorpus?:string;
+        q:string;
         flimit:number;
-        attr:string;
+        attr?:string;
+        textProperty?:string;
         matchCase:string;
-        maxItems:number;
+        maxItems?:number;
     }
 }
 
@@ -83,10 +86,11 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
             corpname: state.corpname,
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
+                subcorpus: subcname,
+                q: `[lemma="${concId}"]`,
                 flimit: state.flimit,
-                attr: state.fcrit,
                 matchCase: '0',
-                maxItems: 100
+                attr: state.fcrit,
             }
         };
     }
