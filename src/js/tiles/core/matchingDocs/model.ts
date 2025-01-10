@@ -179,7 +179,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
     private handleDataLoad(state:MatchingDocsModelState, action:Action, dispatch:SEDispatcher):void {
         if (this.waitForTiles.length > 0) {
-            this.suspendWithTimeout(
+            this.waitForActionWithTimeout(
                 this.waitForTilesTimeoutSecs * 1000,
                 pipe(this.waitForTiles, List.map<number, [string, boolean]>(v => [v.toFixed(), true]), Dict.fromEntries()),
                 (action, syncStatus) => {

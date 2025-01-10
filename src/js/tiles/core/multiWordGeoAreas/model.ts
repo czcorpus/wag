@@ -139,7 +139,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             },
             (state, action, dispatch) => {
                 if (this.waitForTile) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {

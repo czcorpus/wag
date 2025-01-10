@@ -154,7 +154,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile >= 0) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs,
                         {},
                         (action, syncData) => {

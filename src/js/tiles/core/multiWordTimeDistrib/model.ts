@@ -195,7 +195,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
             (state, action, dispatch) => {
                 // we can propagate concordances only for one corpus (subcorpus)
                 if (this.waitForTile > -1 && state.subcnames.length === 1) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs,
                         {},
                         (action, syncData) => {

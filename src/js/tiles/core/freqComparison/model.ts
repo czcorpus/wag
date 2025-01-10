@@ -100,7 +100,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             },
             (state, action, dispatch) => {
                 if (this.waitForTiles.length > 0) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
@@ -218,8 +218,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -227,14 +227,14 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error: err
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -343,8 +343,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             }
         );
 
-        freqResp.subscribe(
-            ([resp, args]) => {
+        freqResp.subscribe({
+            next: ([resp, args]) => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
@@ -370,7 +370,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     }
                 });
             },
-            error => {
+            error: error => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
@@ -384,7 +384,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     error: error
                 });
             }
-        );
+        });
     };
 }
 

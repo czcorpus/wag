@@ -103,7 +103,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.suspendWithTimeout(
+                this.waitForActionWithTimeout(
                     this.waitForTilesTimeoutSecs * 1000,
                     Dict.map(_ => true, this.waitForTiles),
                     (action:Action, syncData) => {

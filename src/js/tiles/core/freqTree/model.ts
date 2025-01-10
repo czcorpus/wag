@@ -93,7 +93,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTiles.length > 0) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
