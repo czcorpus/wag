@@ -97,8 +97,8 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
             );
             const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
             const procChunks:{[k:number]:number} = {};
-            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
-            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : -1;
+            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : (parseInt(this.customArgs['fromYear']) || -1);
+            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : (parseInt(this.customArgs['toYear']) || -1);
 
             eventSource.onmessage = (e) => {
                 const message = JSON.parse(e.data) as MqueryStreamData;
