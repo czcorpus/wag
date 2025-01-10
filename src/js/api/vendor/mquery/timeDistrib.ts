@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribItem, TimeDistribResponse } from '../../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { IApiServices } from '../../../appServices';
-import { Dict, List, pipe } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common';
 import { CorpusInfoAPI } from './corpusInfo';
 
@@ -35,6 +35,22 @@ export interface MqueryStreamData {
         searchSize:number;
         freqs:FreqRowResponse[];
     };
+}
+
+/**
+ * Calculates min and max year in provided time distrib freq items.
+ */
+function getChunkYearRange(items:Array<FreqRowResponse>):[number, number] {
+    return List.foldl(
+        ([min, max], v) => {
+            return tuple(
+                parseInt(v.word) < min ? parseInt(v.word) : min,
+                parseInt(v.word) > max ? parseInt(v.word) : max
+            )
+        },
+        tuple(99999999999, 0),
+        items
+    )
 }
 
 /**
@@ -81,6 +97,8 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
             );
             const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
             const procChunks:{[k:number]:number} = {};
+            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
+            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : -1;
 
             eventSource.onmessage = (e) => {
                 const message = JSON.parse(e.data) as MqueryStreamData;
@@ -89,6 +107,13 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                     o.error(new Error(message.error));
 
                 } else {
+                    const [currMin, currMax] = getChunkYearRange(message.entries.freqs);
+                    if (minYear > -1 && currMin < minYear) {
+                        minYear = currMin;
+                    }
+                    if (maxYear > -1 && currMax > maxYear) {
+                        maxYear = currMax;
+                    }
                     o.next({
                         corpName: queryArgs.corpName,
                         subcorpName: queryArgs.subcorpName,
@@ -116,6 +141,49 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
                 if (totalProc >= message.totalChunks) {
                     eventSource.close();
+
+                    // fill-in missing years with zero freq.
+                    if (queryArgs.fromYear && queryArgs.toYear) {
+                        const fromY = parseInt(queryArgs.fromYear);
+                        const chunk1 = pipe(
+                            List.range(fromY, minYear+1),
+                            List.map(
+                                item =>  ({
+                                    datetime: item + '',
+                                    freq: 0,
+                                    norm: 0
+                                })
+                            )
+                        );
+                        if (!List.empty(chunk1)) {
+                            o.next({
+                                corpName: queryArgs.corpName,
+                                subcorpName: queryArgs.subcorpName,
+                                data: chunk1,
+                                overwritePrevious: false,
+                            });
+                        }
+                        const toY = parseInt(queryArgs.toYear);
+                        const chunk2 = pipe(
+                            List.range(maxYear, toY+1),
+                            List.map(
+                                item =>  ({
+                                    datetime: item + '',
+                                    freq: 0,
+                                    norm: 0
+                                })
+                            )
+                        );
+                        if (!List.empty(chunk2)) {
+                            o.next({
+                                corpName: queryArgs.corpName,
+                                subcorpName: queryArgs.subcorpName,
+                                data: chunk2,
+                                overwritePrevious: false,
+                            });
+                        }
+                    }
+
                     o.complete();
                 }
             };
