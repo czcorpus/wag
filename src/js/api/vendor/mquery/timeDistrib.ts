@@ -97,8 +97,10 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
             );
             const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
             const procChunks:{[k:number]:number} = {};
-            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : (parseInt(this.customArgs['fromYear']) || -1);
-            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : (parseInt(this.customArgs['toYear']) || -1);
+            const fixedMinYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : (parseInt(this.customArgs['fromYear']) || -1);
+            const fixedMaxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : (parseInt(this.customArgs['toYear']) || -1);
+            let dataMinYear = -1;
+            let dataMaxYear = -1;
 
             eventSource.onmessage = (e) => {
                 const message = JSON.parse(e.data) as MqueryStreamData;
@@ -108,11 +110,11 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
                 } else {
                     const [currMin, currMax] = getChunkYearRange(message.entries.freqs);
-                    if (minYear > -1 && currMin < minYear) {
-                        minYear = currMin;
+                    if (currMin < dataMinYear || dataMinYear === -1) {
+                        dataMinYear = currMin;
                     }
-                    if (maxYear > -1 && currMax > maxYear) {
-                        maxYear = currMax;
+                    if (currMax > dataMaxYear || dataMaxYear === -1) {
+                        dataMaxYear = currMax;
                     }
                     o.next({
                         corpName: queryArgs.corpName,
@@ -143,10 +145,9 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                     eventSource.close();
 
                     // fill-in missing years with zero freq.
-                    if (queryArgs.fromYear && queryArgs.toYear) {
-                        const fromY = parseInt(queryArgs.fromYear);
+                    if (fixedMinYear) {
                         const chunk1 = pipe(
-                            List.range(fromY, minYear+1),
+                            List.range(fixedMinYear, dataMinYear+1),
                             List.map(
                                 item =>  ({
                                     datetime: item + '',
@@ -163,9 +164,10 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                                 overwritePrevious: false,
                             });
                         }
-                        const toY = parseInt(queryArgs.toYear);
+                    }
+                    if (fixedMaxYear) {
                         const chunk2 = pipe(
-                            List.range(maxYear, toY+1),
+                            List.range(dataMaxYear, fixedMaxYear+1),
                             List.map(
                                 item =>  ({
                                     datetime: item + '',
