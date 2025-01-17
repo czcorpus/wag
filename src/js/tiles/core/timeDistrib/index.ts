@@ -122,7 +122,7 @@ export class TimeDistTile implements ITileProvider {
                 customApiArgs: conf.customApiArgs ? conf.customApiArgs : {},
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
-                displayMean: conf.showMeasuredFreq || false,
+                displayObserved: conf.showMeasuredFreq || false,
                 wordMainLabel: '',
                 wordCmpInput: '',
                 wordCmp: '',

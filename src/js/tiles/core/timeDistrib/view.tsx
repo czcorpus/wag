@@ -84,7 +84,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     class TweakControls extends React.Component<{
         tileId:number;
-        displayMean:boolean;
+        displayObserved:boolean;
         wordCmp:string;
 
     }> {
@@ -101,8 +101,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleCheckboxChange(e:React.ChangeEvent<HTMLInputElement>) {
-            dispatcher.dispatch<typeof Actions.ChangeDisplayMean>({
-                name: Actions.ChangeDisplayMean.name,
+            dispatcher.dispatch<typeof Actions.ChangeDisplayObserved>({
+                name: Actions.ChangeDisplayObserved.name,
                 payload: {
                     tileId: this.props.tileId,
                     value: e.target.checked
@@ -154,7 +154,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <form>
                     <label>
                         {ut.translate('timeDistrib__display_mean_value')}:{'\u00a0'}
-                        <input ref={this.ref} type="checkbox" checked={this.props.displayMean} onChange={this.handleCheckboxChange} />
+                        <input ref={this.ref} type="checkbox" checked={this.props.displayObserved} onChange={this.handleCheckboxChange} />
                     </label>
                     <br/>
                     <label>
@@ -199,7 +199,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <Chart /> ------------------------------------------------------
 
     class Chart extends React.Component<{
-        displayMean:boolean;
+        displayObserved:boolean;
         wordCmp:string;
         word:string;
         data1:Array<DataItemWithWCI>;
@@ -282,7 +282,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 if (Array.isArray(value)) {
                     return value.every(v => Boolean(v)) ? [value.join(' ~ '), name] : null
                 }
-                return ['' + value, ut.translate('timeDistrib__mean_value')];
+                return ['' + value, ut.translate('timeDistrib__measured_value')];
             };
             const data = mergeDataSets(this.props.data1, this.props.data2).filter(v => Boolean(v.datetime));
             return (
@@ -309,7 +309,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 strokeWidth={1}
                                 isAnimationActive={false}
                                 connectNulls={true} />
-                        {this.props.displayMean ?
+                        {this.props.displayObserved ?
                             <Area type="linear"
                                 dataKey="ipm1"
                                 stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
@@ -325,7 +325,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 strokeWidth={1}
                                 isAnimationActive={false}
                                 connectNulls={true} />
-                        {this.props.displayMean ?
+                        {this.props.displayObserved ?
                             <Area type="linear"
                                 dataKey="ipm2"
                                 stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
@@ -370,7 +370,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <S.TimeDistribTile>
                     {props.isTweakMode ?
                         <div className="tweak-box">
-                            <TweakControls displayMean={props.displayMean} wordCmp={props.wordCmpInput} tileId={props.tileId} />
+                            <TweakControls displayObserved={props.displayObserved} wordCmp={props.wordCmpInput} tileId={props.tileId} />
                         </div> :
                         null
                     }
@@ -384,7 +384,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             size={[props.renderSize[0], 300]}
                             loadingStatus={props.loadingStatus}
                             word={props.wordMainLabel}
-                            displayMean={props.displayMean}
+                            displayObserved={props.displayObserved}
                             wordCmp={props.wordCmp}
                             isSmallWidth={props.isMobile || props.widthFract < 2}
                             zoom={props.zoom}
