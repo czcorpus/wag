@@ -48,6 +48,9 @@
                 "type": "string"
             }
         },
+        "showMeasuredFreq": {
+            "type": "boolean"
+        },
         "corpname": {
             "type": "string"
         },

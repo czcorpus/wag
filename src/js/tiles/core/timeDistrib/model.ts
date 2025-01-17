@@ -69,6 +69,7 @@ export interface TimeDistribModelState {
     isTweakMode:boolean;
     data:Array<DataItemWithWCI>;
     dataCmp:Array<DataItemWithWCI>;
+    displayMean:boolean;
     wordCmp:string;
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
@@ -242,6 +243,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isTweakMode = false;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ChangeDisplayMean,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.displayMean = action.payload.value;
             }
         );
 

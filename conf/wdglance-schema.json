@@ -392,6 +392,9 @@
                         }
                     ]
                 },
+                "mainPosAttr": {
+                    "$ref": "#/definitions/MainPosAttrValues"
+                },
                 "replace": {
                     "additionalProperties": {
                         "type": "string"
@@ -403,7 +406,8 @@
                 }
             },
             "required": [
-                "groups"
+                "groups",
+                "mainPosAttr"
             ],
             "type": "object"
         },
@@ -459,6 +463,9 @@
                         }
                     ]
                 },
+                "mainPosAttr": {
+                    "$ref": "#/definitions/MainPosAttrValues"
+                },
                 "replace": {
                     "additionalProperties": {
                         "type": "string"
@@ -470,7 +477,8 @@
                 }
             },
             "required": [
-                "groups"
+                "groups",
+                "mainPosAttr"
             ],
             "type": "object"
         },
@@ -526,6 +534,9 @@
                         }
                     ]
                 },
+                "mainPosAttr": {
+                    "$ref": "#/definitions/MainPosAttrValues"
+                },
                 "replace": {
                     "additionalProperties": {
                         "type": "string"
@@ -544,6 +555,7 @@
             },
             "required": [
                 "groups",
+                "mainPosAttr",
                 "targetDomains"
             ],
             "type": "object"
@@ -578,6 +590,13 @@
                 "url"
             ],
             "type": "object"
+        },
+        "MainPosAttrValues": {
+            "enum": [
+                "pos",
+                "upos"
+            ],
+            "type": "string"
         },
         "React.CSSProperties": {
             "properties": {
