@@ -60,12 +60,12 @@ export interface DataItemWithWCI {
 
 export class Actions {
 
-    static ChangeDisplayMean:Action<{
+    static ChangeDisplayObserved:Action<{
         tileId:number;
         value:boolean;
 
     }> = {
-        name: 'TIME_DISTRIB_CHANGE_DISPLAY_MEAN'
+        name: 'TIME_DISTRIB_CHANGE_DISPLAY_OBSERVED'
     };
 
 	static ChangeCmpWord:Action<{
