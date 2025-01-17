@@ -22,6 +22,7 @@ import { CoreApiGroup } from '../coreGroups';
 import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI, SimpleKontextFreqDistribAPI } from '../vendor/kontext/freqs';
 import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs';
 import { IApiServices } from '../../appServices';
+import { MQueryFreqDistribAPI } from '../vendor/mquery/freqs';
 
 
 export function createSimpleFreqApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SimpleKontextFreqDistribAPI {
@@ -44,6 +45,8 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
             return new KontextFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
             return new NoskeFreqDistribAPI(cache, apiURL, apiServices);
+        case CoreApiGroup.MQUERY:
+            return new MQueryFreqDistribAPI(cache, apiURL, apiServices);
         default:
             throw new Error(`Freq API ${apiIdent} not implemented`);
     }

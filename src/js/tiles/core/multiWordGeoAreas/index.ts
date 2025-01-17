@@ -25,7 +25,7 @@ import { MultiWordGeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
 import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance } from '../../../api/factory/freqs';
+import { createApiInstance as createFreqApiInstance} from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { CoreApiGroup } from '../../../api/coreGroups';
 
@@ -85,7 +85,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             appServices,
             queryMatches,
             concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
-            freqApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
             mapLoader: new MapLoader(cache, appServices),
             initState: {
                 isBusy: isBusy,

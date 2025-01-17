@@ -26,7 +26,6 @@ import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, 
 import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
-import { StatelessModel } from 'kombo';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createKontextConcApiInstance } from '../../../api/factory/concordance';

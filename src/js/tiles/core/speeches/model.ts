@@ -96,7 +96,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTiles.length > 0) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         TileWait.create(this.waitForTiles, (v)=>false),
                         (action:Action<{tileId:number}>, syncData) => {

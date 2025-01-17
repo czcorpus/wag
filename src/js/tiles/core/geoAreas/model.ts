@@ -125,7 +125,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile > -1) {
-                    this.suspendWithTimeout(
+                    this.waitForActionWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncStatus) => {
@@ -146,8 +146,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                     ),
                                     state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
 
-                                ]).subscribe(
-                                    resp => {
+                                ]).subscribe({
+                                    next: resp => {
                                         dispatch<typeof Actions.TileDataLoaded>({
                                             name: Actions.TileDataLoaded.name,
                                             payload: {
@@ -159,7 +159,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                             }
                                         });
                                     },
-                                    error => {
+                                    error: error => {
                                         dispatch<typeof Actions.TileDataLoaded>({
                                             name: Actions.TileDataLoaded.name,
                                             payload: {
@@ -172,7 +172,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                             error: error
                                         });
                                     }
-                                );
+                                });
                                 return null;
                             }
                             return syncStatus;
@@ -277,8 +277,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: data => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -286,14 +286,14 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                 }
                             });
                         },
-                        (error) => {
+                        error: error => {
                             console.error(error);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
             }
         );
