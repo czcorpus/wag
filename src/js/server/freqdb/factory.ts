@@ -23,13 +23,15 @@ import { FreqDbOptions } from '../../conf';
 import { CouchFreqDB } from './backends/couchdb';
 import { KorpusFreqDB } from './backends/korpusdb';
 import { IApiServices } from '../../appServices';
+import { FrodoClient } from './backends/frodo';
 
 
 export enum FreqDBType {
     SQLITE = 'sqlite',
     KONTEXT = 'kontext',
     COUCHDB = 'couchdb',
-    KORPUSDB = 'korpusdb'
+    KORPUSDB = 'korpusdb',
+    FRODO = 'frodo'
 }
 
 
@@ -43,6 +45,8 @@ export function createInstance(dbType:FreqDBType, connPath:string, corpusSize:nu
             return new CouchFreqDB(connPath, corpusSize, apiServices, options);
         case FreqDBType.KORPUSDB:
             return new KorpusFreqDB(connPath, apiServices, options);
+        case FreqDBType.FRODO:
+            return new FrodoClient(connPath, corpusSize, apiServices);
         default:
             throw new Error(`Frequency database ${dbType} is not supported`);
     }

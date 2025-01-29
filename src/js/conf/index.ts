@@ -73,6 +73,10 @@ export interface ColorThemeIdent {
  * (mainly chart colors).
  */
 export interface ColorTheme extends ColorThemeIdent {
+    lineChartColor1:string;
+    lineConfidenceAreaColor1:string;
+    lineChartColor2:string;
+    lineConfidenceAreaColor2:string;
     category:Array<string>;
     categoryOther:string;
     cmpCategory:Array<string>;

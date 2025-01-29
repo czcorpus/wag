@@ -95,9 +95,21 @@ export class Theme {
 
     public readonly geoAreaSpotTextColor:string;
 
+    public readonly lineChartColor1:string;
+
+    public readonly lineConfidenceAreaColor1:string;
+
+    public readonly lineChartColor2:string;
+
+    public readonly lineConfidenceAreaColor2:string;
+
     constructor(conf?:ColorTheme) {
         const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
         this.catColors = confSrc.category || [];
+        this.lineChartColor1 = confSrc.lineChartColor1 || this.catColors[0];
+        this.lineConfidenceAreaColor1 = confSrc.lineConfidenceAreaColor1 || this.catColors[0];
+        this.lineChartColor2 = confSrc.lineChartColor2 || this.catColors[1];
+        this.lineConfidenceAreaColor2 = confSrc.lineConfidenceAreaColor2 || this.catColors[1];
         this.cmpCategoryColors = confSrc.cmpCategory || [];
         this.scaleColors = confSrc.scale || [];
         this.unfinishedChartColor = '#dddddd';

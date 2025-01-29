@@ -81,6 +81,7 @@
     "sqlite3": "^5.1.6",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.9",
+    "url-join": "4.0.1",
     "winston": "^3.8.2",
     "winston-daily-rotate-file": "^4.7.1"
   }
