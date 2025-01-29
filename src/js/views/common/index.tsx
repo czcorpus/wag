@@ -485,7 +485,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
 
         private handleKey(evt:React.KeyboardEvent) {
-            if (evt.keyCode === Keyboard.Code.ESC) {
+            if (evt.key === Keyboard.Value.ESC) {
                 this.props.onCloseClick();
             }
         }
