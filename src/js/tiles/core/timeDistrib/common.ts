@@ -68,6 +68,14 @@ export class Actions {
         name: 'TIME_DISTRIB_CHANGE_DISPLAY_OBSERVED'
     };
 
+    static ChangeDisplayFreq:Action<{
+        tileId:number;
+        value:boolean;
+
+    }> = {
+        name: 'TIME_DISTRIB_CHANGE_DISPLAY_FREQ'
+    };
+
 	static ChangeCmpWord:Action<{
         tileId:number;
         value:string;

@@ -2,9 +2,14 @@
     "en-US": {
         "timeDistrib__main_label": "Frequency of the word over time",
         "timeDistrib__ipm_human": "occurrences per million words, ipm",
-        "timeDistrib__estimated_interval_for_{word}": "Confidence interval (99%)",
+        "timeDistrib__abs_human": "absolute frequency",
+        "timeDistrib__estimated_interval": "Confidence interval (99%)",
+        "timeDistrib__estimated_interval_for_{word}": "Confidence interval (99%) for \"{word}\"",
+        "timeDistrib__number_of_occurrences": "Number of occurrences",
+        "timeDistrib__number_of_occurrences_for_{word}": "Number of occurrences for \"{word}\"",
         "timeDistrib__measured_value": "observed value",
         "timeDistrib__display_mean_value": "Also display observed value",
+        "timeDistrib__display_freq": "Display absolute frequency",
         "timeDistrib__cmp_with_other_word": "Compare with the trend of a different word",
         "timeDistrib__cmp_submit": "Search",
         "timeDistrib__no_data_found_for_{word}": "No data found"
@@ -12,9 +17,14 @@
     "cs-CZ": {
         "timeDistrib__main_label": "Frekvence výskytu slova v čase",
         "timeDistrib__ipm_human": "výskyty na milion slov, ipm",
-        "timeDistrib__estimated_interval_for_{word}": "Interval spolehlivosti (99%)",
+        "timeDistrib__abs_human": "absolutní frekvence",
+        "timeDistrib__estimated_interval": "Interval spolehlivosti (99%)",
+        "timeDistrib__estimated_interval_for_{word}": "Interval spolehlivosti (99%) pro \"{word}\"",
+        "timeDistrib__number_of_occurrences": "Počet výskytů",
+        "timeDistrib__number_of_occurrences_for_{word}": "Počet výskytů pro \"{word}\"",
         "timeDistrib__measured_value": "pozorovaná hodnota",
         "timeDistrib__display_mean_value": "Zobrazit i pozorovanou hodnotu",
+        "timeDistrib__display_freq": "Zobrazit absolutní frekvenci",
         "timeDistrib__cmp_with_other_word": "Porovnat s trendem jiného slova",
         "timeDistrib__cmp_submit": "Vyhledat",
         "timeDistrib__no_data_found_for_{word}": "Nebyla nalezena žádná data"

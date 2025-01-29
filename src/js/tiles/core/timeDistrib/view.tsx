@@ -34,6 +34,8 @@ const MIN_DATA_ITEMS_TO_SHOW = 2;
 
 interface MultiChartItem {
     datetime:string;
+    freq1:number;
+    freq2:number;
     ipmInterval1:[number, number];
     ipmInterval2:[number, number];
 }
@@ -43,6 +45,7 @@ function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI
         data1,
         List.map(v => ({
             datetime: v.datetime,
+            freq: v.freq,
             ipm: v.ipm,
             ipmInterval: [v.ipmInterval[0], v.ipmInterval[1]],
             src: 0
@@ -52,6 +55,7 @@ function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI
                 data2,
                 List.map(v => ({
                     datetime: v.datetime,
+                    freq: v.freq,
                     ipm: v.ipm,
                     ipmInterval: [v.ipmInterval[0], v.ipmInterval[1]],
                     src: 1
@@ -64,6 +68,8 @@ function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI
             const src1 = v.find(x => x.src === 1);
             return {
                 datetime: v[0].datetime,
+                freq1: (src0 ? src0 : {freq: null, src: 0, datetime: null}).freq as number,
+                freq2: (src1 ? src1 : {freq: null, src: 1, datetime: null}).freq as number,
                 ipm1: (src0 ? src0 : {ipm: null, src: 0, datetime: null}).ipm as number,
                 ipm2: (src1 ? src1 : {ipm: null, src: 1, datetime: null}).ipm as number,
                 ipmInterval1: (src0 ? src0 : {ipmInterval: [null, null], src: 0, datetime: null}).ipmInterval as [number, number],
@@ -84,6 +90,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     class TweakControls extends React.Component<{
         tileId:number;
+        displayFreq:boolean;
         displayObserved:boolean;
         wordCmp:string;
 
@@ -94,15 +101,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         constructor(props) {
             super(props);
             this.handleInputChange = this.handleInputChange.bind(this);
-            this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+            this.handleDisplayObservedChange = this.handleDisplayObservedChange.bind(this);
+            this.handleDisplayFreqChange = this.handleDisplayFreqChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
             this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
             this.ref = React.createRef();
         }
 
-        private handleCheckboxChange(e:React.ChangeEvent<HTMLInputElement>) {
+        private handleDisplayObservedChange(e:React.ChangeEvent<HTMLInputElement>) {
             dispatcher.dispatch<typeof Actions.ChangeDisplayObserved>({
                 name: Actions.ChangeDisplayObserved.name,
+                payload: {
+                    tileId: this.props.tileId,
+                    value: e.target.checked
+                }
+            });
+        }
+
+        private handleDisplayFreqChange(e:React.ChangeEvent<HTMLInputElement>) {
+            dispatcher.dispatch<typeof Actions.ChangeDisplayFreq>({
+                name: Actions.ChangeDisplayFreq.name,
                 payload: {
                     tileId: this.props.tileId,
                     value: e.target.checked
@@ -121,7 +139,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleInputKeyDown(e:React.KeyboardEvent) {
-            if (e.keyCode === Keyboard.Code.ENTER && !e.shiftKey && !e.ctrlKey) {
+            if (e.key === Keyboard.Value.ENTER && !e.shiftKey && !e.ctrlKey) {
                 e.preventDefault();
                 e.stopPropagation();
                 dispatcher.dispatch<typeof Actions.SubmitCmpWord>({
@@ -153,8 +171,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <form>
                     <label>
+                        {ut.translate('timeDistrib__display_freq')}:{'\u00a0'}
+                        <input ref={this.ref} type="checkbox" checked={this.props.displayFreq} onChange={this.handleDisplayFreqChange} />
+                    </label>
+                    <br/>
+                    <label>
                         {ut.translate('timeDistrib__display_mean_value')}:{'\u00a0'}
-                        <input ref={this.ref} type="checkbox" checked={this.props.displayObserved} onChange={this.handleCheckboxChange} />
+                        <input ref={this.ref} type="checkbox" checked={this.props.displayObserved} onChange={this.handleDisplayObservedChange} disabled={this.props.displayFreq} />
                     </label>
                     <br/>
                     <label>
@@ -199,6 +222,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <Chart /> ------------------------------------------------------
 
     class Chart extends React.Component<{
+        displayFreq:boolean;
         displayObserved:boolean;
         wordCmp:string;
         word:string;
@@ -279,6 +303,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             const tooltipFormatter:Formatter<ValueType, NameType> = (value, name, data) => {
+                if (this.props.displayFreq) {
+                    return ['' + value, name];
+                }
                 if (Array.isArray(value)) {
                     return value.every(v => Boolean(v)) ? [value.join(' ~ '), name] : null
                 }
@@ -301,44 +328,68 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <Tooltip isAnimationActive={false}
                                 formatter={tooltipFormatter}
                                 content={globComponents.AlignedRechartsTooltip} />
-                        <Area type="linear"
-                                dataKey="ipmInterval1"
-                                name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word})}
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
-                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColorLight : theme.categoryColor(0)}
-                                strokeWidth={1}
-                                isAnimationActive={false}
-                                connectNulls={true} />
-                        {this.props.displayObserved ?
-                            <Area type="linear"
-                                dataKey="ipm1"
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
-                                fill='none'
-                                strokeWidth={2}
-                                isAnimationActive={false}
-                                connectNulls={true} /> : null}
-                        <Area type="linear"
-                                dataKey="ipmInterval2"
-                                name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
-                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColorLight : theme.categoryColor(1)}
-                                strokeWidth={1}
-                                isAnimationActive={false}
-                                connectNulls={true} />
-                        {this.props.displayObserved ?
-                            <Area type="linear"
-                                dataKey="ipm2"
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
-                                fill='none'
-                                strokeWidth={2}
-                                isAnimationActive={false}
-                                connectNulls={true} /> : null}
                         {
-                            (this.props.refArea[0] && this.props.refArea[1]) ?
-                            <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
-                            null
+                            this.props.displayFreq ?
+                            <>
+                                <Area type="linear"
+                                        dataKey="freq1"
+                                        name={this.props.wordCmp ? ut.translate('timeDistrib__number_of_occurrences_for_{word}', {word: this.props.word}) : ut.translate('timeDistrib__number_of_occurrences')}
+                                        stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
+                                        fill='none'
+                                        strokeWidth={2}
+                                        isAnimationActive={false}
+                                        connectNulls={true} />
+                                <Area type="linear"
+                                        dataKey="freq2"
+                                        name={this.props.wordCmp ? ut.translate('timeDistrib__number_of_occurrences_for_{word}', {word: this.props.wordCmp}) : undefined}
+                                        stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(1)}
+                                        fill='none'
+                                        strokeWidth={2}
+                                        isAnimationActive={false}
+                                        connectNulls={true} />
+                                <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__abs_human')} rcData={props} />} />
+                            </> :
+                            <>
+                                <Area type="linear"
+                                        dataKey="ipmInterval1"
+                                        name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word}) : ut.translate('timeDistrib__estimated_interval')}
+                                        stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
+                                        fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColorLight : theme.categoryColor(0)}
+                                        strokeWidth={1}
+                                        isAnimationActive={false}
+                                        connectNulls={true} />
+                                {this.props.displayObserved ?
+                                    <Area type="linear"
+                                        dataKey="ipm1"
+                                        stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
+                                        fill='none'
+                                        strokeWidth={2}
+                                        isAnimationActive={false}
+                                        connectNulls={true} /> : null}
+                                <Area type="linear"
+                                        dataKey="ipmInterval2"
+                                        name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
+                                        stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
+                                        fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColorLight : theme.categoryColor(1)}
+                                        strokeWidth={1}
+                                        isAnimationActive={false}
+                                        connectNulls={true} />
+                                {this.props.displayObserved ?
+                                    <Area type="linear"
+                                        dataKey="ipm2"
+                                        stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
+                                        fill='none'
+                                        strokeWidth={2}
+                                        isAnimationActive={false}
+                                        connectNulls={true} /> : null}
+                                {
+                                    (this.props.refArea[0] && this.props.refArea[1]) ?
+                                    <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
+                                    null
+                                }
+                                <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
+                            </>
                         }
-                        <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
                         {this.props.zoom.every(v => v === null) ? null :
                             <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
                                 <g fillOpacity="0" stroke="gray" strokeWidth="3">
@@ -370,7 +421,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <S.TimeDistribTile>
                     {props.isTweakMode ?
                         <div className="tweak-box">
-                            <TweakControls displayObserved={props.displayObserved} wordCmp={props.wordCmpInput} tileId={props.tileId} />
+                            <TweakControls displayObserved={props.displayObserved}
+                                            displayFreq={props.displayFreq}
+                                            wordCmp={props.wordCmpInput}
+                                            tileId={props.tileId} />
                         </div> :
                         null
                     }
@@ -384,6 +438,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             size={[props.renderSize[0], 300]}
                             loadingStatus={props.loadingStatus}
                             word={props.wordMainLabel}
+                            displayFreq={props.displayFreq}
                             displayObserved={props.displayObserved}
                             wordCmp={props.wordCmp}
                             isSmallWidth={props.isMobile || props.widthFract < 2}
