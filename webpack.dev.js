@@ -67,7 +67,7 @@ module.exports = (env) => ({
     },
     devtool: 'inline-source-map',
     devServer: {
-        allowedHosts: ['localhost', 'portal.korpus.test'],
+        allowedHosts: ['localhost', 'portal.korpus.test', 'wag.korpus.test'],
         port: (CONF.develServer || {}).port || 9000,
         host: (CONF.develServer || {}).host || 'localhost',
         static: {

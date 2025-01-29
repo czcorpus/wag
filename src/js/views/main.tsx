@@ -181,7 +181,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const handleKeyDown = (evt:React.KeyboardEvent):void => {
-            if (evt.keyCode === Keyboard.Code.ENTER) {
+            if (evt.key === Keyboard.Value.ENTER) {
                 props.onEnter();
                 evt.stopPropagation();
                 evt.preventDefault();

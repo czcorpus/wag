@@ -69,6 +69,7 @@ export interface TimeDistribModelState {
     isTweakMode:boolean;
     data:Array<DataItemWithWCI>;
     dataCmp:Array<DataItemWithWCI>;
+    useAbsFreq:boolean;
     displayObserved:boolean;
     wordCmp:string;
     wordCmpInput:string;
@@ -243,6 +244,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isTweakMode = false;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ChangeUseAbsFreq,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.useAbsFreq = action.payload.value;
             }
         );
 
