@@ -18,7 +18,7 @@
 import { SEDispatcher, StatelessModel, Action, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
-import { Dict, Maths, pipe, List } from 'cnc-tskit';
+import { Dict, Maths, pipe, List, Strings } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
@@ -578,9 +578,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     if (lv) {
                         const [concApi, freqApi] = this.apiFactory.getRandomValue();
                         if (concApi === null) {
+                            const query = pipe(
+                                lv.lemma.split(' '),
+                                List.map(v => `[lemma="${v}"]`),
+                                v => v.join(' ')
+                            );
                             return rxOf<[ConcResponse, DataFetchArgsOwn]>([
                                 {
-                                    query: `[lemma="${lv.lemma}"]`,
+                                    query,
                                     corpName: state.corpname,
                                     subcorpName: state.subcnames[0],
                                     lines: [],
@@ -595,7 +600,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     subcName: state.subcnames[0],
                                     wordMainLabel: lv.lemma,
                                     targetId: target,
-                                    origQuery: `[lemma="${lv.lemma}"]`,
+                                    origQuery: query,
                                     freqApi
                                 }
                             ]);

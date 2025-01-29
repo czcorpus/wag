@@ -304,33 +304,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <Area type="linear"
                                 dataKey="ipmInterval1"
                                 name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word})}
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
-                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColorLight : theme.categoryColor(0)}
+                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.lineConfidenceAreaColor1}
+                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColorLight : theme.lineConfidenceAreaColor1}
                                 strokeWidth={1}
                                 isAnimationActive={false}
                                 connectNulls={true} />
                         {this.props.displayObserved ?
                             <Area type="linear"
                                 dataKey="ipm1"
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
+                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.lineChartColor1}
                                 fill='none'
-                                strokeWidth={2}
+                                strokeWidth={3}
                                 isAnimationActive={false}
                                 connectNulls={true} /> : null}
                         <Area type="linear"
                                 dataKey="ipmInterval2"
                                 name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
-                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColorLight : theme.categoryColor(1)}
+                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.lineConfidenceAreaColor2}
+                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColorLight : theme.lineConfidenceAreaColor2}
                                 strokeWidth={1}
                                 isAnimationActive={false}
                                 connectNulls={true} />
                         {this.props.displayObserved ?
                             <Area type="linear"
                                 dataKey="ipm2"
-                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
+                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.lineChartColor1}
                                 fill='none'
-                                strokeWidth={2}
+                                strokeWidth={3}
                                 isAnimationActive={false}
                                 connectNulls={true} /> : null}
                         {
