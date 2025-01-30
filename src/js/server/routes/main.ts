@@ -87,6 +87,10 @@ function mkRuntimeClientConf({
                 const qt = QueryType[queryType]
                 maxQueryWords[qt] = serverConf.freqDB[qt] ? serverConf.freqDB[qt].maxQueryWords : 1;
             }
+            if (!conf.layouts[domain]) {
+                const avail = Object.keys(conf.layouts || {})
+                throw new Error(`Missing layouts configuration for domain "${domain}" (available: ${avail.map(x => `"${x}"`).join(', ')})`);
+            }
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
@@ -379,7 +383,11 @@ export function queryAction({
         }) => {
             const queryMatchesExtended = List.map(
                 (queryMatches, queryIdx) => {
-                    const mergedMatches = addWildcardMatches([...queryMatches]);
+                    const mergedMatches = pipe(
+                        addWildcardMatches([...queryMatches]),
+                        List.sortedBy(x => x.ipm),
+                        List.reverse()
+                    );
                     if (mergedMatches.length > 0) {
                         let matchIdx = 0;
                         if (userConf.queries[queryIdx]) {
@@ -464,6 +472,7 @@ export function queryAction({
             const { HtmlHead, HtmlBody } = viewInit(viewUtils);
             const errView = errPageInit(viewUtils);
             const currTheme = getAppliedThemeConf(services.clientConf);
+            console.log(err.stack);
             res.send(renderResult({
                 HtmlBody,
                 HtmlHead,
