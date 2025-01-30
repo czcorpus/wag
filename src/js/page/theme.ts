@@ -38,8 +38,13 @@ export interface ColorScaleFunctionGenerator {
 
 
 const defaultTheme:ColorTheme = {
+
     themeId: 'default',
     themeLabel: 'Default',
+    lineChartColor1: "#DD8959",
+    lineConfidenceAreaColor1: "#f2d9ca",
+    lineChartColor2: "#1334FF",
+    lineConfidenceAreaColor2: "#e0e3fb",
     category: [
         '#DD8959',
         '#1334FF',
