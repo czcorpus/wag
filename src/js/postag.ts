@@ -62,7 +62,9 @@ export enum PoSValues {
     INTERJECTION = 'I',
     PUNCTUATION = 'Z',
     FOREIGN = 'F',
-    UNKNOWN = 'X'
+    UNKNOWN = 'X',
+    SEGMENT = 'S',
+    ABBREVIATION = 'B'
 }
 
 /**
@@ -143,6 +145,14 @@ const posTable = {
     [PoSValues.FOREIGN]: {
         'cs-CZ': 'cizí slovo',
         'en-US': 'foreign word'
+    },
+    [PoSValues.ABBREVIATION]: {
+        'cs-CZ': 'zkratka',
+        'en-US': 'abbreviation'
+    },
+    [PoSValues.SEGMENT]: {
+        'cs-CZ': 'segment',
+        'en-US': 'segment'
     },
     [PoSValues.UNKNOWN]: {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
