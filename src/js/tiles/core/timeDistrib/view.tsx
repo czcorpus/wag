@@ -307,7 +307,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     return ['' + value, name];
                 }
                 if (Array.isArray(value)) {
-                    return value.every(v => Boolean(v)) ? [value.join(' ~ '), name] : null
+                    return value.some(v => !!v) ? [value.join(' ~ '), name] : null
                 }
                 return ['' + value, ut.translate('timeDistrib__measured_value')];
             };
