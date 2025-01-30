@@ -65,16 +65,11 @@ export class FrodoClient implements IFreqDB {
             method: HTTP.Method.GET,
             params: {}
         }).pipe(
-            tap(
-                v => {
-                    console.log('response ORIG: ', v)
-                }
-            ),
             map(
                 (resp) => {
                     return List.map<HTTPNgramDoc, QueryMatch>(
                         v => ({
-                            word: word,
+                            word,
                             lemma: v.lemma,
                             pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                             upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
@@ -87,11 +82,6 @@ export class FrodoClient implements IFreqDB {
                         resp.matches
                     )
                 }
-            ),
-            tap(
-                v => {
-                    console.log('response modified: ', v)
-                }
             )
         );
     }
@@ -103,7 +93,30 @@ export class FrodoClient implements IFreqDB {
         posAttr:MainPosAttrValues,
         rng:number
     ):Observable<Array<QueryMatch>> {
-        return rxOf([]);
+        return serverHttpRequest<HTTPNgramResponse>({
+            url: urlJoin(this.apiURL, `similarARFWords`, lemma),
+            method: HTTP.Method.GET,
+            params: {}
+        }).pipe(
+            map(
+                (resp) => {
+                    return List.map<HTTPNgramDoc, QueryMatch>(
+                        v => ({
+                            word: lemma,
+                            lemma: v.lemma,
+                            pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
+                            upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
+                            abs: v.count,
+                            ipm: v.count / this.corpusSize * 1e6,
+                            flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
+                            arf: v.arf,
+                            isCurrent: false
+                        }),
+                        resp.matches
+                    )
+                }
+            )
+        );
     }
 
     /**
