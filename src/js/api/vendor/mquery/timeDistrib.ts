@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribItem, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
@@ -141,49 +141,6 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
                 if (totalProc >= message.totalChunks) {
                     eventSource.close();
-
-                    // fill-in missing years with zero freq.
-                    if (queryArgs.fromYear && queryArgs.toYear) {
-                        const fromY = parseInt(queryArgs.fromYear);
-                        const chunk1 = pipe(
-                            List.range(fromY, minYear+1),
-                            List.map(
-                                item =>  ({
-                                    datetime: item + '',
-                                    freq: 0,
-                                    norm: 0
-                                })
-                            )
-                        );
-                        if (!List.empty(chunk1)) {
-                            o.next({
-                                corpName: queryArgs.corpName,
-                                subcorpName: queryArgs.subcorpName,
-                                data: chunk1,
-                                overwritePrevious: false,
-                            });
-                        }
-                        const toY = parseInt(queryArgs.toYear);
-                        const chunk2 = pipe(
-                            List.range(maxYear, toY+1),
-                            List.map(
-                                item =>  ({
-                                    datetime: item + '',
-                                    freq: 0,
-                                    norm: 0
-                                })
-                            )
-                        );
-                        if (!List.empty(chunk2)) {
-                            o.next({
-                                corpName: queryArgs.corpName,
-                                subcorpName: queryArgs.subcorpName,
-                                data: chunk2,
-                                overwritePrevious: false,
-                            });
-                        }
-                    }
-
                     o.complete();
                 }
             };
