@@ -61,7 +61,7 @@ export class FrodoClient implements IFreqDB {
         minFreq:number
     ):Observable<Array<QueryMatch>> {
         return serverHttpRequest<HTTPNgramResponse>({
-            url: urlJoin(this.apiURL, `querySuggestions`, word),
+            url: urlJoin(this.apiURL, `search`, word),
             method: HTTP.Method.GET,
             params: {}
         }).pipe(
@@ -94,7 +94,7 @@ export class FrodoClient implements IFreqDB {
         rng:number
     ):Observable<Array<QueryMatch>> {
         return serverHttpRequest<HTTPNgramResponse>({
-            url: urlJoin(this.apiURL, `similarARFWords`, lemma),
+            url: urlJoin(this.apiURL, 'similarARFWords', lemma, '?pos=' + encodeURIComponent(pos[0])),
             method: HTTP.Method.GET,
             params: {}
         }).pipe(
