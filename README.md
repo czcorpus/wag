@@ -28,7 +28,7 @@
 | concFilter        |           | :star:  |       |         |        |            |            |             |         |
 | concordance       |           | :star:  |       | :star: |        | :star:     |            |             | :star:  |
 | freqBar           |           | :star:  |       | :star:  |        |            |            |             |         |
-| freqComparison    |           | :star:  |       | :star: |        |            |            |             |         |
+| freqComparison    |           | :star:  | :star: | :star: |        |            |            |             |         |
 | freqPie           |           | :star:  |       | :star: |        |            |            |             |         |
 | geoAreas          |           | :star:  |       | :star: |        |            |            |             |         |
 | multiWordGeoAreas |           | :star:  |       | :star: |        |            |            |             |         |
@@ -37,7 +37,7 @@
 | mergeCorpFreq     |           | :star:  |       | :star: |        |            |            |             |         |
 | speeches          |           | :star:  |       |        |        |            |            |             |         |
 | syntacticColls    |           |         | :star: |       |        |            |             |            |         |
-| timeDistrib       |           | :star:  |        | :star: |       |            |            |             |         |
+| timeDistrib       |           | :star:  | :star:       | :star: |       |            |            |             |         |
 | multiWordtimeDistrib |        | :star:  |        | :star: |        |            |            |             |         |
 | translations      |           |         |        |        | :star: |            |            |             |         |
 | treqSubsets       |           |         |        |        | :star: |            |            |             |         |
