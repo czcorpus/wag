@@ -179,7 +179,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
                         <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
-                        <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
+                        <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={(value) => <span style={{ color: 'black' }}>{value}</span>}/>
                     </BarChart>
                 )} />
             </div>

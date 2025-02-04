@@ -177,7 +177,7 @@ export function init(
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                     <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0}
                             tickFormatter={value => shouldShortenText ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
-                    <Legend />
+                    <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
                     <Tooltip cursor={false} isAnimationActive={false}
                         content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={(index)=>theme.cmpCategoryColor(index, props.words.length)}/>}
                         formatter={tooltipFormatter} />

@@ -117,7 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                             tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
-                    <Legend />
+                    <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
                     <Tooltip cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip
                         payloadMapper={payload => [
                             {name: ut.translate('freqBar__rel_freq'), value: payload.ipm},
