@@ -19,7 +19,6 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
 
 
 export const TimeDistribTile = styled.div`
@@ -30,7 +29,7 @@ export const TimeDistribTile = styled.div`
 `;
 
 export const ChartLegend = styled.p`
-    text-align: 'center';
+    text-align: center;
 
     .item {
 
