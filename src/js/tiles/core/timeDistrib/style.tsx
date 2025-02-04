@@ -49,3 +49,28 @@ export const ChartLegend = styled.p`
         margin-left: 1em;
     }
 `;
+
+
+export const TweakControls = styled.form`
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0;
+            padding: 0.4em 0;
+            display: flex;
+            align-items: center;
+
+            label {
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        li.button-item {
+            padding: 0;
+        }
+    }
+`;

@@ -698,7 +698,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
                                 if (value && label) {
                                     if (typeof value === 'string') {
-                                        return <tr key={label}>
+                                        return <tr key={`${index}:${label}`}>
                                             <td key="name" className="label" style={labelTheme}>{label}</td>
                                             <td key="value" className="value" colSpan={2}>{value}</td>
                                             <td key="unit" className="value">{data.unit}</td>

@@ -169,27 +169,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             return (
-                <form>
-                    <label>
-                        {ut.translate('timeDistrib__display_abs_freq')}:{'\u00a0'}
-                        <input ref={this.ref} type="checkbox" checked={this.props.useAbsFreq} onChange={this.handleDisplayFreqChange} />
-                    </label>
-                    <br/>
-                    <label>
-                        {ut.translate('timeDistrib__display_mean_value')}:{'\u00a0'}
-                        <input ref={this.ref} type="checkbox" checked={this.props.displayObserved} onChange={this.handleDisplayObservedChange} disabled={this.props.useAbsFreq} />
-                    </label>
-                    <br/>
-                    <label>
-                        {ut.translate('timeDistrib__cmp_with_other_word')}:{'\u00a0'}
-                        <input ref={this.ref} type="text" value={this.props.wordCmp} onChange={this.handleInputChange}
-                                onKeyDown={this.handleInputKeyDown} />
-                    </label>
-                    {'\u00a0'}
-                    <button type="button" className="cnc-button cnc-button-primary" onClick={this.handleSubmit}>
-                        {ut.translate('timeDistrib__cmp_submit')}
-                    </button>
-                </form>
+                <S.TweakControls>
+                    <ul>
+                        <li>
+                            <label>
+                                {ut.translate('timeDistrib__display_abs_freq')}:{'\u00a0'}
+                                <input ref={this.ref} type="checkbox" checked={this.props.useAbsFreq} onChange={this.handleDisplayFreqChange} />
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                {ut.translate('timeDistrib__display_mean_value')}:{'\u00a0'}
+                                <input ref={this.ref} type="checkbox" checked={this.props.displayObserved} onChange={this.handleDisplayObservedChange} disabled={this.props.useAbsFreq} />
+                            </label>
+                        </li>
+                        <li className="button-item">
+                            <label>
+                                {ut.translate('timeDistrib__cmp_with_other_word')}:{'\u00a0'}
+                                <input ref={this.ref} type="text" value={this.props.wordCmp} onChange={this.handleInputChange}
+                                        onKeyDown={this.handleInputKeyDown} />
+                            </label>
+                            {'\u00a0'}
+                            <button type="button" className="cnc-button cnc-button-primary" onClick={this.handleSubmit}>
+                                {ut.translate('timeDistrib__cmp_submit')}
+                            </button>
+                        </li>
+                    </ul>
+                </S.TweakControls>
             );
         }
     }

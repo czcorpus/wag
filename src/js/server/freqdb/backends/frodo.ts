@@ -102,7 +102,7 @@ export class FrodoClient implements IFreqDB {
                 (resp) => {
                     return List.map<HTTPNgramDoc, QueryMatch>(
                         v => ({
-                            word: lemma,
+                            word: '-',
                             lemma: v.lemma,
                             pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                             upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
