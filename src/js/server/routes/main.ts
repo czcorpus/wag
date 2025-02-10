@@ -466,13 +466,15 @@ export function queryAction({
             }));
         },
         error: (err:Error) => {
-            services.errorLog.error(err.message, {trace: err.stack});
+            services.errorLog.error({
+                message: err.message,
+                err
+            });
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
             const { HtmlHead, HtmlBody } = viewInit(viewUtils);
             const errView = errPageInit(viewUtils);
             const currTheme = getAppliedThemeConf(services.clientConf);
-            console.log(err.stack);
             res.send(renderResult({
                 HtmlBody,
                 HtmlHead,

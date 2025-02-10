@@ -503,9 +503,9 @@ export interface ServerConf {
     toolbar:ToolbarDef;
     langCookie?:LangCookieSetup;
     telemetryDB?:string;
-    logging?:{
-        path:string;
-        rotation:boolean;
+    logging:{
+        path?:string;
+        rotation?:boolean;
     };
     sessions?:{
         path?:string;

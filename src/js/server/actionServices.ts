@@ -17,7 +17,7 @@
  */
 
 import { Dict, List, pipe } from 'cnc-tskit';
-import * as winston from 'winston';
+import pino from 'pino';
 
 import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf';
 import { IToolbarProvider } from '../page/hostPage';
@@ -95,7 +95,7 @@ export interface Services {
     telemetryDB:Database;
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
-    errorLog:winston.Logger;
+    errorLog:pino.Logger<"query", boolean>;
     actionWriter:IActionWriter;
     scriptNonce:string;
 }
