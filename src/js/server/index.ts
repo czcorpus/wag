@@ -22,11 +22,9 @@ import * as session from 'express-session';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
-import * as winston from 'winston';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident, tuple } from 'cnc-tskit';
-import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 
@@ -40,8 +38,9 @@ import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../types';
-import { WinstonActionWriter } from './actionLog/winstonWriter';
+import { QueryActionWriter } from './actionLog/logWriter';
 import { ApiServices } from './apiServices';
+import { initLogging } from './logging';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
@@ -157,33 +156,7 @@ forkJoin([ // load core configs
 
         const toolbar = createToolbarInstance(serverConf.toolbar);
 
-        const logger = winston.createLogger({
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json()
-            )
-        });
-
-        if (process.env.NODE_ENV !== 'production') {
-            logger.add(new winston.transports.Console());
-        }
-
-        if (serverConf.logging) {
-            if (serverConf.logging.rotation) {
-                logger.add(new winston.transports.DailyRotateFile({
-                    filename: serverConf.logging.path,
-                    maxFiles: '7d',
-                    createSymlink: true
-                }));
-
-            } else {
-                logger.add(new winston.transports.File({filename: serverConf.logging.path}));
-            }
-        }
-
-        console.info = (msg:string,...args:Array<any>) => logger.info(msg,...args);
-        console.warn = (msg:string, ...args:Array<any>) => logger.warn(msg, ...args);
-        console.error = (msg:string, ...args:Array<any>) => logger.error(msg, ...args);
+        const logger = initLogging(serverConf, true);
 
         wdgRouter({
             serverConf,
@@ -193,7 +166,7 @@ forkJoin([ // load core configs
             translations,
             toolbar,
             errorLog: logger,
-            actionWriter: new WinstonActionWriter(logger),
+            actionWriter: new QueryActionWriter(logger),
             version: pkgInfo.version,
             repositoryUrl: pkgInfo.repository.url,
             scriptNonce

@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-import * as winston from 'winston';
-import { ActionLogRecord, IActionWriter } from "./abstract";
+import pino from 'pino';
+import { ActionLogRecord, IActionWriter } from './abstract';
 
 
-export class WinstonActionWriter implements IActionWriter {
+export class QueryActionWriter implements IActionWriter {
 
-    private readonly logger:winston.Logger;
+    private readonly logger:pino.Logger<"query", boolean>;
 
-    constructor(logger:winston.Logger) {
+    constructor(logger:pino.Logger<"query", boolean>) {
         this.logger = logger;
     }
 
     write(value:ActionLogRecord) {
-        this.logger.info('QUERY', value);
+        this.logger.query(value);
     }
 }

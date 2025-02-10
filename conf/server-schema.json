@@ -271,10 +271,6 @@
                     "type": "boolean"
                 }
             },
-            "required": [
-                "path",
-                "rotation"
-            ],
             "type": "object"
         },
         "port": {
@@ -307,6 +303,7 @@
         "distFilesUrl",
         "freqDB",
         "languages",
+        "logging",
         "port",
         "toolbar"
     ],
