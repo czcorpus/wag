@@ -28,7 +28,7 @@ import { MultiWordTimeDistribModel, MultiWordTimeDistribModelState } from './mod
 import { List, pipe } from 'cnc-tskit';
 
 import * as S from './style.js';
-import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
 
 
 interface ChartDataPoint {
@@ -124,7 +124,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <ChartLegend /> --------------------------------------
 
     const ChartLegend:React.FC<{
-        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:React.ReactText;}}>};
+        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:string|number;}}>};
         metric:string;
 
     }> = (props) => {

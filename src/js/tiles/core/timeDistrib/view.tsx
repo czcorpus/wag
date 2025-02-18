@@ -27,7 +27,7 @@ import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model.
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
 import * as S from './style.js';
-import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -327,7 +327,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis />
                         <Tooltip isAnimationActive={false}
                                 formatter={tooltipFormatter}
-                                content={globComponents.AlignedRechartsTooltip} />
+                                content={<globComponents.AlignedRechartsTooltip/>} />
                         {
                             this.props.displayFreq ?
                             <>
