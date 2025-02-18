@@ -333,7 +333,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis />
                         <Tooltip isAnimationActive={false}
                                 formatter={tooltipFormatter}
-                                content={globComponents.AlignedRechartsTooltip} />
+                                content={<globComponents.AlignedRechartsTooltip/>} />
                         {
                             this.props.displayFreq ?
                             <>

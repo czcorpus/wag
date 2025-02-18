@@ -160,10 +160,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <span>
                             {props.payload.root.name}
                             <br/>{' -> '}
-                            {props.payload.name}: {(100*parseInt(value)/(props.payload.root.value as number)).toFixed(2)} % ({value} ipm)
+                            {props.payload.name}: {(100*parseInt(value.toString())/(props.payload.root.value as number)).toFixed(2)} % ({value} ipm)
                         </span>
                     }
-                    content={globComponents.AlignedRechartsTooltip} />
+                    content={<globComponents.AlignedRechartsTooltip />} />
             </TreeWrapper>
         );
     };

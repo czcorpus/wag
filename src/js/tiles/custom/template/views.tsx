@@ -18,15 +18,15 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
 
-import { __Template__Model } from './model';
-import { __Template__ModelState } from './common';
+import { __Template__Model } from './model.js';
+import { __Template__ModelState } from './common.js';
 import { List } from 'cnc-tskit';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:__Template__Model):TileComponent {
