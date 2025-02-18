@@ -19,18 +19,18 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { List, HTTP, URL, Dict, pipe, tuple } from 'cnc-tskit';
 
-import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../../../types';
-import { QueryMatch } from '../../../../../query';
-import { ConcResponse, ViewMode, IConcordanceApi } from '../../../../abstract/concordance';
-import { ConcordanceMinState } from '../../../../../models/tiles/concordance';
-import { CorpusInfoAPI } from '../../corpusInfo';
-import { IApiServices } from '../../../../../appServices';
+import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax.js';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../../../types.js';
+import { QueryMatch } from '../../../../../query/index.js';
+import { ConcResponse, ViewMode, IConcordanceApi } from '../../../../abstract/concordance.js';
+import { ConcordanceMinState } from '../../../../../models/tiles/concordance/index.js';
+import { CorpusInfoAPI } from '../../corpusInfo.js';
+import { IApiServices } from '../../../../../appServices.js';
 import { mkLemmaMatchQuery, mkWordMatchQuery, convertLines, ConcViewResponse,
     ConcQueryResponse,
-    PersistentConcArgs} from './common';
-import { ConcQueryArgs, ConcViewArgs, FilterServerArgs, QuickFilterRequestArgs } from '../../types';
-import { Backlink } from '../../../../../page/tile';
+    PersistentConcArgs} from './common.js';
+import { ConcQueryArgs, ConcViewArgs, FilterServerArgs, QuickFilterRequestArgs } from '../../types.js';
+import { Backlink } from '../../../../../page/tile.js';
 
 
 

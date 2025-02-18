@@ -16,10 +16,10 @@
 * limitations under the License.
 */
 
-import { SourceDetails, ResourceApi } from '../../types';
+import { SourceDetails, ResourceApi } from '../../types.js';
 import { Observable } from 'rxjs';
-import { Backlink } from '../../page/tile';
-import { MinMultiCritFreqState, MinSingleCritFreqState } from '../../models/tiles/freq';
+import { Backlink } from '../../page/tile.js';
+import { MinMultiCritFreqState, MinSingleCritFreqState } from '../../models/tiles/freq.js';
 
 
 export interface DataRow {

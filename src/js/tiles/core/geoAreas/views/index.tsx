@@ -19,15 +19,15 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 
-import { Theme } from '../../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
-import { GlobalComponents } from '../../../../views/common';
-import { Actions } from '../actions';
-import { GeoAreasModel, GeoAreasModelState } from '../model';
-import { DataRow } from '../../../../api/abstract/freqs';
+import { Theme } from '../../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { Actions } from '../actions.js';
+import { GeoAreasModel, GeoAreasModelState } from '../model.js';
+import { DataRow } from '../../../../api/abstract/freqs.js';
 import { Dict, List } from 'cnc-tskit';
 
-import * as S from '../style';
+import * as S from '../style.js';
 
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {

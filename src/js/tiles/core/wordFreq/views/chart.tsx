@@ -19,9 +19,9 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { CartesianGrid, Dot, Tooltip, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
-import { GlobalComponents } from '../../../../views/common';
-import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
-import { PosItem } from '../../../../postag';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { SimilarFreqWord } from '../../../../api/abstract/similarFreq.js';
+import { PosItem } from '../../../../postag.js';
 import { List, pipe, Maths } from 'cnc-tskit';
 
 

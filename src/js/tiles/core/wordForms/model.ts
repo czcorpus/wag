@@ -19,16 +19,16 @@ import { map } from 'rxjs/operators';
 import { List, Maths } from 'cnc-tskit';
 
 import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
-import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions as ConcActions } from '../concordance/actions';
-import { Actions } from './actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries } from '../../../query/index';
-import { IAppServices } from '../../../appServices';
-import { isWebDelegateApi } from '../../../types';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { MainPosAttrValues } from '../../../conf';
+import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { Actions } from './actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { RecognizedQueries } from '../../../query/index.js';
+import { IAppServices } from '../../../appServices.js';
+import { isWebDelegateApi } from '../../../types.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { MainPosAttrValues } from '../../../conf/index.js';
 
 
 

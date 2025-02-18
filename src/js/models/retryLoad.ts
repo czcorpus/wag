@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
-import { Actions } from '../models/actions';
+import { Actions } from '../models/actions.js';
 import { List, Dict } from 'cnc-tskit';
-import { ITileProvider, ITileReloader } from '../page/tile';
+import { ITileProvider, ITileReloader } from '../page/tile.js';
 
 
 

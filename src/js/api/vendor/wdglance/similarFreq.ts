@@ -19,14 +19,13 @@ import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { pipe, List } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore } from '../../../types';
-import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index';
-import { MultiDict } from '../../../multidict';
-import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq';
-import { HTTPAction } from '../../../server/routes/actions';
-import { IApiServices } from '../../../appServices';
-import { PosItem, posTagsEqual } from '../../../postag';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore } from '../../../types.js';
+import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index.js';
+import { MultiDict } from '../../../multidict.js';
+import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq.js';
+import { HTTPAction } from '../../../server/routes/actions.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 interface HTTPResponse {

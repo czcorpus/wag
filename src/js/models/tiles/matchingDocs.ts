@@ -15,8 +15,8 @@
 * limitations under the License.
 */
 
-import { BacklinkWithArgs } from '../../page/tile';
-import { DataRow } from '../../api/abstract/matchingDocs';
+import { BacklinkWithArgs } from '../../page/tile.js';
+import { DataRow } from '../../api/abstract/matchingDocs.js';
 
 
 export interface KontextFreqBacklinkArgs {

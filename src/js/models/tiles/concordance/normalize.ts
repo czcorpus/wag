@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { LineElement, Line } from '../../../api/abstract/concordance';
+import { LineElement, Line } from '../../../api/abstract/concordance.js';
 
 /**
  * This module provides a way how to normalize typography of

@@ -18,15 +18,15 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
-import { GlobalComponents } from '../../../../views/common';
-import { SummaryModel, SummaryModelState } from '../model';
-import { init as chartViewInit } from './chart';
-import { init as singleWordViewsInit } from './single';
-import { init as multiWordViewsInit } from './compare';
-import { QueryMatch } from '../../../../query';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { SummaryModel, SummaryModelState } from '../model.js';
+import { init as chartViewInit } from './chart.js';
+import { init as singleWordViewsInit } from './single.js';
+import { init as multiWordViewsInit } from './compare.js';
+import { QueryMatch } from '../../../../query/index.js';
 
-import * as S from '../style';
+import * as S from '../style.js';
 
 
 export function init(

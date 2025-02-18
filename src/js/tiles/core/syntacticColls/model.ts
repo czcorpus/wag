@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 import { StatelessModel, IActionQueue } from 'kombo';
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './common';
-import { Backlink } from '../../../page/tile';
-import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
-import { QueryType } from '../../../query';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './common.js';
+import { Backlink } from '../../../page/tile.js';
+import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls.js';
+import { QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { merge, of as rxOf } from 'rxjs';
-import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls';
+import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls.js';
 import { Dict, List } from 'cnc-tskit';
-import { SystemMessageType } from '../../../types';
+import { SystemMessageType } from '../../../types.js';
 
 
 export interface SyntacticCollsModelArgs {

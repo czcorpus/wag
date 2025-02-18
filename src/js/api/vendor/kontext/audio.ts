@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IAudioUrlGenerator } from '../../abstract/audio';
+import { IAudioUrlGenerator } from '../../abstract/audio.js';
 
 
 export class KontextAudioLinkGenerator implements IAudioUrlGenerator {

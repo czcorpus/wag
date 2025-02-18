@@ -19,15 +19,15 @@ import * as React from 'react';
 import { Strings, List } from 'cnc-tskit';
 
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { GlobalComponents } from '../../../views/common';
-import { Theme } from '../../../page/theme';
-import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
-import { ConcFilterModel, ConcFilterModelState } from './model';
-import { Line, LineElement } from '../../../api/abstract/concordance';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Theme } from '../../../page/theme.js';
+import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
+import { ConcFilterModel, ConcFilterModelState } from './model.js';
+import { Line, LineElement } from '../../../api/abstract/concordance.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
 

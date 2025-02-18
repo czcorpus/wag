@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 
-import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { MatchingDocsModel } from './model';
-import { init as viewInit } from './view';
-import { createMatchingDocsApiInstance } from '../../../api/factory/matchingDocs';
+import { QueryType } from '../../../query/index.js';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { MatchingDocsModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { createMatchingDocsApiInstance } from '../../../api/factory/matchingDocs.js';
 import { List } from 'cnc-tskit';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface MatchingDocsTileConf extends TileConf {

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { Backlink } from '../../../page/tile';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq';
+import { Backlink } from '../../../page/tile.js';
+import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 
 export interface ModelSourceArgs extends MinSingleCritFreqState {
 

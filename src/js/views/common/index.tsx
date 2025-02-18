@@ -20,13 +20,13 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
 
-import { MultiDict } from '../../multidict';
-import { SystemMessageType, SourceDetails } from '../../types';
-import { ScreenProps } from '../../page/hostPage';
-import { AnyBacklink, backlinkIsValid, BacklinkWithArgs } from '../../page/tile';
-import { Actions } from '../../models/actions';
+import { MultiDict } from '../../multidict.js';
+import { SystemMessageType, SourceDetails } from '../../types.js';
+import { ScreenProps } from '../../page/hostPage.js';
+import { AnyBacklink, backlinkIsValid, BacklinkWithArgs } from '../../page/tile.js';
+import { Actions } from '../../models/actions.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 export interface SourceInfo {

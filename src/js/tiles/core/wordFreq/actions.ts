@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { SimilarFreqWord } from '../../../api/abstract/similarFreq';
+import { SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface DataLoadedPayload {

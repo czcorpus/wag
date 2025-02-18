@@ -19,15 +19,15 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
 
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../api/abstract/similarFreq';
-import { findCurrQueryMatch } from '../../../models/query';
-import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../api/abstract/similarFreq.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index.js';
 import { List, pipe } from 'cnc-tskit';
-import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo';
-import { MainPosAttrValues } from '../../../conf';
+import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
+import { MainPosAttrValues } from '../../../conf/index.js';
 
 export interface FlevelDistribItem {
     rel:number;

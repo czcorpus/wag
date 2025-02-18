@@ -23,9 +23,9 @@
  * is used in WaG).
  */
 
-import { IAppServices } from './appServices';
+import { IAppServices } from './appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
-import { MainPosAttrValues } from './conf';
+import { MainPosAttrValues } from './conf/index.js';
 
 /**
  * PosQueryExport exports a normalized part of speech value

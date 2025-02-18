@@ -19,11 +19,11 @@ import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { Observable, interval, of as rxOf } from 'rxjs';
 import { concatMap, map, take } from 'rxjs/operators';
 
-import { IAppServices } from '../appServices';
-import { ajax$, ResponseType } from '../page/ajax';
-import { SystemMessageType, SourceDetails } from '../types';
-import { TileFrameProps } from '../page/tile';
-import { Actions } from './actions';
+import { IAppServices } from '../appServices.js';
+import { ajax$, ResponseType } from '../page/ajax.js';
+import { SystemMessageType, SourceDetails } from '../types.js';
+import { TileFrameProps } from '../page/tile.js';
+import { Actions } from './actions.js';
 import { List, Dict, pipe } from 'cnc-tskit';
 
 

@@ -20,23 +20,23 @@ import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 
-import { Input } from '../page/forms';
-import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types';
-import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index';
-import { AltViewIconProps, TileFrameProps } from '../page/tile';
-import { TileGroup } from '../page/layout';
-import { Actions } from '../models/actions';
-import { MessagesModel, MessagesState } from '../models/messages';
-import { QueryFormModel, QueryFormModelState } from '../models/query';
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight } from '../models/tiles';
-import { init as corpusInfoViewInit } from './common/corpusInfo';
-import { GlobalComponents } from './common';
+import { Input } from '../page/forms.js';
+import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types.js';
+import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index.js';
+import { AltViewIconProps, TileFrameProps } from '../page/tile.js';
+import { TileGroup } from '../page/layout.js';
+import { Actions } from '../models/actions.js';
+import { MessagesModel, MessagesState } from '../models/messages.js';
+import { QueryFormModel, QueryFormModelState } from '../models/query.js';
+import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight } from '../models/tiles.js';
+import { init as corpusInfoViewInit } from './common/corpusInfo.js';
+import { GlobalComponents } from './common/index.js';
 import { timer } from 'rxjs';
 
-import * as S from './style';
-import * as SC from './common/style';
-import { GlobalStyle } from './layout/style';
-import { MainPosAttrValues } from '../conf';
+import * as S from './style.js';
+import * as SC from './common/style.js';
+import { GlobalStyle } from './layout/style.js';
+import { MainPosAttrValues } from '../conf/index.js';
 
 
 export interface WdglanceMainProps {

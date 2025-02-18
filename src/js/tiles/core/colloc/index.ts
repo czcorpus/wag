@@ -17,18 +17,18 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { IAppServices } from '../../../appServices';
-import { CorePosAttribute } from '../../../types';
-import { QueryType } from '../../../query/index';
-import { CollocMetric } from './common';
-import { CollocModel } from './model';
-import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations';
-import { createInstance } from '../../../api/factory/collocations';
-import { createApiInstance } from '../../../api/factory/concordance';
-import { findCurrQueryMatch } from '../../../models/query';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { IAppServices } from '../../../appServices.js';
+import { CorePosAttribute } from '../../../types.js';
+import { QueryType } from '../../../query/index.js';
+import { CollocMetric } from './common.js';
+import { CollocModel } from './model.js';
+import { init as viewInit } from './views.js';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations.js';
+import { createInstance } from '../../../api/factory/collocations.js';
+import { createApiInstance } from '../../../api/factory/concordance.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 

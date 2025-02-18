@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { BacklinkWithArgs, CorpSrchTileConf } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { CustomArgs } from '../../../api/abstract/timeDistrib';
+import { BacklinkWithArgs, CorpSrchTileConf } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { CustomArgs } from '../../../api/abstract/timeDistrib.js';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {

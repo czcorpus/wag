@@ -19,9 +19,9 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit';
-import { ajax$, encodeArgs } from '../../../page/ajax';
-import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../abstract/switchMainCorp';
-import { IApiServices } from '../../../appServices';
+import { ajax$, encodeArgs } from '../../../page/ajax.js';
+import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../abstract/switchMainCorp.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface SwitchMainCorpArgs {

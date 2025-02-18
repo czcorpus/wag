@@ -18,9 +18,9 @@
 
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { GlobalComponents } from '../../../../views/common';
+import { GlobalComponents } from '../../../../views/common/index.js';
 
-import * as S from '../style';
+import * as S from '../style.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {

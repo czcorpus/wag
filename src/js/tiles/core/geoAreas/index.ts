@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 
-import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../api/vendor/kontext/freqs';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { GeoAreasModel } from './model';
-import { init as viewInit } from './views';
-import { MapLoader } from './mapLoader';
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { IAppServices } from '../../../appServices.js';
+import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { GeoAreasModel } from './model.js';
+import { init as viewInit } from './views/index.js';
+import { MapLoader } from './mapLoader.js';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface GeoAreasTileConf extends TileConf {

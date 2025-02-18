@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../query/index';
-import { SyntacticCollsModel } from './model';
-import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { findCurrQueryMatch } from '../../../models/query';
-import { createInstance } from '../../../api/factory/syntacticColls';
-import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
+import { IAppServices } from '../../../appServices.js';
+import { QueryType } from '../../../query/index.js';
+import { SyntacticCollsModel } from './model.js';
+import { init as viewInit } from './views.js';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { createInstance } from '../../../api/factory/syntacticColls.js';
+import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
 
 
 export interface SyntacticCollsTileConf extends TileConf {

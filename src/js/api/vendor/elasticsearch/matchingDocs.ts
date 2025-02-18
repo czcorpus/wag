@@ -14,13 +14,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
-import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
-import { cachedAjax$ } from '../../../page/ajax';
+import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs.js';
+import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs.js';
+import { cachedAjax$ } from '../../../page/ajax.js';
 import { Observable } from 'rxjs';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
 import { map } from 'rxjs/operators';
-import { IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface HTTPResponse {

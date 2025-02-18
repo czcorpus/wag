@@ -17,9 +17,9 @@
  */
 
 import { Action } from 'kombo';
-import { WordTranslation } from '../../../api/abstract/translations';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { SubqueryPayload } from '../../../query';
+import { WordTranslation } from '../../../api/abstract/translations.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { SubqueryPayload } from '../../../query/index.js';
 
 
 export interface DataLoadedPayload {

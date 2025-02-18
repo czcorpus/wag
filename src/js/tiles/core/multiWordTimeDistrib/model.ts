@@ -21,21 +21,21 @@ import { Observable, of as rxOf } from 'rxjs';
 import { reduce, map, tap, mergeMap } from 'rxjs/operators';
 import { Dict, Maths, List, pipe } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
-import { TimeDistribResponse, TimeDistribItem, TimeDistribApi } from '../../../api/abstract/timeDistrib';
-import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { DataItemWithWCI, Actions, DataLoadedPayload } from './common';
-import { callWithExtraVal } from '../../../api/util';
-import { QueryMatch, RecognizedQueries } from '../../../query/index';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { PriorityValueFactory } from '../../../priority';
-import { DataRow } from '../../../api/abstract/freqs';
-import { Actions as ConcActions } from '../concordance/actions';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { isWebDelegateApi } from '../../../types';
+import { IAppServices } from '../../../appServices.js';
+import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { TimeDistribResponse, TimeDistribItem, TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
+import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { DataItemWithWCI, Actions, DataLoadedPayload } from './common.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { PriorityValueFactory } from '../../../priority.js';
+import { DataRow } from '../../../api/abstract/freqs.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { isWebDelegateApi } from '../../../types.js';
 
 
 export interface MultiWordTimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {

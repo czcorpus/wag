@@ -19,15 +19,15 @@ import { Action, SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
-import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs';
-import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries } from '../../../query/index';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs.js';
+import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { RecognizedQueries } from '../../../query/index.js';
 import { List, pipe, Dict } from 'cnc-tskit';
-import { Actions as ConcActions } from '../concordance/actions';
+import { Actions as ConcActions } from '../concordance/actions.js';
 
 
 export interface MatchingDocsModelArgs {
