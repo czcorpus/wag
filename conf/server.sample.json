@@ -4,7 +4,7 @@
     "port": 3000,
     "distFilesUrl": "/wag/dist/",
     "theme": "default.less",
-    "langCookie": "wdg_ui_lang",
+    "langCookie": {"domain": "korpus", "name": "cs"},
     "languages": {
         "en-US": "English",
         "cs-CZ": "Čeština"
@@ -21,40 +21,49 @@
         "single": {
             "minLemmaFreq": 2,
             "similarFreqWordsMaxCtx": 10,
+            "maxQueryWords": 3,
             "databases": {
                 "cs": {
                     "path": "/path/to/databases/czech-words.db",
-                    "corpusSize": 12345
+                    "corpusSize": 12345,
+                    "dbType": "sqlite"
                 },
                 "en": {
                     "path": "/path/to/databases/enf-words.db",
-                    "corpusSize": 12345
+                    "corpusSize": 12345,
+                    "dbType": "sqlite"
                 }
             }
         },
         "cmp": {
             "minLemmaFreq": 2,
+            "maxQueryWords": 3,
             "databases": {
                 "cs": {
                     "path": "/path/to/databases/czech-words.db",
-                    "corpusSize": 12345
+                    "corpusSize": 12345,
+                    "dbType": "sqlite"
                 },
                 "en": {
                     "path": "/path/to/databases/enf-words.db",
-                    "corpusSize": 12345
+                    "corpusSize": 12345,
+                    "dbType": "sqlite"
                 }
             }
         },
         "translat": {
             "minLemmaFreq": 2,
+            "maxQueryWords": 3,
             "databases": {
                 "cs": {
                     "path": "/path/to/databases/czech-words.db",
-                    "corpusSize": 12345
+                    "corpusSize": 12345,
+                    "dbType": "sqlite"
                 },
                 "en": {
                     "path": "/path/to/databases/enf-words.db",
-                    "corpusSize": 12345
+                    "corpusSize": 12345,
+                    "dbType": "sqlite"
                 }
             }
         }

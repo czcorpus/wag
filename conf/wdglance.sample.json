@@ -10,11 +10,12 @@
 		}
 	},
 	"reqCacheTTL": 0,
-	"searchLanguages":{
+	"searchDomains":{
 		"cs": "Čeština",
 		"en": "English"
 	},
 	"externalStyles": ["https://portal.korpus.test/external-stuff/style1.css"],
+	"maxTileErrors": 5,
 	"homepage": {
 		"tiles": [
 			{
@@ -52,6 +53,7 @@
 	"layouts": {
 		"cs": {
 			"single": {
+				"mainPosAttr": "pos",
 				"groups": [
 					{
 						"groupLabel": "Současný psaný jazyk",
@@ -91,6 +93,7 @@
 				]
 			},
 			"cmp": {
+				"mainPosAttr": "pos",
 				"maxQueryWords": 5,
 				"groups": [
 					{
@@ -103,7 +106,8 @@
 				]
 			},
 			"translat": {
-				"targetLanguages": ["en"],
+				"mainPosAttr": "pos",
+				"targetDomains": ["en"],
 				"groups": [
 					{
 						"groupLabel": "Překlad z korpusových dat",
@@ -130,13 +134,16 @@
 				}
 			],
 			"single": {
+				"mainPosAttr": "pos",
 				"groups": []
 			},
 			"cmp": {
+				"mainPosAttr": "pos",
 				"groups": []
 			},
 			"translat": {
-				"targetLanguages": [],
+				"mainPosAttr": "pos",
+				"targetDomains": [],
 				"groups": []
 			}
 		}

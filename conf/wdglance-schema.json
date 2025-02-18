@@ -79,6 +79,18 @@
                 "geoAreaSpotTextColor": {
                     "type": "string"
                 },
+                "lineChartColor1": {
+                    "type": "string"
+                },
+                "lineChartColor2": {
+                    "type": "string"
+                },
+                "lineConfidenceAreaColor1": {
+                    "type": "string"
+                },
+                "lineConfidenceAreaColor2": {
+                    "type": "string"
+                },
                 "scale": {
                     "items": {
                         "type": "string"
@@ -107,6 +119,10 @@
                 "categoryOther",
                 "cmpCategory",
                 "geoAreaSpotFillColor",
+                "lineChartColor1",
+                "lineChartColor2",
+                "lineConfidenceAreaColor1",
+                "lineConfidenceAreaColor2",
                 "scale",
                 "themeId",
                 "themeLabel"
