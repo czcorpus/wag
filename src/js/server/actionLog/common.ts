@@ -18,12 +18,12 @@
 
 import { Request } from 'express';
 import { List } from 'cnc-tskit';
-import { HTTPAction } from '../routes/actions';
-import { IActionWriter } from './abstract';
-import { UserConf } from '../../conf';
+import { HTTPAction } from '../routes/actions.js';
+import { IActionWriter } from './abstract.js';
+import { UserConf } from '../../conf/index.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ActionLogRecord } from '../actionLog/abstract';
+import { ActionLogRecord } from '../actionLog/abstract.js';
 
 
 interface LogActionArgs {

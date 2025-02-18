@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { IFreqDB } from './freqdb';
-import { SqliteFreqDB } from './backends/sqlite';
-import { KontextFreqDB } from './backends/kontext';
-import { FreqDbOptions } from '../../conf';
-import { CouchFreqDB } from './backends/couchdb';
-import { KorpusFreqDB } from './backends/korpusdb';
-import { IApiServices } from '../../appServices';
-import { FrodoClient } from './backends/frodo';
+import { IFreqDB } from './freqdb.js';
+import { SqliteFreqDB } from './backends/sqlite.js';
+import { KontextFreqDB } from './backends/kontext.js';
+import { FreqDbOptions } from '../../conf/index.js';
+import { CouchFreqDB } from './backends/couchdb/index.js';
+import { KorpusFreqDB } from './backends/korpusdb.js';
+import { IApiServices } from '../../appServices.js';
+import { FrodoClient } from './backends/frodo.js';
 
 
 export enum FreqDBType {

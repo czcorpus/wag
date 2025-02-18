@@ -17,7 +17,7 @@
  */
 
 import pino from 'pino';
-import { ActionLogRecord, IActionWriter } from './abstract';
+import { ActionLogRecord, IActionWriter } from './abstract.js';
 
 
 export class QueryActionWriter implements IActionWriter {

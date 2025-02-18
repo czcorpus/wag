@@ -17,10 +17,10 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 
-import { HostPageEnv, IToolbarProvider } from '../../page/hostPage';
-import { GlobalComponents } from '../../views/common/index';
+import { HostPageEnv, IToolbarProvider } from '../../page/hostPage.js';
+import { GlobalComponents } from '../../views/common/index.js';
 import { ViewUtils } from 'kombo';
-import { init as viewInit } from '../../views/layout/langSwitchToolbar';
+import { init as viewInit } from '../../views/layout/langSwitchToolbar.js';
 
 
 

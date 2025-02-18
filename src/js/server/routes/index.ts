@@ -21,25 +21,25 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 
-import { AppServices } from '../../appServices';
-import { encodeArgs } from '../../page/ajax';
-import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index';
-import { GlobalComponents } from '../../views/common/index';
-import { IFreqDB } from '../freqdb/freqdb';
+import { AppServices } from '../../appServices.js';
+import { encodeArgs } from '../../page/ajax.js';
+import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index.js';
+import { GlobalComponents } from '../../views/common/index.js';
+import { IFreqDB } from '../freqdb/freqdb.js';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices,
-    mkPageReturnUrl, renderResult, getQueryValue, clientIsLikelyMobile } from './common';
-import { queryAction, importQueryRequest } from './main';
-import { Services } from '../actionServices';
-import { HTTPAction } from './actions';
-import { TelemetryAction } from '../../types';
-import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf';
-import { init as viewInit } from '../../views/layout/layout';
-import { init as errPageInit } from '../../views/error';
-import { emptyValue } from '../toolbar/empty';
-import { importQueryPos } from '../../postag';
-import { ServerHTTPRequestError } from '../request';
-import { logAction } from '../actionLog/common';
+    mkPageReturnUrl, renderResult, getQueryValue, clientIsLikelyMobile } from './common.js';
+import { queryAction, importQueryRequest } from './main.js';
+import { Services } from '../actionServices.js';
+import { HTTPAction } from './actions.js';
+import { TelemetryAction } from '../../types.js';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf/index.js';
+import { init as viewInit } from '../../views/layout/layout.js';
+import { init as errPageInit } from '../../views/error.js';
+import { emptyValue } from '../toolbar/empty.js';
+import { importQueryPos } from '../../postag.js';
+import { ServerHTTPRequestError } from '../request.js';
+import { logAction } from '../actionLog/common.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 

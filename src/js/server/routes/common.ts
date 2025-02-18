@@ -22,17 +22,17 @@ import { ServerStyleSheet } from 'styled-components'
 import { Request } from 'express';
 import { ViewUtils } from 'kombo';
 
-import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
-import { encodeArgs } from '../../page/ajax';
-import { Services } from '../actionServices';
-import { GlobalComponents } from '../../views/common';
-import { AppServices } from '../../appServices';
-import { HtmlBodyProps, HtmlHeadProps} from '../../views/layout/layout';
-import { HostPageEnv } from '../../page/hostPage';
-import { RecognizedQueries } from '../../query/index';
-import { WdglanceMainProps } from '../../views/main';
-import { ErrPageProps } from '../../views/error';
-import { TileGroup } from '../../page/layout';
+import { UserConf, ClientConf, ColorThemeIdent } from '../../conf/index.js';
+import { encodeArgs } from '../../page/ajax.js';
+import { Services } from '../actionServices.js';
+import { GlobalComponents } from '../../views/common/index.js';
+import { AppServices } from '../../appServices.js';
+import { HtmlBodyProps, HtmlHeadProps} from '../../views/layout/layout.js';
+import { HostPageEnv } from '../../page/hostPage.js';
+import { RecognizedQueries } from '../../query/index.js';
+import { WdglanceMainProps } from '../../views/main.js';
+import { ErrPageProps } from '../../views/error.js';
+import { TileGroup } from '../../page/layout.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
