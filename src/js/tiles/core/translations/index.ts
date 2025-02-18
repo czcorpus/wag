@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { SearchPackages } from '../../../api/vendor/treq';
-import { TranslationsModel } from './model';
-import { init as viewInit } from './view';
-import { StatelessModel } from 'kombo';
-import { createInstance as createApiInstance } from '../../../api/factory/translations';
+import { IAppServices } from '../../../appServices.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { SearchPackages } from '../../../api/vendor/treq/index.js';
+import { TranslationsModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { createInstance as createApiInstance } from '../../../api/factory/translations.js';
 
 
 export interface TranslationsTileConf extends TileConf {

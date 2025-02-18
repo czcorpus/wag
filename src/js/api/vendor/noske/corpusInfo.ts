@@ -18,11 +18,11 @@
 import { Observable } from 'rxjs';
 import { share, map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { DataApi, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { HTTPApiResponse } from './common';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { DataApi, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { HTTPApiResponse } from './common.js';
 import { List } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices.js';
 
 
 

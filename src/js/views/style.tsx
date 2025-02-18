@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as theme from './common/theme';
+import * as theme from './common/theme.js';
 
 // ---------------- <WdglanceMain /> --------------------------------------
 

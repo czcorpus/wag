@@ -17,17 +17,17 @@
  */
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { GlobalComponents } from '../../../views/common';
-import { Theme } from '../../../page/theme';
-import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
-import { WordSimModel } from './model';
-import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { Actions } from './actions';
-import { WordSimWord } from '../../../api/abstract/wordSim';
-import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Theme } from '../../../page/theme.js';
+import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
+import { WordSimModel } from './model.js';
+import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
+import { Actions } from './actions.js';
+import { WordSimWord } from '../../../api/abstract/wordSim.js';
+import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { List, pipe } from 'cnc-tskit';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):TileComponent  {

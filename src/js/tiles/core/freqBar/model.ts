@@ -20,16 +20,16 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
-import { GeneralMultiCritFreqBarModelState } from '../../../models/tiles/freq';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions as ConcActions } from '../concordance/actions';
-import { Actions } from './actions';
-import { callWithExtraVal } from '../../../api/util';
-import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
-import { isWebDelegateApi } from '../../../types';
+import { IAppServices } from '../../../appServices.js';
+import { BacklinkArgs } from '../../../api/vendor/kontext/freqs.js';
+import { GeneralMultiCritFreqBarModelState } from '../../../models/tiles/freq.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { Actions } from './actions.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs.js';
+import { isWebDelegateApi } from '../../../types.js';
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {

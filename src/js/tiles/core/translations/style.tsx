@@ -19,7 +19,6 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
 
 
 export const TranslationsTable = styled.div`

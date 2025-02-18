@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types';
-import { CoreApiGroup } from '../coreGroups';
-import { DatamuseMLApi } from '../vendor/datamuse/wordSim';
-import { IWordSimApi } from '../abstract/wordSim';
-import { LccCoocSimApi } from '../vendor/lcc/wordSim';
-import { CNCWord2VecSimApi } from '../vendor/wdglance/wordSim';
-import { IApiServices } from '../../appServices';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { CoreApiGroup } from '../coreGroups.js';
+import { DatamuseMLApi } from '../vendor/datamuse/wordSim.js';
+import { IWordSimApi } from '../abstract/wordSim.js';
+import { LccCoocSimApi } from '../vendor/lcc/wordSim.js';
+import { CNCWord2VecSimApi } from '../vendor/wdglance/wordSim.js';
+import { IApiServices } from '../../appServices.js';
 
 
 export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore):IWordSimApi<{}> {

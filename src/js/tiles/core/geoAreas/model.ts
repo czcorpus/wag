@@ -19,16 +19,16 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
-import { IAppServices } from '../../../appServices';
-import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { Actions as ConcActions } from '../concordance/actions';
-import { DataApi, isWebDelegateApi } from '../../../types';
-import { TooltipValues } from '../../../views/common';
-import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
+import { IAppServices } from '../../../appServices.js';
+import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { DataApi, isWebDelegateApi } from '../../../types.js';
+import { TooltipValues } from '../../../views/common/index.js';
+import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs.js';
 import { List } from 'cnc-tskit';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 
 /*
 oral2013:

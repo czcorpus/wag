@@ -19,16 +19,16 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
 import { HTTP, List, pipe } from 'cnc-tskit'
 
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { Actions } from './actions';
-import { ColorScaleFunctionGenerator } from '../../../page/theme';
-import { TranslationAPI } from '../../../api/abstract/translations';
-import { TranslationsModelState } from '../../../models/tiles/translations';
-import { IAppServices } from '../../../appServices';
-import { RecognizedQueries } from '../../../query/index';
-import { isWebDelegateApi } from '../../../types';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { Actions } from './actions.js';
+import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
+import { TranslationAPI } from '../../../api/abstract/translations.js';
+import { TranslationsModelState } from '../../../models/tiles/translations.js';
+import { IAppServices } from '../../../appServices.js';
+import { RecognizedQueries } from '../../../query/index.js';
+import { isWebDelegateApi } from '../../../types.js';
 
 
 export type GeneralTranslationsModelState = TranslationsModelState<{}>;

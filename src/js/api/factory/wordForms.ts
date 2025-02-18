@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { IWordFormsApi } from '../abstract/wordForms';
-import { WordFormsAPI as WordFormsKontextApi } from '../vendor/kontext/wordForms';
-import { WordFormsAPI as WordFormsMqueryApi } from '../vendor/mquery/wordForms';
-import { IAsyncKeyValueStore } from '../../types';
-import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
-import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms';
-import { IApiServices } from '../../appServices';
+import { IWordFormsApi } from '../abstract/wordForms.js';
+import { WordFormsAPI as WordFormsKontextApi } from '../vendor/kontext/wordForms.js';
+import { WordFormsAPI as WordFormsMqueryApi } from '../vendor/mquery/wordForms.js';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
+import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms.js';
+import { IApiServices } from '../../appServices.js';
 
 
 export interface ApiFactoryArgs {

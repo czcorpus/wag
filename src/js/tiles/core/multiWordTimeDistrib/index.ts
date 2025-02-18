@@ -18,19 +18,19 @@
 import { IActionDispatcher } from 'kombo';
 import { List, Maths, pipe } from 'cnc-tskit';
 
-import { FreqSort } from '../../../api/vendor/kontext/freqs';
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { TimeDistTileConf } from './common';
-import { MultiWordTimeDistribModel } from './model';
-import { init as viewInit } from './view';
-import { findCurrQueryMatch } from '../../../models/query';
-import { PriorityValueFactory } from '../../../priority';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { IConcordanceApi } from '../../../api/abstract/concordance';
-import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { TimeDistTileConf } from './common.js';
+import { MultiWordTimeDistribModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { PriorityValueFactory } from '../../../priority.js';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
+import { IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 /**

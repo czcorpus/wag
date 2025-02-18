@@ -19,13 +19,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
-import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
-import { CorpusInfoAPI } from './corpusInfo';
-import { processConcId } from './common';
-import { IApiServices } from '../../../appServices';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { CollApiResponse, CollocationApi } from '../../abstract/collocations.js';
+import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { processConcId } from './common.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 

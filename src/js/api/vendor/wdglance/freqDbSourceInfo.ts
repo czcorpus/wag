@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { QueryType } from '../../../query';
-import { DataApi, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { QueryType } from '../../../query/index.js';
+import { DataApi, IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
 import { Observable } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax';
+import { cachedAjax$ } from '../../../page/ajax.js';
 import { map } from 'rxjs/operators';
-import { HTTPAction } from '../../../server/routes/actions';
-import { IApiServices } from '../../../appServices';
+import { HTTPAction } from '../../../server/routes/actions.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface FreqDbSourceInfoArgs {

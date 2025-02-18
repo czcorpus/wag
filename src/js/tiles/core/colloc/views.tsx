@@ -18,15 +18,15 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { Actions } from './common';
-import { CollocModel } from './model';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/collocations';
-import { CollocModelState } from '../../../models/tiles/collocations';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Actions } from './common.js';
+import { CollocModel } from './model.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
+import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/collocations.js';
+import { CollocModelState } from '../../../models/tiles/collocations.js';
 import { List } from 'cnc-tskit';
 
 import * as S from './style';

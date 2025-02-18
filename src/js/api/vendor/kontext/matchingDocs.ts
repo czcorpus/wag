@@ -14,17 +14,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../../models/tiles/matchingDocs';
-import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
-import { cachedAjax$ } from '../../../page/ajax';
+import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../../models/tiles/matchingDocs.js';
+import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs.js';
+import { cachedAjax$ } from '../../../page/ajax.js';
 import { Observable } from 'rxjs';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
 import { HTTP, List } from 'cnc-tskit';
 import { map, mergeMap } from 'rxjs/operators';
-import { SingleCritQueryArgs, HTTPResponse, SimpleKontextFreqDistribAPI } from './freqs';
-import { CorpusInfoAPI } from './corpusInfo';
-import { BacklinkWithArgs } from '../../../page/tile';
-import { IApiServices } from '../../../appServices';
+import { SingleCritQueryArgs, HTTPResponse, SimpleKontextFreqDistribAPI } from './freqs.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { BacklinkWithArgs } from '../../../page/tile.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface KontextMatchingDocsQueryArgs extends SingleCritQueryArgs {

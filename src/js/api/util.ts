@@ -18,7 +18,7 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { DataApi } from '../types';
+import { DataApi } from '../types.js';
 
 /**
  * callWithExtraVal calls a DataApi<T, U> instance while also passing through

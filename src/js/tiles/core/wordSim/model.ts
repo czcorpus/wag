@@ -21,14 +21,13 @@ import { mergeMap, tap } from 'rxjs/operators';
 import { List, tuple } from 'cnc-tskit';
 
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload } from './actions';
-import { Actions } from './actions';
-import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim';
-import { WordSimModelState } from '../../../models/tiles/wordSim';
-import { QueryMatch } from '../../../query/index';
-import { callWithExtraVal } from '../../../api/util';
-import { IAppServices } from '../../../appServices';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim.js';
+import { WordSimModelState } from '../../../models/tiles/wordSim.js';
+import { QueryMatch } from '../../../query/index.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { IAppServices } from '../../../appServices.js';
 
 
 export interface WordSimModelArgs {

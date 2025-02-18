@@ -23,19 +23,19 @@ import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce } from 'rxjs/operators';
 import { HTTP, List, pipe } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { IConcordanceApi } from '../../../api/abstract/concordance';
-import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance';
-import { isWebDelegateApi, SystemMessageType } from '../../../types';
-import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { importMessageType } from '../../../page/notifications';
-import { Actions } from './actions';
-import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
-import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
-import { callWithExtraVal } from '../../../api/util';
+import { IAppServices } from '../../../appServices.js';
+import { IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { importMessageType } from '../../../page/notifications.js';
+import { Actions } from './actions.js';
+import { normalizeTypography } from '../../../models/tiles/concordance/normalize.js';
+import { isCollocSubqueryPayload } from '../../../api/abstract/collocations.js';
+import { callWithExtraVal } from '../../../api/util.js';
 
 
 

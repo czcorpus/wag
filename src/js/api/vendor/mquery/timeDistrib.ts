@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib.js';
 import { Observable } from 'rxjs';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { IApiServices } from '../../../appServices';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
+import { IApiServices } from '../../../appServices.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
-import { FreqRowResponse } from './common';
-import { CorpusInfoAPI } from './corpusInfo';
+import { FreqRowResponse } from './common.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
 
 export interface MqueryStreamData {
     chunkNum:number;

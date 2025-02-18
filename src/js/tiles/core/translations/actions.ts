@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index';
-import { TranslationResponse } from '../../../api/abstract/translations';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index.js';
+import { TranslationResponse } from '../../../api/abstract/translations.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Action } from 'kombo';
 
 

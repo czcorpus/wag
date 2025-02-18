@@ -3,10 +3,10 @@
         "outDir": "./dist",
         "sourceMap": true,
         "noImplicitAny": false,
-        "module": "esnext",
+        "module": "node16",
         "target": "esnext",
-        "jsx": "react",
-        "moduleResolution": "node",
+        "jsx": "react-jsx",
+        "moduleResolution": "node16",
         "skipLibCheck": true
     },
     "include": [

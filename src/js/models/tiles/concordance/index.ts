@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { ViewMode, Line } from '../../../api/abstract/concordance';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
+import { ViewMode, Line } from '../../../api/abstract/concordance.js';
+import { AttrViewMode } from '../../../api/vendor/kontext/types.js';
 
 
 export interface ConcData {

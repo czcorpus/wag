@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from '../types';
-import { QueryType, RecognizedQueries } from '../query';
+import { AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from '../types.js';
+import { QueryType, RecognizedQueries } from '../query/index.js';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { GlobalComponents } from '../views/common';
-import { Theme } from './theme';
-import { IAppServices } from '../appServices';
+import { GlobalComponents } from '../views/common/index.js';
+import { Theme } from './theme.js';
+import { IAppServices } from '../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
-import { MainPosAttrValues } from '../conf';
+import { MainPosAttrValues } from '../conf/index.js';
 
 
 export interface Backlink {

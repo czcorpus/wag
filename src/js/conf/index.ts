@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HTTPHeaders, LocalizedConfMsg } from '../types';
-import { QueryType, SearchDomain } from '../query/index';
-import { TileConf } from '../page/tile';
+import { HTTPHeaders, LocalizedConfMsg } from '../types.js';
+import { QueryType, SearchDomain } from '../query/index.js';
+import { TileConf } from '../page/tile.js';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
 

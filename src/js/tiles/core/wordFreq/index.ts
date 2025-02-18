@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model';
-import { init as viewInit } from './views';
-import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../api/vendor/wdglance/similarFreq';
-import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo';
+import { IAppServices } from '../../../appServices.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
+import { init as viewInit } from './views/index.js';
+import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../api/vendor/wdglance/similarFreq.js';
+import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 
 
 export interface WordFreqTileConf extends TileConf {

@@ -18,9 +18,9 @@
 
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, share, catchError, shareReplay } from 'rxjs/operators';
-import { IAsyncKeyValueStore } from '../../types';
-import { ILocalDatabase, ILocalStore } from './common';
-import { DummyLocalDb } from './dummy';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { ILocalDatabase, ILocalStore } from './common.js';
+import { DummyLocalDb } from './dummy.js';
 
 
 const DB_VERSION = 1;

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-import { DataApi } from '../../types';
+import { DataApi } from '../../types.js';
 
 
 /**

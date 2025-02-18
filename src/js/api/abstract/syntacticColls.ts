@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { SCollsData, SCollsExamples, SyntacticCollsModelState } from "../../models/tiles/syntacticColls";
-import { DataApi, ResourceApi } from "../../types";
-import { SCollsQueryType, SCollsQueryTypeValue } from "../vendor/mquery/syntacticColls";
+import { SCollsData, SCollsExamples, SyntacticCollsModelState } from "../../models/tiles/syntacticColls.js";
+import { DataApi, ResourceApi } from "../../types.js";
+import { SCollsQueryType, SCollsQueryTypeValue } from "../vendor/mquery/syntacticColls.js";
 
 export interface SyntacticCollsApi<T> extends ResourceApi<T, [SCollsQueryType, SCollsData]> {
 

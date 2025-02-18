@@ -17,10 +17,10 @@
  */
 import { Observable } from 'rxjs';
 
-import { ajax$ } from '../../../page/ajax';
-import { DataApi } from '../../../types';
+import { ajax$ } from '../../../page/ajax.js';
+import { DataApi } from '../../../types.js';
 import { HTTP } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface WordListArgs {

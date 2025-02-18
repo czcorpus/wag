@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LocalizedConfMsg } from '../../types';
-import { DataRow } from '../../api/abstract/freqs';
+import { LocalizedConfMsg } from '../../types.js';
+import { DataRow } from '../../api/abstract/freqs.js';
 
 
 

@@ -18,10 +18,10 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { share, map, tap } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { DataApi, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { DataApi, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
 import { List } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices.js';
 
 
 interface CorpusInfo {
