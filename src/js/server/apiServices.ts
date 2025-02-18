@@ -17,7 +17,7 @@
  */
 
 import { Dict } from 'cnc-tskit';
-import { ClientStaticConf, CommonTextStructures } from '../conf'
+import { ClientStaticConf, CommonTextStructures } from '../conf/index.js'
 
 
 export class ApiServices {

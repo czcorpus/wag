@@ -1,12 +1,12 @@
 import { map, Observable, of as rxOf, tap } from "rxjs";
-import { IApiServices, IAppServices } from "../../../appServices";
-import { MainPosAttrValues } from "../../../conf";
-import { IFreqDB } from "../freqdb";
-import { calcFreqBand, QueryMatch } from "../../../query";
-import { serverHttpRequest } from "../../request";
+import { IApiServices, IAppServices } from "../../../appServices.js";
+import { MainPosAttrValues } from "../../../conf/index.js";
+import { IFreqDB } from "../freqdb.js";
+import { calcFreqBand, QueryMatch } from "../../../query/index.js";
+import { serverHttpRequest } from "../../request.js";
 import { HTTP, List } from "cnc-tskit";
-import { importQueryPosWithLabel } from "../../../postag";
-import { SourceDetails } from "../../../types";
+import { importQueryPosWithLabel } from "../../../postag.js";
+import { SourceDetails } from "../../../types.js";
 import urlJoin from 'url-join';
 
 
