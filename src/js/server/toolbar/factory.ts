@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { IToolbarProvider } from '../../page/hostPage';
-import { EmptyToolbar } from './empty';
-import { LangSwitchToolbar } from './langSwitch';
-import { UCNKToolbar } from './ucnk';
-import { ToolbarDef } from '../../conf';
+import { IToolbarProvider } from '../../page/hostPage.js';
+import { EmptyToolbar } from './empty.js';
+import { LangSwitchToolbar } from './langSwitch.js';
+import { UCNKToolbar } from './ucnk.js';
+import { ToolbarDef } from '../../conf/index.js';
 
 
 export enum ToolbarType {

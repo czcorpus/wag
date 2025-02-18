@@ -19,17 +19,17 @@ import { Observable } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
-import { IFreqDB } from '../freqdb';
-import { IAppServices, IApiServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../query/index';
-import { ConcViewResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance/v015/common';
-import { HTTPResponse as FreqsHttpResponse } from '../../../api/vendor/kontext/freqs';
-import { FreqDbOptions, MainPosAttrValues } from '../../../conf';
-import { importQueryPosWithLabel } from '../../../postag';
-import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo';
-import { CorpusDetails } from '../../../types';
-import { serverHttpRequest } from '../../request';
-import { initDummyStore } from '../../../page/cache/index';
+import { IFreqDB } from '../freqdb.js';
+import { IAppServices, IApiServices } from '../../../appServices.js';
+import { QueryMatch, calcFreqBand } from '../../../query/index.js';
+import { ConcViewResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance/v015/common.js';
+import { HTTPResponse as FreqsHttpResponse } from '../../../api/vendor/kontext/freqs.js';
+import { FreqDbOptions, MainPosAttrValues } from '../../../conf/index.js';
+import { importQueryPosWithLabel } from '../../../postag.js';
+import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo.js';
+import { CorpusDetails } from '../../../types.js';
+import { serverHttpRequest } from '../../request.js';
+import { initDummyStore } from '../../../page/cache/index.js';
 
 
 export class KontextFreqDB implements IFreqDB {

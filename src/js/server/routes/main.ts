@@ -20,29 +20,29 @@ import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { catchError, concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
 
-import { IAppServices } from '../../appServices';
-import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index';
-import { QueryValidator } from '../../query/validation';
+import { IAppServices } from '../../appServices.js';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index.js';
+import { QueryValidator } from '../../query/validation.js';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth, mergeToEmptyLayoutConf, MainPosAttrValues } from '../../conf';
-import { init as viewInit } from '../../views/layout/layout';
-import { init as errPageInit } from '../../views/error';
-import { ServerSideActionDispatcher } from '../core';
-import { emptyValue } from '../toolbar/empty';
-import { Services  } from '../actionServices';
-import { loadFile } from '../files';
-import { createRootComponent } from '../../app';
-import { initDummyStore } from '../../page/cache/index';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth, mergeToEmptyLayoutConf, MainPosAttrValues } from '../../conf/index.js';
+import { init as viewInit } from '../../views/layout/layout.js';
+import { init as errPageInit } from '../../views/error.js';
+import { ServerSideActionDispatcher } from '../core.js';
+import { emptyValue } from '../toolbar/empty.js';
+import { Services  } from '../actionServices.js';
+import { loadFile } from '../files.js';
+import { createRootComponent } from '../../app.js';
+import { initDummyStore } from '../../page/cache/index.js';
 import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, fetchUrlParamArray,
-    clientIsLikelyMobile } from './common';
-import { maxQueryWordsForQueryType } from '../../conf/validation';
-import { Actions } from '../../models/actions';
-import { HTTPAction } from './actions';
-import { logAction } from '../actionLog/common';
-import { fullServerHttpRequest, serverHttpRequest } from '../request';
-import { LayoutManager } from '../../page/layout';
-import { attachNumericTileIdents } from '../../page';
+    clientIsLikelyMobile } from './common.js';
+import { maxQueryWordsForQueryType } from '../../conf/validation.js';
+import { Actions } from '../../models/actions.js';
+import { HTTPAction } from './actions.js';
+import { logAction } from '../actionLog/common.js';
+import { fullServerHttpRequest, serverHttpRequest } from '../request.js';
+import { LayoutManager } from '../../page/layout.js';
+import { attachNumericTileIdents } from '../../page/index.js';
 
 
 interface MkRuntimeClientConfArgs {

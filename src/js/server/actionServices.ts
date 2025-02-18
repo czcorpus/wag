@@ -19,14 +19,14 @@
 import { Dict, List, pipe } from 'cnc-tskit';
 import * as winston from 'winston';
 
-import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf';
-import { IToolbarProvider } from '../page/hostPage';
-import { QueryType } from '../query/index';
-import { IFreqDB } from './freqdb/freqdb';
-import { createInstance, FreqDBType } from './freqdb/factory';
+import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf/index.js';
+import { IToolbarProvider } from '../page/hostPage.js';
+import { QueryType } from '../query/index.js';
+import { IFreqDB } from './freqdb/freqdb.js';
+import { createInstance, FreqDBType } from './freqdb/factory.js';
 import { Database } from 'sqlite3';
-import { IApiServices } from '../appServices';
-import { IActionWriter } from './actionLog/abstract';
+import { IApiServices } from '../appServices.js';
+import { IActionWriter } from './actionLog/abstract.js';
 
 
 

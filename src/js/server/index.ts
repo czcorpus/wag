@@ -17,7 +17,7 @@
  */
 /// <reference path="../translations.d.ts" />
 import * as cookieParser from 'cookie-parser';
-import * as express from 'express';
+import express from 'express';
 import * as session from 'express-session';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
@@ -33,15 +33,15 @@ import { randomBytes } from 'crypto';
 import {
     ClientStaticConf, ServerConf, DomainLayoutsConfig,
     DomainAnyTileConf, isTileDBConf, ColorsConf,
-    DataReadabilityMapping } from '../conf';
-import { validateTilesConf } from '../conf/validation';
-import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts } from '../conf/loader';
-import { wdgRouter } from './routes/index';
-import { createToolbarInstance } from './toolbar/factory';
-import { WordDatabases } from './actionServices';
-import { PackageInfo } from '../types';
-import { WinstonActionWriter } from './actionLog/winstonWriter';
-import { ApiServices } from './apiServices';
+    DataReadabilityMapping } from '../conf/index.js';
+import { validateTilesConf } from '../conf/validation.js';
+import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts } from '../conf/loader.js';
+import { wdgRouter } from './routes/index.js';
+import { createToolbarInstance } from './toolbar/factory.js';
+import { WordDatabases } from './actionServices.js';
+import { PackageInfo } from '../types.js';
+import { WinstonActionWriter } from './actionLog/winstonWriter.js';
+import { ApiServices } from './apiServices.js';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {

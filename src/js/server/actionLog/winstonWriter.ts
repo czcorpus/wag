@@ -17,7 +17,7 @@
  */
 
 import * as winston from 'winston';
-import { ActionLogRecord, IActionWriter } from "./abstract";
+import { ActionLogRecord, IActionWriter } from "./abstract.js";
 
 
 export class WinstonActionWriter implements IActionWriter {

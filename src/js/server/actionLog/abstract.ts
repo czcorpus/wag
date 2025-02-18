@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { QueryType } from '../../query';
+import { QueryType } from '../../query/index.js';
 
 export interface ActionLogRecord {
     action:string;
