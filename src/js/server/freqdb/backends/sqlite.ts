@@ -20,12 +20,12 @@ import { concatMap, reduce } from 'rxjs/operators';
 import { Database } from 'sqlite3';
 import { List } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../query/index';
-import { IFreqDB } from '../freqdb';
-import { importQueryPos, importQueryPosWithLabel } from '../../../postag';
-import { SourceDetails } from '../../../types';
-import { MainPosAttrValues } from '../../../conf';
+import { IAppServices } from '../../../appServices.js';
+import { QueryMatch, calcFreqBand } from '../../../query/index.js';
+import { IFreqDB } from '../freqdb.js';
+import { importQueryPos, importQueryPosWithLabel } from '../../../postag.js';
+import { SourceDetails } from '../../../types.js';
+import { MainPosAttrValues } from '../../../conf/index.js';
 
 
 /*

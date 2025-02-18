@@ -20,9 +20,9 @@ import { Observable, of as rxOf } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { HTTP, List } from 'cnc-tskit';
 
-import { serverHttpRequest, ServerHTTPRequestError } from '../../../request';
-import { SourceDetails } from '../../../../types';
-import { IApiServices } from '../../../../appServices';
+import { serverHttpRequest, ServerHTTPRequestError } from '../../../request.js';
+import { SourceDetails } from '../../../../types.js';
+import { IApiServices } from '../../../../appServices.js';
 
 
 interface HTTPSourceInfoDoc {
