@@ -29,7 +29,7 @@ import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/col
 import { CollocModelState } from '../../../models/tiles/collocations.js';
 import { List } from 'cnc-tskit';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
