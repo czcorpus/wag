@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-import { IConcordanceApi, ViewMode, ConcResponse, LineElement } from '../../abstract/concordance';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { ConcordanceMinState } from '../../../models/tiles/concordance';
-import { QueryMatch } from '../../../query';
+import { IConcordanceApi, ViewMode, ConcResponse, LineElement } from '../../abstract/concordance.js';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { ConcordanceMinState } from '../../../models/tiles/concordance/index.js';
+import { QueryMatch } from '../../../query/index.js';
 import { Observable } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax';
+import { cachedAjax$ } from '../../../page/ajax.js';
 import { map } from 'rxjs/operators';
 import { List, pipe, Dict } from 'cnc-tskit';
-import { CorpusInfoAPI } from './corpusInfo';
-import { IApiServices } from '../../../appServices';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface RequestArgs {

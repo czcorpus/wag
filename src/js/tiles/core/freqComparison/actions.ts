@@ -17,11 +17,11 @@
  */
 import { Action } from 'kombo';
 
-import { LocalizedConfMsg } from '../../../types';
-import { QueryMatch } from '../../../query/index';
-import { ApiDataBlock } from '../../../api/abstract/freqs';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { BacklinkWithArgs } from '../../../page/tile';
+import { LocalizedConfMsg } from '../../../types.js';
+import { QueryMatch } from '../../../query/index.js';
+import { ApiDataBlock } from '../../../api/abstract/freqs.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { BacklinkWithArgs } from '../../../page/tile.js';
 
 
 export interface DataLoadedPayload {

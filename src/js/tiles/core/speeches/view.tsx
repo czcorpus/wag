@@ -17,16 +17,16 @@
  */
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { SpeechesModel } from './model';
-import { GlobalComponents } from '../../../views/common';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { Theme } from '../../../page/theme';
-import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain';
-import { Actions } from './actions';
+import { SpeechesModel } from './model.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { Theme } from '../../../page/theme.js';
+import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain.js';
+import { Actions } from './actions.js';
 import { List, pipe, Color } from 'cnc-tskit';
-import { LineElement } from '../../../api/abstract/concordance';
+import { LineElement } from '../../../api/abstract/concordance.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 

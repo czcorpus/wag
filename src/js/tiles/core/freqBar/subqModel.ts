@@ -20,18 +20,18 @@ import { Observable, merge } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { Dict, Ident, List, pipe } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
-import { ViewMode, ConcResponse } from '../../../api/abstract/concordance';
-import { SubqueryModeConf } from '../../../models/tiles/freq';
-import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../query/index';
-import { Backlink } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { FreqBarModel, FreqBarModelState } from './model';
-import { callWithExtraVal } from '../../../api/util';
-import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs';
-import { CorePosAttribute } from '../../../types';
+import { IAppServices } from '../../../appServices.js';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015/index.js';
+import { ViewMode, ConcResponse } from '../../../api/abstract/concordance.js';
+import { SubqueryModeConf } from '../../../models/tiles/freq.js';
+import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../query/index.js';
+import { Backlink } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { FreqBarModel, FreqBarModelState } from './model.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs.js';
+import { CorePosAttribute } from '../../../types.js';
 
 
 export class SubqFreqBarModelArgs {

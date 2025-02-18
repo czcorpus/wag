@@ -15,16 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel } from 'kombo';
-
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { SpeechesModel } from './model';
-import { init as viewInit } from './view';
-import { LocalizedConfMsg } from '../../../types';
-import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { SpeechesModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches.js';
 import { pipe, Color, List } from 'cnc-tskit';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface SpeechesTileConf extends TileConf {

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { SourceCitation } from './api/abstract/sourceInfo';
-import { Backlink } from './page/tile';
+import { SourceCitation } from './api/abstract/sourceInfo.js';
+import { Backlink } from './page/tile.js';
 
 
 export type AnyInterface<T> = {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IAppServices } from '../appServices';
+import { IAppServices } from '../appServices.js';
 
 
 /**

@@ -16,9 +16,9 @@
 */
 
 import { Observable } from 'rxjs';
-import { SourceDetails, ResourceApi } from '../../types';
-import { MatchingDocsModelState } from '../../models/tiles/matchingDocs';
-import { BacklinkWithArgs } from '../../page/tile';
+import { SourceDetails, ResourceApi } from '../../types.js';
+import { MatchingDocsModelState } from '../../models/tiles/matchingDocs.js';
+import { BacklinkWithArgs } from '../../page/tile.js';
 
 
 export interface DataRow {

@@ -18,16 +18,16 @@
 import { forkJoin, Observable, of as rxOf } from 'rxjs';
 import { concatMap, share } from 'rxjs/operators';
 
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
-import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
-import { SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from '../../../api/vendor/kontext/freqs';
-import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types';
-import { callWithExtraVal } from '../../../api/util';
-import { IApiServices } from '../../../appServices';
-import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
-import { CoreApiGroup } from '../../../api/coreGroups';
-import { createKontextConcApiInstance } from '../../../api/factory/concordance';
-import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015/index.js';
+import { ConcResponse, ViewMode } from '../../../api/abstract/concordance.js';
+import { SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from '../../../api/vendor/kontext/freqs.js';
+import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { IApiServices } from '../../../appServices.js';
+import { ConcQueryArgs } from '../../../api/vendor/kontext/types.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance.js';
+import { createSimpleFreqApiInstance } from '../../../api/factory/freqs.js';
 
 
 export interface RequestArgs {

@@ -19,17 +19,17 @@
 import { StatelessModel, IActionQueue } from 'kombo';
 import { pipe, List } from 'cnc-tskit';
 
-import { IAppServices } from '../appServices';
-import { MultiDict } from '../multidict';
-import { Input, Forms } from '../page/forms';
-import { SystemMessageType } from '../types';
-import { AvailableLanguage } from '../page/hostPage';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index';
-import { QueryValidator } from '../query/validation';
-import { Actions } from './actions';
-import { HTTPAction } from '../server/routes/actions';
-import { LayoutManager } from '../page/layout';
-import { MainPosAttrValues } from '../conf';
+import { IAppServices } from '../appServices.js';
+import { MultiDict } from '../multidict.js';
+import { Input, Forms } from '../page/forms.js';
+import { SystemMessageType } from '../types.js';
+import { AvailableLanguage } from '../page/hostPage.js';
+import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index.js';
+import { QueryValidator } from '../query/validation.js';
+import { Actions } from './actions.js';
+import { HTTPAction } from '../server/routes/actions.js';
+import { LayoutManager } from '../page/layout.js';
+import { MainPosAttrValues } from '../conf/index.js';
 
 
 export interface QueryFormModelState {

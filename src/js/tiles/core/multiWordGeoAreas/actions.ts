@@ -17,9 +17,9 @@
  */
 
 import { Action } from 'kombo';
-import { TargetDataRow } from './views';
-import { DataRow } from '../../../api/abstract/freqs';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { TargetDataRow } from './views/index.js';
+import { DataRow } from '../../../api/abstract/freqs.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface PartialDataLoadedPayload {

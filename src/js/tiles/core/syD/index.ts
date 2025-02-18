@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { createSyDInstance } from './api';
-import { SydModel } from './model';
-import { init as viewInit } from './view';
-import { StatelessModel } from 'kombo';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { IAppServices } from '../../../appServices.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { createSyDInstance } from './api.js';
+import { SydModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface SyDTileConf extends TileConf {

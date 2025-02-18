@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SrchContextType, DataRow, DataHeading } from '../../api/abstract/collocations';
-import { BacklinkWithArgs } from '../../page/tile';
-import { CollocMetric } from '../../tiles/core/colloc/common';
-import { QueryMatch } from '../../query';
+import { SrchContextType, DataRow, DataHeading } from '../../api/abstract/collocations.js';
+import { BacklinkWithArgs } from '../../page/tile.js';
+import { CollocMetric } from '../../tiles/core/colloc/common.js';
+import { QueryMatch } from '../../query/index.js';
 
 
 export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {

@@ -19,7 +19,6 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
 
 export const FreqBarTile = styled.div`
     min-height: 15em;

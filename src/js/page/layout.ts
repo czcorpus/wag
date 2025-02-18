@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IAppServices } from '../appServices';
-import { QueryType, QueryTypeMenuItem } from '../query/index';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, ServiceTile, isServiceTile, MainPosAttrValues } from '../conf';
-import { TileIdentMap } from '../types';
+import { IAppServices } from '../appServices.js';
+import { QueryType, QueryTypeMenuItem } from '../query/index.js';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, ServiceTile, isServiceTile, MainPosAttrValues } from '../conf/index.js';
+import { TileIdentMap } from '../types.js';
 import { List, Dict, pipe } from 'cnc-tskit';
 
 

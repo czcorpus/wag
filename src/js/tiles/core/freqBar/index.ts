@@ -18,19 +18,19 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../api/vendor/kontext/freqs';
-import { SubqueryModeConf } from '../../../models/tiles/freq';
-import { LocalizedConfMsg } from '../../../types';
-import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { factory as defaultModelFactory, FreqBarModel } from './model';
-import { factory as subqModelFactory } from './subqModel';
-import { init as viewInit } from './view';
-import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
-import { CoreApiGroup } from '../../../api/coreGroups';
-import { createKontextConcApiInstance } from '../../../api/factory/concordance';
+import { IAppServices } from '../../../appServices.js';
+import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
+import { SubqueryModeConf } from '../../../models/tiles/freq.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { QueryType } from '../../../query/index.js';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { factory as defaultModelFactory, FreqBarModel } from './model.js';
+import { factory as subqModelFactory } from './subqModel.js';
+import { init as viewInit } from './view.js';
+import { createMultiBlockApiInstance } from '../../../api/factory/freqs.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance.js';
 
 
 export interface FreqBarTileConf extends TileConf {

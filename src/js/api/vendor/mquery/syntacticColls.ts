@@ -17,14 +17,14 @@
  */
 import { Observable, map, of } from 'rxjs';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
-import { IApiServices } from '../../../appServices';
-import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls';
-import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { IApiServices } from '../../../appServices.js';
+import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls.js';
+import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls.js';
 import { List, tuple } from 'cnc-tskit';
-import { FreqRowResponse } from './common';
-import { CorpusInfoAPI } from './corpusInfo';
+import { FreqRowResponse } from './common.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
 
 
 export interface SCollsApiResponse {

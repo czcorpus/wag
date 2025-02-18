@@ -20,8 +20,8 @@ import * as fs from 'fs';
 import axios from 'axios';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import * as path from 'path';
-import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigCommon, isServiceTile } from './index';
-import { TileConf } from '../page/tile';
+import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigCommon, isServiceTile } from './index.js';
+import { TileConf } from '../page/tile.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
 

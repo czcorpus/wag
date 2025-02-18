@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Line } from '../../../api/abstract/concordance';
+import { Line } from '../../../api/abstract/concordance.js';
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 export interface CollExamplesLoadedPayload {
     data:Array<Line>;

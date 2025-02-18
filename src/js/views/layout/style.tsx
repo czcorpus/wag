@@ -19,7 +19,7 @@
  */
 
 import { createGlobalStyle } from 'styled-components';
-import * as theme from '../common/theme';
+import * as theme from '../common/theme.js';
 import grooveBg from '../../../../assets/groovepaper2.jpg';
 
 // ---------------- <GlobalStyle /> --------------------------------------

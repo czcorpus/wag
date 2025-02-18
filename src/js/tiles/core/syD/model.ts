@@ -17,11 +17,11 @@
  */
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
-import { RecognizedQueries } from '../../../query/index';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api.js';
+import { RecognizedQueries } from '../../../query/index.js';
 import { List, pipe } from 'cnc-tskit';
 
 

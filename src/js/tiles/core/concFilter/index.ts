@@ -17,16 +17,16 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
-import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../query/index';
+import { IAppServices } from '../../../appServices.js';
+import { QueryType } from '../../../query/index.js';
 import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { ConcFilterModel } from './model';
-import { init as viewInit } from './view';
-import { ViewMode } from '../../../api/abstract/concordance';
-import { LocalizedConfMsg } from '../../../types';
-import { TileWait } from '../../../models/tileSync';
+import { ConcFilterModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { ViewMode } from '../../../api/abstract/concordance.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { TileWait } from '../../../models/tileSync.js';
 import { List } from 'cnc-tskit';
-import { createKontextConcApiInstance } from '../../../api/factory/concordance';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance.js';
 
 
 

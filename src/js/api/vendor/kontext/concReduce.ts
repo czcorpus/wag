@@ -18,12 +18,12 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../../page/ajax';
-import { DataApi } from '../../../types';
-import { ConcResponse } from '../../abstract/concordance';
-import { IApiServices } from '../../../appServices';
+import { ajax$ } from '../../../page/ajax.js';
+import { DataApi } from '../../../types.js';
+import { ConcResponse } from '../../abstract/concordance.js';
+import { IApiServices } from '../../../appServices.js';
 import { HTTP } from 'cnc-tskit';
-import { convertLines, ConcViewResponse } from './concordance/v015/common';
+import { convertLines, ConcViewResponse } from './concordance/v015/common.js';
 
 
 

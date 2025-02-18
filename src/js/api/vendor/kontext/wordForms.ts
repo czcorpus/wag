@@ -19,13 +19,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTP, Ident } from 'cnc-tskit';
 
-import { QueryMatch } from '../../../query';
-import { IWordFormsApi, RequestConcArgs, Response } from '../../abstract/wordForms';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
-import { BacklinkArgs, KontextFreqDistribAPI } from './freqs';
-import { CorpusInfoAPI } from './corpusInfo';
-import { IApiServices } from '../../../appServices';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { QueryMatch } from '../../../query/index.js';
+import { IWordFormsApi, RequestConcArgs, Response } from '../../abstract/wordForms.js';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types.js';
+import { BacklinkArgs, KontextFreqDistribAPI } from './freqs.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { IApiServices } from '../../../appServices.js';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 
 
 export interface HTTPResponse {

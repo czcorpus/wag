@@ -17,11 +17,11 @@
  */
 
 import { Observable } from 'rxjs';
-import { DataApi } from '../types';
+import { DataApi } from '../types.js';
 import { HTTP } from 'cnc-tskit';
-import { QueryMatch } from '../query';
-import { ajax$ } from '../page/ajax';
-import { MainPosAttrValues } from '../conf';
+import { QueryMatch } from '../query/index.js';
+import { ajax$ } from '../page/ajax.js';
+import { MainPosAttrValues } from '../conf/index.js';
 
 
 interface LemmaDbRequestArgs {

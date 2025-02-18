@@ -19,15 +19,15 @@ import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
-import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types';
-import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
-import { SystemNotifications } from './page/notifications';
-import { HTTPAction } from './server/routes/actions';
-import { AudioPlayer } from './page/audioPlayer';
-import { MultiDict } from './multidict';
-import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf';
+import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
+import { LemmaDbApi, LemmaDbResponse } from './api/lemma.js';
+import { SystemNotifications } from './page/notifications.js';
+import { HTTPAction } from './server/routes/actions.js';
+import { AudioPlayer } from './page/audioPlayer.js';
+import { MultiDict } from './multidict.js';
+import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf/index.js';
 import { AjaxError } from 'rxjs/ajax';
-import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage';
+import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
 
 
 export interface IApiServices {

@@ -17,14 +17,14 @@
  */
 import { Observable, map } from 'rxjs';
 
-import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { IApiServices } from '../../../appServices';
-import { Backlink } from '../../../page/tile';
-import { cachedAjax$ } from '../../../page/ajax';
-import { FreqRowResponse } from './common';
+import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms.js';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { IApiServices } from '../../../appServices.js';
+import { Backlink } from '../../../page/tile.js';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { FreqRowResponse } from './common.js';
 import { Ident, List } from 'cnc-tskit';
-import { CorpusInfoAPI } from './corpusInfo';
+import { CorpusInfoAPI } from './corpusInfo.js';
 
 
 export interface LemmaItem {

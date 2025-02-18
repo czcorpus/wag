@@ -20,20 +20,20 @@ import { Observable, Observer } from 'rxjs';
 import { mergeMap, reduce, share } from 'rxjs/operators';
 import { Ident, pipe, List, Maths } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { GeneralMultiCritFreqComparisonModelState } from '../../../models/tiles/freqComparison';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries, QueryMatch } from '../../../query/index';
-import { isConcLoadedPayload } from '../concordance/actions';
-import { callWithExtraVal } from '../../../api/util';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
-import { Actions as ConcActions } from '../concordance/actions';
-import { Actions } from './actions';
-import { isWebDelegateApi } from '../../../types';
+import { IAppServices } from '../../../appServices.js';
+import { GeneralMultiCritFreqComparisonModelState } from '../../../models/tiles/freqComparison.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { RecognizedQueries, QueryMatch } from '../../../query/index.js';
+import { isConcLoadedPayload } from '../concordance/actions.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { Actions } from './actions.js';
+import { isWebDelegateApi } from '../../../types.js';
 
 
 export interface MultiWordDataRow extends DataRow {

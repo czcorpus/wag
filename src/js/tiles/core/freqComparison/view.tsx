@@ -19,15 +19,15 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { Actions } from './actions';
-import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Actions } from './actions.js';
+import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model.js';
 import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
 
-import * as S from './style';
-import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import * as S from './style.js';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
 
 
 const CHART_LABEL_MAX_LEN = 15;

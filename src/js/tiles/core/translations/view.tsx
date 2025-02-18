@@ -18,14 +18,14 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { TranslationsModel, GeneralTranslationsModelState } from './model';
-import { init as wordCloudViewInit } from '../../../views/wordCloud';
-import { Theme } from '../../../page/theme';
-import { WordTranslation } from '../../../api/abstract/translations';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { TranslationsModel, GeneralTranslationsModelState } from './model.js';
+import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
+import { Theme } from '../../../page/theme.js';
+import { WordTranslation } from '../../../api/abstract/translations.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TranslationsModel):TileComponent {
