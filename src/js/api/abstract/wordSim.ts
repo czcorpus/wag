@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-import { Observable } from 'rxjs';
-import { SourceDetails, ResourceApi } from '../../types';
-import { WordSimModelState } from '../../models/tiles/wordSim';
-import { SubqueryPayload, RangeRelatedSubqueryValue, QueryMatch } from '../../query';
+import { ResourceApi } from '../../types.js';
+import { WordSimModelState } from '../../models/tiles/wordSim.js';
+import { SubqueryPayload, RangeRelatedSubqueryValue, QueryMatch } from '../../query/index.js';
 
 
 export type WordSimSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;

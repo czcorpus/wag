@@ -18,13 +18,13 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { GlobalComponents } from '../../../../views/common';
-import { init as commonViewInit } from './common'
-import { QueryMatch } from '../../../../query/index';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { init as commonViewInit } from './common.js'
+import { QueryMatch } from '../../../../query/index.js';
 import { List } from 'cnc-tskit';
 
-import * as S from '../style';
-import { MainPosAttrValues } from '../../../../conf';
+import * as S from '../style.js';
+import { MainPosAttrValues } from '../../../../conf/index.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {

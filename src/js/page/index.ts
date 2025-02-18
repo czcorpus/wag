@@ -21,25 +21,25 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
-import { isSubqueryPayload, RecognizedQueries } from '../query/index';
+import { isSubqueryPayload, RecognizedQueries } from '../query/index.js';
 import * as translations from 'translations';
 
-import { IAppServices, AppServices } from '../appServices';
-import { encodeArgs, ajax$, encodeURLParameters } from './ajax';
-import { ScreenProps } from './hostPage';
-import { ClientConf, UserConf, HomepageTileConf } from '../conf';
-import { Actions } from '../models/actions';
-import { SystemNotifications } from './notifications';
-import { GlobalComponents } from '../views/common';
-import { createRootComponent } from '../app';
-import { initStore } from './cache';
-import { TelemetryAction, TileIdentMap } from '../types';
-import { HTTPAction } from '../server/routes/actions';
-import { MultiDict } from '../multidict';
+import { IAppServices, AppServices } from '../appServices.js';
+import { encodeArgs, ajax$, encodeURLParameters } from './ajax.js';
+import { ScreenProps } from './hostPage.js';
+import { ClientConf, UserConf, HomepageTileConf } from '../conf/index.js';
+import { Actions } from '../models/actions.js';
+import { SystemNotifications } from './notifications.js';
+import { GlobalComponents } from '../views/common/index.js';
+import { createRootComponent } from '../app.js';
+import { initStore } from './cache/index.js';
+import { TelemetryAction, TileIdentMap } from '../types.js';
+import { HTTPAction } from '../server/routes/actions.js';
+import { MultiDict } from '../multidict.js';
 import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
-import { WdglanceMainProps } from '../views/main';
-import { LayoutManager, TileGroup } from './layout';
-import { TileConf } from './tile';
+import { WdglanceMainProps } from '../views/main.js';
+import { LayoutManager, TileGroup } from './layout.js';
+import { TileConf } from './tile.js';
 
 
 interface MountArgs {

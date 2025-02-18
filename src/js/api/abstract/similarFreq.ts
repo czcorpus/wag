@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { FreqBand } from '../../query';
-import { DataApi } from '../../types';
-import { PosItem } from '../../postag';
-import { MainPosAttrValues } from '../../conf';
+import { FreqBand } from '../../query/index.js';
+import { DataApi } from '../../types.js';
+import { PosItem } from '../../postag.js';
+import { MainPosAttrValues } from '../../conf/index.js';
 
 
 export interface RequestArgs {

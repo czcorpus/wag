@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { CoreApiGroup } from '../coreGroups';
-import { IAsyncKeyValueStore } from '../../types';
-import { IGeneralHtmlAPI } from '../abstract/html';
-import { WiktionaryHtmlAPI } from '../vendor/wiktionary/html';
-import { RawHtmlAPI } from '../vendor/wdglance/html';
-import { IApiServices } from '../../appServices';
+import { CoreApiGroup } from '../coreGroups.js';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { IGeneralHtmlAPI } from '../abstract/html.js';
+import { WiktionaryHtmlAPI } from '../vendor/wiktionary/html.js';
+import { RawHtmlAPI } from '../vendor/wdglance/html.js';
+import { IApiServices } from '../../appServices.js';
 
 
 export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices):IGeneralHtmlAPI<{}> {

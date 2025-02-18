@@ -18,13 +18,13 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { CorpusInfoAPI } from './corpusInfo';
-import { BacklinkWithArgs, Backlink } from '../../../page/tile';
-import { APIResponse, IFreqDistribAPI } from '../../abstract/freqs';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq';
-import { IApiServices } from '../../../appServices';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
+import { APIResponse, IFreqDistribAPI } from '../../abstract/freqs.js';
+import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface HTTPResponse {

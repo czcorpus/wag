@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types';
-import { CoreApiGroup } from '../coreGroups';
-import { KontextMatchingDocsAPI, KontextLiveattrsMatchingDocsAPI } from '../vendor/kontext/matchingDocs';
-import { MatchingDocsAPI } from '../abstract/matchingDocs';
-import { ElasticsearchMatchingDocsAPI } from '../vendor/elasticsearch/matchingDocs';
-import { IApiServices } from '../../appServices';
-import { createSimpleFreqApiInstance } from './freqs';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { CoreApiGroup } from '../coreGroups.js';
+import { KontextMatchingDocsAPI, KontextLiveattrsMatchingDocsAPI } from '../vendor/kontext/matchingDocs.js';
+import { MatchingDocsAPI } from '../abstract/matchingDocs.js';
+import { ElasticsearchMatchingDocsAPI } from '../vendor/elasticsearch/matchingDocs.js';
+import { IApiServices } from '../../appServices.js';
+import { createSimpleFreqApiInstance } from './freqs.js';
 
 
 export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):MatchingDocsAPI<{}> {

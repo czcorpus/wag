@@ -18,15 +18,15 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { Actions } from './actions';
-import { MatchingDocsModel } from './model';
-import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
-import { DataRow } from '../../../api/abstract/matchingDocs';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Actions } from './actions.js';
+import { MatchingDocsModel } from './model.js';
+import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs.js';
+import { DataRow } from '../../../api/abstract/matchingDocs.js';
 
-import * as S from './style';
+import * as S from './style.js';
 import { List, Strings } from 'cnc-tskit';
 
 

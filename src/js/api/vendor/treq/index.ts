@@ -19,21 +19,21 @@
 import { Observable, of as rxOf, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
 import {
     WordTranslation,
     TranslationAPI,
     TranslationResponse,
     TranslationSubsetsAPI
-} from '../../abstract/translations';
+} from '../../abstract/translations.js';
 import {
     TranslationsModelState,
     TranslationsSubsetsModelState
-} from '../../../models/tiles/translations';
-import { IAppServices } from '../../../appServices';
+} from '../../../models/tiles/translations.js';
+import { IAppServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
-import { Backlink } from '../../../page/tile';
+import { Backlink } from '../../../page/tile.js';
 
 
 export type SearchPackages = {[domain2:string]:Array<string>};

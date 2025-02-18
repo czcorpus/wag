@@ -29,7 +29,7 @@
  actual IndexedDB (e.g. FF vs. incognito mode)
 */
 
-import { ILocalDatabase, ILocalStore } from './common';
+import { ILocalDatabase, ILocalStore } from './common.js';
 
 function isEventListenerObject(v:EventListenerOrEventListenerObject):v is EventListenerObject {
     return 'handleEvent' in v;

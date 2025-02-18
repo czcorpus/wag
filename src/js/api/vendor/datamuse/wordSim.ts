@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 import { Observable, of as rxOf } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
-import { WordSimApiResponse, WordSimWord, IWordSimApi } from '../../abstract/wordSim';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { WordSimApiResponse, WordSimWord, IWordSimApi } from '../../abstract/wordSim.js';
 import { map } from 'rxjs/operators';
-import { WordSimModelState, OperationMode } from '../../../models/tiles/wordSim';
-import { QueryMatch } from '../../../query';
-import { IApiServices } from '../../../appServices';
+import { WordSimModelState, OperationMode } from '../../../models/tiles/wordSim.js';
+import { QueryMatch } from '../../../query/index.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 type DatamuseMLApiResponse = Array<WordSimWord>;

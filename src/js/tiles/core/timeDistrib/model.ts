@@ -18,24 +18,24 @@
 import { SEDispatcher, StatelessModel, Action, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
-import { Dict, Maths, pipe, List, Strings } from 'cnc-tskit';
+import { Dict, Maths, pipe, List } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
-import { TimeDistribResponse, TimeDistribApi } from '../../../api/abstract/timeDistrib';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { ConcLoadedPayload } from '../concordance/actions';
-import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
-import { Actions } from './common';
-import { callWithExtraVal } from '../../../api/util';
-import { QueryMatch, RecognizedQueries } from '../../../query/index';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { TileWait } from '../../../models/tileSync';
-import { PriorityValueFactory } from '../../../priority';
-import { DataRow } from '../../../api/abstract/freqs';
-import { isWebDelegateApi } from '../../../types';
-import { MainPosAttrValues } from '../../../conf';
+import { IAppServices } from '../../../appServices.js';
+import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { TimeDistribResponse, TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { ConcLoadedPayload } from '../concordance/actions.js';
+import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
+import { Actions } from './common.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { TileWait } from '../../../models/tileSync.js';
+import { PriorityValueFactory } from '../../../priority.js';
+import { DataRow } from '../../../api/abstract/freqs.js';
+import { isWebDelegateApi } from '../../../types.js';
+import { MainPosAttrValues } from '../../../conf/index.js';
 
 
 export enum FreqFilterQuantity {

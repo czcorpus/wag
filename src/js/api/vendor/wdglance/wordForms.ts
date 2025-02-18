@@ -19,15 +19,15 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { IAsyncKeyValueStore, SourceDetails, ResourceApi } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
 import { HTTP } from 'cnc-tskit';
-import { cachedAjax$ } from '../../../page/ajax';
-import { QueryMatch, QueryType } from '../../../query';
-import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms';
-import { HTTPAction } from '../../../server/routes/actions';
-import { InternalResourceInfoApi } from './freqDbSourceInfo';
-import { IApiServices } from '../../../appServices';
-import { Backlink } from '../../../page/tile';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { QueryMatch, QueryType } from '../../../query/index.js';
+import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms.js';
+import { HTTPAction } from '../../../server/routes/actions.js';
+import { InternalResourceInfoApi } from './freqDbSourceInfo.js';
+import { IApiServices } from '../../../appServices.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 export interface HTTPResponse {

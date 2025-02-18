@@ -19,9 +19,9 @@ import { IActionDispatcher } from 'kombo';
 import { asyncScheduler, of as rxOf, Subject } from 'rxjs';
 import { delay, observeOn } from 'rxjs/operators';
 
-import { SystemMessageType } from '../types';
+import { SystemMessageType } from '../types.js';
 import { Ident } from 'cnc-tskit';
-import { Actions } from '../models/actions';
+import { Actions } from '../models/actions.js';
 
 
 

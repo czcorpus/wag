@@ -20,19 +20,19 @@ import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 import { Dict, List, tuple } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { Actions as ConcActions } from '../concordance/actions';
-import { DataApi, isWebDelegateApi } from '../../../types';
-import { TooltipValues } from '../../../views/common';
-import { QueryMatch, RecognizedQueries } from '../../../query/index';
-import { callWithExtraVal } from '../../../api/util';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { DataRow, IFreqDistribAPI, APIResponse } from '../../../api/abstract/freqs';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
+import { IAppServices } from '../../../appServices.js';
+import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { DataApi, isWebDelegateApi } from '../../../types.js';
+import { TooltipValues } from '../../../views/common/index.js';
+import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { DataRow, IFreqDistribAPI, APIResponse } from '../../../api/abstract/freqs.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 
 /*
 oral2013:

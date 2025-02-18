@@ -19,14 +19,14 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { List, Strings } from 'cnc-tskit';
 
-import { Line, LineElement, ViewMode } from '../../../api/abstract/concordance';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { Actions } from './actions';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { ConcordanceTileModel, ConcordanceTileState } from './model';
+import { Line, LineElement, ViewMode } from '../../../api/abstract/concordance.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Actions } from './actions.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { ConcordanceTileModel, ConcordanceTileState } from './model.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 

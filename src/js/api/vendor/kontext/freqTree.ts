@@ -18,13 +18,13 @@
 import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { CorpusInfoAPI } from './corpusInfo';
-import { ConcApi } from './concordance/v015';
-import { ViewMode } from '../../abstract/concordance';
-import { QueryMatch } from '../../../query';
-import { HTTPResponse, SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from './freqs';
-import { IApiServices } from '../../../appServices';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { ConcApi } from './concordance/v015/index.js';
+import { ViewMode } from '../../abstract/concordance.js';
+import { QueryMatch } from '../../../query/index.js';
+import { HTTPResponse, SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from './freqs.js';
+import { IApiServices } from '../../../appServices.js';
 import { Dict, List, pipe } from 'cnc-tskit';
 
 export enum FreqSort {

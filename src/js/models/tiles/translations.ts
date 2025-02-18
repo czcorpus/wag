@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WordTranslation } from '../../api/abstract/translations';
-import { BacklinkWithArgs } from '../../page/tile';
+import { WordTranslation } from '../../api/abstract/translations.js';
+import { BacklinkWithArgs } from '../../page/tile.js';
 
 
 interface TranslationsModelCoreState {

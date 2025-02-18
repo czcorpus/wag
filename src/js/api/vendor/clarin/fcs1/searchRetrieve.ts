@@ -19,13 +19,13 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit';
-import { ConcResponse, Line, IConcordanceApi, ViewMode } from '../../../abstract/concordance';
-import { XMLParser, XMLNode } from '../../../../page/xml';
-import { ConcordanceMinState } from '../../../../models/tiles/concordance';
-import { ajax$, ResponseType } from '../../../../page/ajax';
-import { QueryMatch } from '../../../../query';
-import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain';
-import { IApiServices } from '../../../../appServices';
+import { ConcResponse, Line, IConcordanceApi, ViewMode } from '../../../abstract/concordance.js';
+import { XMLParser, XMLNode } from '../../../../page/xml.js';
+import { ConcordanceMinState } from '../../../../models/tiles/concordance/index.js';
+import { ajax$, ResponseType } from '../../../../page/ajax.js';
+import { QueryMatch } from '../../../../query/index.js';
+import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain.js';
+import { IApiServices } from '../../../../appServices.js';
 
 
 /**

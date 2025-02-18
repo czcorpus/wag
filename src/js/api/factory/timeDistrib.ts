@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { KontextTimeDistribApi } from '../vendor/kontext/timeDistrib';
-import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
-import { IAsyncKeyValueStore } from '../../types';
-import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
-import { CustomArgs, TimeDistribApi } from '../abstract/timeDistrib';
-import { IApiServices } from '../../appServices';
-import { MQueryTimeDistribStreamApi } from '../vendor/mquery/timeDistrib';
+import { KontextTimeDistribApi } from '../vendor/kontext/timeDistrib.js';
+import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib.js';
+import { CustomArgs, TimeDistribApi } from '../abstract/timeDistrib.js';
+import { IApiServices } from '../../appServices.js';
+import { MQueryTimeDistribStreamApi } from '../vendor/mquery/timeDistrib.js';
 
 export function createApiInstance(
 	apiIdent:string,

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { MainPosAttrValues } from '../../conf';
-import { Backlink, BacklinkWithArgs } from '../../page/tile';
-import { ResourceApi } from '../../types';
+import { MainPosAttrValues } from '../../conf/index.js';
+import { Backlink, BacklinkWithArgs } from '../../page/tile.js';
+import { ResourceApi } from '../../types.js';
 
 
 export interface RequestArgs {

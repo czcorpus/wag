@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { ExpandArgs, Expand, Segment, ConcDetailText } from './modelDomain';
+import { ExpandArgs, Expand, Segment, ConcDetailText } from './modelDomain.js';
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface SpeechDataPayload {

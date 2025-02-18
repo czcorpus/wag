@@ -17,8 +17,8 @@
  */
 
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
 
 
 

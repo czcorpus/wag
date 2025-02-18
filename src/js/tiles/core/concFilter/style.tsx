@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
+import * as theme from '../../../views/common/theme.js';
 
 export const Sentences = styled.div`
     p {

@@ -18,14 +18,14 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi, DataApi } from '../../../types';
-import { CorpusInfoAPI } from './corpusInfo';
-import { BacklinkWithArgs, Backlink } from '../../../page/tile';
-import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
-import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../../models/tiles/freq';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi, DataApi } from '../../../types.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
+import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs.js';
+import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../../models/tiles/freq.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices.js';
 
 export enum FreqSort {
     REL = 'rel'

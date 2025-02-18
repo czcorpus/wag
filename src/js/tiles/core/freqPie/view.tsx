@@ -19,16 +19,16 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { FreqDataBlock } from '../../../models/tiles/freq';
-import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { FreqDataBlock } from '../../../models/tiles/freq.js';
+import { FreqBarModel, FreqBarModelState } from '../freqBar/model.js';
 import { List, pipe } from 'cnc-tskit';
-import { DataRow } from '../../../api/abstract/freqs';
-import { Actions } from './actions';
+import { DataRow } from '../../../api/abstract/freqs.js';
+import { Actions } from './actions.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {

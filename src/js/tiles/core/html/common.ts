@@ -17,8 +17,8 @@
  */
 
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { BacklinkWithArgs } from '../../../page/tile';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { BacklinkWithArgs } from '../../../page/tile.js';
 
 
 export interface HtmlModelState {

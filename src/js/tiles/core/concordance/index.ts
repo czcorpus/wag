@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { IAppServices } from '../../../appServices';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
+import { IAppServices } from '../../../appServices.js';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
 
-import { LocalizedConfMsg } from '../../../types';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { ConcordanceTileModel } from './model';
-import { init as viewInit } from './views';
-import { createApiInstance } from '../../../api/factory/concordance';
-import { findCurrQueryMatch } from '../../../models/query';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { LocalizedConfMsg } from '../../../types.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { ConcordanceTileModel } from './model.js';
+import { init as viewInit } from './views.js';
+import { createApiInstance } from '../../../api/factory/concordance.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {

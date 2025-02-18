@@ -20,18 +20,18 @@ import { Observable, Observer, of as rxOf } from 'rxjs';
 import { map, mergeMap, reduce, concatMap } from 'rxjs/operators';
 import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../api/vendor/kontext/freqTree';
-import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../models/tiles/freqTree';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './actions';
-import { QueryMatch } from '../../../query/index';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { ViewMode, ConcResponse } from '../../../api/abstract/concordance';
-import { callWithExtraVal } from '../../../api/util';
-import { Actions as ConcActions } from '../concordance/actions';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
+import { IAppServices } from '../../../appServices.js';
+import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../api/vendor/kontext/freqTree.js';
+import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../models/tiles/freqTree.js';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './actions.js';
+import { QueryMatch } from '../../../query/index.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { ViewMode, ConcResponse } from '../../../api/abstract/concordance.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015/index.js';
 
 
 export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {

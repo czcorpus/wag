@@ -15,19 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../api/vendor/kontext/freqs';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { MultiWordGeoAreasModel } from './model';
-import { init as viewInit } from './views';
-import { MapLoader } from './mapLoader';
-import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance as createFreqApiInstance} from '../../../api/factory/freqs';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { IAppServices } from '../../../appServices.js';
+import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { MultiWordGeoAreasModel } from './model.js';
+import { init as viewInit } from './views/index.js';
+import { MapLoader } from './mapLoader.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { createApiInstance as createFreqApiInstance} from '../../../api/factory/freqs.js';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface MultiWordGeoAreasTileConf extends TileConf {

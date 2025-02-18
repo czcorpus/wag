@@ -19,14 +19,14 @@
 import { IFullActionControl, ViewUtils } from 'kombo';
 import { List, Dict, pipe } from 'cnc-tskit';
 
-import { TileFactory, ITileProvider, TileConf } from './tile';
-import { GlobalComponents } from '../views/common';
-import { IAppServices } from '../appServices';
-import { Theme } from './theme';
-import { LayoutManager } from './layout';
-import { QueryType, RecognizedQueries } from '../query/index';
-import { IAsyncKeyValueStore } from '../types';
-import { EmptyTile } from '../tiles/core/empty';
+import { TileFactory, ITileProvider, TileConf } from './tile.js';
+import { GlobalComponents } from '../views/common/index.js';
+import { IAppServices } from '../appServices.js';
+import { Theme } from './theme.js';
+import { LayoutManager } from './layout.js';
+import { QueryType, RecognizedQueries } from '../query/index.js';
+import { IAsyncKeyValueStore } from '../types.js';
+import { EmptyTile } from '../tiles/core/empty.js';
 
 declare var require:any;
 

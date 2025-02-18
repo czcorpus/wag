@@ -22,23 +22,23 @@
  */
 import * as React from 'react';
 import { Observable } from 'rxjs';
-import { Theme } from './page/theme';
-import { ScreenProps } from './page/hostPage';
-import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index';
-import { ITileProvider, TileFrameProps } from './page/tile';
-import { ClientConf, MainPosAttrValues, UserConf } from './conf';
-import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout';
-import { Actions } from './models/actions';
-import { MessagesModel } from './models/messages';
-import { defaultFactory as mainFormFactory } from './models/query';
-import { TileResultFlag, WdglanceTilesModel } from './models/tiles';
-import { GlobalComponents, init as globalCompInit } from './views/common';
-import { init as viewInit, WdglanceMainProps } from './views/main';
-import { RetryTileLoad } from './models/retryLoad';
+import { Theme } from './page/theme.js';
+import { ScreenProps } from './page/hostPage.js';
+import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index.js';
+import { ITileProvider, TileFrameProps } from './page/tile.js';
+import { ClientConf, MainPosAttrValues, UserConf } from './conf/index.js';
+import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout.js';
+import { Actions } from './models/actions.js';
+import { MessagesModel } from './models/messages.js';
+import { defaultFactory as mainFormFactory } from './models/query.js';
+import { TileResultFlag, WdglanceTilesModel } from './models/tiles.js';
+import { GlobalComponents, init as globalCompInit } from './views/common/index.js';
+import { init as viewInit, WdglanceMainProps } from './views/main.js';
+import { RetryTileLoad } from './models/retryLoad.js';
 import { ViewUtils, IFullActionControl } from 'kombo';
-import { IAppServices } from './appServices';
-import { IAsyncKeyValueStore } from './types';
-import { mkTileFactory } from './page/tileLoader';
+import { IAppServices } from './appServices.js';
+import { IAsyncKeyValueStore } from './types.js';
+import { mkTileFactory } from './page/tileLoader.js';
 import { List, pipe, Dict } from 'cnc-tskit';
 
 

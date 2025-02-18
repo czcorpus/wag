@@ -19,15 +19,15 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { Actions } from './actions';
-import { FreqBarModel, FreqBarModelState } from './model';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { Actions } from './actions.js';
+import { FreqBarModel, FreqBarModelState } from './model.js';
 import { List, Strings } from 'cnc-tskit';
-import { DataRow } from '../../../api/abstract/freqs';
+import { DataRow } from '../../../api/abstract/freqs.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 
 const CHART_LABEL_MAX_LEN = 20;

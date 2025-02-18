@@ -17,9 +17,9 @@
  */
 import { Action } from 'kombo';
 
-import { LocalizedConfMsg } from '../../../types';
-import { ApiDataBlock } from '../../../api/abstract/freqs';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { LocalizedConfMsg } from '../../../types.js';
+import { ApiDataBlock } from '../../../api/abstract/freqs.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface DataLoadedPayload {

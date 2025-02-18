@@ -17,13 +17,13 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { IAsyncKeyValueStore, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
 import { HTTP } from 'cnc-tskit'
-import { cachedAjax$ } from '../../../page/ajax';
-import { CorpusInfoAPI } from './corpusInfo';
-import { LineElementType } from '../../abstract/concordance';
-import { IApiServices } from '../../../appServices';
-import { Backlink } from '../../../page/tile';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { LineElementType } from '../../abstract/concordance.js';
+import { IApiServices } from '../../../appServices.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 

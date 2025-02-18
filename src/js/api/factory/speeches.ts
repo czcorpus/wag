@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-import { CoreApiGroup } from '../coreGroups';
-import { IAudioUrlGenerator } from '../abstract/audio';
-import { KontextAudioLinkGenerator } from '../vendor/kontext/audio';
-import { SpeechesApi } from '../vendor/kontext/speeches';
-import { IAsyncKeyValueStore } from '../../types';
-import { IApiServices } from '../../appServices';
+import { CoreApiGroup } from '../coreGroups.js';
+import { IAudioUrlGenerator } from '../abstract/audio.js';
+import { KontextAudioLinkGenerator } from '../vendor/kontext/audio.js';
+import { SpeechesApi } from '../vendor/kontext/speeches.js';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { IApiServices } from '../../appServices.js';
 
 export function createSpeechesApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SpeechesApi {
 

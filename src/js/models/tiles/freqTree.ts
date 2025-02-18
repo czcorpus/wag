@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SingleCritQueryArgs } from '../../api/vendor/kontext/freqs';
-import { LocalizedConfMsg } from '../../types';
+import { SingleCritQueryArgs } from '../../api/vendor/kontext/freqs.js';
+import { LocalizedConfMsg } from '../../types.js';
 
 
 interface FreqTreeStateBase {

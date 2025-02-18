@@ -21,20 +21,20 @@ import { Observable, of as rxOf } from 'rxjs';
 import { mergeMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
-import { callWithExtraVal } from '../../../api/util';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { QueryMatch } from '../../../query/index';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
-import { ModelSourceArgs } from './common';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
-import { Actions } from './actions';
-import { TooltipValues } from '../../../views/common';
-import { Actions as ConcActions } from '../concordance/actions';
-import { isWebDelegateApi } from '../../../types';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
+import { IAppServices } from '../../../appServices.js';
+import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { QueryMatch } from '../../../query/index.js';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { ModelSourceArgs } from './common.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs.js';
+import { Actions } from './actions.js';
+import { TooltipValues } from '../../../views/common/index.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { isWebDelegateApi } from '../../../types.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 
 
 export interface MergeCorpFreqModelState {

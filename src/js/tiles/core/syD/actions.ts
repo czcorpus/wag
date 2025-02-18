@@ -17,8 +17,8 @@
  */
 
 import { Action } from 'kombo';
-import { Response } from './api';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { Response } from './api.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface DataLoadedPayload {
