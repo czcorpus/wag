@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import pino from 'pino';
-import { ServerConf } from '../conf';
+import { pino } from 'pino';
+import { ServerConf } from '../conf/index.js';
 
 const errSerializer = (err:Error) => {
     return {

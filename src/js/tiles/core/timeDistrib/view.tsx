@@ -203,7 +203,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Chart /> --------------------------------------
 
     const ChartLegend:React.FC<{
-        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:React.ReactText;}}>};
+        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:string|number;}}>};
         metric:string;
 
     }> = (props) => {
