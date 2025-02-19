@@ -17,9 +17,9 @@
  */
 
 import { ActionDispatcher, IModel, IActionDispatcher, Action } from 'kombo';
-import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import sinon from 'sinon';
 
-import { IAppServices, AppServices } from '../src/js/appServices';
+import { IAppServices, AppServices } from '../src/js/appServices.js';
 
 
 /**
@@ -28,7 +28,7 @@ import { IAppServices, AppServices } from '../src/js/appServices';
  */
 export class TestModelWrapper<T extends IModel<U>, U> {
 
-    appServicesStub:SinonStubbedInstance<IAppServices>;
+    appServicesStub:sinon.SinonStubbedInstance<IAppServices>;
 
     dispatcher:ActionDispatcher;
 
@@ -47,7 +47,7 @@ export class TestModelWrapper<T extends IModel<U>, U> {
         this.dispatcher.registerActionListener((action, _) => {
             this.lastAction = action.name;
         });
-        this.appServicesStub = createStubInstance(AppServices, appServicesOverrides);
+        this.appServicesStub = sinon.createStubInstance(AppServices, appServicesOverrides);
         this.model = modelFactory(this.dispatcher, this.appServicesStub);
     }
 
@@ -58,7 +58,7 @@ export class TestModelWrapper<T extends IModel<U>, U> {
      * @param checkState function to check model state or called appServices
      */
     checkState(evokeAction:Action, checkActionName:string,
-                checkState:(state:U, appServicesStub?:SinonStubbedInstance<IAppServices>) => void) {
+                checkState:(state:U, appServicesStub?:sinon.SinonStubbedInstance<IAppServices>) => void) {
         this.model.addListener(state => {
             if (this.lastAction === checkActionName) {
                 checkState(state, this.appServicesStub);

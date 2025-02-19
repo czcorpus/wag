@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { TestModelWrapper } from '../framework';
+import { TestModelWrapper } from '../framework.js';
 
-import { restore } from 'sinon';
+import sinon from 'sinon';
 import { assert } from 'chai';
 
-import { MessagesModel, MessagesState } from '../../src/js/models/messages';
-import { Actions } from '../../src/js/models/actions';
-import { SystemMessageType } from '../../src/js/types';
+import { MessagesModel, MessagesState } from '../../src/js/models/messages.js';
+import { Actions } from '../../src/js/models/actions.js';
+import { SystemMessageType } from '../../src/js/types.js';
 
 
 describe('MessagesModel', function () {
@@ -37,7 +37,7 @@ describe('MessagesModel', function () {
     }
 
     this.afterEach(function () {
-        restore();
+        sinon.restore();
     });
 
     describe('messages actions', function () {

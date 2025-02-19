@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-import { TestModelWrapper } from '../framework';
+import { TestModelWrapper } from '../framework.js';
 
-import { restore } from 'sinon';
+import sinon from 'sinon';
 import { assert } from 'chai';
 import { List } from 'cnc-tskit';
 
-import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
-import { QueryType, QueryMatch } from '../../src/js/query/index';
-import { PoSValues, UPoSValues } from '../../src/js/postag';
-import { Forms } from '../../src/js/page/forms';
-import { SystemMessageType } from '../../src/js/types';
-import { Actions } from '../../src/js/models/actions';
+import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query.js';
+import { QueryType, QueryMatch } from '../../src/js/query/index.js';
+import { PoSValues, UPoSValues } from '../../src/js/postag.js';
+import { Forms } from '../../src/js/page/forms.js';
+import { SystemMessageType } from '../../src/js/types.js';
+import { Actions } from '../../src/js/models/actions.js';
 
 
 describe('QueryFormModel', function () {
@@ -88,7 +88,7 @@ describe('QueryFormModel', function () {
     });
 
     this.afterEach(function () {
-        restore();
+        sinon.restore();
     });
 
     describe('domain change', function () {

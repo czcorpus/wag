@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-import { TestModelWrapper } from '../framework';
+import { TestModelWrapper } from '../framework.js';
 
-import { restore, stub } from 'sinon';
+import sinon from 'sinon';
 import { assert } from 'chai';
 
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlag } from '../../src/js/models/tiles';
-import { Actions } from '../../src/js/models/actions';
-import * as ajax from '../../src/js/page/ajax';
+import { WdglanceTilesModel, WdglanceTilesState, TileResultFlag } from '../../src/js/models/tiles.js';
+import { Actions } from '../../src/js/models/actions.js';
+import * as ajax from '../../src/js/page/ajax.js';
 import { of, throwError } from 'rxjs';
-import { SystemMessageType } from '../../src/js/types';
+import { SystemMessageType } from '../../src/js/types.js';
 
 
 describe('WdglanceTilesModel', function () {
@@ -40,7 +40,7 @@ describe('WdglanceTilesModel', function () {
     }
 
     this.afterEach(function () {
-        restore();
+        sinon.restore();
     });
 
     it('sets screen mode', function (done) {
@@ -171,7 +171,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests tile help side effect correct url', function (done) {
-            stub(ajax, 'ajax$').returns(of('<div/>'));
+            sinon.stub(ajax, 'ajax$').returns(of('<div/>'));
 
             setupModel({tileProps: [{helpURL: 'somewhere'}]})
             .checkState(
@@ -186,7 +186,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests tile help side effect ajax error', function (done) {
-            stub(ajax, 'ajax$').returns(throwError(() => new Error()));
+            sinon.stub(ajax, 'ajax$').returns(throwError(() => new Error()));
 
             setupModel({tileProps: [{helpURL: 'somewhere'}]})
             .checkState(
@@ -379,7 +379,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests showing group help side effect error', function (done) {
-            stub(ajax, 'ajax$').returns(throwError(() => new Error()));
+            sinon.stub(ajax, 'ajax$').returns(throwError(() => new Error()));
 
             setupModel()
             .checkState(
@@ -395,7 +395,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests showing group help side effect successfull', function (done) {
-            stub(ajax, 'ajax$').returns(of('<div/>'));
+            sinon.stub(ajax, 'ajax$').returns(of('<div/>'));
 
             setupModel()
             .checkState(
