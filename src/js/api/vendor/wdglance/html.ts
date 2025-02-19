@@ -19,13 +19,13 @@
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { cachedAjax$, ResponseType } from '../../../page/ajax';
-import { IAsyncKeyValueStore, WebDelegateApi } from '../../../types';
+import { cachedAjax$, ResponseType } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, WebDelegateApi } from '../../../types.js';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
-import { IGeneralHtmlAPI } from '../../abstract/html';
-import { IApiServices } from '../../../appServices';
-import { Backlink } from '../../../page/tile';
+import { IGeneralHtmlAPI } from '../../abstract/html.js';
+import { IApiServices } from '../../../appServices.js';
+import { Backlink } from '../../../page/tile.js';
 import { HTTP } from 'cnc-tskit';
 
 

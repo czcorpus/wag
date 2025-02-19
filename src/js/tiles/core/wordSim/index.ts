@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { WordSimModel } from './model';
-import { IAppServices } from '../../../appServices';
-import { init as viewInit } from './view';
-import { QueryType } from '../../../query/index';
-import { OperationMode } from '../../../models/tiles/wordSim';
-import { IWordSimApi } from '../../../api/abstract/wordSim';
-import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance } from '../../../api/factory/wordSim';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { WordSimModel } from './model.js';
+import { IAppServices } from '../../../appServices.js';
+import { init as viewInit } from './view.js';
+import { QueryType } from '../../../query/index.js';
+import { OperationMode } from '../../../models/tiles/wordSim.js';
+import { IWordSimApi } from '../../../api/abstract/wordSim.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { createApiInstance } from '../../../api/factory/wordSim.js';
 
 
 export interface WordSimTileConf extends TileConf {

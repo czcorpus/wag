@@ -18,15 +18,15 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { Ident, HTTP } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
-import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim.js';
 import { map, catchError } from 'rxjs/operators';
-import { WordSimModelState } from '../../../models/tiles/wordSim';
+import { WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { AjaxError } from 'rxjs/ajax';
-import { QueryMatch, QueryType } from '../../../query';
-import { InternalResourceInfoApi } from './freqDbSourceInfo';
-import { IApiServices } from '../../../appServices';
+import { QueryMatch, QueryType } from '../../../query/index.js';
+import { InternalResourceInfoApi } from './freqDbSourceInfo.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface CNCWord2VecSimApiArgs {

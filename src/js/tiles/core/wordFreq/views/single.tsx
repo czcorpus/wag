@@ -18,14 +18,14 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Actions as GlobalActions } from '../../../../models/actions';
-import { GlobalComponents } from '../../../../views/common';
-import { init as commonViewInit } from './common';
-import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
-import { QueryMatch } from '../../../../query/index';
+import { Actions as GlobalActions } from '../../../../models/actions.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { init as commonViewInit } from './common.js';
+import { SimilarFreqWord } from '../../../../api/abstract/similarFreq.js';
+import { QueryMatch } from '../../../../query/index.js';
 import { List, pipe } from 'cnc-tskit';
-import { Actions } from '../actions';
-import { MainPosAttrValues } from '../../../../conf';
+import { Actions } from '../actions.js';
+import { MainPosAttrValues } from '../../../../conf/index.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {

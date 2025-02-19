@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { TreqSubsetModel } from './model';
-import { TreqSubsetsAPI } from '../../../api/vendor/treq';
-import {init as viewInit} from './view';
-import { StatelessModel } from 'kombo';
-import { LocalizedConfMsg } from '../../../types';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { TreqSubsetModel } from './model.js';
+import { TreqSubsetsAPI } from '../../../api/vendor/treq/index.js';
+import {init as viewInit} from './view.js';
+import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
 
 

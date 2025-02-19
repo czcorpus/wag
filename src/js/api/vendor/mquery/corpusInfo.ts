@@ -18,9 +18,9 @@
 import { Observable } from 'rxjs';
 import { share, map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { DataApi, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { IApiServices } from '../../../appServices';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { DataApi, IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { IApiServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
 
 

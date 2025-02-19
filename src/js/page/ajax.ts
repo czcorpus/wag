@@ -19,8 +19,8 @@ import { Observable, of as rxOf } from 'rxjs';
 import { ajax, AjaxResponse } from 'rxjs/ajax';
 import { map, concatMap, tap } from 'rxjs/operators';
 
-import { MultiDict } from '../multidict';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../types';
+import { MultiDict } from '../multidict.js';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../types.js';
 
 
 

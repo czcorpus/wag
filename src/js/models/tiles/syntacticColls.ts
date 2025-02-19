@@ -17,8 +17,8 @@
  */
 
 import { Ident, List, pipe } from "cnc-tskit";
-import { SCollsQueryType, SCollsQueryTypeValue } from "../../api/vendor/mquery/syntacticColls";
-import { QueryMatch } from "../../query";
+import { SCollsQueryType, SCollsQueryTypeValue } from "../../api/vendor/mquery/syntacticColls.js";
+import { QueryMatch } from "../../query/index.js";
 
 export interface SCollsDataRow {
     value:string;

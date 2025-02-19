@@ -20,14 +20,14 @@ import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { List, HTTP, tuple, pipe } from 'cnc-tskit';
 
-import { IFreqDB } from '../freqdb';
-import { IAppServices, IApiServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../query/index';
-import { FreqDbOptions, MainPosAttrValues } from '../../../conf';
-import { importQueryPosWithLabel, PosItem, posTagsEqual } from '../../../postag';
-import { SourceDetails } from '../../../types';
-import { serverHttpRequest } from '../../request';
-import { CouchStoredSourceInfo } from './couchdb/sourceInfo';
+import { IFreqDB } from '../freqdb.js';
+import { IAppServices, IApiServices } from '../../../appServices.js';
+import { QueryMatch, calcFreqBand } from '../../../query/index.js';
+import { FreqDbOptions, MainPosAttrValues } from '../../../conf/index.js';
+import { importQueryPosWithLabel, PosItem, posTagsEqual } from '../../../postag.js';
+import { SourceDetails } from '../../../types.js';
+import { serverHttpRequest } from '../../request.js';
+import { CouchStoredSourceInfo } from './couchdb/sourceInfo.js';
 
 
 export interface ResourceInfo {

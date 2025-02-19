@@ -15,22 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { FreqTreeAPI } from '../../../api/vendor/kontext/freqTree';
-import { FreqTreeDataBlock } from '../../../models/tiles/freqTree';
-import { LocalizedConfMsg } from '../../../types';
-import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { factory as defaultModelFactory, FreqTreeModel } from './model';
-import { init as viewInit } from './view';
-import { findCurrQueryMatch } from '../../../models/query';
-import { createKontextConcApiInstance } from '../../../api/factory/concordance';
-import { CoreApiGroup } from '../../../api/coreGroups';
-import { createSimpleFreqApiInstance } from '../../../api/factory/freqs';
+import { IAppServices } from '../../../appServices.js';
+import { FreqTreeAPI } from '../../../api/vendor/kontext/freqTree.js';
+import { FreqTreeDataBlock } from '../../../models/tiles/freqTree.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { QueryType } from '../../../query/index.js';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { factory as defaultModelFactory, FreqTreeModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { createSimpleFreqApiInstance } from '../../../api/factory/freqs.js';
 
 
 export interface FreqTreeTileConf extends TileConf {

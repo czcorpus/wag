@@ -18,18 +18,18 @@
 import { IActionDispatcher } from 'kombo';
 import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
 
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { TimeDistTileConf } from './common';
-import { TimeDistribModel, LoadingStatus } from './model';
-import { init as viewInit } from './view';
-import { TileWait } from '../../../models/tileSync';
-import { PriorityValueFactory } from '../../../priority';
-import { IConcordanceApi } from '../../../api/abstract/concordance';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib.js';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { TimeDistTileConf } from './common.js';
+import { TimeDistribModel, LoadingStatus } from './model.js';
+import { init as viewInit } from './view.js';
+import { TileWait } from '../../../models/tileSync.js';
+import { PriorityValueFactory } from '../../../priority.js';
+import { IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
+import { TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 /**

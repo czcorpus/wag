@@ -23,10 +23,10 @@
 
 import { Observable } from 'rxjs';
 
-import { HostPageEnv, IToolbarProvider } from '../../page/hostPage';
-import { GlobalComponents } from '../../views/common';
+import { HostPageEnv, IToolbarProvider } from '../../page/hostPage.js';
+import { GlobalComponents } from '../../views/common/index.js';
 import { ViewUtils } from 'kombo';
-import { serverHttpRequest, ServerHTTPRequestError } from '../request';
+import { serverHttpRequest, ServerHTTPRequestError } from '../request.js';
 import { HTTP, pipe, Dict, List } from 'cnc-tskit';
 import { map, catchError } from 'rxjs/operators';
 

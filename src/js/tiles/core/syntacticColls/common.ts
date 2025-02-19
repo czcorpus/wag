@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
-import { SCollsData, SCollsExamples } from '../../../models/tiles/syntacticColls';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
+import { SCollsData, SCollsExamples } from '../../../models/tiles/syntacticColls.js';
 
 
 export class Actions {

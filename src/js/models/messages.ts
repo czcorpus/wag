@@ -18,9 +18,9 @@
 import { StatelessModel, IActionQueue } from 'kombo';
 import { List } from 'cnc-tskit';
 
-import { IAppServices } from '../appServices';
-import { SystemMessage } from '../page/notifications';
-import { Actions } from './actions';
+import { IAppServices } from '../appServices.js';
+import { SystemMessage } from '../page/notifications.js';
+import { Actions } from './actions.js';
 
 
 

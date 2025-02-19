@@ -19,15 +19,15 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceArea } from 'recharts';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { DataItemWithWCI, Actions } from './common';
-import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { DataItemWithWCI, Actions } from './common.js';
+import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model.js';
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
-import * as S from './style';
-import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import * as S from './style.js';
+import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -203,7 +203,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Chart /> --------------------------------------
 
     const ChartLegend:React.FC<{
-        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:React.ReactText;}}>};
+        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:string|number;}}>};
         metric:string;
 
     }> = (props) => {
@@ -333,7 +333,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis />
                         <Tooltip isAnimationActive={false}
                                 formatter={tooltipFormatter}
-                                content={globComponents.AlignedRechartsTooltip} />
+                                content={<globComponents.AlignedRechartsTooltip/>} />
                         {
                             this.props.displayFreq ?
                             <>

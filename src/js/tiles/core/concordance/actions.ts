@@ -17,9 +17,9 @@
  */
 import { Action } from 'kombo';
 
-import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { SubqueryPayload } from '../../../query';
+import { ConcResponse, ViewMode } from '../../../api/abstract/concordance.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { SubqueryPayload } from '../../../query/index.js';
 
 
 export interface ConcLoadedPayload {

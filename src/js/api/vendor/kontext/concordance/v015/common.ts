@@ -17,10 +17,10 @@
  */
 
 import { List, pipe } from 'cnc-tskit';
-import { posQueryFactory } from '../../../../../postag';
-import { QueryMatch, RangeRelatedSubqueryValue, SubQueryItem } from '../../../../../query';
-import { Line, LineElement } from '../../../../abstract/concordance';
-import { ConcSubmitArgs } from '../../types';
+import { posQueryFactory } from '../../../../../postag.js';
+import { QueryMatch, RangeRelatedSubqueryValue, SubQueryItem } from '../../../../../query/index.js';
+import { Line, LineElement } from '../../../../abstract/concordance.js';
+import { ConcSubmitArgs } from '../../types.js';
 
 
 export interface QueryOperation {

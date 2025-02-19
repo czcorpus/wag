@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { DataRow } from '../../../api/abstract/matchingDocs';
-import { BacklinkWithArgs } from '../../../page/tile';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { DataRow } from '../../../api/abstract/matchingDocs.js';
+import { BacklinkWithArgs } from '../../../page/tile.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface DataLoadedPayload {

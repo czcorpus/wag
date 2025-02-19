@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types';
-import { CoreApiGroup } from '../coreGroups';
-import { KontextCollAPI } from '../vendor/kontext/collocations';
-import { CollocationApi } from '../abstract/collocations';
-import { LccCollAPI } from '../vendor/lcc/cooccurrences';
-import { NoskeCollAPI } from '../vendor/noske/collocations';
-import { IApiServices } from '../../appServices';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { CoreApiGroup } from '../coreGroups.js';
+import { KontextCollAPI } from '../vendor/kontext/collocations.js';
+import { CollocationApi } from '../abstract/collocations.js';
+import { LccCollAPI } from '../vendor/lcc/cooccurrences.js';
+import { NoskeCollAPI } from '../vendor/noske/collocations.js';
+import { IApiServices } from '../../appServices.js';
 
 
 export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):CollocationApi<{}> {

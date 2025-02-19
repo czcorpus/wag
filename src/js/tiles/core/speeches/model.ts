@@ -18,19 +18,19 @@
 import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import { pipe, List, HTTP } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
-import { isSubqueryPayload } from '../../../query/index';
-import { SpeechesApi, SpeechReqArgs } from '../../../api/vendor/kontext/speeches';
-import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
-import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
-import { isWebDelegateApi, SystemMessageType } from '../../../types';
-import { Actions } from './actions';
-import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize';
-import { IAudioUrlGenerator } from '../../../api/abstract/audio';
-import { AudioPlayer } from '../../../page/audioPlayer';
-import { TileWait } from '../../../models/tileSync';
+import { IAppServices } from '../../../appServices.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions.js';
+import { isSubqueryPayload } from '../../../query/index.js';
+import { SpeechesApi, SpeechReqArgs } from '../../../api/vendor/kontext/speeches.js';
+import { SingleConcLoadedPayload } from '../../../api/abstract/concordance.js';
+import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain.js';
+import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { Actions } from './actions.js';
+import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize.js';
+import { IAudioUrlGenerator } from '../../../api/abstract/audio.js';
+import { AudioPlayer } from '../../../page/audioPlayer.js';
+import { TileWait } from '../../../models/tileSync.js';
 
 
 

@@ -15,19 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { QueryType } from '../../../query/index';
-import { AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { MergeCorpFreqModel } from './model';
-import { init as viewInit } from './view';
-import { LocalizedConfMsg } from '../../../types';
-import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { QueryType } from '../../../query/index.js';
+import { AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { MergeCorpFreqModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {

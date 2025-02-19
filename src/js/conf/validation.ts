@@ -18,10 +18,10 @@
 
 import { Dict, List } from 'cnc-tskit';
 import * as path from 'path';
-import Ajv from 'ajv';
+import { Ajv } from 'ajv';
 import * as fs from 'fs';
-import { DomainAnyTileConf, ServerConf } from '.';
-import { QueryType } from '../query';
+import { DomainAnyTileConf, ServerConf } from './index.js';
+import { QueryType } from '../query/index.js';
 
 
 const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');

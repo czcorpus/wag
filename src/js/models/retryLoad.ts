@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
-import { Actions } from '../models/actions';
+import { Actions } from '../models/actions.js';
 import { List, Dict } from 'cnc-tskit';
-import { ITileProvider, ITileReloader } from '../page/tile';
+import { ITileProvider, ITileReloader } from '../page/tile.js';
 
 
 
@@ -92,7 +92,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements 
                 Dict.forEach(
                     (model, ident) => {
                         if (!blockedGroup.some(x => x.toFixed() === ident)) {
-                            model.model.suspend({}, (action, syncData) => {
+                            model.model.waitForAction({}, (action, syncData) => {
                                 if (action.name === Actions.WakeSuspendedTiles.name) {
                                     return true;
                                 }

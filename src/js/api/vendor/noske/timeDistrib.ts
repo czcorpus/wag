@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
+import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib.js';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { NoskeFreqDistribAPI } from './freqs';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { CorpusInfoAPI } from './corpusInfo';
-import { IFreqDistribAPI } from '../../abstract/freqs';
-import { processConcId } from './common';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { NoskeFreqDistribAPI } from './freqs.js';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { IFreqDistribAPI } from '../../abstract/freqs.js';
+import { processConcId } from './common.js';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { HTTP } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices.js';
 
 
 interface BacklinkArgs {

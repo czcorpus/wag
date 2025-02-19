@@ -17,13 +17,13 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { RecognizedQueries } from '../../../query/index';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { RecognizedQueries } from '../../../query/index.js';
 
-import { DataLoadedPayload, __Template__ModelState, PartialDataLoadedPayload, Actions } from './common';
+import { DataLoadedPayload, __Template__ModelState, PartialDataLoadedPayload, Actions } from './common.js';
 import { of as rxOf } from 'rxjs';
-import { findCurrQueryMatch } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query.js';
 import { delay } from 'rxjs/operators';
 
 

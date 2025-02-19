@@ -19,8 +19,8 @@
 // This module contains types for APIs willing to implement 'timeDistrib'
 // tile-compatible resource access.
 
-import { ResourceApi } from '../../types';
-import { BacklinkWithArgs, Backlink } from '../../page/tile';
+import { ResourceApi } from '../../types.js';
+import { BacklinkWithArgs, Backlink } from '../../page/tile.js';
 
 
 export interface TimeDistribArgs {

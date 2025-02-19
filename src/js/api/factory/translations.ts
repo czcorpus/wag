@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types';
-import { TranslationAPI } from '../abstract/translations';
-import { TreqAPI } from '../vendor/treq';
-import { CoreApiGroup } from '../coreGroups';
-import { IAppServices } from '../../appServices';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { TranslationAPI } from '../abstract/translations.js';
+import { TreqAPI } from '../vendor/treq/index.js';
+import { CoreApiGroup } from '../coreGroups.js';
+import { IAppServices } from '../../appServices.js';
 
 
 export function createInstance(apiIdent:string, apiURL:string, appServices:IAppServices, cache:IAsyncKeyValueStore, apiOptions:{}):TranslationAPI<{}, {}> {

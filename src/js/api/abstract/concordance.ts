@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { ConcordanceMinState } from '../../models/tiles/concordance';
-import { QueryMatch, SubqueryPayload } from '../../query';
-import { SourceDetails, ResourceApi } from '../../types';
+import { ConcordanceMinState } from '../../models/tiles/concordance/index.js';
+import { QueryMatch, SubqueryPayload } from '../../query/index.js';
+import { SourceDetails, ResourceApi } from '../../types.js';
 import { Observable } from 'rxjs';
 
 

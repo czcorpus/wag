@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel } from 'kombo';
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { IAppServices } from '../../../appServices';
-import { WordFormsModel } from './model';
-import { QueryType } from '../../../query/index';
-import { init as viewInit } from './views';
-import { createApiInstance } from '../../../api/factory/wordForms';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { IAppServices } from '../../../appServices.js';
+import { WordFormsModel } from './model.js';
+import { QueryType } from '../../../query/index.js';
+import { init as viewInit } from './views.js';
+import { createApiInstance } from '../../../api/factory/wordForms.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface WordFormsTileConf extends TileConf {

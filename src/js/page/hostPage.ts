@@ -19,7 +19,7 @@
 import { ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
 
-import { GlobalComponents } from '../views/common';
+import { GlobalComponents } from '../views/common/index.js';
 
 
 export interface AvailableLanguage {

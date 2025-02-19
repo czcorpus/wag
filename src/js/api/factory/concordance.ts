@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataApi, IAsyncKeyValueStore } from '../../types';
-import { IConcordanceApi } from '../abstract/concordance';
-import { ConcApi as ConcApi015} from '../vendor/kontext/concordance/v015';
-import { ConcApi as NoskeConcApi } from '../vendor/noske/concordance';
-import { ConcApi as LCCConcApi } from '../vendor/lcc/concordance';
-import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve';
-import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain';
-import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
-import { IApiServices, IAppServices } from '../../appServices';
+import { DataApi, IAsyncKeyValueStore } from '../../types.js';
+import { IConcordanceApi } from '../abstract/concordance.js';
+import { ConcApi as ConcApi015} from '../vendor/kontext/concordance/v015/index.js';
+import { ConcApi as NoskeConcApi } from '../vendor/noske/concordance.js';
+import { ConcApi as LCCConcApi } from '../vendor/lcc/concordance.js';
+import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve.js';
+import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain.js';
+import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
+import { IApiServices, IAppServices } from '../../appServices.js';
 
 
 export function createKontextConcApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {

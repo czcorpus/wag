@@ -18,17 +18,17 @@
 
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
+import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model.js';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell } from 'recharts';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
-import { GlobalComponents } from '../../../views/common';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { Theme } from '../../../page/theme';
-import { QueryMatch } from '../../../query/index';
+import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { Theme } from '../../../page/theme.js';
+import { QueryMatch } from '../../../query/index.js';
 import { List, pipe, Strings } from 'cnc-tskit';
-import { Actions } from './actions';
+import { Actions } from './actions.js';
 
-import * as S from './style';
+import * as S from './style.js';
 
 const CHART_LABEL_MAX_LEN = 20;
 

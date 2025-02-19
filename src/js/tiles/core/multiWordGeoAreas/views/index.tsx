@@ -19,16 +19,16 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 
-import { Theme } from '../../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
-import { GlobalComponents } from '../../../../views/common';
-import { Actions } from '../actions';
-import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
-import { QueryMatch } from '../../../../query/index';
+import { Theme } from '../../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { Actions } from '../actions.js';
+import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model.js';
+import { QueryMatch } from '../../../../query/index.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
-import { DataRow } from '../../../../api/abstract/freqs';
+import { DataRow } from '../../../../api/abstract/freqs.js';
 
-import * as S from '../style';
+import * as S from '../style.js';
 
 
 export interface TargetDataRow extends DataRow {

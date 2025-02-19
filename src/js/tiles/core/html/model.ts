@@ -17,17 +17,17 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { Actions } from './common';
-import { HtmlModelState } from './common';
-import { findCurrQueryMatch } from '../../../models/query';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Actions } from './common.js';
+import { HtmlModelState } from './common.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { RecognizedQueries } from '../../../query/index';
-import { IGeneralHtmlAPI } from '../../../api/abstract/html';
-import { Backlink, createAppBacklink } from '../../../page/tile';
-import { isWebDelegateApi } from '../../../types';
+import { RecognizedQueries } from '../../../query/index.js';
+import { IGeneralHtmlAPI } from '../../../api/abstract/html.js';
+import { Backlink, createAppBacklink } from '../../../page/tile.js';
+import { isWebDelegateApi } from '../../../types.js';
 
 
 export interface HtmlModelArgs {

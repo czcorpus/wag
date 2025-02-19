@@ -18,11 +18,11 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DataApi, SourceDetails } from '../../../../types';
+import { DataApi, SourceDetails } from '../../../../types.js';
 import { HTTP } from 'cnc-tskit';
-import { XMLParser, XMLNode } from '../../../../page/xml';
-import { ajax$, ResponseType } from '../../../../page/ajax';
-import { IApiServices } from '../../../../appServices';
+import { XMLParser, XMLNode } from '../../../../page/xml.js';
+import { ajax$, ResponseType } from '../../../../page/ajax.js';
+import { IApiServices } from '../../../../appServices.js';
 
 
 export interface FCS1ExplainArgs {

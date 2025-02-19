@@ -17,8 +17,8 @@
  */
 
 import { Observable } from 'rxjs';
-import { DataApi, SourceDetails, ResourceApi } from '../../types';
-import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/tiles/translations';
+import { DataApi, SourceDetails, ResourceApi } from '../../types.js';
+import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/tiles/translations.js';
 
 
 export interface WordTranslation {

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { SubqueryPayload, isSubqueryPayload, QueryMatch, RangeRelatedSubqueryValue } from '../../query';
-import { SourceDetails, ResourceApi } from '../../types';
-import { CollocModelState } from '../../models/tiles/collocations';
+import { SubqueryPayload, isSubqueryPayload, QueryMatch, RangeRelatedSubqueryValue } from '../../query/index.js';
+import { SourceDetails, ResourceApi } from '../../types.js';
+import { CollocModelState } from '../../models/tiles/collocations.js';
 import { Observable } from 'rxjs';
 
 

@@ -18,12 +18,12 @@
 import * as React from 'react';
 
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { GlobalComponents } from '../../../views/common';
-import { WordFormsModel, WordFormsModelState } from './model';
-import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
-import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { WordFormItem } from '../../../api/abstract/wordForms';
-import { Theme } from '../../../page/theme';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { WordFormsModel, WordFormsModelState } from './model.js';
+import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
+import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
+import { WordFormItem } from '../../../api/abstract/wordForms.js';
+import { Theme } from '../../../page/theme.js';
 import { List } from 'cnc-tskit';
 
 

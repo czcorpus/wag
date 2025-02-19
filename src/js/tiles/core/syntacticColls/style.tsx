@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
+import { styled } from 'styled-components';
+import * as theme from '../../../views/common/theme.js';
 
 export const SyntacticColls = styled.div`
 

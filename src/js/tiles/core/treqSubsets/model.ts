@@ -19,15 +19,15 @@
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { mkInterctionId, TreqSubsetsAPI } from '../../../api/vendor/treq';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { findCurrQueryMatch } from '../../../models/query';
-import { Actions } from './actions';
-import { callWithExtraVal } from '../../../api/util';
-import { isSubqueryPayload, RecognizedQueries } from '../../../query/index';
-import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
-import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
-import { IAppServices } from '../../../appServices';
+import { mkInterctionId, TreqSubsetsAPI } from '../../../api/vendor/treq/index.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
+import { Actions } from './actions.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { isSubqueryPayload, RecognizedQueries } from '../../../query/index.js';
+import { isCollocSubqueryPayload } from '../../../api/abstract/collocations.js';
+import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations.js';
+import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
 

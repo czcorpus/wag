@@ -20,13 +20,13 @@ import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
-import { HostPageEnv, AvailableLanguage } from '../../page/hostPage';
-import { RecognizedQueries } from '../../query/index';
-import { ClientConf, UserConf, ColorThemeIdent } from '../../conf';
-import { TileGroup } from '../../page/layout';
-import { GlobalComponents } from '../common';
-import { WdglanceMainProps } from '../main';
-import { ErrPageProps } from '../error';
+import { HostPageEnv, AvailableLanguage } from '../../page/hostPage.js';
+import { RecognizedQueries } from '../../query/index.js';
+import { ClientConf, UserConf, ColorThemeIdent } from '../../conf/index.js';
+import { TileGroup } from '../../page/layout.js';
+import { GlobalComponents } from '../common/index.js';
+import { WdglanceMainProps } from '../main.js';
+import { ErrPageProps } from '../error.js';
 import { List, pipe } from 'cnc-tskit';
 
 

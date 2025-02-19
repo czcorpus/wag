@@ -18,20 +18,20 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../page/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { SyntacticCollsModel } from './model';
-import { init as wordCloudViewInit } from '../../../views/wordCloud';
+import { Theme } from '../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { SyntacticCollsModel } from './model.js';
+import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
-import * as S from './style';
+import * as S from './style.js';
 import {
     SCollsDataRow, SCollsExamples, SyntacticCollsModelState, mkScollExampleLineHash
-} from '../../../models/tiles/syntacticColls';
+} from '../../../models/tiles/syntacticColls.js';
 import { Dict, List, pipe } from 'cnc-tskit';
-import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls';
-import { WordCloudItemCalc } from '../../../views/wordCloud/calc';
-import { Actions } from './common';
+import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
+import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
+import { Actions } from './common.js';
 
 
 export function init(

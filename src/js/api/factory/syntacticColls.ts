@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types';
-import { CoreApiGroup } from '../coreGroups';
-import { IApiServices } from '../../appServices';
-import { MquerySyntacticCollsAPI, MquerySyntacticCollsExamplesApi } from '../vendor/mquery/syntacticColls';
-import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../abstract/syntacticColls';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { CoreApiGroup } from '../coreGroups.js';
+import { IApiServices } from '../../appServices.js';
+import { MquerySyntacticCollsAPI, MquerySyntacticCollsExamplesApi } from '../vendor/mquery/syntacticColls.js';
+import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../abstract/syntacticColls.js';
 import { tuple } from 'cnc-tskit';
 
 

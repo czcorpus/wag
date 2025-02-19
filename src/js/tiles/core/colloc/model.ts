@@ -20,20 +20,20 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, tap, reduce } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { isWebDelegateApi, SystemMessageType } from '../../../types';
-import { Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordance/actions';
-import { Actions } from './common';
-import { Actions as ConcActions } from '../concordance/actions';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
-import { CollocationApi } from '../../../api/abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
-import { CoreCollRequestArgs } from '../../../api/vendor/kontext/collocations';
-import { QueryMatch, QueryType } from '../../../query/index';
-import { callWithExtraVal } from '../../../api/util';
-import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
-import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { IAppServices } from '../../../appServices.js';
+import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { Actions as GlobalActions } from '../../../models/actions.js';
+import { ConcLoadedPayload } from '../concordance/actions.js';
+import { Actions } from './common.js';
+import { Actions as ConcActions } from '../concordance/actions.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { CollocationApi } from '../../../api/abstract/collocations.js';
+import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations.js';
+import { CoreCollRequestArgs } from '../../../api/vendor/kontext/collocations.js';
+import { QueryMatch, QueryType } from '../../../query/index.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance.js';
+import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
 
 
 export interface CollocModelArgs {

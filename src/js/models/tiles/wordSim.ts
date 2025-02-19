@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WordSimWord } from '../../api/abstract/wordSim';
-import { QueryMatch } from '../../query';
+import { WordSimWord } from '../../api/abstract/wordSim.js';
+import { QueryMatch } from '../../query/index.js';
 
 export enum OperationMode {
     MeansLike = 'ml',

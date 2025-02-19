@@ -19,12 +19,12 @@ import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
-import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
-import { CollocModelState } from '../../../models/tiles/collocations';
-import { QueryMatch } from '../../../query';
-import { IApiServices } from '../../../appServices';
+import { cachedAjax$ } from '../../../page/ajax.js';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { CollApiResponse, CollocationApi } from '../../abstract/collocations.js';
+import { CollocModelState } from '../../../models/tiles/collocations.js';
+import { QueryMatch } from '../../../query/index.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export interface CollRequestArgs {

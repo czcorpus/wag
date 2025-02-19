@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-import { IConcordanceApi, ViewMode, ConcResponse, Line, LineElementType } from '../../abstract/concordance';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { CorpusInfoAPI } from './corpusInfo';
-import { ConcordanceMinState } from '../../../models/tiles/concordance';
-import { QueryMatch } from '../../../query';
+import { IConcordanceApi, ViewMode, ConcResponse, Line, LineElementType } from '../../abstract/concordance.js';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusInfoAPI } from './corpusInfo.js';
+import { ConcordanceMinState } from '../../../models/tiles/concordance/index.js';
+import { QueryMatch } from '../../../query/index.js';
 import { Observable } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax';
+import { cachedAjax$ } from '../../../page/ajax.js';
 import { map } from 'rxjs/operators';
-import { posQueryFactory } from '../../../postag';
+import { posQueryFactory } from '../../../postag.js';
 import { List, pipe } from 'cnc-tskit';
-import { HTTPApiResponse, processConcId } from './common';
-import { IApiServices } from '../../../appServices';
+import { HTTPApiResponse, processConcId } from './common.js';
+import { IApiServices } from '../../../appServices.js';
 
 
 export enum QuerySelector {

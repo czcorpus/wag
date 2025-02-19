@@ -18,17 +18,17 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { LocalizedConfMsg } from '../../../types';
-import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/common';
-import { factory as defaultModelFactory, FreqComparisonModel } from './model';
-import { init as viewInit } from './view';
-import { FreqSort } from '../../../api/vendor/kontext/freqs';
-import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../api/factory/freqs';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
-import { CoreApiGroup } from '../../../api/coreGroups';
+import { IAppServices } from '../../../appServices.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { QueryType } from '../../../query/index.js';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { GlobalComponents } from '../../../views/common/index.js';
+import { factory as defaultModelFactory, FreqComparisonModel } from './model.js';
+import { init as viewInit } from './view.js';
+import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
+import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../api/factory/freqs.js';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
+import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
 export interface FreqComparisonTileConf extends TileConf {

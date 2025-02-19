@@ -19,22 +19,22 @@ import { map, concatMap, reduce, tap, scan } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
-import { IAppServices } from '../../../appServices';
-import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
-import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../query/index';
-import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
-import { mkContextFilter, escapeVal  } from '../../../api/vendor/kontext/concordance/v015/common'
-import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance';
+import { IAppServices } from '../../../appServices.js';
+import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions.js';
+import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../query/index.js';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015/index.js';
+import { mkContextFilter, escapeVal  } from '../../../api/vendor/kontext/concordance/v015/common.js'
+import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance.js';
 import { Observable } from 'rxjs';
-import { isConcLoadedPayload } from '../concordance/actions';
-import { Actions } from './actions';
-import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
+import { isConcLoadedPayload } from '../concordance/actions.js';
+import { Actions } from './actions.js';
+import { normalizeTypography } from '../../../models/tiles/concordance/normalize.js';
 import { Dict, pipe, List, tuple } from 'cnc-tskit';
-import { callWithExtraVal } from '../../../api/util';
-import { TileWait } from '../../../models/tileSync';
-import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
-import { isWebDelegateApi, SystemMessageType } from '../../../types';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
+import { callWithExtraVal } from '../../../api/util.js';
+import { TileWait } from '../../../models/tileSync.js';
+import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types.js';
+import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 
 
 export interface ConcFilterModelState {

@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types';
-import { IFreqDistribAPI, IMultiBlockFreqDistribAPI } from '../abstract/freqs';
-import { CoreApiGroup } from '../coreGroups';
-import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI, SimpleKontextFreqDistribAPI } from '../vendor/kontext/freqs';
-import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs';
-import { IApiServices } from '../../appServices';
-import { MQueryFreqDistribAPI } from '../vendor/mquery/freqs';
+import { IAsyncKeyValueStore } from '../../types.js';
+import { IFreqDistribAPI, IMultiBlockFreqDistribAPI } from '../abstract/freqs.js';
+import { CoreApiGroup } from '../coreGroups.js';
+import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI, SimpleKontextFreqDistribAPI } from '../vendor/kontext/freqs.js';
+import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs.js';
+import { IApiServices } from '../../appServices.js';
+import { MQueryFreqDistribAPI } from '../vendor/mquery/freqs.js';
 
 
 export function createSimpleFreqApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SimpleKontextFreqDistribAPI {

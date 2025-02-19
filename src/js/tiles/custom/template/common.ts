@@ -17,7 +17,7 @@
  */
 
 import { Action } from 'kombo';
-import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions.js';
 
 
 export interface __Template__ModelState {

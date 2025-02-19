@@ -17,8 +17,8 @@
  */
 import { Action } from 'kombo';
 
-import { SystemMessageType, SourceDetails } from '../types';
-import { QueryType } from '../query/index';
+import { SystemMessageType, SourceDetails } from '../types.js';
+import { QueryType } from '../query/index.js';
 
 
 export class Actions {
