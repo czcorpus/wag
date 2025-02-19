@@ -1,9 +1,11 @@
-const path = require('path');
-const build = require('./build');
+import { fileURLToPath } from 'url';
+import path from 'path';
+import * as build from './build.js';
 
 
 // helper functions
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const mkpath = (p) => path.resolve(__dirname, '.', p);
 
 
@@ -11,7 +13,7 @@ const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
 const CONF = build.loadConf(mkpath('conf/server.json'));
 
-module.exports = (env) => ({
+export default (env) => ({
     mode: 'development',
     target: ['web', 'es5'],
     entry: {
@@ -33,8 +35,8 @@ module.exports = (env) => ({
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
         fallback: {
-            'path': require.resolve('path-browserify'),
-            'stream': require.resolve('stream-browserify')
+            'path': import.meta.resolve('path-browserify'),
+            'stream': import.meta.resolve('stream-browserify')
         },
         symlinks: false
     },
