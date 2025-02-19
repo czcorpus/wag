@@ -1,9 +1,11 @@
-const path = require('path');
-const build = require('./build');
-const nodeExternals = require('webpack-node-externals');
+import { fileURLToPath } from 'url';
+import path from 'path';
+import * as build from './build.js';
+import nodeExternals from 'webpack-node-externals';
 
 // helper functions
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const mkpath = (p) => path.resolve(__dirname, '.', p);
 
 
@@ -11,7 +13,7 @@ const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
 const CONF = build.loadConf(mkpath('conf/server.json'));
 
-module.exports = (env) => ({
+export default (env) => ({
     mode: process.env.NODE_ENV || 'production',
     target: 'node',
     externals: [

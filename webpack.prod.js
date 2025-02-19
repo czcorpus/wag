@@ -1,9 +1,11 @@
-const path = require('path');
-const build = require('./build');
-const TerserPlugin = require('terser-webpack-plugin');
+import { fileURLToPath } from 'url';
+import path from 'path';
+import * as build from './build.js';
+import TerserPlugin from 'terser-webpack-plugin';
 
 // helper functions
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const mkpath = (...p) => path.resolve(__dirname, '.', ...p);
 
 process.env.NODE_ENV = 'production';
@@ -12,7 +14,7 @@ const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
 const CONF = build.loadConf(mkpath('conf/server.json'));
 
-module.exports = (env) => ({
+export default (env) => ({
     mode: 'production',
     target: ['web', 'es5'],
     entry: {
@@ -34,9 +36,9 @@ module.exports = (env) => ({
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
         fallback: {
-            'buffer': require.resolve('buffer/'),
-            'path': require.resolve('path-browserify/'),
-            'stream': require.resolve('stream-browserify/')
+            'buffer': import.meta.resolve('buffer/'),
+            'path': import.meta.resolve('path-browserify/'),
+            'stream': import.meta.resolve('stream-browserify/')
         },
         symlinks: false
     },

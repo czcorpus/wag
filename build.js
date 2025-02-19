@@ -1,8 +1,6 @@
-(function (module) {
-
-const path = require('path');
-const fs = require('fs');
-const merge = require('merge');
+import path from 'path';
+import fs from 'fs';
+import merge from 'merge';
 
 function findAllMessageFiles(startDir) {
     const ans = [];
@@ -22,7 +20,7 @@ function mergeTranslations(startDir, destFile, configuredLangs) {
     let files = findAllMessageFiles(startDir);
     let translations = {};
     files.forEach((item) => {
-        const data = JSON.parse(fs.readFileSync(item));
+        const data = JSON.parse(fs.readFileSync(item, 'utf-8'));
         validateLanguageCodes(Object.keys(data));
         Object.keys(data).forEach(avail => {
             if (configuredLangs.indexOf(avail) === -1) {
@@ -66,7 +64,7 @@ function validateLanguageCodes(codeList) {
     })
 }
 
-module.exports.ProcTranslationsPlugin = class ProcTranslationsPlugin {
+export class ProcTranslationsPlugin {
 
     constructor(srcPath, distPath, conf) {
         this._srcPath = srcPath;
@@ -100,12 +98,12 @@ module.exports.ProcTranslationsPlugin = class ProcTranslationsPlugin {
 }
 
 
-module.exports.loadConf = (path) => {
-    return JSON.parse(fs.readFileSync(path));
+export function loadConf(path) {
+    return JSON.parse(fs.readFileSync(path, 'utf-8'));
 };
 
 
-module.exports.createBabelOptions = (env) => {
+export function createBabelOptions(env) {
     return {
         presets: [
             ["@babel/env", { modules: false }],
@@ -127,5 +125,3 @@ module.exports.createBabelOptions = (env) => {
         ]
     };
 };
-
-})(module);
