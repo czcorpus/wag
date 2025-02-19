@@ -104,4 +104,3 @@ export class ProcTranslationsPlugin {
 export function loadConf(path) {
     return JSON.parse(fs.readFileSync(path, 'utf-8'));
 };
-
