@@ -23,7 +23,7 @@ import { assert } from 'chai';
 
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlag } from '../../src/js/models/tiles.js';
 import { Actions } from '../../src/js/models/actions.js';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of as rxOf, throwError } from 'rxjs';
 import { SystemMessageType } from '../../src/js/types.js';
 
 
@@ -171,7 +171,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests tile help side effect correct url', function (done) {
-            setupModel({tileProps: [{helpURL: 'somewhere'}]}, of('<div/>'))
+            setupModel({tileProps: [{helpURL: 'somewhere'}]}, rxOf('<div/>'))
             .checkState(
                 {name: Actions.ShowTileHelp.name, payload: {tileId: 0}},
                 Actions.LoadTileHelpDone.name,
@@ -362,7 +362,7 @@ describe('WdglanceTilesModel', function () {
 
     describe('group help', function () {
         it('starts showing group help', function (done) {
-            setupModel({}, of('<div/>'))
+            setupModel({}, rxOf('<div/>'))
             .checkState(
                 {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
                 Actions.ShowGroupHelp.name,
@@ -389,7 +389,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests showing group help side effect successfull', function (done) {
-            setupModel({}, of('<div/>'))
+            setupModel({}, rxOf('<div/>'))
             .checkState(
                 {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
                 Actions.ShowGroupHelpDone.name,
