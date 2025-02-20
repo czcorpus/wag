@@ -19,7 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
-import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
+import { HTTPHeaders, IAsyncKeyValueStore, LocalizedConfMsg, SystemMessageType } from './types.js';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma.js';
 import { SystemNotifications } from './page/notifications.js';
 import { HTTPAction } from './server/routes/actions.js';
@@ -28,6 +28,7 @@ import { MultiDict } from './multidict.js';
 import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf/index.js';
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
+import { ajax$, AjaxArgs, AjaxOptions, cachedAjax$ } from './page/ajax.js';
 
 
 export interface IApiServices {
@@ -87,6 +88,12 @@ export interface IAppServices extends IApiServices {
      * Create a (short) normalized error message.
      */
     normalizeHttpApiError(err:Error|AjaxError):string;
+
+    ajax$<T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T>;
+
+    cachedAjax$<T>(cache:IAsyncKeyValueStore):(
+        method:string, url:string, args:AjaxArgs, options?:AjaxOptions
+    ) => Observable<T>;
 }
 
 
@@ -334,5 +341,15 @@ export class AppServices implements IAppServices {
 
     getAudioPlayer():AudioPlayer {
         return this.audioPlayer;
+    }
+
+    ajax$<T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> {
+        return ajax$<T>(method, url, args, options);
+    }
+
+    cachedAjax$<T>(cache:IAsyncKeyValueStore):(
+        method:string, url:string, args:AjaxArgs, options?:AjaxOptions
+    ) => Observable<T> {
+        return cachedAjax$(cache);
     }
 }

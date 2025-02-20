@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { ajax$, ResponseType } from '../../src/js/page/ajax';
+import { ajax$, ResponseType } from '../../src/js/page/ajax.js';
 import { assert } from 'chai';
 import * as MockXMLHttpRequest from 'mock-xmlhttprequest';
 
