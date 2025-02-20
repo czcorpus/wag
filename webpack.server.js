@@ -36,7 +36,10 @@ export default (env) => ({
             mkpath('dist/.compiled')
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
-        symlinks: false
+        symlinks: false,
+        extensionAlias: {
+            '.js': ['.ts', '.js', '.tsx']
+        }
     },
     module: {
         rules: [
