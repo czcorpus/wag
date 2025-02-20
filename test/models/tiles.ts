@@ -23,19 +23,19 @@ import { assert } from 'chai';
 
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlag } from '../../src/js/models/tiles.js';
 import { Actions } from '../../src/js/models/actions.js';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { SystemMessageType } from '../../src/js/types.js';
-import { ajax$ } from '../../src/js/page/ajax.js';
 
 
 describe('WdglanceTilesModel', function () {
-    function setupModel(initialStateOverrides = {}):TestModelWrapper<WdglanceTilesModel, WdglanceTilesState> {
+    function setupModel(initialStateOverrides = {}, ajaxObservable?:Observable<any>):TestModelWrapper<WdglanceTilesModel, WdglanceTilesState> {
         return new TestModelWrapper(
             (dispatcher, appServices) => new WdglanceTilesModel(
                 dispatcher,
                 {...initialStateOverrides} as WdglanceTilesState,
-                appServices
-            )
+                appServices,
+            ),
+            ajaxObservable ? { ajax$: ajaxObservable } : {}
         );
     }
 
@@ -171,9 +171,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests tile help side effect correct url', function (done) {
-            sinon.stub(ajax$, 'ajax$').returns(of('<div/>'));
-
-            setupModel({tileProps: [{helpURL: 'somewhere'}]})
+            setupModel({tileProps: [{helpURL: 'somewhere'}]}, of('<div/>'))
             .checkState(
                 {name: Actions.ShowTileHelp.name, payload: {tileId: 0}},
                 Actions.LoadTileHelpDone.name,
@@ -186,9 +184,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests tile help side effect ajax error', function (done) {
-            sinon.stub(ajax$, 'ajax$').returns(throwError(() => new Error()));
-
-            setupModel({tileProps: [{helpURL: 'somewhere'}]})
+            setupModel({tileProps: [{helpURL: 'somewhere'}]}, throwError(() => new Error()))
             .checkState(
                 {name: Actions.ShowTileHelp.name, payload: {tileId: 0}},
                 Actions.LoadTileHelpDone.name,
@@ -366,7 +362,7 @@ describe('WdglanceTilesModel', function () {
 
     describe('group help', function () {
         it('starts showing group help', function (done) {
-            setupModel()
+            setupModel({}, of('<div/>'))
             .checkState(
                 {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
                 Actions.ShowGroupHelp.name,
@@ -379,9 +375,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests showing group help side effect error', function (done) {
-            sinon.stub(ajax$, 'ajax$').returns(throwError(() => new Error()));
-
-            setupModel()
+            setupModel({}, throwError(() => new Error()))
             .checkState(
                 {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
                 Actions.ShowGroupHelpDone.name,
@@ -395,9 +389,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests showing group help side effect successfull', function (done) {
-            sinon.stub(ajax$, 'ajax$').returns(of('<div/>'));
-
-            setupModel()
+            setupModel({}, of('<div/>'))
             .checkState(
                 {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
                 Actions.ShowGroupHelpDone.name,
