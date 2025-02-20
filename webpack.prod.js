@@ -40,7 +40,10 @@ export default (env) => ({
             'path': import.meta.resolve('path-browserify/'),
             'stream': import.meta.resolve('stream-browserify/')
         },
-        symlinks: false
+        symlinks: false,
+        extensionAlias: {
+            '.js': ['.ts', '.js', '.tsx']
+        }
     },
     module: {
         rules: [
