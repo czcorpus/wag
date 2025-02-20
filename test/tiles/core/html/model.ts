@@ -20,7 +20,7 @@ import { TestModelWrapper } from '../../../framework.js';
 
 import sinon from 'sinon';
 import { assert } from 'chai';
-import { of as rxOf } from 'rxjs';
+import { of as rxOf, Observable } from 'rxjs';
 
 import { HtmlModel } from '../../../../src/js/tiles/core/html/model.js';
 import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/api/vendor/wdglance/html.js';
@@ -31,8 +31,6 @@ import { Actions } from '../../../../src/js/models/actions.js';
 import * as query from '../../../../src/js/models/query.js';
 import { HTTP } from 'cnc-tskit';
 
-const queryM = {...query};
-
 
 describe('HtmlTile model', function () {
 
@@ -41,10 +39,23 @@ describe('HtmlTile model', function () {
     let testHtmlModel:TestModelWrapper<HtmlModel, HtmlModelState>;
 
     this.beforeEach(function () {
-        htmlApiStub = sinon.createStubInstance(RawHtmlAPI, {
-            call: rxOf('fake html response')
-        });
-        sinon.stub(queryM, 'findCurrQueryMatch').returns({lemma: 'anything'} as QueryMatch);
+        htmlApiStub = sinon.createStubInstance(
+            RawHtmlAPI,
+            {
+                call: sinon.stub<[HtmlApiArgs], Observable<string>>().callsFake(
+                    (args) => {
+                        return args.variant === 'anything' ? rxOf('fake html response') : rxOf('invalid html response');
+                    }
+                ),
+                stateToArgs: sinon.stub<[{lemmaArg:string, args:{[key:string]:string}}, string], HtmlApiArgs>().callsFake(
+                    (args, variant) => {
+                        return {
+                            variant
+                        }
+                    }
+                )
+            }
+        );
 
         testHtmlModel = new TestModelWrapper<HtmlModel, HtmlModelState>(
             (dispatcher, appServices) => new HtmlModel({
@@ -63,7 +74,7 @@ describe('HtmlTile model', function () {
                     sanitizeHTML: false,
                     backlink: {url: '', label: '', method: HTTP.Method.GET, args: {}}
                 },
-                queryMatches: [[{isCurrent: true} as QueryMatch]],
+                queryMatches: [[{isCurrent: true, lemma: 'anything'} as QueryMatch]],
                 backlink: {url: '', label: '', method: HTTP.Method.GET}
             })
         );
