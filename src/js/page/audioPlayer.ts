@@ -19,16 +19,7 @@
 import { of as rxOf, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
-
-let soundManager:any;
-if (typeof window === 'undefined') {
-    soundManager = {
-        setup:() => {}
-    };
-
-} else {
-    soundManager = require('soundmanager2').soundManager;
-}
+import soundManager from 'soundmanager2';
 
 
 

@@ -36,7 +36,7 @@ function mergeTranslations(startDir, destFile, configuredLangs) {
         destFile = [destFile];
     }
     destFile.forEach((destItem) => {
-        fs.writeFileSync(destItem, "module.exports = " + JSON.stringify(translations) + ";\n");
+        fs.writeFileSync(destItem, "export default " + JSON.stringify(translations) + ";\n");
         const loadconf = (path) => {
             false
         }
@@ -106,7 +106,7 @@ export function loadConf(path) {
 export function createBabelOptions(env) {
     return {
         presets: [
-            ["@babel/env", { modules: false }],
+            ["@babel/env", { modules: false, targets: {node: 'current'} }],
             "@babel/react",
             "@babel/typescript"
         ],

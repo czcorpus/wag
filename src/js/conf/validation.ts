@@ -22,7 +22,10 @@ import { Ajv } from 'ajv';
 import * as fs from 'fs';
 import { DomainAnyTileConf, ServerConf } from './index.js';
 import { QueryType } from '../query/index.js';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');
 

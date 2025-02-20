@@ -17,20 +17,29 @@ export default (env) => ({
     mode: process.env.NODE_ENV || 'production',
     target: 'node',
     externals: [
-        nodeExternals()
+        nodeExternals({
+            importType: 'module',
+            modulesDirs: ['node_modules']
+        })
     ],
     entry: {
         index: path.resolve(__dirname, 'src/js/server/index')
     },
+    experiments: {
+        outputModule: true
+    },
     output: {
         path: path.resolve(__dirname, 'dist-server'),
         publicPath: CONF.distFilesUrl || '/',
-        libraryTarget: 'commonjs2',
+        module: true,
+        libraryTarget: 'module',
         filename: 'service.js',
         assetModuleFilename: '[hash][ext][query]'
     },
     resolve: {
-        alias: {}, // filled in dynamically
+        alias: {
+            'soundmanager2': path.resolve(__dirname, 'src/js/server/sm2.ts')
+        }, // filled in dynamically
         modules: [
             'node_modules',
             mkpath('dist/.compiled')
@@ -49,13 +58,24 @@ export default (env) => ({
             },
             {
                 test: /\.tsx?$/,
-                exclude: /(node_modules)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        options: build.createBabelOptions('development')
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'swc-loader',
+                    options: {
+                        jsc: {
+                            parser: {
+                                syntax: 'typescript',
+                                tsx: true,
+                                decorators: false,
+                                dynamicImport: false
+                            },
+                            target: 'es2016'
+                        },
+                        module: {
+                            type: 'es6'
+                        }
                     }
-                ]
+                }
             }
         ]
     },
