@@ -7,7 +7,9 @@
         "target": "esnext",
         "jsx": "react-jsx",
         "moduleResolution": "node16",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "baseUrl": ".",
+        "preserveSymlinks": true
     },
     "include": [
         "./src/js/**/*"
