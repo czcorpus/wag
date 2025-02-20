@@ -1080,7 +1080,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 clickHandler={handleGroupClick}
                                 helpClickHandler={props.data.groupDescURL ? handleGroupHeaderClick : null} />
                     </header> :
-                    <hr style={{marginBottom: '1em'}}/>
+                    null
                 }
                 {renderResult()}
             </S.Group>
