@@ -35,8 +35,9 @@ export default (env) => ({
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
         fallback: {
-            'path': import.meta.resolve('path-browserify'),
-            'stream': import.meta.resolve('stream-browserify')
+            'path': path.resolve(__dirname, 'node_modules/path-browserify/index.js'),
+            'stream': path.resolve(__dirname, 'node_modules/stream-browserify/index.js')
+
         },
         symlinks: false,
         extensionAlias: {

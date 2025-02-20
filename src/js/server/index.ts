@@ -27,6 +27,7 @@ import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident, tuple } from 'cnc-tskit';
 import * as sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
+import { fileURLToPath } from 'url';
 
 import {
     ClientStaticConf, ServerConf, DomainLayoutsConfig,
@@ -69,6 +70,9 @@ function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataRea
         parseJsonConfig(clientConf.dataReadability) :
         rxOf(clientConf.dataReadability);
 }
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 forkJoin([ // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
