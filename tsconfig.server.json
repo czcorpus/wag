@@ -8,7 +8,10 @@
         "jsx": "react-jsx",
         "moduleResolution": "node16",
         "skipLibCheck": true,
-        "preserveSymlinks": true
+        "preserveSymlinks": true,
+        "paths": {
+            "soundmanager2": ["src/js/server/sm2.ts"]
+        }
     },
     "include": [
         "./src/js/**/*"
