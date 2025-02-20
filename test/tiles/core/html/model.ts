@@ -16,20 +16,22 @@
  * limitations under the License.
  */
 
-import { TestModelWrapper } from '../../../framework';
+import { TestModelWrapper } from '../../../framework.js';
 
-import { createStubInstance, restore, stub } from 'sinon';
+import sinon from 'sinon';
 import { assert } from 'chai';
 import { of as rxOf } from 'rxjs';
 
-import { HtmlModel } from '../../../../src/js/tiles/core/html/model';
-import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/api/vendor/wdglance/html';
-import { IGeneralHtmlAPI } from '../../../../src/js/api/abstract/html';
-import { HtmlModelState } from '../../../../src/js/tiles/core/html/common';
-import { QueryMatch } from '../../../../src/js/query/index';
-import { Actions } from '../../../../src/js/models/actions';
-import * as query from '../../../../src/js/models/query';
+import { HtmlModel } from '../../../../src/js/tiles/core/html/model.js';
+import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/api/vendor/wdglance/html.js';
+import { IGeneralHtmlAPI } from '../../../../src/js/api/abstract/html.js';
+import { HtmlModelState } from '../../../../src/js/tiles/core/html/common.js';
+import { QueryMatch } from '../../../../src/js/query/index.js';
+import { Actions } from '../../../../src/js/models/actions.js';
+import * as query from '../../../../src/js/models/query.js';
 import { HTTP } from 'cnc-tskit';
+
+const queryM = {...query};
 
 
 describe('HtmlTile model', function () {
@@ -39,10 +41,10 @@ describe('HtmlTile model', function () {
     let testHtmlModel:TestModelWrapper<HtmlModel, HtmlModelState>;
 
     this.beforeEach(function () {
-        htmlApiStub = createStubInstance(RawHtmlAPI, {
+        htmlApiStub = sinon.createStubInstance(RawHtmlAPI, {
             call: rxOf('fake html response')
         });
-        stub(query, 'findCurrQueryMatch').returns({lemma: 'anything'} as QueryMatch);
+        sinon.stub(queryM, 'findCurrQueryMatch').returns({lemma: 'anything'} as QueryMatch);
 
         testHtmlModel = new TestModelWrapper<HtmlModel, HtmlModelState>(
             (dispatcher, appServices) => new HtmlModel({
@@ -68,7 +70,7 @@ describe('HtmlTile model', function () {
     });
 
     this.afterEach(function () {
-        restore();
+        sinon.restore();
     });
 
     it('gets initial data', function (done) {

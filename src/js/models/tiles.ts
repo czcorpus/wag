@@ -20,7 +20,7 @@ import { Observable, interval, of as rxOf } from 'rxjs';
 import { concatMap, map, take } from 'rxjs/operators';
 
 import { IAppServices } from '../appServices.js';
-import { ajax$, ResponseType } from '../page/ajax.js';
+import { ResponseType } from '../page/ajax.js';
 import { SystemMessageType, SourceDetails } from '../types.js';
 import { TileFrameProps } from '../page/tile.js';
 import { Actions } from './actions.js';
@@ -175,7 +175,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     ),
                     concatMap(
                         (url) => {
-                            return ajax$<string>(
+                            return this.appServices.ajax$<string>(
                                 'GET',
                                 url,
                                 {},
@@ -297,7 +297,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 state.activeGroupHelp = {html: '', idx: action.payload.groupIdx};
             },
             (state, action, dispatch) => {
-                ajax$<string>(
+                this.appServices.ajax$<string>(
                     'GET',
                     action.payload['url'],
                     {},
