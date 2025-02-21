@@ -19,7 +19,7 @@
 import { of as rxOf, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
-import soundManager from 'soundmanager2';
+import soundManager from '@vendor/SoundManager';
 
 
 
@@ -49,7 +49,7 @@ interface ItemToPlay<T> {
  */
 export class AudioPlayer {
 
-    private soundManager:soundmanager.SoundManager;
+    private soundManager:typeof soundManager;
 
     private status:AudioPlayerStatus;
 

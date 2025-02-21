@@ -10,7 +10,7 @@
         "skipLibCheck": true,
         "preserveSymlinks": true,
         "paths": {
-            "soundmanager2": ["src/js/server/sm2.ts"]
+            "@vendor/SoundManager": ["./src/js/server/sm2null.ts"]
         }
     },
     "include": [
