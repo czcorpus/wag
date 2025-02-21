@@ -15,11 +15,10 @@ const CONF = build.loadConf(mkpath('conf/server.json'));
 
 export default (env) => ({
     mode: process.env.NODE_ENV || 'production',
-    target: 'node',
+    externalsPresets: { node: true },
     externals: [
         nodeExternals({
-            importType: 'module',
-            modulesDirs: ['node_modules']
+            importType: 'module'
         })
     ],
     entry: {
@@ -38,8 +37,8 @@ export default (env) => ({
     },
     resolve: {
         alias: {
-            'soundmanager2': path.resolve(__dirname, 'src/js/server/sm2.ts')
-        }, // filled in dynamically
+            '@vendor/SoundManager': path.resolve(__dirname, 'src/js/server/sm2null.ts')
+        }, // other items filled in dynamically
         modules: [
             'node_modules',
             mkpath('dist/.compiled')

@@ -88,7 +88,10 @@ export class ProcTranslationsPlugin {
             }
             fs.mkdirSync(tmpJsDir);
 
-            compiler.options.resolve.alias = loadModulePathMap(this._conf, this._srcPath, this._distPath);
+            compiler.options.resolve.alias = {
+                ...compiler.options.resolve.alias,
+                ... loadModulePathMap(this._conf, this._srcPath, this._distPath)
+            };
             console.log("\x1b[44m", 'Defined aliases:', "\x1b[0m");
             Object.keys(compiler.options.resolve.alias).forEach(item => {
                 console.log("\x1b[32m", item, "\x1b[0m", '\u21D2', compiler.options.resolve.alias[item]);
@@ -102,26 +105,3 @@ export function loadConf(path) {
     return JSON.parse(fs.readFileSync(path, 'utf-8'));
 };
 
-
-export function createBabelOptions(env) {
-    return {
-        presets: [
-            ["@babel/env", { modules: false, targets: {node: 'current'} }],
-            "@babel/react",
-            "@babel/typescript"
-        ],
-        plugins: [
-            [
-                "babel-plugin-styled-components",
-                {
-                    ssr: true,
-                    displayNames: env === 'development'
-                }
-            ],
-            "@babel/proposal-class-properties",
-            "@babel/proposal-object-rest-spread",
-            "@babel/plugin-syntax-dynamic-import",
-            "babel-plugin-dynamic-import-webpack"
-        ]
-    };
-};
