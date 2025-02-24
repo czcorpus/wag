@@ -77,11 +77,11 @@ const __dirname = path.dirname(__filename);
 forkJoin([ // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
         process.env.SERVER_CONF :
-        path.resolve(__dirname, '../conf/server.json')),
+        path.resolve(__dirname, '../../../conf/server.json')),
     parseJsonConfig<ClientStaticConf>(process.env.WDGLANCE_CONF ?
         process.env.WDGLANCE_CONF :
-        path.resolve(__dirname, '../conf/wdglance.json')),
-    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json')),
+        path.resolve(__dirname, '../../../conf/wdglance.json')),
+    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../../../package.json')),
 
 ]).pipe(
     concatMap( // load layouts config

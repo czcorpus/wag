@@ -28,7 +28,6 @@ import { IGeneralHtmlAPI } from '../../../../src/js/api/abstract/html.js';
 import { HtmlModelState } from '../../../../src/js/tiles/core/html/common.js';
 import { QueryMatch } from '../../../../src/js/query/index.js';
 import { Actions } from '../../../../src/js/models/actions.js';
-import * as query from '../../../../src/js/models/query.js';
 import { HTTP } from 'cnc-tskit';
 
 
