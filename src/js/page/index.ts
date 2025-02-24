@@ -22,7 +22,7 @@ import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
 import { isSubqueryPayload, RecognizedQueries } from '../query/index.js';
-import * as translations from 'translations';
+import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
 import { encodeArgs, ajax$, encodeURLParameters } from './ajax.js';
