@@ -37,6 +37,7 @@ export interface FreqBarTileConf extends TileConf {
     apiURL:string;
     apiType:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
+    subcname?:string;
     fcrit:string|Array<string>;
     freqType:'tokens'|'text-types';
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
@@ -119,6 +120,7 @@ export class FreqBarTile implements ITileProvider {
                 })),
                 activeBlock: 0,
                 corpname: conf.corpname,
+                subcname: conf.subcname,
                 concId: null,
                 fcrit: criteria,
                 freqType: conf.freqType,

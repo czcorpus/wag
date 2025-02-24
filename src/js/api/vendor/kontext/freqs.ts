@@ -278,7 +278,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
             label: backlink.label,
             args: {
                 corpname: state.corpname,
-                usesubcorp: null,
+                usesubcorp: state.subcname,
                 q: `~${concId}`,
                 fcrit: state.fcrit,
                 freq_type: state.freqType,
@@ -294,7 +294,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
     stateToArgs(state:MinMultiCritFreqState, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
         return {
             corpname: state.corpname,
-            usesubcorp: subcname,
+            usesubcorp: subcname ? subcname : state.subcname,
             q: `~${concId ? concId : state.concId}`,
             fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
             flimit: state.flimit,

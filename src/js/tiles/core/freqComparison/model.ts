@@ -41,6 +41,7 @@ export interface MultiWordDataRow extends DataRow {
 }
 
 export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<MultiWordDataRow> {
+    subcname:string|undefined;
     activeBlock:number;
     backlinks:Array<BacklinkWithArgs<{}>>;
     isAltViewMode:boolean;
@@ -178,7 +179,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         state.blocks[action.payload.critId].isReady = state.blocks[action.payload.critId].words.every(word => word !== null);
 
                         state.isBusy = state.blocks.some(v => !v.isReady);
-                        
+
                         if (this.backlink?.isAppUrl) {
                             state.backlinks = [createAppBacklink(this.backlink)];
                         } else {

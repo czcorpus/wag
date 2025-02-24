@@ -232,7 +232,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
             label: backlink.label,
             args: {
                 corpname: state.corpname,
-                usesubcorp: null,
+                usesubcorp: state.subcname,
                 q: processConcId(concId),
                 fcrit: state.fcrit,
                 flimit: state.flimit,
@@ -246,7 +246,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
     stateToArgs(state:MinMultiCritFreqState, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
         return {
             corpname: state.corpname,
-            usesubcorp: subcname,
+            usesubcorp: subcname ? subcname : state.subcname,
             q: processConcId(concId),
             fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
             flimit: state.flimit,

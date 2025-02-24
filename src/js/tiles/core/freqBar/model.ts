@@ -33,6 +33,7 @@ import { isWebDelegateApi } from '../../../types';
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
+    subcname:string|undefined;
     maxNumCategories:number;
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
@@ -119,12 +120,17 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                             }).pipe(
                                 concatMap(critIdx => callWithExtraVal(
                                         this.api,
-                                        this.api.stateToArgs(state, action.payload.concPersistenceIDs[0], critIdx),
+                                        this.api.stateToArgs(
+                                            state,
+                                            action.payload.concPersistenceIDs[0],
+                                            critIdx,
+                                            state.subcname
+                                        ),
                                         critIdx
                                 ))
                             )
-                            .subscribe(
-                                ([resp, critIdx]) => {
+                            .subscribe({
+                                next:([resp, critIdx]) => {
                                     dispatch<typeof Actions.TileDataLoaded>({
                                         name: Actions.TileDataLoaded.name,
                                         payload: {
@@ -138,7 +144,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                         }
                                     });
                                 },
-                                error => {
+                                error:error => {
                                     dispatch<typeof Actions.TileDataLoaded>({
                                         name: GlobalActions.TileDataLoaded.name,
                                         payload: {
@@ -151,7 +157,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                         error: error
                                     });
                                 }
-                            );
+                            });
 
                             const ans = {...syncData};
                             ans[action.payload.tileId.toFixed()] = false;
@@ -213,8 +219,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next:(data) => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -223,7 +229,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error:(err) => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -233,7 +239,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 }
                             });
                         }
-                    );
+                    });
                 }
             }
         );
