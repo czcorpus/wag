@@ -5,7 +5,7 @@
   "description": "Word At a Glance",
   "main": "index.js",
   "scripts": {
-    "test": "TS_NODE_PROJECT=tsconfig.test.json NODE_ENV=test node --loader ./test/loader.js node_modules/mocha/bin/mocha.js './test/**/*.ts",
+    "test": "TS_NODE_PROJECT=tsconfig.test.json NODE_ENV=test node --loader ./test/loader.js node_modules/mocha/bin/mocha.js './test/**/*.ts'",
     "start": "launch"
   },
   "author": "",
@@ -55,13 +55,13 @@
     "@types/sqlite3": "^3.1.8",
     "@types/styled-components": "^5.1.34",
     "ajv": "^8.17.1",
-    "axios": "^1.3.4",
+    "axios": "^1.7.9",
     "buffer": "^6.0.3",
-    "cnc-tskit": "^1.7.2",
+    "cnc-tskit": "^1.8.2",
     "cookie-parser": "^1.4.6",
     "d3": "^7.8.2",
     "express": "^4.18.2",
-    "express-session": "^1.17.3",
+    "express-session": "^1.18.1",
     "kombo": "^1.0.4",
     "path-browserify": "^1.0.1",
     "pino": "~9.6.0",
@@ -70,13 +70,13 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.1",
-    "rxjs": "^7.8.0",
+    "rxjs": "^7.8.2",
     "sanitize-html": "2.14.0",
-    "sax": "^1.2.4",
+    "sax": "^1.4.1",
     "session-file-store": "^1.5.0",
     "sqlite3": "^5.1.6",
     "stream-browserify": "^3.0.0",
     "styled-components": "^6.1.15",
-    "url-join": "^4.0.1"
+    "url-join": "^5.0.0"
   }
 }
