@@ -584,7 +584,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(
                 mergeMap((lv:QueryMatch) => {
-                    if (lv) {
+                    if (lv && lv.abs > 0) {
                         const [concApi, freqApi] = this.apiFactory.getRandomValue();
                         if (concApi === null) {
                             const query = pipe(
