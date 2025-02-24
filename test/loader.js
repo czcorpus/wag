@@ -3,8 +3,8 @@ import {
     getFormat,
     transformSource,
     load,
-} from "ts-node/esm";
-import * as tsConfigPaths from "tsconfig-paths"
+} from 'ts-node/esm';
+import * as tsConfigPaths from 'tsconfig-paths';
 
 export { getFormat, transformSource, load };
 
