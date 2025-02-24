@@ -27,9 +27,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');
+const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../tiles/core');
 
-const CUSTOM_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/custom');
+const CUSTOM_TILES_ROOT_DIR = path.resolve(__dirname, '../tiles/custom');
 
 const SCHEMA_FILENAME = 'config-schema.json';
 
