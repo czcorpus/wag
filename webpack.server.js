@@ -68,7 +68,19 @@ export default (env) => ({
                                 decorators: false,
                                 dynamicImport: false
                             },
-                            target: 'es2016'
+                            target: 'es2016',
+                            experimental: {
+                                plugins: [
+                                    [
+                                        "@swc/plugin-styled-components",
+                                        {
+                                            minify: !(process.env.NODE_ENV === 'development'),
+                                            displayName: process.env.NODE_ENV === 'development',
+                                            ssr: true
+                                        }
+                                    ]
+                                ]
+                            }
                         },
                         module: {
                             type: 'es6'

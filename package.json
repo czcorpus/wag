@@ -17,7 +17,8 @@
   "sideEffects": false,
   "devDependencies": {
     "@swc/cli": "^0.6.0",
-    "@swc/core": "^1.10.7",
+    "@swc/core": "^1.11.1",
+    "@swc/plugin-styled-components": "^7.0.0",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^9.1.1",
     "@types/sinon": "^10.0.13",
