@@ -6,7 +6,7 @@
         "sequential": "schemata:make-tile $_path $_conf_name"
       }
     ],
-    "schemata:make-tile": "ts-node ./scripts/create-tile-schema.ts $1 $2",
+    "schemata:make-tile": "tsx ./scripts/create-tile-schema.ts $1 $2",
     "schemata:make-conf": [
       "typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks",
@@ -56,8 +56,8 @@
         "sequential-then": "echo 'Server-side TypeScript types: OK'"
       }
     ],
-    "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
-    "create:tile-conf": "ts-node ./scripts/create-tile-conf.ts $1",
+    "create:custom-tile": "tsx ./scripts/create-tile.ts $1",
+    "create:tile-conf": "tsx ./scripts/create-tile-conf.ts $1",
     "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
     "server": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.json",
