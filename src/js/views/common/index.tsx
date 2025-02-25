@@ -193,7 +193,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         const args = new MultiDict(props.values.args);
-        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank" createStaticUrl={ut.createStaticUrl}>
+        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank" $createStaticUrl={ut.createStaticUrl}>
             {pipe(
                 args.items(),
                 List.filter(v => v[1] !== null && v[1] !== undefined),
@@ -304,7 +304,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         return (
-            <S.SourceInfoBox createStaticUrl={ut.createStaticUrl}>
+            <S.SourceInfoBox $createStaticUrl={ut.createStaticUrl}>
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ?
@@ -605,7 +605,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         render() {
             return (
-                <S.ResponsiveWrapper minWidth={this.props.minWidth} ref={this.ref}>
+                <S.ResponsiveWrapper $minWidth={this.props.minWidth} ref={this.ref}>
                     {this.props.render(this.state.width, this.state.height)}
                 </S.ResponsiveWrapper>
             );
@@ -638,7 +638,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
         return (
-            <S.WdgTooltip multiword={props.multiWord} ref={ref} style={style}>
+            <S.WdgTooltip $multiword={props.multiWord} ref={ref} style={style}>
                 <table>
                     <thead><tr><th className='value' colSpan={4}>{props.caption}</th></tr></thead>
                     <tbody>
@@ -686,7 +686,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
-                <S.WdgTooltip multiword={multiWord}>
+                <S.WdgTooltip $multiword={multiWord}>
                     <table>
                         <thead><tr><th className="value" colSpan={4}>{label}</th></tr></thead>
                         <tbody>
