@@ -5,7 +5,7 @@
   "description": "Word At a Glance",
   "main": "index.js",
   "scripts": {
-    "test": "TS_NODE_PROJECT=tsconfig.test.json NODE_ENV=test node --loader ./test/loader.js node_modules/mocha/bin/mocha.js './test/**/*.ts'",
+    "test": "NODE_ENV=test tsx --tsconfig tsconfig.test.json node_modules/mocha/bin/mocha.js './test/**/*.ts'",
     "start": "launch"
   },
   "author": "",
@@ -36,8 +36,6 @@
     "source-map-loader": "^4.0.1",
     "swc-loader": "^0.2.6",
     "terser-webpack-plugin": "^5.3.6",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3",
     "typescript-json-schema": "^0.54.0",
