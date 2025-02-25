@@ -159,10 +159,10 @@ export const TileReloadControl = styled.p`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const ResponsiveWrapper = styled.div<{minWidth:number}>`
+export const ResponsiveWrapper = styled.div<{$minWidth:number}>`
     width: 100%;
     height: 100%;
-    min-width: ${props => props.minWidth ? props.minWidth : 'auto'};
+    min-width: ${props => props.$minWidth ? props.$minWidth : 'auto'};
 `;
 
 // ---------------- <ModalOverlay /> --------------------------------------
@@ -294,10 +294,10 @@ export const ModalOverlay = styled.div`
 
 // ---------------- <WdgTooltip /> --------------------------------------
 
-export const WdgTooltip = styled.div<{multiword?:boolean}>`
+export const WdgTooltip = styled.div<{$multiword?:boolean}>`
     background-color: #FFFFFF;
     z-index: 10000;
-    padding: ${props => props.multiword ? '0.3em 1em 1.3em 1em' : '1em'};
+    padding: ${props => props.$multiword ? '0.3em 1em 1.3em 1em' : '1em'};
     border: 1px solid ${theme.colorLightGrey};
     border-radius: 3px;
     border-spacing: 0;
@@ -307,21 +307,21 @@ export const WdgTooltip = styled.div<{multiword?:boolean}>`
 
     table {
         .value {
-            ${props => props.multiword ? null : 'font-weight: bold'};
+            ${props => props.$multiword ? null : 'font-weight: bold'};
             text-align: left;
         }
 
         .label {
-            text-align: ${props => props.multiword ? 'center' : 'right'};
-            padding: ${props => props.multiword ? '0 10px 0 10px' : '0 0.4em 0 0'};
-            ${props => props.multiword ? 'font-weight: 900' : null};
-            ${props => props.multiword ? 'color: white' : null};
+            text-align: ${props => props.$multiword ? 'center' : 'right'};
+            padding: ${props => props.$multiword ? '0 10px 0 10px' : '0 0.4em 0 0'};
+            ${props => props.$multiword ? 'font-weight: 900' : null};
+            ${props => props.$multiword ? 'color: white' : null};
         }
 
         th {
-            padding: ${props => props.multiword ? '10px 0' : '0 0 1em 0'};
-            ${props => props.multiword ? 'text-align: left' : null};
-            ${props => props.multiword ? 'font-weight: bolder' : null};
+            padding: ${props => props.$multiword ? '10px 0' : '0 0 1em 0'};
+            ${props => props.$multiword ? 'text-align: left' : null};
+            ${props => props.$multiword ? 'font-weight: bolder' : null};
         }
 
         td {
@@ -330,7 +330,7 @@ export const WdgTooltip = styled.div<{multiword?:boolean}>`
 
         td.numWh {
             text-align: right;
-            padding: ${props => props.multiword ? '0 0 0 10px' : '0 0 0 1em'};
+            padding: ${props => props.$multiword ? '0 0 0 10px' : '0 0 0 1em'};
         }
 
         td.numDec {
@@ -345,7 +345,7 @@ export const WdgTooltip = styled.div<{multiword?:boolean}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkForm = styled.form<{createStaticUrl: (file:string) => string}>`
+export const BacklinkForm = styled.form<{$createStaticUrl: (file:string) => string}>`
     display: inline;
     padding: 0;
 
@@ -357,7 +357,7 @@ export const BacklinkForm = styled.form<{createStaticUrl: (file:string) => strin
         cursor: pointer;
         text-decoration: none;
         color: #009ee0;
-        background-image: url(${props => props.createStaticUrl('external-link.svg')});
+        background-image: url(${props => props.$createStaticUrl('external-link.svg')});
         background-repeat: no-repeat;
         background-position: 99% 0;
     }
@@ -369,7 +369,7 @@ export const BacklinkForm = styled.form<{createStaticUrl: (file:string) => strin
 
 // ---------------- <SourceInfoBox /> --------------------------------------
 
-export const SourceInfoBox = styled.div<{createStaticUrl: (file:string) => string}>`
+export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => string}>`
     font-size: 1.1em;
 
     ul.information-tab-sel {
@@ -464,7 +464,7 @@ export const SourceInfoBox = styled.div<{createStaticUrl: (file:string) => strin
     }
 
     a.external {
-        background-image: url(${props => props.createStaticUrl('external-link.svg')});
+        background-image: url(${props => props.$createStaticUrl('external-link.svg')});
         background-repeat: no-repeat;
         background-position: 99% 0;
         padding-right: 1.1em;

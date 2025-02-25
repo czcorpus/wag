@@ -283,7 +283,7 @@ export function init(
                                     ))
                                 )
                             }</S.Tables>:
-                            <S.Charts incomplete={this.props.isBusy} isMobile={this.props.isMobile}
+                            <S.Charts $incomplete={this.props.isBusy} $isMobile={this.props.isMobile}
                                     ref={this.chartsRef} onScroll={this.handleScroll}>
                                 {pipe(
                                     this.props.blocks,

@@ -24,14 +24,14 @@ export const FreqComparisonTile = styled.div`
     min-height: 15em;
 `;
 
-export const Charts = styled.div<{incomplete: boolean; isMobile: boolean;}>`
+export const Charts = styled.div<{$incomplete: boolean; $isMobile: boolean;}>`
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     overflow-x: auto;
     overflow-y: hidden;
-    justify-content: ${props => props.incomplete ? 'flex-start' : 'space-between'};
-    flex-wrap: ${props => props.isMobile ? 'nowrap' : 'wrap'};
+    justify-content: ${props => props.$incomplete ? 'flex-start' : 'space-between'};
+    flex-wrap: ${props => props.$isMobile ? 'nowrap' : 'wrap'};
 
     & > *:not(:last-child) {
         box-sizing: border-box;

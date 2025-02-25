@@ -26,7 +26,7 @@ export const WordSimView = styled.div`
     height: 100%;
 `;
 
-export const Boxes = styled.div<{isMobile:boolean}>`
+export const Boxes = styled.div<{$isMobile:boolean}>`
     height: 100%;
     overflow-y: hidden;
     overflow-x: auto;
@@ -34,7 +34,7 @@ export const Boxes = styled.div<{isMobile:boolean}>`
     align-items: stretch;
     justify-content: space-between;
     flex-direction: row;
-    flex-wrap: ${props => props.isMobile ? 'wrap' : 'nowrap'};
+    flex-wrap: ${props => props.$isMobile ? 'wrap' : 'nowrap'};
 
     & > .chart {
         min-width: 50%;
