@@ -1,9 +1,13 @@
-var fs = require('fs');
-var path = require('path');
-var cnc = require('cnc-tskit');
+import fs from 'fs';
+import path from 'path';
+import * as cnc from 'cnc-tskit';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
-function getEmptyConfig(configSchemaPath:string):string {
+export function getEmptyConfig(configSchemaPath:string):string {
     const jsonSchema = JSON.parse(fs.readFileSync(
         configSchemaPath,
         'utf8'
@@ -17,8 +21,6 @@ function getEmptyConfig(configSchemaPath:string):string {
 
     return JSON.stringify(emptyConfig, undefined, 4);
 }
-
-exports.getEmptyConfig = getEmptyConfig;
 
 if (process.argv.length === 3) {
     const emptyConfig = getEmptyConfig(path.resolve(__dirname, '../src/js/tiles', process.argv[2], 'config-schema.json'))

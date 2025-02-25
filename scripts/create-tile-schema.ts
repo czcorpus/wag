@@ -1,6 +1,10 @@
-var fs = require('fs');
-var path = require('path');
-var tjs = require('typescript-json-schema');
+import fs from 'fs';
+import path from 'path';
+import tjs from 'typescript-json-schema';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 const settings = {
