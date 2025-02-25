@@ -86,7 +86,7 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
             corpname: state.corpname,
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
-                subcorpus: subcname,
+                subcorpus: subcname ? subcname : state.subcname,
                 q: `[lemma="${concId}"]`,
                 flimit: state.flimit,
                 matchCase: '0',
@@ -108,7 +108,7 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 corpname: args.corpname,
-                usesubcorp: null,
+                usesubcorp: args.queryArgs.subcorpus,
                 concsize: resp.concSize,
                 concId: '',
                 data: resp.freqs.map(v => ({
