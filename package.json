@@ -4,7 +4,7 @@
   "description": "Word At a Glance",
   "main": "index.js",
   "scripts": {
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\", \"target\":\"es2018\"}' NODE_ENV=test node_modules/mocha/bin/mocha --require ts-node/register './test/**/*.ts'",
+    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\", \"target\":\"es2018\"}' NODE_ENV=test node node_modules/mocha/bin/mocha.js --require ts-node/register './test/**/*.ts'",
     "start": "launch"
   },
   "author": "",
@@ -68,7 +68,7 @@
     "d3": "^7.8.2",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "kombo": "^0.95.2",
+    "kombo": "^0.96.7",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
