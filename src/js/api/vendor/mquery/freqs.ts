@@ -156,7 +156,7 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
                                 norm: 0
                             }
                         ),
-                        x => [{...x, name: List.head(x.name)}]
+                        x => [{...x, name: List.empty(x.name) ? '' : List.head(x.name)}]
                     )
                 })
             )
