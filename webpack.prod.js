@@ -66,7 +66,19 @@ export default (env) => ({
                                 decorators: false,
                                 dynamicImport: false
                             },
-                            target: 'es2016'
+                            target: 'es2016',
+                            experimental: {
+                                plugins: [
+                                    [
+                                        "@swc/plugin-styled-components",
+                                        {
+                                            minify: true,
+                                            displayName: false,
+                                            ssr: true
+                                        }
+                                    ]
+                                ]
+                            }
                         },
                         module: {
                             type: 'es6'
