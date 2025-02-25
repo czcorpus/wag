@@ -138,7 +138,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.srchRangeType} /></div> :
                         null
                     }
-                    <S.Boxes isMobile={this.props.isMobile}>
+                    <S.Boxes $isMobile={this.props.isMobile}>
                         {List.map((data, index) => {
                             const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), this.props.data);
 
