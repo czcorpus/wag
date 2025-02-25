@@ -220,6 +220,7 @@ export interface ClientStaticConf {
     issueReportingUrl?:string;
     maxTileErrors:number;
     homepage:HomepageConfI18n;
+    htmlTitle?:{[lang:string]:string};
     colors?:ColorsConf|string;
     searchDomains:{[domain:string]:string};
 
