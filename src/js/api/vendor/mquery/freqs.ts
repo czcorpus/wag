@@ -17,6 +17,7 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { List, pipe } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
@@ -79,14 +80,14 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
 
     createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<{}> {
         return null;
-    };
+    }
 
     stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):MQueryFreqArgs {
         return {
             corpname: state.corpname,
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
-                subcorpus: subcname,
+                subcorpus: subcname ? subcname : state.subcname,
                 q: `[lemma="${concId}"]`,
                 flimit: state.flimit,
                 matchCase: '0',
@@ -95,6 +96,18 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
         };
     }
 
+    /**
+     * Call the MQuery freqs API.
+     *
+     * Please note that the method groups items into a single one
+     * in case args.path is 'freqs' as in such case we expect the freqs to represent
+     * a single lemma. But once we take into account the recent CNC lemmatization,
+     * where multivalues are involved - we need to group stuff together
+     * (e.g. 'já', 'já|být' represent the same lemma).
+     *
+     * For args.path == 'text-types', multiple values represent whole different thing
+     * (freqs for different domains) - so in that case, we don't group anything.
+     */
     call(args:MQueryFreqArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
@@ -108,16 +121,45 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 corpname: args.corpname,
-                usesubcorp: null,
+                usesubcorp: args.queryArgs.subcorpus,
                 concsize: resp.concSize,
                 concId: '',
-                data: resp.freqs.map(v => ({
-                        name: v.word,
-                        freq: v.freq,
-                        ipm: v.ipm,
-                        norm: v.base
-                })),
-            }))
+                data: args.path === 'text-types' ?
+                    pipe(
+                        resp.freqs,
+                        List.map(
+                            v => ({
+                                name: v.word,
+                                freq: v.freq,
+                                ipm: v.ipm,
+                                norm: v.base
+                            }),
+                        )
+                    ) :
+                    pipe(
+                        resp.freqs,
+                        List.sorted((x1, x2) => x2.freq - x1.freq),
+                        List.reduce(
+                            (acc, curr) => {
+                                return {
+                                    ...acc,
+                                    name: [...acc.name, curr.word],
+                                    freq: acc.freq + curr.freq,
+                                    ipm: acc.ipm + curr.ipm,
+                                    norm: curr.base,
+                                }
+                            },
+                            {
+                                name: [],
+                                freq: 0,
+                                ipm: 0,
+                                norm: 0
+                            }
+                        ),
+                        x => [{...x, name: List.head(x.name)}]
+                    )
+                })
+            )
         );
     }
 }
