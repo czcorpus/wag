@@ -367,6 +367,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 {this.props.displayObserved ?
                                     <Area type="linear"
                                         dataKey="ipm1"
+                                        name={this.props.wordCmp ? ut.translate('timeDistrib__measured_value_for_{word}', {word: this.props.word}): ut.translate('timeDistrib__measured_value')}
                                         stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.lineChartColor1}
                                         fill='none'
                                         strokeWidth={2}
@@ -383,6 +384,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 {this.props.displayObserved ?
                                     <Area type="linear"
                                         dataKey="ipm2"
+                                        name={this.props.wordCmp ? ut.translate('timeDistrib__measured_value_for_{word}', {word: this.props.wordCmp}): undefined}
                                         stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.lineChartColor2}
                                         fill='none'
                                         strokeWidth={2}
