@@ -223,6 +223,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }, props.areaCodeMapping);
     }
 
+    // -------------- <Map /> ---------------------------------------------
+    // Having map as a separate class component prevents problematic re-rendering of the map
+    // when tooltip is shown/hidden and cleaning labels in the process, which messes up tooltip events
+
+    class Map extends React.PureComponent<{mapSVG:string}> {
+        
+        render() {
+            return (
+                <div style={{width: '100%', height: '100%', overflowX: 'auto'}}
+                    dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
+            );
+        }
+    }
+
     // -------------- <GeoAreasTileView /> ---------------------------------------------
 
     class GeoAreasTileView extends React.PureComponent<GeoAreasModelState & CoreTileComponentProps> {
@@ -233,9 +247,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
-        componentDidUpdate(prevProps) {
-            if (this.props.data.length > 0 && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
-                        prevProps.renderSize !== this.props.renderSize)) {
+        componentDidUpdate(prevProps) {            
+            if (this.props.data.length > 0 && !this.props.isAltViewMode && (
+                prevProps.data !== this.props.data ||
+                prevProps.isAltViewMode !== this.props.isAltViewMode ||
+                prevProps.renderSize !== this.props.renderSize))
+            {
                 drawLabels(this.props, this.props.tileId, theme.geoAreaSpotFillColor);
             }
         }
@@ -253,7 +270,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {this.props.isAltViewMode ?
                             <DataTable rows={this.props.data} /> :
                             <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
-                                <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
+                                <Map mapSVG={this.props.mapSVG}/>
                                 <S.Legend>{ut.translate('geolocations__ipm_map_legend')}</S.Legend>
 
                                 {this.props.tooltipArea !== null ?

@@ -378,6 +378,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         createSVGLegend(legendHolder, currentQueryMatches);
     }
 
+    // -------------- <Map /> ---------------------------------------------
+    // Having map as a separate separate class component prevents problematic re-rendering of the map
+    // when tooltip is shown/hidden and cleaning labels in the process
+
+    class Map extends React.PureComponent<{mapSVG:string}> {
+        
+        render() {
+            return (
+                <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}}
+                    dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
+            );
+        }
+    }
+
     // -------------- <GeoAreasTileView /> ---------------------------------------------
 
     class MultiWordGeoAreasTileView extends React.PureComponent<MultiWordGeoAreasModelState & CoreTileComponentProps> {
@@ -389,11 +403,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         componentDidUpdate(prevProps) {
-            if (this.props.data.some(v => v.length > 0) && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
-                        prevProps.renderSize !== this.props.renderSize)) {
-                if (!this.props.isAltViewMode) {
-                    drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.currQueryMatches, this.props.data, this.props.frequencyDisplayLimit);
-                }
+            if (this.props.data.some(v => v.length > 0) && !this.props.isAltViewMode && (
+                prevProps.data !== this.props.data ||
+                prevProps.isAltViewMode !== this.props.isAltViewMode ||
+                prevProps.renderSize !== this.props.renderSize
+            )) {
+                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.currQueryMatches, this.props.data, this.props.frequencyDisplayLimit);
             }
         }
 
@@ -412,7 +427,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <DataTable data={this.props.data} queryMatches={this.props.currQueryMatches}/>
                             </div> :
                             <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
-                                <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
+                                <Map mapSVG={this.props.mapSVG} />
                                 {this.props.tooltipArea !== null ?
                                     <globComponents.ElementTooltip
                                         x={this.props.tooltipArea.tooltipX}
