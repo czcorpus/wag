@@ -336,7 +336,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 content={<globComponents.AlignedRechartsTooltip/>} />
                         {
                             this.props.displayFreq ?
-                            <>
+                            [
                                 <Area type="linear"
                                         dataKey="freq1"
                                         name={this.props.wordCmp ? ut.translate('timeDistrib__number_of_occurrences_for_{word}', {word: this.props.word}) : ut.translate('timeDistrib__number_of_occurrences')}
@@ -344,7 +344,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         fill='none'
                                         strokeWidth={3}
                                         isAnimationActive={false}
-                                        connectNulls={true} />
+                                        connectNulls={true} />,
                                 <Area type="linear"
                                         dataKey="freq2"
                                         name={this.props.wordCmp ? ut.translate('timeDistrib__number_of_occurrences_for_{word}', {word: this.props.wordCmp}) : undefined}
@@ -352,10 +352,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         fill='none'
                                         strokeWidth={2}
                                         isAnimationActive={false}
-                                        connectNulls={true} />
-                                <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__abs_human')} rcData={props} />} />
-                            </> :
-                            <>
+                                        connectNulls={true} />,
+                                <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__abs_human')} rcData={props} />} />,
+                            ] :
+                            [
                                 <Area type="linear"
                                         dataKey="ipmInterval1"
                                         name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word}) : ut.translate('timeDistrib__estimated_interval')}
@@ -363,15 +363,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColorLight : theme.lineConfidenceAreaColor1}
                                         strokeWidth={1}
                                         isAnimationActive={false}
-                                        connectNulls={true} />
-                                {this.props.displayObserved ?
+                                        connectNulls={true} />,
+                                this.props.displayObserved ?
                                     <Area type="linear"
                                         dataKey="ipm1"
                                         stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.lineChartColor1}
                                         fill='none'
                                         strokeWidth={2}
                                         isAnimationActive={false}
-                                        connectNulls={true} /> : null}
+                                        connectNulls={true} /> : null,
                                 <Area type="linear"
                                         dataKey="ipmInterval2"
                                         name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
@@ -379,22 +379,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColorLight : theme.lineConfidenceAreaColor2}
                                         strokeWidth={1}
                                         isAnimationActive={false}
-                                        connectNulls={true} />
-                                {this.props.displayObserved ?
+                                        connectNulls={true} />,
+                                this.props.displayObserved ?
                                     <Area type="linear"
                                         dataKey="ipm2"
                                         stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.lineChartColor2}
                                         fill='none'
                                         strokeWidth={2}
                                         isAnimationActive={false}
-                                        connectNulls={true} /> : null}
-                                {
-                                    (this.props.refArea[0] && this.props.refArea[1]) ?
+                                        connectNulls={true} /> : null,
+                                (this.props.refArea[0] && this.props.refArea[1]) ?
                                     <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
-                                    null
-                                }
-                                <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
-                            </>
+                                    null,
+                                <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />,
+                            ]
                         }
                         {this.props.zoom.every(v => v === null) ? null :
                             <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
