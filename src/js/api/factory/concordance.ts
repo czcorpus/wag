@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataApi, IAsyncKeyValueStore } from '../../types.js';
+import { DataApi } from '../../types.js';
 import { IConcordanceApi } from '../abstract/concordance.js';
 import { ConcApi as ConcApi015} from '../vendor/kontext/concordance/v015/index.js';
 import { ConcApi as NoskeConcApi } from '../vendor/noske/concordance.js';
@@ -26,30 +26,30 @@ import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
 import { IApiServices, IAppServices } from '../../appServices.js';
 
 
-export function createKontextConcApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {
+export function createKontextConcApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
-			return new ConcApi015(cache, apiURL, apiServices);
+			return new ConcApi015(apiURL, apiServices);
 	   	case CoreApiGroup.KONTEXT_API:
-			return new ConcApi015(cache, apiURL, apiServices);
+			return new ConcApi015(apiURL, apiServices);
 		default:
 			throw new Error(`Concordance Kontext API "${apiIdent}" not found. Supported values are: ${CoreApiGroup.KONTEXT} and ${CoreApiGroup.KONTEXT_API}`);
 	}
 }
 
-export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IConcordanceApi<{}> {
+export function createApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IConcordanceApi<{}> {
 
  	switch (apiIdent) {
 		case CoreApiGroup.FCS_V1:
 			return new FCS1SearchRetrieveAPI(apiURL, apiServices);
  		case CoreApiGroup.KONTEXT:
 		case CoreApiGroup.KONTEXT_API:
-			return createKontextConcApiInstance(cache, apiIdent, apiURL, apiServices, apiOptions);
+			return createKontextConcApiInstance(apiIdent, apiURL, apiServices, apiOptions);
 		case CoreApiGroup.NOSKE:
-			return new NoskeConcApi(cache, apiURL, apiServices);
+			return new NoskeConcApi(apiURL, apiServices);
 		case CoreApiGroup.LCC:
-			return new LCCConcApi(cache, apiURL, apiServices);
+			return new LCCConcApi(apiURL, apiServices);
  		default:
  			throw new Error(`Concordance tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
  	}

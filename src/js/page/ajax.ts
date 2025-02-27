@@ -20,7 +20,7 @@ import { ajax, AjaxResponse } from 'rxjs/ajax';
 import { map, concatMap, tap } from 'rxjs/operators';
 
 import { MultiDict } from '../multidict.js';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../types.js';
+import { HTTPHeaders } from '../types.js';
 
 
 
@@ -144,57 +144,6 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
         withCredentials: options.withCredentials
     }
 };
-
-
-interface CachedValue<T> {
-    cached:boolean;
-    value:T;
-}
-
-
-function isCachedValue<T>(v:any):v is CachedValue<T> {
-    return v && typeof v === 'object' && 'cached' in v && 'value' in v;
-}
-
-
-export const cachedAjax$ = <T>(
-    cache:IAsyncKeyValueStore
-) => (
-    method:string, url:string, args:AjaxArgs, options?:AjaxOptions
-):Observable<T> => {
-
-    const key = url + (args instanceof MultiDict ? JSON.stringify(args.items()) : JSON.stringify(args));
-    return cache.get<T>(key).pipe(
-        concatMap(
-            (value) => {
-                if (value === undefined) {
-                    return ajax$<T>(method, url, args, options);
-
-                } else {
-                    return rxOf<{cached:boolean; value:T}>({cached: true, value: value});
-                }
-            }
-        ),
-        tap(
-            (v:T|CachedValue<T>) => {
-                if (!isCachedValue(v)) {
-                    cache.set(key, v).subscribe({
-                        error: error => console.error('error request caching ', error)
-                    })
-                }
-            }
-        ),
-        map(
-            (v:T|CachedValue<T>) => {
-                if (isCachedValue(v)) {
-                    return v.value;
-                }
-                return v;
-            }
-        )
-    );
-};
-
 
 export type AjaxCall<T> = (method:string, url:string, args:AjaxArgs, options?:AjaxOptions)=>Observable<T>;
 

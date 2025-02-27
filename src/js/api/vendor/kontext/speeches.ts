@@ -17,9 +17,9 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { IAsyncKeyValueStore, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
+import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
 import { HTTP } from 'cnc-tskit'
-import { cachedAjax$ } from '../../../page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { LineElementType } from '../../abstract/concordance.js';
 import { IApiServices } from '../../../appServices.js';
@@ -58,18 +58,15 @@ export interface SpeechResponse {
  */
 export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, WebDelegateApi {
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly apiUrl:string;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly apiServices:IApiServices;
 
-    constructor(cache:IAsyncKeyValueStore, apiUrl:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiUrl:string, apiServices:IApiServices) {
         this.apiUrl = apiUrl;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiUrl, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiUrl, apiServices);
         this.apiServices = apiServices;
     }
 
@@ -85,7 +82,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
         const headers = this.apiServices.getApiHeaders(this.apiUrl);
         headers['X-Is-Web-App'] = '1';
         if (args.pos !== undefined) {
-            return cachedAjax$<SpeechResponse>(this.cache)(
+            return ajax$<SpeechResponse>(
                 HTTP.Method.GET,
                 this.apiUrl + '/widectx',
                 args,

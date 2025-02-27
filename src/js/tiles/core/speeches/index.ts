@@ -59,7 +59,7 @@ export class SpeechesTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
-        theme, appServices, widthFract, conf, isBusy, cache
+        theme, appServices, widthFract, conf, isBusy
     }:TileFactoryArgs<SpeechesTileConf>) {
 
         this.tileId = tileId;
@@ -74,7 +74,7 @@ export class SpeechesTile implements ITileProvider {
             dispatcher,
             tileId,
             appServices,
-            api: createSpeechesApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            api: createSpeechesApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             backlink: conf.backlink || null,
             waitForTiles,
             waitForTilesTimeoutSecs,

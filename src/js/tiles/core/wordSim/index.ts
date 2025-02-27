@@ -66,7 +66,7 @@ export class WordSimTile implements ITileProvider {
 
     constructor({
         tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-        isBusy, cache, queryMatches, domain1}:TileFactoryArgs<WordSimTileConf>
+        isBusy, queryMatches, domain1}:TileFactoryArgs<WordSimTileConf>
     ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -74,7 +74,7 @@ export class WordSimTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
-        this.api = createApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices, cache);
+        this.api = createApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices);
         this.model = new WordSimModel({
             appServices,
             dispatcher,

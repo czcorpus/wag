@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types.js';
 import { CoreApiGroup } from '../coreGroups.js';
 import { IApiServices } from '../../appServices.js';
 import { MquerySyntacticCollsAPI, MquerySyntacticCollsExamplesApi } from '../vendor/mquery/syntacticColls.js';
@@ -28,20 +27,19 @@ export function createInstance(
 	apiIdent:string,
 	apiURL:string,
 	apiServices:IApiServices,
-	cache:IAsyncKeyValueStore,
 	apiOptions:{}
 ):[SyntacticCollsApi<any>, SyntacticCollsExamplesApi<any>] {
 
 	switch (apiIdent) {
 		case CoreApiGroup.MQUERY:
             return tuple(
-				new MquerySyntacticCollsAPI(cache, apiURL, apiServices),
-				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)
+				new MquerySyntacticCollsAPI(apiURL, apiServices),
+				new MquerySyntacticCollsExamplesApi(apiURL, apiServices)
 			);
 		case CoreApiGroup.SCOLLEX:
 			return tuple(
-				new MquerySyntacticCollsAPI(cache, apiURL, apiServices, true),
-				new MquerySyntacticCollsExamplesApi(cache, apiURL, apiServices)
+				new MquerySyntacticCollsAPI(apiURL, apiServices, true),
+				new MquerySyntacticCollsExamplesApi(apiURL, apiServices)
 			);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for syntactic collocations.`);

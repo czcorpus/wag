@@ -71,7 +71,7 @@ export class MatchingDocsTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
-        theme, appServices, widthFract, conf, isBusy, cache, queryMatches
+        theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<MatchingDocsTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -89,7 +89,7 @@ export class MatchingDocsTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices, cache, apiOptions),
+            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

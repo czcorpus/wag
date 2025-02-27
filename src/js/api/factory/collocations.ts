@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types.js';
 import { CoreApiGroup } from '../coreGroups.js';
 import { KontextCollAPI } from '../vendor/kontext/collocations.js';
 import { CollocationApi } from '../abstract/collocations.js';
@@ -25,17 +24,17 @@ import { NoskeCollAPI } from '../vendor/noske/collocations.js';
 import { IApiServices } from '../../appServices.js';
 
 
-export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):CollocationApi<{}> {
+export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):CollocationApi<{}> {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
-            return new KontextCollAPI(cache, apiURL, apiServices);
+            return new KontextCollAPI(apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
-			return new KontextCollAPI(cache, apiURL, apiServices);
+			return new KontextCollAPI(apiURL, apiServices);
         case CoreApiGroup.LCC:
-            return new LccCollAPI(cache, apiURL, apiServices);
+            return new LccCollAPI(apiURL, apiServices);
         case CoreApiGroup.NOSKE:
-            return new NoskeCollAPI(cache, apiURL, apiServices);
+            return new NoskeCollAPI(apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for collocations.`);
 	}

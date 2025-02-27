@@ -20,7 +20,7 @@ import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FreqSort, KontextFreqDistribAPI, BacklinkArgs as FreqBacklinkArgs } from './freqs.js';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types.js';
+import { CorpusDetails, WebDelegateApi } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { HTTP } from 'cnc-tskit';
@@ -46,10 +46,10 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
-        this.freqApi = new KontextFreqDistribAPI(cache, apiURL, apiServices);
+    constructor(apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
+        this.freqApi = new KontextFreqDistribAPI(apiURL, apiServices);
         this.customArgs = customArgs;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

@@ -18,7 +18,6 @@
 
 import { KontextTimeDistribApi } from '../vendor/kontext/timeDistrib.js';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
-import { IAsyncKeyValueStore } from '../../types.js';
 import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib.js';
 import { CustomArgs, TimeDistribApi } from '../abstract/timeDistrib.js';
 import { IApiServices } from '../../appServices.js';
@@ -26,7 +25,6 @@ import { MQueryTimeDistribStreamApi } from '../vendor/mquery/timeDistrib.js';
 
 export function createApiInstance(
 	apiIdent:string,
-	cache:IAsyncKeyValueStore,
 	apiURL:string,
 	apiServices:IApiServices,
 	conf:CustomArgs,
@@ -36,28 +34,24 @@ export function createApiInstance(
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
 			return new KontextTimeDistribApi(
-				cache,
 				apiURL,
 				apiServices,
                 conf
 			);
 		case CoreApiGroup.KONTEXT_API:
 			return new KontextTimeDistribApi(
-				cache,
 				apiURL,
 				apiServices,
                 conf
 			);
 		case CoreApiGroup.NOSKE:
 			return new NoskeTimeDistribApi(
-				cache,
 				apiURL,
 				apiServices,
 				conf
 			);
 		case CoreApiGroup.MQUERY:
 			return new MQueryTimeDistribStreamApi(
-				cache,
 				apiURL,
 				apiServices,
                 conf

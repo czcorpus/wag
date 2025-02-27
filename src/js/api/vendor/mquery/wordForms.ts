@@ -18,10 +18,10 @@
 import { Observable, map } from 'rxjs';
 
 import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms.js';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusDetails } from '../../../types.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
-import { cachedAjax$ } from '../../../page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { FreqRowResponse } from './common.js';
 import { Ident, List } from 'cnc-tskit';
 import { CorpusInfoAPI } from './corpusInfo.js';
@@ -36,19 +36,16 @@ export interface LemmaItem {
 
 export class WordFormsAPI implements IWordFormsApi {
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly apiURL;
 
     private readonly apiServices:IApiServices;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -56,7 +53,7 @@ export class WordFormsAPI implements IWordFormsApi {
             lemma: args.lemma,
             pos: args.pos.join(" "),
         }
-        return cachedAjax$<Array<LemmaItem>>(this.cache)(
+        return ajax$<Array<LemmaItem>>(
             'GET',
             `${this.apiURL}/word-forms/${args.corpName}`,
             params,

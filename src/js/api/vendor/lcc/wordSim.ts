@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Observable, of as rxOf } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails } from '../../../types.js';
 import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim.js';
 import { map, concatMap } from 'rxjs/operators';
 import { WordSimModelState } from '../../../models/tiles/wordSim.js';
@@ -48,12 +48,9 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
     }
 
     stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):LccCoocSimApiArgs {
@@ -99,7 +96,7 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
 
         }).pipe(
             concatMap(
-                url => cachedAjax$<HTTPResponse>(this.cache)(
+                url => ajax$<HTTPResponse>(
                     'GET',
                     url,
                     {

@@ -19,8 +19,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { List, pipe } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { CorpusDetails } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
 import { APIResponse, IFreqDistribAPI } from '../../abstract/freqs.js';
@@ -63,15 +63,12 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -109,7 +106,7 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
      * (freqs for different domains) - so in that case, we don't group anything.
      */
     call(args:MQueryFreqArgs):Observable<APIResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + `/${args.path}/${args.corpname}`,
             args.queryArgs,

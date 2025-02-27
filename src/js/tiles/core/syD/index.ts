@@ -55,7 +55,7 @@ export class SyDTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, ut, queryMatches, appServices, widthFract, conf,
-        isBusy, cache
+        isBusy
     }:TileFactoryArgs<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -84,7 +84,7 @@ export class SyDTile implements ITileProvider {
             waitForTiles[0],
             queryMatches,
             appServices,
-            createSyDInstance(conf.apiType, conf.apiURL, conf.concApiURL, appServices, cache, apiOptions),
+            createSyDInstance(conf.apiType, conf.apiURL, conf.concApiURL, appServices, apiOptions),
         );
         this.label = appServices.importExternalMessage(conf.label || 'syd_main_label');
         this.view = viewInit(dispatcher, ut, this.model);

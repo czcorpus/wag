@@ -19,8 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { pipe, List } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq.js';
@@ -46,16 +45,13 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
     call(args:RequestArgs):Observable<Response> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
             new MultiDict([

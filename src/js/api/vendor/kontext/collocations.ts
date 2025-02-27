@@ -19,8 +19,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTP, Ident } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails, WebDelegateApi } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails, WebDelegateApi } from '../../../types.js';
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations.js';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
@@ -75,15 +75,12 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
@@ -122,7 +119,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        return cachedAjax$<HttpApiResponse>(this.cache)(
+        return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL + this.API_PATH,
             queryArgs,

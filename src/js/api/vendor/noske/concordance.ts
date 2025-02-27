@@ -17,12 +17,12 @@
  */
 
 import { IConcordanceApi, ViewMode, ConcResponse, Line, LineElementType } from '../../abstract/concordance.js';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusDetails } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { ConcordanceMinState } from '../../../models/tiles/concordance/index.js';
 import { QueryMatch } from '../../../query/index.js';
 import { Observable } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { map } from 'rxjs/operators';
 import { posQueryFactory } from '../../../postag.js';
 import { List, pipe } from 'cnc-tskit';
@@ -184,16 +184,13 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSupportedViewModes():Array<ViewMode> {
@@ -241,7 +238,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
     }
 
     call(args:RequestArgs|FilterRequestArgs):Observable<ConcResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.createActionUrl(args),
             args,

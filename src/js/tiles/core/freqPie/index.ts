@@ -70,7 +70,7 @@ export class FreqPieTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
-        subqSourceTiles, widthFract, conf, isBusy, cache
+        subqSourceTiles, widthFract, conf, isBusy
     }:TileFactoryArgs<FreqPieTileConf>) {
 
         this.tileId = tileId;
@@ -88,7 +88,7 @@ export class FreqPieTile implements ITileProvider {
         const modelFact = conf.subqueryMode ?
             subqModelFactory(
                 conf.subqueryMode,
-                createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions)
+                createKontextConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions)
             ) :
             defaultModelFactory;
         this.model = modelFact(
@@ -98,7 +98,7 @@ export class FreqPieTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            createMultiBlockApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {
                 isBusy: isBusy,

@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types.js';
 import { CoreApiGroup } from '../coreGroups.js';
 import { DatamuseMLApi } from '../vendor/datamuse/wordSim.js';
 import { IWordSimApi } from '../abstract/wordSim.js';
@@ -25,14 +24,14 @@ import { CNCWord2VecSimApi } from '../vendor/wdglance/wordSim.js';
 import { IApiServices } from '../../appServices.js';
 
 
-export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore):IWordSimApi<{}> {
+export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiServices:IApiServices):IWordSimApi<{}> {
 	switch (apiIdent) {
 		case CoreApiGroup.WDGLANCE:
-			return new CNCWord2VecSimApi(cache, apiURL, srcInfoURL, apiServices);
+			return new CNCWord2VecSimApi(apiURL, srcInfoURL, apiServices);
         case CoreApiGroup.DATAMUSE:
-			return new DatamuseMLApi(cache, apiURL, apiServices);
+			return new DatamuseMLApi(apiURL, apiServices);
 		case CoreApiGroup.LCC:
-			return new LccCoocSimApi(cache, apiURL, apiServices);
+			return new LccCoocSimApi(apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
 	}

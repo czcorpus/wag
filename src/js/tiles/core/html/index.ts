@@ -60,14 +60,14 @@ export class HtmlTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        cache, queryMatches
+        queryMatches
     }:TileFactoryArgs<HtmlTileConf>) {
 
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices);
+        this.api = createApiInstance(conf.apiType, conf.apiURL, appServices);
         this.model = new HtmlModel({
             dispatcher: dispatcher,
             tileId: tileId,

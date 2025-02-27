@@ -32,7 +32,6 @@ import { Actions } from '../models/actions.js';
 import { SystemNotifications } from './notifications.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { createRootComponent } from '../app.js';
-import { initStore } from './cache/index.js';
 import { TelemetryAction, TileIdentMap } from '../types.js';
 import { HTTPAction } from '../server/routes/actions.js';
 import { MultiDict } from '../multidict.js';
@@ -247,8 +246,7 @@ export function initClient(
             dispatcher,
             onResize: windowResize$,
             viewUtils,
-            layoutManager,
-            cache: initStore('requests', config.reqCacheTTL)
+            layoutManager
         });
         console.info('tile map: ', tileIdentMap); // DEBUG TODO
 

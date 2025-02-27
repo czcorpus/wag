@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi, DataApi } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { CorpusDetails, WebDelegateApi, DataApi } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs.js';
@@ -109,16 +109,13 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
     call(args:SingleCritQueryArgs):Observable<HTTPResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
             args,
@@ -144,15 +141,12 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -202,7 +196,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
             args,
@@ -251,15 +245,12 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -306,7 +297,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
     }
 
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
             args,

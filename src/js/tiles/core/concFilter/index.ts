@@ -63,7 +63,7 @@ export class ConcFilterTile implements ITileProvider {
 
     constructor({
         tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles,
-        dispatcher, appServices, ut, widthFract, conf, theme, isBusy, cache,
+        dispatcher, appServices, ut, widthFract, conf, theme, isBusy,
         domain2, queryMatches
     }:TileFactoryArgs<ConcFilterTileConf>) {
 
@@ -80,7 +80,7 @@ export class ConcFilterTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            api: createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, appServices.createActionUrl("/ConcFilterTile/authenticate")),
+            api: createKontextConcApiInstance(conf.apiType, conf.apiURL, appServices, appServices.createActionUrl("/ConcFilterTile/authenticate")),
             initState: {
                 isBusy: isBusy,
                 error: null,

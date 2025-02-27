@@ -20,8 +20,8 @@
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { cachedAjax$, ResponseType } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, WebDelegateApi } from '../../../types.js';
+import { ajax$, ResponseType } from '../../../page/ajax.js';
+import { WebDelegateApi } from '../../../types.js';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IGeneralHtmlAPI } from '../../abstract/html.js';
@@ -43,12 +43,9 @@ export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>, We
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
     }
 
     stateToArgs(state:{}, query:string):WiktionaryApiArgs {
@@ -69,7 +66,7 @@ export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>, We
     }
 
     call(queryArgs:WiktionaryApiArgs):Observable<string|null> {
-        return cachedAjax$<string>(this.cache)(
+        return ajax$<string>(
             'GET',
             this.apiURL,
             queryArgs,

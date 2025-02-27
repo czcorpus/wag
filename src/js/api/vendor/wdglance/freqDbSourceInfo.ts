@@ -17,9 +17,9 @@
  */
 
 import { QueryType } from '../../../query/index.js';
-import { DataApi, IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { DataApi, SourceDetails } from '../../../types.js';
 import { Observable } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { map } from 'rxjs/operators';
 import { HTTPAction } from '../../../server/routes/actions.js';
 import { IApiServices } from '../../../appServices.js';
@@ -38,16 +38,13 @@ export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, So
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
     call(args:FreqDbSourceInfoArgs):Observable<SourceDetails> {
-        return cachedAjax$<{result:SourceDetails}>(this.cache)(
+        return ajax$<{result:SourceDetails}>(
             'GET',
             this.apiURL + HTTPAction.SOURCE_INFO,
             args,

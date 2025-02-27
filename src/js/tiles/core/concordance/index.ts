@@ -77,7 +77,7 @@ export class ConcordanceTile implements ITileProvider {
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
         widthFract, waitForTiles, waitForTilesTimeoutSecs, conf, domain2,
-        isBusy, cache}:TileFactoryArgs<ConcordanceTileConf>
+        isBusy}:TileFactoryArgs<ConcordanceTileConf>
     ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -87,7 +87,7 @@ export class ConcordanceTile implements ITileProvider {
         const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} :
             {};
-        const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
+        const api = createApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,

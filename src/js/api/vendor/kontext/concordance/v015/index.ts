@@ -19,8 +19,8 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { List, HTTP, URL, Dict, pipe, tuple } from 'cnc-tskit';
 
-import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax.js';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../../../types.js';
+import { ajax$, encodeURLParameters } from '../../../../../page/ajax.js';
+import { CorpusDetails, WebDelegateApi } from '../../../../../types.js';
 import { QueryMatch } from '../../../../../query/index.js';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../../abstract/concordance.js';
 import { ConcordanceMinState } from '../../../../../models/tiles/concordance/index.js';
@@ -38,17 +38,14 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
 
     protected readonly apiURL:string;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
     protected readonly apiServices:IApiServices;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSupportedViewModes():Array<ViewMode> {
@@ -197,7 +194,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 size: -1,
                 messages: []
             }) :
-            cachedAjax$<ConcQueryResponse>(this.cache)(
+            ajax$<ConcQueryResponse>(
                 HTTP.Method.POST,
                 url,
                 argsBody,
@@ -211,7 +208,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
         ).pipe(
             concatMap(
                 resp => parseInt(args.pagesize + '')  > 0 ?
-                    cachedAjax$<ConcViewResponse>(this.cache)(
+                    ajax$<ConcViewResponse>(
                         HTTP.Method.GET,
                         URL.join(this.apiURL, 'view'),
                         {

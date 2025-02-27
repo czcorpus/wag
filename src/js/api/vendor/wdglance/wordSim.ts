@@ -18,8 +18,8 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { Ident, HTTP } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails } from '../../../types.js';
 import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim.js';
 import { map, catchError } from 'rxjs/operators';
 import { WordSimModelState } from '../../../models/tiles/wordSim.js';
@@ -53,20 +53,16 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoApi:InternalResourceInfoApi;
 
     constructor(
-        cache:IAsyncKeyValueStore,
         apiURL:string,
         srcInfoURL:string,
         apiServices:IApiServices
     ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
-        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, apiServices) : null;
+        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
     }
 
     stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
@@ -111,7 +107,7 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
     call(queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {
         const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.model +
                 '/' + queryArgs.word + (queryArgs.pos ? '/' + queryArgs.pos : '');
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             url,
             {

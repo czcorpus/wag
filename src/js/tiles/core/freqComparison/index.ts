@@ -69,7 +69,7 @@ export class FreqComparisonTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
-        widthFract, conf, isBusy, cache, queryMatches
+        widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<FreqComparisonTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -92,8 +92,8 @@ export class FreqComparisonTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
-            createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            createConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            createFreqsApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {
                 isBusy: isBusy,

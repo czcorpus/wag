@@ -85,7 +85,12 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
 
 function jsonOutputError(res:Response, err:Error):void {
     if (err instanceof ServerHTTPRequestError) {
-        res.status(err.status).send({
+        if (err.status < 400) {
+            console.error(
+                `invalid error status code for error ${err.constructor.name}: ${err.message}, (code: ${err.status})`
+            );
+        }
+        res.status(err.status >= 400 ? err.status : HTTP.Status.InternalServerError).send({
             message: err.statusText
         });
 

@@ -54,7 +54,7 @@ export class WordFreqTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract,
-        conf, isBusy, cache, queryType, mainPosAttr}:TileFactoryArgs<WordFreqTileConf>
+        conf, isBusy, queryType, mainPosAttr}:TileFactoryArgs<WordFreqTileConf>
     ) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -76,9 +76,9 @@ export class WordFreqTile implements ITileProvider {
             },
             tileId,
             api: conf.apiURL ?
-                new SimilarFreqWordsAPI(cache, conf.apiURL, appServices) :
+                new SimilarFreqWordsAPI(conf.apiURL, appServices) :
                 new SimilarFreqWordsNullAPI(),
-            sourceInfoApi: new InternalResourceInfoApi(cache, conf.apiURL, appServices),
+            sourceInfoApi: new InternalResourceInfoApi(conf.apiURL, appServices),
             queryMatches: queryMatches,
             queryDomain: domain1,
             queryType,

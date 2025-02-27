@@ -25,7 +25,6 @@ import { IAppServices } from '../appServices.js';
 import { Theme } from './theme.js';
 import { LayoutManager } from './layout.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
-import { IAsyncKeyValueStore } from '../types.js';
 import { EmptyTile } from '../tiles/core/empty.js';
 
 declare var require:any;
@@ -81,8 +80,7 @@ export const mkTileFactory = (
     layoutManager:LayoutManager,
     queryType:QueryType,
     domain1:string,
-    domain2:string,
-    cache:IAsyncKeyValueStore) => (
+    domain2:string) => (
             confName:string,
             conf:TileConf):ITileProvider|null => {
         if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, layoutManager.getTileNumber(confName))) {
@@ -128,7 +126,6 @@ export const mkTileFactory = (
                 theme,
                 conf,
                 isBusy: true,
-                cache,
                 mainPosAttr: layoutManager.getLayoutMainPosAttr(queryType),
             };
             const errs = tileFactory.sanityCheck(args);

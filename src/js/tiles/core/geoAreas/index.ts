@@ -63,7 +63,7 @@ export class GeoAreasTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
-        widthFract, conf, isBusy, cache
+        widthFract, conf, isBusy
     }:TileFactoryArgs<GeoAreasTileConf>) {
 
         this.tileId = tileId;
@@ -81,8 +81,8 @@ export class GeoAreasTile implements ITileProvider {
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
-            api: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
-            mapLoader: new MapLoader(cache, appServices),
+            api: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            mapLoader: new MapLoader(appServices),
             initState: {
                 isBusy: isBusy,
                 error: null,

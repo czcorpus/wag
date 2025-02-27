@@ -58,14 +58,14 @@ export class SyntacticCollsTile implements ITileProvider {
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles,
         waitForTilesTimeoutSecs, widthFract, conf, isBusy,
-        queryMatches, cache, queryType
+        queryMatches, queryType
     }:TileFactoryArgs<SyntacticCollsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        const [api, eApi] = createInstance(conf.apiType, conf.apiURL, appServices, cache, {});
+        const [api, eApi] = createInstance(conf.apiType, conf.apiURL, appServices, {});
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,

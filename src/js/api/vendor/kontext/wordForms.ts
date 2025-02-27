@@ -21,7 +21,7 @@ import { HTTP, Ident } from 'cnc-tskit';
 
 import { QueryMatch } from '../../../query/index.js';
 import { IWordFormsApi, RequestConcArgs, Response } from '../../abstract/wordForms.js';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types.js';
+import { CorpusDetails, WebDelegateApi } from '../../../types.js';
 import { BacklinkArgs, KontextFreqDistribAPI } from './freqs.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { IApiServices } from '../../../appServices.js';
@@ -39,9 +39,9 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.fapi = new KontextFreqDistribAPI(cache, apiURL, apiServices);
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+    constructor(apiURL:string, apiServices:IApiServices) {
+        this.fapi = new KontextFreqDistribAPI(apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     call(args:RequestConcArgs):Observable<Response> {

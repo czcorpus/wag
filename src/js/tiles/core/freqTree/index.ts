@@ -69,7 +69,7 @@ export class FreqTreeTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
-        widthFract, conf, isBusy, cache, queryMatches
+        widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<FreqTreeTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -85,8 +85,8 @@ export class FreqTreeTile implements ITileProvider {
         const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/FreqTreeTile/authenticate")} :
             {};
-        const concApi = createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
-        const freqApi = createSimpleFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions);
+        const concApi = createKontextConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions);
+        const freqApi = createSimpleFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions);
 
         this.model = defaultModelFactory(
             this.dispatcher,
@@ -95,7 +95,7 @@ export class FreqTreeTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             concApi,
-            new FreqTreeAPI(cache, conf.apiURL, appServices, concApi, freqApi),
+            new FreqTreeAPI(conf.apiURL, appServices, concApi, freqApi),
             conf.backlink || null,
             {
                 isBusy: isBusy,

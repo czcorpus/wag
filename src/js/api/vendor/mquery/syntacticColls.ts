@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails } from '../../../types.js';
 import { IApiServices } from '../../../appServices.js';
 import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls.js';
 import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls.js';
@@ -63,23 +63,19 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly isScollex:boolean;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
     constructor(
-        cache:IAsyncKeyValueStore,
         apiURL:string,
         apiServices:IApiServices,
         isScollex:boolean=false
     ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
         this.isScollex = isScollex;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
@@ -106,7 +102,7 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
         const url = this.isScollex ?
         this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}` :
         this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}`
-        return cachedAjax$<SCollsApiResponse>(this.cache)(
+        return ajax$<SCollsApiResponse>(
             'GET',
             url,
             request.args,
@@ -156,12 +152,9 @@ export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesAp
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
     }
 
     stateToArgs(state:SyntacticCollsModelState, q:string):SCERequestArgs {
@@ -176,7 +169,7 @@ export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesAp
     }
 
     call(request:SCERequestArgs):Observable<SCollsExamples> {
-        return cachedAjax$<SCollsExamples>(this.cache)(
+        return ajax$<SCollsExamples>(
             'GET',
             this.apiURL + `/conc-examples/${request.params.corpname}`,
             request.args,
