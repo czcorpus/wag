@@ -24,11 +24,11 @@ export const FreqBarTile = styled.div`
     min-height: 15em;
 `;
 
-export const Charts = styled.div<{incomplete:boolean}>`
+export const Charts = styled.div<{$incomplete:boolean}>`
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    justify-content: ${props => props.incomplete ? 'flex-start' : 'space-between'};
+    justify-content: ${props => props.$incomplete ? 'flex-start' : 'space-between'};
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;

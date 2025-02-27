@@ -54,7 +54,7 @@ export function init(
                 <thead>
                     <tr>
                         <th />
-                        {List.map(v => <th>{v}</th>, props.heading)}
+                        {List.map((v, i) => <th key={`h${i}`} >{v}</th>, props.heading)}
                         {props.linkTemplate ? <th /> : null}
                         <th>{ut.translate('matchingDocs__score')}</th>
                     </tr>
@@ -65,7 +65,7 @@ export function init(
                             return <tr key={`${i}:${row.displayValues}`}>
                                 <td className="rowNum num">{i+1}.</td>
                                 {List.map(
-                                    v => <td className="document">{v}</td>,
+                                    (v, i) => <td key={`doc${i}`} className="document">{v}</td>,
                                     row.displayValues
                                 )}
                                 {props.linkTemplate ?

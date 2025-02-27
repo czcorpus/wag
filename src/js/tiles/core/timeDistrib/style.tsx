@@ -29,7 +29,7 @@ export const TimeDistribTile = styled.div`
 `;
 
 export const ChartLegend = styled.p`
-    text-align: 'center';
+    text-align: center;
 
     .item {
 

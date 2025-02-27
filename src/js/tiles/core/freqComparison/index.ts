@@ -110,6 +110,7 @@ export class FreqComparisonTile implements ITileProvider {
                 ),
                 activeBlock: 0,
                 corpname: conf.corpname,
+                subcname: undefined,
                 fcrit: criteria,
                 freqType: conf.freqType,
                 critLabels: labels,

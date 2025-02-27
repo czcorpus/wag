@@ -3,12 +3,13 @@
         "outDir": "./dist",
         "sourceMap": true,
         "noImplicitAny": false,
-        "module": "node16",
+        "module": "Node16",
         "target": "esnext",
         "jsx": "react-jsx",
         "moduleResolution": "node16",
         "skipLibCheck": true,
         "preserveSymlinks": true,
+        "esModuleInterop": true,
         "paths": {
             "@vendor/SoundManager": ["./src/js/server/sm2null.ts"]
         }

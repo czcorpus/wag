@@ -219,7 +219,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <S.FreqTreeTile>
-                        <S.Charts incomplete={this.props.isBusy} isMobile={this.props.isMobile} ref={this.chartsRef} onScroll={this.handleScroll}>
+                        <S.Charts $incomplete={this.props.isBusy} $isMobile={this.props.isMobile} ref={this.chartsRef} onScroll={this.handleScroll}>
                             {pipe(
                                 this.props.frequencyTree,
                                 List.filter(block => block.isReady),

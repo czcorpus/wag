@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 /// <reference path="../translations.d.ts" />
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import express from 'express';
-import * as session from 'express-session';
-import * as path from 'path';
-import * as sqlite3 from 'sqlite3';
-import * as translations from 'translations';
+import session from 'express-session';
+import path from 'path';
+import sqlite3 from 'sqlite3';
+import translations from 'translations';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident, tuple } from 'cnc-tskit';
-import * as sessionFileStore from 'session-file-store';
+import sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
 
@@ -77,11 +77,11 @@ const __dirname = path.dirname(__filename);
 forkJoin([ // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
         process.env.SERVER_CONF :
-        path.resolve(__dirname, '../conf/server.json')),
+        path.resolve(__dirname, '../../../conf/server.json')),
     parseJsonConfig<ClientStaticConf>(process.env.WDGLANCE_CONF ?
         process.env.WDGLANCE_CONF :
-        path.resolve(__dirname, '../conf/wdglance.json')),
-    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json')),
+        path.resolve(__dirname, '../../../conf/wdglance.json')),
+    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../../../package.json')),
 
 ]).pipe(
     concatMap( // load layouts config

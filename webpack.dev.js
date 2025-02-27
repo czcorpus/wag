@@ -28,7 +28,9 @@ export default (env) => ({
         assetModuleFilename: '[hash][ext][query]'
     },
     resolve: {
-        alias: {}, // filled in dynamically
+        alias: {
+            '@vendor/SoundManager': path.resolve(__dirname, 'src/js/vendor/soundmanager2.min.js')
+        }, // part is filled in dynamically
         modules: [
             'node_modules',
             mkpath('dist/.compiled')
@@ -52,13 +54,36 @@ export default (env) => ({
             },
             {
                 test: /\.tsx?$/,
-                exclude: /(node_modules)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        options: build.createBabelOptions('development')
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'swc-loader',
+                    options: {
+                        jsc: {
+                            parser: {
+                                syntax: 'typescript',
+                                tsx: true,
+                                decorators: false,
+                                dynamicImport: false
+                            },
+                            target: 'es2016',
+                            experimental: {
+                                plugins: [
+                                    [
+                                        "@swc/plugin-styled-components",
+                                        {
+                                            minify: false,
+                                            displayName: true,
+                                            ssr: true
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        module: {
+                            type: 'es6'
+                        }
                     }
-                ]
+                }
             }
         ]
     },

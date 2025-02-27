@@ -92,7 +92,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements 
                 Dict.forEach(
                     (model, ident) => {
                         if (!blockedGroup.some(x => x.toFixed() === ident)) {
-                            model.model.waitForAction({}, (action, syncData) => {
+                            model.model.waitForActionWithTimeout(5000, {}, (action, syncData) => {
                                 if (action.name === Actions.WakeSuspendedTiles.name) {
                                     return true;
                                 }

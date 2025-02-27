@@ -124,6 +124,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
         const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
         const t1 = new Date().getTime();
+
+        if (!services.telemetryDB) {
+            res.send({saved: false, procTimePerItem: 0});
+            return;
+        }
+
         const statement = services.telemetryDB.prepare(
             'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery, is_mobile) values (?, ?, ?, ?, ?, ?)'
         );
@@ -138,7 +144,9 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             userId: null,
             hasMatch: null
         }).subscribe();
-        rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
+        rxOf(
+            ...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])
+        ).pipe(
             concatMap(
                 action => new Observable(observer => {
                     const data = [

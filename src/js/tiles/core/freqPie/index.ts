@@ -111,6 +111,7 @@ export class FreqPieTile implements ITileProvider {
                 })),
                 activeBlock: 0,
                 corpname: conf.corpname,
+                subcname: undefined,
                 concId: null,
                 fcrit: criteria,
                 freqType: conf.freqType,

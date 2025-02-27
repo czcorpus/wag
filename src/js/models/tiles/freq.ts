@@ -27,6 +27,7 @@ export interface FreqBarModelStateBase {
 
 export interface MinSingleCritFreqState {
     corpname:string;
+    subcname?:string;
     fcrit:string;
     freqType:'tokens'|'text-types';
     flimit:number;
@@ -39,6 +40,7 @@ export interface MinSingleCritFreqState {
 
 export interface MinMultiCritFreqState {
     corpname:string;
+    subcname:string|undefined;
     fcrit:Array<string>;
     freqType:'tokens'|'text-types';
     flimit:number;

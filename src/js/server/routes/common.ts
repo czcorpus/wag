@@ -186,6 +186,7 @@ interface RenderResultArgs {
     currTheme:string;
     rootView:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
     homepageSections:Array<{label:string; html:string}>;
+    htmlTitle?:string;
     layout:Array<TileGroup>;
     isMobile:boolean;
     isAnswerMode:boolean;
@@ -209,6 +210,7 @@ export function renderResult({
         layout,
         isMobile,
         isAnswerMode,
+        htmlTitle,
         homepageSections,
         version,
         services,
@@ -258,7 +260,8 @@ export function renderResult({
                 {
                     hostPageEnv: toolbarData,
                     config: clientConfig,
-                    scStyles: sheet.getStyleElement()
+                    scStyles: sheet.getStyleElement(),
+                    htmlTitle: htmlTitle,
                 }
             )
         );

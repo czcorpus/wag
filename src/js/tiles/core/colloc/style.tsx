@@ -21,14 +21,14 @@
 import { styled } from 'styled-components';
 import * as theme from '../../../views/common/theme.js';
 
-export const Boxes = styled.div<{isMobile:boolean}>`
+export const Boxes = styled.div<{$isMobile:boolean}>`
     overflow-y: hidden;
     overflow-x: auto;
     display: flex;
     align-items: stretch;
     justify-content: space-between;
     flex-direction: row;
-    flex-wrap: ${props => props.isMobile ? 'wrap' : 'nowrap'};
+    flex-wrap: ${props => props.$isMobile ? 'wrap' : 'nowrap'};
 
     & > .chart {
         min-width: 50%;

@@ -117,7 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.WordSimView>
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null}
-                    <S.Boxes isMobile={props.isMobile}>
+                    <S.Boxes $isMobile={props.isMobile}>
                         {List.map((data, matchIdx) => {
                             const otherWords = List.flatMap((v, i) => matchIdx === i ? [] : List.map(u => u.word, v), props.data);
 

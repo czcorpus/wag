@@ -459,6 +459,7 @@ export function queryAction({
                 rootView: component,
                 layout: tileGroups,
                 homepageSections: [...runtimeConf.homepage.tiles],
+                htmlTitle: services.clientConf.htmlTitle ? appServices.importExternalMessage(services.clientConf.htmlTitle) : undefined,
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode,
                 version: services.version,
@@ -489,6 +490,7 @@ export function queryAction({
                 rootView: errView,
                 layout: [],
                 homepageSections: [],
+                htmlTitle: services.clientConf.htmlTitle ? appServices.importExternalMessage(services.clientConf.htmlTitle) : undefined,
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: false,
                 version: services.version,
