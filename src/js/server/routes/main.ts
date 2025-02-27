@@ -33,7 +33,6 @@ import { emptyValue } from '../toolbar/empty.js';
 import { Services  } from '../actionServices.js';
 import { loadFile } from '../files.js';
 import { createRootComponent } from '../../app.js';
-import { initDummyStore } from '../../page/cache/index.js';
 import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, fetchUrlParamArray,
     clientIsLikelyMobile } from './common.js';
 import { maxQueryWordsForQueryType } from '../../conf/validation.js';
@@ -431,8 +430,7 @@ export function queryAction({
                 dispatcher,
                 onResize: new Observable((_) => undefined),
                 viewUtils,
-                layoutManager,
-                cache: initDummyStore('dummy-server-store')
+                layoutManager
             });
 
             const {HtmlHead, HtmlBody} = viewInit(viewUtils);

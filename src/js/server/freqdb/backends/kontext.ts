@@ -29,7 +29,6 @@ import { importQueryPosWithLabel } from '../../../postag.js';
 import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo.js';
 import { CorpusDetails } from '../../../types.js';
 import { serverHttpRequest } from '../../request.js';
-import { initDummyStore } from '../../../page/cache/index.js';
 
 
 export class KontextFreqDB implements IFreqDB {
@@ -46,7 +45,7 @@ export class KontextFreqDB implements IFreqDB {
 
     constructor(apiUrl:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions) {
         this.apiURL = apiUrl;
-        this.srcInfoService = new CorpusInfoAPI(initDummyStore('kontext-freqdb'), apiUrl, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiUrl, apiServices);
         this.corpusSize = corpusSize;
         this.corpname = options.urlArgs.corpname;
         this.apiServices = apiServices;
