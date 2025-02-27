@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model.js';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer } from 'recharts';
 import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
@@ -139,50 +139,48 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
                     theme.categoryColor(0);
         return (
-            <div className="Chart" style={{height: '100%', minHeight: '300px'}}>
-                <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
-                    <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
-                        width={width}
-                        height={height}
-                        onMouseMove={e => {
-                            e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
-                                name: Actions.ShowTooltip.name,
-                                payload: {
-                                    dataName: e.activeLabel,
-                                    tileId: props.tileId,
-                                    tooltipX: e.chartX,
-                                    tooltipY: e.chartY
-                                }
-                            }) : null}}
-                        onMouseLeave={d =>
-                            dispatcher.dispatch<typeof Actions.HideTooltip>({
-                                name: Actions.HideTooltip.name,
-                                payload: {tileId: props.tileId}
-                            })
-                        }
-                    >
-                        <CartesianGrid />
-                        {List.map(
-                            (_, index) => (
-                                <Bar key={index}
-                                        dataKey={x => x.ipm[index]}
-                                        fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
-                                        isAnimationActive={false}
-                                        name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
-                                    {List.map(
-                                        (entry, i) => <Cell key={`cell-${index}`} />,
-                                    transformedData)}
-                                </Bar>
-                            ),
-                            props.queryMatches
-                        )}
-                        <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
-                        <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
-                                tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
-                        <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={(value) => <span style={{ color: 'black' }}>{value}</span>}/>
-                    </BarChart>
-                )} />
-            </div>
+            // 100% height makes parent ResponsiveWrapper
+            // to change size gradually after rendering
+            <ResponsiveContainer width="100%" height="99%" minHeight={300} >
+                <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
+                    onMouseMove={e => {
+                        e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
+                            name: Actions.ShowTooltip.name,
+                            payload: {
+                                dataName: e.activeLabel,
+                                tileId: props.tileId,
+                                tooltipX: e.chartX,
+                                tooltipY: e.chartY
+                            }
+                        }) : null}}
+                    onMouseLeave={d =>
+                        dispatcher.dispatch<typeof Actions.HideTooltip>({
+                            name: Actions.HideTooltip.name,
+                            payload: {tileId: props.tileId}
+                        })
+                    }
+                >
+                    <CartesianGrid />
+                    {List.map(
+                        (_, index) => (
+                            <Bar key={index}
+                                    dataKey={x => x.ipm[index]}
+                                    fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
+                                    isAnimationActive={false}
+                                    name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
+                                {List.map(
+                                    (entry, i) => <Cell key={`cell-${index}`} />,
+                                transformedData)}
+                            </Bar>
+                        ),
+                        props.queryMatches
+                    )}
+                    <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
+                            tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
+                    <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={(value) => <span style={{ color: 'black' }}>{value}</span>}/>
+                </BarChart>
+            </ResponsiveContainer>
         );
     };
 
@@ -241,7 +239,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 </S.Tables> :
                                 <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
-                        </S.MergeCorpFreqBarTile>)}} />
+                        </S.MergeCorpFreqBarTile>)
+                    }} />
                 </globComponents.TileWrapper>
             );
         }
