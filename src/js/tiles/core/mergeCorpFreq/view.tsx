@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering
-            <ResponsiveContainer width="100%" height="99%" minHeight={300} >
+            <ResponsiveContainer id={`${props.tileId}-bar-chart`} width="100%" height="95%" minHeight={300} >
                 <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
                     onMouseMove={e => {
                         e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
@@ -231,15 +231,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </div>
 
                     <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
-                        return (
-                        <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
+                        return <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
                             {this.props.isAltViewMode ?
                                 <S.Tables>
                                     <TableView data={this.props.data} queryMatches={this.props.queryMatches} />
                                 </S.Tables> :
                                 <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
-                        </S.MergeCorpFreqBarTile>)
+                        </S.MergeCorpFreqBarTile>
                     }} />
                 </globComponents.TileWrapper>
             );

@@ -199,7 +199,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     supportsSVGFigureSave():boolean {
-        return false;
+        return true;
     }
 
     getAltViewIcon():AltViewIconProps {

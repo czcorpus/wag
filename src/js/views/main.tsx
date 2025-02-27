@@ -17,6 +17,7 @@
  */
 import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
+import * as domtoimage from 'dom-to-image-more';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 
@@ -706,6 +707,29 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // ------------- <SaveButton /> --------------------------------------
+
+    const SaveButton:React.FC<{
+        tileId:number;
+
+    }> = (props) => {
+
+        const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
+            dispatcher.dispatch(
+                Actions.SaveSVGFigure,
+                {tileId: props.tileId},
+            );
+        };
+
+        return (
+            <span className="SaveButton bar-button">
+                <button type="button" onClick={handleClick} title={ut.translate('global__save_svg')}>
+                    <img src={ut.createStaticUrl('download-button.svg')} alt={'download button'} />
+                </button>
+            </span>
+        );
+    };
+
     // ------------- <AmbiguousResultWarning /> -------------------------------
 
     const AmbiguousResultWarning:React.FC<{
@@ -847,6 +871,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="window-buttons">
                         {this.props.tileResultFlag && this.props.tileResultFlag.canBeAmbiguousResult ?
                             <AmbiguousResultWarning /> :
+                            null
+                        }
+                        {this.props.tile.supportsSVGFigureSave ?
+                            <SaveButton tileId={this.props.tile.tileId} /> :
                             null
                         }
                         {this.props.tile.supportsAltView ?

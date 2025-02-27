@@ -20,6 +20,7 @@ import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { mergeMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
+import * as domtoimage from 'dom-to-image-more';
 
 import { IAppServices } from '../../../appServices.js';
 import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
@@ -282,6 +283,20 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 }
             }
         );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.SaveSVGFigure,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                domtoimage.toSvg(document.getElementById(`${this.tileId}-bar-chart`), {bgcolor: 'white'})
+                .then(function (dataUrl) {
+                    var link = document.createElement('a');
+                    link.download = '';
+                    link.href = dataUrl;
+                    link.click();
+                });
+            }
+        ); 
     }
 
     private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
