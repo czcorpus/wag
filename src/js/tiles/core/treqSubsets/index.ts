@@ -56,7 +56,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, theme, ut, domain1, domain2, widthFract, waitForTiles,
-        queryMatches, conf, isBusy, cache
+        queryMatches, conf, isBusy
     }:TileFactoryArgs<TreqSubsetsTileConf>) {
 
         this.tileId = tileId;
@@ -88,7 +88,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            api: new TreqSubsetsAPI(cache, conf.apiURL, appServices),
+            api: new TreqSubsetsAPI(conf.apiURL, appServices),
             queryMatches,
             waitForColorsTile: waitForTiles[0]
         });

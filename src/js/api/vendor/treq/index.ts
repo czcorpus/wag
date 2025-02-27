@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf, throwError } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails } from '../../../types.js';
 import {
     WordTranslation,
     TranslationAPI,
@@ -82,8 +82,6 @@ export const mkInterctionId = (word:string):string => {
 
 class TreqAPICaller {
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly apiURL:string;
 
     private readonly titleI18n:{[lang:string]:string};
@@ -92,8 +90,7 @@ class TreqAPICaller {
 
     private readonly appServices:IAppServices;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:IAppServices) {
-        this.cache = cache;
+    constructor(apiURL:string, appServices:IAppServices) {
         this.apiURL = apiURL;
         this.appServices = appServices;
         this.titleI18n = {
@@ -170,7 +167,7 @@ class TreqAPICaller {
     call(args:RequestArgs):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             HTTP.Method.GET,
             `${this.apiURL}/api/v1/`,
             args,
@@ -217,8 +214,8 @@ class TreqAPICaller {
 
 export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs, PageArgs> {
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:IAppServices) {
-        super(cache, apiURL, appServices);
+    constructor(apiURL:string, appServices:IAppServices) {
+        super(apiURL, appServices);
     }
 
     stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {

@@ -19,11 +19,11 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { DataApi, IAsyncKeyValueStore } from '../../../types.js';
+import { DataApi } from '../../../types.js';
 import { DataHeading, DataRow } from '../../../api/abstract/collocations.js';
 import { CollApiArgs } from '../../../api/vendor/kontext/collocations.js';
 import { IApiServices } from '../../../appServices.js';
+import { ajax$ } from 'src/js/page/ajax.js';
 
 
 
@@ -60,17 +60,14 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
     }
 
 
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
-        return cachedAjax$<HttpApiResponse>(this.cache)(
+        return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL,
             queryArgs,

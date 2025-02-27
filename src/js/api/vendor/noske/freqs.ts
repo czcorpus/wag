@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { CorpusDetails } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs.js';
@@ -109,15 +109,12 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -163,7 +160,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
     }
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
             args,
@@ -203,15 +200,12 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -257,7 +251,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
     }
 
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
             args,

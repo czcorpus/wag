@@ -19,7 +19,6 @@
 import { IWordFormsApi } from '../abstract/wordForms.js';
 import { WordFormsAPI as WordFormsKontextApi } from '../vendor/kontext/wordForms.js';
 import { WordFormsAPI as WordFormsMqueryApi } from '../vendor/mquery/wordForms.js';
-import { IAsyncKeyValueStore } from '../../types.js';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
 import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms.js';
 import { IApiServices } from '../../appServices.js';
@@ -27,7 +26,6 @@ import { IApiServices } from '../../appServices.js';
 
 export interface ApiFactoryArgs {
     apiIdent:string;
-    cache:IAsyncKeyValueStore;
     srcInfoURL:string;
     apiURL:string;
     apiServices:IApiServices;
@@ -35,16 +33,16 @@ export interface ApiFactoryArgs {
 }
 
 
-export function createApiInstance({apiIdent, cache, srcInfoURL, apiServices, apiURL, apiOptions}:ApiFactoryArgs):IWordFormsApi {
+export function createApiInstance({apiIdent, srcInfoURL, apiServices, apiURL, apiOptions}:ApiFactoryArgs):IWordFormsApi {
     switch (apiIdent) {
         case CoreApiGroup.WDGLANCE:
-            return new WordFormsWdglanceAPI(cache, apiURL, srcInfoURL, apiServices);
+            return new WordFormsWdglanceAPI(apiURL, srcInfoURL, apiServices);
         case CoreApiGroup.KONTEXT:
-            return new WordFormsKontextApi(cache, apiURL, apiServices);
+            return new WordFormsKontextApi(apiURL, apiServices);
         case CoreApiGroup.KONTEXT_API:
-            return new WordFormsKontextApi(cache, apiURL, apiServices);
+            return new WordFormsKontextApi(apiURL, apiServices);
         case CoreApiGroup.MQUERY:
-            return new WordFormsMqueryApi(cache, apiURL, apiServices);
+            return new WordFormsMqueryApi(apiURL, apiServices);
         default:
  			throw new Error(`WordForms tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
     }

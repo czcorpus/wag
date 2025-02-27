@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Observable, of as rxOf } from 'rxjs';
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails } from '../../../types.js';
 import { WordSimApiResponse, WordSimWord, IWordSimApi } from '../../abstract/wordSim.js';
 import { map } from 'rxjs/operators';
 import { WordSimModelState, OperationMode } from '../../../models/tiles/wordSim.js';
@@ -47,12 +47,9 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
     }
 
     stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):DatamuseMLApiArgs|DatamuseSLApiArgs {
@@ -89,7 +86,7 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
     }
 
     call(queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
-        return cachedAjax$<DatamuseMLApiResponse>(this.cache)(
+        return ajax$<DatamuseMLApiResponse>(
             'GET',
             this.apiURL,
             queryArgs,

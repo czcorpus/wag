@@ -20,16 +20,15 @@ import { CoreApiGroup } from '../coreGroups.js';
 import { IAudioUrlGenerator } from '../abstract/audio.js';
 import { KontextAudioLinkGenerator } from '../vendor/kontext/audio.js';
 import { SpeechesApi } from '../vendor/kontext/speeches.js';
-import { IAsyncKeyValueStore } from '../../types.js';
 import { IApiServices } from '../../appServices.js';
 
-export function createSpeechesApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SpeechesApi {
+export function createSpeechesApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):SpeechesApi {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
-			return new SpeechesApi(cache, apiURL, apiServices);
+			return new SpeechesApi(apiURL, apiServices);
 		case CoreApiGroup.KONTEXT_API:
-			return new SpeechesApi(cache, apiURL, apiServices);
+			return new SpeechesApi(apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for speeches.`);
 	}

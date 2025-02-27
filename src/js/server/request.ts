@@ -92,8 +92,8 @@ export function serverHttpRequest<T>({
             },
             (err:AxiosError) => {
                 observer.error(new ServerHTTPRequestError(
-                    err.response ? err.response.status : -1,
-                    err.response ? err.response.statusText : '-',
+                    err.response ? err.response.status : 500,
+                    err.response ? err.response.statusText : 'Internal Server Error',
                     `Request failed: ${err.message}`,
                 ));
             }

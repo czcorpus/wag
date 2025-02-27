@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { share, map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { DataApi, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { DataApi, SourceDetails, CorpusDetails } from '../../../types.js';
 import { HTTPApiResponse } from './common.js';
 import { List } from 'cnc-tskit';
 import { IApiServices } from '../../../appServices.js';
@@ -109,16 +109,13 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
     call(args:QueryArgs):Observable<CorpusDetails> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/corp_info',
             args,

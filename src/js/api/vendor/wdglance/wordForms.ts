@@ -19,9 +19,9 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { SourceDetails } from '../../../types.js';
 import { HTTP } from 'cnc-tskit';
-import { cachedAjax$ } from '../../../page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms.js';
 import { HTTPAction } from '../../../server/routes/actions.js';
@@ -39,18 +39,15 @@ export class WordFormsWdglanceAPI implements IWordFormsApi {
 
     private readonly apiUrl:string;
 
-    private readonly cache:IAsyncKeyValueStore;
-
     private readonly srcInfoApi:InternalResourceInfoApi;
 
-    constructor(cache:IAsyncKeyValueStore, url:string, srcInfoURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(url:string, srcInfoURL:string, apiServices:IApiServices) {
         this.apiUrl = url;
-        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, apiServices) : null;
+        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
     }
 
     call(args:RequestArgs):Observable<Response> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             HTTP.Method.GET,
             this.apiUrl + HTTPAction.WORD_FORMS,
             args

@@ -20,7 +20,7 @@ import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NoskeFreqDistribAPI } from './freqs.js';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusDetails } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { IFreqDistribAPI } from '../../abstract/freqs.js';
 import { processConcId } from './common.js';
@@ -47,10 +47,10 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
-        this.freqApi = new NoskeFreqDistribAPI(cache, apiURL, apiServices);
+    constructor(apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
+        this.freqApi = new NoskeFreqDistribAPI(apiURL, apiServices);
         this.customArgs = customArgs;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

@@ -16,15 +16,15 @@
 */
 import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../../models/tiles/matchingDocs.js';
 import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs.js';
-import { cachedAjax$ } from '../../../page/ajax.js';
 import { Observable } from 'rxjs';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusDetails } from '../../../types.js';
 import { HTTP, List } from 'cnc-tskit';
 import { map, mergeMap } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse, SimpleKontextFreqDistribAPI } from './freqs.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { BacklinkWithArgs } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
+import { ajax$ } from '../../../page/ajax.js';
 
 
 export interface KontextMatchingDocsQueryArgs extends SingleCritQueryArgs {
@@ -39,17 +39,14 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
 
     protected readonly apiServices:IApiServices;
 
-    protected readonly cache:IAsyncKeyValueStore;
-
     protected readonly srcInfoService:CorpusInfoAPI;
 
     protected readonly freqApi:SimpleKontextFreqDistribAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, freqApi: SimpleKontextFreqDistribAPI) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices, freqApi: SimpleKontextFreqDistribAPI) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.freqApi = freqApi;
     }
 
@@ -135,7 +132,7 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
     call(args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
         return super.call(args).pipe(
             mergeMap(freq =>
-                cachedAjax$<FillHTTPResponse>(this.cache)(
+                ajax$<FillHTTPResponse>(
                     HTTP.Method.POST,
                     this.apiURL + '/fill_attrs',
                     {

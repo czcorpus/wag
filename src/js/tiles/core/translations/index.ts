@@ -55,7 +55,7 @@ export class TranslationsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, domain1, domain2, queryMatches, widthFract,
-        conf, isBusy, cache
+        conf, isBusy
     }:TileFactoryArgs<TranslationsTileConf>) {
 
         this.tileId = tileId;
@@ -78,7 +78,7 @@ export class TranslationsTile implements ITileProvider {
                 domain2: domain2
             },
             tileId,
-            api: createApiInstance(conf.apiType, conf.apiURL, appServices, cache, apiOptions),
+            api: createApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             backlink: conf.backlink || null,
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed

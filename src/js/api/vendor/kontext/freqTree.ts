@@ -18,7 +18,7 @@
 import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusDetails } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { ConcApi } from './concordance/v015/index.js';
 import { ViewMode } from '../../abstract/concordance.js';
@@ -71,10 +71,10 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, concApi: ConcApi, freqApi: SimpleKontextFreqDistribAPI) {
+    constructor(apiURL:string, apiServices:IApiServices, concApi: ConcApi, freqApi: SimpleKontextFreqDistribAPI) {
         this.concApi = concApi;
         this.freqApi = freqApi;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

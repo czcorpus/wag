@@ -100,12 +100,6 @@ export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
     return typeof d['structure'] === 'object' && d['structure'].numTokens !== undefined;
 }
 
-export interface IAsyncKeyValueStore {
-    get<T>(key:string):Observable<T>;
-    set(key:string, value:any):Observable<string>;
-    clearAll():Observable<number>;
-}
-
 export interface TelemetryAction {
     timestamp:number;
     actionName:string;

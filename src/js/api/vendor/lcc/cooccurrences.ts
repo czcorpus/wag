@@ -19,8 +19,8 @@ import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../page/ajax.js';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { SourceDetails } from '../../../types.js';
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations.js';
 import { CollocModelState } from '../../../models/tiles/collocations.js';
 import { QueryMatch } from '../../../query/index.js';
@@ -51,12 +51,9 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.cache = cache;
     }
 
     stateToArgs(state:CollocModelState, dataSpec:QueryMatch):CollRequestArgs {
@@ -89,7 +86,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
     }
 
     call(queryArgs:CollRequestArgs):Observable<CollApiResponse> {
-        return cachedAjax$<HttpApiResponse>(this.cache)(
+        return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL + `/coocurrences/${queryArgs.corpus}/cooccurrences/${queryArgs.word}/`,
             {

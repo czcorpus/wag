@@ -16,9 +16,9 @@
 */
 import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs.js';
 import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs.js';
-import { cachedAjax$ } from '../../../page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 import { Observable } from 'rxjs';
-import { IAsyncKeyValueStore, SourceDetails } from '../../../types.js';
+import { SourceDetails } from '../../../types.js';
 import { map } from 'rxjs/operators';
 import { IApiServices } from '../../../appServices.js';
 
@@ -59,10 +59,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
 
     private readonly apiServices:IApiServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
@@ -87,7 +84,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
     }
 
     call(args:ElasticsearchQueryArgs):Observable<APIResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
             args,

@@ -98,15 +98,19 @@ export default (env) => ({
     },
     devtool: 'inline-source-map',
     devServer: {
-        allowedHosts: ['localhost', 'portal.korpus.test', 'korpus.test', 'wag.korpus.test'],
+        //allowedHosts: ['localhost', '127.0.0.1', 'portal.korpus.test', 'korpus.test', 'wag.korpus.test'],
+        allowedHosts: "all",
         port: (CONF.develServer || {}).port || 9000,
-        host: (CONF.develServer || {}).host || 'localhost',
+        host: (CONF.develServer || {}).host || '127.0.0.1',
         static: {
             directory: path.resolve(__dirname, 'html'),
             publicPath: (CONF.develServer || {}).urlRootPath + 'dist/'
         },
         client: {
-            webSocketURL: 'ws://localhost:8081/wds-ws', // TODO configurable
+            webSocketURL: 'ws://wag.korpus.test/ws', // TODO configurable
+        },
+        headers: {
+            "Access-Control-Allow-Origin": "*",
         },
         liveReload: false
     },

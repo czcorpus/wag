@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types.js';
 import { CoreApiGroup } from '../coreGroups.js';
 import { KontextMatchingDocsAPI, KontextLiveattrsMatchingDocsAPI } from '../vendor/kontext/matchingDocs.js';
 import { MatchingDocsAPI } from '../abstract/matchingDocs.js';
@@ -25,16 +24,14 @@ import { IApiServices } from '../../appServices.js';
 import { createSimpleFreqApiInstance } from './freqs.js';
 
 
-export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):MatchingDocsAPI<{}> {
+export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):MatchingDocsAPI<{}> {
 	switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
 		case CoreApiGroup.KONTEXT_API:
             return new KontextMatchingDocsAPI(
-				cache,
 				apiURL,
 				apiServices,
 				createSimpleFreqApiInstance(
-					cache,
 					apiIdent,
 					apiURL,
 					apiServices,
@@ -44,11 +41,9 @@ export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, ap
 		case CoreApiGroup.KONTEXT_LIVEATTRS:
 		case CoreApiGroup.KONTEXT_API_LIVEATTRS:
 			return new KontextLiveattrsMatchingDocsAPI(
-				cache,
 				apiURL,
 				apiServices,
 				createSimpleFreqApiInstance(
-					cache,
 					apiIdent === CoreApiGroup.KONTEXT_API_LIVEATTRS ?
 						CoreApiGroup.KONTEXT_API :
 						CoreApiGroup.KONTEXT,
@@ -58,7 +53,7 @@ export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, ap
 				)
 			);
 		case CoreApiGroup.ELASTICSEARCH:
-			return new ElasticsearchMatchingDocsAPI(cache, apiURL, apiServices);
+			return new ElasticsearchMatchingDocsAPI(apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for matchingDocs`);
 	}

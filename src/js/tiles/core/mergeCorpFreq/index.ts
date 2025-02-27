@@ -104,7 +104,7 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut,
-        theme, appServices, widthFract, conf, isBusy, cache, queryMatches
+        theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<MergeCorpFreqTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -122,8 +122,8 @@ export class MergeCorpFreqTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             concApi: conf.apiType === CoreApiGroup.MQUERY ? null :
-                     createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
-            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+                     createConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,

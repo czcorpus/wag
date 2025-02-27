@@ -37,7 +37,6 @@ import { init as viewInit, WdglanceMainProps } from './views/main.js';
 import { RetryTileLoad } from './models/retryLoad.js';
 import { ViewUtils, IFullActionControl } from 'kombo';
 import { IAppServices } from './appServices.js';
-import { IAsyncKeyValueStore } from './types.js';
 import { mkTileFactory } from './page/tileLoader.js';
 import { List, pipe, Dict } from 'cnc-tskit';
 
@@ -111,7 +110,6 @@ export interface InitIntArgs {
     dispatcher:IFullActionControl;
     onResize:Observable<ScreenProps>;
     viewUtils:ViewUtils<GlobalComponents>;
-    cache:IAsyncKeyValueStore;
     layoutManager:LayoutManager;
 }
 
@@ -125,7 +123,6 @@ export function createRootComponent({
     onResize,
     viewUtils,
     layoutManager,
-    cache
 }:InitIntArgs):{
     component:React.FunctionComponent<WdglanceMainProps>,
     tileGroups:Array<TileGroup>,
@@ -167,8 +164,7 @@ export function createRootComponent({
         layoutManager,
         qType,
         userSession.query1Domain,
-        userSession.query2Domain,
-        cache
+        userSession.query2Domain
     );
 
     const isMultiWordQuery = testIsMultiWordMode(queryMatches);

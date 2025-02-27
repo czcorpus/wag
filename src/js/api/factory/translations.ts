@@ -16,17 +16,16 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../types.js';
 import { TranslationAPI } from '../abstract/translations.js';
 import { TreqAPI } from '../vendor/treq/index.js';
 import { CoreApiGroup } from '../coreGroups.js';
 import { IAppServices } from '../../appServices.js';
 
 
-export function createInstance(apiIdent:string, apiURL:string, appServices:IAppServices, cache:IAsyncKeyValueStore, apiOptions:{}):TranslationAPI<{}, {}> {
+export function createInstance(apiIdent:string, apiURL:string, appServices:IAppServices, apiOptions:{}):TranslationAPI<{}, {}> {
 	switch (apiIdent) {
         case CoreApiGroup.TREQ:
-			return new TreqAPI(cache, apiURL, appServices);
+			return new TreqAPI(apiURL, appServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
 	}

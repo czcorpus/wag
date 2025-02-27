@@ -18,7 +18,7 @@
 
 import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib.js';
 import { Observable } from 'rxjs';
-import { IAsyncKeyValueStore, CorpusDetails } from '../../../types.js';
+import { CorpusDetails } from '../../../types.js';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
@@ -65,10 +65,10 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
+    constructor(apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
         this.apiURL = apiURL;
         this.customArgs = customArgs;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

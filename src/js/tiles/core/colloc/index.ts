@@ -74,7 +74,7 @@ export class CollocationsTile implements ITileProvider {
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles,
         waitForTilesTimeoutSecs, widthFract, conf, isBusy,
-        queryMatches, cache, queryType
+        queryMatches, queryType
     }:TileFactoryArgs<CollocationsTileConf>) {
 
         this.tileId = tileId;
@@ -85,7 +85,7 @@ export class CollocationsTile implements ITileProvider {
         const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")} :
             {};
-        this.api = createInstance(conf.apiType, conf.apiURL, appServices, cache, apiOptions);
+        this.api = createInstance(conf.apiType, conf.apiURL, appServices, apiOptions);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -93,7 +93,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
+            concApi: createApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,

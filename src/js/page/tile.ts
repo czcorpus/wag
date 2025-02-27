@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from '../types.js';
+import { AnyInterface, LocalizedConfMsg } from '../types.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/common/index.js';
@@ -289,6 +289,8 @@ export interface ITileProvider {
     getIssueReportingUrl():string|null;
 
     getAltViewIcon():AltViewIconProps;
+
+
 }
 
 /**
@@ -336,8 +338,6 @@ export interface TileFactoryArgs<T> {
     isBusy:boolean;
 
     conf:T;
-
-    cache:IAsyncKeyValueStore;
 
     mainPosAttr:MainPosAttrValues;
 }

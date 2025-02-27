@@ -16,24 +16,21 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { DataApi, IAsyncKeyValueStore } from '../../../types.js';
-import { cachedAjax$, ResponseType } from '../../../page/ajax.js';
+import { DataApi } from '../../../types.js';
+import { ajax$, ResponseType } from '../../../page/ajax.js';
 import { IAppServices } from '../../../appServices.js';
 
 export class MapLoader implements DataApi<string, string> {
 
     private readonly appServices:IAppServices;
 
-    private readonly cache:IAsyncKeyValueStore;
-
-    constructor(cache:IAsyncKeyValueStore, appServices:IAppServices) {
-        this.cache = cache;
+    constructor(appServices:IAppServices) {
         this.appServices = appServices;
     }
 
     call(file:string):Observable<string> {
 
-        return cachedAjax$<string>(this.cache)(
+        return ajax$<string>(
             'GET',
             this.appServices.createStaticUrl(file),
             {},

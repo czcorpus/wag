@@ -21,7 +21,7 @@ import { concatMap, share } from 'rxjs/operators';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015/index.js';
 import { ConcResponse, ViewMode } from '../../../api/abstract/concordance.js';
 import { SimpleKontextFreqDistribAPI, SingleCritQueryArgs } from '../../../api/vendor/kontext/freqs.js';
-import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types.js';
+import { CorePosAttribute, DataApi } from '../../../types.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IApiServices } from '../../../appServices.js';
 import { ConcQueryArgs } from '../../../api/vendor/kontext/types.js';
@@ -336,14 +336,14 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
     }
 }
 
-export function createSyDInstance(apiType:string, apiURL:string, concApiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore, apiOptions:{}):SyDAPI {
+export function createSyDInstance(apiType:string, apiURL:string, concApiURL:string, apiServices:IApiServices, apiOptions:{}):SyDAPI {
 
 	switch (apiType) {
 		case CoreApiGroup.KONTEXT:
         case CoreApiGroup.KONTEXT_API:
             return new SyDAPI(
-                createKontextConcApiInstance(cache, apiType, concApiURL, apiServices, apiOptions),
-                createSimpleFreqApiInstance(cache, apiType, apiURL, apiServices, apiOptions),
+                createKontextConcApiInstance(apiType, concApiURL, apiServices, apiOptions),
+                createSimpleFreqApiInstance(apiType, apiURL, apiServices, apiOptions),
             )
 		default:
 			throw new Error(`API type "${apiType}" not supported for SyD.`);

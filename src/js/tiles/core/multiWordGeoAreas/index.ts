@@ -65,7 +65,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
-        widthFract, conf, isBusy, cache, queryMatches
+        widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<MultiWordGeoAreasTileConf>) {
 
         this.tileId = tileId;
@@ -84,9 +84,9 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
-            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
-            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions),
-            mapLoader: new MapLoader(cache, appServices),
+            concApi: createConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            mapLoader: new MapLoader(appServices),
             initState: {
                 isBusy: isBusy,
                 error: null,
