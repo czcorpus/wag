@@ -23,7 +23,7 @@ import { DataApi } from '../../../types.js';
 import { DataHeading, DataRow } from '../../../api/abstract/collocations.js';
 import { CollApiArgs } from '../../../api/vendor/kontext/collocations.js';
 import { IApiServices } from '../../../appServices.js';
-import { ajax$ } from 'src/js/page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 
 
 
