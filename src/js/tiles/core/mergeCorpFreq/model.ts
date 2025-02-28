@@ -67,6 +67,7 @@ export interface MergeCorpFreqModelArgs {
     freqApi:IFreqDistribAPI<{}>;
     initState:MergeCorpFreqModelState;
     backlink:Backlink;
+    downloadLabel:string;
 }
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
@@ -85,8 +86,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly backlink:Backlink;
 
+    private readonly downloadLabel:string;
+
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices,
-                concApi, freqApi, initState, backlink}:MergeCorpFreqModelArgs) {
+                concApi, freqApi, initState, backlink, downloadLabel}:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -95,6 +98,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.concApi = concApi;
         this.freqApi = freqApi;
         this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
+        this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -288,10 +292,19 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             GlobalActions.SaveSVGFigure,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                domtoimage.toSvg(document.getElementById(`${this.tileId}-bar-chart`), {bgcolor: 'white'})
+                let filename:string, ident:string;
+                if (state.isAltViewMode) {
+                    filename = `${this.downloadLabel}-table`;
+                    ident = `${this.tileId}-download-table`;
+                } else {
+                    filename = `${this.downloadLabel}-figure`;
+                    ident = `${this.tileId}-download-figure`;
+                }
+                
+                domtoimage.toSvg(document.getElementById(ident), {bgcolor: 'white'})
                 .then(function (dataUrl) {
                     var link = document.createElement('a');
-                    link.download = '';
+                    link.download = filename;
                     link.href = dataUrl;
                     link.click();
                 });
