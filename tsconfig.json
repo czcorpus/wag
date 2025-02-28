@@ -9,10 +9,7 @@
         "moduleResolution": "node16",
         "skipLibCheck": true,
         "baseUrl": ".",
-        "preserveSymlinks": true,
-        "paths": {
-            "@vendor/SoundManager": ["./src/js/vendor.d.ts/soundmanager.d.ts"]
-        }
+        "preserveSymlinks": true
     },
     "include": [
         "./src/js/**/*"

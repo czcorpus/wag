@@ -32,6 +32,7 @@ export interface Segment {
 export interface PlayableSegment {
     lineIdx:number;
     url:string;
+    format:string;
 }
 
 export interface Speech {

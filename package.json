@@ -63,6 +63,7 @@
     "dom-to-image-more": "^3.5.0",
     "express": "^4.18.2",
     "express-session": "^1.18.1",
+    "howler": "^2.2.4",
     "kombo": "^1.0.4",
     "path-browserify": "^1.0.1",
     "pino": "~9.6.0",
