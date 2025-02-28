@@ -29,7 +29,7 @@ import { TileGroup } from '../page/layout.js';
 import { Actions } from '../models/actions.js';
 import { MessagesModel, MessagesState } from '../models/messages.js';
 import { QueryFormModel, QueryFormModelState } from '../models/query.js';
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight } from '../models/tiles.js';
+import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight, TileResultFlag } from '../models/tiles.js';
 import { init as corpusInfoViewInit } from './common/corpusInfo.js';
 import { GlobalComponents } from './common/index.js';
 import { timer } from 'rxjs';
@@ -711,20 +711,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SaveButton:React.FC<{
         tileId:number;
+        disabled:boolean;
 
     }> = (props) => {
 
         const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
-            dispatcher.dispatch(
-                Actions.SaveSVGFigure,
-                {tileId: props.tileId},
-            );
+            if (!props.disabled) {
+                dispatcher.dispatch(
+                    Actions.SaveSVGFigure,
+                    {tileId: props.tileId},
+                );
+            }
         };
 
         return (
             <span className="SaveButton bar-button">
                 <button type="button" onClick={handleClick} title={ut.translate('global__save_svg')}>
-                    <img src={ut.createStaticUrl('download-button.svg')} alt={'download button'} />
+                    <img src={props.disabled ? ut.createStaticUrl('download-button_g.svg') : ut.createStaticUrl('download-button.svg')} alt={'download button'} />
                 </button>
             </span>
         );
@@ -874,7 +877,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             null
                         }
                         {this.props.tile.supportsSVGFigureSave ?
-                            <SaveButton tileId={this.props.tile.tileId} /> :
+                            <SaveButton
+                                tileId={this.props.tile.tileId}
+                                disabled={!this.props.tileResultFlag || this.props.tileResultFlag.status !== TileResultFlag.VALID_RESULT} /> :
                             null
                         }
                         {this.props.tile.supportsAltView ?
@@ -1088,7 +1093,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}
                                             isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
-                                            tileResultFlag={props.tileResultFlags[tile.tileId]}
+                                            tileResultFlag={props.tileResultFlags.find(v => v.tileId === tile.tileId)}
                                             isHighlighted={props.highlightedTileId === tile.tileId}
                                             altViewIcon={tile.altViewIcon} />)
                     )}
