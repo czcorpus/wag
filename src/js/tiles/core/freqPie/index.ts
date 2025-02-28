@@ -172,6 +172,10 @@ export class FreqPieTile implements ITileProvider {
         return true;
     }
 
+    supportsSVGFigureSave():boolean {
+        return false;
+    }
+
     getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }

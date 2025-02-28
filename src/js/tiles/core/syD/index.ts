@@ -126,6 +126,10 @@ export class SyDTile implements ITileProvider {
         return false;
     }
 
+    supportsSVGFigureSave():boolean {
+        return false;
+    }
+
     registerReloadModel(model:ITileReloader):boolean {
         model.registerModel(this, this.model);
         return true;

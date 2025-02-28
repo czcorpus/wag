@@ -13,6 +13,9 @@
                 "string"
             ]
         },
+        "subcname": {
+            "type": "string"
+        },
         "fcrit": {
             "anyOf": [
                 {

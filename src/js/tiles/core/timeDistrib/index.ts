@@ -179,6 +179,10 @@ export class TimeDistTile implements ITileProvider {
         return false;
     }
 
+    supportsSVGFigureSave():boolean {
+        return false;
+    }
+
     getAltViewIcon():AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }

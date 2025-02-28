@@ -173,6 +173,8 @@ export interface TileFrameProps {
 
     supportsAltView:boolean;
 
+    supportsSVGFigureSave:boolean;
+
     helpURL?:string;
 
     renderSize:[number, number];
@@ -265,6 +267,8 @@ export interface ITileProvider {
     supportsTweakMode():boolean;
 
     supportsAltView():boolean;
+
+    supportsSVGFigureSave():boolean;
 
     /**
      * Register tile reloading model for cases when

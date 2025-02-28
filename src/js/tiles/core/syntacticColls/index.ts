@@ -137,6 +137,10 @@ export class SyntacticCollsTile implements ITileProvider {
         return true;
     }
 
+    supportsSVGFigureSave():boolean {
+        return false;
+    }
+
     getAltViewIcon():AltViewIconProps {
         return {
             baseImg: 'wcloud-view.svg',

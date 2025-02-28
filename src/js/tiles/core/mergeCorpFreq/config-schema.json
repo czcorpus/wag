@@ -10,6 +10,9 @@
         "pixelsPerCategory": {
             "type": "number"
         },
+        "downloadLabel": {
+            "type": "string"
+        },
         "sources": {
             "type": "array",
             "items": {
