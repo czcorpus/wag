@@ -217,7 +217,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.playback !== null) {
-                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
+                        this.appServices.getAudioPlayer().stop();
                         this.dispatchPlayStop(dispatch);
                     }
                     this.reloadData({
@@ -246,7 +246,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.playback !== null) {
-                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
+                        this.appServices.getAudioPlayer().stop();
                         this.dispatchPlayStop(dispatch);
                     }
                     this.reloadData({
@@ -278,7 +278,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const player = this.appServices.getAudioPlayer();
                     if (state.playback && state.playback.currPlaybackSession) {
-                        player.stop(state.playback.currPlaybackSession);
+                        player.stop();
                     }
                     if (state.playback.currLineIdx !== state.playback.newLineIdx) {
                         this.playSegments(state, player, dispatch);
@@ -361,8 +361,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload.corpusId)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: (data) => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -370,7 +370,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -378,7 +378,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -391,7 +391,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             List.map(([,segment]) => segment[0]),
             List.map(v => ({
                 lineIdx: v.lineIdx,
-                url: this.audioLinkGenerator.createUrl(corpname, v.value)
+                url: this.audioLinkGenerator.createUrl(corpname, v.value),
+                format: this.audioLinkGenerator.getFormat(v.value),
             }))
         );
     }
@@ -432,8 +433,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
     private reloadData({state, dispatch, tokens, concId, expand, kwicNumTokens}:ReloadDataArgs):void {
         this.api
             .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand))
-            .subscribe(
-                (payload) => {
+            .subscribe({
+                next: (payload) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -465,7 +466,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         }
                     });
                 },
-                (error) => {
+                error: (error) => {
                     console.error(error);
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
@@ -482,7 +483,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         }
                     });
                 }
-            );
+            });
     }
 
     private createBackLink(state:SpeechesModelState):BacklinkWithArgs<BacklinkArgs> {
@@ -501,8 +502,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
     private playSegments(state:SpeechesModelState, player:AudioPlayer, dispatch:SEDispatcher):void {
         player
             .play(this.normalizeSegments(state.playback.segments, state.corpname))
-            .subscribe(
-                (data) => {
+            .subscribe({
+                next: (data) => {
                     if (data.isPlaying && data.idx === 0) {
                         dispatch<typeof Actions.AudioPlayerStarted>({
                             name: Actions.AudioPlayerStarted.name,
@@ -529,7 +530,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         });
                     }
                 },
-                (error) => {
+                error: (error) => {
                     dispatch<typeof Actions.AudioPlayerStopped>({
                         name: Actions.AudioPlayerStopped.name,
                         payload: {
@@ -538,7 +539,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     });
                     this.appServices.showMessage(SystemMessageType.ERROR, error);
                 },
-                () => {
+                complete: () => {
                     dispatch<typeof Actions.AudioPlayerStopped>({
                         name: Actions.AudioPlayerStopped.name,
                         payload: {
@@ -546,7 +547,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         }
                     });
                 }
-            );
+            });
     }
 
     private dispatchPlayStop(dispatch:SEDispatcher):void {

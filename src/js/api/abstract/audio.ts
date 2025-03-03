@@ -18,4 +18,6 @@
 
 export interface IAudioUrlGenerator {
     createUrl(corpname:string, audioId:string):string;
+
+    getFormat(audioId:string):string;
 }

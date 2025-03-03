@@ -28,9 +28,6 @@ export default (env) => ({
         assetModuleFilename: '[hash][ext][query]'
     },
     resolve: {
-        alias: {
-            '@vendor/SoundManager': path.resolve(__dirname, 'src/js/vendor/soundmanager2.min.js')
-        }, // part is filled in dynamically
         modules: [
             'node_modules',
             mkpath('dist/.compiled')
