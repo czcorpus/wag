@@ -331,6 +331,12 @@ export class Actions {
     }> = {
         name: 'MAIN_SET_COLOR_THEME'
     }
+
+    static SaveSVGFigure:Action<{
+        tileId:number;
+    }> = {
+        name: 'MAIN_SAVE_SVG_FIGURE'
+    }
 }
 
 

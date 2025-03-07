@@ -9,10 +9,7 @@
         "moduleResolution": "node16",
         "skipLibCheck": true,
         "preserveSymlinks": true,
-        "esModuleInterop": true,
-        "paths": {
-            "@vendor/SoundManager": ["./src/js/server/sm2null.ts"]
-        }
+        "esModuleInterop": true
     },
     "include": [
         "./src/js/**/*"

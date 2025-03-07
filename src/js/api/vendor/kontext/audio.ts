@@ -35,4 +35,8 @@ export class KontextAudioLinkGenerator implements IAudioUrlGenerator {
         ];
         return this.rootUrl + '?' + args.join('&');
     }
+
+    getFormat(audioId:string):string {
+        return audioId.split('.').pop();
+    }
 }

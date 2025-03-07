@@ -90,6 +90,7 @@ const mkAttachTile = (
             reasonTileDisabled: reasonDisabled,
             supportsHelpView: !!helpURL,
             supportsAltView: tile.supportsAltView(),
+            supportsSVGFigureSave: tile.supportsSVGFigureSave(),
             renderSize: [50, 50],
             widthFract: tile.getWidthFract(),
             maxTileHeight: maxTileHeight,

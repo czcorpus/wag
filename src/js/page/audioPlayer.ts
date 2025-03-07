@@ -19,7 +19,7 @@
 import { of as rxOf, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
-import soundManager from '@vendor/SoundManager';
+import { Howl } from 'howler';
 
 
 
@@ -49,23 +49,15 @@ interface ItemToPlay<T> {
  */
 export class AudioPlayer {
 
-    private soundManager:typeof soundManager;
-
     private status:AudioPlayerStatus;
+
+    private sound:Howl;
 
     constructor() {
         this.status = AudioPlayerStatus.STOPPED;
-        this.soundManager = soundManager;
-        this.soundManager.ontimeout = () => {
-            console.error('Timeout error');
-        };
-        this.soundManager.setup({
-            debugMode : false,
-            preferFlash : false
-        });
     }
 
-    play<T extends {url:string}>(items:Array<T>):Observable<ChunkPlayback<T>> {
+    play<T extends {url:string, format:string}>(items:Array<T>): Observable<ChunkPlayback<T>> {
         const sessionId = `playback:${Ident.puid()}`;
         const itemsToPlay:Array<ItemToPlay<T>> = items.map((v, i) => ({
             idx: i,
@@ -75,12 +67,11 @@ export class AudioPlayer {
         return rxOf(...itemsToPlay).pipe(
             concatMap(
                 (item) => new Observable<ChunkPlayback<T>>((observer) => {
-                    this.soundManager.createSound({
-                        id: sessionId,
-                        url: item.item.url,
-                        autoLoad: true,
-                        autoPlay: false,
-                        volume: 100,
+                    this.sound = new Howl({
+                        src: [item.item.url],
+                        volume: 1.0,
+                        autoplay: false,
+                        format: [item.item.format],
                         onload: () => {
                             this.status = AudioPlayerStatus.ERROR;
                         },
@@ -94,9 +85,8 @@ export class AudioPlayer {
                                 item: item.item
                             });
                         },
-                        onfinish: () => {
+                        onend: () => {
                             this.status = AudioPlayerStatus.STOPPED;
-                            this.soundManager.destroySound(sessionId);
                             observer.next({
                                 sessionId: sessionId,
                                 isPlaying: false,
@@ -106,30 +96,34 @@ export class AudioPlayer {
                             });
                             observer.complete();
                         },
-                        onerror: () => {
+                        onloaderror: () => {
+                            observer.error(new Error('Error during playback'));
+                        },
+                        onplayerror: () => {
                             observer.error(new Error('Error during playback'));
                         }
-                    }).play();
+                    });
+                    this.sound.play();
                 })
             )
         );
-
     }
 
-    pause(sessionId:string):void {
+    pause():void {
         if (this.status === AudioPlayerStatus.PAUSED) {
-            this.soundManager.play(sessionId);
+            this.sound.play();
             this.status = AudioPlayerStatus.PLAYING;
-
         } else if (this.status === AudioPlayerStatus.PLAYING) {
-            this.soundManager.pause(sessionId);
+            this.sound.pause();
             this.status = AudioPlayerStatus.PAUSED;
         }
     }
 
-    stop(sessionId:string):void {
-        this.soundManager.stop(sessionId);
-        this.soundManager.destroySound(sessionId);
+    stop():void {
+        if (this.sound) {
+            this.sound.stop();
+            this.sound.unload();
+        }
     }
 
     getStatus():AudioPlayerStatus {

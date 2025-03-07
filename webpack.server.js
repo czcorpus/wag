@@ -36,9 +36,6 @@ export default (env) => ({
         assetModuleFilename: '[hash][ext][query]'
     },
     resolve: {
-        alias: {
-            '@vendor/SoundManager': path.resolve(__dirname, 'src/js/server/sm2null.ts')
-        }, // other items filled in dynamically
         modules: [
             'node_modules',
             mkpath('dist/.compiled')

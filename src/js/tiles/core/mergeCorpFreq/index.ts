@@ -34,6 +34,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
     apiURL:string;
     apiType:string;
     pixelsPerCategory?:number;
+    downloadLabel?:string;
     sources:Array<{
 
         corpname:string;
@@ -156,7 +157,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                 tooltipData: null,
                 appBacklink: null,
             },
-            backlink: conf.backlink || null
+            backlink: conf.backlink || null,
+            downloadLabel: conf.downloadLabel,
         });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
@@ -195,6 +197,10 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
+        return true;
+    }
+
+    supportsSVGFigureSave():boolean {
         return true;
     }
 
