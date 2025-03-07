@@ -54,8 +54,7 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             struct_attr_stats: 1,
             subcorpora: 1,
@@ -78,9 +77,9 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
             null;
     }
 
-    call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
 
-        return this.freqApi.call({
+        return this.freqApi.call(tileId, {
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
             q: processConcId(queryArgs.concIdent),

@@ -53,7 +53,7 @@ export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
 		this.apiServices = apiServices;
 	}
 
-	call(args:WordListArgs):Observable<WordListResponse> {
+	call(tileId:number, args:WordListArgs):Observable<WordListResponse> {
 		const headers = this.apiServices.getApiHeaders(this.url);
         headers['X-Is-Web-App'] = '1';
 		return ajax$<WordListResponse>(

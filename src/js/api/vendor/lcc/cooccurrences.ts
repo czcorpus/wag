@@ -85,7 +85,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         });
     }
 
-    call(queryArgs:CollRequestArgs):Observable<CollApiResponse> {
+    call(tileId:number, queryArgs:CollRequestArgs):Observable<CollApiResponse> {
         return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL + `/coocurrences/${queryArgs.corpus}/cooccurrences/${queryArgs.word}/`,

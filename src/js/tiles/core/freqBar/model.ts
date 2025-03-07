@@ -120,6 +120,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                             }).pipe(
                                 concatMap(critIdx => callWithExtraVal(
                                         this.api,
+                                        this.tileId,
                                         this.api.stateToArgs(
                                             state,
                                             action.payload.concPersistenceIDs[0],

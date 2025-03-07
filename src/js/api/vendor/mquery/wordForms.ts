@@ -48,7 +48,7 @@ export class WordFormsAPI implements IWordFormsApi {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    call(args:RequestArgs):Observable<Response> {
+    call(tileId:number, args:RequestArgs):Observable<Response> {
         const params = {
             lemma: args.lemma,
             pos: args.pos.join(" "),
@@ -79,7 +79,7 @@ export class WordFormsAPI implements IWordFormsApi {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({tileId, corpname, lang});
+        return this.srcInfoService.call(tileId, {corpname, lang});
     }
 
     createBacklink(args:RequestArgs, backlink:Backlink) {

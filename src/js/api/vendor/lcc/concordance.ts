@@ -101,7 +101,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         };
     }
 
-    call(args:RequestArgs):Observable<ConcResponse> {
+    call(tileId:number, args:RequestArgs):Observable<ConcResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + `/sentences/${args.corpname}/sentences/${args.word}`,
@@ -148,8 +148,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname
         });
     }

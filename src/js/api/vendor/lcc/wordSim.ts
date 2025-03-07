@@ -83,7 +83,7 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
         });
     }
 
-    call(queryArgs:LccCoocSimApiArgs):Observable<WordSimApiResponse> {
+    call(tileId:number, queryArgs:LccCoocSimApiArgs):Observable<WordSimApiResponse> {
         return new Observable<string>(observer => {
             try {
                 const url = this.apiURL + `/similarity/${queryArgs.corpus}/coocsim/${queryArgs.word}`;

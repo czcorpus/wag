@@ -108,8 +108,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             struct_attr_stats: 1,
             subcorpora: 1,
@@ -117,7 +116,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         });
     }
 
-    call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
+    call(tileId:number, queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL + '/collx',

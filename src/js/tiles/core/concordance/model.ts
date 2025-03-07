@@ -378,7 +378,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(data => callWithExtraVal(this.concApi, data.apiArgs, data.queryIdx)),
+            mergeMap(data => callWithExtraVal(this.concApi, this.tileId, data.apiArgs, data.queryIdx)),
             tap(
                 ([resp, curr]) => {
                     dispatch<typeof Actions.PartialTileDataLoaded>({

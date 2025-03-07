@@ -72,7 +72,7 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({tileId, corpname, lang});
+        return this.srcInfoService.call(tileId, {corpname, lang});
     }
 
     createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<{}> {
@@ -105,7 +105,7 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(args:MQueryFreqArgs):Observable<APIResponse> {
+    call(tileId:number, args:MQueryFreqArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + `/${args.path}/${args.corpname}`,

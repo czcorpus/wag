@@ -44,7 +44,7 @@ export interface IFreqDistribAPI<T> extends ResourceApi<T, APIResponse> {
 
     stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):T;
 
-    call(args:T):Observable<APIResponse>;
+    call(tileId:number, args:T):Observable<APIResponse>;
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 
@@ -68,7 +68,7 @@ export interface APIBlockResponse {
 export interface IMultiBlockFreqDistribAPI<T> extends ResourceApi<T, APIBlockResponse> {
     stateToArgs(state:MinMultiCritFreqState, concId:string, critIdx?:number, subcname?:string):T;
 
-    call(args:T):Observable<APIBlockResponse>;
+    call(tileId:number, args:T):Observable<APIBlockResponse>;
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 

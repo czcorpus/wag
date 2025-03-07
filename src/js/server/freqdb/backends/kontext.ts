@@ -137,8 +137,7 @@ export class KontextFreqDB implements IFreqDB {
     }
 
     getSourceDescription(uiLang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: -1,
+        return this.srcInfoService.call(-1, {
             corpname: corpname,
             format: 'json'
         });

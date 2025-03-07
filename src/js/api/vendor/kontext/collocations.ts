@@ -109,14 +109,13 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             format: 'json'
         });
     }
 
-    call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
+    call(tileId:number, queryArgs:CollApiArgs):Observable<CollApiResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HttpApiResponse>(

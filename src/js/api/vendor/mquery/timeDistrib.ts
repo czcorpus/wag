@@ -72,14 +72,14 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({tileId, corpname, lang});
+        return this.srcInfoService.call(tileId, {corpname, lang});
     }
 
     createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<{}> {
         return null
     }
 
-    call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return new Observable(o => {
             const args = pipe(
                 {

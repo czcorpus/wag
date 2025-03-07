@@ -52,7 +52,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
         this.apiServices = apiServices;
     }
 
-    call(args:RequestArgs):Observable<ApiResponse> {
+    call(tileId:number, args:RequestArgs):Observable<ApiResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<ConcViewResponse>(

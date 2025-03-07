@@ -24,6 +24,7 @@ import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve.js';
 import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain.js';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
 import { IApiServices, IAppServices } from '../../appServices.js';
+import { ConcApiSimplified } from '../vendor/kontext/concordance/experimental/index.js';
 
 
 export function createKontextConcApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {
@@ -38,7 +39,13 @@ export function createKontextConcApiInstance(apiIdent:string, apiURL:string, api
 	}
 }
 
-export function createApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IConcordanceApi<{}> {
+export function createApiInstance(
+	apiIdent:string,
+	apiURL:string,
+	useDataStream:boolean,
+	apiServices:IApiServices,
+	apiOptions:{}
+):IConcordanceApi<{}> {
 
  	switch (apiIdent) {
 		case CoreApiGroup.FCS_V1:
@@ -46,6 +53,8 @@ export function createApiInstance(apiIdent:string, apiURL:string, apiServices:IA
  		case CoreApiGroup.KONTEXT:
 		case CoreApiGroup.KONTEXT_API:
 			return createKontextConcApiInstance(apiIdent, apiURL, apiServices, apiOptions);
+		case CoreApiGroup.KONTEXT_API_EXPERIMENTAL:
+			return new ConcApiSimplified(apiURL, useDataStream, apiServices);
 		case CoreApiGroup.NOSKE:
 			return new NoskeConcApi(apiURL, apiServices);
 		case CoreApiGroup.LCC:

@@ -292,6 +292,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             concatMap(([queryId, args, lemma]) =>
                 callWithExtraVal(
                     this.concApi,
+                    this.tileId,
                     this.concApi.stateToArgs(
                         {
                             corpname: args.corpname,
@@ -334,6 +335,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 };
                 return callWithExtraVal(
                     this.freqApi,
+                    this.tileId,
                     this.freqApi.stateToArgs(sourceArgs, concId),
                     auxArgs
                 );

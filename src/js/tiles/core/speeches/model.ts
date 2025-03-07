@@ -431,9 +431,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private reloadData({state, dispatch, tokens, concId, expand, kwicNumTokens}:ReloadDataArgs):void {
         this.api
-            .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand))
-            .subscribe(
-                (payload) => {
+            .call(
+                this.tileId,
+                this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand)
+
+            ).subscribe({
+                next: (payload) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -465,7 +468,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         }
                     });
                 },
-                (error) => {
+                error: (error) => {
                     console.error(error);
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
@@ -482,7 +485,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         }
                     });
                 }
-            );
+            });
     }
 
     private createBackLink(state:SpeechesModelState):BacklinkWithArgs<BacklinkArgs> {

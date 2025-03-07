@@ -82,7 +82,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         this.freqApi = freqApi;
     }
 
-    call(args:RequestArgs):Observable<Response> {
+    call(tileId:number, args:RequestArgs):Observable<Response> {
         const t1 = new Date().getTime();
 
         // query 1, corp 1 ---------
@@ -128,6 +128,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         };
         const concQ1C1$ = callWithExtraVal(
             this.concApi,
+            tileId,
             {...args1, kwicleftctx: -5, kwicrightctx: 5},
             `${args.corp1}/${args.word1}`
         ).pipe(share());
@@ -175,6 +176,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         };
         const concQ1C2$ = callWithExtraVal(
             this.concApi,
+            tileId,
             {...args2, kwicleftctx: -5, kwicrightctx: 5},
             `${args.corp2}/${args.word1}`
         ).pipe(share());
@@ -222,6 +224,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         };
         const concQ2C1$ = callWithExtraVal(
             this.concApi,
+            tileId,
             {...args3, kwicleftctx: -5, kwicrightctx: 5},
             `${args.corp1}/${args.word2}`
         ).pipe(share());
@@ -269,6 +272,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         };
         const concQ2C2$ = callWithExtraVal(
             this.concApi,
+            tileId,
             {...args4, kwicleftctx: -5, kwicrightctx: 5},
             `${args.corp2}/${args.word2}`
         ).pipe(share());
@@ -290,7 +294,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                                 format: args.format,
                             } as SingleCritQueryArgs;
 
-                            return this.freqApi.call(args1).pipe(
+                            return this.freqApi.call(tileId, args1).pipe(
                                 concatMap(
                                     (resp) => rxOf({
                                         conc_persistence_op_id: resp.conc_persistence_op_id,

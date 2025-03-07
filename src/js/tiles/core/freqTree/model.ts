@@ -227,6 +227,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             mergeMap(args =>
                 callWithExtraVal(
                     this.concApi,
+                    this.tileId,
                     this.concApi.stateToArgs(
                         {
                             corpname: state.corpname,
@@ -311,6 +312,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 rxOf(...resp1.fcritValues).pipe(
                     mergeMap(fcritValue =>
                         this.freqTreeApi.call(
+                            this.tileId,
                             stateToAPIArgs(state, args.blockId, 1),
                             resp1.concId,
                             {[resp1.fcrit]: fcritValue}

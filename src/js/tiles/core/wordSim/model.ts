@@ -179,13 +179,14 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             mergeMap(([queryId, queryMatch]) => queryMatch.abs >= state.minMatchFreq ?
                 callWithExtraVal(
                     this.api,
+                    this.tileId,
                     this.api.stateToArgs(state, queryMatch),
                     queryId
                 ) :
                 rxOf(tuple({words: [] as Array<WordSimWord>}, queryId))
             )
-        ).subscribe(
-            ([data, queryId]) => {
+        ).subscribe({
+            next: ([data, queryId]) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -209,7 +210,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 });
 
             },
-            (error) => {
+            error: (error) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -224,7 +225,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     error
                 })
             }
-        );
+        });
     }
 
 }

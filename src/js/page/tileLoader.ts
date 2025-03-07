@@ -26,6 +26,7 @@ import { Theme } from './theme.js';
 import { LayoutManager } from './layout.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import { EmptyTile } from '../tiles/core/empty.js';
+import { DataStreaming } from './streaming.js';
 
 declare var require:any;
 
@@ -127,6 +128,7 @@ export const mkTileFactory = (
                 conf,
                 isBusy: true,
                 mainPosAttr: layoutManager.getLayoutMainPosAttr(queryType),
+                useDataStream: !!conf.useDataStream
             };
             const errs = tileFactory.sanityCheck(args);
             if (!List.empty(errs)) {

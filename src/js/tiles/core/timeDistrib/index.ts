@@ -89,6 +89,7 @@ export class TimeDistTile implements ITileProvider {
                         createConcApiInstance(
                             conf.apiType,
                             url,
+                            false,
                             appServices,
                             apiOptions,
                         ),

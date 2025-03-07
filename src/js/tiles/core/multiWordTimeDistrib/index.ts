@@ -88,6 +88,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                         createConcApiInstance(
                             conf.apiType,
                             url,
+                            false,
                             appServices,
                             apiOptions,
                         ),

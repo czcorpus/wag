@@ -47,7 +47,7 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
         this.apiServices = apiServices;
     }
 
-    call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
+    call(tileId:number, args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(

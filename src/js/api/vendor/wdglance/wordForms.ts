@@ -46,7 +46,7 @@ export class WordFormsWdglanceAPI implements IWordFormsApi {
         this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
     }
 
-    call(args:RequestArgs):Observable<Response> {
+    call(tileId:number, args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             HTTP.Method.GET,
             this.apiUrl + HTTPAction.WORD_FORMS,
@@ -70,14 +70,13 @@ export class WordFormsWdglanceAPI implements IWordFormsApi {
 
     getSourceDescription(tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call({
-                tileId: tileId,
+            this.srcInfoApi.call(tileId, {
                 corpname: corpname,
                 queryType: QueryType.SINGLE_QUERY,
                 domain: domain
             }) :
              rxOf({
-                tileId: tileId,
+                tileId,
                 title: 'Word forms generated from an internal database (no additional details available)',
                 description: '',
                 author: '',

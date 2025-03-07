@@ -101,7 +101,7 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
         this.parser = new XMLParser();
     }
 
-	call(args:FCS1ExplainArgs):Observable<FCS1ExplainResponse> {
+	call(tileId:number, args:FCS1ExplainArgs):Observable<FCS1ExplainResponse> {
         return ajax$(
             HTTP.Method.GET,
             this.url,

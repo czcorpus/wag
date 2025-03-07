@@ -62,7 +62,7 @@ export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs>, WebDelegateApi 
         return true;
     }
 
-    call(queryArgs:HtmlApiArgs):Observable<string|null> {
+    call(tileId:number, queryArgs:HtmlApiArgs):Observable<string|null> {
         return ajax$<string>(
             'GET',
             this.apiURL,

@@ -39,6 +39,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { IAppServices } from './appServices.js';
 import { mkTileFactory } from './page/tileLoader.js';
 import { List, pipe, Dict } from 'cnc-tskit';
+import { DataStreaming } from './page/streaming.js';
 
 
 interface AttachTileArgs {

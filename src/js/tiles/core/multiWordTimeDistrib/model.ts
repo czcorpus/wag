@@ -429,6 +429,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                     const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     return callWithExtraVal(
                         concApi,
+                        this.tileId,
                         concApi.stateToArgs(
                             {
                                 corpname: state.corpname,
@@ -502,6 +503,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                     if (args.concId) {
                         return callWithExtraVal(
                             args.freqApi,
+                            this.tileId,
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,

@@ -42,6 +42,7 @@ import { PackageInfo } from '../types.js';
 import { QueryActionWriter } from './actionLog/logWriter.js';
 import { ApiServices } from './apiServices.js';
 import { initLogging } from './logging.js';
+import { DataStreaming } from '../page/streaming.js';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
@@ -155,7 +156,7 @@ forkJoin([ // load core configs
 
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,
-            new ApiServices(clientConf)
+            new ApiServices(clientConf, new DataStreaming([]))
         );
 
         const toolbar = createToolbarInstance(serverConf.toolbar);

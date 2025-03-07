@@ -24,6 +24,7 @@ import { Theme } from './theme.js';
 import { IAppServices } from '../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
 import { MainPosAttrValues } from '../conf/index.js';
+import { DataStreaming } from './streaming.js';
 
 
 export interface Backlink {
@@ -129,6 +130,8 @@ export interface TileConf {
      * Defines tiles which can be used as sources of subqueries
      */
     compatibleSubqProviders?:Array<string>;
+
+    useDataStream?:boolean;
 }
 
 /**
@@ -340,6 +343,8 @@ export interface TileFactoryArgs<T> {
     conf:T;
 
     mainPosAttr:MainPosAttrValues;
+
+    useDataStream:boolean;
 }
 
 /**
