@@ -285,6 +285,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     dispatch,
                     SubchartID.SECONDARY,
                     this.appServices.queryLemmaDbApi(
+                        this.tileId,
                         this.queryDomain,
                         state.wordCmp,
                         state.mainPosAttr
@@ -485,6 +486,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     return callWithExtraVal(
                         concApi,
+                        this.tileId,
                         concApi.stateToArgs(
                             {
                                 corpname: state.corpname,
@@ -571,6 +573,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 ),
                 concatMap(args => callWithExtraVal(
                     args.freqApi,
+                    this.tileId,
                     {
                         corpName: args.corpName,
                         subcorpName: args.subcName,
@@ -650,6 +653,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         if (args.concId) {
                             return callWithExtraVal(
                                 args.freqApi,
+                                this.tileId,
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,
@@ -661,6 +665,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         } else if (concResp.query) {
                             return callWithExtraVal(
                                 args.freqApi,
+                                this.tileId,
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,

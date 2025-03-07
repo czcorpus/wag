@@ -26,7 +26,6 @@ import { IApiServices } from '../../../appServices.js';
 
 
 export interface FreqDbSourceInfoArgs {
-    tileId:number;
     queryType:QueryType;
     domain:string;
     corpname:string;
@@ -43,7 +42,7 @@ export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, So
         this.apiServices = apiServices;
     }
 
-    call(args:FreqDbSourceInfoArgs):Observable<SourceDetails> {
+    call(tileId:number, args:FreqDbSourceInfoArgs):Observable<SourceDetails> {
         return ajax$<{result:SourceDetails}>(
             'GET',
             this.apiURL + HTTPAction.SOURCE_INFO,
@@ -55,7 +54,7 @@ export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, So
 
         ).pipe(
             map(
-                resp => ({...resp.result, tileId: args.tileId})
+                resp => ({...resp.result, tileId})
             )
         )
     };

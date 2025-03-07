@@ -28,7 +28,7 @@ export class MapLoader implements DataApi<string, string> {
         this.appServices = appServices;
     }
 
-    call(file:string):Observable<string> {
+    call(tileId:number, file:string):Observable<string> {
 
         return ajax$<string>(
             'GET',

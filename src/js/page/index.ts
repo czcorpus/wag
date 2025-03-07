@@ -39,6 +39,7 @@ import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main.js';
 import { LayoutManager, TileGroup } from './layout.js';
 import { TileConf } from './tile.js';
+import { DataStreaming } from './streaming.js';
 
 
 interface MountArgs {
@@ -197,8 +198,18 @@ export function initClient(
                 return config.hostUrl + (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
                         (argsStr.length > 0 ? '?' + argsStr : '');
         }
-
     });
+    const tileIdentMap = attachNumericTileIdents(config.tiles);
+    const dataStreaming = new DataStreaming(
+        pipe(
+            config.tiles,
+            Dict.filter(
+                (v, k) => v.useDataStream
+            ),
+            Dict.keys(),
+            List.map(v => tileIdentMap[v])
+        )
+    );
     const appServices = new AppServices({
         notifications,
         uiLang: userSession.uiLang,
@@ -208,6 +219,7 @@ export function initClient(
         actionUrlCreator: viewUtils.createActionUrl,
         dataReadability: config.dataReadability || {metadataMapping: {}, commonStructures: {}},
         apiHeadersMapping: config.apiHeaders,
+        dataStreaming,
         mobileModeTest: () => Client.isMobileTouchDevice()
     });
 
@@ -235,8 +247,6 @@ export function initClient(
     );
 
     try {
-
-        const tileIdentMap = attachNumericTileIdents(config.tiles);
         const layoutManager = new LayoutManager(config.layouts, tileIdentMap, appServices);
         const {component, tileGroups} = createRootComponent({
             config,

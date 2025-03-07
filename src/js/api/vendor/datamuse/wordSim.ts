@@ -85,7 +85,7 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
         });
     }
 
-    call(queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
+    call(tileId:number, queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
         return ajax$<DatamuseMLApiResponse>(
             'GET',
             this.apiURL,

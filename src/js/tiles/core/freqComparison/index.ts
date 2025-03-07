@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
@@ -92,7 +92,7 @@ export class FreqComparisonTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            createConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
             createFreqsApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             conf.backlink || null,
             {

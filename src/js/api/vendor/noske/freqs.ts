@@ -118,8 +118,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             struct_attr_stats: 1,
             subcorpora: 1,
@@ -159,7 +158,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         };
     }
 
-    call(args:SingleCritQueryArgs):Observable<APIResponse> {
+    call(tileId:number, args:SingleCritQueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
@@ -209,8 +208,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             struct_attr_stats: 1,
             subcorpora: 1,
@@ -250,7 +248,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
         };
     }
 
-    call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
+    call(tileId:number, args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',

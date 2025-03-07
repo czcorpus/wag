@@ -122,7 +122,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             concApi: conf.apiType === CoreApiGroup.MQUERY ? null :
-                     createConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+                     createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
             freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             initState: {
                 isBusy: isBusy,

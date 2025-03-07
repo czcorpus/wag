@@ -149,6 +149,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                     mergeMap(subset =>
                         callWithExtraVal(
                             this.api,
+                            this.tileId,
                             this.api.stateToArgs(
                                 state,
                                 srchLemma.lemma,

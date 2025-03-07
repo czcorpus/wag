@@ -66,7 +66,7 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
     }
 
 
-    call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
+    call(tileId:number, queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL,

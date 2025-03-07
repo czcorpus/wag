@@ -18,17 +18,22 @@
 
 import { Dict } from 'cnc-tskit';
 import { ClientStaticConf, CommonTextStructures } from '../conf/index.js'
+import { IApiServices } from '../appServices.js';
+import { DataStreaming } from '../page/streaming.js';
 
 
-export class ApiServices {
+export class ApiServices implements IApiServices {
 
     private readonly apiKeyStorage:{[url:string]:{[header:string]:string}};
 
     private readonly clientConf:ClientStaticConf;
 
-    constructor(clientConf:ClientStaticConf) {
+    private readonly dataStreamingImpl:DataStreaming;
+
+    constructor(clientConf:ClientStaticConf, dataStreaming:DataStreaming) {
         this.apiKeyStorage = {};
         this.clientConf = clientConf;
+        this.dataStreamingImpl = dataStreaming;
     }
 
     getApiHeaders(apiUrl:string) {
@@ -64,4 +69,8 @@ export class ApiServices {
         }
         this.apiKeyStorage[apiUrl][headerName] = key;
     }
+
+     dataStreaming():DataStreaming {
+        return this.dataStreamingImpl;
+     }
 }

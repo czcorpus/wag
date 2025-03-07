@@ -33,7 +33,7 @@ interface HTTPResponse {
 
 export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
 
-    call(args:RequestArgs):Observable<Response> {
+    call(tileId:number, args:RequestArgs):Observable<Response> {
         return rxOf({result: []});
     }
 }
@@ -50,7 +50,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
         this.apiServices = apiServices;
     }
 
-    call(args:RequestArgs):Observable<Response> {
+    call(tileId:number, args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,

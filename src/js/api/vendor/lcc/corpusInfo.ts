@@ -39,7 +39,6 @@ type HTTPResponse = Array<CorpusInfo>;
 
 
 export interface QueryArgs {
-    tileId:number;
     corpname:string;
 }
 
@@ -58,7 +57,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
         this.corpora = {};
     }
 
-    call(args:QueryArgs):Observable<CorpusDetails> {
+    call(tileId:number, args:QueryArgs):Observable<CorpusDetails> {
         return (this.corpora[args.corpname] ?
             rxOf(this.corpora[args.corpname]) :
             ajax$<HTTPResponse>(
@@ -100,7 +99,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
         ).pipe(
             map(
                 (info) => ({
-                    tileId: args.tileId,
+                    tileId,
                     title: info.corpusName,
                     description: info.description,
                     author: '',

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { CorePosAttribute } from '../../../types.js';
@@ -93,7 +93,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: createApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            concApi: createApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,

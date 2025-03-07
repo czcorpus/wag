@@ -40,6 +40,7 @@ import { emptyValue } from '../toolbar/empty.js';
 import { importQueryPos } from '../../postag.js';
 import { ServerHTTPRequestError } from '../request.js';
 import { logAction } from '../actionLog/common.js';
+import { DataStreaming } from '../../page/streaming.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -449,6 +450,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
+            dataStreaming: new DataStreaming([]),
             mobileModeTest: ()=>false
         });
         const queryDomain = getQueryValue(req, 'domain')[0];
@@ -550,6 +552,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
+            dataStreaming: new DataStreaming([]),
             mobileModeTest: ()=>false
         });
 

@@ -194,7 +194,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                             }
 
                         }).pipe(
-                            concatMap(_ => this.api.call(this.api.stateToArgs(
+                            concatMap(_ => this.api.call(this.tileId, this.api.stateToArgs(
                                 state, List.head(action.payload.concPersistenceIDs))))
 
                         ).subscribe(
@@ -232,9 +232,9 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
         } else {
             const variant = findCurrQueryMatch(this.queryMatches[0]);
-            this.api.call(this.api.stateToArgs(state, variant.word))
-            .subscribe(
-                (resp) => {
+            this.api.call(this.tileId, this.api.stateToArgs(state, variant.word))
+            .subscribe({
+                next: (resp) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -245,7 +245,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         }
                     });
                 },
-                error => {
+                error: error => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -257,7 +257,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         error: error
                     });
                 }
-            );
+            });
         }
     }
 }

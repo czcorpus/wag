@@ -176,14 +176,14 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
-        return this.srcInfoApi.call({
+        return this.srcInfoApi.call(tileId, {
             tileId: tileId,
             uiLang: lang,
             'x-fcs-endpoint-description': 'true' // TODO
         });
     }
 
-	call(args:FCS1Args):Observable<ConcResponse> {
+	call(tileId:number, args:FCS1Args):Observable<ConcResponse> {
 		return ajax$(
             HTTP.Method.GET,
             this.url,

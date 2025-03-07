@@ -46,7 +46,7 @@ export enum CorePosAttribute {
  */
 export interface DataApi<T, U> {
 
-    call(queryArgs:T):Observable<U>;
+    call(tileId:number, queryArgs:T):Observable<U>;
 }
 
 /**

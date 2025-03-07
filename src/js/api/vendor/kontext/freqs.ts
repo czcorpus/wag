@@ -114,7 +114,7 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
         this.apiServices = apiServices;
     }
 
-    call(args:SingleCritQueryArgs):Observable<HTTPResponse> {
+    call(tileId:number, args:SingleCritQueryArgs):Observable<HTTPResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
@@ -150,8 +150,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             format: 'json'
         });
@@ -193,7 +192,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         };
     }
 
-    call(args:SingleCritQueryArgs):Observable<APIResponse> {
+    call(tileId:number, args:SingleCritQueryArgs):Observable<APIResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(
@@ -254,8 +253,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             format: 'json'
         });
@@ -296,7 +294,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         };
     }
 
-    call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
+    call(tileId:number, args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',

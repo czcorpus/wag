@@ -41,7 +41,6 @@ interface HTTPResponse {
 }
 
 export interface QueryArgs {
-    tileId:number;
     corpname:string;
     format:'json';
 }
@@ -62,7 +61,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
         this.apiServices = apiServices;
     }
 
-    call(args:QueryArgs):Observable<CorpusDetails> {
+    call(tileId:number, args:QueryArgs):Observable<CorpusDetails> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(
@@ -78,7 +77,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
             share(),
             map<HTTPResponse, CorpusDetails>(
                 (resp) => ({
-                    tileId: args.tileId,
+                    tileId,
                     title: resp.corpname,
                     description: resp.description,
                     author: '', // TODO

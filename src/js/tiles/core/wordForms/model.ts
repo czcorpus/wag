@@ -270,7 +270,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
     }
 
     private fetchWordForms(args:RequestArgs|RequestConcArgs, dispatch:SEDispatcher):void {
-        this.api.call(args).pipe(
+        this.api.call(this.tileId, args).pipe(
             map((v => {
                 const updated = Maths.calcPercentRatios(
                     (item) => item.freq,

@@ -29,6 +29,7 @@ import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from 
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
+import { DataStreaming } from './page/streaming.js';
 
 
 export interface IApiServices {
@@ -42,6 +43,8 @@ export interface IApiServices {
     getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures):string|undefined;
 
     importExternalMessage(label:LocalizedConfMsg):string;
+
+    dataStreaming():DataStreaming;
 }
 
 
@@ -69,7 +72,7 @@ export interface IAppServices extends IApiServices {
 
     isMobileMode():boolean;
 
-    queryLemmaDbApi(domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
+    queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
 
@@ -90,6 +93,8 @@ export interface IAppServices extends IApiServices {
     normalizeHttpApiError(err:Error|AjaxError):string;
 
     ajax$<T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T>;
+
+    dataStreaming():DataStreaming;
 }
 
 
@@ -105,6 +110,7 @@ export interface AppServicesArgs {
     actionUrlCreator:(path: string)=>string;
     dataReadability:DataReadabilityMapping;
     apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
+    dataStreaming:DataStreaming;
     mobileModeTest:()=>boolean;
 }
 
@@ -141,8 +147,13 @@ export class AppServices implements IAppServices {
 
     private readonly sessionStorage:ISimpleSessionStorage;
 
-    constructor({notifications, uiLang, domainNames, translator, staticUrlCreator, actionUrlCreator, dataReadability,
-            apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
+    private readonly dataStreamingImpl:DataStreaming;
+
+    constructor({
+            notifications, uiLang, domainNames, translator,
+            staticUrlCreator, actionUrlCreator, dataReadability,
+            apiHeadersMapping, dataStreaming, mobileModeTest
+    }:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
         this.domainNames = Dict.fromEntries(domainNames);
@@ -158,6 +169,7 @@ export class AppServices implements IAppServices {
         this.sessionStorage = typeof window === 'undefined' ?
             new DummySessionStorage() :
             window.sessionStorage;
+        this.dataStreamingImpl = dataStreaming;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -315,8 +327,8 @@ export class AppServices implements IAppServices {
             AppServices.SESSION_STORAGE_API_KEYS_ENTRY, JSON.stringify(apiKeyHeaders));
     }
 
-    queryLemmaDbApi(domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call({domain, q, mainPosAttr});
+    queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call(tileId, {domain, q, mainPosAttr});
     }
 
     getISO639UILang():string {
@@ -341,5 +353,9 @@ export class AppServices implements IAppServices {
 
     ajax$<T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> {
         return ajax$<T>(method, url, args, options);
+    }
+
+    dataStreaming():DataStreaming {
+        return this.dataStreamingImpl;
     }
 }

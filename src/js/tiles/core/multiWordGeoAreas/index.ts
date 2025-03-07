@@ -84,7 +84,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
-            concApi: createConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            concApi: createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
             freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
             mapLoader: new MapLoader(appServices),
             initState: {

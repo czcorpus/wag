@@ -85,13 +85,13 @@ export class SydModel extends StatelessModel<SydModelState> {
                 state.result = [];
             },
             (state, action, dispatch) => {
-                this.api.call(stateToArgs(
+                this.api.call(this.tileId, stateToArgs(
                     state,
                     this.queryMatches[0][0].word, // TODO !!!
                     pipe(this.queryMatches, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
                 ))
-                .subscribe(
-                    (data) => {
+                .subscribe({
+                    next: (data) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
                             payload: {
@@ -101,7 +101,7 @@ export class SydModel extends StatelessModel<SydModelState> {
                             }
                         });
                     },
-                    (error) => {
+                    error: (error) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
                             error,
@@ -112,7 +112,7 @@ export class SydModel extends StatelessModel<SydModelState> {
                             }
                         });
                     }
-                );
+                });
             }
         );
 

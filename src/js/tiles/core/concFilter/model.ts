@@ -331,6 +331,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             concatMap(
                 subq => callWithExtraVal(
                     this.api,
+                    this.tileId,
                     this.mkConcArgs(state, subq, concId),
                     subq
                 )

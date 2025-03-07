@@ -178,8 +178,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.sourceInfoApi.call({
-                        tileId: this.tileId,
+                    this.sourceInfoApi.call(this.tileId, {
                         queryType,
                         domain: this.queryDomain,
                         corpname: state.corpname,
@@ -221,7 +220,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         }).pipe(
             concatMap(
                 (args) => testIsDictMatch(args.variant) ?
-                    this.api.call({
+                    this.api.call(this.tileId, {
                         domain: args.lang,
                         word: args.variant.word,
                         lemma: args.variant.lemma,

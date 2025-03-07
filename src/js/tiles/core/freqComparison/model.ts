@@ -253,6 +253,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             mergeMap(args =>
                 callWithExtraVal(
                     this.concApi,
+                    this.tileId,
                     this.concApi.stateToArgs(
                         {
                             corpname: state.corpname,
@@ -317,6 +318,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 args.concId = resp.concPersistenceID;
                 return callWithExtraVal(
                     this.freqApi,
+                    this.tileId,
                     this.freqApi.stateToArgs(state, resp.concPersistenceID, args.critId),
                     args
                 )

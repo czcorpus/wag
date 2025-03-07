@@ -90,7 +90,6 @@ interface HTTPResponse extends HTTPApiResponse {
 }
 
 export interface QueryArgs {
-    tileId:number;
     corpname:string;
     struct_attr_stats:1;
     subcorpora:1;
@@ -114,7 +113,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
         this.apiServices = apiServices;
     }
 
-    call(args:QueryArgs):Observable<CorpusDetails> {
+    call(tileId:number, args:QueryArgs):Observable<CorpusDetails> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/corp_info',
@@ -128,7 +127,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
             share(),
             map(
                 (resp) => ({
-                    tileId: args.tileId,
+                    tileId,
                     title: resp.name,
                     description: resp.info,
                     author: '',

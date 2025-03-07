@@ -53,8 +53,7 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
+        return this.srcInfoService.call(tileId, {
             corpname: corpname,
             format: 'json'
         });
@@ -97,8 +96,8 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
         }
     }
 
-    call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return this.freqApi.call({
+    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return this.freqApi.call(tileId, {
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
             q: `~${queryArgs.concIdent}`,

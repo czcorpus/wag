@@ -287,6 +287,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             concatMap(([queryId, lemma]) =>
                 callWithExtraVal<{}, ConcResponse, [number, QueryMatch]>(
                     this.concApi,
+                    this.tileId,
                     this.concApi.stateToArgs(
                         {
                             corpname: state.corpname,
@@ -348,6 +349,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             concatMap(([queryId,, concId]) => {
                 return callWithExtraVal(
                     this.collApi,
+                    this.tileId,
                     this.collApi.stateToArgs(state, concId),
                     {queryId: queryId}
                 )

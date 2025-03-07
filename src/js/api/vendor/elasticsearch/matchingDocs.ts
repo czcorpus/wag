@@ -83,7 +83,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         return null;
     }
 
-    call(args:ElasticsearchQueryArgs):Observable<APIResponse> {
+    call(tileId:number, args:ElasticsearchQueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,

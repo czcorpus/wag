@@ -33,6 +33,7 @@ import { RecognizedQueries } from '../../query/index.js';
 import { WdglanceMainProps } from '../../views/main.js';
 import { ErrPageProps } from '../../views/error.js';
 import { TileGroup } from '../../page/layout.js';
+import { DataStreaming } from '../../page/streaming.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -149,6 +150,7 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
+            dataStreaming: new DataStreaming([]),
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         })

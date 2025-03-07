@@ -65,7 +65,7 @@ export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>, We
             input;
     }
 
-    call(queryArgs:WiktionaryApiArgs):Observable<string|null> {
+    call(tileId:number, queryArgs:WiktionaryApiArgs):Observable<string|null> {
         return ajax$<string>(
             'GET',
             this.apiURL,
