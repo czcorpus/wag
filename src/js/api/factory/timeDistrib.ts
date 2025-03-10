@@ -26,6 +26,7 @@ import { MQueryTimeDistribStreamApi } from '../vendor/mquery/timeDistrib.js';
 export function createApiInstance(
 	apiIdent:string,
 	apiURL:string,
+	useDataStream:boolean,
 	apiServices:IApiServices,
 	conf:CustomArgs,
 	apiOptions:{}
@@ -53,6 +54,7 @@ export function createApiInstance(
 		case CoreApiGroup.MQUERY:
 			return new MQueryTimeDistribStreamApi(
 				apiURL,
+				useDataStream,
 				apiServices,
                 conf
 			);

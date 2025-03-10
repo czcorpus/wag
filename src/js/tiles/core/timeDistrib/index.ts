@@ -65,7 +65,7 @@ export class TimeDistTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
-        widthFract, queryMatches, domain1, conf, isBusy, mainPosAttr
+        widthFract, queryMatches, domain1, conf, isBusy, mainPosAttr, useDataStream
     }:TileFactoryArgs<TimeDistTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -96,6 +96,7 @@ export class TimeDistTile implements ITileProvider {
                         createFreqApiInstance(
                             conf.apiType,
                             url,
+                            useDataStream,
                             appServices,
                             conf.customApiArgs,
                             apiOptions,

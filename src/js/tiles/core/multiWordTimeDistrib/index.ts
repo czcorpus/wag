@@ -66,7 +66,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
-        widthFract, queryMatches, domain1, conf, isBusy
+        widthFract, queryMatches, domain1, conf, isBusy, useDataStream
     }:TileFactoryArgs<TimeDistTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -95,6 +95,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                         createFreqApiInstance(
                             conf.apiType,
                             url,
+                            useDataStream,
                             appServices,
                             {
                                 ...conf.customApiArgs,

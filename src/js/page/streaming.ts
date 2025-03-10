@@ -28,7 +28,12 @@ interface TileRequest {
     method:HTTP.Method,
     body:unknown;
     contentType:string;
-    base64EncodeResult:boolean;
+    base64EncodeResult?:boolean;
+
+    // Specifies whether the backend itself provides
+    // EventSource stream. In such case, we must integrate
+    // this stream into the main one.
+    isEventSource?:boolean;
 }
 
 interface EventItem<T = unknown> {
