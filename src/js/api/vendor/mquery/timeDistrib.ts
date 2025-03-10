@@ -17,11 +17,11 @@
  */
 
 import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib.js';
-import { Observable } from 'rxjs';
+import { map, Observable, scan, takeWhile } from 'rxjs';
 import { CorpusDetails } from '../../../types.js';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
-import { Dict, List, pipe, tuple } from 'cnc-tskit';
+import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 
@@ -65,8 +65,14 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(apiURL:string, apiServices:IApiServices, customArgs:CustomArgs) {
+    private readonly useDataStream:boolean;
+
+    private readonly apiServices:IApiServices;
+
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, customArgs:CustomArgs) {
         this.apiURL = apiURL;
+        this.useDataStream = useDataStream;
+        this.apiServices = apiServices;
         this.customArgs = customArgs;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
@@ -79,22 +85,84 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         return null
     }
 
-    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return new Observable(o => {
-            const args = pipe(
-                {
-                    ...this.customArgs,
-                    q: queryArgs.concIdent,
+    private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
+        return pipe(
+            {
+                ...this.customArgs,
+                q: queryArgs.concIdent,
+                event: eventSource ? `DataTile-${tileId}` : undefined
+            },
+            Dict.map(
+                (v, k) => encodeURIComponent(v)
+            ),
+            Dict.toEntries(),
+            List.map(
+                ([k, v]) => `${k}=${v}`
+            ),
+            x => x.join('&')
+        )
+    }
+
+    /*
+
+    // this serves for tile backend which themselves use streaming
+    // and we have to determine whether they're complete.
+    // For this, we expect JSON responses of the following form:
+    // { ..., chunkNum: number, totalChunks: number}
+    chunks:Map<number, boolean>;
+    */
+    private callViaDataStream(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        const args = this.prepareArgs(tileId, queryArgs, true);
+        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>({
+            tileId,
+            method: HTTP.Method.GET,
+            url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`,
+            body: {},
+            contentType: 'application/json',
+            isEventSource: true
+
+        }).pipe(
+            scan<MqueryStreamData, {curr:MqueryStreamData; chunks:Map<number, boolean>}>(
+                (acc, value) => {
+                    acc.chunks.set(value.chunkNum, true)
+                    acc.curr = value;
+                    return acc;
                 },
-                Dict.map(
-                    (v, k) => encodeURIComponent(v)
-                ),
-                Dict.toEntries(),
-                List.map(
-                    ([k, v]) => `${k}=${v}`
-                ),
-                x => x.join('&')
-            );
+                {
+                    curr: null,
+                    chunks: new Map<number, boolean>()
+                }
+            ),
+            takeWhile(
+                ({curr, chunks}) => pipe(
+                    Array.from(chunks.entries()),
+                    List.filter(([k, v]) => !!v),
+                    List.size()
+                ) <= curr.totalChunks
+            ),
+            map(
+                ({curr, chunks}) => {
+                    return {
+                        corpName: queryArgs.corpName,
+                        subcorpName: queryArgs.subcorpName,
+                        data: List.map(
+                            v => ({
+                                datetime: v.word,
+                                freq: v.freq,
+                                norm: v.base,
+                            }),
+                            curr.entries.freqs,
+                        ),
+                        overwritePrevious: true
+                    }
+                }
+            )
+        )
+    }
+
+    private callViaAjAX(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return new Observable(o => {
+            const args = this.prepareArgs(tileId, queryArgs, true);
             const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
             const procChunks:{[k:number]:number} = {};
             let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : (parseInt(this.customArgs['fromYear']) || -1);
@@ -150,5 +218,11 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
             };
 
         });
+    }
+
+    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return this.useDataStream ?
+            this.callViaDataStream(tileId, queryArgs) :
+            this.callViaAjAX(tileId, queryArgs);
     }
 }
