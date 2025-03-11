@@ -18,7 +18,7 @@
 
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { EMPTY, Observable, Subject } from 'rxjs';
-import { concatMap, filter, first, map, scan, share } from 'rxjs/operators';
+import { concatMap, filter, first, map, scan, share, tap } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
 
@@ -78,6 +78,11 @@ export class DataStreaming {
                         )
                     )
                 )
+            ),
+            tap(
+                v => {
+                    console.log('wtf? ', v)
+                }
             ),
             first(
                 v => {
@@ -172,7 +177,7 @@ export class DataStreaming {
             return EMPTY;
         }
         const updEntry = {...entry};
-        if (entry.body) {
+        if (entry.body && entry.url) {
             if (updEntry.method === HTTP.Method.GET) {
                 const tmp = updEntry.url.split('?');
                 const encArgs = encodeArgs(entry.body);
@@ -187,6 +192,9 @@ export class DataStreaming {
             } else {
                 updEntry.body = encodeArgs(entry.body);
             }
+
+        } else if (!entry.url) {
+            updEntry.body = '';
         }
         this.requestSubject.next(updEntry);
         return this.responseStream.pipe(

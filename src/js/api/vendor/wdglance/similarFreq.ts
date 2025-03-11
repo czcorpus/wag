@@ -31,12 +31,6 @@ interface HTTPResponse {
     result:Array<QueryMatch>;
 }
 
-export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
-
-    call(tileId:number, args:RequestArgs):Observable<Response> {
-        return rxOf({result: []});
-    }
-}
 
 
 export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {

@@ -29,6 +29,7 @@ export interface ApiFactoryArgs {
     srcInfoURL:string;
     apiURL:string;
     apiServices:IApiServices;
+    useDataStream:boolean;
     apiOptions:{};
 }
 
