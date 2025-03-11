@@ -17,7 +17,7 @@
  */
 
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
-import { Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject } from 'rxjs';
 import { concatMap, filter, first, map, scan, share } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
@@ -167,6 +167,10 @@ export class DataStreaming {
 
 
     registerTileRequest<T>(entry:TileRequest):Observable<T> {
+        if (!this.rootUrl) {
+            console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
+            return EMPTY;
+        }
         const updEntry = {...entry};
         if (entry.body) {
             if (updEntry.method === HTTP.Method.GET) {
