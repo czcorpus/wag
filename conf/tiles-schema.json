@@ -106,6 +106,9 @@
                     "description": "An identifier as defined by tiles configuration interface",
                     "type": "string"
                 },
+                "useDataStream": {
+                    "type": "boolean"
+                },
                 "waitForTimeoutSecs": {
                     "type": "number"
                 }

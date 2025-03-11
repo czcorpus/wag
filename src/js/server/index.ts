@@ -156,7 +156,7 @@ forkJoin([ // load core configs
 
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,
-            new ApiServices(clientConf, new DataStreaming([]))
+            new ApiServices(clientConf, new DataStreaming([], undefined))
         );
 
         const toolbar = createToolbarInstance(serverConf.toolbar);

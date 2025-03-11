@@ -112,6 +112,7 @@ function mkRuntimeClientConf({
                     }),
                     getThemeList(conf)
                 ),
+                dataStreamingUrl: conf.dataStreamingUrl,
                 tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
                     {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
                     pipe(
