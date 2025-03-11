@@ -33,6 +33,8 @@ export enum CoreApiGroup {
 	 */
 	FCS_V1 = 'fcsv1',
 
+	FRODO = 'frodo',
+
 	/**
 	 * KonText API
 	 */

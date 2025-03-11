@@ -53,7 +53,8 @@ export class WordFormsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy,
-        waitForTiles, waitForTilesTimeoutSecs, theme, mainPosAttr}:TileFactoryArgs<WordFormsTileConf>
+        waitForTiles, waitForTilesTimeoutSecs, theme, mainPosAttr,
+        useDataStream}:TileFactoryArgs<WordFormsTileConf>
     ) {
 
         this.tileId = tileId;
@@ -84,6 +85,7 @@ export class WordFormsTile implements ITileProvider {
                 apiURL: conf.apiURL,
                 srcInfoURL: conf.srcInfoURL,
                 apiServices: appServices,
+                useDataStream,
                 apiOptions
             }),
             queryMatches,

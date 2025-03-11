@@ -20,12 +20,14 @@ import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
 import { init as viewInit } from './views/index.js';
-import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../api/vendor/wdglance/similarFreq.js';
+import { SimilarFreqWordsNullAPI } from '../../../api/vendor/wdglance/similarFreq.js';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
+import { createApiInstance } from '../../../api/factory/similarFreq.js';
 
 
 export interface WordFreqTileConf extends TileConf {
     apiURL?:string;
+    apiType?:string;
     corpname:string;
     corpusSize:number;
     sfwRowRange:number;
@@ -54,7 +56,7 @@ export class WordFreqTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract,
-        conf, isBusy, queryType, mainPosAttr}:TileFactoryArgs<WordFreqTileConf>
+        conf, isBusy, queryType, mainPosAttr, useDataStream}:TileFactoryArgs<WordFreqTileConf>
     ) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -76,7 +78,14 @@ export class WordFreqTile implements ITileProvider {
             },
             tileId,
             api: conf.apiURL ?
-                new SimilarFreqWordsAPI(conf.apiURL, appServices) :
+                createApiInstance({
+                    apiIdent: conf.apiType,
+                    apiOptions: {},
+                    apiServices: appServices,
+                    apiURL: conf.apiURL,
+                    useDataStream,
+                    srcInfoURL: null
+                }) :
                 new SimilarFreqWordsNullAPI(),
             sourceInfoApi: new InternalResourceInfoApi(conf.apiURL, appServices),
             queryMatches: queryMatches,
