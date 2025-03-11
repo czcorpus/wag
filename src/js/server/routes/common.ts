@@ -150,7 +150,7 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
-            dataStreaming: new DataStreaming([]),
+            dataStreaming: new DataStreaming([], undefined),
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         })

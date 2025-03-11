@@ -227,6 +227,16 @@ export interface ClientStaticConf {
     // A list of URLs used to style specific content (e.g. HTML tiles)
     externalStyles?:Array<string>;
 
+    /**
+     * This specifies an URL used by the DataStreaming class
+     * to start an EventSource stream. The fact whether it will
+     * be used or not is given solely by tiles configuration.
+     * I.e. if there will be no tile with `useDataStreaming` set
+     * to true, then it does not matter whether this value
+     * is filled or not.
+     */
+    dataStreamingUrl?:string;
+
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
     tiles:MultiSourceTileConf;
@@ -294,6 +304,9 @@ export interface ClientConf {
         footer?:string;
     };
     tiles:{[ident:string]:TileConf};
+
+    dataStreamingUrl:string;
+
     layouts:LayoutsConfig;
     searchDomains:Array<SearchDomain>;
     externalStyles:Array<string>;
@@ -379,6 +392,7 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         onLoadInit: conf.onLoadInit || [],
         colors: getAppliedThemeConf(conf, themeId),
         colorThemes: getThemeList(conf),
+        dataStreamingUrl: undefined,
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {

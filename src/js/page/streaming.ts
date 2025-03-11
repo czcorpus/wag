@@ -20,6 +20,7 @@ import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { Observable, Subject } from 'rxjs';
 import { concatMap, filter, first, map, scan, share } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
+import urlJoin from 'url-join';
 
 
 interface TileRequest {
@@ -41,14 +42,25 @@ interface EventItem<T = unknown> {
     data:T;
 }
 
-
+/**
+ * DataStreaming serves as a controller for EventSource-based communication
+ * between EventSource-capable server (APIGuard in case of the CNC) and individual
+ * tiles who register themselves via registerTileRequest() method and wait
+ * for their data.
+ * The class is written in a way capable of handling fully asynchronous nature
+ * of WaG tiles where each tile reacts to the current word data individually and
+ * also individually processes its data.
+ */
 export class DataStreaming {
 
-    private requestSubject:Subject<TileRequest>;
+    private readonly requestSubject:Subject<TileRequest>;
 
-    private responseStream:Observable<EventItem>;
+    private readonly responseStream:Observable<EventItem>;
 
-    constructor(tileIds:Array<string|number>) {
+    private readonly rootUrl:string|undefined;
+
+    constructor(tileIds:Array<string|number>, rootUrl:string|undefined) {
+        this.rootUrl = rootUrl;
         this.requestSubject = new Subject<TileRequest>();
         this.responseStream = this.requestSubject.pipe(
             scan(
@@ -80,7 +92,7 @@ export class DataStreaming {
             concatMap(
                 tileReqMap => ajax$<{id:string}>(
                     HTTP.Method.PUT,
-                    "http://wag.korpus.test/apiguard/wstream",
+                    this.rootUrl,
                     {
                         requests: pipe(
                             Array.from(tileReqMap.entries()),
@@ -102,7 +114,7 @@ export class DataStreaming {
                 ([tileReqMap, resp]) => new Observable<EventItem>(
                     observer => {
                         const evtSrc = new EventSource(
-                            `http://wag.korpus.test/apiguard/wstream/${resp.id}`
+                            urlJoin(this.rootUrl, resp.id)
                         );
                         tileReqMap.forEach(
                             (val, key) => {

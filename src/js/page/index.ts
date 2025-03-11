@@ -208,7 +208,8 @@ export function initClient(
             ),
             Dict.keys(),
             List.map(v => tileIdentMap[v])
-        )
+        ),
+        config.dataStreamingUrl
     );
     const appServices = new AppServices({
         notifications,
