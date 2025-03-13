@@ -27,7 +27,7 @@ import { IApiServices } from 'src/js/appServices.js';
 import { HTTP } from 'cnc-tskit';
 
 
-class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
+export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
 
     private readonly useDataStream:boolean;
 
@@ -39,7 +39,6 @@ class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
     }
 
     call(tileId:number, args:RequestArgs):Observable<Response> {
-        console.log('>>>> tileId: ', tileId, ', use stream: ', this.useDataStream)
         if (this.useDataStream) {
             return this.apiServices.dataStreaming().registerTileRequest({
                 body: {},
@@ -65,6 +64,9 @@ class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
 export function createApiInstance(
     {apiIdent, srcInfoURL, apiServices, apiURL, apiOptions, useDataStream}:ApiFactoryArgs
 ):SimilarFreqDbAPI {
+    if (!apiURL) {
+        return new SimilarFreqWordsNullAPI(useDataStream, apiServices);
+    }
     switch (apiIdent) {
         case CoreApiGroup.WDGLANCE:
             return new SimilarFreqWordsAPIWDG(apiURL, apiServices);
