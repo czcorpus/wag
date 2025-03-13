@@ -25,7 +25,9 @@ import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../que
 import { QueryValidator } from '../../query/validation.js';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth, mergeToEmptyLayoutConf, MainPosAttrValues } from '../../conf/index.js';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth,
+         mergeToEmptyLayoutConf
+} from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
 import { ServerSideActionDispatcher } from '../core.js';
@@ -399,19 +401,34 @@ export function queryAction({
                     }
                     return pipe(
                         addWildcardMatches([...queryMatches]),
-                        List.sortedBy(x => x.ipm),
-                        List.reverse(),
                         List.map(
                             item => {
-                                const isCurrent = matchesPos(
-                                    item,
-                                    layoutManager.getLayoutMainPosAttr(userConf.queryType),
-                                    List.map(x => x.value, item.pos)
-                                    ) && (item.lemma === userConf.queries[queryIdx].lemma ||
-                                        !userConf.queries[queryIdx].lemma);
-                                return {...item, isCurrent};
+                                let score = 0;
+                                if (matchesPos(
+                                        item,
+                                        layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                                        List.map(x => x.value, item.pos)
+                                        )) {
+                                    score += 1;
+                                }
+                                if (item.lemma === userConf.queries[queryIdx].lemma) {
+                                    score += 1;
+                                }
+                                return tuple(item, score);
                             }
-                        )
+                        ),
+                        List.sorted(
+                            ([x1, score1], [x2, score2]) => {
+                                if (score1 < score2) {
+                                    return 1;
+
+                                } else if (score1 === score2) {
+                                    return x2.ipm - x1.ipm;
+                                }
+                                return -1;
+                            }
+                        ),
+                        List.map(([v, ], i) => i === 0 ? {...v, isCurrent: true} : v),
                     );
                 },
                 qMatchesEachQuery
