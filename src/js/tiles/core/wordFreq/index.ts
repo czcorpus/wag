@@ -20,7 +20,6 @@ import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
 import { init as viewInit } from './views/index.js';
-import { SimilarFreqWordsNullAPI } from '../../../api/vendor/wdglance/similarFreq.js';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { createApiInstance } from '../../../api/factory/similarFreq.js';
 
@@ -77,16 +76,14 @@ export class WordFreqTile implements ITileProvider {
                 mainPosAttr,
             },
             tileId,
-            api: conf.apiURL ?
-                createApiInstance({
-                    apiIdent: conf.apiType,
-                    apiOptions: {},
-                    apiServices: appServices,
-                    apiURL: conf.apiURL,
-                    useDataStream,
-                    srcInfoURL: null
-                }) :
-                new SimilarFreqWordsNullAPI(),
+            api: createApiInstance({
+                apiIdent: conf.apiType,
+                apiOptions: {},
+                apiServices: appServices,
+                apiURL: conf.apiURL,
+                useDataStream,
+                srcInfoURL: null
+            }),
             sourceInfoApi: new InternalResourceInfoApi(conf.apiURL, appServices),
             queryMatches: queryMatches,
             queryDomain: domain1,

@@ -79,11 +79,6 @@ export class DataStreaming {
                     )
                 )
             ),
-            tap(
-                v => {
-                    console.log('wtf? ', v)
-                }
-            ),
             first(
                 v => {
                     for (const [key, value] of v) {
