@@ -53,7 +53,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <tbody>
                         {List.map(
                             (w, i) => (
-                                <React.Fragment key={`${w.word}:${w.lemma}:${w.pos}`}>
+                                <React.Fragment key={`${w.word}:${w.lemma}:${w.pos.map(v => v.value).join('_')}`}>
                                     <tr>
                                         <th className="query-num">{i + 1}.</th>
                                         <td className="word">
