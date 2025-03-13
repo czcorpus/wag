@@ -379,26 +379,7 @@ export function queryAction({
         }) => {
             const queryMatchesExtended = List.map(
                 (queryMatches, queryIdx) => {
-                    const mergedMatches = addWildcardMatches([...queryMatches]);
-                    if (mergedMatches.length > 0) {
-                        let matchIdx = 0;
-                        if (userConf.queries[queryIdx]) {
-                            const srchIdx = List.findIndex(
-                                v => matchesPos(
-                                    v,
-                                    layoutManager.getLayoutMainPosAttr(userConf.queryType),
-                                    userConf.queries[queryIdx].pos
-                                ) && (v.lemma === userConf.queries[queryIdx].lemma || !userConf.queries[queryIdx].lemma),
-                                mergedMatches
-                            );
-                            if (srchIdx >= 0) {
-                                matchIdx = srchIdx;
-                            }
-                        }
-                        mergedMatches[matchIdx] = {...mergedMatches[matchIdx], isCurrent: true};
-                        return mergedMatches;
-
-                    } else {
+                    if (queryMatches.length === 0) {
                         return [{
                             lemma: null,
                             word: userConf.queries[queryIdx].word,
@@ -412,6 +393,22 @@ export function queryAction({
                             isNonDict: true
                         }];
                     }
+                    return pipe(
+                        addWildcardMatches([...queryMatches]),
+                        List.sortedBy(x => x.ipm),
+                        List.reverse(),
+                        List.map(
+                            item => {
+                                const isCurrent = matchesPos(
+                                    item,
+                                    layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                                    List.map(x => x.value, item.pos)
+                                    ) && (item.lemma === userConf.queries[queryIdx].lemma ||
+                                        !userConf.queries[queryIdx].lemma);
+                                return {...item, isCurrent};
+                            }
+                        )
+                    );
                 },
                 qMatchesEachQuery
             );
