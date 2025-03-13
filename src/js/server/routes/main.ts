@@ -267,6 +267,39 @@ function testGroupedAuth(
     );
 }
 
+
+/**
+ * note: functions expects availMatches sorted from highest ipm to lowest
+ */
+function markMatch(userQuery:UserQuery, posAttr:MainPosAttrValues, availMatches:Array<QueryMatch>):Array<QueryMatch> {
+    if (List.size(availMatches) === 0) {
+        return availMatches;
+    }
+    if (userQuery.lemma && !List.empty(userQuery.pos)) {
+        const srch = List.findIndex(
+            x => matchesPos(x, posAttr, userQuery.pos) && userQuery.lemma === x.lemma,
+            availMatches
+        );
+        if (srch > -1) {
+            availMatches[srch].isCurrent = true;
+            return availMatches;
+        }
+    }
+    if (userQuery.lemma) {
+        const srch = List.findIndex(
+            x => userQuery.lemma === x.lemma,
+            availMatches
+        );
+        if (srch > -1) {
+            availMatches[srch].isCurrent = true;
+            return availMatches;
+        }
+    }
+    availMatches[0].isCurrent = true;
+    return availMatches;
+}
+
+
 export interface QueryActionArgs {
     services:Services;
     answerMode:boolean;
@@ -397,36 +430,13 @@ export function queryAction({
                             isNonDict: true
                         }];
                     }
-                    return pipe(
-                        addWildcardMatches([...queryMatches]),
-                        List.map(
-                            item => {
-                                let score = 0;
-                                if (matchesPos(
-                                        item,
-                                        layoutManager.getLayoutMainPosAttr(userConf.queryType),
-                                        List.map(x => x.value, item.pos)
-                                        )) {
-                                    score += 1;
-                                }
-                                if (item.lemma === userConf.queries[queryIdx].lemma) {
-                                    score += 1;
-                                }
-                                return tuple(item, score);
-                            }
-                        ),
+                    return markMatch(
+                        userConf.queries[queryIdx],
+                        layoutManager.getLayoutMainPosAttr(userConf.queryType),
                         List.sorted(
-                            ([x1, score1], [x2, score2]) => {
-                                if (score1 < score2) {
-                                    return 1;
-
-                                } else if (score1 === score2) {
-                                    return x2.ipm - x1.ipm;
-                                }
-                                return -1;
-                            }
-                        ),
-                        List.map(([v, ], i) => i === 0 ? {...v, isCurrent: true} : v),
+                            (v1, v2) => v2.ipm - v1.ipm,
+                            addWildcardMatches([...queryMatches])
+                        )
                     );
                 },
                 qMatchesEachQuery
