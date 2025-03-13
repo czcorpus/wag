@@ -144,6 +144,12 @@ export function matchesPos(lv:QueryMatchCore, mainPosAttr:MainPosAttrValues, pos
     return posTagsEqual(List.map(v => v.value, lv[mainPosAttr]), pos);
 }
 
+/**
+ * The function finds QueryMatch items with the same lemma and for each
+ * such group, it creates an additional QueryMatch item representing
+ * "multiple PoS variant". The original items are always preserved
+ * so user can select also the exact types.
+ */
 export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
     return pipe(
         qm,
