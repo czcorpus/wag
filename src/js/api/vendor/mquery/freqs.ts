@@ -17,15 +17,16 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { List, pipe } from 'cnc-tskit';
+import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 
-import { ajax$ } from '../../../page/ajax.js';
+import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { CorpusDetails } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
 import { APIResponse, IFreqDistribAPI } from '../../abstract/freqs.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
+import urlJoin from 'url-join';
 
 
 export interface HTTPResponse {
@@ -65,10 +66,13 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(apiURL:string, apiServices:IApiServices) {
+    private readonly useDataStream:boolean;
+
+    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
+        this.useDataStream = useDataStream;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -106,15 +110,40 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
      * (freqs for different domains) - so in that case, we don't group anything.
      */
     call(tileId:number, multicastRequest:boolean, args:MQueryFreqArgs):Observable<APIResponse> {
-        return ajax$<HTTPResponse>(
-            'GET',
-            this.apiURL + `/${args.path}/${args.corpname}`,
-            args.queryArgs,
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
-
+        return (
+            this.useDataStream ?
+                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(multicastRequest, {
+                    contentType: 'application/json',
+                    body: {},
+                    method: HTTP.Method.GET,
+                    tileId,
+                    url: urlJoin(
+                        this.apiURL,
+                        `/${args.path}/${args.corpname}`
+                    ) + '?' + encodeURLParameters(
+                        List.filter(
+                            item => !!item[1],
+                            [
+                                tuple('attr', args.queryArgs.attr),
+                                tuple('flimit', args.queryArgs.flimit),
+                                tuple('matchCase', args.queryArgs.matchCase),
+                                tuple('maxItems', args.queryArgs.maxItems),
+                                tuple('q', args.queryArgs.q),
+                                tuple('subcorpus', args.queryArgs.subcorpus),
+                                tuple('textProperty', args.queryArgs.textProperty),
+                            ]
+                        )
+                    )
+                }) :
+                ajax$<HTTPResponse>(
+                    'GET',
+                    this.apiURL + `/${args.path}/${args.corpname}`,
+                    args.queryArgs,
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true
+                    }
+                )
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 corpname: args.corpname,
@@ -157,6 +186,6 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
                     )
                 })
             )
-        );
+        )
     }
 }

@@ -85,7 +85,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             appServices,
             queryMatches,
             concApi: createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
-            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, conf.useDataStream, appServices, apiOptions),
             mapLoader: new MapLoader(appServices),
             initState: {
                 isBusy: isBusy,
