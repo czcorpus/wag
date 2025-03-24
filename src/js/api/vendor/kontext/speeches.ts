@@ -70,14 +70,14 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
         this.apiServices = apiServices;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
     }
 
-    call(tileId:number, args:SpeechReqArgs):Observable<SpeechResponse> {
+    call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiUrl);
         headers['X-Is-Web-App'] = '1';
         if (args.pos !== undefined) {

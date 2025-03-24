@@ -29,8 +29,8 @@ import { DataApi } from '../types.js';
  * @param args API call arguments
  * @param passThrough
  */
-export const callWithExtraVal = <T, U, V>(api:DataApi<T, U>, tileId:number, args:T, passThrough:V):Observable<[U, V]> => {
-    return api.call(tileId, args).pipe(
+export const callWithExtraVal = <T, U, V>(api:DataApi<T, U>, tileId:number, multicastRequest:boolean, args:T, passThrough:V):Observable<[U, V]> => {
+    return api.call(tileId, multicastRequest, args).pipe(
         map(v => [v, passThrough] as [U, V])
     );
 }

@@ -43,7 +43,7 @@ export interface TranslationAPI<T, U> extends ResourceApi<T, TranslationResponse
 
     stateToPageArgs(state:TranslationsModelState<U>, query:string):U;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 }
 
 

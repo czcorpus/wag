@@ -95,8 +95,8 @@ export class MQueryCollAPI implements CollocationApi<MQueryCollArgs> {
         this.useDataStream = useDataStream;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {corpname, lang});
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
     createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<{}> {
@@ -139,18 +139,22 @@ export class MQueryCollAPI implements CollocationApi<MQueryCollArgs> {
         )
     }
 
-    call(tileId:number, args:MQueryCollArgs):Observable<CollApiResponse> {
-        const eargs = this.prepareArgs(args);
-        return (
-            this.useDataStream ?
-            this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>({
-                tileId,
-                method: HTTP.Method.GET,
-                url: urlJoin(this.apiURL, '/collocations/', args.corpusId) + `?${eargs}`,
-                body: {},
-                contentType: 'application/json',
-            }) :
-            ajax$<HTTPResponse>(
+    private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<HTTPResponse> {
+        if (this.useDataStream) {
+            const eargs = this.prepareArgs(args);
+            return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: urlJoin(this.apiURL, '/collocations/', args.corpusId) + `?${eargs}`,
+                    body: {},
+                    contentType: 'application/json',
+                }
+            );
+
+        } else {
+            return ajax$<HTTPResponse>(
                 'GET',
                 urlJoin(this.apiURL, '/collocations/', args.corpusId),
                 args,
@@ -159,8 +163,11 @@ export class MQueryCollAPI implements CollocationApi<MQueryCollArgs> {
                     withCredentials: true
                 }
             )
+        }
+    }
 
-        ).pipe(
+    call(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<CollApiResponse> {
+        return this.mkRequest(tileId, multicastRequest, args).pipe(
             map(
                 v => ({
                     concId: undefined,

@@ -166,8 +166,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 ),
                             )),
                         ) :
-                        this.loadConcordances(state);
-                this.loadFreqs(conc$, dispatch);
+                        this.loadConcordances(state, true);
+                this.loadFreqs(conc$, true, dispatch);
             }
         );
 
@@ -226,6 +226,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.freqApi.getSourceDescription(this.tileId,
+                        false,
                         this.appServices.getISO639UILang(), action.payload.corpusId)
                     .subscribe({
                         next: data => {
@@ -300,7 +301,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     filename = `${this.downloadLabel}-figure`;
                     ident = `${this.tileId}-download-figure`;
                 }
-                
+
                 domtoimage.toSvg(document.getElementById(ident), {bgcolor: 'white'})
                 .then(function (dataUrl) {
                     var link = document.createElement('a');
@@ -309,10 +310,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     link.click();
                 });
             }
-        ); 
+        );
     }
 
-    private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
+    private loadConcordances(state:MergeCorpFreqModelState, multicastRequest:boolean):Observable<[number, ModelSourceArgs, string]> {
         return rxOf(...state.sources).pipe(
             mergeMap(source => rxOf(...List.map(
                 (v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch],
@@ -321,6 +322,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 callWithExtraVal(
                     this.concApi,
                     this.tileId,
+                    multicastRequest,
                     this.concApi.stateToArgs(
                         {
                             corpname: args.corpname,
@@ -353,7 +355,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         );
     }
 
-    private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
+    private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, multicastRequest:boolean, dispatch:SEDispatcher):void {
         conc$.pipe(
             mergeMap(([queryId, sourceArgs, concId]) => {
                 const auxArgs:SourceQueryProps = {
@@ -364,6 +366,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 return callWithExtraVal(
                     this.freqApi,
                     this.tileId,
+                    multicastRequest,
                     this.freqApi.stateToArgs(sourceArgs, concId),
                     auxArgs
                 );

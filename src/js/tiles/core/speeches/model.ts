@@ -50,6 +50,7 @@ export interface SpeechesModelArgs {
 interface ReloadDataArgs {
     state:SpeechesModelState;
     dispatch:SEDispatcher;
+    multicastRequest:boolean;
     tokens:Array<number>|null;
     concId:string|null;
     kwicNumTokens:number;
@@ -113,19 +114,21 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                                 const payload = action.payload as SingleConcLoadedPayload; // TODO
                                 this.reloadData({
                                     state,
-                                    dispatch,
+                                    multicastRequest: true,
                                     tokens: action.payload.subqueries.map(v => parseInt(v.value)),
                                     concId: payload.data.concPersistenceID,
-                                    kwicNumTokens: payload.data.kwicNumTokens || 1
+                                    kwicNumTokens: payload.data.kwicNumTokens || 1,
+                                    dispatch
                                 });
 
                             } else {
                                 this.reloadData({
                                     state,
-                                    dispatch,
+                                    multicastRequest: true,
                                     tokens: null,
                                     concId: null,
-                                    kwicNumTokens: 1
+                                    kwicNumTokens: 1,
+                                    dispatch
                                 });
                             }
                         }
@@ -135,10 +138,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     // TODO load conc here
                     this.reloadData({
                         state,
-                        dispatch,
+                        multicastRequest: true,
                         tokens: null,
                         concId: null,
-                        kwicNumTokens: 1
+                        kwicNumTokens: 1,
+                        dispatch
                     });
                 }
             }
@@ -222,11 +226,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     }
                     this.reloadData({
                         state,
-                        dispatch,
+                        multicastRequest: false,
                         tokens: null,
                         concId: state.concId,
                         expand: action.payload.position,
-                        kwicNumTokens: state.kwicNumTokens
+                        kwicNumTokens: state.kwicNumTokens,
+                        dispatch
                     });
                 }
             }
@@ -251,11 +256,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     }
                     this.reloadData({
                         state,
-                        dispatch,
+                        multicastRequest: false,
                         tokens: null,
                         concId: state.concId,
                         kwicNumTokens: state.kwicNumTokens,
-                        expand: Expand.RELOAD
+                        expand: Expand.RELOAD,
+                        dispatch
                     });
                 }
             }
@@ -360,7 +366,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload.corpusId)
+                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload.corpusId)
                     .subscribe({
                         next: (data) => {
                             dispatch({
@@ -430,10 +436,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         return args;
     }
 
-    private reloadData({state, dispatch, tokens, concId, expand, kwicNumTokens}:ReloadDataArgs):void {
+    private reloadData({state, tokens, concId, multicastRequest, expand, kwicNumTokens, dispatch}:ReloadDataArgs):void {
         this.api
             .call(
                 this.tileId,
+                multicastRequest,
                 this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand)
 
             ).subscribe({

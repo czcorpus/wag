@@ -105,7 +105,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.getData(state, seDispatch);
+                this.getData(state, true, seDispatch);
             }
         );
         this.addActionHandler<typeof Actions.TileDataLoaded>(
@@ -134,7 +134,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             },
             (state, action, seDispatch) => {
-                this.getData(state, seDispatch);
+                this.getData(state, false, seDispatch);
             }
         );
         this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
@@ -142,7 +142,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.queryDomain, state.corpus).subscribe(
+                    this.api.getSourceDescription(this.tileId, false, this.queryDomain, state.corpus).subscribe(
                         (data) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -168,7 +168,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         );
     }
 
-    getData(state:WordSimModelState, seDispatch:SEDispatcher):void {
+    getData(state:WordSimModelState, multicastRequest:boolean, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<[number, QueryMatch]>) => {
             state.queryMatches.forEach((queryMatch, queryId) => {
                 observer.next(tuple(queryId, queryMatch));
@@ -180,6 +180,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 callWithExtraVal(
                     this.api,
                     this.tileId,
+                    multicastRequest,
                     this.api.stateToArgs(state, queryMatch),
                     queryId
                 ) :

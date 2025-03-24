@@ -84,9 +84,9 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call(tileId, {
+            this.srcInfoApi.call(tileId, multicastRequest, {
                 corpname: corpname,
                 domain: domain,
                 queryType: QueryType.SINGLE_QUERY
@@ -103,7 +103,7 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
             });
     }
 
-    call(tileId:number, queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {
         const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.model +
                 '/' + queryArgs.word + (queryArgs.pos ? '/' + queryArgs.pos : '');
         return ajax$<HTTPResponse>(

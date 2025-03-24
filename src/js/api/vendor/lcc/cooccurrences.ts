@@ -72,7 +72,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: 'Leipzig Corpora Collection',
@@ -85,7 +85,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         });
     }
 
-    call(tileId:number, queryArgs:CollRequestArgs):Observable<CollApiResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:CollRequestArgs):Observable<CollApiResponse> {
         return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL + `/coocurrences/${queryArgs.corpus}/cooccurrences/${queryArgs.word}/`,

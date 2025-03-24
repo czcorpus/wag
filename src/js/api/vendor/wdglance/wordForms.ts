@@ -46,7 +46,7 @@ export class WordFormsWdglanceAPI implements IWordFormsApi {
         this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
     }
 
-    call(tileId:number, args:RequestArgs):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             HTTP.Method.GET,
             this.apiUrl + HTTPAction.WORD_FORMS,
@@ -68,9 +68,9 @@ export class WordFormsWdglanceAPI implements IWordFormsApi {
         );
     }
 
-    getSourceDescription(tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call(tileId, {
+            this.srcInfoApi.call(tileId, multicastRequest, {
                 corpname: corpname,
                 queryType: QueryType.SINGLE_QUERY,
                 domain: domain

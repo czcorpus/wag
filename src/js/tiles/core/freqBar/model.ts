@@ -121,6 +121,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 concatMap(critIdx => callWithExtraVal(
                                         this.api,
                                         this.tileId,
+                                        false,
                                         this.api.stateToArgs(
                                             state,
                                             action.payload.concPersistenceIDs[0],
@@ -219,7 +220,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next:(data) => {
                             dispatch({

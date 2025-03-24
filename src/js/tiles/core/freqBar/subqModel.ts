@@ -170,7 +170,7 @@ export class SubqFreqBarModel extends FreqBarModel {
         critIdx:number
     ):Observable<FreqLoadResult> {
 
-        return this.concApi.call(this.tileId, {
+        return this.concApi.call(this.tileId, false, {
             type: 'concQueryArgs',
             queries: [{
                 corpname: corp,
@@ -213,6 +213,7 @@ export class SubqFreqBarModel extends FreqBarModel {
             concatMap((v:ConcResponse) => callWithExtraVal(
                 this.api,
                 this.tileId,
+                false,
                 this.api.stateToArgs(state, v.concPersistenceID, 0), // in subq-mode we accept only a single crit.
                 phrase
             )),

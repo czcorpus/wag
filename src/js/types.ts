@@ -46,7 +46,7 @@ export enum CorePosAttribute {
  */
 export interface DataApi<T, U> {
 
-    call(tileId:number, queryArgs:T):Observable<U>;
+    call(tileId:number, multicastRequest:boolean, queryArgs:T):Observable<U>;
 }
 
 /**
@@ -55,7 +55,7 @@ export interface DataApi<T, U> {
  */
 export interface ResourceApi<T, U> extends DataApi<T, U> {
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 }
 
 /**

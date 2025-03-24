@@ -113,7 +113,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, args:QueryArgs):Observable<CorpusDetails> {
+    call(tileId:number, multicastRequest:boolean, args:QueryArgs):Observable<CorpusDetails> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/corp_info',

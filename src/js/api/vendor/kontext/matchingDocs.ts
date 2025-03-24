@@ -90,15 +90,15 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
         };
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
     }
 
-    call(tileId:number, args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
-        return this.freqApi.call(tileId, args).pipe(
+    call(tileId:number, multicastRequest:boolean, args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
+        return this.freqApi.call(tileId, multicastRequest, args).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: List.map(
                     v => ({
@@ -128,8 +128,8 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
         };
     }
 
-    call(tileId:number, args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
-        return super.call(tileId, args).pipe(
+    call(tileId:number, multicastRequest:boolean, args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
+        return super.call(tileId, multicastRequest, args).pipe(
             mergeMap(freq =>
                 ajax$<FillHTTPResponse>(
                     HTTP.Method.POST,

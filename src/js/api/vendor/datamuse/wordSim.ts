@@ -69,7 +69,7 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
         return false;
     }
 
-    getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: 'Datamuse.com',
@@ -85,7 +85,7 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
         });
     }
 
-    call(tileId:number, queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
         return ajax$<DatamuseMLApiResponse>(
             'GET',
             this.apiURL,

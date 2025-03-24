@@ -175,15 +175,15 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
         };
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
-        return this.srcInfoApi.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
+        return this.srcInfoApi.call(tileId, false, {
             tileId: tileId,
             uiLang: lang,
             'x-fcs-endpoint-description': 'true' // TODO
         });
     }
 
-	call(tileId:number, args:FCS1Args):Observable<ConcResponse> {
+	call(tileId:number, multicastRequest:boolean, args:FCS1Args):Observable<ConcResponse> {
 		return ajax$(
             HTTP.Method.GET,
             this.url,

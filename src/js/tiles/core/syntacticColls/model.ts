@@ -108,7 +108,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, seDispatch) => {
                 merge(...List.map(qType =>
-                    this.api.call(this.tileId, this.api.stateToArgs(state, qType)),
+                    this.api.call(this.tileId, true, this.api.stateToArgs(state, qType)),
                     state.displayTypes,
                 )).subscribe({
                     next: ([qType, data]) => {
@@ -169,7 +169,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
-                    this.eApi.call(this.tileId, this.eApi.stateToArgs(state, q)).pipe(
+                    this.eApi.call(this.tileId, false, this.eApi.stateToArgs(state, q)).pipe(
                         map(
                             data => ({
                                 ...data,

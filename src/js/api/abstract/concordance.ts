@@ -80,7 +80,7 @@ export interface IConcordanceApi<T> extends ResourceApi<T, ConcResponse> {
 
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch|null, lvarIdx:number, otherLangCql:string|null):T;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 
     mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string;
 

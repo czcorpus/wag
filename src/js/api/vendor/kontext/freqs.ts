@@ -114,7 +114,7 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, args:SingleCritQueryArgs):Observable<HTTPResponse> {
+    call(tileId:number, multicastRequest:boolean, args:SingleCritQueryArgs):Observable<HTTPResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',
@@ -149,8 +149,8 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
@@ -192,7 +192,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         };
     }
 
-    call(tileId:number, args:SingleCritQueryArgs):Observable<APIResponse> {
+    call(tileId:number, multicastRequest:boolean, args:SingleCritQueryArgs):Observable<APIResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(
@@ -252,8 +252,8 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
@@ -294,7 +294,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         };
     }
 
-    call(tileId:number, args:MultiCritQueryArgs):Observable<APIBlockResponse> {
+    call(tileId:number, multicastRequest:boolean, args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + '/freqs',

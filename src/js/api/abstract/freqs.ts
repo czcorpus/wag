@@ -44,9 +44,9 @@ export interface IFreqDistribAPI<T> extends ResourceApi<T, APIResponse> {
 
     stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):T;
 
-    call(tileId:number, args:T):Observable<APIResponse>;
+    call(tileId:number, multicastRequest:boolean, args:T):Observable<APIResponse>;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 
     createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string);
 
@@ -66,11 +66,12 @@ export interface APIBlockResponse {
 
 
 export interface IMultiBlockFreqDistribAPI<T> extends ResourceApi<T, APIBlockResponse> {
+
     stateToArgs(state:MinMultiCritFreqState, concId:string, critIdx?:number, subcname?:string):T;
 
-    call(tileId:number, args:T):Observable<APIBlockResponse>;
+    call(tileId:number, multicastRequest:boolean, args:T):Observable<APIBlockResponse>;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 
     createBacklink(state:MinMultiCritFreqState, backlink:Backlink, concId:string);
 }

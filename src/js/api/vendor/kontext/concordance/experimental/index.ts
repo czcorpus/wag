@@ -66,8 +66,8 @@ export class ConcApiSimplified implements IConcordanceApi<ConcQueryArgs>, WebDel
         }
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
@@ -132,20 +132,23 @@ export class ConcApiSimplified implements IConcordanceApi<ConcQueryArgs>, WebDel
         return tuple(URL.join(this.apiURL, 'query_submit'), 'application/json', args);
     }
 
-    call(tileId:number, args:ConcQueryArgs):Observable<ConcResponse> {
+    call(tileId:number, multicastRequest:boolean, args:ConcQueryArgs):Observable<ConcResponse> {
         const [url, contentType, argsBody] = this.createActionUrl(args);
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return (
             this.useDataStream ?
-            this.apiServices.dataStreaming().registerTileRequest<ConcViewResponse>({
-                tileId,
-                method: HTTP.Method.POST,
-                url,
-                body: argsBody,
-                contentType: 'application/json',
-                base64EncodeResult: false
-            })
+            this.apiServices.dataStreaming().registerTileRequest<ConcViewResponse>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.POST,
+                    url,
+                    body: argsBody,
+                    contentType: 'application/json',
+                    base64EncodeResult: false
+                }
+            )
             : ajax$<ConcViewResponse>(
                 HTTP.Method.POST,
                 url,

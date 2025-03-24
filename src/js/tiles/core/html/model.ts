@@ -92,7 +92,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
         (variant ?
-            this.service.call(this.tileId, this.service.stateToArgs(state, variant)) :
+            this.service.call(this.tileId, true, this.service.stateToArgs(state, variant)) :
             rxOf(null)
 
         ).pipe(

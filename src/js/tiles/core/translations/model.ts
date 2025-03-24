@@ -131,6 +131,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(
                         this.tileId,
+                        false,
                         this.appServices.getISO639UILang(),
                         action.payload['corpusId']
 
@@ -169,7 +170,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private loadData(state:GeneralTranslationsModelState, dispatch:SEDispatcher):void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
-        this.api.call(this.tileId, this.api.stateToArgs(state, srchLemma.lemma))
+        this.api.call(this.tileId, true, this.api.stateToArgs(state, srchLemma.lemma))
             .pipe(
                 map(item => {
                     const colors = this.scaleColorGen(0)

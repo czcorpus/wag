@@ -39,7 +39,7 @@ export class NullConcApi implements IConcordanceApi<NullApiArgs> {
         };
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId,
             title: '',
@@ -60,7 +60,7 @@ export class NullConcApi implements IConcordanceApi<NullApiArgs> {
     }
 
 
-    call(tileId:number, args:NullApiArgs):Observable<ConcResponse> {
+    call(tileId:number, multicastRequest:boolean, args:NullApiArgs):Observable<ConcResponse> {
         return rxOf({
                 query: '',
                 corpName: args.corpusName,

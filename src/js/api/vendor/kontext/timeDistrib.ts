@@ -52,8 +52,8 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
@@ -96,8 +96,8 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
         }
     }
 
-    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return this.freqApi.call(tileId, {
+    call(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return this.freqApi.call(tileId, multicastRequest, {
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
             q: `~${queryArgs.concIdent}`,

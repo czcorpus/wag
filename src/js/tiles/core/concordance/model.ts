@@ -272,7 +272,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.concApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: data => {
                             dispatch({
@@ -378,7 +378,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(data => callWithExtraVal(this.concApi, this.tileId, data.apiArgs, data.queryIdx)),
+            mergeMap(data => callWithExtraVal(this.concApi, this.tileId, false, data.apiArgs, data.queryIdx)),
             tap(
                 ([resp, curr]) => {
                     dispatch<typeof Actions.PartialTileDataLoaded>({

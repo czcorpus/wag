@@ -58,8 +58,8 @@ export interface BacklinkArgs {
 
 
 export interface WordDataApi<T, U, V> {
-    call(tileId:number, queryArgs:T, concId:string, filter:{[attr:string]:string}):Observable<U>;
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails>;
+    call(tileId:number, multicastRequest:boolean, queryArgs:T, concId:string, filter:{[attr:string]:string}):Observable<U>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails>;
     callVariants(args:T, lemma:QueryMatch, concId: string):Observable<V>
 }
 
@@ -77,15 +77,15 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, false, {
             corpname: corpname,
             format: 'json'
         });
     }
 
     callVariants(args:SingleCritQueryArgs, lemma:QueryMatch, concId: string):Observable<APIVariantsResponse> {
-        return this.freqApi.call(undefined, {...args, q: `~${concId}`}).pipe( // TODO undefined tileID
+        return this.freqApi.call(undefined, false, {...args, q: `~${concId}`}).pipe( // TODO undefined tileID
             map<HTTPResponse, APIVariantsResponse>(resp => ({
                 lemma: lemma,
                 fcrit: args.fcrit,
@@ -99,7 +99,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         );
     }
 
-    call(tileId:number, args:SingleCritQueryArgs, concId:string, filter:{[attr:string]:string}):Observable<APILeafResponse> {
+    call(tileId:number, multicastRequest:boolean, args:SingleCritQueryArgs, concId:string, filter:{[attr:string]:string}):Observable<APILeafResponse> {
         const q2 = pipe(
             filter,
             Dict.toEntries(),
@@ -107,7 +107,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
                 ([key, value]) => `<${key.split('.')[0]} ${key.split('.')[1].split(' ')[0]}="${value}"/>`
             )
         ).join(' & ');
-        return this.concApi.call(tileId, {
+        return this.concApi.call(tileId, false, {
             type: 'quickFilterQueryArgs',
             corpname: args.corpname,
             q: `~${concId}`,
@@ -122,7 +122,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
             kwicrightctx: '1',
             format:'json'
         }).pipe(mergeMap(x =>
-            this.freqApi.call(tileId, {...args, q: `~${x.concPersistenceID}`}).pipe(
+            this.freqApi.call(tileId, false, {...args, q: `~${x.concPersistenceID}`}).pipe(
                 map<HTTPResponse, APILeafResponse>(
                     resp => ({
                         filter: filter,

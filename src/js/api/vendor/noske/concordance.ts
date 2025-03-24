@@ -237,7 +237,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         return this.apiURL + '/' + (args.q ? 'view' : 'first');
     }
 
-    call(tileId:number, args:RequestArgs|FilterRequestArgs):Observable<ConcResponse> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs|FilterRequestArgs):Observable<ConcResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.createActionUrl(args),
@@ -264,8 +264,8 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         )
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             struct_attr_stats: 1,
             subcorpora: 1,

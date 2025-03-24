@@ -38,9 +38,9 @@ export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, args:RequestArgs):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest({
+            return this.apiServices.dataStreaming().registerTileRequest(multicastRequest, {
                 body: {},
                 contentType: 'application/json',
                 method: HTTP.Method.GET,

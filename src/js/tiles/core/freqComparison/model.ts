@@ -121,12 +121,13 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                     this.loadFreqs(
                                         this.composeConcordances(state, action.payload.concPersistenceIDs),
                                         state,
+                                        true,
                                         dispatch
                                     );
 
                                 } else {
                                     // if foreign tile response does not send concordances, load as standalone tile
-                                    this.loadFreqs(this.loadConcordances(state), state, dispatch);
+                                    this.loadFreqs(this.loadConcordances(state, true), state, true, dispatch);
                                 }
                                 return null;
                             }
@@ -135,7 +136,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     );
 
                 } else {
-                    this.loadFreqs(this.loadConcordances(state), state, dispatch);
+                    this.loadFreqs(this.loadConcordances(state, true), state, true, dispatch);
                 }
             }
         );
@@ -218,7 +219,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.freqApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
@@ -241,7 +242,13 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         );
     };
 
-    loadConcordances(state:FreqComparisonModelState):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]> {
+    loadConcordances(
+        state:FreqComparisonModelState,
+        multicastRequest:boolean
+    ):Observable<[
+        {concPersistenceID:string},
+        {critId:number; queryId: number; lemma:QueryMatch; concId:string}
+    ]> {
         return new Observable((observer:Observer<{critId:number; queryId:number; lemma:QueryMatch}>) => {
             state.fcrit.forEach((critName, critId) => {
                 this.queryMatches.forEach((lemma, queryId) => {
@@ -254,6 +261,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 callWithExtraVal(
                     this.concApi,
                     this.tileId,
+                    multicastRequest,
                     this.concApi.stateToArgs(
                         {
                             corpname: state.corpname,
@@ -311,6 +319,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     loadFreqs(
         concResp:Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]>,
         state:FreqComparisonModelState,
+        multicastRequest:boolean,
         dispatch:SEDispatcher
     ):void {
         const freqResp = concResp.pipe(
@@ -319,6 +328,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 return callWithExtraVal(
                     this.freqApi,
                     this.tileId,
+                    multicastRequest,
                     this.freqApi.stateToArgs(state, resp.concPersistenceID, args.critId),
                     args
                 )

@@ -85,12 +85,16 @@ export class SydModel extends StatelessModel<SydModelState> {
                 state.result = [];
             },
             (state, action, dispatch) => {
-                this.api.call(this.tileId, stateToArgs(
-                    state,
-                    this.queryMatches[0][0].word, // TODO !!!
-                    pipe(this.queryMatches, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
-                ))
-                .subscribe({
+                this.api.call(
+                    this.tileId,
+                    true,
+                    stateToArgs(
+                        state,
+                        this.queryMatches[0][0].word, // TODO !!!
+                        pipe(this.queryMatches, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
+                    )
+
+                ).subscribe({
                     next: (data) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,

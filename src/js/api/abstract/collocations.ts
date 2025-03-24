@@ -74,6 +74,6 @@ export interface CollocationApi<T> extends ResourceApi<T, CollApiResponse> {
 
     supportsMultiWordQueries():boolean;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 
 }

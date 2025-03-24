@@ -17,7 +17,7 @@
  */
 
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
@@ -166,12 +166,7 @@ export class DataStreaming {
         });
     }
 
-
-    registerTileRequest<T>(entry:TileRequest):Observable<T> {
-        if (!this.rootUrl) {
-            console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
-            return EMPTY;
-        }
+    private prepareTileRequest(entry:TileRequest):TileRequest {
         const updEntry = {...entry};
         if (entry.body && entry.url) {
             if (updEntry.method === HTTP.Method.GET) {
@@ -192,10 +187,95 @@ export class DataStreaming {
         } else if (!entry.url) {
             updEntry.body = '';
         }
-        this.requestSubject.next(updEntry);
-        return this.responseStream.pipe(
-            filter((response:EventItem<T>) => response.tileId === entry.tileId),
-            map(response => response.data as T)
+        return updEntry;
+    }
+
+
+    registerTileRequest<T>(multicastRequest:boolean, entry:TileRequest):Observable<T> {
+        if (!this.rootUrl) {
+            console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
+            return EMPTY;
+        }
+        if (multicastRequest) {
+            this.requestSubject.next(this.prepareTileRequest(entry));
+            return this.responseStream.pipe(
+                filter((response:EventItem<T>) => response.tileId === entry.tileId),
+                map(response => response.data as T)
+            );
+
+        } else {
+            return this.registerExclusiveTileRequest(entry);
+        }
+    }
+
+    private registerExclusiveTileRequest<T>(entry:TileRequest):Observable<T> {
+        const responseStream = rxOf(this.prepareTileRequest(entry)).pipe(
+            concatMap(
+                entry => ajax$<{id:string}>(
+                    HTTP.Method.PUT,
+                    this.rootUrl,
+                    {
+                        requests: [entry]
+                    },
+                    {
+                        contentType: 'application/json'
+                    }
+                ).pipe(
+                    map(
+                        resp => tuple(entry, resp)
+                    )
+                )
+            ),
+            concatMap(
+                ([reqEntry, resp]) => new Observable<EventItem>(
+                    observer => {
+                        const evtSrc = new EventSource(
+                            urlJoin(this.rootUrl, resp.id)
+                        );
+                        evtSrc.addEventListener(`DataTile-${reqEntry.tileId}`, evt => {
+                            if (reqEntry.contentType == 'application/json') {
+                                observer.next({
+                                    data: JSON.parse(evt.data),
+                                    tileId: reqEntry.tileId
+                                });
+
+                            } else if (reqEntry.base64EncodeResult && typeof evt.data === 'string') {
+                                const tmp = atob(evt.data);
+                                observer.next({
+                                    data: tmp,
+                                    tileId: reqEntry.tileId
+                                })
+
+                            } else {
+                                observer.next({
+                                    data: reqEntry.contentType == 'application/json' ?
+                                        JSON.parse(evt.data) : evt.data,
+                                    tileId: reqEntry.tileId
+                                })
+                            }
+                        });
+                        evtSrc.addEventListener('close', () => {
+                            observer.complete();
+                            evtSrc.close();
+                        })
+                        evtSrc.onerror = v => {
+                            console.error(v);
+                            if (evtSrc.readyState === EventSource.CLOSED) {
+                                evtSrc.close();
+                                observer.complete();
+                            }
+                        }
+                    }
+                )
+            ),
+            map(response => response.data as T),
+            share()
         );
+        responseStream.subscribe({
+            error: error => {
+                console.log('response stream error: ', error)
+            }
+        });
+        return responseStream;
     }
 }
