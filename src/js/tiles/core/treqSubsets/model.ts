@@ -150,6 +150,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                         callWithExtraVal(
                             this.api,
                             this.tileId,
+                            true,
                             this.api.stateToArgs(
                                 state,
                                 srchLemma.lemma,
@@ -357,9 +358,9 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
+                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe({
+                        next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -367,14 +368,14 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                 }
                             });
                         },
-                        (error) => {
+                        error: (error) => {
                             console.error(error);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
             }
         );

@@ -23,7 +23,7 @@ import { CoreApiGroup } from '../coreGroups.js';
 import { SimilarFreqWordsAPI as SimilarFreqWordsAPIFrodo } from '../vendor/frodo/similarFreq.js';
 import { SimilarFreqWordsAPI as SimilarFreqWordsAPIWDG } from '../vendor/wdglance/similarFreq.js';
 import { ApiFactoryArgs } from './wordForms.js';
-import { IApiServices } from 'src/js/appServices.js';
+import { IApiServices } from '../../appServices.js';
 import { HTTP } from 'cnc-tskit';
 
 
@@ -38,9 +38,9 @@ export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, args:RequestArgs):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest({
+            return this.apiServices.dataStreaming().registerTileRequest(multicastRequest, {
                 body: {},
                 contentType: 'application/json',
                 method: HTTP.Method.GET,

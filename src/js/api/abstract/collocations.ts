@@ -68,12 +68,12 @@ export interface CollocationApi<T> extends ResourceApi<T, CollApiResponse> {
     /**
      * @param dataSpec is either an ID of an existing concordance or a query
      */
-    stateToArgs(state:CollocModelState, dataSpec:QueryMatch|string):T;
+    stateToArgs(state:CollocModelState, queryMatch:QueryMatch, queryId:string|undefined):T;
 
     supportsLeftRightContext():boolean;
 
     supportsMultiWordQueries():boolean;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 
 }

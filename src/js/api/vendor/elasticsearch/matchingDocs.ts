@@ -79,11 +79,11 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         }
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return null;
     }
 
-    call(tileId:number, args:ElasticsearchQueryArgs):Observable<APIResponse> {
+    call(tileId:number, multicastRequest:boolean, args:ElasticsearchQueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,

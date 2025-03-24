@@ -26,6 +26,7 @@ import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { processConcId } from './common.js';
 import { IApiServices } from '../../../appServices.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 
@@ -82,7 +83,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
+    stateToArgs(state:CollocModelState, queryMatch:QueryMatch, concId:string):CollApiArgs {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return {
             corpname: state.corpname,
@@ -107,8 +108,8 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         return true;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             struct_attr_stats: 1,
             subcorpora: 1,
@@ -116,7 +117,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         });
     }
 
-    call(tileId:number, queryArgs:CollApiArgs):Observable<CollApiResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL + '/collx',

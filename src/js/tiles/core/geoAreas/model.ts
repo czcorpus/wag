@@ -142,12 +142,13 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                     }).pipe(
                                         concatMap(args => this.api.call(
                                             this.tileId,
+                                            true,
                                             this.api.stateToArgs(state, List.head(action.payload.concPersistenceIDs))
                                         ))
                                     ),
                                     state.mapSVG ?
                                         rxOf(null) :
-                                        this.mapLoader.call(this.tileId, 'mapCzech.inline.svg')
+                                        this.mapLoader.call(this.tileId, true, 'mapCzech.inline.svg')
 
                                 ]).subscribe({
                                     next: resp => {
@@ -279,7 +280,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: data => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({

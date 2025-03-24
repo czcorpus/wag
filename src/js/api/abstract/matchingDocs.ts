@@ -37,5 +37,5 @@ export interface MatchingDocsAPI<T> extends ResourceApi<T, APIResponse> {
 
     stateToArgs(state:MatchingDocsModelState, query:string):T;
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 }

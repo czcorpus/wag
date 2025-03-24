@@ -70,7 +70,7 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: 'REST API of the Leipzig Corpora Collection / Projekt Deutscher Wortschatz',
@@ -83,7 +83,7 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
         });
     }
 
-    call(tileId:number, queryArgs:LccCoocSimApiArgs):Observable<WordSimApiResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:LccCoocSimApiArgs):Observable<WordSimApiResponse> {
         return new Observable<string>(observer => {
             try {
                 const url = this.apiURL + `/similarity/${queryArgs.corpus}/coocsim/${queryArgs.word}`;

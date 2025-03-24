@@ -94,11 +94,11 @@ export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest>
         };
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(tileId, {corpname, lang});
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    call(tileId:number, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
+    call(tileId:number, multicastRequest:boolean, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
         const url = this.isScollex ?
         this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}` :
         this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}`
@@ -168,7 +168,7 @@ export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesAp
         };
     }
 
-    call(tileId:number, request:SCERequestArgs):Observable<SCollsExamples> {
+    call(tileId:number, multicastRequest:boolean, request:SCERequestArgs):Observable<SCollsExamples> {
         return ajax$<SCollsExamples>(
             'GET',
             this.apiURL + `/conc-examples/${request.params.corpname}`,

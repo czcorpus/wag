@@ -328,7 +328,7 @@ export class AppServices implements IAppServices {
     }
 
     queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call(tileId, {domain, q, mainPosAttr});
+        return this.lemmaDbApi.call(tileId, false, {domain, q, mainPosAttr});
     }
 
     getISO639UILang():string {

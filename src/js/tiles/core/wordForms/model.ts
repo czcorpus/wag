@@ -248,7 +248,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId,  this.queryDomain, state.corpname).subscribe(
+                    this.api.getSourceDescription(this.tileId, false, this.queryDomain, state.corpname).subscribe(
                         (data) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -270,7 +270,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
     }
 
     private fetchWordForms(args:RequestArgs|RequestConcArgs, dispatch:SEDispatcher):void {
-        this.api.call(this.tileId, args).pipe(
+        this.api.call(this.tileId, true, args).pipe(
             map((v => {
                 const updated = Maths.calcPercentRatios(
                     (item) => item.freq,

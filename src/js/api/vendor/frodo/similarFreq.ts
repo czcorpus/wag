@@ -63,26 +63,28 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
         this.useDataStream = useDataStream;
     }
 
-    call(tileId:number, args:RequestArgs):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         return (
             this.useDataStream ?
-                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>({
-                    contentType: 'application/json',
-                    body: {},
-                    method: HTTP.Method.GET,
-                    tileId,
-                    url: urlJoin(
-                        this.apiURL,
-                        `dictionary/${args.domain}/similarARFWords/${args.word}`
-                    ) + '?' + encodeURLParameters(
-                        [['domain', args.domain],
-                        //['word', args.word],
-                        ['lemma', args.lemma],
-                        ['pos', args.pos.join(' ')],
-                        ['mainPosAttr', args.mainPosAttr],
-                        ['srchRange', args.srchRange]]
-                    )
-                }) :
+                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(multicastRequest,
+                    {
+                        contentType: 'application/json',
+                        body: {},
+                        method: HTTP.Method.GET,
+                        tileId,
+                        url: urlJoin(
+                            this.apiURL,
+                            `dictionary/${args.domain}/similarARFWords/${args.word}`
+                        ) + '?' + encodeURLParameters(
+                            [['domain', args.domain],
+                            //['word', args.word],
+                            ['lemma', args.lemma],
+                            ['pos', args.pos.join(' ')],
+                            ['mainPosAttr', args.mainPosAttr],
+                            ['srchRange', args.srchRange]]
+                        )
+                    }
+                ) :
                 ajax$<HTTPResponse>(
                     'GET',
                     this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,

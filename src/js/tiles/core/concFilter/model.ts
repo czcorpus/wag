@@ -235,7 +235,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(
-                        this.tileId, this.appServices.getISO639UILang(), state.corpName)
+                        this.tileId, false, this.appServices.getISO639UILang(), state.corpName)
                     .subscribe({
                         next: (data) => {
                             dispatch({
@@ -332,6 +332,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 subq => callWithExtraVal(
                     this.api,
                     this.tileId,
+                    false,
                     this.mkConcArgs(state, subq, concId),
                     subq
                 )

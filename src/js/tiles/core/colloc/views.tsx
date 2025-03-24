@@ -112,65 +112,59 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <CollocTile /> -------------------------------------
 
-    class CollocTile extends React.PureComponent<CollocModelState & CoreTileComponentProps> {
+    const CollocTile:React.FC<CollocModelState & CoreTileComponentProps> = (props) => {
 
-        constructor(props) {
-            super(props);
-        }
+        const sortItemIdx = props.heading.findIndex(v => v.ident === props.sortByMetric);
+        const dataTransform = (v:DataRow) => ({
+            text: v.str,
+            value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
+            tooltip: v.stats.map((v, i) => ({label: props.heading[i+1].label,  value: v, round: 3})),
+            interactionId: v.interactionId
+        });
 
-        render() {
-            const sortItemIdx = this.props.heading.findIndex(v => v.ident === this.props.sortByMetric);
-            const dataTransform = (v:DataRow) => ({
-                text: v.str,
-                value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
-                tooltip: v.stats.map((v, i) => ({label: this.props.heading[i+1].label,  value: v, round: 3})),
-                interactionId: v.interactionId
-            });
+        const colorGen = props.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, props.data.length) : (_:number) => theme.scaleColorIndexed();
 
-            const colorGen = this.props.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, this.props.data.length) : (_:number) => theme.scaleColorIndexed();
+        return (
+            <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={props.data.some(data => data !== null && data.length > 0)} sourceIdent={{corp: props.corpname}}
+                    backlink={props.backlinks} supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                {props.isTweakMode ?
+                        <div className="tweak-box"><Controls tileId={props.tileId} value={props.srchRangeType} /></div> :
+                    null
+                }
+                <S.Boxes $isMobile={props.isMobile}>
+                    {List.map((data, index) => {
+                        const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), props.data);
 
-            return (
-                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.some(data => data !== null && data.length > 0)} sourceIdent={{corp: this.props.corpname}}
-                        backlink={this.props.backlinks} supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    {this.props.isTweakMode ?
-                            <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.srchRangeType} /></div> :
-                        null
-                    }
-                    <S.Boxes $isMobile={this.props.isMobile}>
-                        {List.map((data, index) => {
-                            const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), this.props.data);
-
-                            return this.props.isAltViewMode ?
-                                <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.queryMatches[index].word : null} /> :
-                                data ?
-                                    <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
-                                            key={index} widthFract={this.props.widthFract} render={(width:number, height:number) => (
-                                        <S.CollocCloud>
-                                            {this.props.data.length > 1 ?
-                                                <h2>{this.props.queryMatches[index].word}</h2> :
-                                                null
-                                            }
-                                            <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
-                                                    font={theme.infoGraphicsFont}
-                                                    dataTransform={dataTransform}
-                                                    selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
-                                                    colors={colorGen(index)}
-                                                    underlineWords={otherWords} />
-                                        </S.CollocCloud>
-                                    )} /> :
-                                    <globalCompontents.ResponsiveWrapper key={`${index}empty`}
-                                        render={() => data === null ?
-                                            <p>{ut.translate('collocations__processing') + '\u2026'}</p> :
-                                            <p>{ut.translate('collocations__no_data')}</p>} />
-                            },
-                            this.props.data
-                        )}
-                    </S.Boxes>
-                </globalCompontents.TileWrapper>
-            );
-        }
+                        return props.isAltViewMode ?
+                            <TableView key={index} heading={props.heading} data={data} caption={props.data.length > 1 ? props.queryMatches[index].word : null} /> :
+                            data ?
+                                <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                        key={index} widthFract={props.widthFract} render={(width:number, height:number) => (
+                                    <S.CollocCloud>
+                                        {props.data.length > 1 ?
+                                            <h2>{props.queryMatches[index].word}</h2> :
+                                            null
+                                        }
+                                        <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
+                                                font={theme.infoGraphicsFont}
+                                                dataTransform={dataTransform}
+                                                selectedText={props.data.length > 1 ? props.selectedText : null}
+                                                colors={colorGen(index)}
+                                                underlineWords={otherWords} />
+                                    </S.CollocCloud>
+                                )} /> :
+                                <globalCompontents.ResponsiveWrapper key={`${index}empty`}
+                                    render={() => data === null ?
+                                        <p>{ut.translate('collocations__processing') + '\u2026'}</p> :
+                                        <p>{ut.translate('collocations__no_data')}</p>} />
+                        },
+                        props.data
+                    )}
+                </S.Boxes>
+            </globalCompontents.TileWrapper>
+        );
     }
 
     return BoundWithProps<CoreTileComponentProps, CollocModelState>(CollocTile, model);

@@ -202,7 +202,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                             if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
                                 this.loadData(
                                     state,
-                                    dispatch,
+                                    true,
                                     [null],
                                     rxOf<CalcArgs[]>(...List.map(
                                         (lemma, queryId) => {
@@ -212,7 +212,8 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                                                 concId: action.payload.concPersistenceIDs[queryId],
                                             }
                                         },
-                                        this.queryMatches))
+                                        this.queryMatches)),
+                                    dispatch
                                 );
                                 return null;
                             }
@@ -223,7 +224,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                 } else {
                     this.loadData(
                         state,
-                        dispatch,
+                        true,
                         state.subcnames,
                         rxOf<CalcArgs[]>(
                             ...List.map(
@@ -235,7 +236,8 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                                     }
                                 },
                                 this.queryMatches
-                        ))
+                        )),
+                        dispatch
                     );
                 }
             }
@@ -282,6 +284,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                     const [, freqApi] = this.apiFactory.getHighestPriorityValue();
                     freqApi.getSourceDescription(
                         this.tileId,
+                        false,
                         this.appServices.getISO639UILang(),
                         action.payload.corpusId
 
@@ -422,7 +425,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
     }
 
     private loadConcordance(state:MultiWordTimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
-            queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
+            queryId:number, multicastRequest:boolean):Observable<[ConcResponse, DataFetchArgs]> {
         return rxOf<string[]>(...subcnames).pipe(
             mergeMap(
                 subcname => {
@@ -430,6 +433,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                     return callWithExtraVal(
                         concApi,
                         this.tileId,
+                        multicastRequest,
                         concApi.stateToArgs(
                             {
                                 corpname: state.corpname,
@@ -467,7 +471,13 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
         );
     }
 
-    private loadData(state:MultiWordTimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<CalcArgs>):void {
+    private loadData(
+        state:MultiWordTimeDistribModelState,
+        multicastRequest:boolean,
+        subcNames:Array<string>,
+        lemmaVariant:Observable<CalcArgs>,
+        dispatch:SEDispatcher
+    ):void {
         const resp = lemmaVariant.pipe(
             mergeMap(args => {
                  if (args.concId) {
@@ -494,7 +504,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                         }
                     ])
                  } else {
-                    return this.loadConcordance(state, args.lemma, subcNames, args.queryId);
+                    return this.loadConcordance(state, args.lemma, subcNames, args.queryId, multicastRequest);
                  }
             }),
             mergeMap(
@@ -504,6 +514,7 @@ export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistr
                         return callWithExtraVal(
                             args.freqApi,
                             this.tileId,
+                            multicastRequest,
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,

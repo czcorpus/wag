@@ -114,12 +114,13 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                                         state, action.payload.concPersistenceIDs
                                     ),
                                     state,
+                                    true,
                                     dispatch
                                 );
 
                             } else {
                                 // if foreign tile response does not send concordances, load as standalone tile
-                                this.loadTreeData(this.loadConcordances(state), state, dispatch);
+                                this.loadTreeData(this.loadConcordances(state, true), state, true, dispatch);
                                 return null;
                             }
                             return syncData;
@@ -127,7 +128,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     );
 
                 } else {
-                    this.loadTreeData(this.loadConcordances(state), state, dispatch);
+                    this.loadTreeData(this.loadConcordances(state, true), state, true, dispatch);
                 }
             }
         );
@@ -193,7 +194,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.concApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
@@ -216,7 +217,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         );
     }
 
-    loadConcordances(state:FreqTreeModelState):Observable<[ConcResponse, SingleQuerySingleBlockArgs]> {
+    loadConcordances(state:FreqTreeModelState, multicastRequest:boolean):Observable<[ConcResponse, SingleQuerySingleBlockArgs]> {
        return rxOf(...state.lemmaVariants).pipe(
             map(
                 (lv, i) => ({
@@ -228,6 +229,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 callWithExtraVal(
                     this.concApi,
                     this.tileId,
+                    multicastRequest,
                     this.concApi.stateToArgs(
                         {
                             corpname: state.corpname,
@@ -296,7 +298,15 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         })
     }
 
-    loadTreeData(concResp:Observable<[{concPersistenceID:string;}, {blockId:number; queryId:number; lemma:QueryMatch; concId:string;}]> ,state:FreqTreeModelState, dispatch:SEDispatcher):void {
+    loadTreeData(
+        concResp:Observable<[
+            {concPersistenceID:string;},
+            {blockId:number; queryId:number; lemma:QueryMatch; concId:string;}
+        ]>,
+        state:FreqTreeModelState,
+        multicastRequest:boolean,
+        dispatch:SEDispatcher
+    ):void {
         concResp.pipe(
             mergeMap(([resp, args]) => {
                 args.concId = resp.concPersistenceID;
@@ -313,6 +323,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     mergeMap(fcritValue =>
                         this.freqTreeApi.call(
                             this.tileId,
+                            multicastRequest,
                             stateToAPIArgs(state, args.blockId, 1),
                             resp1.concId,
                             {[resp1.fcrit]: fcritValue}

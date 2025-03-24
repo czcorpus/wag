@@ -77,8 +77,8 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {corpname, lang});
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
     createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<{}> {
@@ -111,17 +111,19 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
     // { ..., chunkNum: number, totalChunks: number}
     chunks:Map<number, boolean>;
     */
-    private callViaDataStream(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    private callViaDataStream(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         const args = this.prepareArgs(tileId, queryArgs, true);
-        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>({
-            tileId,
-            method: HTTP.Method.GET,
-            url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`,
-            body: {},
-            contentType: 'application/json',
-            isEventSource: true
-
-        }).pipe(
+        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`,
+                    body: {},
+                    contentType: 'application/json',
+                    isEventSource: true
+                }
+        ).pipe(
             scan<MqueryStreamData, {curr:MqueryStreamData; chunks:Map<number, boolean>}>(
                 (acc, value) => {
                     acc.chunks.set(value.chunkNum, true)
@@ -220,9 +222,9 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         });
     }
 
-    call(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return this.useDataStream ?
-            this.callViaDataStream(tileId, queryArgs) :
+            this.callViaDataStream(tileId, multicastRequest, queryArgs) :
             this.callViaAjAX(tileId, queryArgs);
     }
 }

@@ -18,7 +18,7 @@
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, tap, reduce } from 'rxjs/operators';
-import { List, HTTP } from 'cnc-tskit';
+import { List, HTTP, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
@@ -164,8 +164,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             const payload = action.payload as ConcLoadedPayload;
                             return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], payload.concPersistenceIDs))
                         })
-                    ) : this.loadConcs(state);
-                this.reloadAllData(state, conc$, seDispatch);
+                    ) :
+                    this.loadConcs(state, true);
+                this.reloadAllData(state, conc$, true, seDispatch);
             }
         );
 
@@ -183,45 +184,49 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
-            Actions.PartialTileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.PartialTileDataLoaded,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.concIds[action.payload.queryId] = action.payload.concId;
-                    state.data[action.payload.queryId] = action.payload.data;
-                    state.heading =
-                        [{label: 'Abs', ident: ''}]
-                        .concat(
-                            action.payload.heading
-                                .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
-                                .filter(v => v !== null)
-                        );
-
-                    if (this.backlink?.isAppUrl) {
-                        state.backlinks = [createAppBacklink(this.backlink)];
-                    } else {
-                        state.backlinks.push(this.createBackLink(state, action));
-                    }
+                state.concIds[action.payload.queryId] = action.payload.concId;
+                state.data[action.payload.queryId] = action.payload.data;
+                state.heading = pipe(
+                    [{label: 'Abs', ident: ''}],
+                    List.concat(
+                        pipe(
+                            action.payload.heading,
+                            List.map(
+                                (v, i) => this.measureMap[v.ident] ?
+                                    {label: this.measureMap[v.ident], ident: v.ident} :
+                                    null
+                            ),
+                            List.filter(v => v !== null)
+                        )
+                    )
+                );
+                if (this.backlink?.isAppUrl) {
+                    state.backlinks = [createAppBacklink(this.backlink)];
+                } else {
+                    state.backlinks.push(this.createBackLink(state, action));
                 }
             }
         );
-        this.addActionHandler<typeof Actions.SetSrchContextType>(
-            Actions.SetSrchContextType.name,
+
+        this.addActionSubtypeHandler(
+            Actions.SetSrchContextType,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = true;
-                    state.srchRangeType = action.payload.ctxType;
-                    state.backlinks = [];
-                }
+                state.isBusy = true;
+                state.srchRangeType = action.payload.ctxType;
+                state.backlinks = [];
             },
             (state, action, seDispatch) => {
-                if (action.payload.tileId === this.tileId) {
-                    this.reloadAllData(
-                        state,
-                        rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], state.concIds)),
-                        seDispatch
-                    );
-                }
+                this.reloadAllData(
+                    state,
+                    rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], state.concIds)),
+                    false,
+                    seDispatch
+                );
             }
         );
         this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
@@ -229,7 +234,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.collApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.collApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: (data) => {
                             seDispatch({
@@ -282,12 +287,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
 
 
-    private loadConcs(state:CollocModelState):Observable<FreqRequestArgs> {
+    private loadConcs(state:CollocModelState, multicastRequest:boolean):Observable<FreqRequestArgs> {
         return rxOf(...List.map((v, i) => [i, v] as [number, QueryMatch], state.queryMatches)).pipe(
-            concatMap(([queryId, lemma]) =>
+            concatMap(([queryId, lemmaQM]) =>
                 callWithExtraVal<{}, ConcResponse, [number, QueryMatch]>(
                     this.concApi,
                     this.tileId,
+                    multicastRequest,
                     this.concApi.stateToArgs(
                         {
                             corpname: state.corpname,
@@ -307,11 +313,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             concordances: createInitialLinesData(state.queryMatches.length),
                             posQueryGenerator: state.posQueryGenerator
                         },
-                        lemma,
+                        lemmaQM,
                         queryId,
                         null
                     ),
-                    [queryId, lemma]
+                    [queryId, lemmaQM]
                 )
             ),
             map(([resp, [idx, lemma]]) => [idx, lemma, resp.concPersistenceID])
@@ -319,8 +325,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
 
-    private reloadAllData(state:CollocModelState, reqArgs:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):void {
-        this.loadCollocations(state, reqArgs, seDispatch).subscribe({
+    private reloadAllData(
+        state:CollocModelState,
+        reqArgs:Observable<FreqRequestArgs>,
+        multicastRequest:boolean,
+        seDispatch:SEDispatcher,
+    ):void {
+        this.loadCollocations(state, reqArgs, multicastRequest, seDispatch).subscribe({
             next: (isEmpty) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -344,13 +355,19 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         });
     }
 
-    private loadCollocations(state:CollocModelState, concIds:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):Observable<boolean> {
-        return concIds.pipe(
-            concatMap(([queryId,, concId]) => {
+    private loadCollocations(
+        state:CollocModelState,
+        freqReqs:Observable<FreqRequestArgs>,
+        multicastRequest:boolean,
+        seDispatch:SEDispatcher
+):Observable<boolean> {
+        return freqReqs.pipe(
+            concatMap(([queryId, queryMatch, concId]) => {
                 return callWithExtraVal(
                     this.collApi,
                     this.tileId,
-                    this.collApi.stateToArgs(state, concId),
+                    multicastRequest,
+                    this.collApi.stateToArgs(state, queryMatch, concId),
                     {queryId: queryId}
                 )
             }),

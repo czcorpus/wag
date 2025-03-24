@@ -188,9 +188,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 this.loadData(
                     state,
-                    dispatch,
+                    true,
                     SubchartID.MAIN,
-                    rxOf(findCurrQueryMatch(this.queryMatches[0]))
+                    rxOf(findCurrQueryMatch(this.queryMatches[0])),
+                    dispatch
                 );
             }
         );
@@ -282,7 +283,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 this.loadData(
                     state,
-                    dispatch,
+                    false,
                     SubchartID.SECONDARY,
                     this.appServices.queryLemmaDbApi(
                         this.tileId,
@@ -291,7 +292,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state.mainPosAttr
                     ).pipe(
                         map(v => v.result[0])
-                    )
+                    ),
+                    dispatch
                 );
             }
         );
@@ -302,7 +304,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => state,
             (state, action, dispatch) => {
                 const [, freqApi] = this.apiFactory.getHighestPriorityValue();
-                freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                freqApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload['corpusId'])
                 .subscribe({
                     next: (data) => {
                         dispatch({
@@ -478,8 +480,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         });
     }
 
-    private loadConcordance(state:TimeDistribModelState, queryMatch:QueryMatch, subcnames:Array<string>,
-            target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
+    private loadConcordance(
+        state:TimeDistribModelState,
+        multicastRequest:boolean,
+        queryMatch:QueryMatch,
+        subcnames:Array<string>,
+        target:SubchartID
+    ):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return rxOf(...(subcnames.length > 0 ? subcnames : [undefined])).pipe(
             mergeMap(
                 subcname => {
@@ -487,6 +494,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     return callWithExtraVal(
                         concApi,
                         this.tileId,
+                        multicastRequest,
                         concApi.stateToArgs(
                             {
                                 corpname: state.corpname,
@@ -533,7 +541,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<QueryMatch>):void {
+    private loadData(
+        state:TimeDistribModelState,
+        multicastRequest:boolean,
+        target:SubchartID,
+        lemmaVariant:Observable<QueryMatch>,
+        dispatch:SEDispatcher
+    ):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
             const proc = this.waitForActionWithTimeout(
                 this.waitForTilesTimeoutSecs * 1000,
@@ -574,6 +588,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 concatMap(args => callWithExtraVal(
                     args.freqApi,
                     this.tileId,
+                    multicastRequest,
                     {
                         corpName: args.corpName,
                         subcorpName: args.subcName,
@@ -618,7 +633,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             ]);
 
                         } else {
-                            return this.loadConcordance(state, lv, state.subcnames, target);
+                            return this.loadConcordance(state, multicastRequest, lv, state.subcnames, target);
                         }
 
                     } else {
@@ -654,6 +669,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             return callWithExtraVal(
                                 args.freqApi,
                                 this.tileId,
+                                multicastRequest,
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,
@@ -666,6 +682,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             return callWithExtraVal(
                                 args.freqApi,
                                 this.tileId,
+                                multicastRequest,
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,

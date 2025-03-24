@@ -44,8 +44,8 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    call(tileId:number, args:RequestConcArgs):Observable<Response> {
-        return this.fapi.call(tileId, {
+    call(tileId:number, multicastRequest:boolean, args:RequestConcArgs):Observable<Response> {
+        return this.fapi.call(tileId, multicastRequest, {
             corpname: args.corpName,
             usesubcorp: args.subcorpName,
             q: '~' + args.concPersistenceID,
@@ -74,8 +74,8 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
         );
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });

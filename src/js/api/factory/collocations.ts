@@ -22,9 +22,16 @@ import { CollocationApi } from '../abstract/collocations.js';
 import { LccCollAPI } from '../vendor/lcc/cooccurrences.js';
 import { NoskeCollAPI } from '../vendor/noske/collocations.js';
 import { IApiServices } from '../../appServices.js';
+import { MQueryCollAPI } from '../vendor/mquery/colls.js';
 
 
-export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):CollocationApi<{}> {
+export function createInstance(
+    apiIdent:string,
+    apiURL:string,
+    useDataStream:boolean,
+    apiServices:IApiServices,
+    apiOptions:{}
+):CollocationApi<{}> {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
@@ -33,6 +40,8 @@ export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiS
 			return new KontextCollAPI(apiURL, apiServices);
         case CoreApiGroup.LCC:
             return new LccCollAPI(apiURL, apiServices);
+        case CoreApiGroup.MQUERY:
+            return new MQueryCollAPI(apiURL, useDataStream, apiServices);
         case CoreApiGroup.NOSKE:
             return new NoskeCollAPI(apiURL, apiServices);
 		default:

@@ -57,7 +57,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
         this.corpora = {};
     }
 
-    call(tileId:number, args:QueryArgs):Observable<CorpusDetails> {
+    call(tileId:number, multicastRequest:boolean, args:QueryArgs):Observable<CorpusDetails> {
         return (this.corpora[args.corpname] ?
             rxOf(this.corpora[args.corpname]) :
             ajax$<HTTPResponse>(

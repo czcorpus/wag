@@ -61,7 +61,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, args:QueryArgs):Observable<CorpusDetails> {
+    call(tileId:number, multicastRequest:boolean, args:QueryArgs):Observable<CorpusDetails> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(

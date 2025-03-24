@@ -26,6 +26,7 @@ import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 
@@ -83,7 +84,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
+    stateToArgs(state:CollocModelState, queryMatch:QueryMatch, concId:string):CollApiArgs {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return {
             corpname: state.corpname,
@@ -108,14 +109,14 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
         return true;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoService.call(tileId, false, {
             corpname: corpname,
             format: 'json'
         });
     }
 
-    call(tileId:number, queryArgs:CollApiArgs):Observable<CollApiResponse> {
+    call(tileId:number, multicastRequest:boolean, queryArgs:CollApiArgs):Observable<CollApiResponse> {
         const headers = this.apiServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HttpApiResponse>(

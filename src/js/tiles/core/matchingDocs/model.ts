@@ -149,9 +149,9 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe({
+                        next: (data) => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -160,7 +160,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -171,7 +171,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
                             });
                         }
-                    );
+                    });
                 }
             }
         )
@@ -194,11 +194,11 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                             }
 
                         }).pipe(
-                            concatMap(_ => this.api.call(this.tileId, this.api.stateToArgs(
+                            concatMap(_ => this.api.call(this.tileId, true, this.api.stateToArgs(
                                 state, List.head(action.payload.concPersistenceIDs))))
 
-                        ).subscribe(
-                            (resp) => {
+                        ).subscribe({
+                            next: (resp) => {
                                 dispatch<typeof Actions.TileDataLoaded>({
                                     name: Actions.TileDataLoaded.name,
                                     payload: {
@@ -210,7 +210,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                     }
                                 });
                             },
-                            error => {
+                            error: error => {
                                 dispatch<typeof Actions.TileDataLoaded>({
                                     name: Actions.TileDataLoaded.name,
                                     payload: {
@@ -222,7 +222,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                     error: error
                                 });
                             }
-                        );
+                        });
                         const ans = {...syncStatus, [action.payload.tileId]: false};
                         return Dict.hasValue(true, ans) ? ans : null;
                     }
@@ -232,7 +232,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
         } else {
             const variant = findCurrQueryMatch(this.queryMatches[0]);
-            this.api.call(this.tileId, this.api.stateToArgs(state, variant.word))
+            this.api.call(this.tileId, true, this.api.stateToArgs(state, variant.word))
             .subscribe({
                 next: (resp) => {
                     dispatch<typeof Actions.TileDataLoaded>({

@@ -61,8 +61,8 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
         }
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, {
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
             format: 'json'
         });
@@ -177,7 +177,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
         }
     }
 
-    call(tileId:number, args:ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs):Observable<ConcResponse> {
+    call(tileId:number, multicastRequest:boolean, args:ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs):Observable<ConcResponse> {
         const corpname = args.type === 'concQueryArgs' ? args.queries[0].corpname : args.corpname;
         const [url, contentType, argsBody] = this.createActionUrl(args);
         const headers = this.apiServices.getApiHeaders(this.apiURL);

@@ -44,7 +44,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, args:RequestArgs):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,

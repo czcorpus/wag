@@ -145,7 +145,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         (action, syncData) => {
                             if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
                                 const dataStream = zip(
-                                    this.mapLoader.call(this.tileId, 'mapCzech.inline.svg').pipe(
+                                    this.mapLoader.call(this.tileId, true, 'mapCzech.inline.svg').pipe(
                                         repeat(action.payload.concPersistenceIDs.length)),
                                     rxOf(...List.map(
                                         (concId, queryId) => tuple(queryId, concId),
@@ -155,6 +155,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                         concatMap(([queryId, concId]) => callWithExtraVal(
                                             this.freqApi,
                                             this.tileId,
+                                            true,
                                             this.freqApi.stateToArgs(state, concId),
                                             {
                                                 concId: concId,
@@ -274,9 +275,9 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    this.freqApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe({
+                        next: (data) => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -284,14 +285,14 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                 }
                             });
                         },
-                        (error) => {
+                        error: (error) => {
                             console.error(error);
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -299,12 +300,13 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private getConcordances(state:MultiWordGeoAreasModelState) {
         return zip(
-            this.mapLoader.call(this.tileId, 'mapCzech.inline.svg').pipe(repeat(state.currQueryMatches.length)),
+            this.mapLoader.call(this.tileId, true, 'mapCzech.inline.svg').pipe(repeat(state.currQueryMatches.length)),
             rxOf(...state.currQueryMatches.map((lemma, queryId) => [queryId, lemma] as [number, QueryMatch])[Symbol.iterator]()).pipe(
                 concatMap(([queryId, lemmaVariant]) =>
                     callWithExtraVal(
                         this.concApi,
                         this.tileId,
+                        true,
                         this.concApi.stateToArgs(
                             {
                                 corpname: state.corpname,
@@ -342,6 +344,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     return callWithExtraVal(
                         this.freqApi,
                         this.tileId,
+                        true,
                         this.freqApi.stateToArgs(state, args.concId),
                         args
                     )
@@ -355,8 +358,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         state:MultiWordGeoAreasModelState,
         dispatch:SEDispatcher
     ):void {
-        dataStream.subscribe(
-            ([mapSVG, [resp, args]]) => {
+        dataStream.subscribe({
+            next: ([mapSVG, [resp, args]]) => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
@@ -368,7 +371,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     }
                 });
             },
-            error => {
+            error: error => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
@@ -381,7 +384,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     error: error
                 });
             }
-        );
+        });
 
         dataStream.pipe(
             reduce<[string, [APIResponse, {concId:string; queryId:number;}]], {hasData:boolean, concIds:Array<string>}>(
