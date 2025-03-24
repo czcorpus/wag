@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
+import { List, pipe } from 'cnc-tskit';
+import { posQueryFactory } from '../../../postag.js';
+import { QueryMatch } from '../../../query/index.js';
+
+
 export interface FreqRowResponse {
     word:string;
     freq:number;
@@ -24,3 +29,53 @@ export interface FreqRowResponse {
     collWeight:number;
     coOccScore:number;
 }
+
+export function escapeVal(v:string) {
+    const map = {
+        '"': '\\"',
+        '?': '\\?',
+        '!': '\\!',
+        '.': '\\.',
+        '*': '\\*',
+        '+': '\\+'
+    };
+    return v.replace(/[?"!.*+]/g, match => map[match]);
+}
+
+
+/**
+ * Transform a provided QueryMatch into a valid CQL query.
+ *
+ * a) lemma with a PoS information like e.g.: lemma='foo bar', tag=['A', 'B']
+ * is transformed into: [lemma="foo" & tag="A"] [lemma="bar" & tag="B"].
+ * b) lemma without a PoS information, e.g.: lemma='foo bar'
+ * is transformed into: [lemma="foo"] [lemma="bar"]
+ */
+export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+
+    const fn = posQueryFactory(generator[1]);
+    return pipe(
+        lvar.lemma.split(' '),
+        List.map((lemma, i) => lvar.pos[i] !== undefined ?
+            `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
+            `[lemma="${escapeVal(lemma)}"]`)
+    ).join(' ');
+}
+
+
+export function mkWordMatchQuery(lvar:QueryMatch):string {
+    return List.map(
+        word => `[word="${escapeVal(word)}"]`,
+        lvar.word.split(' ')
+    ).join('');
+}
+
+
+export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+        if (lvar.pos.length > 0) {
+            return mkLemmaMatchQuery(lvar, generator);
+
+        } else if (lvar.word) {
+            return mkWordMatchQuery(lvar);
+        }
+    }

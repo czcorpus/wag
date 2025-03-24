@@ -56,7 +56,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         this.apiServices = apiServices;
     }
 
-    stateToArgs(state:CollocModelState, dataSpec:QueryMatch):CollRequestArgs {
+    stateToArgs(state:CollocModelState, dataSpec:QueryMatch, queryId:string):CollRequestArgs {
         return {
             corpus: state.corpname,
             word: dataSpec.lemma,

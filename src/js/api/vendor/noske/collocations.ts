@@ -26,6 +26,7 @@ import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { processConcId } from './common.js';
 import { IApiServices } from '../../../appServices.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 
@@ -82,7 +83,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
+    stateToArgs(state:CollocModelState, queryMatch:QueryMatch, concId:string):CollApiArgs {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return {
             corpname: state.corpname,

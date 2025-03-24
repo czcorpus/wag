@@ -26,7 +26,7 @@ import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations.js';
 import { createInstance } from '../../../api/factory/collocations.js';
-import { createApiInstance } from '../../../api/factory/concordance.js';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 
@@ -74,7 +74,7 @@ export class CollocationsTile implements ITileProvider {
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles,
         waitForTilesTimeoutSecs, widthFract, conf, isBusy,
-        queryMatches, queryType
+        queryMatches, queryType, useDataStream
     }:TileFactoryArgs<CollocationsTileConf>) {
 
         this.tileId = tileId;
@@ -82,10 +82,21 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")} :
-            {};
-        this.api = createInstance(conf.apiType, conf.apiURL, appServices, apiOptions);
+        const apiOptions = (() => {
+            switch (conf.apiType) {
+            case CoreApiGroup.KONTEXT_API:
+                return {
+                    authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")
+                }
+            case CoreApiGroup.MQUERY:
+                return {
+                    useDummyConcApi: true
+                }
+            default:
+                return {};
+            }
+        })();
+        this.api = createInstance(conf.apiType, conf.apiURL, useDataStream, appServices, apiOptions);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -93,7 +104,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: createApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
+            concApi: createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,

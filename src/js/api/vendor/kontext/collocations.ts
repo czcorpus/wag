@@ -26,6 +26,7 @@ import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 
@@ -83,7 +84,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
+    stateToArgs(state:CollocModelState, queryMatch:QueryMatch, concId:string):CollApiArgs {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return {
             corpname: state.corpname,

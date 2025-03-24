@@ -23,7 +23,7 @@ import { CoreApiGroup } from '../coreGroups.js';
 import { SimilarFreqWordsAPI as SimilarFreqWordsAPIFrodo } from '../vendor/frodo/similarFreq.js';
 import { SimilarFreqWordsAPI as SimilarFreqWordsAPIWDG } from '../vendor/wdglance/similarFreq.js';
 import { ApiFactoryArgs } from './wordForms.js';
-import { IApiServices } from 'src/js/appServices.js';
+import { IApiServices } from '../../appServices.js';
 import { HTTP } from 'cnc-tskit';
 
 

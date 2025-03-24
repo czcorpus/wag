@@ -18,7 +18,7 @@
 
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { EMPTY, Observable, Subject } from 'rxjs';
-import { concatMap, filter, first, map, scan, share, tap } from 'rxjs/operators';
+import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
 
@@ -89,6 +89,7 @@ export class DataStreaming {
                     return true
                 }
             ),
+            timeout(30000),
             concatMap(
                 tileReqMap => ajax$<{id:string}>(
                     HTTP.Method.PUT,

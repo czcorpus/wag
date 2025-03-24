@@ -25,6 +25,7 @@ import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain.js';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups.js';
 import { IApiServices, IAppServices } from '../../appServices.js';
 import { ConcApiSimplified } from '../vendor/kontext/concordance/experimental/index.js';
+import { NullConcApi } from '../vendor/mquery/concordance.js';
 
 
 export function createKontextConcApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {
@@ -55,6 +56,13 @@ export function createApiInstance(
 			return createKontextConcApiInstance(apiIdent, apiURL, apiServices, apiOptions);
 		case CoreApiGroup.KONTEXT_API_EXPERIMENTAL:
 			return new ConcApiSimplified(apiURL, useDataStream, apiServices);
+		case CoreApiGroup.MQUERY:
+			if (apiOptions['useDummyConcApi']) {
+				return new NullConcApi();
+
+			} else {
+				throw new Error('mquery concordance API is not available yet');
+			}
 		case CoreApiGroup.NOSKE:
 			return new NoskeConcApi(apiURL, apiServices);
 		case CoreApiGroup.LCC:
