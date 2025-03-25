@@ -124,7 +124,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             appServices,
             concApi: conf.apiType === CoreApiGroup.MQUERY ? null :
                      createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
-            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, conf.useDataStream, appServices, apiOptions),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,

@@ -36,7 +36,7 @@ export function createSimpleFreqApiInstance(apiIdent:string, apiURL:string, apiS
 }
 
 
-export function createApiInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IFreqDistribAPI<{}> {
+export function createApiInstance(apiIdent:string, apiURL:string, useDataStream:boolean, apiServices:IApiServices, apiOptions:{}):IFreqDistribAPI<{}> {
     switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
             return new KontextFreqDistribAPI(apiURL, apiServices);
@@ -45,7 +45,7 @@ export function createApiInstance(apiIdent:string, apiURL:string, apiServices:IA
         case CoreApiGroup.NOSKE:
             return new NoskeFreqDistribAPI(apiURL, apiServices);
         case CoreApiGroup.MQUERY:
-            return new MQueryFreqDistribAPI(apiURL, apiServices);
+            return new MQueryFreqDistribAPI(apiURL, apiServices, useDataStream);
         default:
             throw new Error(`Freq API ${apiIdent} not implemented`);
     }

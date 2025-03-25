@@ -81,7 +81,7 @@ export class GeoAreasTile implements ITileProvider {
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
-            api: createFreqApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            api: createFreqApiInstance(conf.apiType, conf.apiURL, conf.useDataStream, appServices, apiOptions),
             mapLoader: new MapLoader(appServices),
             initState: {
                 isBusy: isBusy,
