@@ -19,15 +19,16 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader,
+    TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MergeFreqsApi } from './api.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -35,6 +36,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
     apiType:string;
     pixelsPerCategory?:number;
     downloadLabel?:string;
+    posQueryGenerator:[string, string];
     sources:Array<{
 
         corpname:string;
@@ -122,9 +124,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            concApi: conf.apiType === CoreApiGroup.MQUERY ? null :
-                     createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
-            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, conf.useDataStream, appServices, apiOptions),
+            freqApi: new MergeFreqsApi(conf.apiURL, conf.useDataStream, appServices, apiOptions),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
@@ -148,7 +148,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                         backlinkTpl: src.backlink || null,
                         backlink: null,
                         isSingleCategory: !!src.isSingleCategory,
-                        uniqueColor: !!src.uniqueColor
+                        uniqueColor: !!src.uniqueColor,
+                        posQueryGenerator: conf.posQueryGenerator
                     }),
                     conf.sources
                 ),
@@ -230,5 +231,10 @@ export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
     sanityCheck: (args) => [],
 
-    create: (args) => new MergeCorpFreqTile(args)
+    create: (args) => {
+        if (!List.empty(args.waitForTiles)) {
+            throw new Error('MergeCorpFreqModel does not support waitForTiles argument');
+        }
+        return new MergeCorpFreqTile(args);
+    }
 };

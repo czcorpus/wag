@@ -23,12 +23,12 @@ import { QueryType } from '../../../query/index.js';
 import { CollocMetric } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations.js';
-import { createInstance } from '../../../api/factory/collocations.js';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryCollAPI } from 'src/js/api/vendor/mquery/colls.js';
 
 
 
@@ -96,7 +96,7 @@ export class CollocationsTile implements ITileProvider {
                 return {};
             }
         })();
-        this.api = createInstance(conf.apiType, conf.apiURL, useDataStream, appServices, apiOptions);
+        this.api = new MQueryCollAPI(conf.apiURL, useDataStream, appServices);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -104,7 +104,6 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,

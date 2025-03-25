@@ -1,6 +1,6 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2019 Institute of the Czech National Corpus,
+ * Copyright 2025 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2025 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { Observable, of as rxOf } from 'rxjs';
 import { Ident, HTTP } from 'cnc-tskit';
 
 import { ajax$ } from '../../../page/ajax.js';
-import { SourceDetails } from '../../../types.js';
-import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim.js';
+import { ResourceApi, SourceDetails } from '../../../types.js';
 import { map, catchError } from 'rxjs/operators';
 import { WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { AjaxError } from 'rxjs/ajax';
-import { QueryMatch, QueryType } from '../../../query/index.js';
-import { InternalResourceInfoApi } from './freqDbSourceInfo.js';
+import { QueryMatch, QueryType, RangeRelatedSubqueryValue, SubqueryPayload } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
+import { InternalResourceInfoApi } from 'src/js/api/vendor/wdglance/freqDbSourceInfo.js';
 
+
+export type WordSimSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
+
+
+export interface WordSimWord {
+    word:string;
+    score:number;
+    interactionId?:string;
+}
+
+export interface WordSimApiResponse {
+    words:Array<WordSimWord>;
+}
 
 export interface CNCWord2VecSimApiArgs {
     corpus:string;
@@ -47,7 +60,7 @@ type HTTPResponse = Array<{
  * This is a client for CNC's Word-Sim-Service (https://is.korpus.cz/git/machalek/word-sim-service)
  * which is just a glue for http server and word2vec handling libraries.
  */
-export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
+export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, WordSimApiResponse> {
 
     private readonly apiURL:string;
 

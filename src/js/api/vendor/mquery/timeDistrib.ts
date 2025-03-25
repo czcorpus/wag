@@ -16,14 +16,66 @@
  * limitations under the License.
  */
 
-import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib.js';
 import { map, Observable, scan, takeWhile } from 'rxjs';
-import { CorpusDetails } from '../../../types.js';
+import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
+import { QueryMatch } from 'src/js/query/index.js';
+
+
+
+
+export interface TimeDistribArgs {
+
+    corpName:string;
+
+    subcorpName?:string;
+
+    fromYear?:string;
+
+    toYear?:string;
+
+    /**
+     * This can be either a CQL-ish query or a concordance persistence ID
+     */
+    concIdent:string;
+}
+
+export type CustomArgs = {[k:string]:string};
+
+/**
+ *
+ */
+export interface TimeDistribItem {
+
+    datetime:string;
+
+    /**
+     * Absolute frequency
+     */
+    freq:number;
+
+    /**
+     * Size of a respective (sub)corpus in tokens
+     */
+    norm:number;
+}
+
+/**
+ *
+ */
+export interface TimeDistribResponse {
+    corpName:string;
+    subcorpName?:string;
+    concPersistenceID?:string;
+    data:Array<TimeDistribItem>;
+    overwritePrevious?:boolean;
+}
+
+
 
 export interface MqueryStreamData {
     chunkNum:number;
@@ -57,7 +109,7 @@ function getChunkYearRange(items:Array<FreqRowResponse>):[number, number] {
  * This is the main TimeDistrib API for KonText. It should work in any
  * case.
  */
-export class MQueryTimeDistribStreamApi implements TimeDistribApi {
+export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, TimeDistribResponse> {
 
     private readonly apiURL:string;
 
@@ -81,7 +133,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<{}> {
+    createBackLink(backlink:Backlink, corpname:string, queryMatch:QueryMatch):BacklinkWithArgs<{}> {
         return null
     }
 

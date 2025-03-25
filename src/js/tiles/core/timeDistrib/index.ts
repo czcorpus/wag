@@ -18,16 +18,13 @@
 import { IActionDispatcher } from 'kombo';
 import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
 
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as viewInit } from './view.js';
 import { TileWait } from '../../../models/tileSync.js';
-import { PriorityValueFactory } from '../../../priority.js';
-import { IConcordanceApi } from '../../../api/abstract/concordance.js';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 
@@ -73,39 +70,6 @@ export class TimeDistTile implements ITileProvider {
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
 
-        const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
-        const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
-            {};
-
-        pipe(
-            apiUrlList,
-            List.forEach(
-                (url, i) => apiFactory.addInstance(
-                    i,
-                    tuple(
-                        conf.apiType === CoreApiGroup.MQUERY ? null :
-                        createConcApiInstance(
-                            conf.apiType,
-                            url,
-                            false,
-                            appServices,
-                            apiOptions,
-                        ),
-                        createFreqApiInstance(
-                            conf.apiType,
-                            url,
-                            useDataStream,
-                            appServices,
-                            conf.customApiArgs,
-                            apiOptions,
-                        )
-                    )
-                )
-            )
-        );
-
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
             initState: {
@@ -135,7 +99,6 @@ export class TimeDistTile implements ITileProvider {
             tileId: tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
-            apiFactory,
             appServices: appServices,
             queryMatches,
             queryDomain: domain1,

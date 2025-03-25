@@ -18,9 +18,8 @@
 
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model.js';
+import { MergeCorpFreqModel } from './model.js';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer } from 'recharts';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
@@ -29,6 +28,7 @@ import { List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions.js';
 
 import * as S from './style.js';
+import { MergeCorpFreqModelState, SourceMappedDataRow } from './common.js';
 
 const CHART_LABEL_MAX_LEN = 20;
 

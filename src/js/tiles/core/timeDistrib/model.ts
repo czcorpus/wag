@@ -15,27 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, Action, IActionDispatcher } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
+import { map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
-import { TimeDistribResponse, TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { ConcLoadedPayload } from '../concordance/actions.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
-import { callWithExtraVal } from '../../../api/util.js';
 import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
-import { TileWait } from '../../../models/tileSync.js';
-import { PriorityValueFactory } from '../../../priority.js';
-import { DataRow } from '../../../api/abstract/freqs.js';
-import { isWebDelegateApi } from '../../../types.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
+import { MQueryTimeDistribStreamApi, TimeDistribResponse } from 'src/js/api/vendor/mquery/timeDistrib.js';
 
 
 export enum FreqFilterQuantity {
@@ -84,7 +77,7 @@ export interface TimeDistribModelState {
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 
-const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
+const calcIPM = (v:DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
 
 
 interface DataFetchArgsOwn {
@@ -93,24 +86,15 @@ interface DataFetchArgsOwn {
     targetId:SubchartID;
     concId:string;
     origQuery:string;
-    freqApi:TimeDistribApi;
-}
-
-interface DataFetchArgsForeignConc {
-    subcName:string;
-    wordMainLabel:string;
-    targetId:SubchartID;
-    concId:string;
-    freqApi:TimeDistribApi;
 }
 
 export interface TimeDistribModelArgs {
     dispatcher:IActionDispatcher;
     initState:TimeDistribModelState;
     tileId:number;
+    api:MQueryTimeDistribStreamApi;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
-    apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -137,8 +121,6 @@ function dateToSortNumber(s:string):number {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
-    private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
-
     private readonly appServices:IAppServices;
 
     private readonly tileId:number;
@@ -153,14 +135,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
+    private readonly api:MQueryTimeDistribStreamApi;
+
 
     constructor({
         dispatcher,
         initState,
         tileId,
+        api,
         waitForTile,
         waitForTilesTimeoutSecs,
-        apiFactory,
         appServices,
         queryMatches,
         queryDomain,
@@ -168,13 +152,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.apiFactory = apiFactory;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.backlink = backlink;
+        this.api = api;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -303,9 +287,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.tileId === this.tileId,
             (state, action) => state,
             (state, action, dispatch) => {
-                const [, freqApi] = this.apiFactory.getHighestPriorityValue();
-                freqApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                .subscribe({
+                this.api.getSourceDescription(
+                    this.tileId, false, this.appServices.getISO639UILang(), action.payload['corpusId']
+
+                ).subscribe({
                     next: (data) => {
                         dispatch({
                             name: GlobalActions.GetSourceInfoDone.name,
@@ -410,7 +395,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private getFreqs(
         state:TimeDistribModelState,
-        response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>,
+        response:Observable<[TimeDistribResponse, DataFetchArgsOwn]>,
         seDispatch:SEDispatcher
     ) {
         response.pipe(
@@ -427,9 +412,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         tileId: this.tileId,
                         concId: args.concId,
                         overwritePrevious: resp.overwritePrevious,
-                        backlink: isWebDelegateApi(args.freqApi) ?
-                            args.freqApi.createBackLink(args.freqApi.getBackLink(this.backlink), resp.corpName, args.concId) :
-                            args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
+                        backlink: this.api.createBackLink(
+                            state.backlinks[0],
+                            state.corpname,
+                            findCurrQueryMatch(this.queryMatches[0])
+                        )
                     };
                     if (ans.backlink && Dict.hasKey(args.subcName, state.subcBacklinkLabel)) {
                         ans.backlink.label = state.subcBacklinkLabel[args.subcName];
@@ -480,67 +467,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         });
     }
 
-    private loadConcordance(
-        state:TimeDistribModelState,
-        multicastRequest:boolean,
-        queryMatch:QueryMatch,
-        subcnames:Array<string>,
-        target:SubchartID
-    ):Observable<[ConcResponse, DataFetchArgsOwn]> {
-        return rxOf(...(subcnames.length > 0 ? subcnames : [undefined])).pipe(
-            mergeMap(
-                subcname => {
-                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
-                    return callWithExtraVal(
-                        concApi,
-                        this.tileId,
-                        multicastRequest,
-                        concApi.stateToArgs(
-                            {
-                                corpname: state.corpname,
-                                otherCorpname: undefined,
-                                subcname: subcname,
-                                subcDesc: null,
-                                kwicLeftCtx: -1,
-                                kwicRightCtx: 1,
-                                pageSize: 10,
-                                concordances: [{
-                                    concsize: -1,
-                                    numPages: -1,
-                                    resultARF: -1,
-                                    resultIPM: -1,
-                                    currPage: 1,
-                                    loadPage: 1,
-                                    concId: null,
-                                    lines: []
-                                }],
-                                shuffle: false,
-                                attr_vmode: 'mouseover',
-                                viewMode: ViewMode.KWIC,
-                                tileId: this.tileId,
-                                attrs: ['word'],
-                                metadataAttrs: [],
-                                posQueryGenerator: state.posQueryGenerator,
-                                queries: []
-                            },
-                            queryMatch,
-                            0,
-                            null
-                        ),
-                        {
-                            concId: null,
-                            subcName: subcname,
-                            wordMainLabel: queryMatch.pos.length > 0 ? queryMatch.lemma : queryMatch.word,
-                            targetId: target,
-                            origQuery: concApi.mkMatchQuery(queryMatch, state.posQueryGenerator),
-                            freqApi
-                        }
-                    )
-                }
-            )
-        );
-    }
-
     private loadData(
         state:TimeDistribModelState,
         multicastRequest:boolean,
@@ -548,166 +474,42 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         lemmaVariant:Observable<QueryMatch>,
         dispatch:SEDispatcher
     ):void {
-        if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
-            const proc = this.waitForActionWithTimeout(
-                this.waitForTilesTimeoutSecs * 1000,
-                TileWait.create([this.waitForTile], () => false),
-                (action:Action<{tileId:number}>, syncData) => {
-                    if (action.name === GlobalActions.TileDataLoaded.name && syncData.tileIsRegistered(action.payload.tileId)) {
-                        syncData.setTileDone(action.payload.tileId, true);
-                    }
-                    return syncData.next(() => true);
 
-                }
-            ).pipe(
-                concatMap(
-                    action => {
-                        const payload = action.payload as ConcLoadedPayload;
-                        return lemmaVariant.pipe(
-                            map(v => {
-                                const ans:[QueryMatch, string, string, string] = [
-                                    v, payload.concPersistenceIDs[0], payload.corpusName, payload.subcorpusName];
-                                return ans;
-                            })
-                        );
-                    },
-                ),
-                map(
-                    ([lv, concId, corpusName, subcorpName]) => {
-                        const [,freqApi] = this.apiFactory.getRandomValue();
-                        return {
-                            concId: concId,
-                            corpName: corpusName,
-                            subcName: subcorpName,
+        const data = lemmaVariant.pipe(
+            mergeMap((lv:QueryMatch) => {
+                if (lv && lv.abs > 0) {
+                    const query = pipe(
+                        lv.lemma.split(' '),
+                        List.map(v => `[lemma="${v}"]`),
+                        v => v.join(' ')
+                    );
+                    return rxOf<DataFetchArgsOwn>(
+                        {
+                            concId: null,
+                            subcName: state.subcnames[0],
                             wordMainLabel: lv.lemma,
                             targetId: target,
-                            freqApi
-                        };
-                    }
-                ),
-                concatMap(args => callWithExtraVal(
-                    args.freqApi,
-                    this.tileId,
-                    multicastRequest,
-                    {
-                        corpName: args.corpName,
-                        subcorpName: args.subcName,
-                        concIdent: args.concId
-                    },
-                    args
-                ))
-            );
-            this.getFreqs(state, proc, dispatch);
-
-        } else { // here we must create our own concordance(s) if needed
-            const data = lemmaVariant.pipe(
-                mergeMap((lv:QueryMatch) => {
-                    if (lv && lv.abs > 0) {
-                        const [concApi, freqApi] = this.apiFactory.getRandomValue();
-                        if (concApi === null) {
-                            const query = pipe(
-                                lv.lemma.split(' '),
-                                List.map(v => `[lemma="${v}"]`),
-                                v => v.join(' ')
-                            );
-                            return rxOf<[ConcResponse, DataFetchArgsOwn]>([
-                                {
-                                    query,
-                                    corpName: state.corpname,
-                                    subcorpName: state.subcnames[0],
-                                    lines: [],
-                                    concsize: 0,
-                                    arf: 0,
-                                    ipm: 0,
-                                    messages: [],
-                                    concPersistenceID: null
-                                },
-                                {
-                                    concId: null,
-                                    subcName: state.subcnames[0],
-                                    wordMainLabel: lv.lemma,
-                                    targetId: target,
-                                    origQuery: query,
-                                    freqApi
-                                }
-                            ]);
-
-                        } else {
-                            return this.loadConcordance(state, multicastRequest, lv, state.subcnames, target);
+                            origQuery: query
                         }
+                    );
+                }
+            }),
+            mergeMap(
+                (args) => {
+                    return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
+                        {
+                            corpName: state.corpname,
+                            subcorpName: args.subcName,
+                            concPersistenceID: null,
+                            data: []
+                        },
+                        args
+                    ]);
+                }
+            )
+        );
 
-                    } else {
-                        const [,freqApi] = this.apiFactory.getRandomValue();
-                        return rxOf<[ConcResponse, DataFetchArgsOwn]>([
-                            {
-                                query: '',
-                                corpName: state.corpname,
-                                subcorpName: state.subcnames[0],
-                                lines: [],
-                                concsize: 0,
-                                arf: 0,
-                                ipm: 0,
-                                messages: [],
-                                concPersistenceID: null
-                            },
-                            {
-                                concId: null,
-                                subcName: state.subcnames[0],
-                                wordMainLabel: '',
-                                targetId: target,
-                                origQuery: '',
-                                freqApi
-                            }
-                        ]);
-                    }
-                }),
-                mergeMap(
-                    (data) => {
-                        const [concResp, args] = data;
-                        args.concId = concResp.concPersistenceID;
-                        if (args.concId) {
-                            return callWithExtraVal(
-                                args.freqApi,
-                                this.tileId,
-                                multicastRequest,
-                                {
-                                    corpName: state.corpname,
-                                    subcorpName: args.subcName,
-                                    concIdent: args.concId
-                                },
-                                args
-                            );
-
-                        } else if (concResp.query) {
-                            return callWithExtraVal(
-                                args.freqApi,
-                                this.tileId,
-                                multicastRequest,
-                                {
-                                    corpName: state.corpname,
-                                    subcorpName: args.subcName,
-                                    concIdent: concResp.query
-                                },
-                                args
-                            );
-
-                        } else {
-                            return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
-                                {
-                                    corpName: state.corpname,
-                                    subcorpName: args.subcName,
-                                    concPersistenceID: null,
-                                    data: []
-                                },
-                                args
-                            ]);
-                        }
-                    }
-                )
-            );
-
-            this.getFreqs(state, data, dispatch);
-        }
+        this.getFreqs(state, data, dispatch);
     }
 
 }

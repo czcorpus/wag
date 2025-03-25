@@ -17,15 +17,16 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON,
+    ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
 import { QueryType } from '../../../query/index.js';
 import { OperationMode } from '../../../models/tiles/wordSim.js';
-import { IWordSimApi } from '../../../api/abstract/wordSim.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { createApiInstance } from '../../../api/factory/wordSim.js';
+import { WordFormsAPI } from 'src/js/api/vendor/mquery/wordForms.js';
+import { CNCWord2VecSimApi } from './api.js';
 
 
 export interface WordSimTileConf extends TileConf {
@@ -62,7 +63,7 @@ export class WordSimTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly api:IWordSimApi<{}>;
+    private readonly api:CNCWord2VecSimApi;
 
     constructor({
         tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
@@ -74,7 +75,7 @@ export class WordSimTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
-        this.api = createApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices);
+        this.api = new CNCWord2VecSimApi(conf.apiURL, conf.srcInfoURL, appServices);
         this.model = new WordSimModel({
             appServices,
             dispatcher,

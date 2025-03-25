@@ -33,9 +33,9 @@ export interface MinSingleCritFreqState {
     flimit:number;
     freqSort:string;
     fpage:number;
+    posQueryGenerator:[string, string];
     fttIncludeEmpty?:boolean;
     fmaxitems?:number;
-    concId?:string;
 }
 
 export interface MinMultiCritFreqState {

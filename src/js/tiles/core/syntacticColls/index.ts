@@ -22,7 +22,6 @@ import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { createInstance } from '../../../api/factory/syntacticColls.js';
 import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
 
 

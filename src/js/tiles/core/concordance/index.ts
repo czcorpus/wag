@@ -19,17 +19,17 @@
 import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
 
 import { LocalizedConfMsg } from '../../../types.js';
 import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { createApiInstance } from '../../../api/factory/concordance.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
 import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryConcApi } from 'src/js/api/vendor/mquery/concordance.js';
+import { ViewMode } from 'src/js/api/vendor/mquery/common.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
@@ -43,7 +43,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
 }
 
-function determineViewMode(conf:ConcordanceTileConf, api:IConcordanceApi<{}>):ViewMode {
+function determineViewMode(conf:ConcordanceTileConf, api:MQueryConcApi):ViewMode {
     if (conf.parallelLangMapping) {
         if (api.getSupportedViewModes().indexOf(ViewMode.SENT) === -1) {
             throw new Error(`The ${api} does not support aligned concordances`);
@@ -87,8 +87,7 @@ export class ConcordanceTile implements ITileProvider {
         const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} :
             {};
-        const api = createApiInstance(
-            conf.apiType, conf.apiURL, useDataStream, appServices, apiOptions);
+        const api = new MQueryConcApi(conf.apiURL, useDataStream, appServices, apiOptions);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,

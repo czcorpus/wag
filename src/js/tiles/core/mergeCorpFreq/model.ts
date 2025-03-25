@@ -17,44 +17,20 @@
  */
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
-import { mergeMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import * as domtoimage from 'dom-to-image-more';
 
 import { IAppServices } from '../../../appServices.js';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
-import { callWithExtraVal } from '../../../api/util.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { QueryMatch } from '../../../query/index.js';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
-import { ModelSourceArgs } from './common.js';
-import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
-import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs.js';
+import { MergeCorpFreqModelState } from './common.js';
 import { Actions } from './actions.js';
-import { TooltipValues } from '../../../views/common/index.js';
-import { Actions as ConcActions } from '../concordance/actions.js';
 import { isWebDelegateApi } from '../../../types.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink, createAppBacklink } from '../../../page/tile.js';
+import { MergeFreqsApi } from './api.js';
 
 
-export interface MergeCorpFreqModelState {
-    isBusy:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    data:Array<Array<SourceMappedDataRow>>;
-    sources:Array<ModelSourceArgs>;
-    pixelsPerCategory:number;
-    queryMatches:Array<QueryMatch>;
-    tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
-    appBacklink:BacklinkWithArgs<{}>;
-}
 
-interface SourceQueryProps {
-    sourceArgs:ModelSourceArgs;
-    queryId:number;
-    concId:string;
-}
 
 
 export interface MergeCorpFreqModelArgs {
@@ -63,8 +39,7 @@ export interface MergeCorpFreqModelArgs {
     waitForTiles:Array<number>;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    concApi:IConcordanceApi<{}>;
-    freqApi:IFreqDistribAPI<{}>;
+    freqApi:MergeFreqsApi;
     initState:MergeCorpFreqModelState;
     backlink:Backlink;
     downloadLabel:string;
@@ -76,26 +51,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly tileId:number;
 
-    private readonly concApi:IConcordanceApi<{}>;
-
-    private readonly freqApi:IFreqDistribAPI<{}>;
-
-    private readonly waitForTiles:Array<number>;
-
-    private readonly waitForTilesTimeoutSecs:number;
+    private readonly freqApi:MergeFreqsApi;
 
     private readonly backlink:Backlink;
 
     private readonly downloadLabel:string;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices,
-                concApi, freqApi, initState, backlink, downloadLabel}:MergeCorpFreqModelArgs) {
+    constructor({
+        dispatcher, tileId, appServices, freqApi, initState, backlink, downloadLabel,
+    }:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
-        this.waitForTiles = waitForTiles;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
-        this.concApi = concApi;
         this.freqApi = freqApi;
         this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
@@ -125,49 +92,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const conc$ = this.waitForTiles.length > 0 ?
-                    this.waitForActionWithTimeout(
-                        this.waitForTilesTimeoutSecs * 1000,
-                        pipe(
-                            this.waitForTiles,
-                            List.map<number, [string, number]>(v => [v.toFixed(), 0]),
-                            Dict.fromEntries()
-                        ),
-                        (action, syncData) => {
-                            if (ConcActions.isPartialTileDataLoaded(action) && this.waitForTiles.indexOf(action.payload.tileId) > -1) {
-                                const ans = {...syncData};
-                                ans[action.payload['tileId'].toFixed()] += 1;
-                                return Dict.find(v => v < state.queryMatches.length, ans) ? ans : null;
-                            }
-                            return syncData;
-
-                        }
-                    ).pipe(
-                        map(action => {
-                            if (ConcActions.isPartialTileDataLoaded(action)) {
-                                const src = List.find(
-                                    v => v.corpname === action.payload.data.corpName &&
-                                            (!v.subcname || v.subcname === action.payload.data.subcorpName),
-                                    state.sources
-                                );
-                                return tuple(action.payload.queryId, src, action.payload.data.concPersistenceID)
-
-                            } else {
-                                throw new Error(`Invalid action: ${action.name}`);
-                            }
-                        })
-                    ) :
-                    this.concApi === null ?
-                        rxOf(...state.sources).pipe(
-                            mergeMap(source => rxOf(
-                                ...List.map(
-                                    (v, i) => [i, source, v.lemma] as [number, ModelSourceArgs, string],
-                                    state.queryMatches
-                                ),
-                            )),
-                        ) :
-                        this.loadConcordances(state, true);
-                this.loadFreqs(conc$, true, dispatch);
+                this.loadFreqs(state, true, state.queryMatches[0], dispatch);
             }
         );
 
@@ -313,169 +238,16 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         );
     }
 
-    private loadConcordances(state:MergeCorpFreqModelState, multicastRequest:boolean):Observable<[number, ModelSourceArgs, string]> {
-        return rxOf(...state.sources).pipe(
-            mergeMap(source => rxOf(...List.map(
-                (v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch],
-                state.queryMatches))),
-            concatMap(([queryId, args, lemma]) =>
-                callWithExtraVal(
-                    this.concApi,
-                    this.tileId,
-                    multicastRequest,
-                    this.concApi.stateToArgs(
-                        {
-                            corpname: args.corpname,
-                            otherCorpname: undefined,
-                            subcname: args.subcname,
-                            subcDesc: null,
-                            kwicLeftCtx: -1,
-                            kwicRightCtx: 1,
-                            pageSize: 10,
-                            shuffle: false,
-                            attr_vmode: 'mouseover',
-                            viewMode: ViewMode.KWIC,
-                            tileId: this.tileId,
-                            attrs: [],
-                            metadataAttrs: [],
-                            queries: [],
-                            concordances: createInitialLinesData(state.queryMatches.length),
-                            posQueryGenerator: ['tag', 'ppTagset'] // TODO configuration
-                        },
-                        lemma,
-                        queryId,
-                        null
-                    ),
-                    [args, queryId] as [ModelSourceArgs, number]
-                )
-            ),
-            map(
-                ([resp, [args, queryId]]) => [queryId, args, resp.concPersistenceID]
-            )
-        );
-    }
-
-    private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, multicastRequest:boolean, dispatch:SEDispatcher):void {
-        conc$.pipe(
-            mergeMap(([queryId, sourceArgs, concId]) => {
-                const auxArgs:SourceQueryProps = {
-                    sourceArgs: sourceArgs,
-                    queryId: queryId,
-                    concId: concId
-                };
-                return callWithExtraVal(
-                    this.freqApi,
-                    this.tileId,
-                    multicastRequest,
-                    this.freqApi.stateToArgs(sourceArgs, concId),
-                    auxArgs
-                );
-            }),
-            map(
-                ([resp, args]) => {
-                    const dataNorm:Array<DataRow> =
-                        args.sourceArgs.isSingleCategory ?
-                            [resp.data.reduce<DataRow>(
-                                (acc, curr) => ({
-                                    name: '',
-                                    freq: acc.freq + curr.freq,
-                                    ipm: undefined,
-                                    norm: undefined,
-                                    order: undefined,
-                                    backlink: undefined,
-                                    barColor: undefined
-
-                                }),
-                                {
-                                    name: '',
-                                    freq: 0,
-                                    ipm: undefined,
-                                    norm: undefined,
-                                    order: undefined
-                                }
-                            )] :
-                            resp.data;
-                    const ans:[Array<DataRow>, SourceQueryProps] = [dataNorm, args];
-                    return ans;
-                }
-            ),
-            map(
-                ([data, props]) => {
-                    const ans:[Array<SourceMappedDataRow>, SourceQueryProps] = [
-                        List.map(
-                            row => {
-                                const name = props.sourceArgs.valuePlaceholder ?
-                                    props.sourceArgs.valuePlaceholder :
-                                    this.appServices.translateResourceMetadata(props.sourceArgs.corpname, row.name);
-                                return row.ipm ?
-                                    {
-                                        sourceId: props.sourceArgs.uuid,
-                                        queryId: props.queryId,
-                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl ? props.sourceArgs.backlinkTpl : this.backlink, props.concId),
-                                        freq: row.freq,
-                                        ipm: row.ipm,
-                                        norm: row.norm,
-                                        name,
-                                        uniqueColor: props.sourceArgs.uniqueColor
-                                    } :
-                                    {
-                                        sourceId: props.sourceArgs.uuid,
-                                        queryId: props.queryId,
-                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl ? props.sourceArgs.backlinkTpl : this.backlink, props.concId),
-                                        freq: row.freq,
-                                        ipm: Math.round(row.freq / props.sourceArgs.corpusSize * 1e8) / 100,
-                                        norm: row.norm,
-                                        name,
-                                        uniqueColor: props.sourceArgs.uniqueColor
-                                    };
-                            },
-                            data
-                        ),
-                        props
-                    ];
-                    return ans;
-                }
-            ),
-            tap(
-                ([data, srcProps]) => {
-                    dispatch<typeof Actions.PartialTileDataLoaded>({
-                        name: Actions.PartialTileDataLoaded.name,
-                        payload: {
-                            tileId: this.tileId,
-                            queryId: srcProps.queryId,
-                            concId: srcProps.concId,
-                            sourceId: srcProps.sourceArgs.uuid,
-                            data: data,
-                            valuePlaceholder: srcProps.sourceArgs.valuePlaceholder
-                        }
-                    });
-                }
-            ),
-            reduce(
-                (acc, [data,]) => acc && pipe(
-                    data,
-                    List.every(v => v && v.freq === 0)
-                ),
-                true
-            )
-        ).subscribe({
-            next: (isEmpty) => dispatch<typeof Actions.TileDataLoaded>({
-                name: Actions.TileDataLoaded.name,
-                payload: {
-                    tileId: this.tileId,
-                    isEmpty: isEmpty
-                }
-            }),
-            error: err => {
-                dispatch<typeof Actions.TileDataLoaded>({
-                    name: GlobalActions.TileDataLoaded.name,
-                    error: err,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: true
-                    }
-                });
-            }
-        });
+    private loadFreqs(
+        state:MergeCorpFreqModelState,
+        multicastRequest:boolean,
+        queryMatch:QueryMatch,
+        dispatch:SEDispatcher
+    ):void {
+        this.freqApi.call(
+            this.tileId,
+            multicastRequest,
+            this.freqApi.stateToArgs(state, queryMatch)
+        )
     }
 }

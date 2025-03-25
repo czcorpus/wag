@@ -17,9 +17,9 @@
  */
 
 import { Action } from 'kombo';
-import { WordSimWord, WordSimSubqueryPayload } from '../../../api/abstract/wordSim.js';
 import { OperationMode } from '../../../models/tiles/wordSim.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { WordSimSubqueryPayload, WordSimWord } from './api.js';
 
 
 export interface DataLoadedPayload extends WordSimSubqueryPayload {

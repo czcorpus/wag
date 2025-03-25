@@ -23,18 +23,18 @@ import { List, tuple } from 'cnc-tskit';
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim.js';
 import { WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { QueryMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
+import { CNCWord2VecSimApi, WordSimWord } from './api.js';
 
 
 export interface WordSimModelArgs {
     dispatcher:IActionDispatcher;
     initState:WordSimModelState;
     tileId:number;
-    api:IWordSimApi<{}>;
+    api:CNCWord2VecSimApi;
     queryDomain:string;
     appServices:IAppServices;
 }
@@ -44,7 +44,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:IWordSimApi<{}>;
+    private readonly api:CNCWord2VecSimApi;
 
     private readonly queryDomain:string;
 

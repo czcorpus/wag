@@ -20,13 +20,14 @@ import { map } from 'rxjs/operators';
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
-import { CorpusDetails } from '../../../types.js';
+import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
-import { APIResponse, IFreqDistribAPI } from '../../abstract/freqs.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
+import { QueryMatch } from 'src/js/query/index.js';
+import { mkLemmaMatchQuery } from './common.js';
 
 
 export interface HTTPResponse {
@@ -44,7 +45,25 @@ export interface HTTPResponse {
     error?:string
 }
 
-interface MQueryFreqArgs {
+export interface DataRow {
+    name:string;
+    freq:number;
+    ipm:number;
+    norm:number;
+    order?:number;
+}
+
+
+export interface APIResponse {
+    concId:string;
+    corpname:string;
+    concsize:number;
+    usesubcorp:string|null;
+    data:Array<DataRow>;
+}
+
+
+export interface MQueryFreqArgs {
     corpname:string;
     path:'freqs'|'text-types';
     queryArgs:{
@@ -58,7 +77,7 @@ interface MQueryFreqArgs {
     }
 }
 
-export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
+export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResponse> {
 
     private readonly apiURL:string;
 
@@ -79,17 +98,17 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<{}> {
+    createBacklink(state:MinSingleCritFreqState, backlink:Backlink):BacklinkWithArgs<{}> {
         return null;
     }
 
-    stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):MQueryFreqArgs {
+    stateToArgs(state:MinSingleCritFreqState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
         return {
             corpname: state.corpname,
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q: `[lemma="${concId}"]`,
+                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,
@@ -119,7 +138,8 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
                     tileId,
                     url: urlJoin(
                         this.apiURL,
-                        `/${args.path}/${args.corpname}`
+                        args.path,
+                        args.corpname
                     ) + '?' + encodeURLParameters(
                         List.filter(
                             item => !!item[1],

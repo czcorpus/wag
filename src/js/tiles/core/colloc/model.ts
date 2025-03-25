@@ -29,19 +29,17 @@ import { Actions as ConcActions } from '../concordance/actions.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { CollocationApi } from '../../../api/abstract/collocations.js';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations.js';
-import { CoreCollRequestArgs } from '../../../api/vendor/kontext/collocations.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance.js';
 import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
+import { MQueryCollAPI } from 'src/js/api/vendor/mquery/colls.js';
 
 
 export interface CollocModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
-    service:CollocationApi<{}>;
-    concApi:IConcordanceApi<{}>;
+    service:MQueryCollAPI;
     initState:CollocModelState;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
@@ -57,9 +55,7 @@ type FreqRequestArgs = [number, QueryMatch, string];
 export class CollocModel extends StatelessModel<CollocModelState> {
 
 
-    private readonly collApi:CollocationApi<{}>;
-
-    private readonly concApi:IConcordanceApi<{}>;
+    private readonly collApi:MQueryCollAPI;
 
     private readonly appServices:IAppServices;
 
@@ -86,14 +82,15 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, service, initState, backlink, queryType, apiType, concApi}:CollocModelArgs) {
+    constructor({
+        dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, service,
+        initState, backlink, queryType, apiType}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.collApi = service;
-        this.concApi = concApi;
         this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.collApi) ? this.collApi.getBackLink(backlink) : backlink;
         this.queryType = queryType;
         this.apiType = apiType;
@@ -149,24 +146,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                const conc$ = this.waitForTile >= 0 ?
-                    this.waitForActionWithTimeout(
-                        this.waitForTilesTimeoutSecs * 1000,
-                        {},
-                        (action:Action, syncData) => {
-                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
-                                return null;
-                            }
-                            return syncData;
-                        }
-                    ).pipe(
-                        concatMap(action => {
-                            const payload = action.payload as ConcLoadedPayload;
-                            return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], payload.concPersistenceIDs))
-                        })
-                    ) :
-                    this.loadConcs(state, true);
-                this.reloadAllData(state, conc$, true, seDispatch);
+                this.reloadAllData(state, true, seDispatch);
             }
         );
 
@@ -284,46 +264,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             } :
             null;
     }
-
-
-
-    private loadConcs(state:CollocModelState, multicastRequest:boolean):Observable<FreqRequestArgs> {
-        return rxOf(...List.map((v, i) => [i, v] as [number, QueryMatch], state.queryMatches)).pipe(
-            concatMap(([queryId, lemmaQM]) =>
-                callWithExtraVal<{}, ConcResponse, [number, QueryMatch]>(
-                    this.concApi,
-                    this.tileId,
-                    multicastRequest,
-                    this.concApi.stateToArgs(
-                        {
-                            corpname: state.corpname,
-                            otherCorpname: undefined,
-                            subcname: null,
-                            subcDesc: null,
-                            kwicLeftCtx: -1,
-                            kwicRightCtx: 1,
-                            pageSize: 10,
-                            shuffle: false,
-                            attr_vmode: 'mouseover',
-                            viewMode: ViewMode.KWIC,
-                            tileId: this.tileId,
-                            attrs: [],
-                            metadataAttrs: [],
-                            queries: [],
-                            concordances: createInitialLinesData(state.queryMatches.length),
-                            posQueryGenerator: state.posQueryGenerator
-                        },
-                        lemmaQM,
-                        queryId,
-                        null
-                    ),
-                    [queryId, lemmaQM]
-                )
-            ),
-            map(([resp, [idx, lemma]]) => [idx, lemma, resp.concPersistenceID])
-        );
-    }
-
 
     private reloadAllData(
         state:CollocModelState,

@@ -19,9 +19,10 @@
 import { Observable, of as rxOf } from 'rxjs';
 
 import { ConcordanceMinState } from '../../../models/concordance/index.js';
-import { ConcResponse, IConcordanceApi, ViewMode } from '../../abstract/concordance.js';
 import { QueryMatch } from '../../../query/index.js';
-import { SourceDetails } from '../../../types.js';
+import { ResourceApi, SourceDetails } from '../../../types.js';
+import { ConcResponse, ViewMode } from './common.js';
+import { IAppServices } from 'src/js/appServices.js';
 
 interface NullApiArgs {
     corpusName:string;
@@ -29,7 +30,73 @@ interface NullApiArgs {
     qmIndex:number;
 }
 
-export class NullConcApi implements IConcordanceApi<NullApiArgs> {
+export class NullConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
+
+    stateToArgs(state:ConcordanceMinState, queryMatch:QueryMatch|null, qmIndex:number, otherLangCql:string|null):NullApiArgs {
+        return {
+            corpusName: state.corpname,
+            queryMatch,
+            qmIndex
+        };
+    }
+
+    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+        return rxOf({
+            tileId,
+            title: '',
+            description: '',
+            author: ''
+        })
+    }
+
+    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+        return '';
+    }
+
+    /**
+     * Note: the first item will be set as an initial one
+     */
+    getSupportedViewModes():Array<ViewMode> {
+        return [ViewMode.KWIC, ViewMode.SENT];
+    }
+
+
+    call(tileId:number, multicastRequest:boolean, args:NullApiArgs):Observable<ConcResponse> {
+        return rxOf({
+                query: '',
+                corpName: args.corpusName,
+                subcorpName: '',
+                lines: [],
+                concsize: 0,
+                arf: 0,
+                ipm: 0,
+                messages: [],
+                concPersistenceID: ''
+        })
+    }
+}
+
+// ------------------------------
+
+/**
+ * @todo
+ */
+export class MQueryConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
+
+    private readonly apiUrl:string;
+
+    private readonly usesDataStream:boolean;
+
+    private readonly appServices:IAppServices;
+
+    private readonly apiOptions:{};
+
+    constructor(apiUrl:string, usesDataStream:boolean, appServices:IAppServices, apiOptions:{}) {
+        this.apiUrl = apiUrl;
+        this.usesDataStream = usesDataStream;
+        this.appServices = appServices;
+        this.apiOptions = apiOptions;
+    }
 
     stateToArgs(state:ConcordanceMinState, queryMatch:QueryMatch|null, qmIndex:number, otherLangCql:string|null):NullApiArgs {
         return {
