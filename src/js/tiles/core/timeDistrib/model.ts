@@ -28,7 +28,7 @@ import { Actions } from './common.js';
 import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
-import { MQueryTimeDistribStreamApi, TimeDistribResponse } from 'src/js/api/vendor/mquery/timeDistrib.js';
+import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
 
 
 export enum FreqFilterQuantity {

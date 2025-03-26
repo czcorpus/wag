@@ -16,15 +16,7 @@
  * limitations under the License.
  */
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { HTTP } from 'cnc-tskit';
-import { XMLParser, XMLNode } from '../../../../page/xml.js';
-import { ajax$, ResponseType } from '../../../../page/ajax.js';
-import { QueryMatch } from '../../../../query/index.js';
-import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain.js';
-import { IApiServices } from '../../../../appServices.js';
-import { ResourceApi } from 'src/js/types.js';
+import { XMLNode } from '../../../../page/xml.js';
 
 
 /**

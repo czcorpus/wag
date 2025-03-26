@@ -27,7 +27,7 @@ import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { MQueryCollAPI } from 'src/js/tiles/core/colloc/api.js';
+import { MQueryCollAPI } from '../../../tiles/core/colloc/api.js';
 
 
 

@@ -24,7 +24,7 @@ import { ajax$, ResponseType } from '../../../../page/ajax.js';
 import { QueryMatch } from '../../../../query/index.js';
 import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain.js';
 import { IApiServices } from '../../../../appServices.js';
-import { ResourceApi } from 'src/js/types.js';
+import { ResourceApi } from '../../../../types.js';
 import { ConcordanceMinState, ConcResponse, FCS1Args, importResponse, ViewMode } from './common.js';
 
 

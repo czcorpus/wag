@@ -20,16 +20,15 @@ import { map, of as rxOf, tap } from 'rxjs';
 import { SourceDetails, ResourceApi } from '../../../types.js';
 import { Observable } from 'rxjs';
 import { Backlink } from '../../../page/tile.js';
-import { MinMultiCritFreqState, MinSingleCritFreqState } from '../../../models/tiles/freq.js';
-import { QueryMatch } from 'src/js/query/index.js';
-import { IApiServices } from 'src/js/appServices.js';
-import { CorpusInfoAPI } from 'src/js/api/vendor/mquery/corpusInfo.js';
+import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
+import { QueryMatch } from '../../../query/index.js';
+import { IApiServices } from '../../../appServices.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { MergeCorpFreqModelState } from './common.js';
-import { MQueryFreqArgs, MQueryFreqDistribAPI } from 'src/js/api/vendor/mquery/freqs.js';
+import { MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
-import { SafeSubscriber } from 'rxjs/internal/Subscriber';
 import urlJoin from 'url-join';
-import { ajax$ } from 'src/js/page/ajax.js';
+import { ajax$ } from '../../../page/ajax.js';
 
 
 export interface DataRow {

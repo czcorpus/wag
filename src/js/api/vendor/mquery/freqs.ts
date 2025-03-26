@@ -26,7 +26,7 @@ import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
-import { QueryMatch } from 'src/js/query/index.js';
+import { QueryMatch } from '../../../query/index.js';
 import { mkLemmaMatchQuery } from './common.js';
 
 

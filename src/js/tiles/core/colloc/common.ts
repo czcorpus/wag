@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 import { SubqueryPayload, RangeRelatedSubqueryValue, isSubqueryPayload, QueryMatch } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { BacklinkWithArgs } from 'src/js/page/tile.js';
+import { BacklinkWithArgs } from '../../../page/tile.js';
 
 
 export enum CollocMetric {

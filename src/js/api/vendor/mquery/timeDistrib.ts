@@ -23,7 +23,7 @@ import { IApiServices } from '../../../appServices.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
-import { QueryMatch } from 'src/js/query/index.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 

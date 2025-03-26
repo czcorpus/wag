@@ -32,8 +32,7 @@ import {
     AltViewIconProps
 } from '../../../page/tile.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { DataApi } from 'src/js/types.js';
-import { HtmlApiArgs, RawHtmlAPI } from './api.js';
+import { RawHtmlAPI } from './api.js';
 
 
 export interface HtmlTileConf extends TileConf {

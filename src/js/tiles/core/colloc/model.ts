@@ -27,8 +27,8 @@ import { Actions, CollocModelState, ctxToRange, KonTextCollArgs } from './common
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import { MQueryCollAPI, MQueryCollArgs } from 'src/js/tiles/core/colloc/api.js';
-import { mkMatchQuery } from 'src/js/api/vendor/mquery/common.js';
+import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
+import { mkMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
 export interface CollocModelArgs {

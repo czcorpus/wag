@@ -18,8 +18,8 @@
 
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
-import { QueryMatch } from 'src/js/query/index.js';
-import { TooltipValues } from 'src/js/views/common/index.js';
+import { QueryMatch } from '../../../query/index.js';
+import { TooltipValues } from '../../../views/common/index.js';
 
 export interface ModelSourceArgs extends MinSingleCritFreqState {
 

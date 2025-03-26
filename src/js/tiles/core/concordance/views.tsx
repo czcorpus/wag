@@ -26,7 +26,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { ConcordanceTileModel, ConcordanceTileState } from './model.js';
 
 import * as S from './style.js';
-import { Line, LineElement, ViewMode } from 'src/js/api/vendor/mquery/concordance/common.js';
+import { Line, LineElement, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 

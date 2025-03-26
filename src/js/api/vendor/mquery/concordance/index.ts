@@ -20,7 +20,7 @@ import { Observable, of as rxOf } from 'rxjs';
 
 import { QueryMatch } from '../../../../query/index.js';
 import { ResourceApi, SourceDetails } from '../../../../types.js';
-import { IAppServices } from 'src/js/appServices.js';
+import { IAppServices } from '../../../../appServices.js';
 import { ConcResponse, ViewMode } from './common.js';
 
 export interface ConcApiArgs {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { Dict, Maths } from 'cnc-tskit';
+import { Maths } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
@@ -25,8 +25,7 @@ import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as viewInit } from './view.js';
 import { TileWait } from '../../../models/tileSync.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { MQueryTimeDistribStreamApi } from 'src/js/api/vendor/mquery/timeDistrib.js';
+import { MQueryTimeDistribStreamApi } from '../../../api/vendor/mquery/timeDistrib.js';
 
 
 /**

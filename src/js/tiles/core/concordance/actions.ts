@@ -19,7 +19,7 @@ import { Action } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
-import { ConcResponse, ViewMode } from 'src/js/api/vendor/mquery/concordance/common.js';
+import { ConcResponse, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 export interface ConcLoadedPayload {
