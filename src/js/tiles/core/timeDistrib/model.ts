@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { map, mergeMap, reduce, tap } from 'rxjs/operators';
+import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
@@ -29,6 +29,8 @@ import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
+import { callWithExtraVal } from '../../../api/util.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
 export enum FreqFilterQuantity {
@@ -67,6 +69,9 @@ export interface TimeDistribModelState {
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
     backlinks:Array<BacklinkWithArgs<{}>>;
+    fcrit:string;
+    fromYear:number;
+    toYear:number;
     refArea:[number,number];
     zoom:[number, number];
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
@@ -493,18 +498,26 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     );
                 }
             }),
-            mergeMap(
-                (args) => {
-                    return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
-                        {
-                            corpName: state.corpname,
-                            subcorpName: args.subcName,
-                            concPersistenceID: null,
-                            data: []
-                        },
-                        args
-                    ]);
+            tap(
+                args => {
+                    console.log('args: ', args);
                 }
+            ),
+            concatMap(
+                args => callWithExtraVal(
+                    this.api,
+                    this.tileId,
+                    multicastRequest,
+                    {
+                        corpName: state.corpname,
+                        query: mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
+                        subcorpName: undefined, // TOOD
+                        fromYear: state.fromYear ? state.fromYear + '' : undefined,
+                        toYear: state.toYear ? state.toYear + '' : undefined,
+                        fcrit: state.fcrit
+                    },
+                    args
+                )
             )
         );
 

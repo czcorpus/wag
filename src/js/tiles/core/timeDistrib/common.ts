@@ -26,7 +26,11 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     maxItems:number;
 
-    fcrit:number;
+    fcrit:string;
+
+    fromYear?:number;
+
+    toYear?:number;
 
     posQueryGenerator:[string, string];
 

@@ -192,6 +192,7 @@ export class DataStreaming {
 
 
     registerTileRequest<T>(multicastRequest:boolean, entry:TileRequest):Observable<T> {
+        console.log('>>>> ', entry);
         if (!this.rootUrl) {
             console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
             return EMPTY;

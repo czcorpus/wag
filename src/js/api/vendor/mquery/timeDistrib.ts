@@ -32,16 +32,15 @@ export interface TimeDistribArgs {
 
     corpName:string;
 
+    query:string;
+
+    fcrit:string;
+
     subcorpName?:string;
 
     fromYear?:string;
 
     toYear?:string;
-
-    /**
-     * This can be either a CQL-ish query or a concordance persistence ID
-     */
-    concIdent:string;
 }
 
 export type CustomArgs = {[k:string]:string};
@@ -120,6 +119,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     private readonly apiServices:IApiServices;
 
     constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
+        console.log('MQueryTimeDistribStreamApi: ', apiURL, useDataStream)
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
@@ -137,7 +137,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
         return pipe(
             {
-                q: queryArgs.concIdent,
+                q: queryArgs.query,
                 event: eventSource ? `DataTile-${tileId}` : undefined
             },
             Dict.map(
@@ -161,6 +161,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     */
     private callViaDataStream(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         const args = this.prepareArgs(tileId, queryArgs, true);
+        console.log('call via data stream ', args)
         return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
                 multicastRequest,
                 {

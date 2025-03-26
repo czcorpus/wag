@@ -91,6 +91,9 @@ export class TimeDistTile implements ITileProvider {
                 wordCmp: '',
                 zoom: [null, null],
                 refArea: [null, null],
+                fromYear: conf.fromYear,
+                toYear: conf.toYear,
+                fcrit: conf.fcrit,
                 backlinks: [],
                 subcBacklinkLabel: conf.subcBacklinkLabel || {}
             },
