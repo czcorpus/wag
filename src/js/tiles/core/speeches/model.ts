@@ -22,13 +22,13 @@ import { IAppServices } from '../../../appServices.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions.js';
 import { isSubqueryPayload } from '../../../query/index.js';
-import { SpeechesApi, SpeechReqArgs } from '../../../api/vendor/kontext/speeches.js';
+import { SpeechesApi, SpeechReqArgs } from './api.js';
 import { SingleConcLoadedPayload } from '../../../api/abstract/concordance.js';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
 import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize.js';
-import { IAudioUrlGenerator } from '../../../api/abstract/audio.js';
+import { IAudioUrlGenerator } from './audio.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { TileWait } from '../../../models/tileSync.js';
 

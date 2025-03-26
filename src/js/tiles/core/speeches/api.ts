@@ -18,12 +18,13 @@
 
 import { Observable, of as rxOf } from 'rxjs';
 import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
-import { HTTP } from 'cnc-tskit'
+import { Dict, HTTP, List, pipe } from 'cnc-tskit'
 import { ajax$ } from '../../../page/ajax.js';
-import { CorpusInfoAPI } from './corpusInfo.js';
-import { LineElementType } from '../../abstract/concordance.js';
+import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo.js';
+import { LineElementType } from '../../../api/abstract/concordance.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
+import urlJoin from 'url-join';
 
 
 
@@ -60,14 +61,17 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
 
     private readonly apiUrl:string;
 
+    private readonly useDataStream:boolean;
+
     private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly apiServices:IApiServices;
 
-    constructor(apiUrl:string, apiServices:IApiServices) {
+    constructor(apiUrl:string, useDataStream:boolean, apiServices:IApiServices) {
         this.apiUrl = apiUrl;
         this.srcInfoService = new CorpusInfoAPI(apiUrl, apiServices);
         this.apiServices = apiServices;
+        this.useDataStream = useDataStream;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -78,18 +82,33 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
     }
 
     call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechResponse> {
-        const headers = this.apiServices.getApiHeaders(this.apiUrl);
-        headers['X-Is-Web-App'] = '1';
         if (args.pos !== undefined) {
-            return ajax$<SpeechResponse>(
-                HTTP.Method.GET,
-                this.apiUrl + '/widectx',
-                args,
-                {
-                    headers,
-                    withCredentials: true
-                }
-            );
+            if (this.useDataStream) {
+                const query = this.prepareArgs(args);
+                return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
+                    multicastRequest,
+                    {
+                        tileId,
+                        method: HTTP.Method.GET,
+                        url: urlJoin(this.apiUrl, '/widectx') + `?${query}`,
+                        body: {},
+                        contentType: 'application/json',
+                    }
+                );
+    
+            } else {
+                const headers = this.apiServices.getApiHeaders(this.apiUrl);
+                headers['X-Is-Web-App'] = '1';
+                return ajax$<SpeechResponse>(
+                    HTTP.Method.GET,
+                    this.apiUrl + '/widectx',
+                    args,
+                    {
+                        headers,
+                        withCredentials: true
+                    }
+                );
+            }
 
         } else {
             return rxOf({
@@ -110,5 +129,22 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
             ...(backlink || {}),
             url: (backlink?.url ? backlink.url : this.apiUrl) + '/view',
         }
+    }
+
+    private prepareArgs(queryArgs:SpeechReqArgs):string {
+        return pipe(
+            {
+                ...queryArgs,
+                hitlen: queryArgs.hitlen ?? null,
+                detail_left_ctx: queryArgs.detail_left_ctx ?? null,
+                detail_right_ctx: queryArgs.detail_right_ctx ?? null,
+            },
+            Dict.toEntries(),
+            List.filter(([_, v]) => v !== null),
+            List.map(
+                ([k, v]) => `${k}=${encodeURIComponent(v)}`
+            ),
+            x => x.join('&')
+        )
     }
 }

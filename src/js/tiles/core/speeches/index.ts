@@ -20,13 +20,12 @@ import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, 
 import { SpeechesModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches.js';
 import { pipe, Color, List } from 'cnc-tskit';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { SpeechesApi } from './api.js';
+import { AudioLinkGenerator } from './audio.js';
 
 
 export interface SpeechesTileConf extends TileConf {
-    apiType:string;
     apiURL:string;
     corpname:string;
     subcname?:string;
@@ -67,20 +66,17 @@ export class SpeechesTile implements ITileProvider {
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
         const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/SpeechesTile/authenticate")} :
-            {};
         this.model = new SpeechesModel({
             dispatcher,
             tileId,
             appServices,
-            api: createSpeechesApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
+            api: new SpeechesApi(conf.apiURL, conf.useDataStream, appServices),
             backlink: conf.backlink || null,
             waitForTiles,
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             audioLinkGenerator: conf.audioPlaybackUrl ?
-                    createAudioUrlGeneratorInstance(conf.apiType, conf.audioPlaybackUrl) :
+                    new AudioLinkGenerator(conf.audioPlaybackUrl) :
                     null,
             initState: {
                 isBusy: isBusy,

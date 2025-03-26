@@ -120,6 +120,8 @@ export class DataStreaming {
                         tileReqMap.forEach(
                             (val, key) => {
                                 evtSrc.addEventListener(`DataTile-${val.tileId}`, evt => {
+                                    console.log(evt.data);
+                                    
                                     if (val.contentType == 'application/json') {
                                         observer.next({
                                             data: JSON.parse(evt.data),

@@ -21,3 +21,25 @@ export interface IAudioUrlGenerator {
 
     getFormat(audioId:string):string;
 }
+
+export class AudioLinkGenerator implements IAudioUrlGenerator {
+
+    private readonly rootUrl:string;
+
+
+    constructor(rootUrl:string) {
+        this.rootUrl = rootUrl;
+    }
+
+    createUrl(corpname:string, audioId:string):string {
+        const args = [
+            'corpname=' + encodeURIComponent(corpname),
+            'chunk=' + encodeURIComponent(audioId)
+        ];
+        return this.rootUrl + '?' + args.join('&');
+    }
+
+    getFormat(audioId:string):string {
+        return audioId.split('.').pop();
+    }
+}

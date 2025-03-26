@@ -1,9 +1,6 @@
 {
     "type": "object",
     "properties": {
-        "apiType": {
-            "type": "string"
-        },
         "apiURL": {
             "type": "string"
         },
@@ -131,10 +128,12 @@
             "items": {
                 "type": "string"
             }
+        },
+        "useDataStream": {
+            "type": "boolean"
         }
     },
     "required": [
-        "apiType",
         "apiURL",
         "corpname",
         "speakerIdAttr",
