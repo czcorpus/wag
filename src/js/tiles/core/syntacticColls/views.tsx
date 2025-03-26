@@ -21,17 +21,14 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { SyntacticCollsModel } from './model.js';
+import { SyntacticCollsModel, SyntacticCollsModelState } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
-import {
-    SCollsDataRow, SCollsExamples, SyntacticCollsModelState, mkScollExampleLineHash
-} from '../../../models/tiles/syntacticColls.js';
 import { Dict, List, pipe } from 'cnc-tskit';
-import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
+import { mkScollExampleLineHash, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api.js';
 
 
 export function init(
@@ -104,9 +101,9 @@ export function init(
 
     const SyntacticCollsTile:React.FC<SyntacticCollsModelState & CoreTileComponentProps> = (props) => {
 
-        const isEmpty = (qType:SCollsQueryTypeValue) => props.data[qType].rows.length === 0;
+        const isEmpty = (qType:SCollsQueryType) => props.data[qType].rows.length === 0;
 
-        const renderWordCloud = (qType:SCollsQueryTypeValue) => {
+        const renderWordCloud = (qType:SCollsQueryType) => {
             return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
                 {props.data[qType] ?
@@ -125,7 +122,7 @@ export function init(
             </S.SCollsWordCloud>
         };
 
-        const handleWordClick = (word:string, qType:SCollsQueryTypeValue) => () => {
+        const handleWordClick = (word:string, qType:SCollsQueryType) => () => {
             dispatcher.dispatch(
                 Actions.ClickForExample,
                 {
@@ -145,7 +142,7 @@ export function init(
             );
         };
 
-        const renderTable = (qType:SCollsQueryTypeValue) => {
+        const renderTable = (qType:SCollsQueryType) => {
             return <S.SCollsTable key={`table:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
                 {props.data[qType] ?

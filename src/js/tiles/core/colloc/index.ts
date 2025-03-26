@@ -20,15 +20,14 @@ import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { CorePosAttribute } from '../../../types.js';
 import { QueryType } from '../../../query/index.js';
-import { CollocMetric } from './common.js';
+import { CollocMetric, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { MQueryCollAPI } from 'src/js/api/vendor/mquery/colls.js';
+import { MQueryCollAPI } from 'src/js/tiles/core/colloc/api.js';
 
 
 
@@ -69,7 +68,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    private readonly api:CollocationApi<{}>;
+    private readonly api:MQueryCollAPI;
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, waitForTiles,

@@ -57,7 +57,6 @@ export interface TimeDistribModelState {
     error:string;
     alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
-    customApiArgs:{[k:string]:string};
     mainPosAttr:MainPosAttrValues;
     isTweakMode:boolean;
     data:Array<DataItemWithWCI>;

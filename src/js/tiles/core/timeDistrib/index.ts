@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
+import { Dict, Maths } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
@@ -25,8 +25,8 @@ import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as viewInit } from './view.js';
 import { TileWait } from '../../../models/tileSync.js';
-import { TimeDistribApi } from '../../../api/abstract/timeDistrib.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryTimeDistribStreamApi } from 'src/js/api/vendor/mquery/timeDistrib.js';
 
 
 /**
@@ -83,7 +83,6 @@ export class TimeDistTile implements ITileProvider {
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: [],
                 dataCmp: [],
-                customApiArgs: conf.customApiArgs ? conf.customApiArgs : {},
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
                 useAbsFreq: false,
@@ -94,12 +93,13 @@ export class TimeDistTile implements ITileProvider {
                 zoom: [null, null],
                 refArea: [null, null],
                 backlinks: [],
-                subcBacklinkLabel: conf.subcBacklinkLabel || {},
+                subcBacklinkLabel: conf.subcBacklinkLabel || {}
             },
-            tileId: tileId,
+            api: new MQueryTimeDistribStreamApi(conf.apiURL, useDataStream, appServices),
+            tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
-            appServices: appServices,
+            appServices,
             queryMatches,
             queryDomain: domain1,
             backlink: conf.backlink
@@ -174,32 +174,14 @@ export const init:TileFactory<TimeDistTileConf> = {
 
     sanityCheck: (args) => {
         let ans = [];
-        switch (args.conf.apiType) {
-            case CoreApiGroup.MQUERY:
-                if (!Dict.hasKey('attr', args.conf.customApiArgs) && !Dict.hasKey('fcrit', args.conf.customApiArgs)) {
-                    ans.push(new Error(`${args.conf.tileType}: missing \`attr\` or \`fcrit\` in \`customApiArgs\``));
-
-                } else if (Dict.hasKey('attr', args.conf.customApiArgs) && Dict.hasKey('fcrit', args.conf.customApiArgs)) {
-                    ans.push(new Error(`${args.conf.tileType}: Only one \`attr\` or \`fcrit\` can be defined in \`customApiArgs\``));
-                }
-                if (!Dict.hasKey('maxItems', args.conf.customApiArgs)) {
-                    ans.push(new Error(`${args.conf.tileType}: missing \`maxItems\` in \`customApiArgs\``));
-                }
-                break;
-
-            case CoreApiGroup.KONTEXT:
-            case CoreApiGroup.KONTEXT_API:
-            case CoreApiGroup.NOSKE:
-                if (!Dict.hasKey('fcrit', args.conf.customApiArgs)) {
-                    ans.push(new Error(`${args.conf.tileType}: missing \`fcrit\` in \`customApiArgs\``));
-                }
-                if (!Dict.hasKey('flimit', args.conf.customApiArgs)) {
-                    ans.push(new Error(`${args.conf.tileType}: missing \`flimit\` in \`customApiArgs\``));
-                }
-                break;
-
-            default:
-                ans.push(new Error(`${args.conf.tileType}: unknown api type \`${args.conf.apiType}\``));
+        if (!args.conf.fcrit) {
+            ans.push(new Error(`${args.conf.tileType}: missing "fcrit" configuration`));
+        }
+        if (!args.conf.maxItems) {
+            ans.push(new Error(`${args.conf.tileType}: missing "maxItems" configuration`));
+        }
+        if (!args.conf.posQueryGenerator) {
+            ans.push(new Error(`${args.conf.tileType}: missing "posQueryGenerator" configuration`));
         }
         return ans;
     },

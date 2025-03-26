@@ -20,14 +20,13 @@ import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { Theme } from '../../../page/theme.js';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
-import { WordSimModel } from './model.js';
+import { WordSimModel, WordSimModelState } from './model.js';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
 import { Actions } from './actions.js';
-import { WordSimWord } from '../../../api/abstract/wordSim.js';
-import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { List, pipe } from 'cnc-tskit';
 
 import * as S from './style.js';
+import { OperationMode, WordSimWord } from './api.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):TileComponent  {

@@ -17,14 +17,14 @@
  */
 import { Observable, map } from 'rxjs';
 
-import { IWordFormsApi, RequestArgs, Response } from '../../abstract/wordForms.js';
-import { CorpusDetails } from '../../../types.js';
-import { IApiServices } from '../../../appServices.js';
-import { Backlink } from '../../../page/tile.js';
-import { ajax$ } from '../../../page/ajax.js';
-import { FreqRowResponse } from './common.js';
+import { CorpusDetails, ResourceApi } from '../../../../types.js';
+import { IApiServices } from '../../../../appServices.js';
+import { Backlink } from '../../../../page/tile.js';
+import { ajax$ } from '../../../../page/ajax.js';
+import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
 import { Ident, List } from 'cnc-tskit';
-import { CorpusInfoAPI } from './corpusInfo.js';
+import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
+import { Response } from '../common.js';
 
 
 export interface LemmaItem {
@@ -33,8 +33,15 @@ export interface LemmaItem {
     forms:Array<FreqRowResponse>;
 }
 
+export interface RequestArgs {
+    corpName:string;
+    lemma:string;
+    pos:Array<string>;
+}
 
-export class WordFormsAPI implements IWordFormsApi {
+
+
+export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
 
     private readonly apiURL;
 

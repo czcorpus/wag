@@ -19,126 +19,19 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit';
-import { ConcResponse, Line, IConcordanceApi, ViewMode } from '../../../abstract/concordance.js';
-import { XMLParser, XMLNode } from '../../../../page/xml.js';
-import { ConcordanceMinState } from '../../../../models/tiles/concordance/index.js';
+import { XMLParser } from '../../../../page/xml.js';
 import { ajax$, ResponseType } from '../../../../page/ajax.js';
 import { QueryMatch } from '../../../../query/index.js';
 import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain.js';
 import { IApiServices } from '../../../../appServices.js';
+import { ResourceApi } from 'src/js/types.js';
+import { ConcordanceMinState, ConcResponse, FCS1Args, importResponse, ViewMode } from './common.js';
 
 
 /**
  *
  */
-export interface FCS1Args {
-    query:string;
-    startRecord?:number;
-    maximumRecords?:number;
-    operation:'searchRetrieve';
-    recordPacking:'xml';
-    recordSchema:'http://clarin.eu/fcs/resource';
-    'x-cmd-context'?:string;
-    'x-fcs-context'?:string;
-}
-
-/**
- *
- */
-interface FCSLine {
-    left:Array<string>;
-    kwic:Array<string>;
-    right:Array<string>;
-}
-
-/**
- *
- */
-function importRecord(node:XMLNode, lineNum:number):Line {
-    const recordData = node.findChildRecursive(item => item.name === 'hits:Result', new XMLNode());
-    let key = 'left';
-    const line:FCSLine = {left: [], kwic: [], right: []};
-    recordData.children.forEach((item, i) => {
-        if (typeof item === 'string') {
-            line[key].push(item.trim());
-
-        } else {
-            if (item.name === 'hits:Hit') {
-                line.kwic.push(item.textContent());
-                key = 'right';
-            }
-        }
-    });
-
-    return {
-        left: line.left.map(v => ({type: 'str', str: v})),
-        kwic: line.kwic.map(v => ({type: 'str', str: v})),
-        right: line.right.map(v => ({type: 'str', str: v})),
-        toknum: lineNum
-    };
-}
-
-/**
- *
- */
-function importDiagnostics(root:XMLNode):string|undefined {
-    const srch = root.findChild(v => v.name === 'sru:diagnostics');
-    if (srch) {
-        const srch2 = srch.findChild(v => v.name === 'diag:diagnostic');
-        if (srch2) {
-            const msgElm = srch2.findChild(v => v.name === 'diag:message', new XMLNode());
-            const detailsElm = srch2.findChild(v => v.name === 'diag:details', new XMLNode());
-            return `${msgElm.textContent()}. ${detailsElm.textContent()}`;
-        }
-    }
-    return undefined;
-}
-
-/**
- *
- */
-function importResponse(root:XMLNode, query:string, corpName:string, subcorpName:string):ConcResponse {
-    const ans = {
-        query: query,
-        corpName: corpName,
-        subcorpName: subcorpName,
-        lines: [],
-        concsize: -1,
-        arf: -1,
-        ipm: -1,
-        messages: [],
-        concPersistenceID: null
-    };
-
-    const respNode = root.findChild(v => v.name === 'sru:searchRetrieveResponse');
-    if (respNode) {
-        const numRecNode = respNode.findChild(v => v.name === 'sru:numberOfRecords', new XMLNode());
-        ans.concsize = parseInt(numRecNode.textContent());
-        if (isNaN(ans.concsize)) {
-            ans.concsize = -1;
-        }
-
-        // try diagnostics
-        const diag = importDiagnostics(respNode);
-        if (diag) {
-            throw new Error(diag);
-        }
-
-        const recordsRootNode = respNode.findChild(v => v.name === 'sru:records');
-        ans.lines = recordsRootNode ?
-            recordsRootNode.findAllChildren(v => v.name === 'sru:record').map(importRecord) :
-            [];
-
-    } else {
-        throw new Error('Unable to parse FCS response');
-    }
-    return ans;
-}
-
-/**
- *
- */
-export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
+export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse> {
 
     private readonly url:string;
 

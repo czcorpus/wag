@@ -23,10 +23,8 @@ import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
 import { QueryType } from '../../../query/index.js';
-import { OperationMode } from '../../../models/tiles/wordSim.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { WordFormsAPI } from 'src/js/api/vendor/mquery/wordForms.js';
-import { CNCWord2VecSimApi } from './api.js';
+import { CNCWord2VecSimApi, OperationMode } from './api.js';
 
 
 export interface WordSimTileConf extends TileConf {

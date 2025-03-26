@@ -22,7 +22,6 @@ import { Ident, HTTP } from 'cnc-tskit';
 import { ajax$ } from '../../../page/ajax.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { map, catchError } from 'rxjs/operators';
-import { WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { AjaxError } from 'rxjs/ajax';
 import { QueryMatch, QueryType, RangeRelatedSubqueryValue, SubqueryPayload } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
@@ -56,6 +55,12 @@ type HTTPResponse = Array<{
     score:number;
 }>;
 
+
+export enum OperationMode {
+    MeansLike = 'ml',
+    SoundsLike = 'sl'
+}
+
 /**
  * This is a client for CNC's Word-Sim-Service (https://is.korpus.cz/git/machalek/word-sim-service)
  * which is just a glue for http server and word2vec handling libraries.
@@ -76,17 +81,6 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
-    }
-
-    stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
-        return {
-            corpus: state.corpus,
-            model: state.model,
-            word: queryMatch.lemma,
-            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0]: '', // TODO is the first zero OK? (i.e. we ignore other variants)
-            limit: state.maxResultItems,
-            minScore: state.minScore
-        };
     }
 
     supportsTweaking():boolean {

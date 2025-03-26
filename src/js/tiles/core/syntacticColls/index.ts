@@ -22,7 +22,7 @@ import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
+import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesApi, SCollsQueryType } from './api.js';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
@@ -30,7 +30,7 @@ export interface SyntacticCollsTileConf extends TileConf {
     apiType:string;
     corpname:string;
     maxItems:number;
-    displayTypes:Array<SCollsQueryTypeValue>;
+    displayTypes:Array<SCollsQueryType>; // TODO is this right type?
 }
 
 /**
@@ -64,7 +64,6 @@ export class SyntacticCollsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        const [api, eApi] = createInstance(conf.apiType, conf.apiURL, appServices, {});
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -74,8 +73,8 @@ export class SyntacticCollsTile implements ITileProvider {
             backlink: conf.backlink || null,
             queryType: queryType,
             maxItems: conf.maxItems,
-            api,
-            eApi,
+            api: new ScollexSyntacticCollsAPI(conf.apiURL, appServices),
+            eApi: new ScollexSyntacticCollsExamplesApi(conf.apiURL, appServices), // TODO this is not right... (use mquery?)
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),

@@ -18,13 +18,53 @@
 import { Observable, map } from 'rxjs';
 
 import { ajax$ } from '../../../page/ajax.js';
-import { SourceDetails } from '../../../types.js';
+import { DataApi, ResourceApi, SourceDetails } from '../../../types.js';
 import { IApiServices } from '../../../appServices.js';
-import { SCollsData, SCollsExamples, SyntacticCollsModelState } from '../../../models/tiles/syntacticColls.js';
-import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../abstract/syntacticColls.js';
-import { List, tuple } from 'cnc-tskit';
-import { FreqRowResponse } from './common.js';
-import { CorpusInfoAPI } from './corpusInfo.js';
+import { Ident, List, pipe, tuple } from 'cnc-tskit';
+import { FreqRowResponse } from '../../../api/vendor/mquery/common.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+
+
+
+export interface SCollsDataRow {
+    value:string;
+    freq:number;
+    base:number;
+    ipm:number;
+    collWeight:number;
+    coOccScore:number;
+}
+
+export interface SCollsData {
+    rows:Array<SCollsDataRow>;
+    examplesQueryTpl:string;
+}
+
+export interface Token {
+    word:string;
+    strong:boolean;
+    attrs:{[name:string]:string};
+}
+
+export interface ScollExampleLine {
+    text:Array<Token>;
+}
+
+export interface SCollsExamples {
+    lines:Array<ScollExampleLine>;
+    word1:string;
+    word2:string;
+}
+
+export function mkScollExampleLineHash(line:ScollExampleLine):string {
+    return Ident.hashCode(
+        pipe(
+            line.text,
+            List.map(x => x.word),
+            x => x.join(' ')
+        )
+    );
+}
 
 
 export interface SCollsApiResponse {
@@ -48,60 +88,34 @@ export interface SCollsRequest {
 
 
 // query types are mquery endpoint values
-export enum SCollsQueryType {
-    NOUN_MODIFIED_BY = 'noun-modified-by',
-    MODIFIERS_OF = 'modifiers-of',
-    VERBS_SUBJECT = 'verbs-subject',
-    VERBS_OBJECT = 'verbs-object',
-}
-export type SCollsQueryTypeValue = `${SCollsQueryType}`;
+export type SCollsQueryType = 'noun-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object';
 
 
-export class MquerySyntacticCollsAPI implements SyntacticCollsApi<SCollsRequest> {
+
+export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCollsQueryType, SCollsData]> {
 
     private readonly apiURL:string;
 
     private readonly apiServices:IApiServices;
 
-    private readonly isScollex:boolean;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
     constructor(
         apiURL:string,
-        apiServices:IApiServices,
-        isScollex:boolean=false
+        apiServices:IApiServices
     ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.isScollex = isScollex;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
-        const args = {
-            w: state.queryMatch.lemma ? state.queryMatch.lemma : state.queryMatch.word,
-        };
-        if (state.queryMatch.upos.length > 0) {
-            args['pos'] = state.queryMatch.upos[0].value;
-        }
-        return {
-            params: {
-                corpname: state.corpname,
-                queryType: queryType,
-            },
-            args
-        };
-    }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
     call(tileId:number, multicastRequest:boolean, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
-        const url = this.isScollex ?
-        this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}` :
-        this.apiURL + `/scoll/${request.params.corpname}/${request.params.queryType}`
+        const url = this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}`;
         return ajax$<SCollsApiResponse>(
             'GET',
             url,
@@ -146,7 +160,7 @@ export interface SCERequestArgs {
     }
 }
 
-export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesApi<SCERequestArgs> {
+export class ScollexSyntacticCollsExamplesApi implements DataApi<SCERequestArgs, SCollsExamples> {
 
     private readonly apiURL:string;
 
@@ -155,17 +169,6 @@ export class MquerySyntacticCollsExamplesApi implements SyntacticCollsExamplesAp
     constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-    }
-
-    stateToArgs(state:SyntacticCollsModelState, q:string):SCERequestArgs {
-        return {
-            params: {
-                corpname: state.corpname,
-            },
-            args: {
-                q
-            }
-        };
     }
 
     call(tileId:number, multicastRequest:boolean, request:SCERequestArgs):Observable<SCollsExamples> {

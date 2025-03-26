@@ -15,24 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, tap, reduce } from 'rxjs/operators';
+import { concatMap, tap, reduce } from 'rxjs/operators';
 import { List, HTTP, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { ConcLoadedPayload } from '../concordance/actions.js';
-import { Actions } from './common.js';
-import { Actions as ConcActions } from '../concordance/actions.js';
+import { Actions, CollocModelState, ctxToRange, KonTextCollArgs } from './common.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
-import { CollocationApi } from '../../../api/abstract/collocations.js';
-import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
-import { MQueryCollAPI } from 'src/js/api/vendor/mquery/colls.js';
+import { MQueryCollAPI, MQueryCollArgs } from 'src/js/tiles/core/colloc/api.js';
+import { mkMatchQuery } from 'src/js/api/vendor/mquery/common.js';
 
 
 export interface CollocModelArgs {
@@ -146,7 +142,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.reloadAllData(state, true, seDispatch);
+                this.reloadAllData(
+                    state,
+                    rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], state.concIds)),
+                    true,
+                    seDispatch
+                );
             }
         );
 
@@ -238,10 +239,25 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
     }
 
+    private stateToArgs(state:CollocModelState, queryMatch:QueryMatch, queryId:string):MQueryCollArgs {
+            const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
+            return {
+                corpusId: state.corpname,
+                q: mkMatchQuery(queryMatch, state.posQueryGenerator),
+                subcorpus: '', // TODO
+                measure: this.measureMap[state.appliedMetrics[0]],
+                srchLeft: Math.abs(cfromw),
+                srchRight:  Math.abs(ctow),
+                srchAttr: state.tokenAttr,
+                minCollFreq: state.minAbsFreq, // TODO what about global vs local freq.?
+                maxItems: state.citemsperpage
+            }
+        }
+
     private createBackLink(
         state:CollocModelState,
         action:typeof Actions.PartialTileDataLoaded
-    ):BacklinkWithArgs<CoreCollRequestArgs> {
+    ):BacklinkWithArgs<KonTextCollArgs> {
 
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return this.backlink ?
@@ -307,7 +323,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     this.collApi,
                     this.tileId,
                     multicastRequest,
-                    this.collApi.stateToArgs(state, queryMatch, concId),
+                    this.stateToArgs(state, queryMatch, concId),
                     {queryId: queryId}
                 )
             }),

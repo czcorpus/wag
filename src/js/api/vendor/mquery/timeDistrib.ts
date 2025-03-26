@@ -113,19 +113,16 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
 
     private readonly apiURL:string;
 
-    private readonly customArgs:CustomArgs;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly useDataStream:boolean;
 
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, customArgs:CustomArgs) {
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
-        this.customArgs = customArgs;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
@@ -140,7 +137,6 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
         return pipe(
             {
-                ...this.customArgs,
                 q: queryArgs.concIdent,
                 event: eventSource ? `DataTile-${tileId}` : undefined
             },
@@ -219,8 +215,8 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
             const args = this.prepareArgs(tileId, queryArgs, true);
             const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
             const procChunks:{[k:number]:number} = {};
-            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : (parseInt(this.customArgs['fromYear']) || -1);
-            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : (parseInt(this.customArgs['toYear']) || -1);
+            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
+            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : -1;
 
             eventSource.onmessage = (e) => {
                 const message = JSON.parse(e.data) as MqueryStreamData;

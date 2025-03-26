@@ -17,17 +17,16 @@
  */
 
 import { Observable, Observer, of as rxOf } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/operators';
+import { mergeMap } from 'rxjs/operators';
 import { List, tuple } from 'cnc-tskit';
 
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { QueryMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
-import { CNCWord2VecSimApi, WordSimWord } from './api.js';
+import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimWord } from './api.js';
 
 
 export interface WordSimModelArgs {
@@ -37,6 +36,28 @@ export interface WordSimModelArgs {
     api:CNCWord2VecSimApi;
     queryDomain:string;
     appServices:IAppServices;
+}
+
+
+/**
+ * WordSimModelState is a state for 'word similarity' core tile (and
+ * derived tiles).
+ */
+export interface WordSimModelState {
+    isBusy:boolean;
+    isTweakMode:boolean;
+    isMobile:boolean;
+    isAltViewMode:boolean;
+    error:string;
+    maxResultItems:number;
+    minScore:number;
+    minMatchFreq:number;
+    data:Array<Array<WordSimWord>>;
+    operationMode:OperationMode;
+    corpus:string;
+    model:string;
+    queryMatches:Array<QueryMatch>;
+    selectedText:string;
 }
 
 
@@ -168,6 +189,17 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         );
     }
 
+    private stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
+        return {
+            corpus: state.corpus,
+            model: state.model,
+            word: queryMatch.lemma,
+            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0]: '', // TODO is the first zero OK? (i.e. we ignore other variants)
+            limit: state.maxResultItems,
+            minScore: state.minScore
+        };
+    }
+
     getData(state:WordSimModelState, multicastRequest:boolean, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<[number, QueryMatch]>) => {
             state.queryMatches.forEach((queryMatch, queryId) => {
@@ -181,7 +213,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     this.api,
                     this.tileId,
                     multicastRequest,
-                    this.api.stateToArgs(state, queryMatch),
+                    this.stateToArgs(state, queryMatch),
                     queryId
                 ) :
                 rxOf(tuple({words: [] as Array<WordSimWord>}, queryId))

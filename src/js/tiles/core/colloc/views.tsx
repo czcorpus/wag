@@ -21,12 +21,10 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { Actions } from './common.js';
+import { Actions, CollocModelState, DataHeading, DataRow, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
-import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/collocations.js';
-import { CollocModelState } from '../../../models/tiles/collocations.js';
 import { List } from 'cnc-tskit';
 
 import * as S from './style.js';

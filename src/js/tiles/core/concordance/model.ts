@@ -24,18 +24,18 @@ import { mergeMap, tap, reduce } from 'rxjs/operators';
 import { HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { IConcordanceApi } from '../../../api/abstract/concordance.js';
-import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance/index.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
-import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index.js';
+import { isSubqueryPayload, RecognizedQueries, QueryType, QueryMatch } from '../../../query/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
 import { importMessageType } from '../../../page/notifications.js';
 import { Actions } from './actions.js';
-import { normalizeTypography } from '../../../models/tiles/concordance/normalize.js';
-import { isCollocSubqueryPayload } from '../../../api/abstract/collocations.js';
 import { callWithExtraVal } from '../../../api/util.js';
+import { AttrViewMode, ConcData, createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
+import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
+import { normalizeTypography } from '../../../api/vendor/mquery/concordance/normalize.js';
+import { isCollocSubqueryPayload } from '../colloc/common.js';
 
 
 
@@ -45,7 +45,23 @@ export interface BacklinkArgs {
     q:string;
 }
 
-export interface ConcordanceTileState extends ConcordanceMinState {
+export interface ConcordanceTileState {
+    tileId:number;
+    queries:Array<string>;
+    corpname:string;
+    otherCorpname:string;
+    subcname:string;
+    subcDesc:string;
+    kwicLeftCtx:number;
+    kwicRightCtx:number;
+    pageSize:number;
+    attr_vmode:AttrViewMode;
+    viewMode:ViewMode;
+    shuffle:boolean;
+    metadataAttrs:Array<{value:string; label:string}>;
+    attrs:Array<string>;
+    posQueryGenerator:[string, string];
+    concordances:Array<ConcData>;
     visibleQueryIdx:number;
     isBusy:boolean;
     error:string|null;
@@ -66,7 +82,7 @@ export interface ConcordanceTileModelArgs {
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    service:IConcordanceApi<{}>;
+    service:MQueryConcApi;
     queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
     queryType:QueryType;
@@ -76,7 +92,7 @@ export interface ConcordanceTileModelArgs {
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
-    private readonly concApi:IConcordanceApi<{}>;
+    private readonly concApi:MQueryConcApi;
 
     private readonly queryMatches:RecognizedQueries;
 
@@ -333,6 +349,19 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         );
     }
 
+    private stateToArgs(
+        state:ConcordanceTileState,
+        queryMatch:QueryMatch|null,
+        qmIndex:number,
+        otherLangCql:string|null
+    ):ConcApiArgs {
+        return {
+            corpusName: state.corpname,
+            queryMatch,
+            qmIndex
+        };
+    }
+
     private createBackLink(
         state:ConcordanceTileState,
         concId:string
@@ -360,7 +389,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     List.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : this.queryMatches.length),
                     List.forEach((queryMatch, queryIdx) => {
                         observer.next({
-                            apiArgs: this.concApi.stateToArgs(
+                            apiArgs: this.stateToArgs(
                                 state,
                                 state.concordances[queryIdx].concId ?
                                         null : findCurrQueryMatch(queryMatch),

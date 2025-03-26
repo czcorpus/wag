@@ -25,16 +25,16 @@ import { findCurrQueryMatch } from '../../../models/query.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { RecognizedQueries } from '../../../query/index.js';
-import { IGeneralHtmlAPI } from '../../../api/abstract/html.js';
 import { Backlink, createAppBacklink } from '../../../page/tile.js';
 import { isWebDelegateApi } from '../../../types.js';
+import { RawHtmlAPI } from './api.js';
 
 
 export interface HtmlModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
-    service:IGeneralHtmlAPI<{}>;
+    service:RawHtmlAPI;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -45,7 +45,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly service:IGeneralHtmlAPI<{}>;
+    private readonly service:RawHtmlAPI;
 
     private readonly appServices:IAppServices;
 

@@ -17,8 +17,7 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
-import { SCollsData, SCollsExamples } from '../../../models/tiles/syntacticColls.js';
+import { SCollsData, SCollsExamples, SCollsQueryType } from './api.js';
 
 
 export class Actions {
@@ -46,7 +45,7 @@ export class Actions {
 
     static ClickForExample:Action<{
         tileId:number;
-        qType:SCollsQueryTypeValue;
+        qType:SCollsQueryType;
         word:string;
     }> = {
         name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'

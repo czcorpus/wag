@@ -21,15 +21,12 @@ import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
 import { ajax$ } from '../../../page/ajax.js';
-import { CorpusDetails } from '../../../types.js';
-import { CorpusInfoAPI } from './corpusInfo.js';
+import { CorpusDetails, ResourceApi } from '../../../types.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
-import { CollApiResponse, CollocationApi } from '../../abstract/collocations.js';
-import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations.js';
-import { QueryMatch } from '../../../query/index.js';
-import { mkMatchQuery } from './common.js';
+import { CollApiResponse } from './common.js';
 
 
 export interface HTTPResponse {
@@ -47,7 +44,7 @@ export interface HTTPResponse {
     resultType:'coll';
 }
 
-interface MQueryCollArgs {
+export interface MQueryCollArgs {
     corpusId:string;
     q:string;
     subcorpus:string;
@@ -78,7 +75,7 @@ const measureMap = {
     'f': 'relFreq'
 };
 
-export class MQueryCollAPI implements CollocationApi<MQueryCollArgs> {
+export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiResponse> {
 
     private readonly apiURL:string;
 
@@ -109,21 +106,6 @@ export class MQueryCollAPI implements CollocationApi<MQueryCollArgs> {
 
     supportsMultiWordQueries():boolean {
         return false;
-    }
-
-    stateToArgs(state:CollocModelState, queryMatch:QueryMatch, queryId:string):MQueryCollArgs {
-        const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
-        return {
-            corpusId: state.corpname,
-            q: mkMatchQuery(queryMatch, state.posQueryGenerator),
-            subcorpus: '', // TODO
-            measure: measureMap[state.appliedMetrics[0]],
-            srchLeft: Math.abs(cfromw),
-            srchRight:  Math.abs(ctow),
-            srchAttr: state.tokenAttr,
-            minCollFreq: state.minAbsFreq, // TODO what about global vs local freq.?
-            maxItems: state.citemsperpage
-        }
     }
 
     private prepareArgs(queryArgs:MQueryCollArgs):string {

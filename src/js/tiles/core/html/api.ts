@@ -20,10 +20,9 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { ajax$, ResponseType } from '../../../page/ajax.js';
-import { WebDelegateApi } from '../../../types.js';
+import { DataApi, WebDelegateApi } from '../../../types.js';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
-import { IGeneralHtmlAPI } from '../../abstract/html.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import { HTTP } from 'cnc-tskit';
@@ -39,7 +38,7 @@ export type HtmlApiArgs = {[key:string]:string};
  * vulnerable from the external service!!!
  */
 
-export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs>, WebDelegateApi {
+export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null>, WebDelegateApi {
 
     private readonly apiURL:string;
 

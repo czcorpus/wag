@@ -18,27 +18,18 @@
 
 import { Observable, of as rxOf } from 'rxjs';
 
-import { ConcordanceMinState } from '../../../models/concordance/index.js';
-import { QueryMatch } from '../../../query/index.js';
-import { ResourceApi, SourceDetails } from '../../../types.js';
-import { ConcResponse, ViewMode } from './common.js';
+import { QueryMatch } from '../../../../query/index.js';
+import { ResourceApi, SourceDetails } from '../../../../types.js';
 import { IAppServices } from 'src/js/appServices.js';
+import { ConcResponse, ViewMode } from './common.js';
 
-interface NullApiArgs {
+export interface ConcApiArgs {
     corpusName:string;
     queryMatch:QueryMatch;
     qmIndex:number;
 }
 
-export class NullConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
-
-    stateToArgs(state:ConcordanceMinState, queryMatch:QueryMatch|null, qmIndex:number, otherLangCql:string|null):NullApiArgs {
-        return {
-            corpusName: state.corpname,
-            queryMatch,
-            qmIndex
-        };
-    }
+export class NullConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
@@ -61,7 +52,7 @@ export class NullConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
     }
 
 
-    call(tileId:number, multicastRequest:boolean, args:NullApiArgs):Observable<ConcResponse> {
+    call(tileId:number, multicastRequest:boolean, args:ConcApiArgs):Observable<ConcResponse> {
         return rxOf({
                 query: '',
                 corpName: args.corpusName,
@@ -81,7 +72,7 @@ export class NullConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
 /**
  * @todo
  */
-export class MQueryConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
+export class MQueryConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
 
     private readonly apiUrl:string;
 
@@ -96,14 +87,6 @@ export class MQueryConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
         this.usesDataStream = usesDataStream;
         this.appServices = appServices;
         this.apiOptions = apiOptions;
-    }
-
-    stateToArgs(state:ConcordanceMinState, queryMatch:QueryMatch|null, qmIndex:number, otherLangCql:string|null):NullApiArgs {
-        return {
-            corpusName: state.corpname,
-            queryMatch,
-            qmIndex
-        };
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
@@ -127,7 +110,7 @@ export class MQueryConcApi implements ResourceApi<NullApiArgs, ConcResponse> {
     }
 
 
-    call(tileId:number, multicastRequest:boolean, args:NullApiArgs):Observable<ConcResponse> {
+    call(tileId:number, multicastRequest:boolean, args:ConcApiArgs):Observable<ConcResponse> {
         return rxOf({
                 query: '',
                 corpName: args.corpusName,

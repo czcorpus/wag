@@ -18,18 +18,15 @@
 import { Action } from 'kombo';
 import { CorpSrchTileConf, BacklinkWithArgs } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { CustomArgs } from '../../../api/abstract/timeDistrib.js';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
 
-    apiType:string;
+    apiURL:string;
 
-    apiURL:string|Array<string>;
+    maxItems:number;
 
-    apiPriority?:Array<number>;
-
-    customApiArgs?:CustomArgs;
+    fcrit:number;
 
     posQueryGenerator:[string, string];
 

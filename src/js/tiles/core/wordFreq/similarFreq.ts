@@ -22,7 +22,7 @@ import { pipe, List, HTTP } from 'cnc-tskit';
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
-import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq.js';
+import { SimilarFreqDbAPI, RequestArgs, Response } from '../../../api/abstract/similarFreq.js';
 import { HTTPAction } from '../../../server/routes/actions.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
@@ -49,7 +49,7 @@ interface HTTPResponse {
 
 
 
-export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
+export class SimilarFreqWordsFrodoAPI implements SimilarFreqDbAPI {
 
     private readonly apiURL:string;
 

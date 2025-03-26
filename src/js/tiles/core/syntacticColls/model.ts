@@ -20,13 +20,19 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
 import { Backlink } from '../../../page/tile.js';
-import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls.js';
-import { QueryType } from '../../../query/index.js';
+import { QueryMatch, QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { merge, of as rxOf } from 'rxjs';
-import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls.js';
 import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types.js';
+import {
+    SCERequestArgs,
+    ScollexSyntacticCollsAPI,
+    ScollexSyntacticCollsExamplesApi,
+    SCollsData,
+    SCollsExamples,
+    SCollsQueryType,
+    SCollsRequest } from './api.js';
 
 
 export interface SyntacticCollsModelArgs {
@@ -38,9 +44,25 @@ export interface SyntacticCollsModelArgs {
     waitForTilesTimeoutSecs:number;
     backlink:Backlink;
     queryType:QueryType;
-    api:SyntacticCollsApi<any>;
-    eApi:SyntacticCollsExamplesApi<any>;
+    api:ScollexSyntacticCollsAPI;
+    eApi:ScollexSyntacticCollsExamplesApi;
     maxItems:number;
+}
+
+
+export interface SyntacticCollsModelState {
+    isBusy:boolean;
+    tileId:number;
+    isMobile:boolean;
+    isAltViewMode:boolean;
+    error:string|null;
+    widthFract:number;
+    corpname:string;
+    queryMatch:QueryMatch;
+    data:{[key in SCollsQueryType]?:SCollsData};
+    displayTypes:Array<SCollsQueryType>;
+    examplesCache:{[key:string]:SCollsExamples};
+    exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
 
 
@@ -58,9 +80,9 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly backlink:Backlink;
 
-    private readonly api:SyntacticCollsApi<any>;
+    private readonly api:ScollexSyntacticCollsAPI;
 
-    private readonly eApi:SyntacticCollsExamplesApi<any>;
+    private readonly eApi:ScollexSyntacticCollsExamplesApi;
 
     private readonly maxItems:number;
 
@@ -108,7 +130,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, seDispatch) => {
                 merge(...List.map(qType =>
-                    this.api.call(this.tileId, true, this.api.stateToArgs(state, qType)),
+                    this.api.call(this.tileId, true, this.stateToArgs(state, qType)),
                     state.displayTypes,
                 )).subscribe({
                     next: ([qType, data]) => {
@@ -169,7 +191,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
-                    this.eApi.call(this.tileId, false, this.eApi.stateToArgs(state, q)).pipe(
+                    this.eApi.call(this.tileId, false, this.stateToEapiArgs(state, q)).pipe(
                         map(
                             data => ({
                                 ...data,
@@ -230,5 +252,33 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             (state, action) => {},
             (state, action, seDispatch) => {},
         );
+    }
+
+
+    private stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
+        const args = {
+            w: state.queryMatch.lemma ? state.queryMatch.lemma : state.queryMatch.word,
+        };
+        if (state.queryMatch.upos.length > 0) {
+            args['pos'] = state.queryMatch.upos[0].value;
+        }
+        return {
+            params: {
+                corpname: state.corpname,
+                queryType: queryType,
+            },
+            args
+        };
+    }
+
+    private stateToEapiArgs(state:SyntacticCollsModelState, q:string):SCERequestArgs {
+        return {
+            params: {
+                corpname: state.corpname,
+            },
+            args: {
+                q
+            }
+        };
     }
 }

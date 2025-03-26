@@ -17,12 +17,12 @@
  */
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
 import { init as viewInit } from './views.js';
-import { createApiInstance } from '../../../api/factory/wordForms.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 
 
@@ -80,14 +80,7 @@ export class WordFormsTile implements ITileProvider {
                 mainPosAttr
             },
             tileId,
-            api: createApiInstance({
-                apiIdent: conf.apiType,
-                apiURL: conf.apiURL,
-                srcInfoURL: conf.srcInfoURL,
-                apiServices: appServices,
-                useDataStream,
-                apiOptions
-            }),
+            api: null, // TODO here we must allow: frodo, mquery, korpus.db
             queryMatches,
             queryDomain: domain1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,

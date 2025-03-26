@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { DataRow, DataHeading, SrchContextType } from '../../../api/abstract/collocations.js';
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index.js';
+import { SubqueryPayload, RangeRelatedSubqueryValue, isSubqueryPayload, QueryMatch } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { BacklinkWithArgs } from 'src/js/page/tile.js';
 
 
 export enum CollocMetric {
@@ -61,5 +61,129 @@ export class Actions {
     static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
         name: GlobalActions.TilePartialDataLoaded.name
     };
+}
 
+
+
+// Sub-query related types
+
+export type CollocSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
+
+
+export function isCollocSubqueryPayload(payload:{}):payload is CollocSubqueryPayload {
+    return isSubqueryPayload(payload) && payload.subqueries.length > 0 &&
+            payload.subqueries[0].value['context'] !== undefined;
+}
+
+
+// API related types
+
+export type DataHeading = Array<{
+    label:string;
+    ident:string;
+}>;
+
+
+export interface DataRow {
+    str:string;
+    stats:Array<number>;
+    freq:number;
+    nfilter:[string, string];
+    pfilter:[string, string];
+    interactionId:string;
+}
+
+export interface CollApiResponse {
+    concId:string;
+    collHeadings:DataHeading;
+    data:Array<DataRow>;
+}
+
+export enum SrchContextType {
+    LEFT = 'lft',
+    RIGHT = 'rgt',
+    BOTH = 'both'
+}
+
+
+export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {
+    switch (ctxType) {
+        case SrchContextType.BOTH:
+            return [-1 * range, range];
+        case SrchContextType.LEFT:
+            return [-1 * range, 0];
+        case SrchContextType.RIGHT:
+            return [0, range];
+        default:
+            throw new Error('unknown ctxType ' + ctxType);
+    }
+}
+
+
+export interface KonTextCollArgs {
+    corpname:string;
+    q:string;
+    cattr:string;
+    cfromw:number;
+    ctow:number;
+    cminfreq:number;
+    cminbgr:number;
+    cbgrfns:Array<string>;
+    csortfn:string;
+    citemsperpage:number;
+}
+
+export interface CollocModelState {
+    isBusy:boolean;
+    tileId:number;
+    isTweakMode:boolean;
+    isAltViewMode:boolean;
+    error:string|null;
+    widthFract:number;
+    corpname:string;
+    concIds:Array<string>;
+    selectedText:string;
+
+    /**
+     * A positional attribute used to analyze the text
+     */
+    tokenAttr:string;
+
+    /**
+     * KWIC search range (-a, +a)
+     */
+    srchRange:number;
+
+    /**
+     * KWIC search range type: (-a, 0), (-a, a), (0, a)
+     */
+    srchRangeType:SrchContextType;
+
+    /**
+     * Min. required absolute freq. of a term
+     * (i.e. not only within searched context)
+     */
+    minAbsFreq:number;
+
+    /**
+     * Min. required absolute freq. of a term
+     * when looking only in the searched context
+     */
+    minLocalAbsFreq:number;
+
+    appliedMetrics:Array<CollocMetric>; // TODO generalize
+
+    sortByMetric:CollocMetric;
+
+    data:Array<Array<DataRow>>;
+
+    heading:DataHeading;
+
+    citemsperpage:number;
+
+    backlinks:Array<BacklinkWithArgs<{}>>;
+
+    queryMatches:Array<QueryMatch>;
+
+    posQueryGenerator:[string, string];
 }

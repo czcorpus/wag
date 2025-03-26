@@ -16,8 +16,57 @@
  * limitations under the License.
  */
 
-import { ViewMode, Line } from '../../../api/abstract/concordance.js';
-import { AttrViewMode } from '../../../api/vendor/kontext/types.js';
+
+export type AttrViewMode = 'visible-all'|'visible-kwic'|'visible-multiline'|'mouseover';
+
+
+export enum ViewMode {
+    KWIC = 'kwic',
+    SENT = 'sen',
+    ALIGN = 'align'
+}
+
+
+export type LineElementType = ''|'strc'|'attr'|'str'|'coll';
+
+
+export interface LineElement {
+    type:LineElementType;
+    str:string;
+    mouseover?:Array<string>;
+}
+
+
+export interface Line {
+    left:Array<LineElement>;
+    kwic:Array<LineElement>;
+    right:Array<LineElement>;
+    align?:Array<{
+        left:Array<LineElement>;
+        kwic:Array<LineElement>;
+        right:Array<LineElement>;
+        toknum:number;
+    }>;
+    toknum:number;
+    metadata?:Array<{label:string; value:string}>;
+    interactionId?:string;
+    isHighlighted?:boolean;
+}
+
+
+export interface ConcResponse {
+    query:string;
+    corpName:string;
+    primaryCorp?:string;
+    subcorpName:string;
+    lines:Array<Line>;
+    concsize:number;
+    arf:number;
+    ipm:number;
+    messages:Array<[string, string]>;
+    concPersistenceID:string;
+    kwicNumTokens?:number;
+}
 
 
 export interface ConcData {
@@ -29,25 +78,6 @@ export interface ConcData {
     loadPage:number; // the one we are going to load
     concId:string;
     lines:Array<Line>;
-}
-
-export interface ConcordanceMinState {
-    tileId:number;
-    queries:Array<string>;
-    corpname:string;
-    otherCorpname:string;
-    subcname:string;
-    subcDesc:string;
-    kwicLeftCtx:number;
-    kwicRightCtx:number;
-    pageSize:number;
-    attr_vmode:AttrViewMode;
-    viewMode:ViewMode;
-    shuffle:boolean;
-    metadataAttrs:Array<{value:string; label:string}>;
-    attrs:Array<string>;
-    posQueryGenerator:[string, string];
-    concordances:Array<ConcData>;
 }
 
 

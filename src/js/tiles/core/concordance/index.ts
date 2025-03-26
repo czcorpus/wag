@@ -22,14 +22,14 @@ import { IAppServices } from '../../../appServices.js';
 
 import { LocalizedConfMsg } from '../../../types.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider,
+    ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
-import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { MQueryConcApi } from 'src/js/api/vendor/mquery/concordance.js';
-import { ViewMode } from 'src/js/api/vendor/mquery/common.js';
+import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
+import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
@@ -72,7 +72,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
+    private readonly blockingTiles:Array<number>;IConcordanceApi
 
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,

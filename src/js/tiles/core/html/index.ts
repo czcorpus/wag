@@ -21,10 +21,19 @@ import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
 import { HtmlModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import {
+    TileConf,
+    ITileProvider,
+    TileComponent,
+    TileFactory,
+    TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileReloader,
+    AltViewIconProps
+} from '../../../page/tile.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { createApiInstance } from '../../../api/factory/html.js';
-import { IGeneralHtmlAPI } from '../../../api/abstract/html.js';
+import { DataApi } from 'src/js/types.js';
+import { HtmlApiArgs, RawHtmlAPI } from './api.js';
 
 
 export interface HtmlTileConf extends TileConf {
@@ -54,7 +63,7 @@ export class HtmlTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly api:IGeneralHtmlAPI<{}>;
+    private readonly api:RawHtmlAPI;
 
     private view:TileComponent;
 
@@ -67,7 +76,7 @@ export class HtmlTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.api = createApiInstance(conf.apiType, conf.apiURL, appServices);
+        this.api = new RawHtmlAPI(conf.apiURL, appServices);
         this.model = new HtmlModel({
             dispatcher: dispatcher,
             tileId: tileId,

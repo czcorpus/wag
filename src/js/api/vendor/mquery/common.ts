@@ -30,50 +30,6 @@ export interface FreqRowResponse {
     coOccScore:number;
 }
 
-export type LineElementType = ''|'strc'|'attr'|'str'|'coll';
-
-export interface LineElement {
-    type:LineElementType;
-    str:string;
-    mouseover?:Array<string>;
-}
-
-export interface Line {
-    left:Array<LineElement>;
-    kwic:Array<LineElement>;
-    right:Array<LineElement>;
-    align?:Array<{
-        left:Array<LineElement>;
-        kwic:Array<LineElement>;
-        right:Array<LineElement>;
-        toknum:number;
-    }>;
-    toknum:number;
-    metadata?:Array<{label:string; value:string}>;
-    interactionId?:string;
-    isHighlighted?:boolean;
-}
-
-export interface ConcResponse {
-    query:string;
-    corpName:string;
-    primaryCorp?:string;
-    subcorpName:string;
-    lines:Array<Line>;
-    concsize:number;
-    arf:number;
-    ipm:number;
-    messages:Array<[string, string]>;
-    concPersistenceID:string;
-    kwicNumTokens?:number;
-}
-
-export enum ViewMode {
-    KWIC = 'kwic',
-    SENT = 'sen',
-    ALIGN = 'align'
-}
-
 
 export function escapeVal(v:string) {
     const map = {
