@@ -1,0 +1,164 @@
+{
+    "type": "object",
+    "properties": {
+        "apiURL": {
+            "type": "string"
+        },
+        "apiType": {
+            "type": "string"
+        },
+        "corpname": {
+            "type": "string"
+        },
+        "fcrit": {
+            "type": "string"
+        },
+        "freqType": {
+            "enum": [
+                "text-types",
+                "tokens"
+            ],
+            "type": "string"
+        },
+        "flimit": {
+            "type": "number"
+        },
+        "freqSort": {
+            "type": "string",
+            "enum": [
+                "rel"
+            ]
+        },
+        "fpage": {
+            "type": "number"
+        },
+        "fttIncludeEmpty": {
+            "type": "boolean"
+        },
+        "areaCodeMapping": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "frequencyDisplayLimit": {
+            "type": "number"
+        },
+        "tileType": {
+            "description": "An identifier as defined by tiles configuration interface",
+            "type": "string"
+        },
+        "helpURL": {
+            "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+            "anyOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "backlink": {
+            "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage.",
+            "$ref": "#/definitions/Backlink"
+        },
+        "isDisabled": {
+            "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+            "type": "boolean"
+        },
+        "waitForTimeoutSecs": {
+            "type": "number"
+        },
+        "label": {
+            "description": "A label used in the header of the tile",
+            "anyOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "srcInfoURL": {
+            "description": "If needed, a specific address for a resource information can be defined.\n(e.g. you still want to use KonText as a corpus information provider\nfor a non-KonText service).",
+            "type": "string"
+        },
+        "maxTileHeight": {
+            "description": "Defines tile max height using a css value (e.g. '10em', '130px').\nIf other tiles in the row enforce more height, the value is ignored\n(but a possible scrollbar is still applied if needed).",
+            "type": "string"
+        },
+        "compatibleSubqProviders": {
+            "description": "Defines tiles which can be used as sources of subqueries",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "apiType",
+        "apiURL",
+        "areaCodeMapping",
+        "corpname",
+        "fcrit",
+        "flimit",
+        "fpage",
+        "freqSort",
+        "freqType",
+        "frequencyDisplayLimit",
+        "fttIncludeEmpty",
+        "tileType"
+    ],
+    "definitions": {
+        "Backlink": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": {
+                    "enum": [
+                        "CONNECT",
+                        "DELETE",
+                        "GET",
+                        "HEAD",
+                        "OPTIONS",
+                        "PATCH",
+                        "POST",
+                        "PUT",
+                        "TRACE"
+                    ],
+                    "type": "string"
+                },
+                "subcname": {
+                    "type": "string"
+                },
+                "isAppUrl": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#"
+}
