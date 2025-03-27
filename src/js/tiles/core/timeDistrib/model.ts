@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
@@ -72,6 +72,7 @@ export interface TimeDistribModelState {
     fcrit:string;
     fromYear:number;
     toYear:number;
+    maxItems:number;
     refArea:[number,number];
     zoom:[number, number];
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
@@ -498,11 +499,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     );
                 }
             }),
-            tap(
-                args => {
-                    console.log('args: ', args);
-                }
-            ),
             concatMap(
                 args => callWithExtraVal(
                     this.api,
@@ -510,11 +506,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     multicastRequest,
                     {
                         corpName: state.corpname,
-                        query: mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
+                        q: mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
                         subcorpName: undefined, // TOOD
                         fromYear: state.fromYear ? state.fromYear + '' : undefined,
                         toYear: state.toYear ? state.toYear + '' : undefined,
-                        fcrit: state.fcrit
+                        fcrit: state.fcrit,
+                        maxItems: state.maxItems
                     },
                     args
                 )

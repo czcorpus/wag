@@ -36,13 +36,13 @@ export interface MergeCorpFreqTileConf extends TileConf {
     apiType:string;
     pixelsPerCategory?:number;
     downloadLabel?:string;
-    posQueryGenerator:[string, string];
     sources:Array<{
 
         corpname:string;
         subcname?:string;
         corpusSize:number;
         fcrit:string;
+        posQueryGenerator:[string, string];
         freqType:'tokens'|'text-types';
         flimit:number;
         freqSort:string;
@@ -144,12 +144,11 @@ export class MergeCorpFreqTile implements ITileProvider {
                         valuePlaceholder: src.valuePlaceholder ?
                                 appServices.importExternalMessage(src.valuePlaceholder) :
                                 null,
-                        uuid: Ident.puid(),
                         backlinkTpl: src.backlink || null,
                         backlink: null,
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
-                        posQueryGenerator: conf.posQueryGenerator
+                        posQueryGenerator: src.posQueryGenerator
                     }),
                     conf.sources
                 ),

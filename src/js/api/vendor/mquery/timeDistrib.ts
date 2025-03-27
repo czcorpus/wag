@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { map, Observable, scan, takeWhile } from 'rxjs';
+import { map, Observable, scan, takeWhile, throwError } from 'rxjs';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
@@ -32,15 +32,17 @@ export interface TimeDistribArgs {
 
     corpName:string;
 
-    query:string;
+    q:string;
 
     fcrit:string;
 
-    subcorpName?:string;
+    maxItems:number;
 
-    fromYear?:string;
+    subcorpName:string|undefined;
 
-    toYear?:string;
+    fromYear:string|undefined;
+
+    toYear:string|undefined;
 }
 
 export type CustomArgs = {[k:string]:string};
@@ -119,7 +121,6 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     private readonly apiServices:IApiServices;
 
     constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
-        console.log('MQueryTimeDistribStreamApi: ', apiURL, useDataStream)
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
@@ -137,9 +138,10 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
         return pipe(
             {
-                q: queryArgs.query,
+                ...queryArgs,
                 event: eventSource ? `DataTile-${tileId}` : undefined
             },
+            Dict.filter((v, k) => v !== undefined),
             Dict.map(
                 (v, k) => encodeURIComponent(v)
             ),
@@ -161,7 +163,6 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     */
     private callViaDataStream(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         const args = this.prepareArgs(tileId, queryArgs, true);
-        console.log('call via data stream ', args)
         return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
                 multicastRequest,
                 {
@@ -192,7 +193,10 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
                 ) <= curr.totalChunks
             ),
             map(
-                ({curr, chunks}) => {
+                ({curr}) => {
+                    if (curr.error) {
+                        throw new Error(curr.error);
+                    }
                     return {
                         corpName: queryArgs.corpName,
                         subcorpName: queryArgs.subcorpName,
@@ -200,9 +204,9 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
                             v => ({
                                 datetime: v.word,
                                 freq: v.freq,
-                                norm: v.base,
+                                norm: v.base
                             }),
-                            curr.entries.freqs,
+                            curr.entries.freqs
                         ),
                         overwritePrevious: true
                     }

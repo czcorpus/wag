@@ -31,36 +31,33 @@ import urlJoin from 'url-join';
 import { ajax$ } from '../../../page/ajax.js';
 
 
-export interface DataRow {
-    name:string;
-    freq:number;
-    ipm:number;
-    norm:number;
-    order?:number;
-}
 
-
-export interface APIResponse {
-    data:Array<{
-        corpname:string;
-        subcorpus:string|null;
-        concsize:number;
-        rows:Array<DataRow>;
-    }>
-}
 
 export interface APIArgs {
 
 }
 
 
-export interface HTTPResponse {
-
+export interface DataRow {
+    word:string;
+    freq:number;
+    base:number;
+    ipm:number;
 }
 
 
+export interface SingleFreqResult {
+    concSize:number;
+    corpusSize:number;
+    fcrit:number;
+    freqs:Array<DataRow>;
+}
 
-export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, APIResponse> {
+export type HTTPResponse = Array<SingleFreqResult>;
+
+
+
+export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, HTTPResponse> {
 
     private readonly apiURL:string;
 
@@ -100,7 +97,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, APIResp
                 queryMatch
             ),
             state.sources
-        )
+        );
     }
 
     private prepareArgs(queryArgs:MQueryFreqArgs):string {
@@ -114,6 +111,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, APIResp
                 matchCase: queryArgs.queryArgs.matchCase,
                 maxItems: queryArgs.queryArgs.maxItems
             },
+            Dict.filter((v, k) => v !== undefined),
             Dict.toEntries(),
             List.map(
                 ([k, v]) => `${k}=${encodeURIComponent(v)}`
@@ -129,14 +127,13 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, APIResp
                 args
             )
         }
-
         if (this.useDataStream) {
             return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.POST,
-                    url: urlJoin(this.apiURL, '/merge-freqs/'),
+                    url: urlJoin(this.apiURL, '/merge-freqs'),
                     body: eargs,
                     contentType: 'application/json',
                 }
@@ -145,7 +142,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, APIResp
         } else {
             return ajax$<HTTPResponse>(
                 'POST',
-                urlJoin(this.apiURL, '/merge-freqs/'),
+                urlJoin(this.apiURL, '/merge-freqs'),
                 eargs,
                 {
                     headers: this.apiServices.getApiHeaders(this.apiURL),
@@ -155,29 +152,8 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, APIResp
         }
     }
 
-    call(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs>):Observable<APIResponse> {
-        return this.mkRequest(tileId, multicastRequest, args).pipe(
-            /*
-            map(
-                resp => ({
-                    data: List.map(
-                        x => x,
-                        resp.data
-                    )
-                })
-            )
-                */
-            tap(
-                v => {
-                    console.log("RESPONSE IS: ", v)
-                }
-            ),
-            map(
-                v => ({
-                    data: []
-                })
-            )
-        )
+    call(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs>):Observable<HTTPResponse> {
+        return this.mkRequest(tileId, multicastRequest, args);
     }
 
     getSourceDescription(

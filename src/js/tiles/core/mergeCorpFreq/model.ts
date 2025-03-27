@@ -19,6 +19,8 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import * as domtoimage from 'dom-to-image-more';
+import { concatMap, map, tap } from 'rxjs/operators';
+import { of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -28,6 +30,7 @@ import { Actions } from './actions.js';
 import { isWebDelegateApi } from '../../../types.js';
 import { Backlink, createAppBacklink } from '../../../page/tile.js';
 import { MergeFreqsApi } from './api.js';
+
 
 
 
@@ -92,43 +95,23 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.loadFreqs(state, true, state.queryMatches[0], dispatch);
+                // TODO add support for the cmp mode
+                this.loadFreqs(state, true, state.queryMatches[0], 0, dispatch);
             }
         );
 
-        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
-            Actions.PartialTileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.PartialTileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    if (this.backlink !== null && this.backlink.isAppUrl && state.appBacklink === null) {
-                        state.appBacklink = createAppBacklink(this.backlink);
-                    }
-
-                    if (state.data[action.payload.queryId] === undefined) {
-                        state.data[action.payload.queryId] = [];
-                    }
-
-                    state.data[action.payload.queryId] = pipe(
-                        state.data[action.payload.queryId],
-                        List.concat(action.payload.data.length > 0 ?
-                            action.payload.data :
-                            [{
-                                sourceId: action.payload.sourceId,
-                                name: action.payload.valuePlaceholder,
-                                freq: 0,
-                                ipm: 0,
-                                norm: 0,
-                                backlink: null,
-                                uniqueColor: false
-                            }]
-                        ),
-                        List.filter(v => !!v.name),
-                        List.sortAlphaBy(v => {
-                            const idx = List.findIndex(s => s.uuid === v.sourceId, state.sources);
-                            return `${idx}${v.name}`;
-                        })
-                    );
+                if (this.backlink !== null && this.backlink.isAppUrl && state.appBacklink === null) {
+                    state.appBacklink = createAppBacklink(this.backlink);
                 }
+
+                if (state.data[action.payload.queryId] === undefined) {
+                    state.data[action.payload.queryId] = [];
+                }
+                state.data[action.payload.queryId] = state.data[action.payload.queryId].concat(action.payload.data)
             }
         );
 
@@ -242,12 +225,72 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         state:MergeCorpFreqModelState,
         multicastRequest:boolean,
         queryMatch:QueryMatch,
-        dispatch:SEDispatcher
+        queryId:number,
+        seDispatch:SEDispatcher
     ):void {
         this.freqApi.call(
             this.tileId,
             multicastRequest,
             this.freqApi.stateToArgs(state, queryMatch)
-        )
+
+        ).pipe(
+            concatMap(
+                resp => rxOf(...List.map((x, i) => tuple(i, x), resp))
+            ),
+            map(
+                ([sourceIdx, resp]) => tuple(
+                    sourceIdx,
+                    {
+                        ...resp,
+                        freqs: List.map(
+                            (v, i) => ({
+                                ...v,
+                                sourceIdx,
+                                name: `${v.word}:${sourceIdx}`,
+                                backlink: null,
+                                uniqueColor: true // TODO
+                            }),
+                            resp.freqs
+                        )
+                    }
+                )
+             ),
+             tap(
+                ([sourceIdx, resp]) => {
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            data: resp.freqs,
+                            valuePlaceholder: '', // TODO
+                            queryId,
+                            sourceIdx
+                        }
+                    });
+                }
+            ),
+
+        ).subscribe({
+            next: ([, resp]) => {
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload:{
+                        tileId: this.tileId,
+                        isEmpty: List.empty(resp.freqs)
+                    }
+                });
+            },
+            error: error => {
+                console.error(error);
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true
+                    },
+                    error
+                });
+            }
+        })
     }
 }

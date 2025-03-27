@@ -26,8 +26,7 @@ export interface DataLoadedPayload {
     data:Array<SourceMappedDataRow>;
     valuePlaceholder:string;
     queryId:number;
-    concId:string;
-    sourceId:string;
+    sourceIdx:number;
 }
 
 export class Actions {

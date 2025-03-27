@@ -41,7 +41,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Array<Array<SourceMappedDataRow>>,
         queryMatches: Array<QueryMatch>
     ):Array<{name:string; ipm:Array<number>; freq:Array<number>; uniqueColor:boolean}> {
-
         return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
@@ -171,7 +170,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
                                 {List.map(
                                     (entry, i) => <Cell key={`cell-${index}`} />,
-                                transformedData)}
+                                    transformedData)
+                                }
                             </Bar>
                         ),
                         props.queryMatches
@@ -187,63 +187,58 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <MergeCorpFreqBarTile /> --------------------------------------
 
-    class MergeCorpFreqBarTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
+    const MergeCorpFreqBarTile:React.FC<MergeCorpFreqModelState & CoreTileComponentProps> = (props) => {
 
-        render() {
-            const backlinks = this.props.appBacklink ?
-                [this.props.appBacklink] :
-                pipe(
-                    this.props.data,
-                    List.filter(x => x !== undefined),
-                    List.flatMap(v => v),
-                    List.groupBy(v => v.sourceId),
-                    List.map(([,v]) => v[0].backlink)
-                );
+        const backlinks = props.appBacklink ?
+            [props.appBacklink] :
+            []; // TODO
 
-            const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
-            const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
-            const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
+        const numCats = Math.max(0, ...props.data.map(v => v ? v.length : 0));
+        const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
+        const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
 
-            return (
-                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={List.some(v => v && List.some(f => f.freq > 0, v), this.props.data)}
-                        sourceIdent={pipe(
-                            this.props.sources,
-                            List.groupBy(v => v.corpname),
-                            List.flatMap(([,v]) => v),
-                            List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
-                        }
-                        backlink={(!List.empty(backlinks) && List.some(v => !!v, backlinks)) ? backlinks : null}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <div style={{position: 'relative'}}>
-                        {this.props.tooltipData !== null ?
-                            <globComponents.ElementTooltip
-                                x={this.props.tooltipData.tooltipX}
-                                y={this.props.tooltipData.tooltipY}
-                                visible={true}
-                                caption={this.props.tooltipData.caption}
-                                values={this.props.tooltipData.data}
-                                multiWord={this.props.queryMatches.length > 1}
-                                colors={this.props.queryMatches.length > 1 ?
-                                    idx => theme.cmpCategoryColor(idx, this.props.queryMatches.length) :
-                                    null}
-                            /> : null}
-                    </div>
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={List.some(v => v && List.some(f => f.freq > 0, v), props.data)}
+                    sourceIdent={pipe(
+                        props.sources,
+                        List.groupBy(v => v.corpname),
+                        List.flatMap(([,v]) => v),
+                        List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
+                    }
+                    backlink={(!List.empty(backlinks) && List.some(v => !!v, backlinks)) ? backlinks : null}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <div style={{position: 'relative'}}>
+                    {props.tooltipData !== null ?
+                        <globComponents.ElementTooltip
+                            x={props.tooltipData.tooltipX}
+                            y={props.tooltipData.tooltipY}
+                            visible={true}
+                            caption={props.tooltipData.caption}
+                            values={props.tooltipData.data}
+                            multiWord={props.queryMatches.length > 1}
+                            colors={props.queryMatches.length > 1 ?
+                                idx => theme.cmpCategoryColor(idx, props.queryMatches.length) :
+                                null}
+                        /> : null}
+                </div>
 
-                    <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
-                        return <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
-                            {this.props.isAltViewMode ?
+                <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
+                    return (
+                        <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
+                            {props.isAltViewMode ?
                                 <S.Tables>
-                                    <TableView tileId={this.props.tileId} data={this.props.data} queryMatches={this.props.queryMatches} />
+                                    <TableView tileId={props.tileId} data={props.data} queryMatches={props.queryMatches} />
                                 </S.Tables> :
-                                <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
+                                <Chart tileId={props.tileId} data={props.data} barCategoryGap={barCategoryGap}
+                                        queryMatches={props.queryMatches} isPartial={props.isBusy} isMobile={props.isMobile} />
                             }
                         </S.MergeCorpFreqBarTile>
-                    }} />
-                </globComponents.TileWrapper>
-            );
-        }
+                    );
+                }} />
+            </globComponents.TileWrapper>
+        );
     }
 
     return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(MergeCorpFreqBarTile, model);

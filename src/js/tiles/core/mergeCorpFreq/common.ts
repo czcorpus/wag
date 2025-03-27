@@ -20,6 +20,7 @@ import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { QueryMatch } from '../../../query/index.js';
 import { TooltipValues } from '../../../views/common/index.js';
+import { DataRow } from './api.js';
 
 export interface ModelSourceArgs extends MinSingleCritFreqState {
 
@@ -39,21 +40,14 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
 
     backlinkTpl:Backlink;
 
-    uuid:string;
-
     isSingleCategory:boolean;
 
     uniqueColor:boolean;
 }
 
-export interface SourceMappedDataRow {
-    sourceId:string;
-    error?:Error;
+export interface SourceMappedDataRow extends DataRow {
+    sourceIdx:number;
     name:string;
-    freq:number;
-    ipm:number;
-    norm:number;
-    order?:number;
     backlink:BacklinkWithArgs<{}>|null;
     uniqueColor:boolean;
 }
@@ -64,6 +58,13 @@ export interface MergeCorpFreqModelState {
     isBusy:boolean;
     isAltViewMode:boolean;
     error:string;
+
+    /**
+     * Frequency data.
+     * The outer array separates queries in the "cmp" mode;
+     * in the "single" mode, it has a size of 1.
+     * The inner array represents multiple configured freq. resources.
+     */
     data:Array<Array<SourceMappedDataRow>>;
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;

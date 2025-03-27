@@ -157,7 +157,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 }) :
                 ajax$<HTTPResponse>(
                     'GET',
-                    this.apiURL + `/${args.path}/${args.corpname}`,
+                    urlJoin(this.apiURL, args.path, args.corpname),
                     args.queryArgs,
                     {
                         headers: this.apiServices.getApiHeaders(this.apiURL),

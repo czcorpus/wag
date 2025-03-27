@@ -93,6 +93,7 @@ export class TimeDistTile implements ITileProvider {
                 refArea: [null, null],
                 fromYear: conf.fromYear,
                 toYear: conf.toYear,
+                maxItems: conf.maxItems,
                 fcrit: conf.fcrit,
                 backlinks: [],
                 subcBacklinkLabel: conf.subcBacklinkLabel || {}
