@@ -40,6 +40,7 @@ interface TileRequest {
 interface EventItem<T = unknown> {
     tileId:number;
     data:T;
+    error?:string;
 }
 
 /**
@@ -121,8 +122,10 @@ export class DataStreaming {
                             (val, key) => {
                                 evtSrc.addEventListener(`DataTile-${val.tileId}`, evt => {
                                     if (val.contentType == 'application/json') {
+                                        const tmp = JSON.parse(evt.data);
                                         observer.next({
-                                            data: JSON.parse(evt.data),
+                                            data: tmp,
+                                            error: tmp.error,
                                             tileId: val.tileId
                                         });
 
@@ -135,8 +138,7 @@ export class DataStreaming {
 
                                     } else {
                                         observer.next({
-                                            data: val.contentType == 'application/json' ?
-                                                JSON.parse(evt.data) : evt.data,
+                                            data: evt.data,
                                             tileId: val.tileId
                                         })
                                     }
@@ -200,7 +202,12 @@ export class DataStreaming {
             this.requestSubject.next(this.prepareTileRequest(entry));
             return this.responseStream.pipe(
                 filter((response:EventItem<T>) => response.tileId === entry.tileId),
-                map(response => response.data as T)
+                map(response => {
+                    if (response.error) {
+                        throw new Error(response.error);
+                    }
+                    return response.data as T;
+                })
             );
 
         } else {
@@ -234,8 +241,10 @@ export class DataStreaming {
                         );
                         evtSrc.addEventListener(`DataTile-${reqEntry.tileId}`, evt => {
                             if (reqEntry.contentType == 'application/json') {
+                                const tmp = JSON.parse(evt.data);
                                 observer.next({
-                                    data: JSON.parse(evt.data),
+                                    data: tmp,
+                                    error: tmp.error,
                                     tileId: reqEntry.tileId
                                 });
 
@@ -248,8 +257,7 @@ export class DataStreaming {
 
                             } else {
                                 observer.next({
-                                    data: reqEntry.contentType == 'application/json' ?
-                                        JSON.parse(evt.data) : evt.data,
+                                    data: evt.data,
                                     tileId: reqEntry.tileId
                                 })
                             }
