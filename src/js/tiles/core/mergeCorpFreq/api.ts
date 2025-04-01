@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-import { map, of as rxOf, tap } from 'rxjs';
+import { map, of as rxOf } from 'rxjs';
 import { SourceDetails, ResourceApi } from '../../../types.js';
 import { Observable } from 'rxjs';
 import { Backlink } from '../../../page/tile.js';
@@ -114,7 +114,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
                 matchCase: queryArgs.queryArgs.matchCase,
                 maxItems: queryArgs.queryArgs.maxItems
             },
-            Dict.filter((v, k) => v !== undefined),
+            Dict.filter((v, k) => !!v),
             Dict.toEntries(),
             List.map(
                 ([k, v]) => `${k}=${encodeURIComponent(v)}`
