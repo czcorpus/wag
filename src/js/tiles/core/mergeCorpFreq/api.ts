@@ -53,11 +53,14 @@ export interface SingleFreqResult {
     freqs:Array<DataRow>;
 }
 
-export type HTTPResponse = Array<SingleFreqResult>;
+export interface HTTPResponse {
+    parts:Array<SingleFreqResult>;
+    error?:string;
+};
 
 
 
-export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, HTTPResponse> {
+export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<SingleFreqResult>> {
 
     private readonly apiURL:string;
 
@@ -152,8 +155,8 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, HTTPRes
         }
     }
 
-    call(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs>):Observable<HTTPResponse> {
-        return this.mkRequest(tileId, multicastRequest, args);
+    call(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
+        return this.mkRequest(tileId, multicastRequest, args).pipe(map(resp => resp.parts));
     }
 
     getSourceDescription(
