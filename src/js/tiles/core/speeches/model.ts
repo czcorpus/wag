@@ -21,18 +21,27 @@ import { pipe, List, HTTP } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions.js';
-import { isSubqueryPayload } from '../../../query/index.js';
+import { isSubqueryPayload, SubqueryPayload } from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
-import { SingleConcLoadedPayload } from '../../../api/abstract/concordance.js';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
-import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize.js';
 import { IAudioUrlGenerator } from './audio.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { TileWait } from '../../../models/tileSync.js';
+import { normalizeConcDetailTypography } from '../../../api/vendor/mquery/concordance/normalize.js';
+import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 
 
+
+/**
+ * A general action notifying about single query
+ * (out of possibly multiple queries) concordance load.
+ */
+export interface SingleConcLoadedPayload extends SubqueryPayload {
+    tileId:number;
+    data:ConcResponse;
+}
 
 export interface SpeechesModelArgs {
     dispatcher:IActionQueue;
