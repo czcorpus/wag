@@ -20,11 +20,11 @@ import { Observable, of as rxOf } from 'rxjs';
 import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit'
 import { ajax$ } from '../../../page/ajax.js';
-import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo.js';
-import { LineElementType } from '../../../api/abstract/concordance.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import urlJoin from 'url-join';
+import { LineElementType } from '../../../api/vendor/mquery/concordance/common.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 
@@ -77,7 +77,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call(tileId, multicastRequest, {
             corpname: corpname,
-            format: 'json'
+            lang: lang
         });
     }
 

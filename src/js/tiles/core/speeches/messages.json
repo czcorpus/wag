@@ -1,0 +1,20 @@
+{
+    "en-US": {
+        "speeches__no_speech_metadata_available": "Metadata not available due to partially displayed speech. Try to expand the context.",
+        "speeches__expand_up_symbol": "Expand up icon",
+        "speeches__expand_down_symbol": "Expand down icon",
+        "speeches__click_to_expand_up": "Click to expand up",
+        "speeches__click_to_expand_down": "Click to expand down",
+        "speeches__load_different_sp_button": "Load a different sample",
+        "speeches__play_all_btn": "Play all"
+    },
+    "cs-CZ": {
+        "speeches__no_speech_metadata_available": "Metadata nejsou k dispozici kvůli částečně zobrazené promluvě. Zkuste rozšířit kontext.",
+        "speeches__expand_up_symbol": "Ikonka rozšíření nahoru",
+        "speeches__expand_down_symbol": "Ikonka rozšíření dolů",
+        "speeches__click_to_expand_up": "Klikněte pro rozšíření nahoru",
+        "speeches__click_to_expand_down": "Klikněte pro rozšíření dolů",
+        "speeches__load_different_sp_button": "Nahrát jinou ukázku",
+        "speeches__play_all_btn": "Přehrát vše"
+    }
+}
