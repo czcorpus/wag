@@ -114,7 +114,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
                 matchCase: queryArgs.queryArgs.matchCase,
                 maxItems: queryArgs.queryArgs.maxItems
             },
-            Dict.filter((v, k) => v !== undefined),
+            Dict.filter((v, k) => v !== undefined && v !== null),
             Dict.toEntries(),
             List.map(
                 ([k, v]) => `${k}=${encodeURIComponent(v)}`
