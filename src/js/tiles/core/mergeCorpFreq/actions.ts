@@ -24,7 +24,6 @@ import { SourceMappedDataRow } from './common.js';
 
 export interface DataLoadedPayload {
     data:Array<SourceMappedDataRow>;
-    valuePlaceholder:string;
     queryId:number;
     sourceIdx:number;
 }

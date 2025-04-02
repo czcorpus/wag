@@ -29,7 +29,7 @@ import { MergeCorpFreqModelState } from './common.js';
 import { Actions } from './actions.js';
 import { isWebDelegateApi } from '../../../types.js';
 import { Backlink, createAppBacklink } from '../../../page/tile.js';
-import { MergeFreqsApi } from './api.js';
+import { DataRow, MergeFreqsApi } from './api.js';
 
 
 
@@ -242,15 +242,42 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     sourceIdx,
                     {
                         ...resp,
-                        freqs: List.map(
-                            (v, i) => ({
-                                ...v,
-                                sourceIdx,
-                                name: `${v.word}:${sourceIdx}`,
-                                backlink: null,
-                                uniqueColor: true // TODO
-                            }),
-                            resp.freqs
+                        freqs: pipe(
+                            resp.freqs,
+                            state.sources[sourceIdx].isSingleCategory ?
+                                List.foldl<DataRow, Array<DataRow>>(
+                                    (acc, curr) => {
+                                        const freq =  acc[0].freq + curr.freq;
+                                        const base = acc[0].base + curr.base;
+                                        return [{
+                                            word: curr.word, // here we assume, it will be replaced by a placeholder
+                                            freq,
+                                            base,
+                                            ipm: freq / base * 1000000
+                                        }]
+                                    },
+                                    [{
+                                        word: '',
+                                        freq: 0,
+                                        base: 0,
+                                        ipm: 0
+                                    }]
+                                ) :
+                                x => x,
+                            List.map(
+                                (v, i) => ({
+                                    ...v,
+                                    sourceIdx,
+                                    name: state.sources[sourceIdx].valuePlaceholder ?
+                                        this.appServices.importExternalMessage(
+                                            state.sources[sourceIdx].valuePlaceholder
+                                        ) :
+                                        `${v.word}`, // here we assume, that `.word` is unique
+                                    backlink: null,
+                                    uniqueColor: true // TODO
+                                })
+                            ),
+
                         )
                     }
                 )
@@ -262,7 +289,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                         payload: {
                             tileId: this.tileId,
                             data: resp.freqs,
-                            valuePlaceholder: '', // TODO
                             queryId,
                             sourceIdx
                         }

@@ -18,7 +18,7 @@
 
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
-import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
+import { concatMap, filter, first, map, scan, share, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
 
@@ -60,7 +60,7 @@ export class DataStreaming {
 
     private readonly rootUrl:string|undefined;
 
-    constructor(tileIds:Array<string|number>, rootUrl:string|undefined) {
+    constructor(tileIds:Array<string|number>, rootUrl:string|undefined, tilesReadyTimeoutSecs:number) {
         this.rootUrl = rootUrl;
         this.requestSubject = new Subject<TileRequest>();
         this.responseStream = this.requestSubject.pipe(
@@ -90,7 +90,7 @@ export class DataStreaming {
                     return true
                 }
             ),
-            timeout(30000),
+            timeout(tilesReadyTimeoutSecs),
             concatMap(
                 tileReqMap => ajax$<{id:string}>(
                     HTTP.Method.PUT,
@@ -161,11 +161,13 @@ export class DataStreaming {
             ),
             share()
         );
-        this.responseStream.subscribe({
-            error: error => {
-                console.log('response stream error: ', error)
-            }
-        });
+        if (typeof window !== 'undefined') {
+            this.responseStream.subscribe({
+                error: error => {
+                    console.log('response stream error: ', error)
+                }
+            });
+        }
     }
 
     private prepareTileRequest(entry:TileRequest):TileRequest {
@@ -279,6 +281,7 @@ export class DataStreaming {
             map(response => response.data as T),
             share()
         );
+
         responseStream.subscribe({
             error: error => {
                 console.log('response stream error: ', error)

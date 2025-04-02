@@ -82,43 +82,31 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
     }
 
     call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechResponse> {
-        if (args.pos !== undefined) {
-            if (this.useDataStream) {
-                const query = this.prepareArgs(args);
-                return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
-                    multicastRequest,
-                    {
-                        tileId,
-                        method: HTTP.Method.GET,
-                        url: urlJoin(this.apiUrl, '/widectx') + `?${query}`,
-                        body: {},
-                        contentType: 'application/json',
-                    }
-                );
-    
-            } else {
-                const headers = this.apiServices.getApiHeaders(this.apiUrl);
-                headers['X-Is-Web-App'] = '1';
-                return ajax$<SpeechResponse>(
-                    HTTP.Method.GET,
-                    this.apiUrl + '/widectx',
-                    args,
-                    {
-                        headers,
-                        withCredentials: true
-                    }
-                );
-            }
+        if (this.useDataStream) {
+            const query = this.prepareArgs(args);
+            return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: urlJoin(this.apiUrl, '/speeches') + `?${query}`,
+                    body: {},
+                    contentType: 'application/json',
+                }
+            );
 
         } else {
-            return rxOf({
-                pos: args.pos,
-                content: [],
-                expand_right_args: null,
-                expand_left_args: null,
-                widectx_globals: [],
-                messages: []
-            });
+            const headers = this.apiServices.getApiHeaders(this.apiUrl);
+            headers['X-Is-Web-App'] = '1';
+            return ajax$<SpeechResponse>(
+                HTTP.Method.GET,
+                this.apiUrl + '/speeches',
+                args,
+                {
+                    headers,
+                    withCredentials: true
+                }
+            );
         }
     }
 
