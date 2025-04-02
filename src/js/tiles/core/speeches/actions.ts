@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-import { ExpandArgs, Expand, Segment, ConcDetailText } from './modelDomain.js';
+import { ExpandArgs, Expand, Segment } from './modelDomain.js';
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { MarkupToken, SpeechToken } from './api.js';
 
 
 export interface SpeechDataPayload {
@@ -27,9 +28,7 @@ export interface SpeechDataPayload {
     availableTokens:Array<number>;
     concId:string|null;
     kwicNumTokens:number;
-    data:ConcDetailText|null;
-    expandRightArgs:ExpandArgs|null;
-    expandLeftArgs:ExpandArgs|null;
+    data:Array<SpeechToken|MarkupToken>;
 }
 
 

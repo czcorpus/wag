@@ -29,7 +29,6 @@ import { Actions } from './actions.js';
 import { IAudioUrlGenerator } from './audio.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { TileWait } from '../../../models/tileSync.js';
-import { normalizeConcDetailTypography } from '../../../api/vendor/mquery/concordance/normalize.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 
 
@@ -157,47 +156,49 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            GlobalActions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
+                state.isBusy = false;
+                if (action.error) {
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
+
+                } else {
+                    if (action.payload.concId !== null) {
+                        state.concId = action.payload.concId;
+                    }
+                    state.kwicNumTokens = action.payload.kwicNumTokens || 1;
+
+                    state.data = normalizeSpeechesRange(
+                        extractSpeeches(state, action.payload.data),
+                        state.maxNumSpeeches
+                    );
+
+                    if (action.payload.availableTokens) {
+                        state.availTokens =action.payload.availableTokens;
+                    }
+                    /*
+                    if (action.payload) {
+                        state.expandLeftArgs.push({
+                            leftCtx: action.payload.expandLeftArgs.leftCtx,
+                            rightCtx: action.payload.expandLeftArgs.rightCtx
+                        });
 
                     } else {
-                        if (action.payload.concId !== null) {
-                            state.concId = action.payload.concId;
-                        }
-                        state.kwicNumTokens = action.payload.kwicNumTokens || 1;
-
-                        state.data = normalizeSpeechesRange(
-                            extractSpeeches(state, normalizeConcDetailTypography(action.payload.data)),
-                            state.maxNumSpeeches);
-
-                        if (action.payload.availableTokens) {
-                            state.availTokens =action.payload.availableTokens;
-                        }
-                        if (action.payload.expandLeftArgs) {
-                            state.expandLeftArgs.push({
-                                leftCtx: action.payload.expandLeftArgs.leftCtx,
-                                rightCtx: action.payload.expandLeftArgs.rightCtx
-                            });
-
-                        } else {
-                            state.expandLeftArgs.push(null);
-                        }
-                        if (action.payload.expandRightArgs) {
-                            state.expandRightArgs.push({
-                                leftCtx: action.payload.expandRightArgs.leftCtx,
-                                rightCtx: action.payload.expandRightArgs.rightCtx
-                            });
-
-                        } else {
-                            state.expandRightArgs.push(null);
-                        }
-                        state.backlink = this.backlink ? this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state) : null;
+                        state.expandLeftArgs.push(null);
                     }
+                    if (action.payload.expandRightArgs) {
+                        state.expandRightArgs.push({
+                            leftCtx: action.payload.expandRightArgs.leftCtx,
+                            rightCtx: action.payload.expandRightArgs.rightCtx
+                        });
+
+                    } else {
+                        state.expandRightArgs.push(null);
+                    }
+                        */
+                    state.backlink = this.backlink ? this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state) : null;
                 }
             }
         );
@@ -412,22 +413,18 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         );
     }
 
-    private createArgs(state:SpeechesModelState, pos:number, kwicNumTokens:number, expand:Expand):SpeechReqArgs {
+    private createArgs(state:SpeechesModelState, idx:number, kwicNumTokens:number, expand:Expand):SpeechReqArgs {
         const args:SpeechReqArgs = {
-            attrs: 'word',
-            attr_allpos: 'all',
-            ctxattrs: 'word',
             corpname: state.corpname,
-            pos: pos,
-            hitlen: kwicNumTokens,
-            structs: [
+            idx,
+            // hitlen: kwicNumTokens,  TODO
+            struct: [
                 state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
                 state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
                 state.speechSegment[0] + '.' + state.speechSegment[1]
-            ].join(','),
-            format: 'json'
+            ]
         };
-
+/*
         if (expand === Expand.TOP) {
             args.detail_left_ctx = List.get(-1, state.expandLeftArgs).leftCtx;
             args.detail_right_ctx = List.get(-1, state.expandLeftArgs).rightCtx;
@@ -441,7 +438,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             args.detail_left_ctx = List.get(-1, state.expandRightArgs).leftCtx;
             args.detail_right_ctx = List.get(-1, state.expandLeftArgs).rightCtx;
         }
-
+*/
         return args;
     }
 
@@ -453,23 +450,17 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand)
 
             ).subscribe({
-                next: (payload) => {
+                next: (resp) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
-                            isEmpty: payload.content.length === 0,
+                            isEmpty: List.empty(resp.context.text),
                             availableTokens: tokens,
                             concId: concId,
                             kwicNumTokens: kwicNumTokens,
-                            data: List.map(
-                                v => ({
-                                    str: v.str,
-                                    type: v.class,
-                                    mouseover: v.mouseover
-                                }),
-                                payload.content
-                            ),
+                            data: resp.context.text,
+                            /*
                             expandLeftArgs: payload.expand_left_args ?
                                 {
                                     leftCtx: payload.expand_left_args.detail_left_ctx,
@@ -482,6 +473,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                                     rightCtx: payload.expand_right_args.detail_right_ctx,
                                     pos: payload.expand_right_args.pos
                                 } : null
+                            */
                         }
                     });
                 },
@@ -497,8 +489,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                             availableTokens: [],
                             isEmpty: true,
                             data: null,
-                            expandLeftArgs: null,
-                            expandRightArgs: null
+                            //expandLeftArgs: null,
+                            //expandRightArgs: null
                         }
                     });
                 }

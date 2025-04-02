@@ -30,28 +30,34 @@ import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 export interface SpeechReqArgs {
     corpname:string;
-    attrs:'word';
-    attr_allpos:'all';
-    ctxattrs:'word';
-    pos:number;
-    structs:string;
-    hitlen?:number;
-    detail_left_ctx?:number;
-    detail_right_ctx?:number;
-    format:'json';
+    idx:number;
+    struct:Array<string>;
+    leftCtx?:number;
+    rightCtx?:number;
 }
 
+export interface SpeechToken {
+    type:'token';
+    word:string;
+    strong:boolean;
+    attrs:{[k:string]:string};
+}
+
+export interface MarkupToken {
+    type:'markup';
+    structureType:'open'|'close';
+    attrs:{[k:string]:string};
+    name:string;
+}
+
+
 export interface SpeechResponse {
-    pos:number;
-    content:Array<{
-        'class':LineElementType;
-        str:string;
-        mouseover?:Array<string>;
-    }>;
-    expand_right_args:{detail_left_ctx:number; detail_right_ctx:number; pos:number}|null;
-    expand_left_args:{detail_left_ctx:number; detail_right_ctx:number; pos:number}|null;
-    widectx_globals:Array<[string, string]>;
-    messages:Array<[string, string]>;
+    context:{
+        text:Array<MarkupToken|SpeechToken>;
+        ref:string; // TODO do we need this?
+    };
+    resultType:'tokenContext';
+    error?:string;
 }
 
 /**
@@ -83,13 +89,14 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
 
     call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechResponse> {
         if (this.useDataStream) {
+            args['idx'] = 3016784;
             const query = this.prepareArgs(args);
             return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: urlJoin(this.apiUrl, '/speeches') + `?${query}`,
+                    url: urlJoin(this.apiUrl, 'token-context', args.corpname) + `?${query}`,
                     body: {},
                     contentType: 'application/json',
                 }
@@ -100,7 +107,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
             headers['X-Is-Web-App'] = '1';
             return ajax$<SpeechResponse>(
                 HTTP.Method.GET,
-                this.apiUrl + '/speeches',
+                urlJoin(this.apiUrl, 'token-context', args.corpname),
                 args,
                 {
                     headers,
@@ -123,9 +130,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
         return pipe(
             {
                 ...queryArgs,
-                hitlen: queryArgs.hitlen ?? null,
-                detail_left_ctx: queryArgs.detail_left_ctx ?? null,
-                detail_right_ctx: queryArgs.detail_right_ctx ?? null,
+                corpname: undefined,
             },
             Dict.toEntries(),
             List.filter(([_, v]) => v !== null),
