@@ -54,6 +54,9 @@ interface MountArgs {
 }
 
 
+const DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS = 10;
+
+
 function mountReactComponent({
     component,
     mountElement,
@@ -195,7 +198,7 @@ export function initClient(
         actionUrlCreator: (path, args) => {
                 const argsStr = Array.isArray(args) || MultiDict.isMultiDict(args) ?
                         encodeURLParameters(args) : encodeArgs(args);
-                return config.hostUrl + (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
+                return config.hostUrl + (path.substring(0, 1) === '/' ? path.substring(1) : path ) +
                         (argsStr.length > 0 ? '?' + argsStr : '');
         }
     });
@@ -209,7 +212,8 @@ export function initClient(
             Dict.keys(),
             List.map(v => tileIdentMap[v])
         ),
-        config.dataStreamingUrl
+        config.dataStreamingUrl,
+        DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS
     );
     const appServices = new AppServices({
         notifications,
