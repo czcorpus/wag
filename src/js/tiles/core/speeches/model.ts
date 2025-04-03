@@ -30,6 +30,7 @@ import { IAudioUrlGenerator } from './audio.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { TileWait } from '../../../models/tileSync.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
 
@@ -416,13 +417,17 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
     private createArgs(state:SpeechesModelState, idx:number, kwicNumTokens:number, expand:Expand):SpeechReqArgs {
         const args:SpeechReqArgs = {
             corpname: state.corpname,
-            idx,
+            subcorpus: state.subcname,
+            query: mkLemmaMatchQuery(state.queryMatches[0], state.posQueryGenerator),
             // hitlen: kwicNumTokens,  TODO
             struct: [
                 state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
                 state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
                 state.speechSegment[0] + '.' + state.speechSegment[1]
-            ]
+            ],
+            // TODO context
+            leftCtx: 50,
+            rightCtx: 50,
         };
 /*
         if (expand === Expand.TOP) {

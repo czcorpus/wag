@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils } from 'kombo';
-import { Ident, List } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index.js';
 import {

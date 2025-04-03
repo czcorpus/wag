@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { LineElement } from '../../../api/vendor/mquery/concordance/common.js';
 import { BacklinkWithArgs } from '../../../page/tile.js';
 import { pipe, Dict, List, Color } from 'cnc-tskit';
 import { MarkupToken, SpeechToken } from './api.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 
@@ -99,6 +99,8 @@ export interface SpeechesModelState {
         newPlaybackSession:string|null;
         currPlaybackSession:string|null;
     }|null;
+    posQueryGenerator:[string, string];
+    queryMatches:Array<QueryMatch>;
 }
 
 

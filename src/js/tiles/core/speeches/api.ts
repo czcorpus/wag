@@ -16,21 +16,21 @@
  * limitations under the License.
  */
 
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit'
 import { ajax$ } from '../../../page/ajax.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import urlJoin from 'url-join';
-import { LineElementType } from '../../../api/vendor/mquery/concordance/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 
 export interface SpeechReqArgs {
     corpname:string;
-    idx:number;
+    subcorpus?:string;
+    query:string;
     struct:Array<string>;
     leftCtx?:number;
     rightCtx?:number;
@@ -89,14 +89,13 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
 
     call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechResponse> {
         if (this.useDataStream) {
-            args['idx'] = 3016784;
             const query = this.prepareArgs(args);
             return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: urlJoin(this.apiUrl, 'token-context', args.corpname) + `?${query}`,
+                    url: urlJoin(this.apiUrl, 'speeches') + `?${query}`,
                     body: {},
                     contentType: 'application/json',
                 }
@@ -107,7 +106,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
             headers['X-Is-Web-App'] = '1';
             return ajax$<SpeechResponse>(
                 HTTP.Method.GET,
-                urlJoin(this.apiUrl, 'token-context', args.corpname),
+                urlJoin(this.apiUrl, 'speeches'),
                 args,
                 {
                     headers,
@@ -130,13 +129,18 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
         return pipe(
             {
                 ...queryArgs,
-                corpname: undefined,
+                leftCtx: queryArgs.leftCtx || 0,
+                rightCtx: queryArgs.rightCtx || 0,
+                subcorpus: queryArgs.subcorpus || null,
             },
             Dict.toEntries(),
             List.filter(([_, v]) => v !== null),
-            List.map(
-                ([k, v]) => `${k}=${encodeURIComponent(v)}`
-            ),
+            List.map(([k, v]) => {
+                if (Array.isArray(v)) {
+                    return v.map(item => `${k}=${encodeURIComponent(item)}`).join('&');
+                }
+                return `${k}=${encodeURIComponent(v)}`
+            }),
             x => x.join('&')
         )
     }
