@@ -23,6 +23,7 @@ import { LocalizedConfMsg } from '../../../types.js';
 import { pipe, Color, List } from 'cnc-tskit';
 import { SpeechesApi } from './api.js';
 import { AudioLinkGenerator } from './audio.js';
+import { findCurrQueryMatch } from '../../../models/query.js';
 
 
 export interface SpeechesTileConf extends TileConf {
@@ -36,6 +37,7 @@ export interface SpeechesTileConf extends TileConf {
     speechOverlapVal:string;
     audioPlaybackUrl?:string;
     maxNumSpeeches?:number;
+    posQueryGenerator:[string, string];
 }
 
 
@@ -58,7 +60,7 @@ export class SpeechesTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
-        theme, appServices, widthFract, conf, isBusy
+        theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<SpeechesTileConf>) {
 
         this.tileId = tileId;
@@ -106,7 +108,9 @@ export class SpeechesTile implements ITileProvider {
                 kwicNumTokens: 1,
                 backlink: null,
                 playback: null,
-                maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES
+                maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
+                posQueryGenerator: conf.posQueryGenerator,
+                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
             }
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);

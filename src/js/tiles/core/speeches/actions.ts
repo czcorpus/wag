@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { ExpandArgs, Expand, Segment } from './modelDomain.js';
+import { Expand, Segment } from './modelDomain.js';
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { MarkupToken, SpeechToken } from './api.js';

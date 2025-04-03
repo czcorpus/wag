@@ -26,7 +26,7 @@ import { Actions } from './actions.js';
 import { List, pipe, Color } from 'cnc-tskit';
 
 import * as S from './style.js';
-import { LineElement } from '../../../api/vendor/mquery/concordance/common.js';
+import { SpeechToken } from './api.js';
 
 
 
@@ -53,7 +53,7 @@ export function init(
 
     const SpeechText:React.FC<{
         bulletColor:string;
-        data:Array<LineElement>;
+        data:Array<SpeechToken>;
         isIncomplete:boolean;
 
     }> = (props) => {
@@ -63,7 +63,7 @@ export function init(
                 <span style={{color: props.bulletColor}}>{'\u25cf\u00a0'}</span>
                 {props.isIncomplete ? '\u2026\u00a0' : null}
                 {List.map(
-                    (item, i) => <span key={i} className={item.type ? item.type : null}>{item.str}</span>,
+                    (item, i) => <span key={i} className={item.type ? item.type : null}>{item.word} </span>,
                     props.data
                 )}
             </div>
