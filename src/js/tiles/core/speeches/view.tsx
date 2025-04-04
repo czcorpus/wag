@@ -63,7 +63,7 @@ export function init(
                 <span style={{color: props.bulletColor}}>{'\u25cf\u00a0'}</span>
                 {props.isIncomplete ? '\u2026\u00a0' : null}
                 {List.map(
-                    (item, i) => <span key={i} className={item.type ? item.type : null}>{item.word} </span>,
+                    (item, i) => <span key={i} className={item.strong ? 'coll' : item.type}>{item.word} </span>,
                     props.data
                 )}
             </div>
@@ -224,7 +224,6 @@ export function init(
         hasExpandLeft:boolean;
         hasExpandRight:boolean;
         playingLineIdx:number;
-        availTokens:number[];
 
     }> = (props) => {
         const renderSpeechLines = () => {
@@ -257,7 +256,7 @@ export function init(
                 <div className="navig">
                     <div className="next">
                             {props.isTweakMode ?
-                                <LoadNext tileId={props.tileId} active={props.availTokens.length > 1} /> : null}
+                                <LoadNext tileId={props.tileId} active={true} /> : null}
                     </div>
                 </div>
                 <div className="play-all">
@@ -284,11 +283,10 @@ export function init(
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <S.SpeechesTile>
-                       <SpeechView data={this.props.data} hasExpandLeft={!!List.get(-1, this.props.expandLeftArgs)}
-                                hasExpandRight={!!List.get(-1, this.props.expandRightArgs)}
+                       <SpeechView data={this.props.data} hasExpandLeft={this.props.leftRange < this.props.maxSingleSideRange}
+                                hasExpandRight={this.props.rightRange < this.props.maxSingleSideRange}
                                 tileId={this.props.tileId} isTweakMode={this.props.isTweakMode}
-                                playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1}
-                                availTokens={this.props.availTokens} />
+                                playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1} />
                     </S.SpeechesTile>
                 </globComponents.TileWrapper>
             );

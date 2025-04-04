@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit'
 import { ajax$ } from '../../../page/ajax.js';
@@ -54,16 +54,21 @@ export interface MarkupToken {
 export interface SpeechResponse {
     context:{
         text:Array<MarkupToken|SpeechToken>;
-        ref:string; // TODO do we need this?
+        ref:string;
     };
     resultType:'tokenContext';
     error?:string;
 }
 
+export interface SpeechData {
+    text:Array<MarkupToken|SpeechToken>;
+    kwicTokenIdx:number;
+}
+
 /**
  *
  */
-export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, WebDelegateApi {
+export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebDelegateApi {
 
     private readonly apiUrl:string;
 
@@ -87,7 +92,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
         });
     }
 
-    call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechResponse> {
+    call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechData> {
         if (this.useDataStream) {
             const query = this.prepareArgs(args);
             return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
@@ -99,6 +104,13 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
                     body: {},
                     contentType: 'application/json',
                 }
+            ).pipe(
+                map(
+                    resp => ({
+                        text: resp.context.text,
+                        kwicTokenIdx: parseInt(resp.context.ref.substring(1))
+                    })
+                )
             );
 
         } else {
@@ -112,7 +124,15 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
                     headers,
                     withCredentials: true
                 }
-            );
+
+            ).pipe(
+                map(
+                    resp => ({
+                        text: resp.context.text,
+                        kwicTokenIdx: parseInt(resp.context.ref.substring(1))
+                    })
+                )
+            )
         }
     }
 
