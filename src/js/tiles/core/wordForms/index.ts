@@ -24,6 +24,9 @@ import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
 import { init as viewInit } from './views.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryWordFormsAPI } from './api/mquery.js';
+import { IWordFormsApi } from './common.js';
+import { FrodoWordFormsAPI } from './api/frodo.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -53,8 +56,7 @@ export class WordFormsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy,
-        waitForTiles, waitForTilesTimeoutSecs, theme, mainPosAttr,
-        useDataStream}:TileFactoryArgs<WordFormsTileConf>
+        waitForTiles, waitForTilesTimeoutSecs, theme, mainPosAttr, useDataStream}:TileFactoryArgs<WordFormsTileConf>
     ) {
 
         this.tileId = tileId;
@@ -80,7 +82,7 @@ export class WordFormsTile implements ITileProvider {
                 mainPosAttr
             },
             tileId,
-            api: null, // TODO here we must allow: frodo, mquery, korpus.db
+            api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices),
             queryMatches,
             queryDomain: domain1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
@@ -89,6 +91,18 @@ export class WordFormsTile implements ITileProvider {
             backlink: conf.backlink || null,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
+    }
+
+    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices):IWordFormsApi {
+        switch (apiType) {
+            case CoreApiGroup.MQUERY:
+                return new MQueryWordFormsAPI(apiURL, useDataStream, appServices);
+            case CoreApiGroup.FRODO:
+                return new FrodoWordFormsAPI(apiURL, useDataStream, appServices);
+            case CoreApiGroup.KORPUS_DB:
+            default:
+                throw new Error(`Unsupported API type: ${apiType}`);
+        }
     }
 
     getLabel():string {
