@@ -24,6 +24,7 @@ import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
 import { init as viewInit } from './views.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryWordFormsAPI } from './api/mquery.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -80,7 +81,7 @@ export class WordFormsTile implements ITileProvider {
                 mainPosAttr
             },
             tileId,
-            api: null, // TODO here we must allow: frodo, mquery, korpus.db
+            api: new MQueryWordFormsAPI(conf.apiURL, conf.useDataStream, appServices), // TODO here we must allow: frodo, mquery, korpus.db
             queryMatches,
             queryDomain: domain1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,

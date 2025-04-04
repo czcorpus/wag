@@ -29,16 +29,6 @@ export interface RequestArgs {
     corpName:string;
 }
 
-export function isRequestArgs(v:RequestArgs|RequestConcArgs):v is RequestArgs {
-    return typeof v['domain'] === 'string' && typeof v['lemma'] === 'string' && Array.isArray(v['pos']);
-}
-
-export interface RequestConcArgs {
-    corpName:string;
-    subcorpName?:string;
-    concPersistenceID:string;
-}
-
 
 export interface WordFormItem {
     value:string;
@@ -52,9 +42,9 @@ export interface Response {
 }
 
 
-export interface IWordFormsApi extends ResourceApi<RequestArgs|RequestConcArgs, Response> {
+export interface IWordFormsApi extends ResourceApi<RequestArgs, Response> {
 
-    createBacklink(args:RequestArgs|RequestConcArgs, backlink:Backlink):BacklinkWithArgs<any>;
+    createBacklink(args:RequestArgs, backlink:Backlink):BacklinkWithArgs<any>;
 
     supportsMultiWordQueries():boolean;
 

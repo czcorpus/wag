@@ -22,9 +22,10 @@ import { IApiServices } from '../../../../appServices.js';
 import { Backlink } from '../../../../page/tile.js';
 import { ajax$ } from '../../../../page/ajax.js';
 import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
-import { Ident, List } from 'cnc-tskit';
+import { Dict, HTTP, Ident, List, pipe } from 'cnc-tskit';
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { Response } from '../common.js';
+import urlJoin from 'url-join';
 
 
 export interface LemmaItem {
@@ -49,24 +50,51 @@ export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(apiURL:string, apiServices:IApiServices) {
+    private readonly useDataStream:boolean;
+
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
         this.apiURL = apiURL;
+        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
-        const params = {
-            lemma: args.lemma,
-            pos: args.pos.join(" "),
-        }
-        return ajax$<Array<LemmaItem>>(
-            'GET',
-            `${this.apiURL}/word-forms/${args.corpName}`,
-            params,
+    private prepareArgs(queryArgs:RequestArgs):string {
+        return pipe(
             {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-            }
+                lemma: queryArgs.lemma,
+                pos: queryArgs.pos.join(" "),
+            },
+            Dict.toEntries(),
+            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
+            x => x.join('&')
+        )
+    }
+
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
+        const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
+        return (this.useDataStream ?
+            this.apiServices.dataStreaming().registerTileRequest<Array<LemmaItem>>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: url + `?${this.prepareArgs(args)}`,
+                    body: {},
+                    contentType: 'application/json',
+                }
+            ) :
+            ajax$<Array<LemmaItem>>(
+                HTTP.Method.GET,
+                url,
+                {
+                    lemma: args.lemma,
+                    pos: args.pos.join(" "),
+                },
+                {
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
+                }
+            )
         ).pipe(
             map(resp => {
                 const total = resp[0].forms.reduce((acc, curr) => curr.freq + acc, 0);
@@ -82,7 +110,7 @@ export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
                     )
                 }
             })
-        )
+        );
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
