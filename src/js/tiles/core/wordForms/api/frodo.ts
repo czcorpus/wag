@@ -1,6 +1,6 @@
 /*
- * Copyright 2023 Martin Zimandl <martin.zimandl@gmail.com>
- * Copyright 2023 Institute of the Czech National Corpus,
+ * Copyright 2025 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2025 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,21 +21,36 @@ import { CorpusDetails, ResourceApi } from '../../../../types.js';
 import { IApiServices } from '../../../../appServices.js';
 import { Backlink } from '../../../../page/tile.js';
 import { ajax$ } from '../../../../page/ajax.js';
-import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
-import { Dict, HTTP, Ident, List, pipe } from 'cnc-tskit';
+import { HTTP, Ident, List } from 'cnc-tskit';
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { RequestArgs, Response } from '../common.js';
 import urlJoin from 'url-join';
 
 
-export interface LemmaItem {
-    lemma:string;
-    pos:string;
-    forms:Array<FreqRowResponse>;
+export interface FrodoResponse {
+    matches:Array<{
+        _id:string;
+        lemma:string;
+        forms:Array<{
+            word:string;
+            count:number;
+            arf:number;
+        }>;
+        sublemmas:Array<{
+            value:string;
+            count:number;
+        }>;
+        pos:string;
+        is_pname:boolean;
+        count:number;
+        ipm:number;
+        ngramSize:number;
+        simFreqScore:number;
+    }>;
 }
 
 
-export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
+export class FrodoWordFormsAPI implements ResourceApi<RequestArgs, Response> {
 
     private readonly apiURL;
 
@@ -52,36 +67,23 @@ export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-    private prepareArgs(queryArgs:RequestArgs):string {
-        return pipe(
-            {
-                lemma: queryArgs.lemma,
-                pos: queryArgs.pos.join(" "),
-            },
-            Dict.toEntries(),
-            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
-            x => x.join('&')
-        )
-    }
-
     call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
-        const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
+        const url = urlJoin(this.apiURL, '/dictionary/', args.corpName, 'search', args.lemma);
         return (this.useDataStream ?
-            this.apiServices.dataStreaming().registerTileRequest<Array<LemmaItem>>(
+            this.apiServices.dataStreaming().registerTileRequest<FrodoResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: url + `?${this.prepareArgs(args)}`,
+                    url: url + `?pos=${encodeURIComponent(args.pos.join(" "))}`,
                     body: {},
                     contentType: 'application/json',
                 }
             ) :
-            ajax$<Array<LemmaItem>>(
+            ajax$<FrodoResponse>(
                 HTTP.Method.GET,
                 url,
                 {
-                    lemma: args.lemma,
                     pos: args.pos.join(" "),
                 },
                 {
@@ -90,16 +92,15 @@ export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
             )
         ).pipe(
             map(resp => {
-                const total = resp[0].forms.reduce((acc, curr) => curr.freq + acc, 0);
                 return {
                     forms: List.map(
                         item => ({
                             value: item.word,
-                            freq: item.freq,
-                            ratio: item.freq / total,
+                            freq: item.count,
+                            ratio: item.count / resp.matches[0].count,
                             interactionId: Ident.puid(),
                         }),
-                        resp[0].forms,
+                        resp.matches[0].forms,
                     )
                 }
             })

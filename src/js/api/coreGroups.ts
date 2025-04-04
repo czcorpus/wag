@@ -65,6 +65,11 @@ export enum CoreApiGroup {
 	MQUERY = 'mquery',
 
 	/**
+	 * KorpusDB (CNC app)
+	 */
+	KORPUS_DB = 'korpusdb',
+
+	/**
 	 * SCollEx - cnc syntactic collocation explorer
 	 */
 	SCOLLEX = 'scollex',
