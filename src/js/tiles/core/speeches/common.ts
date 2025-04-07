@@ -20,6 +20,7 @@ import { BacklinkWithArgs } from '../../../page/tile.js';
 import { pipe, Dict, List, Color } from 'cnc-tskit';
 import { MarkupToken, SpeechToken } from './api.js';
 import { QueryMatch } from '../../../query/index.js';
+import urlJoin from 'url-join';
 
 
 
@@ -84,6 +85,7 @@ export interface SpeechesModelState {
     spkOverlapMode:'full'|'simple';
     backlink:BacklinkWithArgs<{}>;
     maxNumSpeeches:number;
+    playbackEnabled:boolean;
     playback:{
         currLineIdx:number;
         newLineIdx:number;
@@ -221,4 +223,23 @@ export function extractSpeeches(state:SpeechesModelState, text:Array<SpeechToken
         v),
         mergeOverlaps(state, tmp)
     );
+}
+
+
+export class AudioLinkGenerator {
+
+    private readonly rootUrl:string;
+
+
+    constructor(rootUrl:string) {
+        this.rootUrl = rootUrl;
+    }
+
+    createUrl(corpname:string, audioId:string):string {
+        return urlJoin(this.rootUrl, corpname, 'audio') + '?chunk=' + encodeURIComponent(audioId);
+    }
+
+    getFormat(audioId:string):string {
+        return audioId.split('.').pop();
+    }
 }

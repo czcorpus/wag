@@ -21,7 +21,7 @@ import { SpeechesModel } from './model.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
-import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain.js';
+import { Speech, SpeechesModelState, SpeechLine, Segment } from './common.js';
 import { Actions } from './actions.js';
 import { List, pipe, Color } from 'cnc-tskit';
 
@@ -78,6 +78,7 @@ export function init(
         idx:number;
         speech:Speech;
         isPlaying:boolean;
+        playbackEnabled:boolean;
 
     }> = (props) => {
         const style = {
@@ -91,7 +92,7 @@ export function init(
                             style={style}>
                         {props.speech.speakerId ? props.speech.speakerId : '\u2026'}
                     </strong>
-                    {props.speech.segments.length > 0 ?
+                    {props.speech.segments.length > 0 && props.playbackEnabled ?
                         <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
                                 segments={props.speech.segments} /> :
                         null
@@ -115,6 +116,7 @@ export function init(
         idx:number;
         speeches:Array<Speech>;
         isPlaying:boolean;
+        playbackEnabled:boolean;
 
     }> = (props) => {
 
@@ -146,8 +148,11 @@ export function init(
             <>
                 <S.Speaker>
                     {renderOverlappingSpeakersLabel()}
-                    <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
-                            segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments), [])} />
+                    {props.playbackEnabled ?
+                        <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
+                            segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments), [])} /> :
+                        null
+                    }
                 </S.Speaker>
                 <S.Speech className="overlapping-block">
                     <div className="text">
@@ -224,16 +229,19 @@ export function init(
         hasExpandLeft:boolean;
         hasExpandRight:boolean;
         playingLineIdx:number;
+        playbackEnabled:boolean;
 
     }> = (props) => {
         const renderSpeechLines = () => {
             return (props.data || []).map((item, i) => {
                 if (item.length === 1) {
                     return <TRSingleSpeech key={`sp-line-${i}`} tileId={props.tileId}
+                                playbackEnabled={props.playbackEnabled}
                                 speech={item[0]} idx={i} isPlaying={props.playingLineIdx === i} />;
 
                 } else if (item.length > 1) {
                     return <TROverlappingSpeeches key={`sp-line-${i}`} tileId={props.tileId} speeches={item}
+                                playbackEnabled={props.playbackEnabled}
                                 idx={i} isPlaying={props.playingLineIdx === i} />;
 
                 } else {
@@ -273,24 +281,23 @@ export function init(
 
     // -------------------------- <SpeechesTile /> --------------------------------------
 
-    class SpeechesTile extends React.PureComponent<SpeechesModelState & CoreTileComponentProps> {
-        render() {
-            return (
-                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.length > 0}
-                        sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                        backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <S.SpeechesTile>
-                       <SpeechView data={this.props.data} hasExpandLeft={this.props.leftRange < this.props.maxSingleSideRange}
-                                hasExpandRight={this.props.rightRange < this.props.maxSingleSideRange}
-                                tileId={this.props.tileId} isTweakMode={this.props.isTweakMode}
-                                playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1} />
-                    </S.SpeechesTile>
-                </globComponents.TileWrapper>
-            );
-        }
+    const SpeechesTile:React.FC<SpeechesModelState & CoreTileComponentProps> = (props) => {
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={props.data.length > 0}
+                    sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
+                    backlink={props.backlink}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <S.SpeechesTile>
+                    <SpeechView data={props.data} hasExpandLeft={props.leftRange < props.maxSingleSideRange}
+                            hasExpandRight={props.rightRange < props.maxSingleSideRange}
+                            tileId={props.tileId} isTweakMode={props.isTweakMode}
+                            playbackEnabled={props.playbackEnabled}
+                            playingLineIdx={props.playback ? props.playback.currLineIdx : -1} />
+                </S.SpeechesTile>
+            </globComponents.TileWrapper>
+        );
     }
 
     return BoundWithProps<CoreTileComponentProps, SpeechesModelState>(SpeechesTile, model);

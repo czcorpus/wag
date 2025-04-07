@@ -17,12 +17,13 @@
  */
 
 import { map, Observable } from 'rxjs';
+import { Dict, HTTP, List, pipe } from 'cnc-tskit';
+import urlJoin from 'url-join';
+
 import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
-import { Dict, HTTP, List, pipe } from 'cnc-tskit'
 import { ajax$ } from '../../../page/ajax.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
-import urlJoin from 'url-join';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
@@ -66,7 +67,10 @@ export interface SpeechData {
 }
 
 /**
- *
+ * SpeechesApi is a client for MQuery+APIGuard. MQuery provides both concordance to get
+ * possible speeches and also concrete token ranges/details. To have both actions
+ * (conc, token-context) as a single endpoint, APIGuard provides a wrapper API endpoint
+ * for that.
  */
 export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebDelegateApi {
 
@@ -141,7 +145,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebD
             label: 'KonText',
             method: HTTP.Method.GET,
             ...(backlink || {}),
-            url: (backlink?.url ? backlink.url : this.apiUrl) + '/view',
+            url: urlJoin(backlink?.url ? backlink.url : this.apiUrl, 'view'),
         }
     }
 

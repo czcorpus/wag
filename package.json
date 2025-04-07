@@ -57,7 +57,7 @@
     "ajv": "^8.17.1",
     "axios": "^1.8.2",
     "buffer": "^6.0.3",
-    "cnc-tskit": "^1.9.0",
+    "cnc-tskit": "~1.8.0",
     "cookie-parser": "^1.4.6",
     "d3": "^7.8.2",
     "dom-to-image-more": "^3.5.0",

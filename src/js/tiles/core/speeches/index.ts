@@ -15,15 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { pipe, Color, List } from 'cnc-tskit';
+
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { SpeechesModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { pipe, Color, List } from 'cnc-tskit';
 import { SpeechesApi } from './api.js';
-import { AudioLinkGenerator } from './audio.js';
 import { findCurrQueryMatch } from '../../../models/query.js';
+import { AudioLinkGenerator } from './common.js';
 
 
 export interface SpeechesTileConf extends TileConf {
@@ -35,8 +39,8 @@ export interface SpeechesTileConf extends TileConf {
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
-    audioPlaybackUrl?:string;
     maxNumSpeeches?:number;
+    audioApiURL?:string;
     posQueryGenerator:[string, string];
 }
 
@@ -77,9 +81,9 @@ export class SpeechesTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             subqSourceTiles,
-            audioLinkGenerator: conf.audioPlaybackUrl ?
-                    new AudioLinkGenerator(conf.audioPlaybackUrl) :
-                    null,
+            audioLinkGenerator: conf.audioApiURL ?
+                new AudioLinkGenerator(conf.audioApiURL) :
+                null,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -105,6 +109,7 @@ export class SpeechesTile implements ITileProvider {
                 kwicNumTokens: 1,
                 backlink: null,
                 playback: null,
+                playbackEnabled: !!conf.audioApiURL,
                 maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
                 posQueryGenerator: conf.posQueryGenerator,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
