@@ -24,10 +24,10 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
 import { SpeechesModelState, extractSpeeches, BacklinkArgs, Segment,
-    PlayableSegment } from './modelDomain.js';
+    PlayableSegment,
+    AudioLinkGenerator} from './common.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
-import { IAudioUrlGenerator } from './audio.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
@@ -53,7 +53,7 @@ export interface SpeechesModelArgs {
     api:SpeechesApi;
     initState:SpeechesModelState;
     backlink:Backlink;
-    audioLinkGenerator:IAudioUrlGenerator;
+    audioLinkGenerator:AudioLinkGenerator;
 }
 
 interface ReloadDataArgs {
@@ -77,7 +77,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly backlink:Backlink;
 
-    private readonly audioLinkGenerator:IAudioUrlGenerator|null;
+    private readonly audioLinkGenerator:AudioLinkGenerator|null;
 
     constructor({dispatcher, tileId, appServices, api, initState, backlink, audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
@@ -188,10 +188,10 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ClickAudioPlayer>(
-            Actions.ClickAudioPlayer.name,
+        this.addActionSubtypeHandler(
+            Actions.ClickAudioPlayer,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
                     state.playback = {
                         segments: action.payload.segments,
                         currLineIdx: state.playback ? state.playback.currLineIdx : null,
@@ -199,20 +199,17 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
                         newPlaybackSession: null
                     };
-                }
             },
             (state, action, dispatch) => {
-                if (action.payload.tileId === this.tileId) {
-                    const player = this.appServices.getAudioPlayer();
-                    if (state.playback && state.playback.currPlaybackSession) {
-                        player.stop();
-                    }
-                    if (state.playback.currLineIdx !== state.playback.newLineIdx) {
-                        this.playSegments(state, player, dispatch);
+                const player = this.appServices.getAudioPlayer();
+                if (state.playback && state.playback.currPlaybackSession) {
+                    player.stop();
+                }
+                if (state.playback.currLineIdx !== state.playback.newLineIdx) {
+                    this.playSegments(state, player, dispatch);
 
-                    } else {
-                        this.dispatchPlayStop(dispatch);
-                    }
+                } else {
+                    this.dispatchPlayStop(dispatch);
                 }
             }
         ).sideEffectAlsoOn(Actions.ClickAudioPlayAll.name);

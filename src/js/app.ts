@@ -22,6 +22,9 @@
  */
 import * as React from 'react';
 import { Observable } from 'rxjs';
+import { ViewUtils, IFullActionControl } from 'kombo';
+import { List, pipe, Dict } from 'cnc-tskit';
+
 import { Theme } from './page/theme.js';
 import { ScreenProps } from './page/hostPage.js';
 import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index.js';
@@ -35,10 +38,8 @@ import { TileResultFlag, WdglanceTilesModel } from './models/tiles.js';
 import { GlobalComponents, init as globalCompInit } from './views/common/index.js';
 import { init as viewInit, WdglanceMainProps } from './views/main.js';
 import { RetryTileLoad } from './models/retryLoad.js';
-import { ViewUtils, IFullActionControl } from 'kombo';
 import { IAppServices } from './appServices.js';
 import { mkTileFactory } from './page/tileLoader.js';
-import { List, pipe, Dict } from 'cnc-tskit';
 
 
 interface AttachTileArgs {
