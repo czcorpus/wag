@@ -20,7 +20,7 @@ import { map, Observable } from 'rxjs';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
-import { CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types.js';
+import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { ajax$ } from '../../../page/ajax.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
@@ -72,7 +72,7 @@ export interface SpeechData {
  * (conc, token-context) as a single endpoint, APIGuard provides a wrapper API endpoint
  * for that.
  */
-export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebDelegateApi {
+export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
 
     private readonly apiUrl:string;
 
@@ -94,6 +94,10 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebD
             corpname: corpname,
             lang: lang
         });
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
     call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs|null):Observable<SpeechData> {
@@ -141,15 +145,6 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebD
                     })
                 )
             )
-        }
-    }
-
-    getBackLink(backlink:Backlink):Backlink {
-        return {
-            label: 'KonText',
-            method: HTTP.Method.GET,
-            ...(backlink || {}),
-            url: urlJoin(backlink?.url ? backlink.url : this.apiUrl, 'view'),
         }
     }
 

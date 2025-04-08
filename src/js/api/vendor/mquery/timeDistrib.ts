@@ -16,16 +16,13 @@
  * limitations under the License.
  */
 
-import { map, Observable, scan, takeWhile, throwError } from 'rxjs';
+import { map, Observable, scan, takeWhile } from 'rxjs';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
-import { QueryMatch } from '../../../query/index.js';
-
-
 
 
 export interface TimeDistribArgs {
@@ -131,8 +128,8 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    createBackLink(backlink:Backlink, corpname:string, queryMatch:QueryMatch):BacklinkWithArgs<{}> {
-        return null
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
     private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {

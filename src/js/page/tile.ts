@@ -16,52 +16,31 @@
  * limitations under the License.
  */
 
-import { AnyInterface, LocalizedConfMsg } from '../types.js';
+import { LocalizedConfMsg } from '../types.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/common/index.js';
 import { Theme } from './theme.js';
 import { IAppServices } from '../appServices.js';
-import { HTTP, List } from 'cnc-tskit';
 import { MainPosAttrValues } from '../conf/index.js';
-import { DataStreaming } from './streaming.js';
+import { List } from 'cnc-tskit';
 
 
-export interface Backlink {
-    url?:string;
-    label?:LocalizedConfMsg;
-    method?:HTTP.Method;
-    subcname?:string; // in case a special subc. is needed for backlink
-    isAppUrl?:boolean; // sets backlink as simple link
-}
-
-export interface BacklinkWithArgs<T> {
+export interface BacklinkConf {
     url:string;
     label:LocalizedConfMsg;
-    method:HTTP.Method;
-    args:AnyInterface<T>;
 }
 
-export type AnyBacklink<T> = BacklinkWithArgs<T>|Array<BacklinkWithArgs<T>>;
-
-function isBacklinkWithArgs<T>(bl:AnyBacklink<T>|undefined|null): bl is BacklinkWithArgs<T> {
-    return bl !== null && !Array.isArray(bl) && typeof bl == 'object' && typeof bl['url'] === 'string';
+export interface Backlink {
+    queryId:number;
+    label:LocalizedConfMsg;
 }
 
-export function backlinkIsValid<T>(backlink:AnyBacklink<T>):boolean {
+export function backlinkIsValid(backlink:any):boolean {
     if (Array.isArray(backlink)) {
         return List.some(x => !!x, backlink);
     }
-    return !Array.isArray(backlink) && isBacklinkWithArgs(backlink) && !!backlink.url;
-}
-
-export function createAppBacklink(backlink:Backlink):BacklinkWithArgs<{}> {
-    return backlink ? {
-        url: backlink.url || '--UNDEFINED BACKLINK--',
-        label: backlink.label || '--UNDEFINED LABEL--',
-        method: backlink.method || HTTP.Method.GET,
-        args: {}
-    } : null
+    return !Array.isArray(backlink) && !!backlink;
 }
 
 /**
@@ -89,7 +68,7 @@ export interface TileConf {
      * tile logic is able to pass proper arguments to the
      * page.
      */
-    backlink?:Backlink;
+    backlink?:BacklinkConf;
 
     /**
      * Normally, any tile configured in the "tiles" section

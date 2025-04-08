@@ -21,10 +21,10 @@ import { concatMap, tap, reduce } from 'rxjs/operators';
 import { List, HTTP, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange, KonTextCollArgs } from './common.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
@@ -39,7 +39,6 @@ export interface CollocModelArgs {
     initState:CollocModelState;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
-    backlink:Backlink;
     queryType:QueryType;
 }
 
@@ -69,15 +68,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         'r': 'relative freq.'
     };
 
-    private readonly backlink:Backlink;
-
     constructor({
-        dispatcher, tileId, appServices, service, initState, backlink, queryType}:CollocModelArgs) {
+        dispatcher, tileId, appServices, service, initState, queryType}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.collApi = service;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.collApi) ? this.collApi.getBackLink(backlink) : backlink;
         this.queryType = queryType;
 
         this.addActionHandler(
@@ -169,11 +165,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         )
                     )
                 );
-                if (this.backlink?.isAppUrl) {
-                    state.backlinks = [createAppBacklink(this.backlink)];
-                } else {
-                    state.backlinks.push(this.createBackLink(state, action));
-                }
+                state.backlinks.push(this.collApi.getBacklink(action.payload.queryId));
             }
         );
 
@@ -238,33 +230,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             }
         }
         return null;
-    }
-
-    private createBackLink(
-        state:CollocModelState,
-        action:typeof Actions.PartialTileDataLoaded
-    ):BacklinkWithArgs<KonTextCollArgs> {
-
-        const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
-        return this.backlink ?
-            {
-                url: this.backlink.url,
-                method: this.backlink.method || HTTP.Method.GET,
-                label: this.backlink.label,
-                args: {
-                    corpname: state.corpname,
-                    q: `~${action.payload.concId}`,
-                    cattr: state.tokenAttr,
-                    cfromw: cfromw,
-                    ctow: ctow,
-                    cminfreq: state.minAbsFreq,
-                    cminbgr: state.minLocalAbsFreq,
-                    cbgrfns: state.appliedMetrics,
-                    csortfn: state.sortByMetric,
-                    citemsperpage: state.citemsperpage
-                }
-            } :
-            null;
     }
 
     private reloadAllData(

@@ -19,7 +19,7 @@ import { IActionDispatcher } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { AltViewIconProps, BacklinkConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { GeoAreasModel } from './model.js';
 import { init as viewInit } from './views/index.js';
 import { MapLoader } from './mapLoader.js';
@@ -79,7 +79,7 @@ export class GeoAreasTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches,
-            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.useDataStream),
+            freqApi: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
             mapLoader: new MapLoader(appServices),
             initState: {
                 isBusy: isBusy,
@@ -101,7 +101,6 @@ export class GeoAreasTile implements ITileProvider {
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator
             },
-            backlink: conf.backlink || null,
         });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

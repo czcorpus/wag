@@ -22,7 +22,7 @@ import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
-import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
@@ -87,18 +87,27 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
 
     private readonly useDataStream:boolean;
 
-    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.useDataStream = useDataStream;
+        this.backlinkConf = backlinkConf;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    createBacklink(state:MinSingleCritFreqState, backlink:Backlink):BacklinkWithArgs<{}> {
+    getBacklink(queryId:number):Backlink|null {
+        if (this.backlinkConf && this.backlinkConf.url) {
+            return {
+                queryId,
+                label: this.backlinkConf.label || 'KonText',
+            };
+        }
         return null;
     }
 
@@ -207,5 +216,41 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 })
             )
         )
+    }
+
+    requestBacklink(state:MinSingleCritFreqState, queryMatch:QueryMatch, posQueryGenerator:[string, string]):Observable<URL> {
+        const concArgs = {
+            corpname: state.corpname,
+            q: `q${mkLemmaMatchQuery(queryMatch, posQueryGenerator)}`,
+            format: 'json',
+        };
+        if (state.subcname) {
+            concArgs['subcorpus'] = state.subcname;
+        }
+        return ajax$<{conc_persistence_op_id:string}>(
+            'GET',
+            urlJoin(this.backlinkConf.url, 'create_view'),
+            concArgs,
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true,
+            }
+        ).pipe(
+            map(resp => {
+                const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
+                url.searchParams.set('corpname', state.corpname);
+                if (state.subcname) {
+                    url.searchParams.set('subcorpus', state.subcname);
+                }
+                url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
+                url.searchParams.set('fcrit', state.fcrit);
+                url.searchParams.set('freq_type', state.freqType);
+                url.searchParams.set('flimit', state.flimit.toString());
+                url.searchParams.set('freq_sort', state.freqSort);
+                url.searchParams.set('fpage', state.fpage.toString());
+                url.searchParams.set('ftt_include_empty', state.fttIncludeEmpty ? '1' : '0');
+                return url;
+            })
+        );
     }
 }

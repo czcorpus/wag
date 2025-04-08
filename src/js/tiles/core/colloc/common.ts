@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 import { SubqueryPayload, RangeRelatedSubqueryValue, isSubqueryPayload, QueryMatch } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { BacklinkWithArgs } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 export enum CollocMetric {
@@ -181,7 +181,7 @@ export interface CollocModelState {
 
     citemsperpage:number;
 
-    backlinks:Array<BacklinkWithArgs<{}>>;
+    backlinks:Array<Backlink>;
 
     queryMatches:Array<QueryMatch>;
 

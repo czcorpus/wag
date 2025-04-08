@@ -18,7 +18,6 @@
 
 import { ResourceApi } from '../../../types.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 
 
 export interface RequestArgs {
@@ -43,8 +42,6 @@ export interface Response {
 
 
 export interface IWordFormsApi extends ResourceApi<RequestArgs, Response> {
-
-    createBacklink(args:RequestArgs, backlink:Backlink):BacklinkWithArgs<any>;
 
     supportsMultiWordQueries():boolean;
 

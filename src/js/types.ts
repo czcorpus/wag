@@ -56,20 +56,9 @@ export interface DataApi<T, U> {
 export interface ResourceApi<T, U> extends DataApi<T, U> {
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
+
+    getBacklink(queryId:number):Backlink|null;
 }
-
-/**
- * Api implementing backlink directly
- */
- export interface WebDelegateApi {
-
-    getBackLink(backlink:Backlink):Backlink;
-}
-
-export function isWebDelegateApi(api):api is WebDelegateApi {
-    return typeof api['getBackLink'] === 'function';
-}
-
 
 export type LocalizedConfMsg = string|{[lang:string]:string};
 

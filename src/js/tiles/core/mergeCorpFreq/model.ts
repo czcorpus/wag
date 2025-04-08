@@ -27,8 +27,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { QueryMatch } from '../../../query/index.js';
 import { MergeCorpFreqModelState } from './common.js';
 import { Actions } from './actions.js';
-import { isWebDelegateApi } from '../../../types.js';
-import { Backlink, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 
 
@@ -44,7 +43,6 @@ export interface MergeCorpFreqModelArgs {
     appServices:IAppServices;
     freqApi:MergeFreqsApi;
     initState:MergeCorpFreqModelState;
-    backlink:Backlink;
     downloadLabel:string;
 }
 
@@ -56,18 +54,15 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly freqApi:MergeFreqsApi;
 
-    private readonly backlink:Backlink;
-
     private readonly downloadLabel:string;
 
     constructor({
-        dispatcher, tileId, appServices, freqApi, initState, backlink, downloadLabel,
+        dispatcher, tileId, appServices, freqApi, initState, downloadLabel,
     }:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.freqApi = freqApi;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
@@ -104,10 +99,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             Actions.PartialTileDataLoaded,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (this.backlink !== null && this.backlink.isAppUrl && state.appBacklink === null) {
-                    state.appBacklink = createAppBacklink(this.backlink);
-                }
-
+                state.backlinks.push(this.freqApi.getBacklink(action.payload.queryId));
                 if (state.data[action.payload.queryId] === undefined) {
                     state.data[action.payload.queryId] = [];
                 }

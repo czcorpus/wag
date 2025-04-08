@@ -178,6 +178,13 @@ export class Actions {
         name: 'MAIN_GET_SOURCE_INFO'
     }
 
+    static FollowBacklink:Action<{
+        tileId:number;
+        queryId:number;
+    }> = {
+        name: 'MAIN_FOLLOW_BACKLING'
+    }
+
     static CloseSourceInfo:Action<{
     }> = {
         name: 'MAIN_CLOSE_SOURCE_INFO'

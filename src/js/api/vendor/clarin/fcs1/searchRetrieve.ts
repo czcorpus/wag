@@ -26,6 +26,7 @@ import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain.js';
 import { IApiServices } from '../../../../appServices.js';
 import { ResourceApi } from '../../../../types.js';
 import { ConcordanceMinState, ConcResponse, FCS1Args, importResponse, ViewMode } from './common.js';
+import { Backlink } from '../../../../page/tile.js';
 
 
 /**
@@ -74,6 +75,10 @@ export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse
             uiLang: lang,
             'x-fcs-endpoint-description': 'true' // TODO
         });
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
 	call(tileId:number, multicastRequest:boolean, args:FCS1Args):Observable<ConcResponse> {

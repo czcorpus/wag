@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { BacklinkWithArgs } from '../../../page/tile.js';
 import { pipe, Dict, List, Color } from 'cnc-tskit';
 import { MarkupToken, SpeechToken } from './api.js';
 import { QueryMatch } from '../../../query/index.js';
 import urlJoin from 'url-join';
+import { Backlink } from '../../../page/tile.js';
 
 
 
@@ -42,13 +42,6 @@ export interface Speech {
     colorCode:Color.RGBA;
     isOverlap:boolean;
     metadata:{[k:string]:string};
-}
-
-
-export interface BacklinkArgs {
-    corpname:string;
-    usesubcorp:string;
-    q:string;
 }
 
 
@@ -83,7 +76,7 @@ export interface SpeechesModelState {
     speakerColors:Array<Color.RGBA>;
     speakerColorsAttachments:{[k:string]:Color.RGBA};
     spkOverlapMode:'full'|'simple';
-    backlink:BacklinkWithArgs<{}>;
+    backlink:Backlink;
     maxNumSpeeches:number;
     playbackEnabled:boolean;
     playback:{

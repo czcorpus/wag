@@ -22,6 +22,7 @@ import { QueryMatch } from '../../../../query/index.js';
 import { ResourceApi, SourceDetails } from '../../../../types.js';
 import { IAppServices } from '../../../../appServices.js';
 import { ConcResponse, ViewMode } from './common.js';
+import { Backlink } from '../../../../page/tile.js';
 
 export interface ConcApiArgs {
     corpusName:string;
@@ -38,6 +39,10 @@ export class NullConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
             description: '',
             author: ''
         })
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
     mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
@@ -96,6 +101,10 @@ export class MQueryConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
             description: '',
             author: ''
         })
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
     mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {

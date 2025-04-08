@@ -102,7 +102,6 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            backlink: conf.backlink || null,
             queryType: queryType,
             initState: {
                 isBusy: isBusy,

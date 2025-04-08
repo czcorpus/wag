@@ -25,7 +25,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
 import { findCurrQueryMatch, QueryMatch, RecognizedQueries } from '../../../query/index.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
@@ -67,7 +67,7 @@ export interface TimeDistribModelState {
     wordCmp:string;
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
-    backlinks:Array<BacklinkWithArgs<{}>>;
+    backlinks:Array<Backlink>;
     fcrit:string;
     fromYear:number;
     toYear:number;
@@ -212,11 +212,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload.wordMainLabel) {
                     state.wordMainLabel = action.payload.wordMainLabel;
                 }
-                if (this.backlink?.isAppUrl) {
-                    state.backlinks = [createAppBacklink(this.backlink)];
-                } else {
-                    state.backlinks.push(action.payload.backlink);
-                }
+                state.backlinks.push(this.api.getBacklink(0));
             }
         );
 
@@ -416,15 +412,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         tileId: this.tileId,
                         concId: args.concId,
                         overwritePrevious: resp.overwritePrevious,
-                        backlink: this.api.createBackLink(
-                            state.backlinks[0],
-                            state.corpname,
-                            findCurrQueryMatch(this.queryMatches[0])
-                        )
                     };
-                    if (ans.backlink && Dict.hasKey(args.subcName, state.subcBacklinkLabel)) {
-                        ans.backlink.label = state.subcBacklinkLabel[args.subcName];
-                    }
                     if (args.targetId === SubchartID.MAIN) {
                         ans.data = dataFull;
                         ans.wordMainLabel = args.wordMainLabel;

@@ -23,8 +23,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
-import { isWebDelegateApi } from '../../../types.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 
@@ -40,7 +39,7 @@ export interface WordFormsModelState {
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
     data:Array<WordFormItem>;
-    backlink:BacklinkWithArgs<{}>;
+    backlink:Backlink;
     mainPosAttr:MainPosAttrValues;
 }
 
@@ -101,8 +100,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly appServices:IAppServices;
 
-    private readonly backlink:Backlink;
-
     constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
             waitForTilesTimeoutSecs, appServices, backlink}:WordFormsModelArgs) {
         super(dispatcher, initialState);
@@ -113,7 +110,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -156,7 +152,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             subqueries: [],
                             domain1: null,
                             domain2: null,
-                            backlink: null,
                         }
                     });
                 } else {
@@ -185,7 +180,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
                     } else if (action.payload.data.length === 0) {
                         state.data = [];
-                        state.backlink = action.payload.backlink;
+                        state.backlink = null;
 
                     } else {
                         state.data = filterRareVariants(
@@ -193,7 +188,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
-                        state.backlink = action.payload.backlink;
+                        state.backlink = this.api.getBacklink(action.payload.queryId);
                     }
                 }
             }
@@ -264,7 +259,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         ),
                         domain1: null,
                         domain2: null,
-                        backlink: this.backlink?.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(args, this.backlink),
                     }
                 });
             },
@@ -281,7 +275,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         subqueries: [],
                         domain1: null,
                         domain2: null,
-                        backlink: null,
                     }
                 });
             }

@@ -24,9 +24,9 @@ import { mergeMap, tap, reduce } from 'rxjs/operators';
 import { HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { SystemMessageType } from '../../../types.js';
 import { isSubqueryPayload, RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch } from '../../../query/index.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { importMessageType } from '../../../page/notifications.js';
 import { Actions } from './actions.js';
@@ -36,13 +36,6 @@ import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordan
 import { normalizeTypography } from '../../../api/vendor/mquery/concordance/normalize.js';
 import { isCollocSubqueryPayload } from '../colloc/common.js';
 
-
-
-export interface BacklinkArgs {
-    corpname:string;
-    usesubcorp:string;
-    q:string;
-}
 
 export interface ConcordanceTileState {
     tileId:number;
@@ -69,7 +62,7 @@ export interface ConcordanceTileState {
     widthFract:number;
     initialKwicLeftCtx:number;
     initialKwicRightCtx:number;
-    backlinks:Array<BacklinkWithArgs<{}>>;
+    backlinks:Array<Backlink>;
     disableViewModes:boolean;
     visibleMetadataLine:number;
 }
@@ -85,7 +78,6 @@ export interface ConcordanceTileModelArgs {
     queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
     queryType:QueryType;
-    backlink:Backlink;
 }
 
 
@@ -99,8 +91,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    private readonly backlink:Backlink;
-
     private readonly waitForTile:number;
 
     private readonly queryType:QueryType;
@@ -110,13 +100,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState, waitForTile,
-            waitForTilesTimeoutSecs, backlink, queryType}:ConcordanceTileModelArgs) {
+            waitForTilesTimeoutSecs, queryType}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.concApi = service;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.concApi) ? this.concApi.getBackLink(backlink) : backlink;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
@@ -212,6 +201,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         concId: action.payload.data.concPersistenceID,
                         lines: normalizeTypography(action.payload.data.lines)
                     };
+                    state.backlinks.push(this.concApi.getBacklink(action.payload.queryId));
                 }
             }
         );
@@ -225,12 +215,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         state.concordances = createInitialLinesData(this.queryMatches.length);
                         state.error = this.appServices.normalizeHttpApiError(action.error);
                         state.backlinks = [];
-                    } else {
-                        if (this.backlink?.isAppUrl) {
-                            state.backlinks = [createAppBacklink(this.backlink)];
-                        } else {
-                            state.backlinks = List.map(v => this.createBackLink(state, v), action.payload.concPersistenceIDs);
-                        }
                     }
                 }
             }
@@ -359,25 +343,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             queryMatch,
             qmIndex
         };
-    }
-
-    private createBackLink(
-        state:ConcordanceTileState,
-        concId:string
-    ):BacklinkWithArgs<BacklinkArgs> {
-
-        return this.backlink ?
-            {
-                url: this.backlink.url,
-                method: this.backlink.method || HTTP.Method.GET,
-                label: this.backlink.label,
-                args: {
-                    corpname: state.corpname,
-                    usesubcorp: state.subcname,
-                    q: `~${concId}`
-                }
-            } :
-            null;
     }
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
