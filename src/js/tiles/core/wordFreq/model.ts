@@ -22,12 +22,12 @@ import { map, concatMap, tap } from 'rxjs/operators';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../api/abstract/similarFreq.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
-import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index.js';
+import { SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
+import { QueryMatch, RecognizedQueries, QueryType, calcFreqBand, findCurrQueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { List, pipe } from 'cnc-tskit';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
+import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -62,7 +62,7 @@ export interface SummaryModelArgs {
     dispatcher:IActionQueue;
     initialState:SummaryModelState;
     tileId:number;
-    api:SimilarFreqDbAPI;
+    api:SimilarFreqWordsFrodoAPI;
     sourceInfoApi:InternalResourceInfoApi;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
@@ -84,7 +84,7 @@ export function mkEmptySimilarWords(queryMatches:RecognizedQueries):Array<Array<
 
 export class SummaryModel extends StatelessModel<SummaryModelState> {
 
-    private readonly api:SimilarFreqDbAPI;
+    private readonly api:SimilarFreqWordsFrodoAPI;
 
     private readonly sourceInfoApi:InternalResourceInfoApi;
 
@@ -108,8 +108,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         this.queryDomain = queryDomain;
         this.queryType = queryType;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -147,60 +147,57 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 });
             }
         );
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
+                state.isBusy = false;
+                if (action.error) {
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
 
-                    } else if (action.payload.data.length === 0) {
-                        state.similarFreqWords = mkEmptySimilarWords(queryMatches);
+                } else if (action.payload.data.length === 0) {
+                    state.similarFreqWords = mkEmptySimilarWords(queryMatches);
 
-                    } else {
-                        state.similarFreqWords[0] = action.payload.data;
-                    }
+                } else {
+                    state.similarFreqWords[0] = action.payload.data;
                 }
             }
         );
-        this.addActionHandler<typeof Actions.ExpandLemmaPos>(
-            Actions.ExpandLemmaPos.name,
+        this.addActionSubtypeHandler(
+            Actions.ExpandLemmaPos,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.expandLemmaPos = action.payload.lemma;
-                }
+                state.expandLemmaPos = action.payload.lemma;
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                if (action.payload.tileId === this.tileId) {
-                    this.sourceInfoApi.call(this.tileId, false, {
-                        queryType,
-                        domain: this.queryDomain,
-                        corpname: state.corpname,
+                this.sourceInfoApi.call(this.tileId, false, {
+                    queryType,
+                    domain: this.queryDomain,
+                    corpname: state.corpname,
 
-                    }).subscribe({
-                        next: data => {
-                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    data
-                                }
-                            });
-                        },
-                        error: error => {
-                            console.error(error);
-                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error
-                            });
-                        }
-                    });
-                }
+                }).subscribe({
+                    next: data => {
+                        dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                data
+                            }
+                        });
+                    },
+                    error: error => {
+                        console.error(error);
+                        dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error
+                        });
+                    }
+                });
             }
         );
     }
@@ -219,26 +216,22 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             }
         }).pipe(
             concatMap(
-                (args) => testIsDictMatch(args.variant) ?
-                    this.api.call(this.tileId, true, {
-                        domain: args.lang,
-                        word: args.variant.word,
-                        lemma: args.variant.lemma,
-                        pos: state.mainPosAttr === 'pos' ?
-                            List.map(v => v.value, args.variant.pos) :
-                            List.map(v => v.value, args.variant.upos),
-                        mainPosAttr: state.mainPosAttr,
-                        srchRange: state.sfwRowRange
-                    }) :
-                    rxOf<{result:Array<SimilarFreqWord>}>({
-                        result: [{
-                            lemma: '?',
-                            pos: [],
-                            upos: [],
-                            ipm: 0,
-                            flevel: null
-                        }]
-                    })
+                (args) => this.api.call(
+                    this.tileId,
+                    true,
+                    args.variant.lemma ?
+                        {
+                            domain: args.lang,
+                            word: args.variant.word,
+                            lemma: args.variant.lemma,
+                            pos: state.mainPosAttr === 'pos' ?
+                                List.map(v => v.value, args.variant.pos) :
+                                List.map(v => v.value, args.variant.upos),
+                            mainPosAttr: state.mainPosAttr,
+                            srchRange: state.sfwRowRange
+                        } :
+                        null
+                )
             ),
             map(
                 (data) => List.map(

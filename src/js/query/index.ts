@@ -101,7 +101,6 @@ export interface QueryMatchCore {
     upos:Array<PosItem>; // each word of a multi-word query
     ipm:number;
     flevel:FreqBand|null;
-    isNonDict?:boolean;
 }
 
 
@@ -119,14 +118,35 @@ export interface QueryMatch extends QueryMatchCore {
 }
 
 /**
+ * Out of provided list of query matches, find the one with
+ * the 'current' flag set to true. The function never returns
+ * null/undefined - in case there is no match, value with
+ * empty lemma, word etc. is returned.
+ */
+export function findCurrQueryMatch(queryMatches:Array<QueryMatch>):QueryMatch {
+    const srch = queryMatches.find(v => v.isCurrent);
+    return srch ? srch : {
+        lemma: undefined,
+        word: undefined,
+        pos: [],
+        upos: [],
+        abs: -1,
+        ipm: -1,
+        arf: -1,
+        flevel: null,
+        isCurrent: true
+    };
+};
+
+/**
  * For each query (1st array dimension) we provide possibly multiple
  * lemma variants (2nd array dimension).
  */
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictMatch(queryMatche:QueryMatch):boolean {
-    return !queryMatche.isNonDict;
+export function testIsDictMatch(queryMatch:QueryMatch):boolean {
+    return !!queryMatch.lemma;
 }
 
 /**
@@ -162,7 +182,6 @@ export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
                     flevel: calcFreqBand(List.foldl((acc, m) => acc + m.ipm, 0, matches)),
-                    isNonDict: false,
                     word: matches[0].word,
                     abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
                     arf: -1,

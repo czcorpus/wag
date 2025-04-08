@@ -321,21 +321,23 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         );
     }
 
-    private createArgs(state:SpeechesModelState, range:[number, number]):SpeechReqArgs {
-        const args:SpeechReqArgs = {
-            corpname: state.corpname,
-            subcorpus: state.subcname,
-            query: mkLemmaMatchQuery(state.queryMatches[0], state.posQueryGenerator),
-            // hitlen: kwicNumTokens,  TODO
-            struct: [
-                state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
-                state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
-                state.speechSegment[0] + '.' + state.speechSegment[1]
-            ],
-            leftCtx: range[0],
-            rightCtx: range[1],
-        };
-        return args;
+    private createArgs(state:SpeechesModelState, range:[number, number]):SpeechReqArgs|null {
+        if (state.queryMatches[0].lemma) {
+            return {
+                corpname: state.corpname,
+                subcorpus: state.subcname,
+                query: mkLemmaMatchQuery(state.queryMatches[0], state.posQueryGenerator),
+                // hitlen: kwicNumTokens,  TODO
+                struct: [
+                    state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
+                    state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
+                    state.speechSegment[0] + '.' + state.speechSegment[1]
+                ],
+                leftCtx: range[0],
+                rightCtx: range[1],
+            };
+        }
+        return null;
     }
 
     private reloadData({state, multicastRequest, range, dispatch}:ReloadDataArgs):void {

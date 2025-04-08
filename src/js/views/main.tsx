@@ -448,7 +448,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     return (
                         <div className="LemmaSelector">
                             {ut.translate('global__searching_by_pos')}:{'\u00a0'}
-                            <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
+                            <span className="curr">{curr.lemma ? curr.lemma : curr.word} ({mkAltLabel(curr)})</span>
                             <br />
                             {props.matches[0].length > 1 ?
                                 <div className="variants">

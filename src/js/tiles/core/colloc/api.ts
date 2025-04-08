@@ -123,17 +123,31 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
 
     private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<HTTPResponse> {
         if (this.useDataStream) {
-            const eargs = this.prepareArgs(args);
             return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: urlJoin(this.apiURL, '/collocations/', args.corpusId) + `?${eargs}`,
+                    url: args ?
+                        urlJoin(this.apiURL, '/collocations/', args.corpusId) + `?${this.prepareArgs(args)}` :
+                        '',
                     body: {},
                     contentType: 'application/json',
                 }
-            );
+            ).pipe(
+                map(
+                    resp => resp ?
+                        resp :
+                        {
+                            concSize: 0,
+                            corpusSize: 0,
+                            colls: [],
+                            measure: null,
+                            srchRange:[0, 0],
+                            resultType:'coll'
+                        }
+                )
+            )
 
         } else {
             return ajax$<HTTPResponse>(

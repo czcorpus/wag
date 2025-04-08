@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { pipe, List } from 'cnc-tskit';
 
 import { ajax$ } from '../../../page/ajax.js';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
-import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq.js';
+import { RequestArgs, Response } from '../../abstract/similarFreq.js';
 import { HTTPAction } from '../../../server/routes/actions.js';
 import { IApiServices } from '../../../appServices.js';
 
@@ -33,7 +33,7 @@ interface HTTPResponse {
 
 
 
-export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
+export class SimilarFreqWordsAPI {
 
     private readonly apiURL:string;
 

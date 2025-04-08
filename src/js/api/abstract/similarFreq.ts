@@ -46,6 +46,3 @@ export interface SimilarFreqWord {
 export interface Response {
     result:Array<SimilarFreqWord>;
 }
-
-export interface SimilarFreqDbAPI extends DataApi<RequestArgs, Response> {
-}

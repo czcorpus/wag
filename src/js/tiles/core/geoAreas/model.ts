@@ -27,8 +27,7 @@ import { DataApi, isWebDelegateApi } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { DataRow, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
-import { RecognizedQueries } from '../../../query/index.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
+import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 
 /*
 oral2013:

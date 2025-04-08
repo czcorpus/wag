@@ -96,24 +96,28 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData>, WebD
         });
     }
 
-    call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs):Observable<SpeechData> {
+    call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs|null):Observable<SpeechData> {
         if (this.useDataStream) {
-            const query = this.prepareArgs(args);
             return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: urlJoin(this.apiUrl, 'speeches') + `?${query}`,
+                    url: args ? urlJoin(this.apiUrl, 'speeches') + `?${this.prepareArgs(args)}` : '',
                     body: {},
                     contentType: 'application/json',
                 }
             ).pipe(
                 map(
-                    resp => ({
-                        text: resp.context.text,
-                        kwicTokenIdx: parseInt(resp.context.ref.substring(1))
-                    })
+                    resp => resp ?
+                        {
+                            text: resp.context.text,
+                            kwicTokenIdx: parseInt(resp.context.ref.substring(1))
+                        } :
+                        {
+                            text: [],
+                            kwicTokenIdx: -1
+                        }
                 )
             );
 
