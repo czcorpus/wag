@@ -17,11 +17,10 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesApi, SCollsQueryType } from './api.js';
 
 

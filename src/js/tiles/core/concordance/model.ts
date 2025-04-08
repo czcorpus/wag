@@ -25,10 +25,9 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
-import { isSubqueryPayload, RecognizedQueries, QueryType, QueryMatch } from '../../../query/index.js';
+import { isSubqueryPayload, RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch } from '../../../query/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { importMessageType } from '../../../page/notifications.js';
 import { Actions } from './actions.js';
 import { callWithExtraVal } from '../../../api/util.js';

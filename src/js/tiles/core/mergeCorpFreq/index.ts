@@ -18,7 +18,7 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { List } from 'cnc-tskit';
 
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
     AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader,
     TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
@@ -26,7 +26,6 @@ import { GlobalComponents } from '../../../views/common/index.js';
 import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MergeFreqsApi } from './api.js';
 

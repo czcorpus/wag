@@ -22,8 +22,7 @@ import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, D
 import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
-import { QueryType } from '../../../query/index.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { CNCWord2VecSimApi, OperationMode } from './api.js';
 
 

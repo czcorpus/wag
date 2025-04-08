@@ -21,12 +21,11 @@ import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 
 import { LocalizedConfMsg } from '../../../types.js';
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider,
     ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';

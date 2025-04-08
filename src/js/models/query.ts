@@ -24,7 +24,7 @@ import { MultiDict } from '../multidict.js';
 import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index.js';
+import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries, findCurrQueryMatch } from '../query/index.js';
 import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
 import { HTTPAction } from '../server/routes/actions.js';
@@ -52,20 +52,7 @@ export interface QueryFormModelState {
     mainPosAttr:MainPosAttrValues;
 }
 
-export const findCurrQueryMatch = (queryMatches:Array<QueryMatch>):QueryMatch => {
-    const srch = queryMatches.find(v => v.isCurrent);
-    return srch ? srch : {
-        lemma: undefined,
-        word: undefined,
-        pos: [],
-        upos: [],
-        abs: -1,
-        ipm: -1,
-        arf: -1,
-        flevel: null,
-        isCurrent: true
-    };
-};
+
 
 /**
  * QueryFormModel handles both user entered raw query and switching between already found lemmas.

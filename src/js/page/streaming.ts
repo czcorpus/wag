@@ -125,7 +125,7 @@ export class DataStreaming {
                                         const tmp = JSON.parse(evt.data);
                                         observer.next({
                                             data: tmp,
-                                            error: tmp.error,
+                                            error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
                                             tileId: val.tileId
                                         });
 

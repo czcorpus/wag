@@ -18,7 +18,7 @@
 
 import { pipe, Color, List } from 'cnc-tskit';
 
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
     AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
     TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
@@ -26,7 +26,6 @@ import { SpeechesModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { SpeechesApi } from './api.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { AudioLinkGenerator } from './common.js';
 
 

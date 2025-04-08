@@ -19,13 +19,12 @@ import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { CorePosAttribute } from '../../../types.js';
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { CollocMetric, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryCollAPI } from '../../../tiles/core/colloc/api.js';
 
@@ -105,7 +104,6 @@ export class CollocationsTile implements ITileProvider {
             service: this.api,
             backlink: conf.backlink || null,
             queryType: queryType,
-            apiType: conf.apiType,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

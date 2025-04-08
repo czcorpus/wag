@@ -22,7 +22,7 @@ import { pipe, List, HTTP } from 'cnc-tskit';
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
-import { SimilarFreqDbAPI, RequestArgs, Response } from '../../../api/abstract/similarFreq.js';
+import { RequestArgs, Response } from '../../../api/abstract/similarFreq.js';
 import { HTTPAction } from '../../../server/routes/actions.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
@@ -47,9 +47,7 @@ interface HTTPResponse {
 }
 
 
-
-
-export class SimilarFreqWordsFrodoAPI implements SimilarFreqDbAPI {
+export class SimilarFreqWordsFrodoAPI {
 
     private readonly apiURL:string;
 
@@ -63,27 +61,36 @@ export class SimilarFreqWordsFrodoAPI implements SimilarFreqDbAPI {
         this.useDataStream = useDataStream;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs|null):Observable<Response> {
         return (
             this.useDataStream ?
-                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(multicastRequest,
+                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
+                    multicastRequest,
                     {
                         contentType: 'application/json',
                         body: {},
                         method: HTTP.Method.GET,
                         tileId,
-                        url: urlJoin(
-                            this.apiURL,
-                            `dictionary/${args.domain}/similarARFWords/${args.word}`
-                        ) + '?' + encodeURLParameters(
-                            [['domain', args.domain],
-                            //['word', args.word],
-                            ['lemma', args.lemma],
-                            ['pos', args.pos.join(' ')],
-                            ['mainPosAttr', args.mainPosAttr],
-                            ['srchRange', args.srchRange]]
-                        )
+                        url: args ?
+                            urlJoin(
+                                this.apiURL,
+                                'dictionary',
+                                args.domain,
+                                'similarARFWords',
+                                args.word
+                            ) + '?' + encodeURLParameters(
+                                [['domain', args.domain],
+                                ['lemma', args.lemma],
+                                ['pos', args.pos.join(' ')],
+                                ['mainPosAttr', args.mainPosAttr],
+                                ['srchRange', args.srchRange]]
+                            ) :
+                            ''
                     }
+                ).pipe(
+                    map(
+                        v => v ? v : { matches: []}
+                    )
                 ) :
                 ajax$<HTTPResponse>(
                     'GET',

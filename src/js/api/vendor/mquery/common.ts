@@ -31,7 +31,7 @@ export interface FreqRowResponse {
 }
 
 
-export function escapeVal(v:string) {
+function escapeVal(v:string) {
     const map = {
         '"': '\\"',
         '?': '\\?',
@@ -64,6 +64,11 @@ export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):s
 }
 
 
+/**
+ * Creates a 'word' matching query based on the provided QueryMatch.
+ *
+ * @see mkLemmaMatchQuery
+ */
 export function mkWordMatchQuery(lvar:QueryMatch):string {
     return List.map(
         word => `[word="${escapeVal(word)}"]`,
@@ -72,6 +77,12 @@ export function mkWordMatchQuery(lvar:QueryMatch):string {
 }
 
 
+/**
+ * Create either lemma (preferably) or word matching CQL query.
+ *
+ * @see mkLemmaMatchQuery
+ * @see mkWordMatchQuery
+ */
 export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
         if (lvar.pos.length > 0) {
             return mkLemmaMatchQuery(lvar, generator);

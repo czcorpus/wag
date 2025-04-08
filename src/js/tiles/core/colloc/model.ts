@@ -28,7 +28,7 @@ import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/til
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
-import { mkMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { mkLemmaMatchQuery, mkMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
 export interface CollocModelArgs {
@@ -41,7 +41,6 @@ export interface CollocModelArgs {
     waitForTilesTimeoutSecs:number;
     backlink:Backlink;
     queryType:QueryType;
-    apiType:string;
 }
 
 
@@ -57,13 +56,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly tileId:number;
 
-    private readonly waitForTile:number;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly queryType:QueryType;
-
-    private readonly apiType:string;
 
     private readonly measureMap = {
         't': 'T-score',
@@ -79,64 +72,56 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private readonly backlink:Backlink;
 
     constructor({
-        dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, service,
-        initState, backlink, queryType, apiType}:CollocModelArgs) {
+        dispatcher, tileId, appServices, service, initState, backlink, queryType}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.collApi = service;
         this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.collApi) ? this.collApi.getBackLink(backlink) : backlink;
         this.queryType = queryType;
-        this.apiType = apiType;
 
-        this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
-            GlobalActions.SubqItemHighlighted.name,
+        this.addActionHandler(
+            GlobalActions.SubqItemHighlighted,
             (state, action) => {
                 state.selectedText = action.payload.text;
             }
         );
-        this.addActionHandler<typeof GlobalActions.SubqItemDehighlighted>(
+        this.addActionHandler(
             GlobalActions.SubqItemDehighlighted.name,
             (state, action) => {
                 state.selectedText = null;
             }
         );
-        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
-            GlobalActions.EnableTileTweakMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableTileTweakMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isTweakMode = true;
-                }
+                state.isTweakMode = true;
             }
         );
-        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
-            GlobalActions.DisableTileTweakMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableTileTweakMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isTweakMode = false;
-                }
+                state.isTweakMode = false;
             }
         );
-        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
-            GlobalActions.EnableAltViewMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableAltViewMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = true;
-                }
+                state.isAltViewMode = true;
             }
         );
-        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
-            GlobalActions.DisableAltViewMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableAltViewMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = false;
-                }
+                state.isAltViewMode = false;
             }
         );
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -152,15 +137,14 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
 
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        console.error(action.error);
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
-                    }
+                state.isBusy = false;
+                if (action.error) {
+                    console.error(action.error);
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
                 }
             }
         );
@@ -210,40 +194,40 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 );
             }
         );
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {},
             (state, action, seDispatch) => {
-                if (action.payload.tileId === this.tileId) {
-                    this.collApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe({
-                        next: (data) => {
-                            seDispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        error: (err) => {
-                            console.error(err);
-                            seDispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error: err
+                this.collApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                .subscribe({
+                    next: (data) => {
+                        seDispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                data: data
+                            }
+                        });
+                    },
+                    error: (err) => {
+                        console.error(err);
+                        seDispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error: err
 
-                            });
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             }
         );
     }
 
-    private stateToArgs(state:CollocModelState, queryMatch:QueryMatch, queryId:string):MQueryCollArgs {
+    private stateToArgs(state:CollocModelState, queryMatch:QueryMatch, queryId:string):MQueryCollArgs|null {
+        if (queryMatch.lemma) {
             const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
             return {
                 corpusId: state.corpname,
-                q: mkMatchQuery(queryMatch, state.posQueryGenerator),
+                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],
                 srchLeft: Math.abs(cfromw),
@@ -253,6 +237,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 maxItems: state.citemsperpage
             }
         }
+        return null;
+    }
 
     private createBackLink(
         state:CollocModelState,

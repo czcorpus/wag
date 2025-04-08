@@ -17,15 +17,14 @@
  */
 import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
+import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
-import { QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';

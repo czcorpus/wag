@@ -429,8 +429,7 @@ export function queryAction({
                             ipm: 0,
                             arf: 0,
                             flevel: null,
-                            isCurrent: true,
-                            isNonDict: true
+                            isCurrent: true
                         }];
                     }
                     return markMatch(
