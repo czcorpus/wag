@@ -24,7 +24,7 @@ import sqlite3 from 'sqlite3';
 import translations from 'translations';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Ident, tuple } from 'cnc-tskit';
+import { Dict, Ident, List, tuple } from 'cnc-tskit';
 import sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
@@ -107,7 +107,13 @@ forkJoin([ // load core configs
         ]).pipe(
             map(
                 ([tiles, colors, dataReadability]) => {
-                    clientConf.tiles = tiles;
+                    clientConf.tiles = Dict.map(
+                        (tiles, _) => Dict.filter(
+                            t => !t.isDisabled,
+                            tiles
+                        ),
+                        tiles
+                    );
                     clientConf.colors = colors;
                     clientConf.dataReadability = dataReadability;
                     return tuple(serverConf, clientConf, pkgInfo);
