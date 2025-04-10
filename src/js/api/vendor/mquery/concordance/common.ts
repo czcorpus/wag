@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+import { List, pipe } from "cnc-tskit";
+
 
 export type AttrViewMode = 'visible-all'|'visible-kwic'|'visible-multiline'|'mouseover';
 
@@ -30,54 +32,67 @@ export enum ViewMode {
 export type LineElementType = ''|'strc'|'attr'|'str'|'coll';
 
 
-export interface LineElement {
-    type:LineElementType;
-    str:string;
-    mouseover?:Array<string>;
+export interface Token {
+    type:'token'|'markup';
+    word:string;
+    strong:boolean;
+    attrs:{[name:string]:string};
 }
 
 
 export interface Line {
-    left:Array<LineElement>;
-    kwic:Array<LineElement>;
-    right:Array<LineElement>;
-    align?:Array<{
-        left:Array<LineElement>;
-        kwic:Array<LineElement>;
-        right:Array<LineElement>;
-        toknum:number;
-    }>;
-    toknum:number;
-    metadata?:Array<{label:string; value:string}>;
-    interactionId?:string;
-    isHighlighted?:boolean;
+    ref:string;
+    text:Array<Token>;
+    metadata:Array<{value:string; label:string}>;
+}
+
+export function getLineLeftCtx(line:Line):Array<Token> {
+    const srchIdx = List.findIndex(x => x.strong, line.text);
+    return List.slice(0, srchIdx, line.text);
 }
 
 
+export function getKwicCtx(line:Line):Array<Token> {
+    const srchIdx1 = List.findIndex(x => x.strong, line.text);
+    const srchIdx2 = pipe(
+        line.text,
+        List.reversed(),
+        List.findIndex(x => x.strong),
+        x => x > -1 ? List.size(line.text) - 1 - x : -1
+    );
+    if (srchIdx1 === -1 || srchIdx2 === -1) {
+        throw new Error('cannot find kwic ctx');
+    }
+    return List.slice(srchIdx1, srchIdx2 + 1, line.text);
+}
+
+
+export function getLineRightCtx(line:Line):Array<Token> {
+    const srchIdx = pipe(
+        line.text,
+        List.reversed(),
+        List.findIndex(x => x.strong),
+        x => x > -1 ? List.size(line.text) - x : -1
+    );
+    return List.slice(srchIdx, -1, line.text);
+}
+
 export interface ConcResponse {
-    query:string;
-    corpName:string;
-    primaryCorp?:string;
-    subcorpName:string;
-    lines:Array<Line>;
-    concsize:number;
-    arf:number;
+    concSize:number;
     ipm:number;
-    messages:Array<[string, string]>;
-    concPersistenceID:string;
-    kwicNumTokens?:number;
+    lines:Array<Line>;
+    resultType:'concordance';
 }
 
 
 export interface ConcData {
-    concsize:number;
-    numPages:number;
-    resultARF:number;
-    resultIPM:number;
-    currPage:number;
-    loadPage:number; // the one we are going to load
-    concId:string;
+    queryIdx:number;
+    concSize:number;
+    ipm:number;
     lines:Array<Line>;
+    loadPage:number;
+    currPage:number;
+    numPages:number;
 }
 
 
@@ -85,14 +100,13 @@ export function createInitialLinesData(numQueryMatches:number):Array<ConcData> {
     const ans:Array<ConcData> = [];
     for (let i = 0; i < numQueryMatches; i++) {
         ans.push({
-            concId: null,
+            queryIdx: 0,
             lines: [],
-            concsize: -1,
-            numPages: -1,
-            resultARF: -1,
-            resultIPM: -1,
-            currPage: 1,
-            loadPage: 1
+            concSize: 0,
+            ipm: 0,
+            loadPage: 0,
+            currPage: 0,
+            numPages: 0
         });
     }
     return ans;

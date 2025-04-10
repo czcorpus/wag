@@ -19,17 +19,16 @@ import { Action } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
-import { ConcResponse, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
+import { ConcData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 export interface ConcLoadedPayload {
     corpusName:string;
     subcorpusName?:string;
-    concPersistenceIDs:Array<string>;
 }
 
 export interface PartialDataPayload extends SubqueryPayload {
-    data:ConcResponse;
+    data:ConcData;
 }
 
 export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {

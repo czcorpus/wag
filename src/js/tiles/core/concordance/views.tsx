@@ -26,7 +26,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { ConcordanceTileModel, ConcordanceTileState } from './model.js';
 
 import * as S from './style.js';
-import { Line, LineElement, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
+import { getKwicCtx, getLineLeftCtx, getLineRightCtx, Line, Token, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 
@@ -146,13 +146,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <RowItem /> --------------------------------------------
 
     const RowItem:React.FC<{
-        data:LineElement;
+        data:Token;
         isKwic?:boolean;
 
     }> = (props) => {
         return (
-            <span className={props.isKwic ? 'kwic' : null} title={props.data.mouseover ? props.data.mouseover.join(', ') : null}>
-                {props.data.str}
+            <span className={props.isKwic ? 'kwic' : null}>
+                {props.data.word}
             </span>
         );
     };
@@ -215,47 +215,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     }
                     <td className="left">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />,
-                            props.data.left
+                            (s, i) => (
+                                <React.Fragment key={`${props.data.ref}:L${i}`} >
+                                    {i > 0 ? <span> </span> : null}
+                                    <RowItem data={s} />
+                                </React.Fragment>
+                            ),
+                            getLineLeftCtx(props.data)
                         )}
                     </td>
                     <td className="kwic">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />,
-                            props.data.kwic
+                            (s, i) => <RowItem key={`${props.data.ref}:K${i}`} data={s} isKwic={true} />,
+                            getKwicCtx(props.data)
                         )}
                     </td>
                     <td className="right">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />,
-                            props.data.right
+                            (s, i) => (
+                                <React.Fragment key={`${props.data.ref}:R${i}`}>
+                                    {i > 0 ? <span> </span> : null}
+                                    <RowItem data={s} />
+                                </React.Fragment>
+                            ),
+                            getLineRightCtx(props.data)
                         )}
                     </td>
                 </S.Row>
-                {props.isParallel ?
-                    <S.Row className="aligned">
-                        <td colSpan={props.data.metadata.length > 0 ? 2 : 1} />
-                        <td className="left">
-                            {List.map(
-                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:L${i}`} data={s} />,
-                                props.data.align[0].left
-                            )}
-                        </td>
-                        <td className="kwic">
-                            {List.map(
-                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:K${i}`} data={s} isKwic={true} />,
-                                props.data.align[0].kwic
-                            )}
-                        </td>
-                        <td className="right">
-                            {List.map(
-                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:R${i}`} data={s} />,
-                                props.data.align[0].right
-                            )}
-                        </td>
-                    </S.Row> :
-                    null
-                }
             </>
         );
     }
@@ -348,18 +334,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         <S.Summary>
                             <dt>{ut.translate('concordance__num_matching_items')}:</dt>
-                            <dd>{ut.formatNumber(conc.concsize, 0)}</dd>
-                            {conc.resultIPM > -1 ?
+                            <dd>{ut.formatNumber(conc.concSize, 0)}</dd>
+                            {conc.ipm > -1 ?
                                 <>
                                     <dt>{ut.translate('concordance__ipm')}:</dt>
-                                    <dd>{ut.formatNumber(conc.resultIPM, 2)}</dd>
-                                </> :
-                                null
-                            }
-                            {conc.resultARF > -1 ?
-                                <>
-                                    <dt>{ut.translate('concordance__arf')}:</dt>
-                                    <dd>{ut.formatNumber(conc.resultARF, 2)}</dd>
+                                    <dd>{ut.formatNumber(conc.ipm, 2)}</dd>
                                 </> :
                                 null
                             }
@@ -367,7 +346,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <table className={tableClasses.join(' ')}>
                             <tbody>
                                 {List.map(
-                                    (line, i) => <Row key={`${i}:${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname}
+                                    (line, i) => <Row key={`${i}:${line.ref}`} data={line} isParallel={!!this.props.otherCorpname}
                                         hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)} />,
                                     conc.lines
                                 )}

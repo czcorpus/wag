@@ -16,60 +16,22 @@
  * limitations under the License.
  */
 
-import { Observable, of as rxOf } from 'rxjs';
+import { EMPTY, map, Observable, of as rxOf, tap } from 'rxjs';
 
 import { QueryMatch } from '../../../../query/index.js';
 import { ResourceApi, SourceDetails } from '../../../../types.js';
 import { IAppServices } from '../../../../appServices.js';
-import { ConcResponse, ViewMode } from './common.js';
+import { ConcData, ConcResponse, ViewMode } from './common.js';
 import { Backlink } from '../../../../page/tile.js';
+import { Dict, HTTP, List, pipe } from 'cnc-tskit';
+import urlJoin from 'url-join';
+
 
 export interface ConcApiArgs {
     corpusName:string;
-    queryMatch:QueryMatch;
-    qmIndex:number;
-}
-
-export class NullConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
-
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
-        return rxOf({
-            tileId,
-            title: '',
-            description: '',
-            author: ''
-        })
-    }
-
-    getBacklink(queryId:number):Backlink|null {
-        return null;
-    }
-
-    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
-        return '';
-    }
-
-    /**
-     * Note: the first item will be set as an initial one
-     */
-    getSupportedViewModes():Array<ViewMode> {
-        return [ViewMode.KWIC, ViewMode.SENT];
-    }
-
-
-    call(tileId:number, multicastRequest:boolean, args:ConcApiArgs):Observable<ConcResponse> {
-        return rxOf({
-                query: '',
-                corpName: args.corpusName,
-                subcorpName: '',
-                lines: [],
-                concsize: 0,
-                arf: 0,
-                ipm: 0,
-                messages: [],
-                concPersistenceID: ''
-        })
-    }
+    q:string;
+    queryIdx:number;
+    currPage:number;
 }
 
 // ------------------------------
@@ -77,7 +39,7 @@ export class NullConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
 /**
  * @todo
  */
-export class MQueryConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
+export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, ConcData> {
 
     private readonly apiUrl:string;
 
@@ -85,13 +47,10 @@ export class MQueryConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
 
     private readonly appServices:IAppServices;
 
-    private readonly apiOptions:{};
-
-    constructor(apiUrl:string, usesDataStream:boolean, appServices:IAppServices, apiOptions:{}) {
+    constructor(apiUrl:string, usesDataStream:boolean, appServices:IAppServices) {
         this.apiUrl = apiUrl;
         this.usesDataStream = usesDataStream;
         this.appServices = appServices;
-        this.apiOptions = apiOptions;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
@@ -118,18 +77,50 @@ export class MQueryConcApi implements ResourceApi<ConcApiArgs, ConcResponse> {
         return [ViewMode.KWIC, ViewMode.SENT];
     }
 
+    private prepareArgs(queryArgs:ConcApiArgs):string {
+        return pipe(
+            {
+                q: queryArgs.q
+            },
+            Dict.toEntries(),
+            List.map(([v0, v1]) => `${v0}=${encodeURIComponent(v1)}`)
+        ).join('&')
+    }
 
-    call(tileId:number, multicastRequest:boolean, args:ConcApiArgs):Observable<ConcResponse> {
-        return rxOf({
-                query: '',
-                corpName: args.corpusName,
-                subcorpName: '',
-                lines: [],
-                concsize: 0,
-                arf: 0,
-                ipm: 0,
-                messages: [],
-                concPersistenceID: ''
-        })
+    call(tileId:number, multicastRequest:boolean, args:Array<ConcApiArgs>):Observable<ConcData> {
+        // TODO cmp search support
+        const singleSrchArgs = args[0];
+        if (this.usesDataStream) {
+            return this.appServices.dataStreaming().registerTileRequest<ConcResponse>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: args ?
+                        urlJoin(this.apiUrl, 'concordance', singleSrchArgs.corpusName) + `?${this.prepareArgs(singleSrchArgs)}` :
+                        '',
+                    body: {},
+                    contentType: 'application/json',
+                }
+            ).pipe(
+                tap(
+                    resp => {
+                        console.log('conc response: ', resp)
+                    }
+                ),
+                map(
+                    resp => ({
+                        ...resp,
+                        queryIdx: 0, // TODO
+                        currPage: singleSrchArgs.currPage,
+                        loadPage: 0,
+                        numPages: 0
+                    })
+                )
+            )
+
+        } else {
+            return EMPTY
+        }
     }
 }
