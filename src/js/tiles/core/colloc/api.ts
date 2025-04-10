@@ -23,8 +23,7 @@ import urlJoin from 'url-join';
 import { ajax$ } from '../../../page/ajax.js';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
+import { Backlink } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { CollApiResponse } from './common.js';
 
@@ -96,7 +95,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<{}> {
+    getBacklink(queryId:number):Backlink|null {
         return null;
     }
 

@@ -189,8 +189,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const MergeCorpFreqBarTile:React.FC<MergeCorpFreqModelState & CoreTileComponentProps> = (props) => {
 
-        const backlinks = props.appBacklink ?
-            [props.appBacklink] :
+        const backlinks = props.backlink ?
+            [props.backlink] :
             []; // TODO
 
         const numCats = Math.max(0, ...props.data.map(v => v ? v.length : 0));

@@ -23,6 +23,7 @@ import { IApiServices } from '../../../appServices.js';
 import { Ident, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from '../../../api/vendor/mquery/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 
@@ -112,6 +113,10 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
     call(tileId:number, multicastRequest:boolean, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {

@@ -21,6 +21,7 @@ import { Observable } from 'rxjs';
 import { SourceDetails } from '../../../types.js';
 import { map } from 'rxjs/operators';
 import { IApiServices } from '../../../appServices.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 export interface HTTPResponse {
@@ -64,7 +65,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         this.apiServices = apiServices;
     }
 
-    stateToBacklink(state:MatchingDocsModelState, query:string):null {
+    getBacklink(queryId:number):Backlink|null {
         return null;
     }
 

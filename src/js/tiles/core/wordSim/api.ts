@@ -26,6 +26,7 @@ import { AjaxError } from 'rxjs/ajax';
 import { QueryType, RangeRelatedSubqueryValue, SubqueryPayload } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 export type WordSimSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
@@ -108,6 +109,10 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
                     numTokens: 0 // TODO
                 }
             });
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
     call(tileId:number, multicastRequest:boolean, queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {

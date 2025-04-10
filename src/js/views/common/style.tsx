@@ -345,24 +345,19 @@ export const WdgTooltip = styled.div<{$multiword?:boolean}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkForm = styled.form<{$createStaticUrl: (file:string) => string}>`
+export const BacklinkButton = styled.button<{$createStaticUrl: (file:string) => string}>`
     display: inline;
-    padding: 0;
+    padding: 0 12px 0 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    color: #009ee0;
+    background-image: url(${props => props.$createStaticUrl('external-link.svg')});
+    background-repeat: no-repeat;
+    background-position: 99% 0;
 
-    button {
-        display: inline;
-        padding: 0 12px 0 0;
-        border: none;
-        background-color: transparent;
-        cursor: pointer;
-        text-decoration: none;
-        color: #009ee0;
-        background-image: url(${props => props.$createStaticUrl('external-link.svg')});
-        background-repeat: no-repeat;
-        background-position: 99% 0;
-    }
-
-    button:hover {
+    :hover {
         text-decoration: underline;
     }
 `;

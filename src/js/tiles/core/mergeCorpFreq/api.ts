@@ -19,8 +19,7 @@
 import { map, of as rxOf, tap } from 'rxjs';
 import { SourceDetails, ResourceApi } from '../../../types.js';
 import { Observable } from 'rxjs';
-import { Backlink } from '../../../page/tile.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { QueryMatch } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
@@ -68,23 +67,25 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
 
     private readonly apiServices:IApiServices;
 
-    private readonly customArgs:{};
+    private readonly backlinkConf:BacklinkConf;
 
     private srcInfoService:CorpusInfoAPI;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, customArgs:{}) {
+    private freqApi:MQueryFreqDistribAPI;
+
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
-        this.customArgs = customArgs;
+        this.backlinkConf = backlinkConf;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
+        this.freqApi = new MQueryFreqDistribAPI(this.apiURL, this.apiServices, this.useDataStream, this.backlinkConf);
     }
 
     // mkMatchQuery(queryMatch, state.posQueryGenerator),
     stateToArgs(state:MergeCorpFreqModelState, queryMatch:QueryMatch):Array<MQueryFreqArgs> {
-        const fApi = new MQueryFreqDistribAPI(this.apiURL, this.apiServices, this.useDataStream);
         return List.map(
-            src => fApi.stateToArgs(
+            src => this.freqApi.stateToArgs(
                 {
                     corpname: src.corpname,
                     subcname: src.subcname,
@@ -173,8 +174,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         });
     }
 
-    createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string) {
-
+    getBacklink(queryId:number):Backlink|null {
+        return this.freqApi.getBacklink(queryId);
     }
-
 }

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { WordTranslation } from '../../api/abstract/translations.js';
-import { BacklinkWithArgs } from '../../page/tile.js';
+import { Backlink } from '../../page/tile.js';
 
 
 interface TranslationsModelCoreState {
@@ -47,7 +47,7 @@ export interface TranslationsModelState<T> extends TranslationsModelCoreState {
      */
     translations:Array<WordTranslation>;
 
-    backLink:BacklinkWithArgs<T>|null;
+    backlink?:Backlink;
 
     maxNumLines:number;
 }

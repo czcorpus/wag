@@ -201,12 +201,10 @@ class TreqAPICaller {
         );
     }
 
-    getBackLink(backlink:Backlink):Backlink {
+    getBacklink(queryId:number):Backlink {
         return {
             label: 'Treq',
-            method: HTTP.Method.GET,
-            ...(backlink || {}),
-            url: (backlink?.url ? backlink.url : this.apiURL) + '/index.php',
+            queryId,
         }
     }
 }

@@ -19,14 +19,13 @@ import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
 import { pipe, List, HTTP, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
-import { SpeechesModelState, extractSpeeches, BacklinkArgs, Segment,
+import { SpeechesModelState, extractSpeeches, Segment,
     PlayableSegment,
     AudioLinkGenerator} from './common.js';
-import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
+import { SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
@@ -52,7 +51,6 @@ export interface SpeechesModelArgs {
     appServices:IAppServices;
     api:SpeechesApi;
     initState:SpeechesModelState;
-    backlink:Backlink;
     audioLinkGenerator:AudioLinkGenerator;
 }
 
@@ -75,20 +73,17 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly tileId:number;
 
-    private readonly backlink:Backlink;
-
     private readonly audioLinkGenerator:AudioLinkGenerator|null;
 
-    constructor({dispatcher, tileId, appServices, api, initState, backlink, audioLinkGenerator}:SpeechesModelArgs) {
+    constructor({dispatcher, tileId, appServices, api, initState, audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
         this.audioLinkGenerator = audioLinkGenerator;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -114,31 +109,24 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 } else {
                     state.kwicNumTokens = action.payload.kwicNumTokens || 1;
                     state.data = extractSpeeches(state, action.payload.data, action.payload.kwicTokenIdx);
-                    state.backlink = this.backlink ?
-                        (this.backlink.isAppUrl ?
-                            createAppBacklink(this.backlink) :
-                            this.createBackLink(state)
-                        ) :
-                        null;
+                    state.backlink = this.api.getBacklink(0);
                 }
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
-            GlobalActions.EnableTileTweakMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableTileTweakMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isTweakMode = true;
-                }
+                state.isTweakMode = true;
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
-            GlobalActions.DisableTileTweakMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableTileTweakMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isTweakMode = false;
-                }
+                state.isTweakMode = false;
             }
         );
 
@@ -214,96 +202,91 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             }
         ).sideEffectAlsoOn(Actions.ClickAudioPlayAll.name);
 
-        this.addActionHandler<typeof Actions.ClickAudioPlayAll>(
-            Actions.ClickAudioPlayAll.name,
+        this.addActionSubtypeHandler(
+            Actions.ClickAudioPlayAll,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    const segments = pipe(
-                        state.data,
-                        List.reduce(
-                            (acc, curr) => acc.concat(curr),
-                            []
-                        ),
-                        List.reduce(
-                            (acc, curr) => acc.concat(curr.segments),
-                            []
-                        )
-                    );
-                    state.playback = {
-                        segments: segments,
-                        currLineIdx: state.playback ? state.playback.currLineIdx : null,
-                        newLineIdx: segments[0].lineIdx,
-                        currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
-                        newPlaybackSession: null
-                    };
-                }
+                const segments = pipe(
+                    state.data,
+                    List.reduce(
+                        (acc, curr) => acc.concat(curr),
+                        []
+                    ),
+                    List.reduce(
+                        (acc, curr) => acc.concat(curr.segments),
+                        []
+                    )
+                );
+                state.playback = {
+                    segments: segments,
+                    currLineIdx: state.playback ? state.playback.currLineIdx : null,
+                    newLineIdx: segments[0].lineIdx,
+                    currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
+                    newPlaybackSession: null
+                };
             }
         );
 
-        this.addActionHandler<typeof Actions.AudioPlayerStarted>(
-            Actions.AudioPlayerStarted.name,
+        this.addActionSubtypeHandler(
+            Actions.AudioPlayerStarted,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.playback = {
-                        segments: state.playback.segments,
-                        currLineIdx: state.playback.newLineIdx,
-                        newLineIdx: null,
-                        currPlaybackSession: action.payload.playbackSession,
-                        newPlaybackSession: null
-                    };
-                }
+                state.playback = {
+                    segments: state.playback.segments,
+                    currLineIdx: state.playback.newLineIdx,
+                    newLineIdx: null,
+                    currPlaybackSession: action.payload.playbackSession,
+                    newPlaybackSession: null
+                };
             }
         );
 
-        this.addActionHandler<typeof Actions.AudioPlayerStopped>(
-            Actions.AudioPlayerStopped.name,
+        this.addActionSubtypeHandler(
+            Actions.AudioPlayerStopped,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.playback = null;
-                }
+                state.playback = null;
             }
         );
 
-        this.addActionHandler<typeof Actions.PlayedLineChanged>(
-            Actions.PlayedLineChanged.name,
+        this.addActionSubtypeHandler(
+            Actions.PlayedLineChanged,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.playback = {
-                        currLineIdx: action.payload.lineIdx,
-                        newLineIdx: null,
-                        segments: state.playback.segments,
-                        newPlaybackSession: state.playback.newPlaybackSession,
-                        currPlaybackSession: state.playback.currPlaybackSession
-                    };
-                }
+                state.playback = {
+                    currLineIdx: action.payload.lineIdx,
+                    newLineIdx: null,
+                    segments: state.playback.segments,
+                    newPlaybackSession: state.playback.newPlaybackSession,
+                    currPlaybackSession: state.playback.currPlaybackSession
+                };
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                if (action.payload.tileId === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload.corpusId)
-                    .subscribe({
-                        next: (data) => {
-                            dispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        error: (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error: err
+                this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload.corpusId)
+                .subscribe({
+                    next: (data) => {
+                        dispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                data: data
+                            }
+                        });
+                    },
+                    error: (err) => {
+                        console.error(err);
+                        dispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error: err
 
-                            });
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             }
         );
     }
@@ -375,19 +358,6 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     });
                 }
             });
-    }
-
-    private createBackLink(state:SpeechesModelState):BacklinkWithArgs<BacklinkArgs> {
-        return {
-            url: this.backlink.url,
-            method: this.backlink.method || HTTP.Method.GET,
-            label: this.backlink.label,
-            args: {
-                corpname: state.corpname,
-                usesubcorp: state.subcname,
-                q: '---- TODO _--- phrase for create_conc'
-            }
-        }
     }
 
     private playSegments(state:SpeechesModelState, player:AudioPlayer, dispatch:SEDispatcher):void {

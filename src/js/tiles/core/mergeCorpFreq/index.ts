@@ -67,7 +67,6 @@ export interface MergeCorpFreqTileConf extends TileConf {
           * by something more specific (e.g. 'social media')
           */
         valuePlaceholder?:LocalizedConfMsg;
-        backlink?:Backlink;
 
         /**
          * If true then the model will always consider possible
@@ -123,7 +122,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            freqApi: new MergeFreqsApi(conf.apiURL, conf.useDataStream, appServices, apiOptions),
+            freqApi: new MergeFreqsApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
@@ -143,8 +142,6 @@ export class MergeCorpFreqTile implements ITileProvider {
                         valuePlaceholder: src.valuePlaceholder ?
                                 appServices.importExternalMessage(src.valuePlaceholder) :
                                 null,
-                        backlinkTpl: src.backlink || null,
-                        backlink: null,
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
                         posQueryGenerator: src.posQueryGenerator
@@ -154,9 +151,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 tooltipData: null,
-                appBacklink: null,
+                backlinks: [],
             },
-            backlink: conf.backlink || null,
             downloadLabel: conf.downloadLabel,
         });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');

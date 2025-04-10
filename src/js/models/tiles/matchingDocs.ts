@@ -15,20 +15,9 @@
 * limitations under the License.
 */
 
-import { BacklinkWithArgs } from '../../page/tile.js';
+import { Backlink } from '../../page/tile.js';
 import { DataRow } from '../../api/abstract/matchingDocs.js';
 
-
-export interface KontextFreqBacklinkArgs {
-    corpname:string;
-    usesubcorp:string;
-    q:string;
-    fcrit:Array<string>;
-    flimit:number;
-    freq_sort:string;
-    fpage:number;
-    ftt_include_empty:number;
-}
 
 export interface MatchingDocsModelState {
     isBusy:boolean;
@@ -40,7 +29,7 @@ export interface MatchingDocsModelState {
     maxNumCategoriesPerPage:number;
     currPage:number;
     numPages:number;
-    backlink:BacklinkWithArgs<{}>|null;
+    backlink?:Backlink;
     subqSyncPalette:boolean;
     displayAttrs:Array<string>;
     searchAttrs:Array<string>;

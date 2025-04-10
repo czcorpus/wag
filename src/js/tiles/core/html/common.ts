@@ -18,7 +18,7 @@
 
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { BacklinkWithArgs } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 
 
 export interface HtmlModelState {
@@ -30,7 +30,7 @@ export interface HtmlModelState {
     args:{[key:string]:string};
     lemmaArg:string;
     sanitizeHTML:boolean;
-    backlink:BacklinkWithArgs<{}>;
+    backlink:Backlink;
 }
 
 

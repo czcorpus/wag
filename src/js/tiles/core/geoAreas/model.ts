@@ -23,9 +23,9 @@ import { IAppServices } from '../../../appServices.js';
 import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { DataApi, isWebDelegateApi } from '../../../types.js';
+import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { DataRow, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 
@@ -73,17 +73,16 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<D
     mapSVG:string;
     isAltViewMode:boolean;
     frequencyDisplayLimit:number;
-    backlink:BacklinkWithArgs<Backlink>;
+    backlink:Backlink;
 }
 
 export interface GeoAreasModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
-    api:MQueryFreqDistribAPI;
+    freqApi:MQueryFreqDistribAPI;
     mapLoader:DataApi<string, string>;
     initState:GeoAreasModelState;
-    backlink:Backlink;
     queryMatches:RecognizedQueries;
 }
 
@@ -94,26 +93,22 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly appServices:IAppServices;
 
-    private readonly api:MQueryFreqDistribAPI;
+    private readonly freqApi:MQueryFreqDistribAPI;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    private readonly backlink:Backlink;
-
     private readonly queryMatches:RecognizedQueries;
 
-    constructor({dispatcher, tileId, appServices,
-            api, mapLoader, initState, backlink, queryMatches}:GeoAreasModelArgs) {
+    constructor({dispatcher, tileId, appServices, freqApi, mapLoader, initState, queryMatches}:GeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
-        this.api = api;
+        this.freqApi = freqApi;
         this.mapLoader = mapLoader;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -129,10 +124,10 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                             observer.complete();
                         }
                     }).pipe(
-                        concatMap(args => this.api.call(
+                        concatMap(args => this.freqApi.call(
                             this.tileId,
                             true,
-                            this.api.stateToArgs(state, findCurrQueryMatch(this.queryMatches[0]))
+                            this.freqApi.stateToArgs(state, findCurrQueryMatch(this.queryMatches[0]))
                         ))
                     ),
                     state.mapSVG ?
@@ -169,8 +164,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionHandler(
+            Actions.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -188,7 +183,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
                     } else {
                         state.data = action.payload.data;
-                        state.backlink = this.backlink?.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(state, this.backlink)
+                        state.backlink = this.freqApi.getBacklink(0);
                         if (action.payload.mapSVG) {
                             state.mapSVG = action.payload.mapSVG;
                         }
@@ -197,8 +192,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
-            GlobalActions.EnableAltViewMode.name,
+        this.addActionHandler(
+            GlobalActions.EnableAltViewMode,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -206,8 +201,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
-            GlobalActions.DisableAltViewMode.name,
+        this.addActionHandler(
+            GlobalActions.DisableAltViewMode,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -215,8 +210,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ShowAreaTooltip>(
-            Actions.ShowAreaTooltip.name,
+        this.addActionHandler(
+            Actions.ShowAreaTooltip,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const data = action.payload.dataIdx === -1 ? undefined : state.data[action.payload.dataIdx];
@@ -236,8 +231,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.HideAreaTooltip>(
-            Actions.HideAreaTooltip.name,
+        this.addActionHandler(
+            Actions.HideAreaTooltip,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipArea = null;
@@ -245,12 +240,12 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionHandler(
+            GlobalActions.GetSourceInfo,
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                    this.freqApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: data => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
@@ -269,6 +264,26 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         }
                     });
                 }
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                this.freqApi.requestBacklink(
+                    state,
+                    findCurrQueryMatch(this.queryMatches[action.payload.queryId]),
+                    state.posQueryGenerator,
+                ).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
+                });
             }
         );
     }

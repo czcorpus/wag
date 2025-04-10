@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { QueryMatch } from '../../../query/index.js';
 import { TooltipValues } from '../../../views/common/index.js';
@@ -38,8 +38,6 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
      */
     valuePlaceholder:string|null;
 
-    backlinkTpl:Backlink;
-
     isSingleCategory:boolean;
 
     uniqueColor:boolean;
@@ -48,7 +46,6 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
 export interface SourceMappedDataRow extends DataRow {
     sourceIdx:number;
     name:string;
-    backlink:BacklinkWithArgs<{}>|null;
     uniqueColor:boolean;
 }
 
@@ -70,5 +67,5 @@ export interface MergeCorpFreqModelState {
     pixelsPerCategory:number;
     queryMatches:Array<QueryMatch>;
     tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
-    appBacklink:BacklinkWithArgs<{}>;
+    backlinks:Array<Backlink>;
 }

@@ -24,8 +24,6 @@ import { HtmlModelState } from './common.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
-import { Backlink, createAppBacklink } from '../../../page/tile.js';
-import { isWebDelegateApi } from '../../../types.js';
 import { RawHtmlAPI } from './api.js';
 
 
@@ -36,7 +34,6 @@ export interface HtmlModelArgs {
     service:RawHtmlAPI;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
-    backlink:Backlink;
 }
 
 
@@ -50,15 +47,12 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly tileId:number;
 
-    private readonly backlink:Backlink;
-
-    constructor({dispatcher, tileId, appServices, service, initState, queryMatches, backlink}:HtmlModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, initState, queryMatches}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
         this.queryMatches = queryMatches;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.service) ? this.service.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -82,7 +76,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
                     } else {
                         state.data = action.payload.data;
-                        state.backlink = createAppBacklink(this.backlink);
+                        state.backlink = null;
                     }
                 }
             }

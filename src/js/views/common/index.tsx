@@ -23,7 +23,7 @@ import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
 import { MultiDict } from '../../multidict.js';
 import { SystemMessageType, SourceDetails } from '../../types.js';
 import { ScreenProps } from '../../page/hostPage.js';
-import { AnyBacklink, backlinkIsValid, BacklinkWithArgs } from '../../page/tile.js';
+import { Backlink, backlinkIsValid } from '../../page/tile.js';
 import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
@@ -56,7 +56,7 @@ export interface GlobalComponents {
         sourceIdent?:SourceInfo|Array<SourceInfo>;
         supportsTileReload:boolean;
         issueReportingUrl:string;
-        backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
+        backlink?:Backlink|Array<Backlink>;
         htmlClass?:string;
         error?:string;
         children:React.ReactNode;
@@ -186,35 +186,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
     };
 
-    // ------------- <BacklinkForm /> ----------------------------------
+    // ------------- <BacklinkButton /> ----------------------------------
 
-    const BacklinkForm:React.FC<{
-        values:BacklinkWithArgs<{}>;
+    const BacklinkButton:React.FC<{
+        backlink:Backlink;
+        backlinkHandler:()=>void;
 
     }> = (props) => {
-        const args = new MultiDict(props.values.args);
-        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank" $createStaticUrl={ut.createStaticUrl}>
-            {pipe(
-                args.items(),
-                List.filter(v => v[1] !== null && v[1] !== undefined),
-                List.map(([k, v], i) =>
-                    <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
-                )
-            )}
-            <button type="submit">
-                {typeof props.values.label === 'string' ?
-                    props.values.label :
-                    props.values.label['en-US']
-                }
-            </button>
-        </S.BacklinkForm>;
+        return <S.BacklinkButton $createStaticUrl={ut.createStaticUrl} type='button' onClick={props.backlinkHandler}>
+            {typeof props.backlink.label === 'string' ?
+                props.backlink.label :
+                props.backlink.label['en-US']
+            }
+        </S.BacklinkButton>;
     }
 
     // --------------- <SourceLink /> ------------------------------------------------
 
     const SourceLink:React.FC<{
         data:SourceInfo;
-        onClick:(corp:string, subcorp:string|undefined)=>void
+        onClick:(corp:string, subcorp?:string)=>void
     }> = (props) => {
 
         if (props.data.url) {
@@ -245,12 +236,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const SourceReference:React.FC<{
         tileId:number;
-        data:SourceInfo|Array<SourceInfo>|undefined;
-        backlink:AnyBacklink<{}>|undefined|null;
+        data?:SourceInfo|Array<SourceInfo>;
+        backlink?:Backlink|Array<Backlink>;
 
     }> = (props) => {
 
-        const handleClick = (corp:string, subcorp:string|undefined) => {
+        const handleSourceClick = (corp:string, subcorp:string|undefined) => {
             dispatcher.dispatch<typeof Actions.GetSourceInfo>({
                 name: Actions.GetSourceInfo.name,
                 payload: {
@@ -261,6 +252,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             });
         };
 
+        const handleBacklinkClick = (queryId:number) => {
+            dispatcher.dispatch<typeof Actions.FollowBacklink>({
+                name: Actions.FollowBacklink.name,
+                payload: {
+                    tileId: props.tileId,
+                    queryId,
+                }
+            });
+        };
+        
         return (
             <div className="source">
                 {props.data ? ut.translate('global__source') + ':\u00a0' : null}
@@ -269,7 +270,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         (item, i) =>
                             <React.Fragment key={`${item.corp}:${item.subcorp}`}>
                                 {i > 0 ? <span> + </span> : null}
-                                <SourceLink data={item} onClick={handleClick} />
+                                <SourceLink data={item} onClick={handleSourceClick} />
                             </React.Fragment>,
                         Array.isArray(props.data) ? props.data : [props.data]
                     ) :
@@ -286,7 +287,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             List.map((item, i) =>
                                 <React.Fragment key={`${item.label}:${i}`}>
                                     {i > 0 ? <span>, </span> : null}
-                                    <BacklinkForm values={item} />
+                                    <BacklinkButton backlink={item} backlinkHandler={()=>handleBacklinkClick(item.queryId)} />
                                 </React.Fragment>
                             )
                         )}

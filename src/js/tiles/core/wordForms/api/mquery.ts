@@ -110,7 +110,7 @@ export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    createBacklink(args:RequestArgs, backlink:Backlink) {
+    getBacklink(queryId:number):Backlink|null {
         return null
     }
 
