@@ -76,7 +76,6 @@ export class SpeechesTile implements ITileProvider {
             tileId,
             appServices,
             api: new SpeechesApi(conf.apiURL, conf.useDataStream, appServices),
-            backlink: conf.backlink || null,
             waitForTiles,
             waitForTilesTimeoutSecs,
             subqSourceTiles,

@@ -35,8 +35,6 @@ export enum CollocMetric {
 export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
     data:Array<DataRow>;
     heading:DataHeading;
-    concId:string;
-    queryId:number;
 }
 
 
@@ -141,7 +139,6 @@ export interface CollocModelState {
     error:string|null;
     widthFract:number;
     corpname:string;
-    concIds:Array<string>;
     selectedText:string;
 
     /**

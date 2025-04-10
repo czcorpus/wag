@@ -24,15 +24,12 @@ import { of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { QueryMatch } from '../../../query/index.js';
-import { MergeCorpFreqModelState } from './common.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
-import { Backlink } from '../../../page/tile.js';
 import { DataRow, MergeFreqsApi } from './api.js';
-
-
-
-
+import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
 export interface MergeCorpFreqModelArgs {
@@ -213,6 +210,27 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         );
     }
 
+    private allSourcesToArgs(state:MergeCorpFreqModelState, queryMatch:QueryMatch):Array<MQueryFreqArgs|null> {
+        return List.map(
+            src => testIsDictMatch(queryMatch) ? this.stateToArgs(src, queryMatch) : null,
+            state.sources
+        );
+    }
+
+    private stateToArgs(state:ModelSourceArgs, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
+        return {
+            corpname: state.corpname,
+            path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
+            queryArgs: {
+                subcorpus: subcname ? subcname : state.subcname,
+                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                flimit: state.flimit,
+                matchCase: '0',
+                attr: state.fcrit,
+            }
+        };
+    }
+
     private loadFreqs(
         state:MergeCorpFreqModelState,
         multicastRequest:boolean,
@@ -223,7 +241,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.freqApi.call(
             this.tileId,
             multicastRequest,
-            this.freqApi.stateToArgs(state, queryMatch)
+            this.allSourcesToArgs(state, queryMatch)
 
         ).pipe(
             concatMap(

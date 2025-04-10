@@ -20,7 +20,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { ajax$, ResponseType } from '../../../page/ajax.js';
-import { DataApi, WebDelegateApi } from '../../../types.js';
+import { DataApi } from '../../../types.js';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IApiServices } from '../../../appServices.js';
@@ -38,7 +38,7 @@ export type HtmlApiArgs = {[key:string]:string};
  * vulnerable from the external service!!!
  */
 
-export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null>, WebDelegateApi {
+export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
 
     private readonly apiURL:string;
 
@@ -85,12 +85,7 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null>, WebDelegat
     }
 
     getBackLink(backlink:Backlink):Backlink {
-        return {
-            url: this.apiURL,
-            label: 'link',
-            method: HTTP.Method.GET,
-            ...(backlink || {}),
-        }
+        return null; // TODO
     }
 
 }

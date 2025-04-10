@@ -82,28 +82,6 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         this.freqApi = new MQueryFreqDistribAPI(this.apiURL, this.apiServices, this.useDataStream, this.backlinkConf);
     }
 
-    // mkMatchQuery(queryMatch, state.posQueryGenerator),
-    stateToArgs(state:MergeCorpFreqModelState, queryMatch:QueryMatch):Array<MQueryFreqArgs> {
-        return List.map(
-            src => this.freqApi.stateToArgs(
-                {
-                    corpname: src.corpname,
-                    subcname: src.subcname,
-                    fcrit: src.fcrit,
-                    freqType: src.freqType,
-                    flimit: src.flimit,
-                    freqSort: src.freqSort,
-                    fpage: src.fpage,
-                    fttIncludeEmpty: src.fttIncludeEmpty,
-                    fmaxitems: src.fmaxitems,
-                    posQueryGenerator: src.posQueryGenerator
-                },
-                queryMatch
-            ),
-            state.sources
-        );
-    }
-
     private prepareArgs(queryArgs:MQueryFreqArgs):string {
         return pipe(
             {
@@ -124,21 +102,26 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         )
     }
 
-    private mkRequest(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs>):Observable<HTTPResponse> {
-        const eargs = {
-            urls: List.map(
-                arg => urlJoin(this.apiURL, arg.path, arg.corpname) + '?' + this.prepareArgs(arg),
-                args
-            )
-        }
+    private isNoMatchArgs(args:Array<MQueryFreqArgs|null>):boolean {
+        return List.some(x => !x, args);
+    }
+
+    private mkRequest(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
         if (this.useDataStream) {
             return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.POST,
-                    url: urlJoin(this.apiURL, '/merge-freqs'),
-                    body: eargs,
+                    url: this.isNoMatchArgs(args) ? '' : urlJoin(this.apiURL, '/merge-freqs'),
+                    body: {
+                        urls: this.isNoMatchArgs(args) ?
+                            [] :
+                            List.map(
+                                arg => urlJoin(this.apiURL, arg.path, arg.corpname) + '?' + this.prepareArgs(arg),
+                                args
+                            )
+                    },
                     contentType: 'application/json',
                 }
             );
@@ -147,7 +130,10 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
             return ajax$<HTTPResponse>(
                 'POST',
                 urlJoin(this.apiURL, '/merge-freqs'),
-                eargs,
+                List.map(
+                    arg => urlJoin(this.apiURL, arg.path, arg.corpname) + '?' + this.prepareArgs(arg),
+                    args
+                ),
                 {
                     headers: this.apiServices.getApiHeaders(this.apiURL),
                     withCredentials: true

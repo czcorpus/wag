@@ -94,7 +94,7 @@ export class ConcordanceTile implements ITileProvider {
             service: api,
             queryMatches,
             queryType,
-            backlink: conf.backlink || null,
+            // TODO backlink
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             initState: {

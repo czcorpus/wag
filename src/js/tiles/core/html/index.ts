@@ -92,8 +92,7 @@ export class HtmlTile implements ITileProvider {
                 lemmaArg: conf.lemmaArg,
                 sanitizeHTML: !!conf.sanitizeHTML,
                 backlink: null,
-            },
-            backlink: conf.backlink || null,
+            }
         });
         this.label = appServices.importExternalMessage(conf.label || 'html__main_label');
         this.view = viewInit(

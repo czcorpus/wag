@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
-import { Dict, Maths, pipe, List } from 'cnc-tskit';
+import { Observable } from 'rxjs';
+import { map, reduce, tap } from 'rxjs/operators';
+import { Dict, Maths, pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
-import { findCurrQueryMatch, QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { findCurrQueryMatch, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
@@ -85,11 +85,8 @@ const calcIPM = (v:DataItemWithWCI, domainSize:number) => Math.round(v.freq / do
 
 
 interface DataFetchArgsOwn {
-    subcName:string;
     wordMainLabel:string;
     targetId:SubchartID;
-    concId:string;
-    origQuery:string;
 }
 
 export interface TimeDistribModelArgs {
@@ -178,7 +175,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state,
                     true,
                     SubchartID.MAIN,
-                    rxOf(findCurrQueryMatch(this.queryMatches[0])),
                     dispatch
                 );
             }
@@ -269,14 +265,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state,
                     false,
                     SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(
-                        this.tileId,
-                        this.queryDomain,
-                        state.wordCmp,
-                        state.mainPosAttr
-                    ).pipe(
-                        map(v => v.result[0])
-                    ),
                     dispatch
                 );
             }
@@ -410,7 +398,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     }));
                     let ans:DataLoadedPayload = {
                         tileId: this.tileId,
-                        concId: args.concId,
                         overwritePrevious: resp.overwritePrevious,
                     };
                     if (args.targetId === SubchartID.MAIN) {
@@ -462,50 +449,49 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private loadData(
         state:TimeDistribModelState,
         multicastRequest:boolean,
-        target:SubchartID,
-        lemmaVariant:Observable<QueryMatch>,
+        targetId:SubchartID,
         dispatch:SEDispatcher
     ):void {
-
-        const data = lemmaVariant.pipe(
-            mergeMap((lv:QueryMatch) => {
-                if (lv && lv.abs > 0) {
-                    const query = pipe(
-                        lv.lemma.split(' '),
-                        List.map(v => `[lemma="${v}"]`),
-                        v => v.join(' ')
-                    );
-                    return rxOf<DataFetchArgsOwn>(
-                        {
-                            concId: null,
-                            subcName: state.subcnames[0],
-                            wordMainLabel: lv.lemma,
-                            targetId: target,
-                            origQuery: query
-                        }
-                    );
-                }
-            }),
-            concatMap(
-                args => callWithExtraVal(
-                    this.api,
-                    this.tileId,
-                    multicastRequest,
+        const currMatches = List.map(findCurrQueryMatch, this.queryMatches);
+        const resp = targetId === SubchartID.MAIN ?
+            callWithExtraVal(
+                this.api,
+                this.tileId,
+                multicastRequest,
+                testIsDictMatch(currMatches[0]) ? // TODO cmp not supported here
                     {
-                        corpName: state.corpname,
+                        corpname: state.corpname,
                         q: mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
                         subcorpName: undefined, // TOOD
                         fromYear: state.fromYear ? state.fromYear + '' : undefined,
                         toYear: state.toYear ? state.toYear + '' : undefined,
                         fcrit: state.fcrit,
                         maxItems: state.maxItems
-                    },
-                    args
+                    } :
+                    null,
+                {
+                    wordMainLabel: currMatches[0].lemma,
+                    targetId,
+                }
+            ) :
+            this.api.loadSecondWord(
+                this.tileId,
+                false,
+                {
+                    corpname: state.corpname,
+                    q: `[word="${state.wordCmp}"]`,
+                    subcorpName: undefined, // TOOD
+                    fromYear: state.fromYear ? state.fromYear + '' : undefined,
+                    toYear: state.toYear ? state.toYear + '' : undefined,
+                    fcrit: state.fcrit,
+                    maxItems: state.maxItems
+                }
+            ).pipe(
+                map(
+                    resp => tuple(resp, { wordMainLabel: state.wordCmp, targetId})
                 )
-            )
-        );
-
-        this.getFreqs(state, data, dispatch);
+            );
+        this.getFreqs(state, resp, dispatch);
     }
 
 }

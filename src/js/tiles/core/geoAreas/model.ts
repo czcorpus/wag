@@ -26,8 +26,9 @@ import { Actions } from './actions.js';
 import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import { Backlink } from '../../../page/tile.js';
-import { DataRow, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
-import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import { findCurrQueryMatch, QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 /*
 oral2013:
@@ -127,7 +128,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         concatMap(args => this.freqApi.call(
                             this.tileId,
                             true,
-                            this.freqApi.stateToArgs(state, findCurrQueryMatch(this.queryMatches[0]))
+                            this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[0]))
                         ))
                     ),
                     state.mapSVG ?
@@ -286,6 +287,21 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 });
             }
         );
+    }
+
+
+    private stateToArgs(state:GeoAreasModelState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
+        return {
+            corpname: state.corpname,
+            path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
+            queryArgs: {
+                subcorpus: subcname ? subcname : state.subcname,
+                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                flimit: state.flimit,
+                matchCase: '0',
+                attr: state.fcrit,
+            }
+        };
     }
 
 }

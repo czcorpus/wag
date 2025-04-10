@@ -46,7 +46,6 @@ export interface DataLoadedPayload {
     data?:Array<DataItemWithWCI>;
     dataCmp?:Array<DataItemWithWCI>;
     wordMainLabel?:string;
-    concId?:string;
     origQuery?:string;
 }
 

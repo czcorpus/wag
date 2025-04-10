@@ -189,10 +189,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const MergeCorpFreqBarTile:React.FC<MergeCorpFreqModelState & CoreTileComponentProps> = (props) => {
 
-        const backlinks = props.backlink ?
-            [props.backlink] :
-            []; // TODO
-
         const numCats = Math.max(0, ...props.data.map(v => v ? v.length : 0));
         const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
         const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
@@ -206,7 +202,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         List.flatMap(([,v]) => v),
                         List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
                     }
-                    backlink={(!List.empty(backlinks) && List.some(v => !!v, backlinks)) ? backlinks : null}
+                    backlink={(!List.empty(props.backlinks) && List.some(v => !!v, props.backlinks)) ? props.backlinks : null}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <div style={{position: 'relative'}}>

@@ -24,6 +24,7 @@ import { ajax$ } from '../../../page/ajax.js';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { Backlink } from '../../../page/tile.js';
+import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
 import { CollApiResponse } from './common.js';
 
@@ -93,10 +94,6 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
-    }
-
-    getBacklink(queryId:number):Backlink|null {
-        return null;
     }
 
     supportsLeftRightContext():boolean {
@@ -190,5 +187,9 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                 })
             )
         );
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 }

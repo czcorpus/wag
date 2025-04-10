@@ -111,7 +111,6 @@ export class CollocationsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                concIds: List.map(_ => null, queryMatches),
                 selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,
