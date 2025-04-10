@@ -23,7 +23,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 
@@ -80,7 +80,7 @@ export interface WordFormsModelArgs {
     waitForTile:number|null;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    backlink:Backlink
+    backlink:BacklinkConf;
 }
 
 
@@ -100,6 +100,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly appServices:IAppServices;
 
+    private readonly backlink:BacklinkConf;
+
     constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
             waitForTilesTimeoutSecs, appServices, backlink}:WordFormsModelArgs) {
         super(dispatcher, initialState);
@@ -110,6 +112,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
+        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,

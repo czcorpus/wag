@@ -154,6 +154,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                 backlinks: [],
             },
             downloadLabel: conf.downloadLabel,
+            backlink: conf.backlink || null,
         });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

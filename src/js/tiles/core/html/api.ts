@@ -25,7 +25,6 @@ import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
-import { HTTP } from 'cnc-tskit';
 
 
 export type HtmlApiArgs = {[key:string]:string};
@@ -84,8 +83,8 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
         );
     }
 
-    getBackLink(backlink:Backlink):Backlink {
-        return null; // TODO
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 
 }

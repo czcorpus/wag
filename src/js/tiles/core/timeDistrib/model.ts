@@ -25,7 +25,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
 import { findCurrQueryMatch, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
@@ -98,7 +98,7 @@ export interface TimeDistribModelArgs {
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
-    backlink:Backlink;
+    backlink:BacklinkConf;
     queryDomain:string;
 }
 
@@ -134,7 +134,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly queryDomain:string;
 
-    private readonly backlink:Backlink;
+    private readonly backlink:BacklinkConf;
 
     private readonly api:MQueryTimeDistribStreamApi;
 

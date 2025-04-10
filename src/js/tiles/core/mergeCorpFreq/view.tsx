@@ -202,7 +202,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         List.flatMap(([,v]) => v),
                         List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
                     }
-                    backlink={(!List.empty(props.backlinks) && List.some(v => !!v, props.backlinks)) ? props.backlinks : null}
+                    backlink={props.backlinks}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <div style={{position: 'relative'}}>

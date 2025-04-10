@@ -82,6 +82,7 @@ export class SpeechesTile implements ITileProvider {
             audioLinkGenerator: conf.audioApiURL ?
                 new AudioLinkGenerator(conf.audioApiURL) :
                 null,
+            backlink: conf.backlink || null,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
