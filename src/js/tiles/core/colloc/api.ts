@@ -24,7 +24,6 @@ import { ajax$ } from '../../../page/ajax.js';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { Backlink } from '../../../page/tile.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
 import { CollApiResponse } from './common.js';
 
@@ -125,7 +124,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                     tileId,
                     method: HTTP.Method.GET,
                     url: args ?
-                        urlJoin(this.apiURL, '/collocations/', args.corpusId) + `?${this.prepareArgs(args)}` :
+                        urlJoin(this.apiURL, 'collocations', args.corpusId) + `?${this.prepareArgs(args)}` :
                         '',
                     body: {},
                     contentType: 'application/json',

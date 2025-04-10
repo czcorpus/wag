@@ -33,7 +33,6 @@ import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/con
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
     apiURL:string;
-    apiType:string;
     pageSize:number;
     posAttrs:Array<string>;
     posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
@@ -83,10 +82,7 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/ConcordanceTile/authenticate")} :
-            {};
-        const api = new MQueryConcApi(conf.apiURL, useDataStream, appServices, apiOptions);
+        const api = new MQueryConcApi(conf.apiURL, useDataStream, appServices);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
