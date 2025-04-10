@@ -18,17 +18,17 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, tap, reduce } from 'rxjs/operators';
-import { List, HTTP, pipe } from 'cnc-tskit';
+import { List, HTTP, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { isWebDelegateApi, SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange, KonTextCollArgs } from './common.js';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
-import { QueryMatch, QueryType } from '../../../query/index.js';
+import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
-import { mkLemmaMatchQuery, mkMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
 export interface CollocModelArgs {
@@ -44,7 +44,7 @@ export interface CollocModelArgs {
 }
 
 
-type FreqRequestArgs = [number, QueryMatch, string];
+type FreqRequestArgs = [number, QueryMatch];
 
 
 export class CollocModel extends StatelessModel<CollocModelState> {
@@ -129,7 +129,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
-                    rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], state.concIds)),
+                    rxOf(...List.map((qm, i) => tuple(i, qm),  state.queryMatches)),
                     true,
                     seDispatch
                 );
@@ -153,7 +153,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             Actions.PartialTileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.concIds[action.payload.queryId] = action.payload.concId;
                 state.data[action.payload.queryId] = action.payload.data;
                 state.heading = pipe(
                     [{label: 'Abs', ident: ''}],
@@ -188,7 +187,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
-                    rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], state.concIds)),
+                    rxOf(...List.map((qm, i) => tuple(i, qm), state.queryMatches)),
                     false,
                     seDispatch
                 );
@@ -222,8 +221,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
     }
 
-    private stateToArgs(state:CollocModelState, queryMatch:QueryMatch, queryId:string):MQueryCollArgs|null {
-        if (queryMatch.lemma) {
+    private stateToArgs(state:CollocModelState, queryMatch:QueryMatch):MQueryCollArgs|null {
+        if (testIsDictMatch(queryMatch)) {
             const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
             return {
                 corpusId: state.corpname,
@@ -304,12 +303,17 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         seDispatch:SEDispatcher
 ):Observable<boolean> {
         return freqReqs.pipe(
-            concatMap(([queryId, queryMatch, concId]) => {
+            tap(
+                v => {
+                    console.log('we have coll conf: ', v)
+                }
+            ),
+            concatMap(([queryId, queryMatch]) => {
                 return callWithExtraVal(
                     this.collApi,
                     this.tileId,
                     multicastRequest,
-                    this.stateToArgs(state, queryMatch, concId),
+                    this.stateToArgs(state, queryMatch),
                     {queryId: queryId}
                 )
             }),
