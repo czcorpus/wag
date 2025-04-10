@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import * as cnc from 'cnc-tskit';
 import { fileURLToPath } from 'url';
+import readline from 'readline';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +13,7 @@ export function getEmptyConfig(configSchemaPath:string):string {
         configSchemaPath,
         'utf8'
     ));
-    
+
     const emptyConfig = cnc.pipe(
         jsonSchema['properties'],
         cnc.Dict.mapEntries(([k, v]) => ([k, jsonSchema['required'] && jsonSchema['required'].includes(k) ? 'REQUIRED' : null])),
@@ -29,7 +30,6 @@ if (process.argv.length === 3) {
     console.log(emptyConfig);
 
 } else if (process.argv.length === 2) {
-    const readline = require('readline');
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout

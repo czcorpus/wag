@@ -19,7 +19,15 @@ import { IActionDispatcher } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, BacklinkConf, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileConf,
+    TileFactory,
+    TileFactoryArgs } from '../../../page/tile.js';
 import { GeoAreasModel } from './model.js';
 import { init as viewInit } from './views/index.js';
 import { MapLoader } from './mapLoader.js';
@@ -37,7 +45,7 @@ export interface GeoAreasTileConf extends TileConf {
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
     frequencyDisplayLimit:number;
-    
+
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
      * In case waitForTile is not filled in then this must be present.

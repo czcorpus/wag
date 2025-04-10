@@ -4,9 +4,6 @@
         "apiURL": {
             "type": "string"
         },
-        "apiType": {
-            "type": "string"
-        },
         "corpname": {
             "type": "string"
         },
@@ -24,10 +21,7 @@
             "type": "number"
         },
         "freqSort": {
-            "type": "string",
-            "enum": [
-                "rel"
-            ]
+            "type": "string"
         },
         "fpage": {
             "type": "number"
@@ -43,6 +37,20 @@
         },
         "frequencyDisplayLimit": {
             "type": "number"
+        },
+        "posQueryGenerator": {
+            "description": "A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).\nIn case waitForTile is not filled in then this must be present.",
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ],
+            "minItems": 2,
+            "maxItems": 2
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -64,7 +72,7 @@
         },
         "backlink": {
             "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage.",
-            "$ref": "#/definitions/Backlink"
+            "$ref": "#/definitions/BacklinkConf"
         },
         "isDisabled": {
             "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -101,10 +109,12 @@
             "items": {
                 "type": "string"
             }
+        },
+        "useDataStream": {
+            "type": "boolean"
         }
     },
     "required": [
-        "apiType",
         "apiURL",
         "areaCodeMapping",
         "corpname",
@@ -118,7 +128,7 @@
         "tileType"
     ],
     "definitions": {
-        "Backlink": {
+        "BacklinkConf": {
             "type": "object",
             "properties": {
                 "url": {
@@ -137,27 +147,15 @@
                         }
                     ]
                 },
-                "method": {
-                    "enum": [
-                        "CONNECT",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ],
-                    "type": "string"
-                },
-                "subcname": {
-                    "type": "string"
-                },
-                "isAppUrl": {
-                    "type": "boolean"
+                "queryId": {
+                    "type": "number"
                 }
-            }
+            },
+            "required": [
+                "label",
+                "queryId",
+                "url"
+            ]
         }
     },
     "$schema": "http://json-schema.org/draft-07/schema#"

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import tjs from 'typescript-json-schema';
 import { fileURLToPath } from 'url';
+import readline from 'readline';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,7 +35,6 @@ if (process.argv.length === 4) {
     console.log(`Config schema ${process.argv[2]} ${process.argv[3]} created!`);
 
 } else if (process.argv.length === 2) {
-    const readline = require('readline');
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
