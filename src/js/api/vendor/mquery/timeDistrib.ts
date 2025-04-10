@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { map, Observable, scan, takeWhile, throwError } from 'rxjs';
+import { map, Observable, scan, takeWhile } from 'rxjs';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
@@ -30,7 +30,7 @@ import { QueryMatch } from '../../../query/index.js';
 
 export interface TimeDistribArgs {
 
-    corpName:string;
+    corpname:string;
 
     q:string;
 
@@ -153,6 +153,60 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         )
     }
 
+    public loadSecondWord(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        const args = this.prepareArgs(tileId, queryArgs, true);
+        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
+            multicastRequest,
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: `${this.apiURL}/time-dist-word?${args}`,
+                body: {},
+                contentType: 'application/json',
+                isEventSource: true
+            }
+        ).pipe(
+            scan<MqueryStreamData, {curr:MqueryStreamData; chunks:Map<number, boolean>}>(
+                (acc, value) => {
+                    acc.chunks.set(value.chunkNum, true)
+                    acc.curr = value;
+                    return acc;
+                },
+                {
+                    curr: null,
+                    chunks: new Map<number, boolean>()
+                }
+            ),
+            takeWhile(
+                ({curr, chunks}) => pipe(
+                    Array.from(chunks.entries()),
+                    List.filter(([k, v]) => !!v),
+                    List.size()
+                ) <= curr.totalChunks
+            ),
+            map(
+                ({curr}) => {
+                    if (curr.error) {
+                        throw new Error(curr.error);
+                    }
+                    return {
+                        corpName: queryArgs.corpname,
+                        subcorpName: queryArgs.subcorpName,
+                        data: List.map(
+                            v => ({
+                                datetime: v.word,
+                                freq: v.freq,
+                                norm: v.base
+                            }),
+                            curr.entries.freqs
+                        ),
+                        overwritePrevious: true
+                    }
+                }
+            )
+        )
+    }
+
     /*
 
     // this serves for tile backend which themselves use streaming
@@ -168,7 +222,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`,
+                    url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${args}`,
                     body: {},
                     contentType: 'application/json',
                     isEventSource: true
@@ -198,7 +252,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
                         throw new Error(curr.error);
                     }
                     return {
-                        corpName: queryArgs.corpName,
+                        corpName: queryArgs.corpname,
                         subcorpName: queryArgs.subcorpName,
                         data: List.map(
                             v => ({
@@ -218,7 +272,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     private callViaAjAX(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return new Observable(o => {
             const args = this.prepareArgs(tileId, queryArgs, true);
-            const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
+            const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${args}`);
             const procChunks:{[k:number]:number} = {};
             let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
             let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : -1;
@@ -238,7 +292,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
                         maxYear = currMax;
                     }
                     o.next({
-                        corpName: queryArgs.corpName,
+                        corpName: queryArgs.corpname,
                         subcorpName: queryArgs.subcorpName,
                         data: List.map(
                             v => ({

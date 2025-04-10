@@ -36,7 +36,6 @@ export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryV
     data:Array<DataRow>;
     heading:DataHeading;
     concId:string;
-    queryId:number;
 }
 
 
@@ -141,7 +140,6 @@ export interface CollocModelState {
     error:string|null;
     widthFract:number;
     corpname:string;
-    concIds:Array<string>;
     selectedText:string;
 
     /**

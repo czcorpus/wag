@@ -18,7 +18,7 @@
 
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
-import { concatMap, filter, first, map, scan, share, timeout } from 'rxjs/operators';
+import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
 
@@ -79,6 +79,16 @@ export class DataStreaming {
                         )
                     )
                 )
+            ),
+            // TODO, remove when in production-ready quality
+            tap(
+                v => {
+                    console.log('tile dispatching status:');
+                    v.forEach((v, k) => {
+                        console.log('   ', k, ': ', v);
+                    })
+
+                }
             ),
             first(
                 v => {

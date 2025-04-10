@@ -102,20 +102,6 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
         return null;
     }
 
-    stateToArgs(state:MinSingleCritFreqState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
-        return {
-            corpname: state.corpname,
-            path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
-            queryArgs: {
-                subcorpus: subcname ? subcname : state.subcname,
-                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
-                flimit: state.flimit,
-                matchCase: '0',
-                attr: state.fcrit,
-            }
-        };
-    }
-
     /**
      * Call the MQuery freqs API.
      *
