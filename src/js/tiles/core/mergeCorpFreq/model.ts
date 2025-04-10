@@ -30,6 +30,7 @@ import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { BacklinkConf } from '../../../page/tile.js';
 
 
 export interface MergeCorpFreqModelArgs {
@@ -41,6 +42,7 @@ export interface MergeCorpFreqModelArgs {
     freqApi:MergeFreqsApi;
     initState:MergeCorpFreqModelState;
     downloadLabel:string;
+    backlink:BacklinkConf;
 }
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
@@ -53,14 +55,17 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly downloadLabel:string;
 
+    private readonly backlink:BacklinkConf;
+
     constructor({
-        dispatcher, tileId, appServices, freqApi, initState, downloadLabel,
+        dispatcher, tileId, appServices, freqApi, initState, downloadLabel, backlink
     }:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
+        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,

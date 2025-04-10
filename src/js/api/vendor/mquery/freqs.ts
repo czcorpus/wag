@@ -42,7 +42,7 @@ export interface HTTPResponse {
     }>;
     fcrit:string;
     examplesQueryTpl?:string;
-    error?:string
+    error?:string;
 }
 
 export interface DataRow {

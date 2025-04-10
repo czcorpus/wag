@@ -30,6 +30,7 @@ import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { BacklinkConf } from '../../../page/tile.js';
 
 
 
@@ -52,6 +53,7 @@ export interface SpeechesModelArgs {
     api:SpeechesApi;
     initState:SpeechesModelState;
     audioLinkGenerator:AudioLinkGenerator;
+    backlink:BacklinkConf;
 }
 
 interface ReloadDataArgs {
@@ -75,12 +77,15 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly audioLinkGenerator:AudioLinkGenerator|null;
 
-    constructor({dispatcher, tileId, appServices, api, initState, audioLinkGenerator}:SpeechesModelArgs) {
+    private readonly backlink:BacklinkConf;
+
+    constructor({dispatcher, tileId, appServices, api, initState, audioLinkGenerator, backlink}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
         this.audioLinkGenerator = audioLinkGenerator;
+        this.backlink = backlink;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,

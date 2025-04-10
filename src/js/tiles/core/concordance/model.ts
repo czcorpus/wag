@@ -26,7 +26,7 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { SystemMessageType } from '../../../types.js';
 import { isSubqueryPayload, RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch } from '../../../query/index.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { importMessageType } from '../../../page/notifications.js';
 import { Actions } from './actions.js';
@@ -78,6 +78,7 @@ export interface ConcordanceTileModelArgs {
     queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
     queryType:QueryType;
+    backlink:BacklinkConf;
 }
 
 
@@ -97,10 +98,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly waitForTilesTimeoutSecs:number;
 
+    private readonly backlink:BacklinkConf;
+
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState, waitForTile,
-            waitForTilesTimeoutSecs, queryType}:ConcordanceTileModelArgs) {
+            waitForTilesTimeoutSecs, queryType, backlink}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.concApi = service;
         this.queryMatches = queryMatches;
@@ -109,6 +112,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
+        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.SetScreenMode>(
             GlobalActions.SetScreenMode.name,

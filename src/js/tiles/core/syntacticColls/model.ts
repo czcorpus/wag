@@ -19,7 +19,7 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { merge, of as rxOf } from 'rxjs';
@@ -42,7 +42,7 @@ export interface SyntacticCollsModelArgs {
     initState:SyntacticCollsModelState;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
-    backlink:Backlink;
+    backlink:BacklinkConf;
     queryType:QueryType;
     api:ScollexSyntacticCollsAPI;
     eApi:ScollexSyntacticCollsExamplesApi;
@@ -78,7 +78,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly queryType:QueryType;
 
-    private readonly backlink:Backlink;
+    private readonly backlink:BacklinkConf;
 
     private readonly api:ScollexSyntacticCollsAPI;
 
