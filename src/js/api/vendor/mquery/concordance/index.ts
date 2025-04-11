@@ -32,6 +32,8 @@ export interface ConcApiArgs {
     q:string;
     queryIdx:number;
     currPage:number;
+    maxRows:number;
+    contextWidth:number;
 }
 
 // ------------------------------
@@ -80,7 +82,9 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, ConcData> 
     private prepareArgs(queryArgs:ConcApiArgs):string {
         return pipe(
             {
-                q: queryArgs.q
+                q: queryArgs.q,
+                maxRows: queryArgs.maxRows,
+                contextWidth: queryArgs.contextWidth
             },
             Dict.toEntries(),
             List.map(([v0, v1]) => `${v0}=${encodeURIComponent(v1)}`)

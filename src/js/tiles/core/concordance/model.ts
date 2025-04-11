@@ -40,8 +40,6 @@ export interface ConcordanceTileState {
     otherCorpname:string;
     subcname:string;
     subcDesc:string;
-    kwicLeftCtx:number;
-    kwicRightCtx:number;
     pageSize:number;
     attr_vmode:AttrViewMode;
     viewMode:ViewMode;
@@ -56,8 +54,8 @@ export interface ConcordanceTileState {
     isTweakMode:boolean;
     isMobile:boolean;
     widthFract:number;
-    initialKwicLeftCtx:number;
-    initialKwicRightCtx:number;
+    kwicWindow:number;
+    initialKwicWindow:number;
     backlinks:Array<Backlink>;
     disableViewModes:boolean;
     visibleMetadataLine:number;
@@ -92,7 +90,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly backlink:BacklinkConf;
 
-    public static readonly CTX_SIZES = [3, 3, 8, 12];
+    public static readonly CTX_SIZES = [6, 8, 18, 28];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState,
             queryType, backlink}:ConcordanceTileModelArgs) {
@@ -110,12 +108,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.isMobile !== state.isMobile) {
                     state.isMobile = action.payload.isMobile;
                     if (action.payload.isMobile) {
-                        state.kwicLeftCtx = ConcordanceTileModel.CTX_SIZES[0];
-                        state.kwicRightCtx = ConcordanceTileModel.CTX_SIZES[0];
+                        state.kwicWindow = ConcordanceTileModel.CTX_SIZES[0];
 
                     } else {
-                        state.kwicLeftCtx = state.initialKwicLeftCtx;
-                        state.kwicRightCtx = state.initialKwicRightCtx;
+                        state.kwicWindow = state.initialKwicWindow;
                     }
                 }
             },
@@ -298,6 +294,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             corpusName: state.corpname,
             q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
             currPage: state.concordances[queryIdx].currPage,
+            maxRows: state.pageSize,
+            contextWidth: state.kwicWindow,
             queryIdx
         };
     }

@@ -35,6 +35,7 @@ export type LineElementType = ''|'strc'|'attr'|'str'|'coll';
 export interface Token {
     type:'token'|'markup';
     word:string;
+    matchType:'kwic'|'coll';
     strong:boolean;
     attrs:{[name:string]:string};
 }
@@ -47,17 +48,17 @@ export interface Line {
 }
 
 export function getLineLeftCtx(line:Line):Array<Token> {
-    const srchIdx = List.findIndex(x => x.strong, line.text);
+    const srchIdx = List.findIndex(x => x.matchType === 'kwic', line.text);
     return List.slice(0, srchIdx, line.text);
 }
 
 
 export function getKwicCtx(line:Line):Array<Token> {
-    const srchIdx1 = List.findIndex(x => x.strong, line.text);
+    const srchIdx1 = List.findIndex(x => x.matchType === 'kwic', line.text);
     const srchIdx2 = pipe(
         line.text,
         List.reversed(),
-        List.findIndex(x => x.strong),
+        List.findIndex(x => x.matchType === 'kwic'),
         x => x > -1 ? List.size(line.text) - 1 - x : -1
     );
     if (srchIdx1 === -1 || srchIdx2 === -1) {
@@ -71,7 +72,7 @@ export function getLineRightCtx(line:Line):Array<Token> {
     const srchIdx = pipe(
         line.text,
         List.reversed(),
-        List.findIndex(x => x.strong),
+        List.findIndex(x => x.matchType === 'kwic'),
         x => x > -1 ? List.size(line.text) - x : -1
     );
     return List.slice(srchIdx, -1, line.text);
