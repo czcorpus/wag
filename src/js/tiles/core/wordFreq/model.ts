@@ -17,13 +17,13 @@
  */
 import { StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { map, concatMap, tap } from 'rxjs/operators';
+import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
-import { QueryMatch, RecognizedQueries, QueryType, calcFreqBand, findCurrQueryMatch, testIsDictMatch } from '../../../query/index.js';
+import { QueryMatch, RecognizedQueries, QueryType, findCurrQueryMatch } from '../../../query/index.js';
 import { List, pipe } from 'cnc-tskit';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -231,18 +231,6 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             srchRange: state.sfwRowRange
                         } :
                         null
-                )
-            ),
-            map(
-                (data) => List.map(
-                    v => ({
-                        lemma: v.lemma,
-                        pos: v.pos,
-                        upos: v.upos,
-                        ipm: v.ipm,
-                        flevel: calcFreqBand(v.ipm)
-                    }),
-                    data.result
                 )
             )
         )
