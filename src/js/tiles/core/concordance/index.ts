@@ -26,7 +26,6 @@ import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvide
     ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
@@ -108,10 +107,8 @@ export class ConcordanceTile implements ITileProvider {
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
                 shuffle: true,
-                initialKwicLeftCtx: this.calcContext(widthFract),
-                initialKwicRightCtx: this.calcContext(widthFract),
-                kwicLeftCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
-                kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
+                initialKwicWindow: this.calcContext(widthFract),
+                kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
                 viewMode: determineViewMode(conf, api),
                 attrs: conf.posAttrs,

@@ -17,7 +17,6 @@
  */
 
 import { FreqBand } from '../../query/index.js';
-import { DataApi } from '../../types.js';
 import { PosItem } from '../../postag.js';
 import { MainPosAttrValues } from '../../conf/index.js';
 

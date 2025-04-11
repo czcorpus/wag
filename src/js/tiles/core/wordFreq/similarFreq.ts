@@ -18,14 +18,14 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { pipe, List, HTTP } from 'cnc-tskit';
+import urlJoin from 'url-join';
 
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
-import { RequestArgs, Response } from '../../../api/abstract/similarFreq.js';
+import { RequestArgs, SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
 import { HTTPAction } from '../../../server/routes/actions.js';
 import { IApiServices } from '../../../appServices.js';
-import urlJoin from 'url-join';
 
 
 interface ResponseItem {
@@ -61,7 +61,7 @@ export class SimilarFreqWordsFrodoAPI {
         this.useDataStream = useDataStream;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs|null):Observable<Response> {
+    call(tileId:number, multicastRequest:boolean, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
         return (
             this.useDataStream ?
                 this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
@@ -110,8 +110,8 @@ export class SimilarFreqWordsFrodoAPI {
                 )
 
         ).pipe(
-            map(data => ({
-                result: pipe(
+            map(
+                data =>  pipe(
                     data.matches,
                     List.map(
                         v => ({
@@ -129,7 +129,7 @@ export class SimilarFreqWordsFrodoAPI {
                         )
                     )
                 )
-            }))
+            )
         );
     }
 }
