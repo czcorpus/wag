@@ -201,7 +201,7 @@ class TreqAPICaller {
         );
     }
 
-    getBacklink(queryId:number):Backlink {
+    getBacklink(queryId:number):Backlink|null {
         return {
             label: 'Treq',
             queryId,

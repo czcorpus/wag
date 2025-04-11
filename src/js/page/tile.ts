@@ -36,7 +36,7 @@ export interface Backlink {
     label:LocalizedConfMsg;
 }
 
-export function backlinkIsValid(backlink:any):boolean {
+export function backlinkIsValid(backlink:Backlink|null|Array<Backlink|null>):boolean {
     if (Array.isArray(backlink)) {
         return List.some(x => !!x, backlink);
     }
