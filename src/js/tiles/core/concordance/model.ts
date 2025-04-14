@@ -87,7 +87,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly queryType:QueryType;
 
-    public static readonly CTX_SIZES = [6, 8, 18, 28];
+    public static readonly CTX_SIZES = [8, 10, 18, 28];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState,
             queryType}:ConcordanceTileModelArgs) {
@@ -305,8 +305,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
             rowsOffset: (state.concordances[queryIdx].loadPage - 1) * state.pageSize,
             maxRows: state.pageSize,
-            contextWidth: state.kwicWindow,
-            contextStruct: state.viewMode === ViewMode.SENT ? state.sentenceStruct : '',
+            contextWidth: state.viewMode === ViewMode.SENT ? 0 : state.kwicWindow,
+            contextStruct: state.viewMode === ViewMode.SENT ? state.sentenceStruct : undefined,
             queryIdx
         };
     }

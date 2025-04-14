@@ -42,7 +42,7 @@ export const QueryInfo = styled.p`
 
 export const Summary = styled.dl`
     margin-top: 0.7em;
-    margin-bottom: 1em;
+    margin-bottom: 1.5em;
 
     dt, dd {
         display: inline-block;
@@ -173,8 +173,8 @@ export const Row = styled.tr`
     white-space: nowrap;
 
     td {
-        padding-top: 0.2em;
-        padding-bottom: 0.2em;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
     }
 
     td.left {

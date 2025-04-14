@@ -99,6 +99,7 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
                 contextWidth: queryArgs.contextWidth,
                 contextStruct: queryArgs.contextStruct || undefined
             },
+            Dict.filter((v,) => v !== undefined && v !== null),
             Dict.toEntries(),
             List.map(([v0, v1]) => `${v0}=${encodeURIComponent(v1)}`)
         ).join('&')

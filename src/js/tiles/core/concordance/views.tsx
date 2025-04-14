@@ -200,16 +200,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => (
         <S.SentRow>
-            <td className="left">
-                        {List.map(
-                            (s, i) => (
-                                <React.Fragment key={`${props.data.ref}:L${i}`} >
-                                    {i > 0 ? <span> </span> : null}
-                                    <RowItem data={s} isKwic={s.matchType === 'kwic'} />
-                                </React.Fragment>
-                            ),
-                            props.data.text
-                        )}
+            <td>
+                {List.map(
+                    (s, i) => (
+                        <React.Fragment key={`${props.data.ref}:L${i}`} >
+                            {i > 0 ? <span> </span> : null}
+                            <RowItem data={s} isKwic={s.matchType === 'kwic'} />
+                        </React.Fragment>
+                    ),
+                    props.data.text
+                )}
             </td>
         </S.SentRow>
     );
