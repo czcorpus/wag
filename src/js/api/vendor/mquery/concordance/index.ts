@@ -22,9 +22,10 @@ import { QueryMatch } from '../../../../query/index.js';
 import { ResourceApi, SourceDetails } from '../../../../types.js';
 import { IAppServices } from '../../../../appServices.js';
 import { ConcData, ConcResponse, ViewMode } from './common.js';
-import { Backlink } from '../../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
+import { mkLemmaMatchQuery } from '../common.js';
 
 
 export interface ConcApiArgs {
@@ -50,10 +51,13 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
 
     private readonly appServices:IAppServices;
 
-    constructor(apiUrl:string, usesDataStream:boolean, appServices:IAppServices) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiUrl:string, usesDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf) {
         this.apiUrl = apiUrl;
         this.usesDataStream = usesDataStream;
         this.appServices = appServices;
+        this.backlinkConf = backlinkConf;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
@@ -66,6 +70,12 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
     }
 
     getBacklink(queryId:number):Backlink|null {
+        if (this.backlinkConf && this.backlinkConf.url) {
+            return {
+                queryId,
+                label: this.backlinkConf.label || 'KonText',
+            };
+        }
         return null;
     }
 
@@ -118,5 +128,12 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
         } else {
             return EMPTY
         }
+    }
+
+    requestBacklink(args:ConcApiArgs):URL {
+        const url = new URL(urlJoin(this.backlinkConf.url, 'create_view'));
+        url.searchParams.set('corpname', args.corpusName);
+        url.searchParams.set('q', `q${args.q}`);
+        return url;
     }
 }

@@ -72,7 +72,6 @@ export interface ConcordanceTileModelArgs {
     queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
     queryType:QueryType;
-    backlink:BacklinkConf;
 }
 
 
@@ -88,19 +87,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly queryType:QueryType;
 
-    private readonly backlink:BacklinkConf;
-
     public static readonly CTX_SIZES = [6, 8, 18, 28];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState,
-            queryType, backlink}:ConcordanceTileModelArgs) {
+            queryType}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.concApi = service;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
         this.queryType = queryType;
-        this.backlink = backlink;
 
         this.addActionHandler(
             GlobalActions.SetScreenMode,
@@ -280,6 +276,20 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             action => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.visibleMetadataLine = -1;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                const url = this.concApi.requestBacklink(this.stateToArgs(
+                    state,
+                    findCurrQueryMatch(this.queryMatches[action.payload.queryId]),
+                    action.payload.queryId,
+                    null
+                ));
+                window.open(url.toString(),'_blank');
             }
         );
     }

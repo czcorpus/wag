@@ -82,7 +82,7 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        const api = new MQueryConcApi(conf.apiURL, useDataStream, appServices);
+        const api = new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
@@ -90,7 +90,6 @@ export class ConcordanceTile implements ITileProvider {
             service: api,
             queryMatches,
             queryType,
-            backlink: conf.backlink || null,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             initState: {

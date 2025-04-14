@@ -180,14 +180,10 @@
                             "type": "string"
                         }
                     ]
-                },
-                "queryId": {
-                    "type": "number"
                 }
             },
             "required": [
                 "label",
-                "queryId",
                 "url"
             ]
         }
