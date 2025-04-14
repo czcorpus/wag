@@ -23,13 +23,11 @@ import { ajax$ } from '../../../page/ajax.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { map, catchError } from 'rxjs/operators';
 import { AjaxError } from 'rxjs/ajax';
-import { QueryType, RangeRelatedSubqueryValue, SubqueryPayload } from '../../../query/index.js';
+import { QueryType } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { Backlink } from '../../../page/tile.js';
 
-
-export type WordSimSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
 
 
 export interface WordSimWord {

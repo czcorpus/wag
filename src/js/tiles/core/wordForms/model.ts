@@ -149,10 +149,9 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         error: err,
                         payload: {
                             tileId: this.tileId,
-                            queryId: 0,
+                            queryIdx: 0,
                             isEmpty: true,
                             data: [],
-                            subqueries: [],
                             domain1: null,
                             domain2: null,
                         }
@@ -191,7 +190,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
-                        state.backlink = this.api.getBacklink(action.payload.queryId);
+                        state.backlink = this.api.getBacklink(action.payload.queryIdx);
                     }
                 }
             }
@@ -202,8 +201,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.queryDomain, state.corpname).subscribe(
-                        (data) => {
+                    this.api.getSourceDescription(
+                        this.tileId, false, this.queryDomain, state.corpname
+                    ).subscribe({
+                        next: (data) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -211,13 +212,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                 }
                             });
                         },
-                        (error) => {
+                        error: (error) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -247,17 +248,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        queryId: 0,
+                        queryIdx: 0,
                         isEmpty: false,
                         data: List.sortBy(
                             x => -x.freq,
-                            data.forms
-                        ),
-                        subqueries: List.map(
-                            v => ({
-                                value: v.value,
-                                interactionId: v.interactionId
-                            }),
                             data.forms
                         ),
                         domain1: null,
@@ -272,10 +266,9 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     error: err,
                     payload: {
                         tileId: this.tileId,
-                        queryId: 0,
+                        queryIdx: 0,
                         isEmpty: true,
                         data: [],
-                        subqueries: [],
                         domain1: null,
                         domain2: null,
                     }

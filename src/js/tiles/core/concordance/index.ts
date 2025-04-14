@@ -34,6 +34,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     apiURL:string;
     pageSize:number;
     posAttrs:Array<string>;
+    sentenceStruct:string;
     posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
     parallelLangMapping?:{[lang:string]:string};
     disableViewModes?:boolean;
@@ -106,7 +107,7 @@ export class ConcordanceTile implements ITileProvider {
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[domain2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
-                shuffle: true,
+                sentenceStruct: conf.sentenceStruct,
                 initialKwicWindow: this.calcContext(widthFract),
                 kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',

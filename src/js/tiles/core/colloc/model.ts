@@ -148,7 +148,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             Actions.PartialTileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.data[action.payload.queryId] = action.payload.data;
+                state.data[action.payload.queryIdx] = action.payload.data;
                 state.heading = pipe(
                     [{label: 'Abs', ident: ''}],
                     List.concat(
@@ -163,7 +163,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         )
                     )
                 );
-                state.backlinks.push(this.collApi.getBacklink(action.payload.queryId));
+                state.backlinks.push(this.collApi.getBacklink(action.payload.queryIdx));
             }
         );
 
@@ -289,14 +289,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             tileId: this.tileId,
                             heading: data.collHeadings,
                             data: data.data,
-                            queryId: args.queryId,
-                            subqueries: data.data.map(v => ({
-                                value: {
-                                    value: v.str,
-                                    context: ctxToRange(state.srchRangeType, state.srchRange)
-                                },
-                                interactionId: v.interactionId
-                            })),
+                            queryIdx: args.queryId,
                             domain1: null,
                             domain2: null
                         }

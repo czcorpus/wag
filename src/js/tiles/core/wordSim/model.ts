@@ -139,7 +139,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         state.error = appServices.normalizeHttpApiError(action.error);
 
                     } else {
-                        state.data[action.payload.queryId] = action.payload.words;
+                        state.data[action.payload.queryIdx] = action.payload.words;
 
                     }
                 }
@@ -224,20 +224,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        queryId: queryId,
+                        queryIdx: queryId,
                         words: data.words,
-                        subqueries: List.map(
-                            v => ({
-                                value: {
-                                    value: v.word,
-                                    context: [-5, 5] // TODO
-                                },
-                                interactionId: v.interactionId
-                            }),
-                            data.words
-                        ),
-                        domain1: null,
-                        domain2: null,
                         isEmpty: data.words.length === 0
                     }
                 });
@@ -248,11 +236,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        queryId: null,
+                        queryIdx: null,
                         words: [],
-                        subqueries: [],
-                        domain1: null,
-                        domain2: null,
                         isEmpty: true
                     },
                     error

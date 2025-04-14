@@ -55,22 +55,13 @@ export interface SubQueryItem<T=string> {
     color?:string;
 }
 
-export interface SubqueryPayload<T=string> {
+export interface SubqueryPayload {
     tileId:number;
-    queryId:number;
-    subqueries:Array<SubQueryItem<T>>;
+    queryIdx:number;
     domain1:string;
     domain2:string;
 }
 
-export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
-    return Array.isArray(payload['subqueries']);
-}
-
-export interface RangeRelatedSubqueryValue {
-    value:string;
-    context:[number, number];
-}
 
 /**
  * FreqBand is an arbitrary frequency band

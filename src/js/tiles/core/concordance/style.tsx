@@ -105,10 +105,12 @@ export const LineMetadata = styled.div`
     }
 `;
 
-export const ConcLines = styled.table`
+export const ConcLines = styled.div`
     font-family: ${theme.condensedFontFamily};
-    display: inline-block;
+    display: flex;
+    justify-content: center;
     border-spacing: 0;
+    border-collapse: collapse;
 
     tr {
         td a.info-click {
@@ -123,6 +125,19 @@ export const ConcLines = styled.table`
                 width: 1em;
             }
         }
+
+        span.kwic {
+            display: inline-block;
+            padding-left: 0.3em;
+            padding-right: 0.3em;
+            color: ${theme.colorLogoPink};
+        }
+    }
+
+    tr:not(:last-of-type) td {
+        border-width: 0 0 1px 0;
+        border-color: ${theme.colorLightGrey};
+        border-style: solid;
     }
 
     &.sent {
@@ -133,18 +148,7 @@ export const ConcLines = styled.table`
         }
 
         tr {
-
-            display: block;
             padding-left: 0.3em;
-
-            td.left,
-            td.right,
-            td.kwic,
-            td.meta {
-                display: inline-block;
-            }
-
-
         }
     }
 
@@ -187,6 +191,17 @@ export const Row = styled.tr`
         text-align: center;
         color: ${theme.colorLogoPink};
     }
+`;
+
+
+export const SentRow = styled.tr`
+    white-space: inherit;
+
+    td {
+        padding-top: 0.2em;
+        padding-bottom: 0.2em;
+    }
+
 `;
 
 export const Controls = styled.form`

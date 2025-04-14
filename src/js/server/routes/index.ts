@@ -160,7 +160,6 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                         action.timestamp,
                         action.actionName,
                         action.tileName,
-                        action.isSubquery ? 1 : 0,
                         action.isMobile ? 1 : 0
                     ];
                     statement.run(data, (err:Error, res) => {
