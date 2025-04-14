@@ -94,7 +94,7 @@ export class CollocationsTile implements ITileProvider {
                 return {};
             }
         })();
-        this.api = new MQueryCollAPI(conf.apiURL, useDataStream, appServices);
+        this.api = new MQueryCollAPI(conf.apiURL, useDataStream, appServices, conf.backlink);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -103,6 +103,7 @@ export class CollocationsTile implements ITileProvider {
             appServices: appServices,
             service: this.api,
             queryType: queryType,
+            queryMatches: List.map(findCurrQueryMatch, queryMatches),
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -123,7 +124,6 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlinks: [],
-                queryMatches: List.map(findCurrQueryMatch, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator
             }
         });

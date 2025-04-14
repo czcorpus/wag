@@ -23,7 +23,7 @@ import urlJoin from 'url-join';
 import { ajax$ } from '../../../page/ajax.js';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { CollApiResponse } from './common.js';
 
@@ -84,11 +84,14 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
 
     private readonly useDataStream:boolean;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.useDataStream = useDataStream;
+        this.backlinkConf = backlinkConf;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -189,6 +192,45 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     }
 
     getBacklink(queryId:number):Backlink|null {
+        if (this.backlinkConf && this.backlinkConf.url) {
+            return {
+                queryId,
+                label: this.backlinkConf.label || 'KonText',
+            };
+        }
         return null;
+    }
+
+    requestBacklink(args:MQueryCollArgs):Observable<URL> {
+        const concArgs = {
+            corpname: args.corpusId,
+            q: `q${args.q}`,
+            format: 'json',
+        };
+        if (args.subcorpus) {
+            concArgs['subcorpus'] = args.subcorpus;
+        }
+        return ajax$<{conc_persistence_op_id:string}>(
+            'GET',
+            urlJoin(this.backlinkConf.url, 'create_view'),
+            concArgs,
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true,
+            }
+        ).pipe(
+            map(resp => {
+                const url = new URL(urlJoin(this.backlinkConf.url, 'collx'));
+                url.searchParams.set('corpname', args.corpusId);
+                if (args.subcorpus) {
+                    url.searchParams.set('subcorpus', args.subcorpus);
+                }
+                url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
+                url.searchParams.set('cfromw', `-${args.srchLeft.toString()}`);
+                url.searchParams.set('ctow', args.srchRight.toString());
+                url.searchParams.set('cminfreq', args.minCollFreq.toString());
+                return url;
+            })
+        );
     }
 }
