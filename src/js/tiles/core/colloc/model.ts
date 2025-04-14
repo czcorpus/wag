@@ -24,7 +24,7 @@ import { IAppServices } from '../../../appServices.js';
 import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
-import { QueryMatch, QueryType, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
+import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
@@ -39,7 +39,6 @@ export interface CollocModelArgs {
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
     queryType:QueryType;
-    queryMatches:QueryMatch[];
 }
 
 
@@ -49,8 +48,6 @@ type FreqRequestArgs = [number, QueryMatch];
 export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly collApi:MQueryCollAPI;
-
-    private readonly queryMatches:QueryMatch[];
 
     private readonly appServices:IAppServices;
 
@@ -70,13 +67,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     };
 
     constructor({
-        dispatcher, tileId, appServices, service, initState, queryType, queryMatches}:CollocModelArgs) {
+        dispatcher, tileId, appServices, service, initState, queryType}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.collApi = service;
         this.queryType = queryType;
-        this.queryMatches = queryMatches;
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -127,7 +123,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
-                    rxOf(...List.map((qm, i) => tuple(i, qm),  this.queryMatches)),
+                    rxOf(...List.map((qm, i) => tuple(i, qm),  state.queryMatches)),
                     true,
                     seDispatch
                 );
@@ -181,7 +177,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
-                    rxOf(...List.map((qm, i) => tuple(i, qm), this.queryMatches)),
+                    rxOf(...List.map((qm, i) => tuple(i, qm), state.queryMatches)),
                     false,
                     seDispatch
                 );
@@ -194,7 +190,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null,
             (state, action, dispatch) => {
                 this.collApi.requestBacklink(
-                    this.stateToArgs(state, this.queryMatches[action.payload.queryId])
+                    this.stateToArgs(state, state.queryMatches[action.payload.queryId])
                 ).subscribe({
                     next: url => {
                         window.open(url.toString(),'_blank');

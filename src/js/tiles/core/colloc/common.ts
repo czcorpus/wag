@@ -180,5 +180,7 @@ export interface CollocModelState {
 
     backlinks:Array<Backlink>;
 
+    queryMatches:Array<QueryMatch>;
+
     posQueryGenerator:[string, string];
 }
