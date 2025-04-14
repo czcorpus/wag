@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { SubqueryPayload, RangeRelatedSubqueryValue, isSubqueryPayload, QueryMatch } from '../../../query/index.js';
+import { SubqueryPayload, QueryMatch } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 
@@ -32,7 +32,7 @@ export enum CollocMetric {
     REL_FREQ = 'f'
 }
 
-export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
+export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<DataRow>;
     heading:DataHeading;
 }
@@ -59,18 +59,6 @@ export class Actions {
     static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
         name: GlobalActions.TilePartialDataLoaded.name
     };
-}
-
-
-
-// Sub-query related types
-
-export type CollocSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
-
-
-export function isCollocSubqueryPayload(payload:{}):payload is CollocSubqueryPayload {
-    return isSubqueryPayload(payload) && payload.subqueries.length > 0 &&
-            payload.subqueries[0].value['context'] !== undefined;
 }
 
 
@@ -117,19 +105,6 @@ export function ctxToRange(ctxType:SrchContextType, range:number):[number, numbe
     }
 }
 
-
-export interface KonTextCollArgs {
-    corpname:string;
-    q:string;
-    cattr:string;
-    cfromw:number;
-    ctow:number;
-    cminfreq:number;
-    cminbgr:number;
-    cbgrfns:Array<string>;
-    csortfn:string;
-    citemsperpage:number;
-}
 
 export interface CollocModelState {
     isBusy:boolean;

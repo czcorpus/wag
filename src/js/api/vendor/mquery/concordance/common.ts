@@ -92,6 +92,9 @@ export interface ConcData {
     ipm:number;
     lines:Array<Line>;
     loadPage:number;
+    /**
+     * note: starts from 1
+     */
     currPage:number;
     numPages:number;
 }
@@ -105,8 +108,8 @@ export function createInitialLinesData(numQueryMatches:number):Array<ConcData> {
             lines: [],
             concSize: 0,
             ipm: 0,
-            loadPage: 0,
-            currPage: 0,
+            loadPage: 1,
+            currPage: 1,
             numPages: 0
         });
     }

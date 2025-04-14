@@ -43,7 +43,7 @@ export interface ConcordanceTileState {
     pageSize:number;
     attr_vmode:AttrViewMode;
     viewMode:ViewMode;
-    shuffle:boolean;
+    sentenceStruct:string;
     metadataAttrs:Array<{value:string; label:string}>;
     attrs:Array<string>;
     posQueryGenerator:[string, string];
@@ -113,7 +113,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             },
             (state, action, dispatch) => {
                 if (state.concordances.some(conc => conc.lines.length > 0)) {
-                    this.reloadData(state, dispatch, null);
+                    this.reloadData(state, false, null, dispatch);
                 }
             }
         );
@@ -141,7 +141,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, dispatch, null);
+                this.reloadData(state, true, null, dispatch);
             }
         );
 
@@ -151,16 +151,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             (state, action) => {
                 // note: error is handled via TileDataLoaded
                 if (!action.error) {
-                    state.concordances[action.payload.queryId] = {
-                        concSize: action.payload.data.concSize,
-                        ipm: action.payload.data.ipm,
-                        currPage: state.concordances[action.payload.queryId].loadPage,
-                        loadPage: state.concordances[action.payload.queryId].loadPage,
-                        numPages: Math.ceil(action.payload.data.concSize / state.pageSize),
-                        queryIdx: action.payload.data.queryIdx,
-                        lines: action.payload.data.lines
+                    state.concordances[action.payload.queryIdx] = {
+                        concSize: action.payload.resp.concSize,
+                        ipm: action.payload.resp.ipm,
+                        currPage: state.concordances[action.payload.queryIdx].loadPage,
+                        loadPage: state.concordances[action.payload.queryIdx].loadPage,
+                        numPages: Math.ceil(action.payload.resp.concSize / state.pageSize),
+                        queryIdx: action.payload.queryIdx,
+                        lines: action.payload.resp.lines
                     };
-                    state.backlinks.push(this.concApi.getBacklink(action.payload.queryId));
+                    state.backlinks.push(this.concApi.getBacklink(action.payload.queryIdx));
                 }
             }
         );
@@ -187,7 +187,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage + 1;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, dispatch, null);
+                this.reloadData(state, false, null, dispatch);
             }
         );
 
@@ -200,7 +200,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage - 1;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, dispatch, null);
+                this.reloadData(state, false, null, dispatch);
             }
         );
 
@@ -213,7 +213,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.viewMode = action.payload.mode;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, dispatch, null);
+                this.reloadData(state, false, null, dispatch);
             }
         );
 
@@ -303,14 +303,20 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         return {
             corpusName: state.corpname,
             q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
-            currPage: state.concordances[queryIdx].currPage,
+            rowsOffset: (state.concordances[queryIdx].loadPage - 1) * state.pageSize,
             maxRows: state.pageSize,
             contextWidth: state.kwicWindow,
+            contextStruct: state.viewMode === ViewMode.SENT ? state.sentenceStruct : '',
             queryIdx
         };
     }
 
-    private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
+    private reloadData(
+        state:ConcordanceTileState,
+        multicastRequest:boolean,
+        otherLangCql:string,
+        dispatch:SEDispatcher
+    ):void {
         new Observable<Array<ConcApiArgs>>((observer) => {
             try {
                 observer.next(pipe(
@@ -332,19 +338,15 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(args => this.concApi.call(this.tileId, true, args)),
+            mergeMap(args => this.concApi.call(this.tileId, multicastRequest, args)),
             tap(
-                (resp) => {
+                ([resp, queryIdx]) => {
                     dispatch<typeof Actions.PartialTileDataLoaded>({
                         name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
-                            queryId: resp.queryIdx,
-                            data: resp,
-                            subqueries: List.map(
-                                v => ({value: `${v.ref}`, interactionId: v.ref}),
-                                resp.lines
-                            ),
+                            queryIdx,
+                            resp,
                             domain1: null,
                             domain2: null
                         }
@@ -352,12 +354,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             ),
             reduce(
-                (acc, resp) => {
+                (acc, [resp,]) => {
                     return {
                         isEmpty: acc.isEmpty && resp.lines.length === 0
                     };
                 },
-                {concIds: List.repeat(_ => undefined, this.queryMatches.length), isEmpty: true}
+                {isEmpty: true}
             )
 
         ).subscribe({

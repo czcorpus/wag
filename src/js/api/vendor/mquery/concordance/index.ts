@@ -23,7 +23,7 @@ import { ResourceApi, SourceDetails } from '../../../../types.js';
 import { IAppServices } from '../../../../appServices.js';
 import { ConcData, ConcResponse, ViewMode } from './common.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
-import { Dict, HTTP, List, pipe } from 'cnc-tskit';
+import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 import { mkLemmaMatchQuery } from '../common.js';
 
@@ -32,9 +32,10 @@ export interface ConcApiArgs {
     corpusName:string;
     q:string;
     queryIdx:number;
-    currPage:number;
     maxRows:number;
+    rowsOffset:number;
     contextWidth:number;
+    contextStruct:string;
 }
 
 // ------------------------------
@@ -42,7 +43,7 @@ export interface ConcApiArgs {
 /**
  * @todo
  */
-export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, ConcData> {
+export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcResponse, number]> {
 
     private readonly apiUrl:string;
 
@@ -94,14 +95,16 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, ConcData> 
             {
                 q: queryArgs.q,
                 maxRows: queryArgs.maxRows,
-                contextWidth: queryArgs.contextWidth
+                rowsOffset: queryArgs.rowsOffset,
+                contextWidth: queryArgs.contextWidth,
+                contextStruct: queryArgs.contextStruct || undefined
             },
             Dict.toEntries(),
             List.map(([v0, v1]) => `${v0}=${encodeURIComponent(v1)}`)
         ).join('&')
     }
 
-    call(tileId:number, multicastRequest:boolean, args:Array<ConcApiArgs>):Observable<ConcData> {
+    call(tileId:number, multicastRequest:boolean, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
         // TODO cmp search support
         const singleSrchArgs = args[0];
         if (this.usesDataStream) {
@@ -117,19 +120,8 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, ConcData> 
                     contentType: 'application/json',
                 }
             ).pipe(
-                tap(
-                    resp => {
-                        console.log('conc response: ', resp)
-                    }
-                ),
                 map(
-                    resp => ({
-                        ...resp,
-                        queryIdx: 0, // TODO
-                        currPage: singleSrchArgs.currPage,
-                        loadPage: 0,
-                        numPages: 0
-                    })
+                    resp => tuple(resp, 0) // TODO upgrade once we support cmp
                 )
             )
 

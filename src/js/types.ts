@@ -93,7 +93,6 @@ export interface TelemetryAction {
     timestamp:number;
     actionName:string;
     tileName:string;
-    isSubquery:boolean;
     isMobile:boolean;
 }
 

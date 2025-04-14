@@ -190,9 +190,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         )
     }
 
-    // ------------------ <Row /> --------------------------------------------
+    // ------------------ <SentRow /> --------------------------------------------
 
-    const Row:React.FC<{
+    const SentRow:React.FC<{
+        data:Line;
+        isParallel:boolean;
+        hasVisibleMetadata:boolean;
+        handleLineClick:(e:React.MouseEvent)=>void;
+
+    }> = (props) => (
+        <S.SentRow>
+            <td className="left">
+                        {List.map(
+                            (s, i) => (
+                                <React.Fragment key={`${props.data.ref}:L${i}`} >
+                                    {i > 0 ? <span> </span> : null}
+                                    <RowItem data={s} isKwic={s.matchType === 'kwic'} />
+                                </React.Fragment>
+                            ),
+                            props.data.text
+                        )}
+            </td>
+        </S.SentRow>
+    );
+
+    // ------------------ <KWICRow /> --------------------------------------------
+
+    const KWICRow:React.FC<{
         data:Line;
         isParallel:boolean;
         hasVisibleMetadata:boolean;
@@ -343,15 +367,30 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 null
                             }
                         </S.Summary>
-                        <table className={tableClasses.join(' ')}>
-                            <tbody>
-                                {List.map(
-                                    (line, i) => <Row key={`${i}:${line.ref}`} data={line} isParallel={!!this.props.otherCorpname}
-                                        hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)} />,
-                                    conc.lines
-                                )}
-                            </tbody>
-                        </table>
+                        <S.ConcLines>
+                            <table className={tableClasses.join(' ')}>
+                                <tbody>
+                                    {List.map(
+                                        (line, i) => (
+                                            this.props.viewMode === ViewMode.KWIC ?
+                                                <KWICRow
+                                                    key={`${i}:${line.ref}`}
+                                                    data={line}
+                                                    isParallel={!!this.props.otherCorpname}
+                                                    hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)}
+                                                    /> :
+                                                <SentRow
+                                                    key={`${i}:${line.ref}`}
+                                                    data={line}
+                                                    isParallel={!!this.props.otherCorpname}
+                                                    hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)}
+                                                    />
+                                        ),
+                                        conc.lines
+                                    )}
+                                </tbody>
+                            </table>
+                        </S.ConcLines>
                     </S.ConcordanceTileView>
                 </globalComponents.TileWrapper>
             );
