@@ -103,7 +103,6 @@ export class CollocationsTile implements ITileProvider {
             appServices: appServices,
             service: this.api,
             queryType: queryType,
-            queryMatches: List.map(findCurrQueryMatch, queryMatches),
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -124,6 +123,7 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlinks: [],
+                queryMatches: List.map(findCurrQueryMatch, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator
             }
         });
