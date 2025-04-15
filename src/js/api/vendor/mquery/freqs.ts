@@ -204,14 +204,14 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
         )
     }
 
-    requestBacklink(state:MinSingleCritFreqState, queryMatch:QueryMatch, posQueryGenerator:[string, string]):Observable<URL> {
+    requestBacklink(args:MQueryFreqArgs):Observable<URL> {
         const concArgs = {
-            corpname: state.corpname,
-            q: `q${mkLemmaMatchQuery(queryMatch, posQueryGenerator)}`,
+            corpname: args.corpname,
+            q: `q${args.queryArgs.q}`,
             format: 'json',
         };
-        if (state.subcname) {
-            concArgs['subcorpus'] = state.subcname;
+        if (args.queryArgs.subcorpus) {
+            concArgs['subcorpus'] = args.queryArgs.subcorpus;
         }
         return ajax$<{conc_persistence_op_id:string}>(
             'GET',
@@ -224,17 +224,14 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
         ).pipe(
             map(resp => {
                 const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
-                url.searchParams.set('corpname', state.corpname);
-                if (state.subcname) {
-                    url.searchParams.set('subcorpus', state.subcname);
+                url.searchParams.set('corpname', args.corpname);
+                if (args.queryArgs.subcorpus) {
+                    url.searchParams.set('subcorpus', args.queryArgs.subcorpus);
                 }
                 url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
-                url.searchParams.set('fcrit', state.fcrit);
-                url.searchParams.set('freq_type', state.freqType);
-                url.searchParams.set('flimit', state.flimit.toString());
-                url.searchParams.set('freq_sort', state.freqSort);
-                url.searchParams.set('fpage', state.fpage.toString());
-                url.searchParams.set('ftt_include_empty', state.fttIncludeEmpty ? '1' : '0');
+                url.searchParams.set('fcrit', args.queryArgs.attr);
+                url.searchParams.set('freq_type', args.path === 'freqs' ? 'tokens' : 'text-types');
+                url.searchParams.set('flimit', args.queryArgs.flimit.toString());
                 return url;
             })
         );

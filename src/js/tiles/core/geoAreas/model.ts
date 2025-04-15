@@ -273,11 +273,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                this.freqApi.requestBacklink(
-                    state,
-                    findCurrQueryMatch(this.queryMatches[action.payload.queryId]),
-                    state.posQueryGenerator,
-                ).subscribe({
+                const args = this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[action.payload.queryId]));
+                this.freqApi.requestBacklink(args).subscribe({
                     next: url => {
                         window.open(url.toString(),'_blank');
                     },
