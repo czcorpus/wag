@@ -101,10 +101,11 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    getBacklink(queryId:number):Backlink|null {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         if (this.backlinkConf && this.backlinkConf.url) {
             return {
                 queryId,
+                subqueryId,
                 label: this.backlinkConf.label || 'KonText',
             };
         }

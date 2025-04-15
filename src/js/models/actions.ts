@@ -19,6 +19,7 @@ import { Action } from 'kombo';
 
 import { SystemMessageType, SourceDetails } from '../types.js';
 import { QueryType } from '../query/index.js';
+import { Backlink } from '../page/tile.js';
 
 
 export class Actions {
@@ -180,7 +181,7 @@ export class Actions {
 
     static FollowBacklink:Action<{
         tileId:number;
-        queryId:number;
+        backlink:Backlink;
     }> = {
         name: 'MAIN_FOLLOW_BACKLING'
     }

@@ -77,7 +77,7 @@ export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse
         });
     }
 
-    getBacklink(queryId:number):Backlink|null {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 

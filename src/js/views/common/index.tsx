@@ -252,12 +252,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             });
         };
 
-        const handleBacklinkClick = (queryId:number) => {
+        const handleBacklinkClick = (backlink:Backlink) => {
             dispatcher.dispatch<typeof Actions.FollowBacklink>({
                 name: Actions.FollowBacklink.name,
                 payload: {
                     tileId: props.tileId,
-                    queryId,
+                    backlink,
                 }
             });
         };
@@ -287,7 +287,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             List.map((item, i) =>
                                 <React.Fragment key={`${item.label}:${i}`}>
                                     {i > 0 ? <span>, </span> : null}
-                                    <BacklinkButton backlink={item} backlinkHandler={()=>handleBacklinkClick(item.queryId)} />
+                                    <BacklinkButton backlink={item} backlinkHandler={()=>handleBacklinkClick(item)} />
                                 </React.Fragment>
                             )
                         )}

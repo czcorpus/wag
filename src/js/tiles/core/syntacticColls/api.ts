@@ -115,7 +115,7 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    getBacklink(queryId:number):Backlink|null {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 

@@ -85,7 +85,17 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                     }
                 }
             }
-        )
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                const variant = findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]);
+                const url = this.service.requestBacklink(this.service.stateToArgs(state, variant.lemma));
+                window.open(url.toString(),'_blank');
+            }
+        );
     }
 
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {

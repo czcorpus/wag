@@ -33,6 +33,7 @@ export interface BacklinkConf {
 
 export interface Backlink {
     queryId:number;
+    subqueryId?:number;
     label:LocalizedConfMsg;
 }
 

@@ -96,7 +96,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         });
     }
 
-    getBacklink(queryId:number):Backlink|null {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 
