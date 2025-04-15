@@ -233,6 +233,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 url.searchParams.set('fcrit', args.queryArgs.attr);
                 url.searchParams.set('freq_type', args.path === 'freqs' ? 'tokens' : 'text-types');
                 url.searchParams.set('flimit', args.queryArgs.flimit.toString());
+                url.searchParams.set('freq_sort', 'rel');
                 return url;
             })
         );

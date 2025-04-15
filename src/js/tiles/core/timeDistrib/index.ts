@@ -95,17 +95,16 @@ export class TimeDistTile implements ITileProvider {
                 toYear: conf.toYear,
                 maxItems: conf.maxItems,
                 fcrit: conf.fcrit,
-                backlinks: [],
+                backlinks: [null, null],
                 subcBacklinkLabel: conf.subcBacklinkLabel || {}
             },
-            api: new MQueryTimeDistribStreamApi(conf.apiURL, useDataStream, appServices),
+            api: new MQueryTimeDistribStreamApi(conf.apiURL, useDataStream, appServices, conf.backlink),
             tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
             queryDomain: domain1,
-            backlink: conf.backlink
         });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

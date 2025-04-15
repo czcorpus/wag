@@ -25,11 +25,12 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
 import { findCurrQueryMatch, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
-import { MQueryTimeDistribStreamApi, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
+import { MQueryTimeDistribStreamApi, TimeDistribArgs, TimeDistribResponse } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { SystemMessageType } from '../../../types.js';
 
 
 export enum FreqFilterQuantity {
@@ -98,7 +99,6 @@ export interface TimeDistribModelArgs {
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
-    backlink:BacklinkConf;
     queryDomain:string;
 }
 
@@ -134,10 +134,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly queryDomain:string;
 
-    private readonly backlink:BacklinkConf;
-
     private readonly api:MQueryTimeDistribStreamApi;
-
 
     constructor({
         dispatcher,
@@ -149,7 +146,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         appServices,
         queryMatches,
         queryDomain,
-        backlink
     }:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -158,14 +154,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
-        this.backlink = backlink;
         this.api = api;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.data = [];
-                state.backlinks = [];
+                state.backlinks = [null, null];
                 state.dataCmp = [];
                 state.loadingStatus = LoadingStatus.BUSY_LOADING_MAIN;
                 state.error = null;
@@ -200,15 +195,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload.data) {
                     state.data = this.mergeChunks(
                         action.payload.overwritePrevious ? [] : state.data, action.payload.data, state.alphaLevel);
+                    state.backlinks[0] = this.api.getBacklink(0, 0);
 
                 } else if (action.payload.dataCmp) {
                     state.dataCmp = this.mergeChunks(
                         action.payload.overwritePrevious ? [] : state.dataCmp, action.payload.dataCmp, state.alphaLevel);
+                    state.backlinks[1] = this.api.getBacklink(0, 1);
                 }
                 if (action.payload.wordMainLabel) {
                     state.wordMainLabel = action.payload.wordMainLabel;
                 }
-                state.backlinks.push(this.api.getBacklink(0));
             }
         );
 
@@ -298,6 +294,23 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             }
                         });
                     }
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const args = this.stateToArgs(state, action.payload.backlink.subqueryId === 1);
+                this.api.requestBacklink(args).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
                 });
             }
         );
@@ -459,15 +472,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 this.tileId,
                 multicastRequest,
                 testIsDictMatch(currMatches[0]) ? // TODO cmp not supported here
-                    {
-                        corpname: state.corpname,
-                        q: mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
-                        subcorpName: undefined, // TOOD
-                        fromYear: state.fromYear ? state.fromYear + '' : undefined,
-                        toYear: state.toYear ? state.toYear + '' : undefined,
-                        fcrit: state.fcrit,
-                        maxItems: state.maxItems
-                    } :
+                    this.stateToArgs(state) :
                     null,
                 {
                     wordMainLabel: currMatches[0].lemma,
@@ -477,21 +482,25 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             this.api.loadSecondWord(
                 this.tileId,
                 false,
-                {
-                    corpname: state.corpname,
-                    q: `[word="${state.wordCmp}"]`,
-                    subcorpName: undefined, // TOOD
-                    fromYear: state.fromYear ? state.fromYear + '' : undefined,
-                    toYear: state.toYear ? state.toYear + '' : undefined,
-                    fcrit: state.fcrit,
-                    maxItems: state.maxItems
-                }
+                this.stateToArgs(state, true),
             ).pipe(
                 map(
                     resp => tuple(resp, { wordMainLabel: state.wordCmp, targetId})
                 )
             );
         this.getFreqs(state, resp, dispatch);
+    }
+
+    private stateToArgs(state:TimeDistribModelState, cmp?:boolean):TimeDistribArgs {
+        return {
+            corpname: state.corpname,
+            q: cmp ? `[word="${state.wordCmp}"]` : mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
+            subcorpName: undefined, // TODO
+            fromYear: state.fromYear ? state.fromYear + '' : undefined,
+            toYear: state.toYear ? state.toYear + '' : undefined,
+            fcrit: state.fcrit,
+            maxItems: state.maxItems
+        }
     }
 
 }
