@@ -97,7 +97,7 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
     }
 
     requestBacklink(args:HtmlApiArgs):URL {
-        const url = new URL(this.backlinkConf.url || this.apiURL);
+        const url = new URL(this.backlinkConf.url);
         Dict.forEach(
             (value, key) => {
                 url.searchParams.set(key, value);

@@ -70,7 +70,7 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf && this.backlinkConf.url) {
+        if (this.backlinkConf) {
             return {
                 queryId,
                 subqueryId,

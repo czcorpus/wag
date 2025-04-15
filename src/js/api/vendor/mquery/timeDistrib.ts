@@ -134,7 +134,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        return this.backlinkConf && this.backlinkConf.url ?
+        return this.backlinkConf ?
             {
                 queryId,
                 subqueryId,

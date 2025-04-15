@@ -192,7 +192,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf && this.backlinkConf.url) {
+        if (this.backlinkConf) {
             return {
                 queryId,
                 subqueryId,

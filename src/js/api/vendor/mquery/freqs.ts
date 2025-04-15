@@ -23,11 +23,8 @@ import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
-import { QueryMatch } from '../../../query/index.js';
-import { mkLemmaMatchQuery } from './common.js';
 
 
 export interface HTTPResponse {
@@ -102,7 +99,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf && this.backlinkConf.url) {
+        if (this.backlinkConf) {
             return {
                 queryId,
                 subqueryId,
