@@ -21,6 +21,8 @@ import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
+import { UserConf, UserQuery } from '../conf/index.js';
+import { QueryType } from '../query/index.js';
 
 
 interface TileRequest {
@@ -43,6 +45,13 @@ interface EventItem<T = unknown> {
     error?:string;
 }
 
+interface RequestTag {
+    queries:Array<UserQuery>;
+    queryType:QueryType;
+    query1Domain:string;
+    query2Domain:string;
+}
+
 /**
  * DataStreaming serves as a controller for EventSource-based communication
  * between EventSource-capable server (APIGuard in case of the CNC) and individual
@@ -60,8 +69,16 @@ export class DataStreaming {
 
     private readonly rootUrl:string|undefined;
 
-    constructor(tileIds:Array<string|number>, rootUrl:string|undefined, tilesReadyTimeoutSecs:number) {
+    private readonly reqTag:RequestTag;
+
+    constructor(
+        tileIds:Array<string|number>,
+        rootUrl:string|undefined,
+        tilesReadyTimeoutSecs:number,
+        userSession:UserConf
+    ) {
         this.rootUrl = rootUrl;
+        this.reqTag = this.mkQueryTag(userSession);
         this.requestSubject = new Subject<TileRequest>();
         this.responseStream = this.requestSubject.pipe(
             scan(
@@ -111,7 +128,8 @@ export class DataStreaming {
                             List.map(
                                 ([k, tileReq]) => tileReq
                             )
-                        )
+                        ),
+                        tag: this.reqTag
                     },
                     {
                         contentType: 'application/json'
@@ -178,6 +196,17 @@ export class DataStreaming {
                 }
             });
         }
+    }
+
+    /**
+     * This method produces a simple tag based on user query,
+     * search domains, query type etc., which is used for easier
+     * navigation in the persistent cache. I.e. it has no direct
+     * use for WaG itself.
+     */
+    private mkQueryTag(userSession:UserConf):RequestTag {
+        const {uiLang, uiLanguages, error, ... ans} = userSession;
+        return ans;
     }
 
     private prepareTileRequest(entry:TileRequest):TileRequest {

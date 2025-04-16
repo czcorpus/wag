@@ -212,7 +212,8 @@ export function initClient(
             List.map(v => tileIdentMap[v])
         ),
         config.dataStreamingUrl,
-        DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000
+        DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
+        userSession
     );
     const appServices = new AppServices({
         notifications,
