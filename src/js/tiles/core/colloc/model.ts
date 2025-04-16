@@ -283,13 +283,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         freqReqs:Observable<FreqRequestArgs>,
         multicastRequest:boolean,
         seDispatch:SEDispatcher
-):Observable<boolean> {
+    ):Observable<boolean> {
         return freqReqs.pipe(
-            tap(
-                v => {
-                    console.log('we have coll conf: ', v)
-                }
-            ),
             concatMap(([queryId, queryMatch]) => {
                 return callWithExtraVal(
                     this.collApi,
