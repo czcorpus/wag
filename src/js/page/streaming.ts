@@ -69,7 +69,7 @@ export class DataStreaming {
 
     private readonly rootUrl:string|undefined;
 
-    private readonly reqTag:RequestTag;
+    private readonly reqTag:RequestTag|undefined;
 
     constructor(
         tileIds:Array<string|number>,
@@ -78,7 +78,7 @@ export class DataStreaming {
         userSession:UserConf
     ) {
         this.rootUrl = rootUrl;
-        this.reqTag = this.mkQueryTag(userSession);
+        this.reqTag = userSession ? this.mkQueryTag(userSession) : undefined;
         this.requestSubject = new Subject<TileRequest>();
         this.responseStream = this.requestSubject.pipe(
             scan(
@@ -205,8 +205,12 @@ export class DataStreaming {
      * use for WaG itself.
      */
     private mkQueryTag(userSession:UserConf):RequestTag {
-        const {uiLang, uiLanguages, error, ... ans} = userSession;
-        return ans;
+        return {
+            queries: userSession.queries,
+            queryType: userSession.queryType,
+            query1Domain: userSession.query1Domain,
+            query2Domain: userSession.query2Domain
+        };
     }
 
     private prepareTileRequest(entry:TileRequest):TileRequest {
