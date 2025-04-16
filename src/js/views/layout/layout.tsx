@@ -62,6 +62,14 @@ export interface HtmlHeadProps {
 }
 
 
+function marshalJSON(data:any):string {
+    return JSON.stringify(data)
+        .replace(/</g, '\\u003c')
+        .replace(/>/g, '\\u003e')
+        .replace(/'/g, '\\u0027');
+}
+
+
 export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBodyProps>; HtmlHead: React.FC<HtmlHeadProps>} {
 
     // -------- <ThemeSelection /> -----------------------------
@@ -202,7 +210,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
 
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.queryMatches)});
+                ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.queryMatches)});
             `
         };
 
