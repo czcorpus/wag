@@ -23,7 +23,7 @@ import urlJoin from 'url-join';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { ajax$ } from '../../../page/ajax.js';
 import { IApiServices } from '../../../appServices.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
@@ -82,11 +82,14 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
 
     private readonly apiServices:IApiServices;
 
-    constructor(apiUrl:string, useDataStream:boolean, apiServices:IApiServices) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiUrl:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiUrl = apiUrl;
         this.srcInfoService = new CorpusInfoAPI(apiUrl, apiServices);
         this.apiServices = apiServices;
         this.useDataStream = useDataStream;
+        this.backlinkConf = backlinkConf;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -96,8 +99,13 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         });
     }
 
-    getBacklink(queryId:number):Backlink|null {
-        return null;
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        return this.backlinkConf ? {
+            queryId,
+            subqueryId,
+            label: this.backlinkConf.label || 'KonText',
+        } :
+        null;
     }
 
     call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs|null):Observable<SpeechData> {
@@ -166,5 +174,15 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
             }),
             x => x.join('&')
         )
+    }
+
+    requestBacklink(args:SpeechReqArgs):URL {
+        const url = new URL(urlJoin(this.backlinkConf.url, 'create_view'));
+        url.searchParams.set('corpname', args.corpname);
+        if (args.subcorpus) {
+            url.searchParams.set('subcorpus', args.subcorpus);
+        }
+        url.searchParams.set('q', `q${args.query}`);
+        return url;
     }
 }

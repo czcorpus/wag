@@ -190,7 +190,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null,
             (state, action, dispatch) => {
                 this.collApi.requestBacklink(
-                    this.stateToArgs(state, state.queryMatches[action.payload.queryId])
+                    this.stateToArgs(state, state.queryMatches[action.payload.backlink.queryId])
                 ).subscribe({
                     next: url => {
                         window.open(url.toString(),'_blank');

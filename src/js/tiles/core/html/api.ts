@@ -24,7 +24,8 @@ import { DataApi } from '../../../types.js';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IApiServices } from '../../../appServices.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { Dict } from 'cnc-tskit';
 
 
 export type HtmlApiArgs = {[key:string]:string};
@@ -43,9 +44,12 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
 
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, apiServices:IApiServices) {
+    private readonly backlinkConf:BacklinkConf;
+    
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
+        this.backlinkConf = backlinkConf;
     }
 
     stateToArgs(state:{lemmaArg:string, args:{[key:string]:string}}, query:string):HtmlApiArgs {
@@ -83,10 +87,25 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
         );
     }
 
-    getBacklink(queryId:number):Backlink|null {
-        return null;
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        return this.backlinkConf ? {
+            queryId,
+            subqueryId,
+            label: this.backlinkConf.label || 'Page',
+        } :
+        null;
     }
 
+    requestBacklink(args:HtmlApiArgs):URL {
+        const url = new URL(this.backlinkConf.url);
+        Dict.forEach(
+            (value, key) => {
+                url.searchParams.set(key, value);
+            },
+            args,
+        );
+        return url;
+    }
 }
 
 

@@ -28,11 +28,12 @@ import { List } from 'cnc-tskit';
 
 export interface BacklinkConf {
     url:string;
-    label:LocalizedConfMsg;
+    label?:LocalizedConfMsg;
 }
 
 export interface Backlink {
     queryId:number;
+    subqueryId?:number;
     label:LocalizedConfMsg;
 }
 

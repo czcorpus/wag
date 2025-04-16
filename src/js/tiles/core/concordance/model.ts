@@ -285,8 +285,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             (state, action) => {
                 const url = this.concApi.requestBacklink(this.stateToArgs(
                     state,
-                    findCurrQueryMatch(this.queryMatches[action.payload.queryId]),
-                    action.payload.queryId,
+                    findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]),
+                    action.payload.backlink.queryId,
                     null
                 ));
                 window.open(url.toString(),'_blank');

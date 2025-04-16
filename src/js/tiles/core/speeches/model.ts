@@ -294,6 +294,15 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 });
             }
         );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                const url = this.api.requestBacklink(this.stateToArgs(state));
+                window.open(url.toString(),'_blank');
+            }
+        );
     }
 
     private normalizeSegments(segments:Array<Segment>, corpname:string):Array<PlayableSegment> {
@@ -309,7 +318,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         );
     }
 
-    private createArgs(state:SpeechesModelState, range:[number, number]):SpeechReqArgs|null {
+    private stateToArgs(state:SpeechesModelState, range?:[number, number]):SpeechReqArgs|null {
         if (state.queryMatches[0].lemma) {
             return {
                 corpname: state.corpname,
@@ -321,8 +330,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
                     state.speechSegment[0] + '.' + state.speechSegment[1]
                 ],
-                leftCtx: range[0],
-                rightCtx: range[1],
+                leftCtx: range ? range[0] : state.leftRange,
+                rightCtx: range ? range[1] : state.rightRange,
             };
         }
         return null;
@@ -333,7 +342,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             .call(
                 this.tileId,
                 multicastRequest,
-                this.createArgs(state, range)
+                this.stateToArgs(state, range)
 
             ).subscribe({
                 next: (resp) => {

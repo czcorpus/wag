@@ -36,7 +36,7 @@
         },
         "backlink": {
             "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage.",
-            "$ref": "#/definitions/Backlink"
+            "$ref": "#/definitions/BacklinkConf"
         },
         "isDisabled": {
             "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -73,6 +73,9 @@
             "items": {
                 "type": "string"
             }
+        },
+        "useDataStream": {
+            "type": "boolean"
         }
     },
     "required": [
@@ -92,7 +95,7 @@
             ],
             "type": "string"
         },
-        "Backlink": {
+        "BacklinkConf": {
             "type": "object",
             "properties": {
                 "url": {
@@ -110,28 +113,11 @@
                             "type": "string"
                         }
                     ]
-                },
-                "method": {
-                    "enum": [
-                        "CONNECT",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ],
-                    "type": "string"
-                },
-                "subcname": {
-                    "type": "string"
-                },
-                "isAppUrl": {
-                    "type": "boolean"
                 }
-            }
+            },
+            "required": [
+                "url"
+            ]
         }
     },
     "$schema": "http://json-schema.org/draft-07/schema#"

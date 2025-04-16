@@ -111,7 +111,7 @@ export class FrodoWordFormsAPI implements ResourceApi<RequestArgs, Response> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    getBacklink(queryId:number):Backlink|null {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 

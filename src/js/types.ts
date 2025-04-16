@@ -57,7 +57,7 @@ export interface ResourceApi<T, U> extends DataApi<T, U> {
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
 
-    getBacklink(queryId:number):Backlink|null;
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null;
 }
 
 export type LocalizedConfMsg = string|{[lang:string]:string};

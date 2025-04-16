@@ -24,13 +24,14 @@ import { of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { BacklinkConf } from '../../../page/tile.js';
+import { SystemMessageType } from '../../../types.js';
 
 
 export interface MergeCorpFreqModelArgs {
@@ -42,7 +43,6 @@ export interface MergeCorpFreqModelArgs {
     freqApi:MergeFreqsApi;
     initState:MergeCorpFreqModelState;
     downloadLabel:string;
-    backlink:BacklinkConf;
 }
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
@@ -55,17 +55,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly downloadLabel:string;
 
-    private readonly backlink:BacklinkConf;
-
     constructor({
-        dispatcher, tileId, appServices, freqApi, initState, downloadLabel, backlink
+        dispatcher, tileId, appServices, freqApi, initState, downloadLabel
     }:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
-        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -93,7 +90,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             },
             (state, action, dispatch) => {
                 // TODO add support for the cmp mode
-                this.loadFreqs(state, true, state.queryMatches[0], 0, dispatch);
+                this.loadFreqs(state, true, findCurrQueryMatch(state.queryMatches), 0, dispatch);
             }
         );
 
@@ -101,7 +98,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             Actions.PartialTileDataLoaded,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.backlinks.push(this.freqApi.getBacklink(action.payload.queryId));
+                state.backlinks.push(this.freqApi.getBacklink(action.payload.queryId, action.payload.sourceIdx));
                 if (state.data[action.payload.queryId] === undefined) {
                     state.data[action.payload.queryId] = [];
                 }
@@ -210,6 +207,26 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     link.download = filename;
                     link.href = dataUrl;
                     link.click();
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const args = this.stateToArgs(
+                    state.sources[action.payload.backlink.subqueryId],
+                    findCurrQueryMatch(state.queryMatches),
+                );
+                this.freqApi.requestBacklink(args).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
                 });
             }
         );

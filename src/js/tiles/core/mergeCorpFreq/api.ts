@@ -160,7 +160,11 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         });
     }
 
-    getBacklink(queryId:number):Backlink|null {
-        return this.freqApi.getBacklink(queryId);
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        return this.freqApi.getBacklink(queryId, subqueryId);
+    }
+
+    requestBacklink(args:MQueryFreqArgs):Observable<URL> {
+        return this.freqApi.requestBacklink(args);
     }
 }

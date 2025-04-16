@@ -18,11 +18,13 @@
 
 import { map, Observable, scan, takeWhile } from 'rxjs';
 import { CorpusDetails, ResourceApi } from '../../../types.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
+import { ajax$ } from '../../../page/ajax.js';
+import urlJoin from 'url-join';
 
 
 export interface TimeDistribArgs {
@@ -117,19 +119,28 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
 
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
+        this.backlinkConf = backlinkConf;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
     }
 
-    getBacklink(queryId:number):Backlink|null {
-        return null;
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        return this.backlinkConf ?
+            {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'KonText',
+            } :
+            null;
     }
 
     private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
@@ -330,5 +341,38 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         return this.useDataStream ?
             this.callViaDataStream(tileId, multicastRequest, queryArgs) :
             this.callViaAjAX(tileId, queryArgs);
+    }
+
+    requestBacklink(args:TimeDistribArgs):Observable<URL> {
+        const concArgs = {
+            corpname: args.corpname,
+            q: `q${args.q}`,
+            format: 'json',
+        };
+        if (args.subcorpName) {
+            concArgs['subcorpus'] = args.subcorpName;
+        }
+        return ajax$<{conc_persistence_op_id:string}>(
+            'GET',
+            urlJoin(this.backlinkConf.url, 'create_view'),
+            concArgs,
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true,
+            }
+        ).pipe(
+            map(resp => {
+                const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
+                url.searchParams.set('corpname', args.corpname);
+                if (args.subcorpName) {
+                    url.searchParams.set('subcorpus', args.subcorpName);
+                }
+                url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
+                url.searchParams.set('fcrit', args.fcrit);
+                url.searchParams.set('freq_type', 'text-types');
+                url.searchParams.set('freq_sort', '0');
+                return url;
+            })
+        );
     }
 }
