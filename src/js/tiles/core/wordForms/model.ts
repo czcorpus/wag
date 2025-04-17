@@ -23,9 +23,10 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
+import { SystemMessageType } from '../../../types.js';
 
 
 
@@ -80,7 +81,6 @@ export interface WordFormsModelArgs {
     waitForTile:number|null;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    backlink:BacklinkConf;
 }
 
 
@@ -100,10 +100,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly appServices:IAppServices;
 
-    private readonly backlink:BacklinkConf;
-
     constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
-            waitForTilesTimeoutSecs, appServices, backlink}:WordFormsModelArgs) {
+            waitForTilesTimeoutSecs, appServices}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
@@ -112,7 +110,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -220,6 +217,30 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         }
                     });
                 }
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const args = {
+                    domain: this.queryDomain,
+                    lemma: variant.lemma,
+                    pos: List.map(v => v.value, variant.pos),
+                    corpName: state.corpname,
+                    mainPosAttr: state.mainPosAttr
+                };
+                this.api.requestBacklink(args, variant).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
+                });
             }
         );
     }

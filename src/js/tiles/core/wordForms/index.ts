@@ -18,7 +18,8 @@
 import { Maths } from 'cnc-tskit';
 
 import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps, 
+    BacklinkConf} from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
@@ -82,23 +83,22 @@ export class WordFormsTile implements ITileProvider {
                 mainPosAttr
             },
             tileId,
-            api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices),
+            api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
             queryDomain: domain1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
-            backlink: conf.backlink || null,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices):IWordFormsApi {
+    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf):IWordFormsApi {
         switch (apiType) {
             case CoreApiGroup.MQUERY:
-                return new MQueryWordFormsAPI(apiURL, useDataStream, appServices);
+                return new MQueryWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
             case CoreApiGroup.FRODO:
-                return new FrodoWordFormsAPI(apiURL, useDataStream, appServices);
+                return new FrodoWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
             case CoreApiGroup.KORPUS_DB:
             default:
                 throw new Error(`Unsupported API type: ${apiType}`);
