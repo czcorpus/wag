@@ -42,7 +42,6 @@ export interface SyntacticCollsModelArgs {
     initState:SyntacticCollsModelState;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
-    backlink:BacklinkConf;
     queryType:QueryType;
     api:ScollexSyntacticCollsAPI;
     eApi:ScollexSyntacticCollsExamplesApi;
@@ -78,8 +77,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly queryType:QueryType;
 
-    private readonly backlink:BacklinkConf;
-
     private readonly api:ScollexSyntacticCollsAPI;
 
     private readonly eApi:ScollexSyntacticCollsExamplesApi;
@@ -93,7 +90,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         waitForTilesTimeoutSecs,
         appServices,
         initState,
-        backlink,
         queryType,
         api,
         eApi,
@@ -104,7 +100,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = backlink;
         this.queryType = queryType;
         this.api = api;
         this.eApi = eApi;

@@ -25,6 +25,9 @@ import { BacklinkConf } from "../../../../page/tile.js";
 import { IApiServices } from "../../../../appServices.js";
 import { CorpusInfoAPI } from "../../../../api/vendor/mquery/corpusInfo.js";
 
+export interface BacklinkConfArgs {
+    posQueryGenerator:[string, string];
+}
 
 export class WordFormsBacklinkAPI {
 
@@ -36,9 +39,9 @@ export class WordFormsBacklinkAPI {
 
     protected readonly useDataStream:boolean;
 
-    protected readonly backlinkConf:BacklinkConf;
+    protected readonly backlinkConf:BacklinkConf<BacklinkConfArgs>;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf<BacklinkConfArgs>) {
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
@@ -49,7 +52,7 @@ export class WordFormsBacklinkAPI {
     requestBacklink(args:RequestArgs, queryMatch:QueryMatch):Observable<URL> {
         const concArgs = {
             corpname: args.corpName,
-            q: `q${mkLemmaMatchQuery(queryMatch, this.backlinkConf.args['posQueryGenerator'])}`,
+            q: `q${mkLemmaMatchQuery(queryMatch, this.backlinkConf.args.posQueryGenerator)}`,
             format: 'json',
         };
         return ajax$<{conc_persistence_op_id:string}>(

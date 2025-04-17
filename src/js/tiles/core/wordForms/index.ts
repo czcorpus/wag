@@ -28,6 +28,7 @@ import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
 import { IWordFormsApi } from './common.js';
 import { FrodoWordFormsAPI } from './api/frodo.js';
+import { BacklinkConfArgs } from './api/backlink.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -93,7 +94,7 @@ export class WordFormsTile implements ITileProvider {
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf):IWordFormsApi {
+    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf<BacklinkConfArgs>):IWordFormsApi {
         switch (apiType) {
             case CoreApiGroup.MQUERY:
                 return new MQueryWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
