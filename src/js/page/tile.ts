@@ -26,9 +26,10 @@ import { MainPosAttrValues } from '../conf/index.js';
 import { List } from 'cnc-tskit';
 
 
-export interface BacklinkConf {
+export interface BacklinkConf<T = undefined> {
     url:string;
     label?:LocalizedConfMsg;
+    args?:T;
 }
 
 export interface Backlink {
@@ -69,7 +70,7 @@ export interface TileConf {
      * tile logic is able to pass proper arguments to the
      * page.
      */
-    backlink?:BacklinkConf;
+    backlink?:BacklinkConf<any>;
 
     /**
      * Normally, any tile configured in the "tiles" section

@@ -69,7 +69,6 @@ export class SyntacticCollsTile implements ITileProvider {
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
-            backlink: conf.backlink || null,
             queryType: queryType,
             maxItems: conf.maxItems,
             api: new ScollexSyntacticCollsAPI(conf.apiURL, appServices),

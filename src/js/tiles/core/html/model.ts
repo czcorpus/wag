@@ -25,7 +25,6 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
-import { BacklinkConf } from '../../../page/tile.js';
 
 
 export interface HtmlModelArgs {
@@ -35,7 +34,6 @@ export interface HtmlModelArgs {
     service:RawHtmlAPI;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
-    backlink:BacklinkConf;
 }
 
 
@@ -49,15 +47,12 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly tileId:number;
 
-    private readonly backlink:BacklinkConf;
-
-    constructor({dispatcher, tileId, appServices, service, initState, queryMatches, backlink}:HtmlModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, initState, queryMatches}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
         this.queryMatches = queryMatches;
-        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,

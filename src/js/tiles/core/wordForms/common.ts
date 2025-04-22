@@ -18,6 +18,8 @@
 
 import { ResourceApi } from '../../../types.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
+import { QueryMatch } from '../../../query/index.js';
+import { Observable } from 'rxjs';
 
 
 export interface RequestArgs {
@@ -44,5 +46,7 @@ export interface Response {
 export interface IWordFormsApi extends ResourceApi<RequestArgs, Response> {
 
     supportsMultiWordQueries():boolean;
+    
+    requestBacklink(args:RequestArgs, queryMatch:QueryMatch):Observable<URL>;
 
 }

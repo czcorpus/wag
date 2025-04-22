@@ -82,7 +82,6 @@ export class HtmlTile implements ITileProvider {
             appServices: appServices,
             service: this.api,
             queryMatches,
-            backlink: conf.backlink || null,
             initState: {
                 isBusy: isBusy,
                 tileId: tileId,

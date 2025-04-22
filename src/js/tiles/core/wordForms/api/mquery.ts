@@ -18,14 +18,13 @@
 import { Observable, map } from 'rxjs';
 
 import { CorpusDetails, ResourceApi } from '../../../../types.js';
-import { IApiServices } from '../../../../appServices.js';
 import { Backlink } from '../../../../page/tile.js';
 import { ajax$ } from '../../../../page/ajax.js';
 import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
 import { Dict, HTTP, Ident, List, pipe } from 'cnc-tskit';
-import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { RequestArgs, Response } from '../common.js';
 import urlJoin from 'url-join';
+import { WordFormsBacklinkAPI } from './backlink.js';
 
 
 export interface LemmaItem {
@@ -35,22 +34,7 @@ export interface LemmaItem {
 }
 
 
-export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
-
-    private readonly apiURL;
-
-    private readonly apiServices:IApiServices;
-
-    private readonly srcInfoService:CorpusInfoAPI;
-
-    private readonly useDataStream:boolean;
-
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
-        this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
-        this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
-    }
+export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
 
     private prepareArgs(queryArgs:RequestArgs):string {
         return pipe(
@@ -111,7 +95,14 @@ export class MQueryWordFormsAPI implements ResourceApi<RequestArgs, Response> {
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        return null
+        if (this.backlinkConf) {
+            return {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'KonText',
+            };
+        }
+        return null;
     }
 
     supportsMultiWordQueries():boolean {

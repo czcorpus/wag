@@ -18,13 +18,12 @@
 import { Observable, map } from 'rxjs';
 
 import { CorpusDetails, ResourceApi } from '../../../../types.js';
-import { IApiServices } from '../../../../appServices.js';
 import { Backlink } from '../../../../page/tile.js';
 import { ajax$ } from '../../../../page/ajax.js';
 import { HTTP, Ident, List } from 'cnc-tskit';
-import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { RequestArgs, Response } from '../common.js';
 import urlJoin from 'url-join';
+import { WordFormsBacklinkAPI } from './backlink.js';
 
 
 export interface FrodoResponse {
@@ -50,22 +49,7 @@ export interface FrodoResponse {
 }
 
 
-export class FrodoWordFormsAPI implements ResourceApi<RequestArgs, Response> {
-
-    private readonly apiURL;
-
-    private readonly apiServices:IApiServices;
-
-    private readonly srcInfoService:CorpusInfoAPI;
-
-    private readonly useDataStream:boolean;
-
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
-        this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
-        this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
-    }
+export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
 
     call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/dictionary/', args.corpName, 'search', args.lemma);
@@ -112,6 +96,13 @@ export class FrodoWordFormsAPI implements ResourceApi<RequestArgs, Response> {
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        if (this.backlinkConf) {
+            return {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'KonText',
+            };
+        }
         return null;
     }
 
