@@ -17,7 +17,7 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { Ident, HTTP } from 'cnc-tskit';
+import { Ident, HTTP, pipe, Dict, List } from 'cnc-tskit';
 
 import { ajax$ } from '../../../page/ajax.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
@@ -27,6 +27,7 @@ import { QueryType } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { Backlink } from '../../../page/tile.js';
+import urlJoin from 'url-join';
 
 
 
@@ -35,6 +36,8 @@ export interface WordSimWord {
     score:number;
     interactionId?:string;
 }
+
+export type WordSimApiLegacyResponse = Array<WordSimWord>;
 
 export interface WordSimApiResponse {
     words:Array<WordSimWord>;
@@ -72,12 +75,16 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
 
     private readonly srcInfoApi:InternalResourceInfoApi;
 
+    private readonly useDataStream:boolean;
+
     constructor(
         apiURL:string,
+        useDataStream:boolean,
         srcInfoURL:string,
         apiServices:IApiServices
     ) {
         this.apiURL = apiURL;
+        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
         this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
     }
@@ -113,37 +120,86 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         return null;
     }
 
-    call(tileId:number, multicastRequest:boolean, queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {
-        const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.model +
-                '/' + queryArgs.word + (queryArgs.pos ? '/' + queryArgs.pos : '');
-        return ajax$<HTTPResponse>(
-            'GET',
-            url,
+    private prepareArgs(queryArgs:CNCWord2VecSimApiArgs):string {
+        return pipe(
             {
-                limit: queryArgs.limit,
-                minScore: queryArgs.minScore
+                ...queryArgs
             },
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
-
-        ).pipe(
-            catchError(
-                (err:AjaxError) => {
-                    if (err.status === HTTP.Status.NotFound) {
-                        return rxOf<HTTPResponse>([]);
-                    }
-                    throw err;
-                }
+            Dict.filter((v, k) => k === 'minScore' || k === 'limit'),
+            Dict.toEntries(),
+            List.map(
+                ([k, v]) => `${k}=${encodeURIComponent(v)}`
             ),
-            map(
-                (ans) => ({words: ans.map(v => ({
-                    word: v.word,
-                    score: v.score,
-                    interactionId: Ident.puid()
-                }))})
-            )
-        );
+            x => x.join('&')
+        )
+    }
+
+    call(tileId:number, multicastRequest:boolean, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
+        if (this.useDataStream) {
+            return this.apiServices.dataStreaming().registerTileRequest<WordSimApiLegacyResponse>(
+                multicastRequest,
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: args ?
+                        urlJoin(
+                            this.apiURL,
+                            'corpora',
+                            encodeURIComponent(args.corpus),
+                            'similarWords',
+                            encodeURIComponent(args.model),
+                            encodeURIComponent(args.word),
+                            encodeURIComponent(args.pos)
+                        ) + '?' + this.prepareArgs(args) :
+                        '',
+                    body: {},
+                    contentType: 'application/json',
+                }
+            ).pipe(
+                map(
+                    resp => resp ? {words: resp} : { words: [] }
+                )
+            );
+
+        } else {
+            const url = urlJoin(
+                this.apiURL,
+                'corpora',
+                encodeURIComponent(args.corpus),
+                'similarWords',
+                encodeURIComponent(args.model),
+                encodeURIComponent(args.word),
+                encodeURIComponent(args.pos)
+            ) + '?' + this.prepareArgs(args)
+            return ajax$<WordSimApiLegacyResponse>(
+                'GET',
+                url,
+                {
+                    limit: args.limit,
+                    minScore: args.minScore
+                },
+                {
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
+                    withCredentials: true
+                }
+
+            ).pipe(
+                catchError(
+                    (err:AjaxError) => {
+                        if (err.status === HTTP.Status.NotFound) {
+                            return rxOf<HTTPResponse>([]);
+                        }
+                        throw err;
+                    }
+                ),
+                map(
+                    (ans) => ({words: ans.map(v => ({
+                        word: v.word,
+                        score: v.score,
+                        interactionId: Ident.puid()
+                    }))})
+                )
+            );
+        }
     }
 }
