@@ -23,7 +23,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
@@ -78,8 +78,6 @@ export interface WordFormsModelArgs {
     api:IWordFormsApi;
     queryMatches:RecognizedQueries;
     queryDomain:string;
-    waitForTile:number|null;
-    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
 }
 
@@ -94,21 +92,18 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly queryDomain:string;
 
-    private readonly waitForTile:number|null;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly appServices:IAppServices;
 
-    constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
-            waitForTilesTimeoutSecs, appServices}:WordFormsModelArgs) {
+    private readonly backlink:BacklinkConf;
+
+    constructor({
+        dispatcher, initialState, tileId, api, queryMatches, queryDomain,
+        appServices, backlink}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(

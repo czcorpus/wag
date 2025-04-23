@@ -95,8 +95,6 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     api:MQueryTimeDistribStreamApi;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryDomain:string;
@@ -126,10 +124,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly tileId:number;
 
-    private readonly waitForTile:number;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly queryMatches:RecognizedQueries;
 
     private readonly queryDomain:string;
@@ -141,16 +135,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         initState,
         tileId,
         api,
-        waitForTile,
-        waitForTilesTimeoutSecs,
         appServices,
         queryMatches,
         queryDomain,
     }:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;

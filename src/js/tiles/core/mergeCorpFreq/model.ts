@@ -37,8 +37,6 @@ import { SystemMessageType } from '../../../types.js';
 export interface MergeCorpFreqModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTiles:Array<number>;
-    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     freqApi:MergeFreqsApi;
     initState:MergeCorpFreqModelState;

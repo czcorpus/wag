@@ -17,16 +17,15 @@
  */
 
 import { IFullActionControl, ViewUtils } from 'kombo';
-import { List, Dict, pipe } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 
-import { TileFactory, ITileProvider, TileConf } from './tile.js';
+import { TileFactory, ITileProvider, TileConf, TileFactoryArgs } from './tile.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { IAppServices } from '../appServices.js';
 import { Theme } from './theme.js';
 import { LayoutManager } from './layout.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import { EmptyTile } from '../tiles/core/empty.js';
-import { DataStreaming } from './streaming.js';
 
 declare var require:any;
 
@@ -34,16 +33,6 @@ interface DynamicTileModule {
     init:TileFactory<{}>;
 }
 
-const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
-    return pipe(
-        d,
-        List.filter(v => !!v),
-        List.flatMap(v => typeof v === 'string' ? [v] : v),
-        List.map<string, [string, boolean]>(v => [v, true]),
-        Dict.fromEntries(),
-        Dict.keys()
-    );
-};
 
 type TileFactoryMap = {[tileType:string]:TileFactory<{}>};
 
@@ -95,8 +84,12 @@ export const mkTileFactory = (
             } else if (typeof tileFactory.create !== 'function' || typeof tileFactory.sanityCheck !== 'function') {
                 throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`);
             }
-            const args = {
-                tileId: layoutManager.getTileNumber(confName),
+
+            const tileId = layoutManager.getTileNumber(confName);
+            const tileLayoutConf = layoutManager.getLayoutTileConf(queryType, tileId);
+
+            const args:TileFactoryArgs<{}> = {
+                tileId,
                 dispatcher,
                 ut: viewUtils,
                 queryMatches,
@@ -104,26 +97,8 @@ export const mkTileFactory = (
                 domain1: domain1,
                 domain2: domain2,
                 queryType,
-                waitForTiles: List.map(
-                    v => layoutManager.getTileNumber(v),
-                    importDependentTilesList(
-                        layoutManager.getTileWaitFor(queryType, layoutManager.getTileNumber(confName)),
-                        layoutManager.getTileReadSubqFrom(queryType, layoutManager.getTileNumber(confName))
-                    )
-                ),
-                waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
-                subqSourceTiles: List.map(
-                    v => {
-                        if (!conf.compatibleSubqProviders || !conf.compatibleSubqProviders.includes(v)) {
-                            console.warn(`Tile '${v}' not officially supported as subquery provider by '${confName}'`);
-                        }
-                        return layoutManager.getTileNumber(v);
-                    },
-                    importDependentTilesList(
-                        layoutManager.getTileReadSubqFrom(queryType, layoutManager.getTileNumber(confName))
-                    )
-                ),
-                widthFract: layoutManager.getTileWidthFract(queryType, layoutManager.getTileNumber(confName)),
+                usesDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),
+                widthFract: tileLayoutConf.width,
                 theme,
                 conf,
                 isBusy: true,

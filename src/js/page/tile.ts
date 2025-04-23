@@ -86,8 +86,6 @@ export interface TileConf {
      */
     isDisabled?:boolean;
 
-    waitForTimeoutSecs?:number;
-
     /**
      * A label used in the header of the tile
      */
@@ -267,18 +265,19 @@ export interface ITileProvider {
      */
     registerReloadModel(model:ITileReloader):boolean;
 
-    /**
-     * Return a list of tiles this tile depends on
-     */
-    getBlockingTiles():Array<number>;
-
     supportsMultiWordQueries():boolean;
 
     getIssueReportingUrl():string|null;
 
     getAltViewIcon():AltViewIconProps;
 
-
+    /**
+     * A tile may share a data source with
+     * other tile. In such case, a "dependent"
+     * tile must declare its dependence
+     * on the "primary" tile.
+     */
+    getReadDataFrom():number|null;
 }
 
 /**
@@ -307,19 +306,12 @@ export interface TileFactoryArgs<T> {
     queryType:QueryType;
 
     /**
-     * Tiles we need to wait for
+     * If specified, then the tile will not need
+     * its own data request but it will be served
+     * using data from a different tile
+     * (e.g. the conc tile from the coll tile)
      */
-    waitForTiles?:Array<number>;
-
-    waitForTilesTimeoutSecs:number;
-
-    /**
-     * Tiles we want data from (via sub-query).
-     * This may or may not intersect with waitForTiles -
-     * the application ensures that the tile waits for
-     * both 'waitForTiles' and 'subqSourceTiles'.
-     */
-    subqSourceTiles?:Array<number>;
+    usesDataFromTile?:number;
 
     widthFract:number;
 

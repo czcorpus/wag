@@ -15,66 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+
+import { map, Observable } from 'rxjs';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
-import { ajax$ } from '../../../page/ajax.js';
-import { CorpusDetails, ResourceApi } from '../../../types.js';
-import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
-import { IApiServices } from '../../../appServices.js';
-import { CollApiResponse } from './common.js';
+import { IApiServices } from '../../../../appServices.js';
+import { CorpusDetails, ResourceApi } from '../../../../types.js';
+import { CollApiResponse, DataHeading, DataRow } from '../common.js';
+import { BasicHTTPResponse, measureMap, MQueryCollArgs } from './basic.js';
+import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
+import { Backlink, BacklinkConf } from '../../../../page/tile.js';
+import { ajax$ } from '../../../../page/ajax.js';
+import { Line } from '../../../../api/vendor/mquery/concordance/common.js';
 
 
-export interface HTTPResponse {
+interface collItem {
+    word:string;
+    freq:number;
+    score:number;
+    examples:{
+        text:Array<Line>;
+        ref:string;
+    }
+}
+
+
+export interface httpApiResponse {
     concSize:number;
     corpusSize:number;
     subcSize?:number;
-    colls:Array<{
-        word:string;
-        score:number;
-        freq:number;
-    }>;
+    colls:Array<collItem>;
     measure:string;
     srchRange:[number, number];
     error?:string;
-    resultType:'coll';
+    resultType:'collWithExamples';
 }
 
-export interface MQueryCollArgs {
-    corpusId:string;
-    q:string;
-    subcorpus:string;
-    measure:
-        'absFreq'|
-        'logLikelihood'|
-        'logDice'|
-        'minSensitivity'|
-        'mutualInfo'|
-        'mutualInfo3'|
-        'mutualInfoLogF'|
-        'relFreq'|
-        'tScore';
-    srchLeft:number;
-    srchRight:number;
-    srchAttr:string;
-    minCollFreq:number;
-    maxItems:number;
-}
 
-const measureMap = {
-    'm': 'mutualInfo',
-    '3': 'mutualInfo3',
-    'l': 'logLikelihood',
-    's': 'minSensitivity',
-    'd': 'logDice',
-    'p': 'mutualInfoLogF',
-    'f': 'relFreq'
-};
-
-export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiResponse> {
+export class MQueryCollWithExamplesAPI implements ResourceApi<MQueryCollArgs, CollApiResponse> {
 
     private readonly apiURL:string;
 
@@ -119,15 +98,19 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         )
     }
 
-    private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<HTTPResponse> {
+    private mkRequest(
+        tileId:number,
+        multicastRequest:boolean,
+        args:MQueryCollArgs
+    ):Observable<httpApiResponse> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
+            return this.apiServices.dataStreaming().registerTileRequest<httpApiResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
                     url: args ?
-                        urlJoin(this.apiURL, 'collocations', args.corpusId) + `?${this.prepareArgs(args)}` :
+                        urlJoin(this.apiURL, 'collocations-with-examples', args.corpusId) + `?${this.prepareArgs(args)}` :
                         '',
                     body: {},
                     contentType: 'application/json',
@@ -142,15 +125,15 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                             colls: [],
                             measure: null,
                             srchRange:[0, 0],
-                            resultType:'coll'
+                            resultType:'collWithExamples'
                         }
                 )
             )
 
         } else {
-            return ajax$<HTTPResponse>(
+            return ajax$<httpApiResponse>(
                 'GET',
-                urlJoin(this.apiURL, '/collocations/', args.corpusId),
+                urlJoin(this.apiURL, '/collocations-with-examples/', args.corpusId),
                 args,
                 {
                     headers: this.apiServices.getApiHeaders(this.apiURL),
@@ -164,7 +147,6 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         return this.mkRequest(tileId, multicastRequest, args).pipe(
             map(
                 v => ({
-                    concId: undefined,
                     collHeadings: [
                         {
                             label: '-', // will be replaced by the tile
@@ -191,11 +173,10 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         );
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf) {
+    getBacklink(queryId:number):Backlink|null {
+        if (this.backlinkConf && this.backlinkConf.url) {
             return {
                 queryId,
-                subqueryId,
                 label: this.backlinkConf.label || 'KonText',
             };
         }

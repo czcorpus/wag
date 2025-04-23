@@ -26,18 +26,17 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
 import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
+import { MQueryCollAPI, MQueryCollArgs } from './api/basic.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { MQueryCollWithExamplesAPI } from './api/withExamples.js';
 
 
 export interface CollocModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
-    service:MQueryCollAPI;
+    service:MQueryCollAPI|MQueryCollWithExamplesAPI;
     initState:CollocModelState;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
     queryType:QueryType;
 }
 
@@ -47,7 +46,7 @@ type FreqRequestArgs = [number, QueryMatch];
 
 export class CollocModel extends StatelessModel<CollocModelState> {
 
-    private readonly collApi:MQueryCollAPI;
+    private readonly collApi:MQueryCollAPI|MQueryCollWithExamplesAPI;
 
     private readonly appServices:IAppServices;
 

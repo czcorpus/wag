@@ -81,15 +81,15 @@ export class EmptyTile implements ITileProvider {
         return false;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

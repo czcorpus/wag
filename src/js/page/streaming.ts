@@ -39,6 +39,17 @@ interface TileRequest {
     isEventSource?:boolean;
 }
 
+interface OtherTileRequest {
+    tileId:number;
+    otherTileId:number;
+    contentType:string;
+    base64EncodeResult?:boolean;
+}
+
+function isOtherTileRequest(t:TileRequest|OtherTileRequest):t is OtherTileRequest {
+    return typeof t['otherTileId'] === 'number';
+}
+
 interface EventItem<T = unknown> {
     tileId:number;
     data:T;
@@ -63,7 +74,7 @@ interface RequestTag {
  */
 export class DataStreaming {
 
-    private readonly requestSubject:Subject<TileRequest>;
+    private readonly requestSubject:Subject<TileRequest|OtherTileRequest>;
 
     private readonly responseStream:Observable<EventItem>;
 
@@ -79,7 +90,7 @@ export class DataStreaming {
     ) {
         this.rootUrl = rootUrl;
         this.reqTag = userSession ? this.mkQueryTag(userSession) : undefined;
-        this.requestSubject = new Subject<TileRequest>();
+        this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
         this.responseStream = this.requestSubject.pipe(
             scan(
                 (acc, value) => {
@@ -91,7 +102,7 @@ export class DataStreaming {
                 new Map(
                     pipe(
                         tileIds,
-                        List.map<number|string, [number, TileRequest|undefined]>(
+                        List.map<number|string, [number, TileRequest|OtherTileRequest|undefined]>(
                             v => tuple(typeof(v) === 'string' ? parseInt(v) : v, undefined),
                         )
                     )
@@ -238,13 +249,13 @@ export class DataStreaming {
     }
 
 
-    registerTileRequest<T>(multicastRequest:boolean, entry:TileRequest):Observable<T> {
+    registerTileRequest<T>(multicastRequest:boolean, entry:TileRequest|OtherTileRequest):Observable<T> {
         if (!this.rootUrl) {
             console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
             return EMPTY;
         }
         if (multicastRequest) {
-            this.requestSubject.next(this.prepareTileRequest(entry));
+            this.requestSubject.next(isOtherTileRequest(entry) ? entry : this.prepareTileRequest(entry));
             return this.responseStream.pipe(
                 filter((response:EventItem<T>) => response.tileId === entry.tileId),
                 map(response => {
@@ -255,8 +266,11 @@ export class DataStreaming {
                 })
             );
 
-        } else {
+        } else if (!isOtherTileRequest(entry)) {
             return this.registerExclusiveTileRequest(entry);
+
+        } else {
+            return new Observable(() => { throw new Error('invalid tile request type')})
         }
     }
 

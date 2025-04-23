@@ -16,16 +16,15 @@
  * limitations under the License.
  */
 
-import { EMPTY, map, Observable, of as rxOf, tap } from 'rxjs';
+import { EMPTY, map, Observable, of as rxOf } from 'rxjs';
 
 import { QueryMatch } from '../../../../query/index.js';
 import { ResourceApi, SourceDetails } from '../../../../types.js';
 import { IAppServices } from '../../../../appServices.js';
-import { ConcData, ConcResponse, ViewMode } from './common.js';
+import { ConcResponse, ViewMode } from './common.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
-import { mkLemmaMatchQuery } from '../common.js';
 
 
 export interface ConcApiArgs {

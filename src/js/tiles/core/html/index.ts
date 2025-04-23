@@ -152,15 +152,15 @@ export class HtmlTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

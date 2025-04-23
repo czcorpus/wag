@@ -57,17 +57,14 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
-
     constructor({
-        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
-        widthFract, queryMatches, domain1, conf, isBusy, mainPosAttr, useDataStream
+        dispatcher, tileId, ut, theme, appServices, widthFract, queryMatches, domain1, conf,
+        isBusy, mainPosAttr, useDataStream
     }:TileFactoryArgs<TimeDistTileConf>) {
 
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
@@ -100,8 +97,6 @@ export class TimeDistTile implements ITileProvider {
             },
             api: new MQueryTimeDistribStreamApi(conf.apiURL, useDataStream, appServices, conf.backlink),
             tileId,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
             queryDomain: domain1,
@@ -159,15 +154,15 @@ export class TimeDistTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

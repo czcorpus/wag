@@ -138,15 +138,15 @@ export class WordFreqTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }
