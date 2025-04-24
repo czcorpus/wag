@@ -23,17 +23,15 @@ import { assert } from 'chai';
 import { of as rxOf, Observable } from 'rxjs';
 
 import { HtmlModel } from '../../../../src/js/tiles/core/html/model.js';
-import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/api/vendor/wdglance/html.js';
-import { IGeneralHtmlAPI } from '../../../../src/js/api/abstract/html.js';
+import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/tiles/core/html/api.js';
 import { HtmlModelState } from '../../../../src/js/tiles/core/html/common.js';
 import { QueryMatch } from '../../../../src/js/query/index.js';
 import { Actions } from '../../../../src/js/models/actions.js';
-import { HTTP } from 'cnc-tskit';
 
 
 describe('HtmlTile model', function () {
 
-    let htmlApiStub:IGeneralHtmlAPI<HtmlApiArgs>;
+    let htmlApiStub:RawHtmlAPI;
 
     let testHtmlModel:TestModelWrapper<HtmlModel, HtmlModelState>;
 
@@ -41,9 +39,11 @@ describe('HtmlTile model', function () {
         htmlApiStub = sinon.createStubInstance(
             RawHtmlAPI,
             {
-                call: sinon.stub<[HtmlApiArgs], Observable<string>>().callsFake(
-                    (args) => {
-                        return args.variant === 'anything' ? rxOf('fake html response') : rxOf('invalid html response');
+                call: sinon.stub<[any, boolean, HtmlApiArgs], Observable<string>>().callsFake(
+                    (_, multicastRequest, args) => {
+                        return args.variant === 'anything' ?
+                            rxOf('fake html response') :
+                            rxOf('invalid html response');
                     }
                 ),
                 stateToArgs: sinon.stub<[{lemmaArg:string, args:{[key:string]:string}}, string], HtmlApiArgs>().callsFake(
@@ -71,10 +71,9 @@ describe('HtmlTile model', function () {
                     args: {},
                     lemmaArg: '',
                     sanitizeHTML: false,
-                    backlink: {url: '', label: '', method: HTTP.Method.GET, args: {}}
+                    backlink: {label: '', queryId: 0, subqueryId: 0}
                 },
                 queryMatches: [[{isCurrent: true, lemma: 'anything'} as QueryMatch]],
-                backlink: {url: '', label: '', method: HTTP.Method.GET}
             })
         );
     });
