@@ -46,9 +46,6 @@ export interface SingleConcLoadedPayload extends SubqueryPayload {
 export interface SpeechesModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTiles:Array<number>;
-    waitForTilesTimeoutSecs:number;
-    subqSourceTiles:Array<number>;
     appServices:IAppServices;
     api:SpeechesApi;
     initState:SpeechesModelState;

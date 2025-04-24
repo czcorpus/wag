@@ -90,49 +90,17 @@ export interface ColorsConf {
     default:string;
 }
 
-/**
- * ServiceTile is a tile which is a functional part of a layout but not
- * necessarily in a visual way.
- */
-export interface ServiceTile {
+
+export interface LayoutVisibleTile {
+
     tile:string;
 
-    /**
-    * In case a tile supports this (most of them does so) it can
-    * wait for a specific tile to finish its operation. Again,
-    * this is used mainly for 'concordance -> analysis' combinations.
-    */
-    waitFor?:string|Array<string>;
+    width:number;
 
-    /**
-     * In case we depend on multiple tiles and some of them are
-     * just kind of hidden dependencies (i.e. we want to wait them
-     * to complate but we don't need their subquery args) this can
-     * be used to distinguish the two dependency types.
-     *
-     * Please note that this value is not used directly by WdG but
-     * it is rather provided for tile model to provide more information
-     * about inter-tile dependencies. I.e. it is perfectly doable to
-     * define a subquery producing tile as a dependency via 'waitFor'.
-     * But in more complex situations when we need some tiles to just
-     * wait for and some to also provide subqueries the model may not
-     * have enough information to distinguish between the two.
-     */
-    readSubqFrom?:string|Array<string>;
+    readDataFrom?:string;
+
+    ref?:string;
 }
-
-export function isServiceTile(v:any):v is ServiceTile {
-    return typeof v['tile'] === 'string' &&
-        (v['waitFor'] === undefined ||
-            typeof v['waitFor'] === 'string' ||
-            Array.isArray(v['waitFor'])) &&
-        (v['readSubqFrom'] === undefined ||
-            typeof v['readSubqFrom'] === 'string' ||
-            Array.isArray(v['readSubqFrom']));
-}
-
-
-export type LayoutVisibleTile = ServiceTile & {width:number, ref?:string};
 
 
 export interface GroupLayoutConfig {
@@ -142,7 +110,7 @@ export interface GroupLayoutConfig {
     tiles:Array<LayoutVisibleTile>;
 }
 
-export type GroupItemConfig = GroupLayoutConfig|ServiceTile|string;
+export type GroupItemConfig = GroupLayoutConfig|string;
 
 export interface LayoutConfigCommon {
     mainPosAttr:MainPosAttrValues;

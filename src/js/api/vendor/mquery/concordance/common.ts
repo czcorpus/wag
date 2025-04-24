@@ -48,31 +48,37 @@ export interface Line {
 }
 
 export function getLineLeftCtx(line:Line):Array<Token> {
-    const srchIdx = List.findIndex(x => x.matchType === 'kwic', line.text);
+    const srchFor = List.some(x => x.matchType === 'kwic', line.text) ?
+        'kwic' : 'coll';
+    const srchIdx = List.findIndex(x => x.matchType === srchFor, line.text);
     return List.slice(0, srchIdx, line.text);
 }
 
 
 export function getKwicCtx(line:Line):Array<Token> {
-    const srchIdx1 = List.findIndex(x => x.matchType === 'kwic', line.text);
+    const srchFor = List.some(x => x.matchType === 'kwic', line.text) ?
+        'kwic' : 'coll';
+    const srchIdx1 = List.findIndex(x => x.matchType === srchFor, line.text);
     const srchIdx2 = pipe(
         line.text,
         List.reversed(),
-        List.findIndex(x => x.matchType === 'kwic'),
+        List.findIndex(x => x.matchType === srchFor),
         x => x > -1 ? List.size(line.text) - 1 - x : -1
     );
     if (srchIdx1 === -1 || srchIdx2 === -1) {
-        throw new Error('cannot find kwic ctx');
+        throw new Error('cannot find kwic/coll ctx');
     }
     return List.slice(srchIdx1, srchIdx2 + 1, line.text);
 }
 
 
 export function getLineRightCtx(line:Line):Array<Token> {
+    const srchFor = List.some(x => x.matchType === 'kwic', line.text) ?
+        'kwic' : 'coll';
     const srchIdx = pipe(
         line.text,
         List.reversed(),
-        List.findIndex(x => x.matchType === 'kwic'),
+        List.findIndex(x => x.matchType === srchFor),
         x => x > -1 ? List.size(line.text) - x : -1
     );
     return List.slice(srchIdx, -1, line.text);

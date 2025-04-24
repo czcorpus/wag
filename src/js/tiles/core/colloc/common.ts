@@ -19,6 +19,7 @@ import { Action } from 'kombo';
 import { SubqueryPayload, QueryMatch } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
+import { Line } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 export enum CollocMetric {
@@ -53,7 +54,7 @@ export class Actions {
 
     static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
         return a.name === GlobalActions.TileDataLoaded.name &&
-            a.payload['data'] && a.payload['heading'] && a.payload['concId'] && a.payload['queryId'];
+            a.payload['data'] && a.payload['heading'] && a.payload['queryId'];
     }
 
     static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
@@ -77,10 +78,13 @@ export interface DataRow {
     nfilter:[string, string];
     pfilter:[string, string];
     interactionId:string;
+    examples?:{
+        text:Array<Line>;
+        ref:string;
+    }
 }
 
 export interface CollApiResponse {
-    concId:string;
     collHeadings:DataHeading;
     data:Array<DataRow>;
 }
@@ -158,4 +162,24 @@ export interface CollocModelState {
     queryMatches:Array<QueryMatch>;
 
     posQueryGenerator:[string, string];
+}
+
+
+interface collItem {
+    word:string;
+    freq:number;
+    score:number;
+    examples:Array<Line>;
+}
+
+
+export interface collWithExamplesResponse {
+    concSize:number;
+    corpusSize:number;
+    subcSize?:number;
+    colls:Array<collItem>;
+    measure:string;
+    srchRange:[number, number];
+    error?:string;
+    resultType:'collWithExamples';
 }

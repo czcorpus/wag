@@ -20,7 +20,10 @@ import * as fs from 'fs';
 import axios from 'axios';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import * as path from 'path';
-import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigCommon, isServiceTile } from './index.js';
+import {
+    DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig,
+    LayoutConfigCommon
+} from './index.js';
 import { TileConf } from '../page/tile.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
@@ -79,9 +82,6 @@ export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDb
             ([domain, group]) => {
                 if (typeof group === 'string') {
                     return [tuple(domain, group)];
-
-                } else if (isServiceTile(group)) {
-                    return [tuple(domain, group.tile)];
                 }
                 return List.map(v => [domain, v.tile], group.tiles);
             }
@@ -142,7 +142,7 @@ export function useCommonLayouts(layouts:DomainLayoutsConfig):DomainLayoutsConfi
 
                     layout.groups = List.map(
                         group => {
-                            if (typeof group !== 'string' && !isServiceTile(group)) {
+                            if (typeof group !== 'string') {
                                 group.tiles = List.reduce((tiles, tile) => {
                                     // replace referenced tile
                                     if (Dict.hasKey(tile.ref, layout.replace)) {

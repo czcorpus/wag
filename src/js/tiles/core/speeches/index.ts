@@ -57,28 +57,21 @@ export class SpeechesTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly blockingTiles:Array<number>;
-
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({
-        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
-        theme, appServices, widthFract, conf, isBusy, queryMatches
+        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<SpeechesTileConf>) {
 
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        this.blockingTiles = waitForTiles;
         const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
         this.model = new SpeechesModel({
             dispatcher,
             tileId,
             appServices,
             api: new SpeechesApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
-            waitForTiles,
-            waitForTilesTimeoutSecs,
-            subqSourceTiles,
             audioLinkGenerator: conf.audioApiURL ?
                 new AudioLinkGenerator(conf.audioApiURL) :
                 null,
@@ -167,15 +160,15 @@ export class SpeechesTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

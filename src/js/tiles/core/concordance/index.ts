@@ -41,15 +41,6 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
 }
 
-function determineViewMode(conf:ConcordanceTileConf, api:MQueryConcApi):ViewMode {
-    if (conf.parallelLangMapping) {
-        if (api.getSupportedViewModes().indexOf(ViewMode.SENT) === -1) {
-            throw new Error(`The ${api} does not support aligned concordances`);
-        }
-        return ViewMode.SENT;
-    }
-    return api.getSupportedViewModes()[0];
-}
 
 /**
  *
@@ -70,32 +61,28 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;IConcordanceApi
-
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
-        widthFract, waitForTiles, waitForTilesTimeoutSecs, conf, domain2,
-        isBusy, useDataStream}:TileFactoryArgs<ConcordanceTileConf>
+        widthFract, conf, domain2, isBusy, useDataStream, usesDataFromTile
+    }:TileFactoryArgs<ConcordanceTileConf>
     ) {
+        console.log("CONCORDANCE usesDataFromTile: ", usesDataFromTile)
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
-        this.blockingTiles = waitForTiles;
-        const api = new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
+            readDataFromTile: usesDataFromTile,
             appServices,
-            service: api,
+            service: new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
             queryType,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs,
             initState: {
-                tileId: tileId,
+                tileId,
                 visibleQueryIdx: 0,
-                isBusy: isBusy,
+                isBusy,
                 error: null,
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
@@ -110,12 +97,12 @@ export class ConcordanceTile implements ITileProvider {
                 initialKwicWindow: this.calcContext(widthFract),
                 kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: determineViewMode(conf, api),
+                viewMode: ViewMode.KWIC,
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlinks: [],
                 posQueryGenerator: conf.posQueryGenerator,
-                disableViewModes: api.getSupportedViewModes().length < 2,
+                disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,
                 queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches)
             }
@@ -177,10 +164,6 @@ export class ConcordanceTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
@@ -188,16 +171,14 @@ export class ConcordanceTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
 }
 
 export const init:TileFactory<ConcordanceTileConf> = {
 
-    sanityCheck: (args) => {
-        const ans = [];
-        if (args.waitForTiles.length > 1) {
-            ans.push(new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified'));
-        }
-        return ans;
-    },
+    sanityCheck: (args) => [],
     create: (args) => new ConcordanceTile(args)
 }

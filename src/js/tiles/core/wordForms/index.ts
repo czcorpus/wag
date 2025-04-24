@@ -54,21 +54,15 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    private readonly waitForTiles:Array<number>;
-
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy,
-        waitForTiles, waitForTilesTimeoutSecs, theme, mainPosAttr, useDataStream}:TileFactoryArgs<WordFormsTileConf>
+        theme, mainPosAttr, useDataStream}:TileFactoryArgs<WordFormsTileConf>
     ) {
 
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.waitForTiles = waitForTiles;
         this.label = this.appServices.importExternalMessage(conf.label || 'wordforms__main_label');
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
-            {};
         this.model = new WordFormsModel({
             dispatcher,
             initialState: {
@@ -87,8 +81,6 @@ export class WordFormsTile implements ITileProvider {
             api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
             queryDomain: domain1,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs,
             appServices,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
@@ -155,18 +147,15 @@ export class WordFormsTile implements ITileProvider {
         return true;
     }
 
-    /**
-     * Return a list of tiles this tile depends on
-     */
-    getBlockingTiles():Array<number> {
-        return this.waitForTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

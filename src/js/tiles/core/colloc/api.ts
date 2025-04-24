@@ -28,7 +28,7 @@ import { IApiServices } from '../../../appServices.js';
 import { CollApiResponse } from './common.js';
 
 
-export interface HTTPResponse {
+export interface BasicHTTPResponse {
     concSize:number;
     corpusSize:number;
     subcSize?:number;
@@ -64,7 +64,7 @@ export interface MQueryCollArgs {
     maxItems:number;
 }
 
-const measureMap = {
+export const measureMap = {
     'm': 'mutualInfo',
     '3': 'mutualInfo3',
     'l': 'logLikelihood',
@@ -86,12 +86,15 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    private readonly useWithExamplesVariant:boolean;
+
+    constructor(apiURL:string, useWithExamplesVariant:boolean, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
+        this.useWithExamplesVariant = useWithExamplesVariant;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -119,16 +122,20 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         )
     }
 
-    private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<HTTPResponse> {
+    private mkUrl(args:MQueryCollArgs):string {
+        return this.useWithExamplesVariant ?
+            urlJoin(this.apiURL, 'collocations-with-examples', args.corpusId) + `?${this.prepareArgs(args)}` :
+            urlJoin(this.apiURL, 'collocations', args.corpusId) + `?${this.prepareArgs(args)}`;
+    }
+
+    private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<BasicHTTPResponse> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
+            return this.apiServices.dataStreaming().registerTileRequest<BasicHTTPResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: args ?
-                        urlJoin(this.apiURL, 'collocations', args.corpusId) + `?${this.prepareArgs(args)}` :
-                        '',
+                    url: args ? this.mkUrl(args) : '',
                     body: {},
                     contentType: 'application/json',
                 }
@@ -148,7 +155,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
             )
 
         } else {
-            return ajax$<HTTPResponse>(
+            return ajax$<BasicHTTPResponse>(
                 'GET',
                 urlJoin(this.apiURL, '/collocations/', args.corpusId),
                 args,
@@ -191,11 +198,10 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         );
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf) {
+    getBacklink(queryId:number):Backlink|null {
+        if (this.backlinkConf && this.backlinkConf.url) {
             return {
                 queryId,
-                subqueryId,
                 label: this.backlinkConf.label || 'KonText',
             };
         }

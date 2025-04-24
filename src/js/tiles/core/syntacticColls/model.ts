@@ -40,8 +40,7 @@ export interface SyntacticCollsModelArgs {
     tileId:number;
     appServices:IAppServices;
     initState:SyntacticCollsModelState;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
+    backlink:BacklinkConf;
     queryType:QueryType;
     api:ScollexSyntacticCollsAPI;
     eApi:ScollexSyntacticCollsExamplesApi;
@@ -71,10 +70,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly tileId:number;
 
-    private readonly waitForTile:number;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly queryType:QueryType;
 
     private readonly api:ScollexSyntacticCollsAPI;
@@ -86,8 +81,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
     constructor({
         dispatcher,
         tileId,
-        waitForTile,
-        waitForTilesTimeoutSecs,
         appServices,
         initState,
         queryType,
@@ -97,8 +90,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
     }:SyntacticCollsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryType = queryType;
         this.api = api;

@@ -48,7 +48,6 @@ export interface GeoAreasTileConf extends TileConf {
 
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
-     * In case waitForTile is not filled in then this must be present.
      */
     posQueryGenerator?:[string, string];
 }
@@ -70,10 +69,8 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly blockingTiles:Array<number>;
-
     constructor({
-        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, waitForTiles, queryMatches
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<GeoAreasTileConf>) {
 
         this.tileId = tileId;
@@ -81,7 +78,6 @@ export class GeoAreasTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
         this.model = new GeoAreasModel({
             dispatcher,
             tileId,
@@ -165,15 +161,15 @@ export class GeoAreasTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

@@ -31,6 +31,7 @@ export class Actions {
     }
 
     static RetryTileLoad:Action<{
+        tileId:number;
     }> = {
         name: 'MAIN_RETRY_TILE_LOAD'
     }

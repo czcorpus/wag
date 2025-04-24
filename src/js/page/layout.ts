@@ -17,20 +17,19 @@
  */
 import { IAppServices } from '../appServices.js';
 import { QueryType, QueryTypeMenuItem } from '../query/index.js';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, ServiceTile, isServiceTile, MainPosAttrValues } from '../conf/index.js';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, MainPosAttrValues } from '../conf/index.js';
 import { TileIdentMap } from '../types.js';
 import { List, Dict, pipe } from 'cnc-tskit';
 
 
-function itemIsGroupConf(v:string|ServiceTile|GroupLayoutConfig):v is GroupLayoutConfig {
+function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
     return typeof v === 'object' && v['tiles'] !== undefined;
 }
 
 export interface GroupedTileProps {
     width:number;
     tileId:number;
-    waitFor:Array<string>|string;
-    readSubqFrom:string|Array<string>;
+    readDataFrom:string|undefined;
 }
 
 export interface TileGroup {
@@ -44,11 +43,6 @@ interface LayoutCore {
     mainPosAttr:MainPosAttrValues;
     label:string;
     groups:Array<TileGroup>;
-    services:Array<{
-        tileId:number;
-        waitFor:Array<string>|string;
-        readSubqFrom:string|Array<string>;
-    }>;
 }
 
 
@@ -83,13 +77,14 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                             const descUrl = group.groupDescURL || {};
                             return {
                                 groupLabel: appServices.importExternalMessage(group.groupLabel),
-                                groupDescURL: appServices.externalMessageIsDefined(descUrl) ? appServices.importExternalMessage(descUrl) : null,
+                                groupDescURL: appServices.externalMessageIsDefined(descUrl) ?
+                                    appServices.importExternalMessage(descUrl) :
+                                    null,
                                 tiles: List.map(
                                     v => ({
                                         tileId: tileMap[v.tile],
                                         width: v.width,
-                                        waitFor: v.waitFor,
-                                        readSubqFrom: v.readSubqFrom
+                                        readDataFrom: v.readDataFrom
                                     }),
                                     group.tiles
                                 )
@@ -98,34 +93,12 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                         return null;
                     }),
                     List.filter(v =>  v !== null)
-            ),
-            services: pipe(
-                gc.groups || [],
-                List.map(v => {
-                    if (isServiceTile(v)) {
-                        return {
-                            tileId: tileMap[v.tile],
-                            waitFor: v.waitFor,
-                            readSubqFrom: v.readSubqFrom
-                        };
-
-                    } else if (typeof v === 'string') {
-                        return {
-                            tileId: tileMap[v],
-                            waitFor: [],
-                            readSubqFrom: []
-                        };
-                    }
-                    return null;
-                }),
-                List.filter(v => v !== null)
             )
         } :
         {
             mainPosAttr: 'pos',
             label: '',
-            groups: [],
-            services: []
+            groups: []
         };
 }
 
@@ -229,37 +202,13 @@ export class LayoutManager {
         ]);
     }
 
-    getTileWidthFract(queryType:QueryType, tileId:number):number|null {
+    getLayoutTileConf(queryType:QueryType, tileId:number):GroupedTileProps|null {
         const srch = pipe(
-                this.getLayout(queryType).groups,
-                List.flatMap(v => v.tiles),
-                List.find(v => v.tileId === tileId)
+            this.getLayout(queryType).groups,
+            List.flatMap(v => v.tiles),
+            List.find(v => v.tileId === tileId)
         );
-        return srch ? srch.width : null;
-    }
-
-    getTileWaitFor(queryType:QueryType, tileId:number):Array<string>|string|null {
-        const srch = pipe(
-                this.getLayout(queryType).groups,
-                List.flatMap(v => v.tiles),
-                List.concat(this.getLayout(queryType).services),
-                List.find(v => v.tileId === tileId)
-        );
-        return srch && srch.waitFor ? srch.waitFor : null;
-    }
-
-    getTileReadSubqFrom(queryType:QueryType, tileId:number):Array<string>|string|null {
-        const srch = pipe(
-                this.getLayout(queryType).groups,
-                List.flatMap(v => v.tiles),
-                List.concat(this.getLayout(queryType).services),
-                List.find(v => v.tileId === tileId)
-        );
-        return srch && srch.readSubqFrom ? srch.readSubqFrom : null;
-    }
-
-    private isServiceOf(queryType:QueryType, tileId:number):boolean {
-        return this.getLayout(queryType).services.find(v => v.tileId === tileId) !== undefined;
+        return srch ? srch : null;
     }
 
     /**
@@ -268,12 +217,11 @@ export class LayoutManager {
      */
     isInCurrentLayout(queryType:QueryType, tileId:number|string):boolean {
         const tTileId = typeof tileId === 'string' ? this.getTileNumber(tileId) : tileId;
-        return this.isServiceOf(queryType, tTileId) ||
-            pipe(
-                this.getLayout(queryType).groups,
-                List.flatMap(v => v.tiles),
-                List.some(v => v.tileId === tTileId)
-            );
+        return pipe(
+            this.getLayout(queryType).groups,
+            List.flatMap(v => v.tiles),
+            List.some(v => v.tileId === tTileId)
+        );
     }
 
     getQueryTypesMenuItems():Array<QueryTypeMenuItem> {

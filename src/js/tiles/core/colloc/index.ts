@@ -23,16 +23,17 @@ import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { CollocMetric, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { MQueryCollAPI } from '../../../tiles/core/colloc/api.js';
+import {
+    TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
+} from '../../../page/tile.js';
+import { MQueryCollAPI } from './api.js';
 
 
 
 export interface CollocationsTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
+    apiType:'default'|'with-examples';
     corpname:string;
     minFreq:number;
     minLocalFreq:number;
@@ -41,7 +42,6 @@ export interface CollocationsTileConf extends TileConf {
 
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
-     * In case waitForTile is not filled in then this must be present.
      */
     posQueryGenerator?:[string, string];
 }
@@ -63,15 +63,12 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
-
     private view:TileComponent;
 
     private readonly api:MQueryCollAPI;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, waitForTiles,
-        waitForTilesTimeoutSecs, widthFract, conf, isBusy,
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
         queryMatches, queryType, useDataStream
     }:TileFactoryArgs<CollocationsTileConf>) {
 
@@ -79,27 +76,16 @@ export class CollocationsTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
-        const apiOptions = (() => {
-            switch (conf.apiType) {
-            case CoreApiGroup.KONTEXT_API:
-                return {
-                    authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")
-                }
-            case CoreApiGroup.MQUERY:
-                return {
-                    useDummyConcApi: true
-                }
-            default:
-                return {};
-            }
-        })();
-        this.api = new MQueryCollAPI(conf.apiURL, useDataStream, appServices, conf.backlink);
+        this.api = new MQueryCollAPI(
+            conf.apiURL,
+            conf.apiType === 'with-examples',
+            useDataStream,
+            appServices,
+            conf.backlink
+        );
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
             queryType: queryType,
@@ -185,10 +171,6 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return this.api.supportsMultiWordQueries();
     }
@@ -196,19 +178,14 @@ export class CollocationsTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
 }
 
 export const init:TileFactory<CollocationsTileConf> = {
 
-    sanityCheck: (args) => {
-        const ans:Array<Error> = [];
-        if (args.waitForTiles.length > 1) {
-            ans.push(new Error(`The collocation can be configured to wait for 0 or 1 other tiles`));
-        }
-        if (args.waitForTiles.length === 0 && !args.conf.posQueryGenerator) {
-            ans.push(new Error(`The collocation tile requires either waitFor or posQueryGenerator configured`));
-        }
-        return ans;
-    },
+    sanityCheck: (args) => [],
     create: (args) => new CollocationsTile(args)
 };

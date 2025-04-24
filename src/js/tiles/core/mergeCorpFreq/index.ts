@@ -101,26 +101,17 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly blockingTiles:Array<number>;
-
     constructor({
-        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut,
-        theme, appServices, widthFract, conf, isBusy, queryMatches
+        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<MergeCorpFreqTileConf>) {
 
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/MergeCorpFreqTile/authenticate")} :
-            {};
         this.model = new MergeCorpFreqModel({
             dispatcher: this.dispatcher,
             tileId,
-            waitForTiles,
-            waitForTilesTimeoutSecs,
             appServices,
             freqApi: new MergeFreqsApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
             initState: {
@@ -208,15 +199,15 @@ export class MergeCorpFreqTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }
@@ -226,9 +217,6 @@ export const init:TileFactory<MergeCorpFreqTileConf>  = {
     sanityCheck: (args) => [],
 
     create: (args) => {
-        if (!List.empty(args.waitForTiles)) {
-            throw new Error('MergeCorpFreqModel does not support waitForTiles argument');
-        }
         return new MergeCorpFreqTile(args);
     }
 };

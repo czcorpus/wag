@@ -20,17 +20,22 @@
 
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
-import { mergeMap, tap, reduce } from 'rxjs/operators';
-import { List, pipe } from 'cnc-tskit';
+import { mergeMap, tap, reduce, map } from 'rxjs/operators';
+import { List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch } from '../../../query/index.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import {
+    RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch
+} from '../../../query/index.js';
+import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { AttrViewMode, ConcData, createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
+import {
+    AttrViewMode, ConcData, ConcResponse, createInitialLinesData, ViewMode
+} from '../../../api/vendor/mquery/concordance/common.js';
 import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { collWithExamplesResponse } from '../colloc/common.js';
 
 
 export interface ConcordanceTileState {
@@ -65,8 +70,7 @@ export interface ConcordanceTileState {
 export interface ConcordanceTileModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
+    readDataFromTile:number|null;
     appServices:IAppServices;
     service:MQueryConcApi;
     queryMatches:RecognizedQueries;
@@ -87,16 +91,19 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly queryType:QueryType;
 
+    private readonly readDataFromTile:number|null;
+
     public static readonly CTX_SIZES = [8, 10, 18, 28];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState,
-            queryType}:ConcordanceTileModelArgs) {
+            queryType, readDataFromTile}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.concApi = service;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
         this.queryType = queryType;
+        this.readDataFromTile = readDataFromTile;
 
         this.addActionHandler(
             GlobalActions.SetScreenMode,
@@ -283,16 +290,23 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             GlobalActions.FollowBacklink,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                const url = this.concApi.requestBacklink(this.stateToArgs(
-                    state,
-                    findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]),
-                    action.payload.backlink.queryId,
-                    null
-                ));
-                window.open(url.toString(),'_blank');
+                if (this.concApi instanceof MQueryConcApi) {
+                    const url = this.concApi.requestBacklink(this.stateToArgs(
+                        state,
+                        findCurrQueryMatch(this.queryMatches[0]),
+                        0, // TODO
+                        null
+                    ));
+                    window.open(url.toString(),'_blank');
+
+                } else {
+                    alert('TODO - not implemented yet');
+                    // TODO
+                }
             }
         );
     }
+
 
     private stateToArgs(
         state:ConcordanceTileState,
@@ -311,13 +325,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         };
     }
 
-    private reloadData(
+    private loadViaDefaultApi(
         state:ConcordanceTileState,
         multicastRequest:boolean,
-        otherLangCql:string,
-        dispatch:SEDispatcher
-    ):void {
-        new Observable<Array<ConcApiArgs>>((observer) => {
+        otherLangCql:string
+    ):Observable<[ConcResponse, number]>  {
+        return new Observable<Array<ConcApiArgs>>((observer) => {
             try {
                 observer.next(pipe(
                     this.queryMatches,
@@ -338,7 +351,53 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(args => this.concApi.call(this.tileId, multicastRequest, args)),
+            mergeMap(args => this.concApi.call(this.tileId, multicastRequest, args))
+        )
+    }
+
+    private reloadData(
+        state:ConcordanceTileState,
+        multicastRequest:boolean,
+        otherLangCql:string,
+        dispatch:SEDispatcher
+    ):void {
+        (
+            typeof this.readDataFromTile === 'number' ?
+                this.appServices.dataStreaming().registerTileRequest<collWithExamplesResponse>(
+                    multicastRequest,
+                    {
+                        tileId: this.tileId,
+                        otherTileId: this.readDataFromTile,
+                        contentType: 'application/json',
+                    }
+                ).pipe(
+                    tap(
+                        resp => {
+                            console.log('resp>>>>> ', resp)
+                        }
+                    ),
+                    map<collWithExamplesResponse, [ConcResponse, number]> (
+                        resp => tuple(
+                            {
+                                concSize: 0,
+                                ipm: 0,
+                                lines: pipe(
+                                    resp.colls,
+                                    List.flatMap(x => x.examples),
+                                    List.map(ex => ({
+                                        ...ex,
+                                        metadata: []
+                                    }))
+                                ),
+                                resultType:'concordance'
+                            },
+                            0
+                        ) // TODO upgrade once we support cmp
+                    )
+                ) :
+                this.loadViaDefaultApi(state, multicastRequest, otherLangCql)
+
+        ).pipe(
             tap(
                 ([resp, queryIdx]) => {
                     dispatch<typeof Actions.PartialTileDataLoaded>({

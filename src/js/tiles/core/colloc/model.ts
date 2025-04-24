@@ -26,7 +26,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
 import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import { MQueryCollAPI, MQueryCollArgs } from '../../../tiles/core/colloc/api.js';
+import { MQueryCollAPI, MQueryCollArgs } from './api.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 
@@ -36,8 +36,6 @@ export interface CollocModelArgs {
     appServices:IAppServices;
     service:MQueryCollAPI;
     initState:CollocModelState;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
     queryType:QueryType;
 }
 

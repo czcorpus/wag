@@ -49,25 +49,19 @@ export class SyntacticCollsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
-
     private view:TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, waitForTiles,
-        waitForTilesTimeoutSecs, widthFract, conf, isBusy,
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
         queryMatches, queryType
     }:TileFactoryArgs<SyntacticCollsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             queryType: queryType,
             maxItems: conf.maxItems,
@@ -150,15 +144,15 @@ export class SyntacticCollsTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return false;
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }

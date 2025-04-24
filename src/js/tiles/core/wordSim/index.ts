@@ -54,8 +54,6 @@ export class WordSimTile implements ITileProvider {
 
     private readonly srcInfoView:React.FC;
 
-    private readonly blockingTiles:Array<number>;
-
     private readonly label:string;
 
     private readonly widthFract:number;
@@ -63,13 +61,12 @@ export class WordSimTile implements ITileProvider {
     private readonly api:CNCWord2VecSimApi;
 
     constructor({
-        tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
+        tileId, dispatcher, appServices, ut, widthFract, conf, theme,
         isBusy, useDataStream, queryMatches, domain1}:TileFactoryArgs<WordSimTileConf>
     ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
-        this.blockingTiles = waitForTiles;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
         this.api = new CNCWord2VecSimApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices);
@@ -149,15 +146,15 @@ export class WordSimTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {
+        return null;
+    }
+
+    getReadDataFrom():number|null {
         return null;
     }
 }
