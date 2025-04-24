@@ -24,16 +24,14 @@ import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider,
     ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
-import { ApiType, ConcordanceTileModel } from './model.js';
+import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
-import { MQueryCollWithExamplesAPI } from '../colloc/api/withExamples.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
     apiURL:string;
-    apiType:ApiType;
     pageSize:number;
     posAttrs:Array<string>;
     sentenceStruct:string;
@@ -43,15 +41,6 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
 }
 
-function determineViewMode(conf:ConcordanceTileConf, api:MQueryConcApi|MQueryCollWithExamplesAPI):ViewMode {
-    if (conf.parallelLangMapping) {
-        if (api instanceof MQueryCollWithExamplesAPI) {
-            throw new Error(`The ${api} does not support aligned concordances`);
-        }
-        return ViewMode.SENT;
-    }
-    return ViewMode.KWIC;
-}
 
 /**
  *
@@ -74,27 +63,26 @@ export class ConcordanceTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
-        widthFract, conf, domain2, isBusy, useDataStream, usesDataFromTile}:TileFactoryArgs<ConcordanceTileConf>
+        widthFract, conf, domain2, isBusy, useDataStream, usesDataFromTile
+    }:TileFactoryArgs<ConcordanceTileConf>
     ) {
         console.log("CONCORDANCE usesDataFromTile: ", usesDataFromTile)
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
-        const api = conf.apiType === 'default' ?
-            new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink) :
-            new MQueryCollWithExamplesAPI(conf.apiURL, useDataStream, appServices, conf.backlink);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
+            readDataFromTile: usesDataFromTile,
             appServices,
-            service: api,
+            service: new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
             queryType,
             initState: {
-                tileId: tileId,
+                tileId,
                 visibleQueryIdx: 0,
-                isBusy: isBusy,
+                isBusy,
                 error: null,
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
@@ -109,7 +97,7 @@ export class ConcordanceTile implements ITileProvider {
                 initialKwicWindow: this.calcContext(widthFract),
                 kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: determineViewMode(conf, api),
+                viewMode: ViewMode.KWIC,
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlinks: [],

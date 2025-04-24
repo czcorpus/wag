@@ -27,15 +27,13 @@ import {
     TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
 } from '../../../page/tile.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { MQueryCollAPI } from './api/basic.js';
-import { MQueryCollWithExamplesAPI } from './api/withExamples.js';
+import { MQueryCollAPI } from './api.js';
 
 
 
 export interface CollocationsTileConf extends TileConf {
     apiURL:string;
-    apiType:'basic'|'with-examples';
+    apiType:'default'|'with-examples';
     corpname:string;
     minFreq:number;
     minLocalFreq:number;
@@ -67,7 +65,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    private readonly api:MQueryCollAPI|MQueryCollWithExamplesAPI;
+    private readonly api:MQueryCollAPI;
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
@@ -78,9 +76,13 @@ export class CollocationsTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.api = conf.apiType === 'basic' ?
-            new MQueryCollAPI(conf.apiURL, useDataStream, appServices, conf.backlink) :
-            new MQueryCollWithExamplesAPI(conf.apiURL, useDataStream, appServices, conf.backlink);
+        this.api = new MQueryCollAPI(
+            conf.apiURL,
+            conf.apiType === 'with-examples',
+            useDataStream,
+            appServices,
+            conf.backlink
+        );
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,

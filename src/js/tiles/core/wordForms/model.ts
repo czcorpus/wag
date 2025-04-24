@@ -98,7 +98,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     constructor({
         dispatcher, initialState, tileId, api, queryMatches, queryDomain,
-        appServices, backlink}:WordFormsModelArgs) {
+        appServices}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;

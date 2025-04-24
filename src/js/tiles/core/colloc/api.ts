@@ -15,45 +15,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
-import { IApiServices } from '../../../../appServices.js';
-import { CorpusDetails, ResourceApi } from '../../../../types.js';
-import { CollApiResponse, DataHeading, DataRow } from '../common.js';
-import { BasicHTTPResponse, measureMap, MQueryCollArgs } from './basic.js';
-import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
-import { Backlink, BacklinkConf } from '../../../../page/tile.js';
-import { ajax$ } from '../../../../page/ajax.js';
-import { Line } from '../../../../api/vendor/mquery/concordance/common.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { CorpusDetails, ResourceApi } from '../../../types.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { IApiServices } from '../../../appServices.js';
+import { CollApiResponse } from './common.js';
 
 
-interface collItem {
-    word:string;
-    freq:number;
-    score:number;
-    examples:{
-        text:Array<Line>;
-        ref:string;
-    }
-}
-
-
-export interface httpApiResponse {
+export interface BasicHTTPResponse {
     concSize:number;
     corpusSize:number;
     subcSize?:number;
-    colls:Array<collItem>;
+    colls:Array<{
+        word:string;
+        score:number;
+        freq:number;
+    }>;
     measure:string;
     srchRange:[number, number];
     error?:string;
-    resultType:'collWithExamples';
+    resultType:'coll';
 }
 
+export interface MQueryCollArgs {
+    corpusId:string;
+    q:string;
+    subcorpus:string;
+    measure:
+        'absFreq'|
+        'logLikelihood'|
+        'logDice'|
+        'minSensitivity'|
+        'mutualInfo'|
+        'mutualInfo3'|
+        'mutualInfoLogF'|
+        'relFreq'|
+        'tScore';
+    srchLeft:number;
+    srchRight:number;
+    srchAttr:string;
+    minCollFreq:number;
+    maxItems:number;
+}
 
-export class MQueryCollWithExamplesAPI implements ResourceApi<MQueryCollArgs, CollApiResponse> {
+export const measureMap = {
+    'm': 'mutualInfo',
+    '3': 'mutualInfo3',
+    'l': 'logLikelihood',
+    's': 'minSensitivity',
+    'd': 'logDice',
+    'p': 'mutualInfoLogF',
+    'f': 'relFreq'
+};
+
+export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiResponse> {
 
     private readonly apiURL:string;
 
@@ -65,12 +86,15 @@ export class MQueryCollWithExamplesAPI implements ResourceApi<MQueryCollArgs, Co
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    private readonly useWithExamplesVariant:boolean;
+
+    constructor(apiURL:string, useWithExamplesVariant:boolean, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
+        this.useWithExamplesVariant = useWithExamplesVariant;
     }
 
     getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -98,20 +122,20 @@ export class MQueryCollWithExamplesAPI implements ResourceApi<MQueryCollArgs, Co
         )
     }
 
-    private mkRequest(
-        tileId:number,
-        multicastRequest:boolean,
-        args:MQueryCollArgs
-    ):Observable<httpApiResponse> {
+    private mkUrl(args:MQueryCollArgs):string {
+        return this.useWithExamplesVariant ?
+            urlJoin(this.apiURL, 'collocations-with-examples', args.corpusId) + `?${this.prepareArgs(args)}` :
+            urlJoin(this.apiURL, 'collocations', args.corpusId) + `?${this.prepareArgs(args)}`;
+    }
+
+    private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<BasicHTTPResponse> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest<httpApiResponse>(
+            return this.apiServices.dataStreaming().registerTileRequest<BasicHTTPResponse>(
                 multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: args ?
-                        urlJoin(this.apiURL, 'collocations-with-examples', args.corpusId) + `?${this.prepareArgs(args)}` :
-                        '',
+                    url: args ? this.mkUrl(args) : '',
                     body: {},
                     contentType: 'application/json',
                 }
@@ -125,15 +149,15 @@ export class MQueryCollWithExamplesAPI implements ResourceApi<MQueryCollArgs, Co
                             colls: [],
                             measure: null,
                             srchRange:[0, 0],
-                            resultType:'collWithExamples'
+                            resultType:'coll'
                         }
                 )
             )
 
         } else {
-            return ajax$<httpApiResponse>(
+            return ajax$<BasicHTTPResponse>(
                 'GET',
-                urlJoin(this.apiURL, '/collocations-with-examples/', args.corpusId),
+                urlJoin(this.apiURL, '/collocations/', args.corpusId),
                 args,
                 {
                     headers: this.apiServices.getApiHeaders(this.apiURL),
@@ -147,6 +171,7 @@ export class MQueryCollWithExamplesAPI implements ResourceApi<MQueryCollArgs, Co
         return this.mkRequest(tileId, multicastRequest, args).pipe(
             map(
                 v => ({
+                    concId: undefined,
                     collHeadings: [
                         {
                             label: '-', // will be replaced by the tile

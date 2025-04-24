@@ -163,3 +163,23 @@ export interface CollocModelState {
 
     posQueryGenerator:[string, string];
 }
+
+
+interface collItem {
+    word:string;
+    freq:number;
+    score:number;
+    examples:Array<Line>;
+}
+
+
+export interface collWithExamplesResponse {
+    concSize:number;
+    corpusSize:number;
+    subcSize?:number;
+    colls:Array<collItem>;
+    measure:string;
+    srchRange:[number, number];
+    error?:string;
+    resultType:'collWithExamples';
+}
