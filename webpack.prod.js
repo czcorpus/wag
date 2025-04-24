@@ -35,9 +35,9 @@ export default (env) => ({
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
         fallback: {
-            'buffer': import.meta.resolve('buffer/'),
-            'path': import.meta.resolve('path-browserify/'),
-            'stream': import.meta.resolve('stream-browserify/')
+            'buffer': false,
+            'path': false,
+            'stream': false
         },
         symlinks: false,
         extensionAlias: {
