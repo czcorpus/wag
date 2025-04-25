@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 import { Observable, map } from 'rxjs';
+import urlJoin from 'url-join';
 
 import { ajax$ } from '../../../page/ajax.js';
 import { DataApi, ResourceApi, SourceDetails } from '../../../types.js';
 import { IApiServices } from '../../../appServices.js';
-import { Ident, List, pipe, tuple } from 'cnc-tskit';
+import { Dict, HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from '../../../api/vendor/mquery/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { Backlink } from '../../../page/tile.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 
 
 
@@ -98,16 +99,19 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
 
     private readonly apiURL:string;
 
+    private readonly useDataStream:boolean;
+
     private readonly apiServices:IApiServices;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(
-        apiURL:string,
-        apiServices:IApiServices
-    ) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
+        this.useDataStream = useDataStream;
+        this.backlinkConf = backlinkConf;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
@@ -121,17 +125,32 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
     }
 
     call(dataStreaming:IDataStreaming, tileId:number, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
-        const url = this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}`;
-        return ajax$<SCollsApiResponse>(
-            'GET',
-            url,
-            request.args,
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
+        const url = urlJoin(this.apiURL, 'query', request.params.corpname, request.params.queryType);
+        let data:Observable<SCollsApiResponse>;
+        if (this.useDataStream) {
+            data = dataStreaming.registerTileRequest<SCollsApiResponse>(
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: `${url}?${this.prepareArgs(request)}`,
+                    body: {},
+                    contentType: 'application/json',
+                }
+            );
 
-        ).pipe(
+        } else {
+            data = ajax$<SCollsApiResponse>(
+                HTTP.Method.GET,
+                url,
+                request.args,
+                {
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
+                    withCredentials: true
+                }
+            );
+        }
+
+        return data.pipe(
             map(data => (
                 tuple(
                     request.params.queryType,
@@ -154,6 +173,18 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
         );
     }
 
+    private prepareArgs(queryArgs:SCollsRequest):string {
+        return pipe(
+            {
+                ...queryArgs.args,
+                pos: queryArgs.args.pos || null,
+            },
+            Dict.toEntries(),
+            List.filter(([_, v]) => v !== null),
+            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
+            x => x.join('&'),
+        )
+    }
 }
 
 
@@ -166,27 +197,55 @@ export interface SCERequestArgs {
     }
 }
 
-export class ScollexSyntacticCollsExamplesApi implements DataApi<SCERequestArgs, SCollsExamples> {
+export class ScollexSyntacticCollsExamplesAPI implements DataApi<SCERequestArgs, SCollsExamples> {
 
     private readonly apiURL:string;
 
+    private readonly useDataStream:boolean;
+
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
+        this.useDataStream = useDataStream;
     }
 
     call(dataStreaming:IDataStreaming, tileId:number, request:SCERequestArgs):Observable<SCollsExamples> {
-        return ajax$<SCollsExamples>(
-            'GET',
-            this.apiURL + `/conc-examples/${request.params.corpname}`,
-            request.args,
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
-        );
+        const url = urlJoin(this.apiURL, 'conc-examples', request.params.corpname);
+        if (this.useDataStream) {
+            dataStreaming.registerTileRequest<SCollsExamples>(
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: `${url}?${this.prepareArgs(request)}`,
+                    body: {},
+                    contentType: 'application/json',
+                }
+            );
+
+        } else {
+            return ajax$<SCollsExamples>(
+                HTTP.Method.GET,
+                url,
+                request.args,
+                {
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
+                    withCredentials: true
+                }
+            );
+        }
     }
 
+    private prepareArgs(queryArgs:SCERequestArgs):string {
+        return pipe(
+            {
+                ...queryArgs.args,
+            },
+            Dict.toEntries(),
+            List.filter(([_, v]) => v !== null),
+            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
+            x => x.join('&'),
+        )
+    }
 }
