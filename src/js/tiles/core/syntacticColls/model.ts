@@ -28,7 +28,7 @@ import { SystemMessageType } from '../../../types.js';
 import {
     SCERequestArgs,
     ScollexSyntacticCollsAPI,
-    ScollexSyntacticCollsExamplesApi,
+    ScollexSyntacticCollsExamplesAPI,
     SCollsData,
     SCollsExamples,
     SCollsQueryType,
@@ -41,10 +41,9 @@ export interface SyntacticCollsModelArgs {
     tileId:number;
     appServices:IAppServices;
     initState:SyntacticCollsModelState;
-    backlink:BacklinkConf;
     queryType:QueryType;
     api:ScollexSyntacticCollsAPI;
-    eApi:ScollexSyntacticCollsExamplesApi;
+    eApi:ScollexSyntacticCollsExamplesAPI;
     maxItems:number;
 }
 
@@ -75,7 +74,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly api:ScollexSyntacticCollsAPI;
 
-    private readonly eApi:ScollexSyntacticCollsExamplesApi;
+    private readonly eApi:ScollexSyntacticCollsExamplesAPI;
 
     private readonly maxItems:number;
 
