@@ -29,7 +29,7 @@ import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from 
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
-import { DataStreaming } from './page/streaming.js';
+import { DataStreaming, IDataStreaming } from './page/streaming.js';
 
 
 export interface IApiServices {
@@ -72,7 +72,7 @@ export interface IAppServices extends IApiServices {
 
     isMobileMode():boolean;
 
-    queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
+    queryLemmaDbApi(streaming:IDataStreaming, tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
 
@@ -327,8 +327,8 @@ export class AppServices implements IAppServices {
             AppServices.SESSION_STORAGE_API_KEYS_ENTRY, JSON.stringify(apiKeyHeaders));
     }
 
-    queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call(tileId, false, {domain, q, mainPosAttr});
+    queryLemmaDbApi(streaming:IDataStreaming, tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call(streaming, tileId, {domain, q, mainPosAttr});
     }
 
     getISO639UILang():string {

@@ -16,18 +16,17 @@
 * limitations under the License.
 */
 
-import { map, of as rxOf, tap } from 'rxjs';
+import { map, of as rxOf } from 'rxjs';
 import { SourceDetails, ResourceApi } from '../../../types.js';
 import { Observable } from 'rxjs';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
-import { QueryMatch } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { MergeCorpFreqModelState } from './common.js';
 import { MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import urlJoin from 'url-join';
 import { ajax$ } from '../../../page/ajax.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -106,10 +105,9 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         return List.some(x => !x, args);
     }
 
-    private mkRequest(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
+    private mkRequest(dataStreaming:IDataStreaming, tileId:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
-                multicastRequest,
+            return dataStreaming.registerTileRequest<HTTPResponse>(
                 {
                     tileId,
                     method: HTTP.Method.POST,
@@ -142,13 +140,13 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         }
     }
 
-    call(tileId:number, multicastRequest:boolean, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
-        return this.mkRequest(tileId, multicastRequest, args).pipe(map(resp => resp.parts));
+    call(dataStreaming:IDataStreaming, tileId:number, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
+        return this.mkRequest(dataStreaming, tileId, args).pipe(map(resp => resp.parts));
     }
 
     getSourceDescription(
+        dataStreaming:IDataStreaming,
         tileId:number,
-        multicastRequest:boolean,
         lang:string,
         corpname:string
     ):Observable<SourceDetails> {

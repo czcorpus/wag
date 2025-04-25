@@ -25,6 +25,7 @@ import { ajax$ } from '../../../page/ajax.js';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -92,8 +93,8 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(dataStreaming, tileId, {
             corpname: corpname,
             lang: lang
         });
@@ -108,10 +109,9 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         null;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:SpeechReqArgs|null):Observable<SpeechData> {
+    call(dataStreaming:IDataStreaming, tileId:number, args:SpeechReqArgs|null):Observable<SpeechData> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest<SpeechResponse>(
-                multicastRequest,
+            return dataStreaming.registerTileRequest<SpeechResponse>(
                 {
                     tileId,
                     method: HTTP.Method.GET,

@@ -28,6 +28,7 @@ import { List, pipe } from 'cnc-tskit';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -107,6 +108,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.queryType = queryType;
+        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -176,7 +178,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                this.sourceInfoApi.call(this.tileId, false, {
+                this.sourceInfoApi.call(appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, {
                     queryType,
                     domain: this.queryDomain,
                     corpname: state.corpname,
@@ -217,8 +219,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         }).pipe(
             concatMap(
                 (args) => this.api.call(
+                    this.appServices.dataStreaming(),
                     this.tileId,
-                    true,
                     args.variant.lemma ?
                         {
                             domain: args.lang,

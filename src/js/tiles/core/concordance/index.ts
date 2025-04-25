@@ -63,7 +63,7 @@ export class ConcordanceTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
-        widthFract, conf, domain2, isBusy, useDataStream, usesDataFromTile
+        widthFract, conf, domain2, isBusy, useDataStream, readDataFromTile
     }:TileFactoryArgs<ConcordanceTileConf>
     ) {
         this.tileId = tileId;
@@ -73,7 +73,7 @@ export class ConcordanceTile implements ITileProvider {
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
-            readDataFromTile: usesDataFromTile,
+            readDataFromTile: readDataFromTile || null,
             appServices,
             service: new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
@@ -96,7 +96,7 @@ export class ConcordanceTile implements ITileProvider {
                 initialKwicWindow: this.calcContext(widthFract),
                 kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: typeof usesDataFromTile === 'number' ? ViewMode.SENT : ViewMode.KWIC,
+                viewMode: typeof readDataFromTile === 'number' ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlinks: [],
@@ -104,7 +104,7 @@ export class ConcordanceTile implements ITileProvider {
                 disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,
                 queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches),
-                isExamplesMode: typeof usesDataFromTile === 'number'
+                isExamplesMode: typeof readDataFromTile === 'number'
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');

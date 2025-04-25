@@ -25,6 +25,7 @@ import { ConcResponse, ViewMode } from './common.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
+import { IDataStreaming } from '../../../../page/streaming.js';
 
 
 export interface ConcApiArgs {
@@ -59,7 +60,7 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
         this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId,
             title: '',
@@ -105,12 +106,11 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
         ).join('&')
     }
 
-    call(tileId:number, multicastRequest:boolean, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
+    call(streaming:IDataStreaming, tileId:number, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
         // TODO cmp search support
         const singleSrchArgs = args[0];
         if (this.usesDataStream) {
-            return this.appServices.dataStreaming().registerTileRequest<ConcResponse>(
-                multicastRequest,
+            return streaming.registerTileRequest<ConcResponse>(
                 {
                     tileId,
                     method: HTTP.Method.GET,

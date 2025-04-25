@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
-import { pipe, List, HTTP, tuple } from 'cnc-tskit';
+import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -30,7 +30,7 @@ import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
-import { BacklinkConf } from '../../../page/tile.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -55,7 +55,7 @@ export interface SpeechesModelArgs {
 interface ReloadDataArgs {
     state:SpeechesModelState;
     dispatch:SEDispatcher;
-    multicastRequest:boolean;
+    dataStreaming:IDataStreaming,
     range:[number, number];
 }
 
@@ -79,6 +79,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         this.appServices = appServices;
         this.tileId = tileId;
         this.audioLinkGenerator = audioLinkGenerator;
+        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -89,7 +90,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (state, action, dispatch) => {
                 this.reloadData({
                     state,
-                    multicastRequest: true,
+                    dataStreaming: appServices.dataStreaming(),
                     dispatch,
                     range: tuple(state.leftRange, state.rightRange)
                 });
@@ -141,7 +142,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    multicastRequest: false,
+                    dataStreaming: appServices.dataStreaming().getSubgroup(this.tileId),
                     range: [
                         state.leftRange + action.payload.leftChange,
                         state.rightRange + action.payload.rightChange
@@ -167,7 +168,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    multicastRequest: false,
+                    dataStreaming: appServices.dataStreaming().getSubgroup(this.tileId),
                     range: tuple(state.leftRange, state.rightRange),
                     dispatch
                 });
@@ -266,7 +267,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), action.payload.corpusId)
+                this.api.getSourceDescription(
+                    appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), action.payload.corpusId)
                 .subscribe({
                     next: (data) => {
                         dispatch({
@@ -330,11 +332,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         return null;
     }
 
-    private reloadData({state, multicastRequest, range, dispatch}:ReloadDataArgs):void {
+    private reloadData({state, dataStreaming, range, dispatch}:ReloadDataArgs):void {
         this.api
             .call(
+                dataStreaming,
                 this.tileId,
-                multicastRequest,
                 this.stateToArgs(state, range)
 
             ).subscribe({

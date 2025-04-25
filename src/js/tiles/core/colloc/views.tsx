@@ -50,7 +50,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     tileId: props.tileId
                 }
             });
-            console.log('Actions.SetSrchContextType.name: ', Actions.SetSrchContextType.name)
             dispatcher.dispatch<typeof Actions.SetSrchContextType>({
                 name: Actions.SetSrchContextType.name,
                 payload: {

@@ -97,13 +97,14 @@ export const mkTileFactory = (
                 domain1: domain1,
                 domain2: domain2,
                 queryType,
-                usesDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),
+                readDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),
                 widthFract: tileLayoutConf.width,
                 theme,
                 conf,
                 isBusy: true,
                 mainPosAttr: layoutManager.getLayoutMainPosAttr(queryType),
-                useDataStream: !!conf.useDataStream
+                useDataStream: !!conf.useDataStream,
+                dependentTiles: layoutManager.getDependentTiles(queryType, tileId)
             };
             const errs = tileFactory.sanityCheck(args);
             if (!List.empty(errs)) {

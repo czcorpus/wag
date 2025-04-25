@@ -58,9 +58,6 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements 
         switch (action.name) {
             case Actions.RetryTileLoad.name:
                 this.reloadDispatcher.dispatch(this.state.lastAction);
-                this.reloadDispatcher.dispatch({
-                    name: Actions.WakeSuspendedTiles.name
-                });
             break;
             case Actions.RequestQueryResponse.name:
                 this.state.lastAction = action;

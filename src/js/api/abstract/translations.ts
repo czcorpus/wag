@@ -19,6 +19,7 @@
 import { Observable } from 'rxjs';
 import { DataApi, SourceDetails, ResourceApi } from '../../types.js';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/tiles/translations.js';
+import { IDataStreaming } from '../../page/streaming.js';
 
 
 export interface WordTranslation {
@@ -43,7 +44,7 @@ export interface TranslationAPI<T, U> extends ResourceApi<T, TranslationResponse
 
     stateToPageArgs(state:TranslationsModelState<U>, query:string):U;
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 }
 
 

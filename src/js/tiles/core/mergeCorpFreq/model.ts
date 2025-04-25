@@ -30,8 +30,8 @@ import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
-import { BacklinkConf } from '../../../page/tile.js';
 import { SystemMessageType } from '../../../types.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface MergeCorpFreqModelArgs {
@@ -61,6 +61,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.appServices = appServices;
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
+        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -88,7 +89,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             },
             (state, action, dispatch) => {
                 // TODO add support for the cmp mode
-                this.loadFreqs(state, true, findCurrQueryMatch(state.queryMatches), 0, dispatch);
+                this.loadFreqs(state, appServices.dataStreaming(), findCurrQueryMatch(state.queryMatches), 0, dispatch);
             }
         );
 
@@ -122,10 +123,13 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.freqApi.getSourceDescription(this.tileId,
-                        false,
-                        this.appServices.getISO639UILang(), action.payload.corpusId)
-                    .subscribe({
+                    this.freqApi.getSourceDescription(
+                        appServices.dataStreaming().getSubgroup(this.tileId),
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        action.payload.corpusId
+
+                    ).subscribe({
                         next: data => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -253,14 +257,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private loadFreqs(
         state:MergeCorpFreqModelState,
-        multicastRequest:boolean,
+        dataStreaming:IDataStreaming,
         queryMatch:QueryMatch,
         queryId:number,
         seDispatch:SEDispatcher
     ):void {
         this.freqApi.call(
+            dataStreaming,
             this.tileId,
-            multicastRequest,
             this.allSourcesToArgs(state, queryMatch)
 
         ).pipe(

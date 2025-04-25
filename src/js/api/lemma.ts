@@ -22,6 +22,7 @@ import { HTTP } from 'cnc-tskit';
 import { QueryMatch } from '../query/index.js';
 import { ajax$ } from '../page/ajax.js';
 import { MainPosAttrValues } from '../conf/index.js';
+import { IDataStreaming } from '../page/streaming.js';
 
 
 interface LemmaDbRequestArgs {
@@ -47,7 +48,7 @@ export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> 
         this.url = url;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:LemmaDbRequestArgs):Observable<LemmaDbResponse> {
+    call(dataStreaming:IDataStreaming, tileId:number, args:LemmaDbRequestArgs):Observable<LemmaDbResponse> {
         return ajax$<LemmaDbResponse>(
             HTTP.Method.GET,
             this.url,

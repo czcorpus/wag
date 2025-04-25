@@ -22,6 +22,7 @@ import { ajax$ } from '../../../page/ajax.js';
 import { DataApi, CorpusDetails } from '../../../types.js';
 import { IApiServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 interface HTTPResponse {
@@ -68,7 +69,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:QueryArgs):Observable<CorpusDetails> {
+    call(streaming:IDataStreaming, tileId:number, args:QueryArgs):Observable<CorpusDetails> {
         return ajax$<HTTPResponse>(
             HTTP.Method.GET,
             this.apiURL + `/info/${args.corpname}`,

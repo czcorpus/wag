@@ -36,6 +36,7 @@ import {
 import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { collWithExamplesResponse } from '../colloc/common.js';
+import { EmptyDataStreaming, IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface ConcordanceTileState {
@@ -102,6 +103,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly readDataFromTile:number|null;
 
+    private readonly depDataStream:IDataStreaming;
+
     public static readonly CTX_SIZES = [8, 10, 18, 28];
 
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState,
@@ -113,6 +116,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.tileId = tileId;
         this.queryType = queryType;
         this.readDataFromTile = readDataFromTile;
+        appServices.dataStreaming().createSubgroup(this.tileId);
+        this.depDataStream = typeof readDataFromTile === 'number' ?
+             appServices.dataStreaming().getSubgroup(readDataFromTile) :
+             new EmptyDataStreaming();
 
         this.addActionHandler(
             GlobalActions.SetScreenMode,
@@ -129,10 +136,49 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             },
             (state, action, dispatch) => {
                 if (state.concordances.some(conc => conc.lines.length > 0)) {
-                    this.reloadData(state, false, null, dispatch);
+                    this.reloadData(state, this.appServices.dataStreaming().getSubgroup(this.tileId), null, dispatch);
                 }
             }
         );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.SubqChanged,
+            action => action.payload.tileId === this.readDataFromTile,
+            (state, action) => {
+            },
+            (state, action, dispatch) => {
+                this.getDataFromStream(
+                    state,
+                    this.depDataStream.registerTileRequest<collWithExamplesResponse>(
+                        {
+                            tileId: this.tileId,
+                            otherTileId: this.readDataFromTile,
+                            contentType: 'application/json',
+                        }
+                    ).pipe(
+                        map<collWithExamplesResponse, [ConcResponse, number]> (
+                            resp => tuple(
+                                {
+                                    concSize: 0,
+                                    ipm: 0,
+                                    lines: pipe(
+                                        resp.colls,
+                                        List.flatMap(x => x.examples),
+                                        List.map(ex => ({
+                                            ...ex,
+                                            metadata: []
+                                        }))
+                                    ),
+                                    resultType:'concordance'
+                                },
+                                0
+                            ) // TODO upgrade once we support cmp
+                        )
+                    ),
+                    dispatch
+                );
+            }
+        )
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableTileTweakMode,
@@ -157,7 +203,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, true, null, dispatch);
+                this.reloadData(state, this.appServices.dataStreaming(), null, dispatch);
             }
         );
 
@@ -203,7 +249,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage + 1;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, false, null, dispatch);
+                this.reloadData(state, this.appServices.dataStreaming().getSubgroup(this.tileId), null, dispatch);
             }
         );
 
@@ -216,7 +262,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage - 1;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, false, null, dispatch);
+                this.reloadData(state, this.appServices.dataStreaming().getSubgroup(this.tileId), null, dispatch);
             }
         );
 
@@ -229,7 +275,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.viewMode = action.payload.mode;
             },
             (state, action, dispatch) => {
-                this.reloadData(state, false, null, dispatch);
+                this.reloadData(state, this.appServices.dataStreaming().getSubgroup(this.tileId), null, dispatch);
             }
         );
 
@@ -238,7 +284,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                this.concApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                this.concApi.getSourceDescription(
+                    this.appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), state.corpname)
                 .subscribe({
                     next: data => {
                         dispatch({
@@ -336,7 +383,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private loadViaDefaultApi(
         state:ConcordanceTileState,
-        multicastRequest:boolean,
+        streaming:IDataStreaming,
         otherLangCql:string
     ):Observable<[ConcResponse, number]>  {
         return new Observable<Array<ConcApiArgs>>((observer) => {
@@ -360,31 +407,27 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(args => this.concApi.call(this.tileId, multicastRequest, args))
+            mergeMap(args => this.concApi.call(
+                this.appServices.dataStreaming(), this.tileId, args))
         )
     }
 
     private reloadData(
         state:ConcordanceTileState,
-        multicastRequest:boolean,
+        streaming:IDataStreaming,
         otherLangCql:string,
         dispatch:SEDispatcher
     ):void {
-        (
+        this.getDataFromStream(
+            state,
             typeof this.readDataFromTile === 'number' ?
-                this.appServices.dataStreaming().registerTileRequest<collWithExamplesResponse>(
-                    multicastRequest,
+                streaming.registerTileRequest<collWithExamplesResponse>(
                     {
                         tileId: this.tileId,
                         otherTileId: this.readDataFromTile,
                         contentType: 'application/json',
                     }
                 ).pipe(
-                    tap(
-                        resp => {
-                            console.log('resp>>>>> ', resp)
-                        }
-                    ),
                     map<collWithExamplesResponse, [ConcResponse, number]> (
                         resp => tuple(
                             {
@@ -404,9 +447,17 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         ) // TODO upgrade once we support cmp
                     )
                 ) :
-                this.loadViaDefaultApi(state, multicastRequest, otherLangCql)
+                this.loadViaDefaultApi(state, streaming, otherLangCql),
+            dispatch
+        );
+    }
 
-        ).pipe(
+    private getDataFromStream(
+        state:ConcordanceTileState,
+        data:Observable<[ConcResponse, number]>,
+        dispatch:SEDispatcher) {
+
+        data.pipe(
             tap(
                 ([resp, queryIdx]) => {
                     dispatch<typeof Actions.PartialTileDataLoaded>({

@@ -26,6 +26,7 @@ import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { CollApiResponse } from './common.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface BasicHTTPResponse {
@@ -97,8 +98,8 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         this.useWithExamplesVariant = useWithExamplesVariant;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, {corpname, lang});
     }
 
     supportsLeftRightContext():boolean {
@@ -143,10 +144,9 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
             ) + `?${this.prepareArgs(args)}`;
     }
 
-    private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<BasicHTTPResponse> {
+    private mkRequest(streaming:IDataStreaming, tileId:number, args:MQueryCollArgs):Observable<BasicHTTPResponse> {
         if (this.useDataStream) {
-            return this.apiServices.dataStreaming().registerTileRequest<BasicHTTPResponse>(
-                multicastRequest,
+            return streaming.registerTileRequest<BasicHTTPResponse>(
                 {
                     tileId,
                     method: HTTP.Method.GET,
@@ -182,8 +182,8 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         }
     }
 
-    call(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<CollApiResponse> {
-        return this.mkRequest(tileId, multicastRequest, args).pipe(
+    call(streaming:IDataStreaming, tileId:number, args:MQueryCollArgs):Observable<CollApiResponse> {
+        return this.mkRequest(streaming, tileId, args).pipe(
             map(
                 v => ({
                     concId: undefined,

@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 import { DataApi } from '../../../types.js';
 import { ajax$, ResponseType } from '../../../page/ajax.js';
 import { IAppServices } from '../../../appServices.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 export class MapLoader implements DataApi<string, string> {
 
@@ -28,7 +29,7 @@ export class MapLoader implements DataApi<string, string> {
         this.appServices = appServices;
     }
 
-    call(tileId:number, multicastRequest:boolean, file:string):Observable<string> {
+    call(dataStreaming:IDataStreaming, tileId:number, file:string):Observable<string> {
 
         return ajax$<string>(
             'GET',
