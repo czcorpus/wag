@@ -24,6 +24,7 @@ import { Ident, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from '../../../api/vendor/mquery/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { Backlink } from '../../../page/tile.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -111,15 +112,15 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
     }
 
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoService.call(dataStreaming, tileId, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 
-    call(tileId:number, multicastRequest:boolean, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
+    call(dataStreaming:IDataStreaming, tileId:number, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
         const url = this.apiURL + `/query/${request.params.corpname}/${request.params.queryType}`;
         return ajax$<SCollsApiResponse>(
             'GET',
@@ -176,7 +177,7 @@ export class ScollexSyntacticCollsExamplesApi implements DataApi<SCERequestArgs,
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, multicastRequest:boolean, request:SCERequestArgs):Observable<SCollsExamples> {
+    call(dataStreaming:IDataStreaming, tileId:number, request:SCERequestArgs):Observable<SCollsExamples> {
         return ajax$<SCollsExamples>(
             'GET',
             this.apiURL + `/conc-examples/${request.params.corpname}`,

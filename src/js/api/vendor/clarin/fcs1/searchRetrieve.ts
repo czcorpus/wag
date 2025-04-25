@@ -27,6 +27,7 @@ import { IApiServices } from '../../../../appServices.js';
 import { ResourceApi } from '../../../../types.js';
 import { ConcordanceMinState, ConcResponse, FCS1Args, importResponse, ViewMode } from './common.js';
 import { Backlink } from '../../../../page/tile.js';
+import { IDataStreaming } from '../../../../page/streaming.js';
 
 
 /**
@@ -69,8 +70,8 @@ export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse
         };
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
-        return this.srcInfoApi.call(tileId, false, {
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
+        return this.srcInfoApi.call(streaming, tileId, {
             tileId: tileId,
             uiLang: lang,
             'x-fcs-endpoint-description': 'true' // TODO
@@ -81,7 +82,7 @@ export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse
         return null;
     }
 
-	call(tileId:number, multicastRequest:boolean, args:FCS1Args):Observable<ConcResponse> {
+	call(streaming:IDataStreaming, tileId:number, args:FCS1Args):Observable<ConcResponse> {
 		return ajax$(
             HTTP.Method.GET,
             this.url,

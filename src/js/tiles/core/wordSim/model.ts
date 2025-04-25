@@ -27,6 +27,7 @@ import { QueryMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
 import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimWord } from './api.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface WordSimModelArgs {
@@ -74,6 +75,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         this.tileId = tileId;
         this.api = api;
         this.queryDomain = queryDomain;
+        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
             GlobalActions.SubqItemHighlighted.name,
@@ -126,7 +128,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.getData(state, true, seDispatch);
+                this.getData(state, appServices.dataStreaming(), seDispatch);
             }
         );
         this.addActionHandler<typeof Actions.TileDataLoaded>(
@@ -155,7 +157,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             },
             (state, action, seDispatch) => {
-                this.getData(state, false, seDispatch);
+                this.getData(state, appServices.dataStreaming().getSubgroup(this.tileId), seDispatch);
             }
         );
         this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
@@ -163,7 +165,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.queryDomain, state.corpus).subscribe(
+                    this.api.getSourceDescription(appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.queryDomain, state.corpus).subscribe(
                         (data) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -200,7 +202,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         };
     }
 
-    getData(state:WordSimModelState, multicastRequest:boolean, seDispatch:SEDispatcher):void {
+    getData(state:WordSimModelState, dataStreaming:IDataStreaming, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<[number, QueryMatch]>) => {
             state.queryMatches.forEach((queryMatch, queryId) => {
                 observer.next(tuple(queryId, queryMatch));
@@ -210,9 +212,9 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         }).pipe(
             mergeMap(([queryId, queryMatch]) => queryMatch.abs >= state.minMatchFreq ?
                 callWithExtraVal(
+                    dataStreaming,
                     this.api,
                     this.tileId,
-                    multicastRequest,
                     this.stateToArgs(state, queryMatch),
                     queryId
                 ) :

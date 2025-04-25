@@ -31,6 +31,7 @@ import { MQueryTimeDistribStreamApi, TimeDistribArgs, TimeDistribResponse } from
 import { callWithExtraVal } from '../../../api/util.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export enum FreqFilterQuantity {
@@ -145,6 +146,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.api = api;
+        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -158,7 +160,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 this.loadData(
                     state,
-                    true,
+                    appServices.dataStreaming(),
                     SubchartID.MAIN,
                     dispatch
                 );
@@ -249,7 +251,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 this.loadData(
                     state,
-                    false,
+                    appServices.dataStreaming().getSubgroup(this.tileId),
                     SubchartID.SECONDARY,
                     dispatch
                 );
@@ -262,7 +264,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => state,
             (state, action, dispatch) => {
                 this.api.getSourceDescription(
-                    this.tileId, false, this.appServices.getISO639UILang(), action.payload['corpusId']
+                    appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId']
 
                 ).subscribe({
                     next: (data) => {
@@ -451,16 +453,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(
         state:TimeDistribModelState,
-        multicastRequest:boolean,
+        dataStreaming:IDataStreaming,
         targetId:SubchartID,
         dispatch:SEDispatcher
     ):void {
         const currMatches = List.map(findCurrQueryMatch, this.queryMatches);
         const resp = targetId === SubchartID.MAIN ?
             callWithExtraVal(
+                dataStreaming,
                 this.api,
                 this.tileId,
-                multicastRequest,
                 testIsDictMatch(currMatches[0]) ? // TODO cmp not supported here
                     this.stateToArgs(state) :
                     null,
@@ -470,8 +472,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             ) :
             this.api.loadSecondWord(
+                dataStreaming,
                 this.tileId,
-                false,
                 this.stateToArgs(state, true),
             ).pipe(
                 map(

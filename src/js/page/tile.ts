@@ -311,7 +311,7 @@ export interface TileFactoryArgs<T> {
      * using data from a different tile
      * (e.g. the conc tile from the coll tile)
      */
-    usesDataFromTile?:number;
+    readDataFromTile?:number;
 
     widthFract:number;
 
@@ -322,6 +322,8 @@ export interface TileFactoryArgs<T> {
     mainPosAttr:MainPosAttrValues;
 
     useDataStream:boolean;
+
+    dependentTiles:Array<number>;
 }
 
 /**

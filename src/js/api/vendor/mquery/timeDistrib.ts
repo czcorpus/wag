@@ -25,6 +25,7 @@ import { FreqRowResponse } from './common.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
 import { ajax$ } from '../../../page/ajax.js';
 import urlJoin from 'url-join';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface TimeDistribArgs {
@@ -129,8 +130,8 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
@@ -161,10 +162,9 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         )
     }
 
-    public loadSecondWord(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    public loadSecondWord(streaming:IDataStreaming, tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         const args = this.prepareArgs(tileId, queryArgs, true);
-        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
-            multicastRequest,
+        return streaming.registerTileRequest<MqueryStreamData>(
             {
                 tileId,
                 method: HTTP.Method.GET,
@@ -223,10 +223,9 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     // { ..., chunkNum: number, totalChunks: number}
     chunks:Map<number, boolean>;
     */
-    private callViaDataStream(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    private callViaDataStream(streaming:IDataStreaming, tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         const args = this.prepareArgs(tileId, queryArgs, true);
         return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
-                multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,
@@ -337,9 +336,9 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         });
     }
 
-    call(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return this.useDataStream ?
-            this.callViaDataStream(tileId, multicastRequest, queryArgs) :
+            this.callViaDataStream(streaming, tileId, queryArgs) :
             this.callViaAjAX(tileId, queryArgs);
     }
 

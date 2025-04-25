@@ -28,11 +28,13 @@ import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js'
 import { callWithExtraVal } from '../../../api/util.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { DataStreaming, IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface CollocModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
+    dependentTiles:Array<number>;
     appServices:IAppServices;
     service:MQueryCollAPI;
     initState:CollocModelState;
@@ -65,12 +67,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     };
 
     constructor({
-        dispatcher, tileId, appServices, service, initState, queryType}:CollocModelArgs) {
+        dispatcher, tileId, appServices, service, initState, queryType, dependentTiles}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.collApi = service;
         this.queryType = queryType;
+        appServices.dataStreaming().createSubgroup(this.tileId, ...dependentTiles);
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -121,8 +124,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
+                    this.appServices.dataStreaming(),
                     rxOf(...List.map((qm, i) => tuple(i, qm),  state.queryMatches)),
-                    true,
                     seDispatch
                 );
             }
@@ -175,8 +178,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
+                    appServices.dataStreaming().getSubgroup(this.tileId),
                     rxOf(...List.map((qm, i) => tuple(i, qm), state.queryMatches)),
-                    false,
                     seDispatch
                 );
             }
@@ -205,7 +208,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             action => action.payload.tileId === this.tileId,
             (state, action) => {},
             (state, action, seDispatch) => {
-                this.collApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                this.collApi.getSourceDescription(
+                    appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), state.corpname)
                 .subscribe({
                     next: (data) => {
                         seDispatch({
@@ -248,11 +252,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private reloadAllData(
         state:CollocModelState,
+        streaming:IDataStreaming,
         reqArgs:Observable<FreqRequestArgs>,
-        multicastRequest:boolean,
         seDispatch:SEDispatcher,
     ):void {
-        this.loadCollocations(state, reqArgs, multicastRequest, seDispatch).subscribe({
+        this.loadCollocations(state, reqArgs, streaming, seDispatch).subscribe({
             next: (isEmpty) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -279,15 +283,15 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private loadCollocations(
         state:CollocModelState,
         freqReqs:Observable<FreqRequestArgs>,
-        multicastRequest:boolean,
+        streaming:IDataStreaming,
         seDispatch:SEDispatcher
     ):Observable<boolean> {
         return freqReqs.pipe(
             concatMap(([queryId, queryMatch]) => {
                 return callWithExtraVal(
+                    streaming,
                     this.collApi,
                     this.tileId,
-                    multicastRequest,
                     this.stateToArgs(state, queryMatch),
                     {queryId: queryId}
                 )

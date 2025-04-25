@@ -80,7 +80,8 @@ export class SyntacticCollsTile implements ITileProvider {
                 displayTypes: conf.displayTypes,
                 examplesCache: {},
                 exampleWindowData: undefined
-            }
+            },
+            backlink: null // TODO
         });
         this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
         this.view = viewInit(

@@ -29,6 +29,7 @@ import { Backlink } from '../../../page/tile.js';
 import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { findCurrQueryMatch, QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 /*
 oral2013:
@@ -107,6 +108,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryMatches = queryMatches;
+        appServices.dataStreaming().createSubgroup(this.tileId);
+
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -126,14 +129,14 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         }
                     }).pipe(
                         concatMap(args => this.freqApi.call(
+                            this.appServices.dataStreaming(),
                             this.tileId,
-                            true,
                             this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[0]))
                         ))
                     ),
                     state.mapSVG ?
                         rxOf(null) :
-                        this.mapLoader.call(this.tileId, true, 'mapCzech.inline.svg')
+                        this.mapLoader.call(appServices.dataStreaming(), this.tileId, 'mapCzech.inline.svg')
 
                 ]).subscribe({
                     next: resp => {
@@ -246,7 +249,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.freqApi.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
+                    this.freqApi.getSourceDescription(
+                        this.appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe({
                         next: data => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({

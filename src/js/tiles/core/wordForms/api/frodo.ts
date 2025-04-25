@@ -24,6 +24,7 @@ import { HTTP, Ident, List } from 'cnc-tskit';
 import { RequestArgs, Response } from '../common.js';
 import urlJoin from 'url-join';
 import { WordFormsBacklinkAPI } from './backlink.js';
+import { IDataStreaming } from '../../../../page/streaming.js';
 
 
 export interface FrodoResponse {
@@ -51,11 +52,10 @@ export interface FrodoResponse {
 
 export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
+    call(dataStreaming:IDataStreaming, tileId:number, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/dictionary/', args.corpName, 'search', args.lemma);
         return (this.useDataStream ?
-            this.apiServices.dataStreaming().registerTileRequest<FrodoResponse>(
-                multicastRequest,
+            dataStreaming.registerTileRequest<FrodoResponse>(
                 {
                     tileId,
                     method: HTTP.Method.GET,
@@ -91,8 +91,8 @@ export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceA
         );
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(dataStreaming, tileId, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {

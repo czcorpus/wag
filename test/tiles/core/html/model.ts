@@ -39,8 +39,8 @@ describe('HtmlTile model', function () {
         htmlApiStub = sinon.createStubInstance(
             RawHtmlAPI,
             {
-                call: sinon.stub<[any, boolean, HtmlApiArgs], Observable<string>>().callsFake(
-                    (_, multicastRequest, args) => {
+                call: sinon.stub<[any, any, HtmlApiArgs], Observable<string>>().callsFake(
+                    (streaming, _, args) => {
                         return args.variant === 'anything' ?
                             rxOf('fake html response') :
                             rxOf('invalid html response');

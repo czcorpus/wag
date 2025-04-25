@@ -67,15 +67,18 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:MQueryCollAPI;
 
+    private readonly dependentTiles:Array<number>;
+
     constructor({
         tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        queryMatches, queryType, useDataStream
+        queryMatches, queryType, useDataStream, dependentTiles, readDataFromTile
     }:TileFactoryArgs<CollocationsTileConf>) {
 
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.dependentTiles = dependentTiles;
         this.api = new MQueryCollAPI(
             conf.apiURL,
             conf.apiType === 'with-examples',
@@ -84,9 +87,10 @@ export class CollocationsTile implements ITileProvider {
             conf.backlink
         );
         this.model = new CollocModel({
-            dispatcher: dispatcher,
-            tileId: tileId,
-            appServices: appServices,
+            dispatcher,
+            tileId,
+            dependentTiles,
+            appServices,
             service: this.api,
             queryType: queryType,
             initState: {
@@ -186,6 +190,10 @@ export class CollocationsTile implements ITileProvider {
 
 export const init:TileFactory<CollocationsTileConf> = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        if (typeof args.readDataFromTile === 'number' && !List.empty(args.dependentTiles)) {
+            return [new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time')]
+        }
+    },
     create: (args) => new CollocationsTile(args)
 };

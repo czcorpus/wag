@@ -25,6 +25,7 @@ import { CorpusInfoAPI } from './corpusInfo.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface HTTPResponse {
@@ -94,8 +95,8 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
         this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
@@ -121,10 +122,10 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(tileId:number, multicastRequest:boolean, args:MQueryFreqArgs):Observable<APIResponse> {
+    call(streaming:IDataStreaming, tileId:number, args:MQueryFreqArgs):Observable<APIResponse> {
         return (
             this.useDataStream ?
-                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(multicastRequest, {
+                streaming.registerTileRequest<HTTPResponse>({
                     contentType: 'application/json',
                     body: {},
                     method: HTTP.Method.GET,

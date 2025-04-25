@@ -27,6 +27,7 @@ import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -96,6 +97,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly backlink:BacklinkConf;
 
+    private readonly dataStreaming:IDataStreaming;
+
     constructor({
         dispatcher, initialState, tileId, api, queryMatches, queryDomain,
         appServices}:WordFormsModelArgs) {
@@ -105,6 +108,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.appServices = appServices;
+        appServices.dataStreaming().createSubgroup(this.tileId);
+
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -194,7 +199,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(
-                        this.tileId, false, this.queryDomain, state.corpname
+                        this.dataStreaming, this.tileId, this.queryDomain, state.corpname
                     ).subscribe({
                         next: (data) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
@@ -241,7 +246,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
     }
 
     private fetchWordForms(args:RequestArgs, dispatch:SEDispatcher):void {
-        this.api.call(this.tileId, true, args).pipe(
+        this.api.call(this.appServices.dataStreaming(), this.tileId, args).pipe(
             map((v => {
                 const updated = Maths.calcPercentRatios(
                     (item) => item.freq,

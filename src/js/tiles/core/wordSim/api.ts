@@ -28,6 +28,7 @@ import { IApiServices } from '../../../appServices.js';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { Backlink } from '../../../page/tile.js';
 import urlJoin from 'url-join';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -97,9 +98,9 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         return false;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, domain:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call(tileId, multicastRequest, {
+            this.srcInfoApi.call(dataStreaming, tileId, {
                 corpname: corpname,
                 domain: domain,
                 queryType: QueryType.SINGLE_QUERY
@@ -134,10 +135,9 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         )
     }
 
-    call(tileId:number, multicastRequest:boolean, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
+    call(dataStreaming:IDataStreaming, tileId:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
         if (this.useDataStream) {
             return this.apiServices.dataStreaming().registerTileRequest<WordSimApiLegacyResponse>(
-                multicastRequest,
                 {
                     tileId,
                     method: HTTP.Method.GET,

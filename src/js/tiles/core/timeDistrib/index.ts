@@ -24,7 +24,6 @@ import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, 
 import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as viewInit } from './view.js';
-import { TileWait } from '../../../models/tileSync.js';
 import { MQueryTimeDistribStreamApi } from '../../../api/vendor/mquery/timeDistrib.js';
 
 
@@ -126,7 +125,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.waitForAction(TileWait.create([], ()=>false), (_, syncData)=>syncData);
+        this.model.waitForAction({}, (_, sd) => sd);
     }
 
     getWidthFract():number {

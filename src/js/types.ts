@@ -18,6 +18,7 @@
 import { Observable } from 'rxjs';
 import { SourceCitation } from './api/abstract/sourceInfo.js';
 import { Backlink } from './page/tile.js';
+import { IDataStreaming } from './page/streaming.js';
 
 
 export type AnyInterface<T> = {
@@ -46,7 +47,7 @@ export enum CorePosAttribute {
  */
 export interface DataApi<T, U> {
 
-    call(tileId:number, multicastRequest:boolean, queryArgs:T):Observable<U>;
+    call(streaming:IDataStreaming, tileId:number, queryArgs:T):Observable<U>;
 }
 
 /**
@@ -55,7 +56,9 @@ export interface DataApi<T, U> {
  */
 export interface ResourceApi<T, U> extends DataApi<T, U> {
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(
+        streaming:IDataStreaming, tileId:number, lang:string, corpname:string
+    ):Observable<SourceDetails>;
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null;
 }

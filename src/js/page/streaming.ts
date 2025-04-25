@@ -63,6 +63,17 @@ interface RequestTag {
     query2Domain:string;
 }
 
+export interface IDataStreaming {
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T>
+}
+
+export class EmptyDataStreaming implements IDataStreaming {
+
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
+        return EMPTY;
+    }
+}
+
 /**
  * DataStreaming serves as a controller for EventSource-based communication
  * between EventSource-capable server (APIGuard in case of the CNC) and individual
@@ -72,7 +83,7 @@ interface RequestTag {
  * of WaG tiles where each tile reacts to the current word data individually and
  * also individually processes its data.
  */
-export class DataStreaming {
+export class DataStreaming implements IDataStreaming {
 
     private readonly requestSubject:Subject<TileRequest|OtherTileRequest>;
 
@@ -82,6 +93,14 @@ export class DataStreaming {
 
     private readonly reqTag:RequestTag|undefined;
 
+    private readonly tilesReadyTimeoutSecs:number;
+
+    private readonly userSession:UserConf;
+
+    private readonly tilesDataStreams:Array<DataStreaming>;
+
+    private readonly tilesLazyDataStreams:Array<()=>DataStreaming>;
+
     constructor(
         tileIds:Array<string|number>,
         rootUrl:string|undefined,
@@ -89,7 +108,11 @@ export class DataStreaming {
         userSession:UserConf
     ) {
         this.rootUrl = rootUrl;
+        this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
         this.reqTag = userSession ? this.mkQueryTag(userSession) : undefined;
+        this.userSession = userSession;
+        this.tilesDataStreams = [];
+        this.tilesLazyDataStreams = [];
         this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
         this.responseStream = this.requestSubject.pipe(
             scan(
@@ -128,7 +151,7 @@ export class DataStreaming {
                     return true
                 }
             ),
-            timeout(tilesReadyTimeoutSecs),
+            timeout(this.tilesReadyTimeoutSecs),
             concatMap(
                 tileReqMap => ajax$<{id:string}>(
                     HTTP.Method.PUT,
@@ -203,10 +226,56 @@ export class DataStreaming {
         if (typeof window !== 'undefined') {
             this.responseStream.subscribe({
                 error: error => {
-                    console.log('response stream error: ', error)
+                    console.log(`response stream error for tile group ${tileIds.join(',')}: ${error}`)
                 }
             });
         }
+    }
+
+    /**
+     * Creates a new DataStreaming instance with custom
+     * group of tiles. This is intended for tiles which
+     * have other dependent tiles and need to update
+     * data together.
+     *
+     * @param tiles
+     * @returns
+     */
+    createSubgroup(mainTileId:number, ...dependentTiles:Array<number>):void {
+        const curr = this.tilesDataStreams[mainTileId];
+        if (curr) {
+            throw new Error(`data stream group with main tile ${mainTileId} already exists`);
+        }
+
+        this.tilesLazyDataStreams[mainTileId] = () => new DataStreaming(
+            [mainTileId,...dependentTiles],
+            this.rootUrl,
+            this.tilesReadyTimeoutSecs,
+            this.userSession
+        );
+    }
+
+    /**
+     * A dependent tile must use a data stream
+     * group where its data source tile is the "main tile".
+     *
+     * In case the group is not found, the method throws
+     * an exception.
+     *
+     * @param mainTileId is the "data source tile" of a dependent
+     * tile which calls this method.
+     */
+    getSubgroup(mainTileId:number):DataStreaming {
+        const curr = this.tilesDataStreams[mainTileId];
+        if (curr) {
+            return curr;
+        }
+        const factory = this.tilesLazyDataStreams[mainTileId];
+        if (!factory) {
+            throw new Error(`no data stream group with main tile ${mainTileId}`);
+        }
+        this.tilesDataStreams[mainTileId] = factory();
+        return this.tilesDataStreams[mainTileId];
     }
 
     /**
@@ -249,101 +318,22 @@ export class DataStreaming {
     }
 
 
-    registerTileRequest<T>(multicastRequest:boolean, entry:TileRequest|OtherTileRequest):Observable<T> {
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
         if (!this.rootUrl) {
             console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
             return EMPTY;
         }
-        if (multicastRequest) {
-            this.requestSubject.next(isOtherTileRequest(entry) ? entry : this.prepareTileRequest(entry));
-            return this.responseStream.pipe(
-                filter((response:EventItem<T>) => response.tileId === entry.tileId),
-                map(response => {
-                    if (response.error) {
-                        throw new Error(response.error);
-                    }
-                    return response.data as T;
-                })
-            );
 
-        } else if (!isOtherTileRequest(entry)) {
-            return this.registerExclusiveTileRequest(entry);
-
-        } else {
-            return new Observable(() => { throw new Error('invalid tile request type')})
-        }
-    }
-
-    private registerExclusiveTileRequest<T>(entry:TileRequest):Observable<T> {
-        const responseStream = rxOf(this.prepareTileRequest(entry)).pipe(
-            concatMap(
-                entry => ajax$<{id:string}>(
-                    HTTP.Method.PUT,
-                    this.rootUrl,
-                    {
-                        requests: [entry]
-                    },
-                    {
-                        contentType: 'application/json'
-                    }
-                ).pipe(
-                    map(
-                        resp => tuple(entry, resp)
-                    )
-                )
-            ),
-            concatMap(
-                ([reqEntry, resp]) => new Observable<EventItem>(
-                    observer => {
-                        const evtSrc = new EventSource(
-                            urlJoin(this.rootUrl, resp.id)
-                        );
-                        evtSrc.addEventListener(`DataTile-${reqEntry.tileId}`, evt => {
-                            if (reqEntry.contentType == 'application/json') {
-                                const tmp = JSON.parse(evt.data);
-                                observer.next({
-                                    data: tmp,
-                                    error: tmp.error,
-                                    tileId: reqEntry.tileId
-                                });
-
-                            } else if (reqEntry.base64EncodeResult && typeof evt.data === 'string') {
-                                const tmp = atob(evt.data);
-                                observer.next({
-                                    data: tmp,
-                                    tileId: reqEntry.tileId
-                                })
-
-                            } else {
-                                observer.next({
-                                    data: evt.data,
-                                    tileId: reqEntry.tileId
-                                })
-                            }
-                        });
-                        evtSrc.addEventListener('close', () => {
-                            observer.complete();
-                            evtSrc.close();
-                        })
-                        evtSrc.onerror = v => {
-                            console.error(v);
-                            if (evtSrc.readyState === EventSource.CLOSED) {
-                                evtSrc.close();
-                                observer.complete();
-                            }
-                        }
-                    }
-                )
-            ),
-            map(response => response.data as T),
-            share()
+        this.requestSubject.next(isOtherTileRequest(entry) ? entry : this.prepareTileRequest(entry));
+        return this.responseStream.pipe(
+            filter((response:EventItem<T>) => response.tileId === entry.tileId),
+            map(response => {
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+                return response.data as T;
+            })
         );
-
-        responseStream.subscribe({
-            error: error => {
-                console.log('response stream error: ', error)
-            }
-        });
-        return responseStream;
     }
+
 }

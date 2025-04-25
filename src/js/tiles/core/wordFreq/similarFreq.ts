@@ -26,6 +26,7 @@ import { MultiDict } from '../../../multidict.js';
 import { RequestArgs, SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
 import { HTTPAction } from '../../../server/routes/actions.js';
 import { IApiServices } from '../../../appServices.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 interface ResponseItem {
@@ -61,11 +62,10 @@ export class SimilarFreqWordsFrodoAPI {
         this.useDataStream = useDataStream;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
+    call(dataStreaming:IDataStreaming, tileId:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
         return (
             this.useDataStream ?
                 this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
-                    multicastRequest,
                     {
                         contentType: 'application/json',
                         body: {},

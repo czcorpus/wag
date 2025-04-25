@@ -19,7 +19,7 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { BacklinkConf } from '../../../page/tile.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { merge, of as rxOf } from 'rxjs';
@@ -33,6 +33,7 @@ import {
     SCollsExamples,
     SCollsQueryType,
     SCollsRequest } from './api.js';
+    import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface SyntacticCollsModelArgs {
@@ -95,6 +96,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         this.api = api;
         this.eApi = eApi;
         this.maxItems = maxItems;
+        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
@@ -116,7 +118,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, seDispatch) => {
                 merge(...List.map(qType =>
-                    this.api.call(this.tileId, true, this.stateToArgs(state, qType)),
+                    this.api.call(appServices.dataStreaming(), this.tileId, this.stateToArgs(state, qType)),
                     state.displayTypes,
                 )).subscribe({
                     next: ([qType, data]) => {
@@ -177,7 +179,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
-                    this.eApi.call(this.tileId, false, this.stateToEapiArgs(state, q)).pipe(
+                    this.eApi.call(appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.stateToEapiArgs(state, q)).pipe(
                         map(
                             data => ({
                                 ...data,

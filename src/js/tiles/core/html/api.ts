@@ -26,6 +26,7 @@ import { AjaxError } from 'rxjs/ajax';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { Dict } from 'cnc-tskit';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export type HtmlApiArgs = {[key:string]:string};
@@ -45,7 +46,7 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
     private readonly apiServices:IApiServices;
 
     private readonly backlinkConf:BacklinkConf;
-    
+
     constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
@@ -64,7 +65,7 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
         return true;
     }
 
-    call(tileId:number, multicastRequest:boolean, queryArgs:HtmlApiArgs):Observable<string|null> {
+    call(dataStream:IDataStreaming, tileId:number, queryArgs:HtmlApiArgs):Observable<string|null> {
         return ajax$<string>(
             'GET',
             this.apiURL,

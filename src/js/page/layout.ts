@@ -84,7 +84,7 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                                     v => ({
                                         tileId: tileMap[v.tile],
                                         width: v.width,
-                                        readDataFrom: v.readDataFrom
+                                        readDataFrom: v.readDataFrom || null
                                     }),
                                     group.tiles
                                 )
@@ -209,6 +209,20 @@ export class LayoutManager {
             List.find(v => v.tileId === tileId)
         );
         return srch ? srch : null;
+    }
+
+    getDependentTiles(queryType:QueryType, tileId:number):Array<number> {
+        return pipe(
+            this.getLayout(queryType).groups,
+            List.flatMap(v => v.tiles),
+            List.filter(v => {
+                const srchId = this.getTileNumber(v.readDataFrom);
+                return srchId === tileId;
+            }),
+            List.map(
+                v => v.tileId
+            )
+        );
     }
 
     /**

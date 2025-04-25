@@ -36,11 +36,6 @@ export class Actions {
         name: 'MAIN_RETRY_TILE_LOAD'
     }
 
-    static WakeSuspendedTiles:Action<{
-    }> = {
-        name: 'MAIN_WAKE_SUSPENDED_TILES'
-    }
-
     static SetEmptyResult:Action<{
         error:[number, string];
     }> = {

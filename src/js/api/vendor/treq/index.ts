@@ -34,6 +34,7 @@ import {
 import { IAppServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
 import { Backlink } from '../../../page/tile.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export type SearchPackages = {[domain2:string]:Array<string>};
@@ -117,7 +118,7 @@ class TreqAPICaller {
         return data['en-US'];
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: this.translateText(this.titleI18n, this.appServices.getUILang()),
@@ -164,7 +165,7 @@ class TreqAPICaller {
         )).sort((x1, x2) => x2.score - x1.score);
     }
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<TranslationResponse> {
+    call(streaming:IDataStreaming, tileId:number, args:RequestArgs):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(
