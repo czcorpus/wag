@@ -66,7 +66,6 @@ export class ConcordanceTile implements ITileProvider {
         widthFract, conf, domain2, isBusy, useDataStream, usesDataFromTile
     }:TileFactoryArgs<ConcordanceTileConf>
     ) {
-        console.log("CONCORDANCE usesDataFromTile: ", usesDataFromTile)
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -97,14 +96,15 @@ export class ConcordanceTile implements ITileProvider {
                 initialKwicWindow: this.calcContext(widthFract),
                 kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: ViewMode.KWIC,
+                viewMode: typeof usesDataFromTile === 'number' ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlinks: [],
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,
-                queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches)
+                queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches),
+                isExamplesMode: typeof usesDataFromTile === 'number'
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');

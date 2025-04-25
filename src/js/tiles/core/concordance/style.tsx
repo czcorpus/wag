@@ -186,10 +186,18 @@ export const Row = styled.tr`
     }
 
     td.kwic {
-        padding-left: 0.7em;
-        padding-right: 0.7em;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
         text-align: center;
         color: ${theme.colorLogoPink};
+    }
+
+    td .coll {
+        color: ${theme.colorLogoPink};
+        font-style: italic;
+        display: inline-block;
+        padding-left: 0.2em;
+        padding-right: 0.2em;
     }
 `;
 
@@ -200,6 +208,14 @@ export const SentRow = styled.tr`
     td {
         padding-top: 0.2em;
         padding-bottom: 0.2em;
+    }
+
+    td .coll {
+        color: ${theme.colorLogoPink};
+        font-style: italic;
+        display: inline-block;
+        padding-left: 0.2em;
+        padding-right: 0.2em;
     }
 
 `;

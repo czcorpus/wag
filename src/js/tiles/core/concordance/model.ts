@@ -64,6 +64,15 @@ export interface ConcordanceTileState {
     backlinks:Array<Backlink>;
     disableViewModes:boolean;
     visibleMetadataLine:number;
+
+    /**
+     * If true, then the tile won't show
+     * ipm and abs. freq. as we expect that
+     * the tile just shows examples of a phenomenon
+     * from a different tile
+     * (e.g. coll => examples of coll words)
+     */
+    isExamplesMode:boolean;
 }
 
 
