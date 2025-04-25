@@ -21,12 +21,12 @@ import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesApi, SCollsQueryType } from './api.js';
+import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api.js';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
+    eApiURL:string;
     corpname:string;
     maxItems:number;
     displayTypes:Array<SCollsQueryType>; // TODO is this right type?
@@ -65,8 +65,8 @@ export class SyntacticCollsTile implements ITileProvider {
             appServices: appServices,
             queryType: queryType,
             maxItems: conf.maxItems,
-            api: new ScollexSyntacticCollsAPI(conf.apiURL, appServices),
-            eApi: new ScollexSyntacticCollsExamplesApi(conf.apiURL, appServices), // TODO this is not right... (use mquery?)
+            api: new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            eApi: new ScollexSyntacticCollsExamplesAPI(conf.eApiURL, conf.useDataStream, appServices),
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
