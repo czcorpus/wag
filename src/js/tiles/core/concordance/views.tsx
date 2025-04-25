@@ -147,11 +147,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const RowItem:React.FC<{
         data:Token;
-        isKwic?:boolean;
+        isKwic:boolean;
+        isColl:boolean;
 
     }> = (props) => {
+        const classes = [];
+        if (props.isKwic) {
+            classes.push('kwic');
+        }
+        if (props.isColl) {
+            classes.push('coll');
+        }
         return (
-            <span className={props.isKwic ? 'kwic' : null}>
+            <span className={classes.join(' ')}>
                 {props.data.word}
             </span>
         );
@@ -205,7 +213,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     (s, i) => (
                         <React.Fragment key={`${props.data.ref}:L${i}`} >
                             {i > 0 ? <span> </span> : null}
-                            <RowItem data={s} isKwic={s.matchType === 'kwic'} />
+                            <RowItem data={s} isKwic={s.matchType === 'kwic'} isColl={s.matchType === 'coll'} />
                         </React.Fragment>
                     ),
                     props.data.text
@@ -242,7 +250,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             (s, i) => (
                                 <React.Fragment key={`${props.data.ref}:L${i}`} >
                                     {i > 0 ? <span> </span> : null}
-                                    <RowItem data={s} />
+                                    <RowItem data={s} isKwic={false} isColl={s.matchType === 'coll'} />
                                 </React.Fragment>
                             ),
                             getLineLeftCtx(props.data)
@@ -250,7 +258,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </td>
                     <td className="kwic">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.ref}:K${i}`} data={s} isKwic={true} />,
+                            (s, i) => <RowItem key={`${props.data.ref}:K${i}`} data={s} isKwic={true} isColl={false} />,
                             getKwicCtx(props.data)
                         )}
                     </td>
@@ -259,7 +267,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             (s, i) => (
                                 <React.Fragment key={`${props.data.ref}:R${i}`}>
                                     {i > 0 ? <span> </span> : null}
-                                    <RowItem data={s} />
+                                    <RowItem data={s} isKwic={false} isColl={s.matchType === 'coll'} />
                                 </React.Fragment>
                             ),
                             getLineRightCtx(props.data)
@@ -356,17 +364,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </S.QueryInfo> :
                             null
                         }
-                        <S.Summary>
-                            <dt>{ut.translate('concordance__num_matching_items')}:</dt>
-                            <dd>{ut.formatNumber(conc.concSize, 0)}</dd>
-                            {conc.ipm > -1 ?
-                                <>
-                                    <dt>{ut.translate('concordance__ipm')}:</dt>
-                                    <dd>{ut.formatNumber(conc.ipm, 2)}</dd>
-                                </> :
-                                null
-                            }
-                        </S.Summary>
+                        {this.props.isExamplesMode ?
+                            null :
+                            <S.Summary>
+                                <dt>{ut.translate('concordance__num_matching_items')}:</dt>
+                                <dd>{ut.formatNumber(conc.concSize, 0)}</dd>
+                                {conc.ipm > -1 ?
+                                    <>
+                                        <dt>{ut.translate('concordance__ipm')}:</dt>
+                                        <dd>{ut.formatNumber(conc.ipm, 2)}</dd>
+                                    </> :
+                                    null
+                                }
+                            </S.Summary>
+                        }
                         <S.ConcLines>
                             <table className={tableClasses.join(' ')}>
                                 <tbody>

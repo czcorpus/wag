@@ -109,7 +109,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         return false;
     }
 
-    private prepareArgs(queryArgs:MQueryCollArgs):string {
+    private prepareArgs(queryArgs:{[k:string]:any}):string {
         return pipe(
             {
                 ...queryArgs
@@ -122,10 +122,25 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         )
     }
 
+    private prepareCollWithExArgs(queryArgs:MQueryCollArgs):string {
+        return this.prepareArgs({
+            ...queryArgs,
+            examplesPerColl: 2
+        });
+    }
+
     private mkUrl(args:MQueryCollArgs):string {
         return this.useWithExamplesVariant ?
-            urlJoin(this.apiURL, 'collocations-with-examples', args.corpusId) + `?${this.prepareArgs(args)}` :
-            urlJoin(this.apiURL, 'collocations', args.corpusId) + `?${this.prepareArgs(args)}`;
+            urlJoin(
+                this.apiURL,
+                'collocations-with-examples',
+                args.corpusId
+            ) + `?${this.prepareCollWithExArgs(args)}` :
+            urlJoin(
+                this.apiURL,
+                'collocations',
+                args.corpusId
+            ) + `?${this.prepareArgs(args)}`;
     }
 
     private mkRequest(tileId:number, multicastRequest:boolean, args:MQueryCollArgs):Observable<BasicHTTPResponse> {
