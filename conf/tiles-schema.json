@@ -7,11 +7,9 @@
         "type": "object"
     },
     "definitions": {
-        "Backlink": {
+        "BacklinkConf<any>": {
             "properties": {
-                "isAppUrl": {
-                    "type": "boolean"
-                },
+                "args": {},
                 "label": {
                     "anyOf": [
                         {
@@ -25,34 +23,20 @@
                         }
                     ]
                 },
-                "method": {
-                    "enum": [
-                        "CONNECT",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ],
-                    "type": "string"
-                },
-                "subcname": {
-                    "type": "string"
-                },
                 "url": {
                     "type": "string"
                 }
             },
+            "required": [
+                "url"
+            ],
             "type": "object"
         },
         "TileConf": {
             "description": "A configuration for a tile\nprovided by hosting page",
             "properties": {
                 "backlink": {
-                    "$ref": "#/definitions/Backlink",
+                    "$ref": "#/definitions/BacklinkConf<any>",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "compatibleSubqProviders": {
@@ -108,9 +92,6 @@
                 },
                 "useDataStream": {
                     "type": "boolean"
-                },
-                "waitForTimeoutSecs": {
-                    "type": "number"
                 }
             },
             "required": [

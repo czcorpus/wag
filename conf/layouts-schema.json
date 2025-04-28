@@ -35,25 +35,7 @@
                 "groupTemplate": {},
                 "tiles": {
                     "items": {
-                        "allOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "properties": {
-                                    "ref": {
-                                        "type": "string"
-                                    },
-                                    "width": {
-                                        "type": "number"
-                                    }
-                                },
-                                "required": [
-                                    "width"
-                                ],
-                                "type": "object"
-                            }
-                        ]
+                        "$ref": "#/definitions/LayoutVisibleTile"
                     },
                     "type": "array"
                 }
@@ -68,9 +50,6 @@
                 "groups": {
                     "items": {
                         "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
                             {
                                 "$ref": "#/definitions/GroupLayoutConfig"
                             },
@@ -140,9 +119,6 @@
                     "items": {
                         "anyOf": [
                             {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
                                 "$ref": "#/definitions/GroupLayoutConfig"
                             },
                             {
@@ -210,9 +186,6 @@
                 "groups": {
                     "items": {
                         "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
                             {
                                 "$ref": "#/definitions/GroupLayoutConfig"
                             },
@@ -283,6 +256,27 @@
             ],
             "type": "object"
         },
+        "LayoutVisibleTile": {
+            "properties": {
+                "readDataFrom": {
+                    "type": "string"
+                },
+                "ref": {
+                    "type": "string"
+                },
+                "tile": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "tile",
+                "width"
+            ],
+            "type": "object"
+        },
         "LayoutsConfig": {
             "properties": {
                 "cmp": {
@@ -303,46 +297,6 @@
                 "upos"
             ],
             "type": "string"
-        },
-        "ServiceTile": {
-            "description": "ServiceTile is a tile which is a functional part of a layout but not\nnecessarily in a visual way.",
-            "properties": {
-                "readSubqFrom": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
-                },
-                "tile": {
-                    "type": "string"
-                },
-                "waitFor": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
-                }
-            },
-            "required": [
-                "tile"
-            ],
-            "type": "object"
         }
     },
     "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",

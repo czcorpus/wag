@@ -101,7 +101,6 @@ function mkRuntimeClientConf({
                 logo: conf.logo,
                 corpInfoApiUrl: conf.corpInfoApiUrl,
                 apiHeaders: conf.apiHeaders,
-                reqCacheTTL: conf.reqCacheTTL,
                 onLoadInit: conf.onLoadInit,
                 dataReadability: typeof conf.dataReadability === 'string' ?
                     {metadataMapping: {}, commonStructures: {}} :
