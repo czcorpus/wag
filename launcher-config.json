@@ -72,28 +72,8 @@
         "conf_name": "CollocationsTileConf"
       },
       {
-        "path": "core/concFilter",
-        "conf_name": "ConcFilterTileConf"
-      },
-      {
         "path": "core/concordance",
         "conf_name": "ConcordanceTileConf"
-      },
-      {
-        "path": "core/freqBar",
-        "conf_name": "FreqBarTileConf"
-      },
-      {
-        "path": "core/freqComparison",
-        "conf_name": "FreqComparisonTileConf"
-      },
-      {
-        "path": "core/freqPie",
-        "conf_name": "FreqPieTileConf"
-      },
-      {
-        "path": "core/freqTree",
-        "conf_name": "FreqTreeTileConf"
       },
       {
         "path": "core/geoAreas",
@@ -104,40 +84,16 @@
         "conf_name": "HtmlTileConf"
       },
       {
-        "path": "core/matchingDocs",
-        "conf_name": "MatchingDocsTileConf"
-      },
-      {
         "path": "core/mergeCorpFreq",
         "conf_name": "MergeCorpFreqTileConf"
-      },
-      {
-        "path": "core/multiWordGeoAreas",
-        "conf_name": "MultiWordGeoAreasTileConf"
-      },
-      {
-        "path": "core/multiWordTimeDistrib",
-        "conf_name": "TimeDistTileConf"
       },
       {
         "path": "core/speeches",
         "conf_name": "SpeechesTileConf"
       },
       {
-        "path": "core/syD",
-        "conf_name": "SyDTileConf"
-      },
-      {
         "path": "core/timeDistrib",
         "conf_name": "TimeDistTileConf"
-      },
-      {
-        "path": "core/translations",
-        "conf_name": "TranslationsTileConf"
-      },
-      {
-        "path": "core/treqSubsets",
-        "conf_name": "TreqSubsetsTileConf"
       },
       {
         "path": "core/wordForms",

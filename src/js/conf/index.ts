@@ -183,7 +183,6 @@ export interface ClientStaticConf {
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping|string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
-    reqCacheTTL:number;
     onLoadInit?:Array<string>;
     issueReportingUrl?:string;
     maxTileErrors:number;
@@ -263,7 +262,6 @@ export interface ClientConf {
     logo?:LogoConf;
     colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
-    reqCacheTTL:number;
     onLoadInit?:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
@@ -356,7 +354,6 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
             metadataMapping: {},
             commonStructures: {}
         },
-        reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
         colors: getAppliedThemeConf(conf, themeId),
         colorThemes: getThemeList(conf),
