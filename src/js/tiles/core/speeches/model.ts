@@ -267,9 +267,9 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             null,
             (state, action, dispatch) => {
                 this.api.getSourceDescription(
-                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
                     this.tileId,
-                    this.appServices.getISO639UILang(),
+                    appServices.getISO639UILang(),
                     action.payload.corpusId
 
                 ).subscribe({

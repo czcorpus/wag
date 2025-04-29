@@ -1,0 +1,14 @@
+{
+    "en-US": {
+        "treqsubsets__main_label": "Treq subsets",
+        "treqsubsets__abs": "Abs. frequency",
+        "treqsubsets__perc": "Relative frequency",
+        "treqsubsets__found_variants": "Found variants"
+    },
+    "cs-CZ": {
+        "treqsubsets__main_label": "Treq - podmnožiny",
+        "treqsubsets__abs": "Absolutní frekvence",
+        "treqsubsets__perc": "Relativní frekvence",
+        "treqsubsets__found_variants": "Nalezené varianty"
+    }
+}

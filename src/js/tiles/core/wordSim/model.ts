@@ -171,7 +171,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     this.api.getSourceDescription(
                         appServices.dataStreaming().startNewSubgroup(this.tileId),
                         this.tileId,
-                        this.queryDomain,
+                        appServices.getISO639UILang(),
                         state.corpus
                     ).subscribe({
                         next:(data) => {

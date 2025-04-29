@@ -198,7 +198,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(
-                        this.dataStreaming, this.tileId, this.queryDomain, state.corpname
+                        appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        appServices.getISO639UILang(),
+                        state.corpname,
                     ).subscribe({
                         next: (data) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
