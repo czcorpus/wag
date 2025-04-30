@@ -95,7 +95,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         this.api = api;
         this.eApi = eApi;
         this.maxItems = maxItems;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
@@ -178,7 +177,11 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
-                    this.eApi.call(appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.stateToEapiArgs(state, q)).pipe(
+                    this.eApi.call(
+                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId, this.stateToEapiArgs(state, q)
+
+                    ).pipe(
                         map(
                             data => ({
                                 ...data,

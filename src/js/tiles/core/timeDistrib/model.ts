@@ -146,7 +146,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.api = api;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -251,7 +250,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 this.loadData(
                     state,
-                    appServices.dataStreaming().getSubgroup(this.tileId),
+                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     SubchartID.SECONDARY,
                     dispatch
                 );
@@ -264,7 +263,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => state,
             (state, action, dispatch) => {
                 this.api.getSourceDescription(
-                    appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId']
+                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    action.payload['corpusId']
 
                 ).subscribe({
                     next: (data) => {

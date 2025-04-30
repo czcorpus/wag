@@ -203,6 +203,7 @@ export function initClient(
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming = new DataStreaming(
+        null,
         pipe(
             config.tiles,
             Dict.filter(

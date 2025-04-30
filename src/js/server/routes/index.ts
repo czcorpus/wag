@@ -449,7 +449,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
-            dataStreaming: new DataStreaming([], undefined, 1000, undefined),
+            dataStreaming: new DataStreaming(null, [], null, 1000, null),
             mobileModeTest: ()=>false
         });
         const queryDomain = getQueryValue(req, 'domain')[0];
@@ -551,7 +551,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
-            dataStreaming: new DataStreaming([], undefined, 1000, undefined),
+            dataStreaming: new DataStreaming(null, [], null, 1000, null),
             mobileModeTest: ()=>false
         });
 

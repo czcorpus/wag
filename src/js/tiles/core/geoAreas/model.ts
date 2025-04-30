@@ -108,7 +108,6 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryMatches = queryMatches;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
 
         this.addActionHandler(
@@ -250,8 +249,12 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.freqApi.getSourceDescription(
-                        this.appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe({
+                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        state.corpname
+
+                    ).subscribe({
                         next: data => {
                             dispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,

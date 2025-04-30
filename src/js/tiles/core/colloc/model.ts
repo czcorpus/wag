@@ -73,7 +73,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.appServices = appServices;
         this.collApi = service;
         this.queryType = queryType;
-        appServices.dataStreaming().createSubgroup(this.tileId, ...dependentTiles);
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -176,9 +175,17 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.backlinks = [];
             },
             (state, action, seDispatch) => {
+                const subg = appServices.dataStreaming().startNewSubgroup(this.tileId, ...dependentTiles);
+                seDispatch(
+                    GlobalActions.TileSubgroupReady,
+                    {
+                        mainTileId: this.tileId,
+                        subgroupId: subg.getId()
+                    }
+                );
                 this.reloadAllData(
                     state,
-                    appServices.dataStreaming().getSubgroup(this.tileId),
+                    subg,
                     rxOf(...List.map((qm, i) => tuple(i, qm), state.queryMatches)),
                     seDispatch
                 );
@@ -209,8 +216,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 this.collApi.getSourceDescription(
-                    appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                .subscribe({
+                    appServices.dataStreaming().startNewSubgroup(this.tileId, ...dependentTiles),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    state.corpname
+
+                ).subscribe({
                     next: (data) => {
                         seDispatch({
                             name: GlobalActions.GetSourceInfoDone.name,

@@ -79,7 +79,6 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         this.appServices = appServices;
         this.tileId = tileId;
         this.audioLinkGenerator = audioLinkGenerator;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -142,7 +141,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    dataStreaming: appServices.dataStreaming().getSubgroup(this.tileId),
+                    dataStreaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     range: [
                         state.leftRange + action.payload.leftChange,
                         state.rightRange + action.payload.rightChange
@@ -168,7 +167,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    dataStreaming: appServices.dataStreaming().getSubgroup(this.tileId),
+                    dataStreaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     range: tuple(state.leftRange, state.rightRange),
                     dispatch
                 });
@@ -268,8 +267,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             null,
             (state, action, dispatch) => {
                 this.api.getSourceDescription(
-                    appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.appServices.getISO639UILang(), action.payload.corpusId)
-                .subscribe({
+                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    action.payload.corpusId
+
+                ).subscribe({
                     next: (data) => {
                         dispatch({
                             name: GlobalActions.GetSourceInfoDone.name,

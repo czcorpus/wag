@@ -108,7 +108,6 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.queryType = queryType;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -178,12 +177,16 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                this.sourceInfoApi.call(appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, {
-                    queryType,
-                    domain: this.queryDomain,
-                    corpname: state.corpname,
+                this.sourceInfoApi.call(
+                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    {
+                        queryType,
+                        domain: this.queryDomain,
+                        corpname: state.corpname,
+                    }
 
-                }).subscribe({
+                ).subscribe({
                     next: data => {
                         dispatch<typeof GlobalActions.GetSourceInfoDone>({
                             name: GlobalActions.GetSourceInfoDone.name,
