@@ -75,7 +75,6 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         this.tileId = tileId;
         this.api = api;
         this.queryDomain = queryDomain;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
             GlobalActions.SubqItemHighlighted.name,
@@ -157,7 +156,11 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             },
             (state, action, seDispatch) => {
-                this.getData(state, appServices.dataStreaming().getSubgroup(this.tileId), seDispatch);
+                this.getData(
+                    state,
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    seDispatch
+                );
             }
         );
         this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
@@ -165,8 +168,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(appServices.dataStreaming().getSubgroup(this.tileId), this.tileId, this.queryDomain, state.corpus).subscribe(
-                        (data) => {
+                    this.api.getSourceDescription(
+                        appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        this.queryDomain,
+                        state.corpus
+                    ).subscribe({
+                        next:(data) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -175,7 +183,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -185,7 +193,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                                 error: err
                             });
                         }
-                    );
+                    });
                 }
             }
         );

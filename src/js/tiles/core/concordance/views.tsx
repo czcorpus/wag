@@ -332,7 +332,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
 
             const conc = this.props.concordances[this.props.visibleQueryIdx];
-
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.concordances.some(conc => conc.lines.length > 0)}

@@ -18,7 +18,7 @@
 
 import { LocalizedConfMsg } from '../types.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils, StatelessModel, StatefulModel, IFullActionControl } from 'kombo';
 import { GlobalComponents } from '../views/common/index.js';
 import { Theme } from './theme.js';
 import { IAppServices } from '../appServices.js';
@@ -289,7 +289,7 @@ export interface TileFactoryArgs<T> {
 
     tileId:number;
 
-    dispatcher:IActionDispatcher;
+    dispatcher:IFullActionControl;
 
     ut:ViewUtils<GlobalComponents>;
 
@@ -360,5 +360,5 @@ export const DEFAULT_ALT_VIEW_ICON:AltViewIconProps = {
  * in case the tile fails to load data.
  */
 export interface ITileReloader {
-    registerModel(tile:ITileProvider, model:StatelessModel<{}>):void;
+    registerModel(tile:ITileProvider, model:StatelessModel<{}>|StatefulModel<{}>):void;
 }

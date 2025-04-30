@@ -108,7 +108,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.appServices = appServices;
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(

@@ -36,6 +36,13 @@ export class Actions {
         name: 'MAIN_RETRY_TILE_LOAD'
     }
 
+    static TileSubgroupReady:Action<{
+        mainTileId:number;
+        subgroupId:string;
+    }> = {
+        name: 'MAIN_TILE_SUBGROUP_READY'
+    }
+
     static SetEmptyResult:Action<{
         error:[number, string];
     }> = {
@@ -272,13 +279,6 @@ export class Actions {
 
     }> = {
         name: 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED'
-    }
-
-    static SubqChanged:Action<{
-        tileId:number;
-
-    }> = {
-        name: 'MAIN_SUBQ_CHANGED'
     }
 
     static TileAreaClicked:Action<{

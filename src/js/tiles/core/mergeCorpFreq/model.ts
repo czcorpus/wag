@@ -61,7 +61,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.appServices = appServices;
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
-        appServices.dataStreaming().createSubgroup(this.tileId);
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -124,7 +123,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.freqApi.getSourceDescription(
-                        appServices.dataStreaming().getSubgroup(this.tileId),
+                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                         this.tileId,
                         this.appServices.getISO639UILang(),
                         action.payload.corpusId

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { HTTP, List, pipe, tuple } from 'cnc-tskit';
+import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
 import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
@@ -89,30 +89,33 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly responseStream:Observable<EventItem>;
 
-    private readonly rootUrl:string|undefined;
+    private readonly rootUrl:string|null;
 
-    private readonly reqTag:RequestTag|undefined;
+    private readonly reqTag:RequestTag|null;
 
     private readonly tilesReadyTimeoutSecs:number;
 
     private readonly userSession:UserConf;
 
-    private readonly tilesDataStreams:Array<DataStreaming>;
+    private readonly tilesDataStreams:{[streamId:string]:DataStreaming};
 
-    private readonly tilesLazyDataStreams:Array<()=>DataStreaming>;
+    private readonly id:string;
+
+    static readonly ID_GLOBAL = '__global__';
 
     constructor(
+        id:string|null,
         tileIds:Array<string|number>,
-        rootUrl:string|undefined,
+        rootUrl:string|null,
         tilesReadyTimeoutSecs:number,
         userSession:UserConf
     ) {
+        this.id = id ? id : DataStreaming.ID_GLOBAL;
         this.rootUrl = rootUrl;
         this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
         this.reqTag = userSession ? this.mkQueryTag(userSession) : undefined;
         this.userSession = userSession;
-        this.tilesDataStreams = [];
-        this.tilesLazyDataStreams = [];
+        this.tilesDataStreams = {};
         this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
         this.responseStream = this.requestSubject.pipe(
             scan(
@@ -237,27 +240,39 @@ export class DataStreaming implements IDataStreaming {
         }
     }
 
+    getId():string {
+        return this.id;
+    }
+
     /**
      * Creates a new DataStreaming instance with custom
      * group of tiles. This is intended for tiles which
      * have other dependent tiles and need to update
      * data together.
      *
+     * The stream, once created, starts to measure time
+     * and handle possible timeout so it is important
+     * not to call this too early (like during a model
+     * instantiation).
+     *
+     * The method returns a unique identifier of the subgroup
+     * and the caller should dispatch an action informing
+     * that the group is ready so dependent tiles may react
+     * accordingly (i.e. get the stream and register their requests).
+     *
      * @param tiles
      * @returns
      */
-    createSubgroup(mainTileId:number, ...dependentTiles:Array<number>):void {
-        const curr = this.tilesDataStreams[mainTileId];
-        if (curr) {
-            throw new Error(`data stream group with main tile ${mainTileId} already exists`);
-        }
-
-        this.tilesLazyDataStreams[mainTileId] = () => new DataStreaming(
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):DataStreaming {
+        const groupId = Ident.puid();
+        this.tilesDataStreams[groupId] = new DataStreaming(
+            groupId,
             [mainTileId,...dependentTiles],
             this.rootUrl,
             this.tilesReadyTimeoutSecs,
             this.userSession
         );
+        return this.tilesDataStreams[groupId];
     }
 
     /**
@@ -267,20 +282,14 @@ export class DataStreaming implements IDataStreaming {
      * In case the group is not found, the method throws
      * an exception.
      *
-     * @param mainTileId is the "data source tile" of a dependent
-     * tile which calls this method.
+     * @param subgroupId is the ID of the group
      */
-    getSubgroup(mainTileId:number):DataStreaming {
-        const curr = this.tilesDataStreams[mainTileId];
-        if (curr) {
-            return curr;
+    getSubgroup(subgroupId:string):DataStreaming {
+        const curr = this.tilesDataStreams[subgroupId];
+        if (!curr) {
+            throw new Error(`DataStreaming subgroup ${subgroupId} does not exist.`);
         }
-        const factory = this.tilesLazyDataStreams[mainTileId];
-        if (!factory) {
-            throw new Error(`no data stream group with main tile ${mainTileId}`);
-        }
-        this.tilesDataStreams[mainTileId] = factory();
-        return this.tilesDataStreams[mainTileId];
+        return curr;
     }
 
     /**
@@ -325,7 +334,6 @@ export class DataStreaming implements IDataStreaming {
 
     registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
         if (!this.rootUrl) {
-            console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
             return EMPTY;
         }
 
