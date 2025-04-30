@@ -184,12 +184,17 @@ export class DataStreaming implements IDataStreaming {
                             (val, key) => {
                                 evtSrc.addEventListener(`DataTile-${val.tileId}`, evt => {
                                     if (val.contentType == 'application/json') {
-                                        const tmp = JSON.parse(evt.data);
-                                        observer.next({
-                                            data: tmp,
-                                            error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
-                                            tileId: val.tileId
-                                        });
+                                        try {
+                                            const tmp = JSON.parse(evt.data);
+                                            observer.next({
+                                                data: tmp,
+                                                error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
+                                                tileId: val.tileId
+                                            });
+
+                                        } catch (e) {
+                                            observer.error(new Error(`Failed to process response for tile ${val.tileId}: ${e}`));
+                                        }
 
                                     } else if (val.base64EncodeResult && typeof evt.data === 'string') {
                                         const tmp = atob(evt.data);
