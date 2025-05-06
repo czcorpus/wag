@@ -116,7 +116,12 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, seDispatch) => {
                 merge(...List.map(qType =>
-                    this.api.call(appServices.dataStreaming(), this.tileId, this.stateToArgs(state, qType)),
+                    this.api.call(
+                        appServices.dataStreaming(),
+                        this.tileId,
+                        0,
+                        this.stateToArgs(state, qType)
+                    ),
                     state.displayTypes,
                 )).subscribe({
                     next: ([qType, data]) => {
@@ -179,7 +184,9 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     rxOf(state.examplesCache[q]) :
                     this.eApi.call(
                         this.appServices.dataStreaming().startNewSubgroup(this.tileId),
-                        this.tileId, this.stateToEapiArgs(state, q)
+                        this.tileId,
+                        0,
+                        this.stateToEapiArgs(state, q)
 
                     ).pipe(
                         map(

@@ -100,7 +100,7 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call(dataStreaming, tileId, {
+            this.srcInfoApi.call(dataStreaming, tileId, 0, {
                 corpname: corpname,
                 domain: domain,
                 queryType: QueryType.SINGLE_QUERY
@@ -135,7 +135,7 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         )
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
         if (this.useDataStream) {
             return this.apiServices.dataStreaming().registerTileRequest<WordSimApiLegacyResponse>(
                 {

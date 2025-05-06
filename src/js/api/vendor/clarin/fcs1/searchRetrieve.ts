@@ -71,7 +71,7 @@ export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse
     }
 
     getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
-        return this.srcInfoApi.call(streaming, tileId, {
+        return this.srcInfoApi.call(streaming, tileId, 0, {
             tileId: tileId,
             uiLang: lang,
             'x-fcs-endpoint-description': 'true' // TODO
@@ -82,7 +82,7 @@ export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse
         return null;
     }
 
-	call(streaming:IDataStreaming, tileId:number, args:FCS1Args):Observable<ConcResponse> {
+	call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:FCS1Args):Observable<ConcResponse> {
 		return ajax$(
             HTTP.Method.GET,
             this.url,

@@ -99,7 +99,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     }
 
     getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(streaming, tileId, {corpname, lang});
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     supportsLeftRightContext():boolean {
@@ -182,7 +182,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         }
     }
 
-    call(streaming:IDataStreaming, tileId:number, args:MQueryCollArgs):Observable<CollApiResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryCollArgs):Observable<CollApiResponse> {
         return this.mkRequest(streaming, tileId, args).pipe(
             map(
                 v => ({

@@ -140,7 +140,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         }
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
         return this.mkRequest(dataStreaming, tileId, args).pipe(map(resp => resp.parts));
     }
 

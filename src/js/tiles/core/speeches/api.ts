@@ -94,7 +94,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
     }
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, {
+        return this.srcInfoService.call(dataStreaming, tileId, 0, {
             corpname: corpname,
             lang: lang
         });
@@ -109,7 +109,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         null;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:SpeechReqArgs|null):Observable<SpeechData> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:SpeechReqArgs|null):Observable<SpeechData> {
         if (this.useDataStream) {
             return dataStreaming.registerTileRequest<SpeechResponse>(
                 {

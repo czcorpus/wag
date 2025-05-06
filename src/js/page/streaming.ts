@@ -17,7 +17,7 @@
  */
 
 import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
+import { EMPTY, Observable, Subject } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
@@ -27,6 +27,12 @@ import { QueryType } from '../query/index.js';
 
 interface TileRequest {
     tileId:number;
+
+    /**
+     * 0 or undefined for single mode and first query in the cmp mode, 1,2,... for other queries
+     * in cmp mode.
+     */
+    queryIdx?:number;
     url:string;
     method:HTTP.Method,
     body:unknown;
@@ -39,9 +45,15 @@ interface TileRequest {
     isEventSource?:boolean;
 }
 
+/**
+ * OtherTileRequest is a pseudo-request which relies on other
+ * tile's true request.
+ */
 interface OtherTileRequest {
     tileId:number;
+    queryIdx?:number;
     otherTileId:number;
+    otherTileQueryIdx?:number;
     contentType:string;
     base64EncodeResult?:boolean;
 }
@@ -50,8 +62,23 @@ function isOtherTileRequest(t:TileRequest|OtherTileRequest):t is OtherTileReques
     return typeof t['otherTileId'] === 'number';
 }
 
+function normalizeRequest<T extends TileRequest|OtherTileRequest>(req:T):T {
+    if (isOtherTileRequest(req)) {
+        return {
+            ...req,
+            queryIdx: typeof req.queryIdx === 'number' ? req.queryIdx : 0,
+            otherQueryIdx: typeof req.otherTileQueryIdx === 'number' ? req.otherTileQueryIdx : 0,
+        };
+    }
+    return {
+        ...req,
+        queryIdx: typeof req.queryIdx === 'number' ? req.queryIdx : 0
+    }
+}
+
 interface EventItem<T = unknown> {
     tileId:number;
+    queryIdx:number;
     data:T;
     error?:string;
 }
@@ -185,14 +212,15 @@ export class DataStreaming implements IDataStreaming {
                         );
                         tileReqMap.forEach(
                             (val, key) => {
-                                evtSrc.addEventListener(`DataTile-${val.tileId}`, evt => {
+                                evtSrc.addEventListener(`DataTile-${val.tileId}.${val.queryIdx}`, evt => {
                                     if (val.contentType == 'application/json') {
                                         try {
                                             const tmp = JSON.parse(evt.data);
                                             observer.next({
                                                 data: tmp,
                                                 error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
-                                                tileId: val.tileId
+                                                tileId: val.tileId,
+                                                queryIdx: val.queryIdx
                                             });
 
                                         } catch (e) {
@@ -203,13 +231,15 @@ export class DataStreaming implements IDataStreaming {
                                         const tmp = atob(evt.data);
                                         observer.next({
                                             data: tmp,
-                                            tileId: val.tileId
+                                            tileId: val.tileId,
+                                            queryIdx: val.queryIdx
                                         })
 
                                     } else {
                                         observer.next({
                                             data: evt.data,
-                                            tileId: val.tileId
+                                            tileId: val.tileId,
+                                            queryIdx: val.queryIdx
                                         })
                                     }
                                 });
@@ -336,10 +366,16 @@ export class DataStreaming implements IDataStreaming {
         if (!this.rootUrl) {
             return EMPTY;
         }
-
-        this.requestSubject.next(isOtherTileRequest(entry) ? entry : this.prepareTileRequest(entry));
+        const normEntry = normalizeRequest(entry);
+        this.requestSubject.next(
+            isOtherTileRequest(normEntry) ?
+                normEntry :
+                this.prepareTileRequest(normEntry)
+        );
         return this.responseStream.pipe(
-            filter((response:EventItem<T>) => response.tileId === entry.tileId),
+            filter(
+                (response:EventItem<T>) => response.tileId === normEntry.tileId && response.queryIdx === normEntry.queryIdx
+            ),
             map(response => {
                 if (response.error) {
                     throw new Error(response.error);

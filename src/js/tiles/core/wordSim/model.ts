@@ -223,6 +223,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     dataStreaming,
                     this.api,
                     this.tileId,
+                    0,
                     this.stateToArgs(state, queryMatch),
                     queryId
                 ) :

@@ -48,7 +48,7 @@ export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> 
         this.url = url;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:LemmaDbRequestArgs):Observable<LemmaDbResponse> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:LemmaDbRequestArgs):Observable<LemmaDbResponse> {
         return ajax$<LemmaDbResponse>(
             HTTP.Method.GET,
             this.url,

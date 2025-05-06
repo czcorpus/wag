@@ -130,12 +130,13 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         concatMap(args => this.freqApi.call(
                             this.appServices.dataStreaming(),
                             this.tileId,
+                            0,
                             this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[0]))
                         ))
                     ),
                     state.mapSVG ?
                         rxOf(null) :
-                        this.mapLoader.call(appServices.dataStreaming(), this.tileId, 'mapCzech.inline.svg')
+                        this.mapLoader.call(appServices.dataStreaming(), this.tileId, 0, 'mapCzech.inline.svg')
 
                 ]).subscribe({
                     next: resp => {

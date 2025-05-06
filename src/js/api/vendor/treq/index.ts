@@ -165,7 +165,7 @@ class TreqAPICaller {
         )).sort((x1, x2) => x2.score - x1.score);
     }
 
-    call(streaming:IDataStreaming, tileId:number, args:RequestArgs):Observable<TranslationResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         return ajax$<HTTPResponse>(

@@ -264,6 +264,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.freqApi.call(
             dataStreaming,
             this.tileId,
+            0,
             this.allSourcesToArgs(state, queryMatch)
 
         ).pipe(

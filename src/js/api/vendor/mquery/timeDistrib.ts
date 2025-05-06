@@ -131,7 +131,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     }
 
     getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(streaming, tileId, {corpname, lang});
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
@@ -144,11 +144,11 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
             null;
     }
 
-    private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
+    private prepareArgs(tileId:number, queryIdx:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
         return pipe(
             {
                 ...queryArgs,
-                event: eventSource ? `DataTile-${tileId}` : undefined
+                event: eventSource ? `DataTile-${tileId}.${queryIdx}` : undefined
             },
             Dict.filter((v, k) => v !== undefined),
             Dict.map(
@@ -162,11 +162,17 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         )
     }
 
-    public loadSecondWord(streaming:IDataStreaming, tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        const args = this.prepareArgs(tileId, queryArgs, true);
+    public loadSecondWord(
+        streaming:IDataStreaming,
+        tileId:number,
+        queryIdx:number,
+        queryArgs:TimeDistribArgs
+    ):Observable<TimeDistribResponse> {
+        const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
         return streaming.registerTileRequest<MqueryStreamData>(
             {
                 tileId,
+                queryIdx,
                 method: HTTP.Method.GET,
                 url: `${this.apiURL}/time-dist-word?${args}`,
                 body: {},
@@ -223,8 +229,13 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
     // { ..., chunkNum: number, totalChunks: number}
     chunks:Map<number, boolean>;
     */
-    private callViaDataStream(streaming:IDataStreaming, tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        const args = this.prepareArgs(tileId, queryArgs, true);
+    private callViaDataStream(
+        streaming:IDataStreaming,
+        tileId:number,
+        queryIdx:number,
+        queryArgs:TimeDistribArgs
+    ):Observable<TimeDistribResponse> {
+        const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
         return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
                 {
                     tileId,
@@ -276,9 +287,9 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         )
     }
 
-    private callViaAjAX(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    private callViaAjAX(tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return new Observable(o => {
-            const args = this.prepareArgs(tileId, queryArgs, true);
+            const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
             const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${args}`);
             const procChunks:{[k:number]:number} = {};
             let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
@@ -336,10 +347,10 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         });
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return this.useDataStream ?
-            this.callViaDataStream(streaming, tileId, queryArgs) :
-            this.callViaAjAX(tileId, queryArgs);
+            this.callViaDataStream(streaming, tileId, queryIdx, queryArgs) :
+            this.callViaAjAX(tileId, queryIdx, queryArgs);
     }
 
     requestBacklink(args:TimeDistribArgs):Observable<URL> {

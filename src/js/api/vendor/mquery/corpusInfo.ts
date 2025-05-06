@@ -69,7 +69,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
         this.apiServices = apiServices;
     }
 
-    call(streaming:IDataStreaming, tileId:number, args:QueryArgs):Observable<CorpusDetails> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:QueryArgs):Observable<CorpusDetails> {
         return ajax$<HTTPResponse>(
             HTTP.Method.GET,
             this.apiURL + `/info/${args.corpname}`,

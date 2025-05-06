@@ -52,7 +52,7 @@ export interface FrodoResponse {
 
 export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:RequestArgs):Observable<Response> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/dictionary/', args.corpName, 'search', args.lemma);
         return (this.useDataStream ?
             dataStreaming.registerTileRequest<FrodoResponse>(
@@ -92,7 +92,7 @@ export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceA
     }
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, {corpname, lang});
+        return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {

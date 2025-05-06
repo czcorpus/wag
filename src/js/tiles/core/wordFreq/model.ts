@@ -180,6 +180,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 this.sourceInfoApi.call(
                     this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     this.tileId,
+                    0,
                     {
                         queryType,
                         domain: this.queryDomain,
@@ -224,6 +225,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 (args) => this.api.call(
                     this.appServices.dataStreaming(),
                     this.tileId,
+                    0,
                     args.variant.lemma ?
                         {
                             domain: args.lang,
