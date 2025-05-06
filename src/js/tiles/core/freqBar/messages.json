@@ -1,0 +1,18 @@
+{
+    "en-US": {
+        "freqBar__main_label": "Frequency distribution",
+        "freqBar__indicator_text_types": "text types",
+        "freqBar__indicator_medium": "media types",
+        "freqBar__speaker_region": "regions by speakers",
+        "freqBar__rel_freq": "ipm (instances per million words)",
+        "freqBar__abs_freq": "frequency (number of occurrences)"
+    },
+    "cs-CZ": {
+        "freqBar__main_label": "Frekvenční distribuce",
+        "freqBar__indicator_text_types": "typy textů",
+        "freqBar__indicator_medium": "typy médií",
+        "freqBar__speaker_region": "oblasti podle mluvčích",
+        "freqBar__rel_freq": "ipm (počet výskytů na milion slov)",
+        "freqBar__abs_freq": "frekvence (absolutní počet výskytů)"
+    }
+}

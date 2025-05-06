@@ -17,14 +17,31 @@
  */
 
 import { Backlink } from '../../../page/tile.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
 import { QueryMatch } from '../../../query/index.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import { DataRow } from './api.js';
 
-export interface ModelSourceArgs extends MinSingleCritFreqState {
+export interface ModelSourceArgs {
+
+    corpname:string;
 
     subcname:string|null;
+
+    fcrit:string;
+
+    freqType:'tokens'|'text-types';
+
+    flimit:number;
+
+    freqSort:string;
+
+    fpage:number;
+
+    posQueryGenerator:[string, string];
+
+    fttIncludeEmpty?:boolean;
+
+    fmaxitems?:number;
 
     corpusSize:number;
 

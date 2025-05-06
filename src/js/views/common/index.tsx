@@ -261,7 +261,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 }
             });
         };
-        
+
         return (
             <div className="source">
                 {props.data ? ut.translate('global__source') + ':\u00a0' : null}
