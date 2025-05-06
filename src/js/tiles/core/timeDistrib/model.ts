@@ -465,6 +465,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 dataStreaming,
                 this.api,
                 this.tileId,
+                0,
                 testIsDictMatch(currMatches[0]) ? // TODO cmp not supported here
                     this.stateToArgs(state) :
                     null,
@@ -476,6 +477,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             this.api.loadSecondWord(
                 dataStreaming,
                 this.tileId,
+                0,
                 this.stateToArgs(state, true),
             ).pipe(
                 map(

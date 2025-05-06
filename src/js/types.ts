@@ -47,7 +47,7 @@ export enum CorePosAttribute {
  */
 export interface DataApi<T, U> {
 
-    call(streaming:IDataStreaming, tileId:number, queryArgs:T):Observable<U>;
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U>;
 }
 
 /**

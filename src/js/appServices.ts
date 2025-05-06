@@ -328,7 +328,7 @@ export class AppServices implements IAppServices {
     }
 
     queryLemmaDbApi(streaming:IDataStreaming, tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call(streaming, tileId, {domain, q, mainPosAttr});
+        return this.lemmaDbApi.call(streaming, tileId, 0, {domain, q, mainPosAttr});
     }
 
     getISO639UILang():string {

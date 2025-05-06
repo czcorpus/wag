@@ -441,7 +441,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(args => this.concApi.call(streaming, this.tileId, args))
+            mergeMap(args => this.concApi.call(streaming, this.tileId, 0, args))
         )
     }
 

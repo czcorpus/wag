@@ -49,7 +49,7 @@ export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements Resource
         )
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:RequestArgs):Observable<Response> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
         return (this.useDataStream ?
             dataStreaming.registerTileRequest<Array<LemmaItem>>(
@@ -91,7 +91,7 @@ export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements Resource
     }
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, {corpname, lang});
+        return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {

@@ -43,7 +43,7 @@ export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, So
         this.apiServices = apiServices;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:FreqDbSourceInfoArgs):Observable<SourceDetails> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:FreqDbSourceInfoArgs):Observable<SourceDetails> {
         return ajax$<{result:SourceDetails}>(
             'GET',
             this.apiURL + HTTPAction.SOURCE_INFO,

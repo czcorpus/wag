@@ -106,7 +106,7 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
         ).join('&')
     }
 
-    call(streaming:IDataStreaming, tileId:number, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
         // TODO cmp search support
         const singleSrchArgs = args[0];
         if (this.usesDataStream) {

@@ -96,7 +96,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
     }
 
     getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(streaming, tileId, {corpname, lang});
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
@@ -122,7 +122,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(streaming:IDataStreaming, tileId:number, args:MQueryFreqArgs):Observable<APIResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryFreqArgs):Observable<APIResponse> {
         return (
             this.useDataStream ?
                 streaming.registerTileRequest<HTTPResponse>({

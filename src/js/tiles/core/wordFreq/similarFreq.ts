@@ -62,7 +62,7 @@ export class SimilarFreqWordsFrodoAPI {
         this.useDataStream = useDataStream;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
         return (
             this.useDataStream ?
                 this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(

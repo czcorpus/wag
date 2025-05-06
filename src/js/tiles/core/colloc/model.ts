@@ -303,6 +303,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     streaming,
                     this.collApi,
                     this.tileId,
+                    0,
                     this.stateToArgs(state, queryMatch),
                     {queryId: queryId}
                 )

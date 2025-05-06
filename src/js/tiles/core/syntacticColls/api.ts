@@ -117,14 +117,14 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
 
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, {corpname, lang});
+        return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
         const url = urlJoin(this.apiURL, 'query', request.params.corpname, request.params.queryType);
         let data:Observable<SCollsApiResponse>;
         if (this.useDataStream) {
@@ -211,7 +211,7 @@ export class ScollexSyntacticCollsExamplesAPI implements DataApi<SCERequestArgs,
         this.useDataStream = useDataStream;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, request:SCERequestArgs):Observable<SCollsExamples> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, request:SCERequestArgs):Observable<SCollsExamples> {
         const url = urlJoin(this.apiURL, 'conc-examples', request.params.corpname);
         if (this.useDataStream) {
             dataStreaming.registerTileRequest<SCollsExamples>(

@@ -340,6 +340,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             .call(
                 dataStreaming,
                 this.tileId,
+                0,
                 this.stateToArgs(state, range)
 
             ).subscribe({
