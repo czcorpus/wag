@@ -93,6 +93,7 @@ export class GeoAreasTile implements ITileProvider {
                 tooltipArea: null,
                 data: [],
                 corpname: conf.corpname,
+                subcname: null, // TODO
                 fcrit: conf.fcrit,
                 freqType: conf.freqType,
                 flimit: conf.flimit,

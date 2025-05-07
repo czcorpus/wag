@@ -76,6 +76,10 @@
         "conf_name": "ConcordanceTileConf"
       },
       {
+        "path": "core/freqBar",
+        "conf_name": "FreqBarTileConf"
+      },
+      {
         "path": "core/geoAreas",
         "conf_name": "GeoAreasTileConf"
       },

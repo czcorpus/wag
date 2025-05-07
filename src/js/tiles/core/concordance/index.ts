@@ -61,6 +61,8 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly readDataFromTile:number;
+
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
         widthFract, conf, domain2, isBusy, useDataStream, readDataFromTile
@@ -70,6 +72,7 @@ export class ConcordanceTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
+        this.readDataFromTile = readDataFromTile;
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
@@ -173,7 +176,7 @@ export class ConcordanceTile implements ITileProvider {
     }
 
     getReadDataFrom():number|null {
-        return null;
+        return this.readDataFromTile;
     }
 }
 
