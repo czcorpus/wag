@@ -19,7 +19,7 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../../page/ajax.js';
+import { ajax$, encodeArgs } from '../../../page/ajax.js';
 import { SourceDetails } from '../../../types.js';
 import {
     WordTranslation,
@@ -33,7 +33,7 @@ import {
 } from '../../../models/tiles/translations.js';
 import { IAppServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
-import { Backlink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 
@@ -91,7 +91,11 @@ class TreqAPICaller {
 
     private readonly appServices:IAppServices;
 
-    constructor(apiURL:string, appServices:IAppServices) {
+    private readonly useDataStream:boolean;
+
+    protected readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, appServices:IAppServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.appServices = appServices;
         this.titleI18n = {
@@ -102,6 +106,8 @@ class TreqAPICaller {
             'cs-CZ': 'Projekt spravovaný Ústavem Českého národního korpusu',
             'en-US': 'A project managed by the Institute of the Czech National Corpus',
         };
+        this.useDataStream = useDataStream;
+        this.backlinkConf = backlinkConf;
     }
 
     private translateText(data:{[lang:string]:string}, lang:string):string {
@@ -168,16 +174,24 @@ class TreqAPICaller {
     call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        return ajax$<HTTPResponse>(
-            HTTP.Method.GET,
-            `${this.apiURL}/api/v1/`,
-            args,
-            {
-                headers,
-                withCredentials: true
-            },
+        const source = this.useDataStream ?
+            streaming.registerTileRequest<HTTPResponse>({
+                contentType: 'application/json',
+                body: {},
+                method: HTTP.Method.GET,
+                tileId,
+                url: this.apiURL + '?' + encodeArgs(args),
+            }) : ajax$<HTTPResponse>(
+                HTTP.Method.GET,
+                `${this.apiURL}/api/v1/`,
+                args,
+                {
+                    headers,
+                    withCredentials: true
+                },
+            );
 
-        ).pipe(
+        return source.pipe(
             map(
                 resp => {
                     if (!resp) {
@@ -203,22 +217,25 @@ class TreqAPICaller {
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        return {
-            queryId,
-            subqueryId,
-            label: 'Treq',
+        if (this.backlinkConf) {
+            return {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'Treq',
+            }
         }
+        return null;
     }
 }
 
 
-export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs, PageArgs> {
+export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs> {
 
-    constructor(apiURL:string, appServices:IAppServices) {
-        super(apiURL, appServices);
+    constructor(apiURL:string, appServices:IAppServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
+        super(apiURL, appServices, useDataStream, backlinkConf);
     }
 
-    stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {
+    stateToArgs(state:TranslationsModelState, query:string):RequestArgs {
         return {
             from: state.domain1,
             to: state.domain2,
@@ -233,25 +250,25 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
         };
     }
 
-
-    stateToPageArgs(state:TranslationsModelState<PageArgs>, query:string):PageArgs {
-        return {
-            jazyk1: state.domain1,
-            jazyk2: state.domain2,
-            viceslovne: query.split(' ').length > 1 ? '1' : '0',
-            regularni: '0',
-            lemma: '1',
-            caseInsen: '1',
-            hledejCo: query,
-            'hledejKde[]': state.searchPackages
-        };
+    requestBacklink(state:TranslationsModelState, query:string):URL {
+        const url = new URL(this.backlinkConf.url);
+        url.searchParams.set('jazyk1', state.domain1);
+        url.searchParams.set('jazyk2', state.domain2);
+        url.searchParams.set('viceslovne', query.split(' ').length > 1 ? '1' : '0');
+        url.searchParams.set('regularni', '0');
+        url.searchParams.set('lemma', '1');
+        url.searchParams.set('caseInsen', '1');
+        url.searchParams.set('hledejCo', query);
+        for (const pkg of state.searchPackages) {
+            url.searchParams.append('hledejKde[]', pkg);
+        }
+        return url;
     }
 }
 
 
 
 export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsAPI<RequestArgs> {
-
 
     stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
         return {
@@ -268,4 +285,18 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
         };
     }
 
+    requestBacklink(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):URL {
+        const url = new URL(this.backlinkConf.url);
+        url.searchParams.set('jazyk1', state.domain1);
+        url.searchParams.set('jazyk2', state.domain2);
+        url.searchParams.set('viceslovne', query.split(' ').length > 1 ? '1' : '0');
+        url.searchParams.set('regularni', '0');
+        url.searchParams.set('lemma', '1');
+        url.searchParams.set('caseInsen', '1');
+        url.searchParams.set('hledejCo', query);
+        for (const pkg of packages) {
+            url.searchParams.append('hledejKde[]', pkg);
+        }
+        return url;
+    }
 }

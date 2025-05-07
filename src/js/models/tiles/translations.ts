@@ -31,7 +31,7 @@ interface TranslationsModelCoreState {
  * The 'T' generic parameter specifies a format for backlink page arguments to a possible
  * original application which produces the results.
  */
-export interface TranslationsModelState<T> extends TranslationsModelCoreState {
+export interface TranslationsModelState extends TranslationsModelCoreState {
     isBusy:boolean;
     isAltViewMode:boolean;
     error:string;
@@ -77,4 +77,5 @@ export interface TranslationsSubsetsModelState extends TranslationsModelCoreStat
     highlightedRowIdx:number;
     maxNumLines:number;
     colorMap:{[k:string]:string};
+    backlinks:Array<Backlink>;
 }

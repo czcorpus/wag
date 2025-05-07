@@ -38,13 +38,13 @@ export interface TranslationResponse {
 }
 
 
-export interface TranslationAPI<T, U> extends ResourceApi<T, TranslationResponse> {
+export interface TranslationAPI<T> extends ResourceApi<T, TranslationResponse> {
 
-    stateToArgs(state:TranslationsModelState<U>, query:string):T;
-
-    stateToPageArgs(state:TranslationsModelState<U>, query:string):U;
+    stateToArgs(state:TranslationsModelState, query:string):T;
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+
+    requestBacklink(state:TranslationsModelState, query:string):URL;
 }
 
 
