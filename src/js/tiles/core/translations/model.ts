@@ -154,7 +154,7 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
     private loadData(state:TranslationsModelState, dispatch:SEDispatcher):void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
-        this.api.call(this.appServices.dataStreaming(), this.tileId, this.api.stateToArgs(state, srchLemma.lemma))
+        this.api.call(this.appServices.dataStreaming(), this.tileId, 0, this.api.stateToArgs(state, srchLemma.lemma))
             .pipe(
                 map(item => {
                     const colors = this.scaleColorGen(0)

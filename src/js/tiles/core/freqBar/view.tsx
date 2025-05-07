@@ -131,7 +131,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={props.freqData && !List.empty(props.freqData.rows)}
                     sourceIdent={{corp: props.corpname}}
-                    backlink={null} /* TODO backlink new impl. */
+                    backlink={props.backlink}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.FreqBarTile>

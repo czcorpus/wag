@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { Ident, List } from 'cnc-tskit';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { LocalizedConfMsg } from '../../../types.js';
@@ -87,8 +86,7 @@ export class FreqBarTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches: findCurrentMatches(queryMatches),
-            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, useDataStream, null), // TODO backlink
-            backlink: null, // TODO new backlink impl.
+            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, useDataStream, conf.backlink),
             readDataFromTile,
             initState: {
                 isBusy,
