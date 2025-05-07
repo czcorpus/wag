@@ -15,16 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, IFullActionControl, StatefulModel } from 'kombo';
-import { Observable, Observer } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
-import { Dict, Ident } from 'cnc-tskit';
+import { IFullActionControl, StatefulModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { QueryMatch, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { SystemMessageType } from '../../../types.js';
@@ -50,7 +47,7 @@ export interface FreqBarModelState {
     concId?:string;
     freqData:FreqDataBlock;
     activeBlock:number;
-    backlink:unknown; // TODO new backlink implementation
+    backlink:Backlink;
     subqSyncPalette:boolean;
     isAltViewMode:boolean;
     isBusy:boolean;
@@ -64,7 +61,6 @@ export interface FreqBarModelArgs {
     readDataFromTile:number|null;
     appServices:IAppServices;
     api:MQueryFreqDistribAPI;
-    backlink:Backlink|null;
     initState:FreqBarModelState;
 }
 
@@ -79,14 +75,11 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
 
     protected readonly queryMatches:Array<QueryMatch>;
 
-    private readonly backlink:Backlink|null;
-
     constructor({
         dispatcher,
         tileId,
         appServices,
         api,
-        backlink,
         queryMatches,
         initState
     }:FreqBarModelArgs) {
@@ -95,7 +88,6 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.api = api;
-        this.backlink = null; // TODO new Backlink implementation
 
         this.addActionHandler(
             GlobalActions.SetScreenMode,
@@ -148,6 +140,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         this.changeState(
                             state => {
                                 state.freqData.rows = data.data;
+                                state.backlink = this.api.getBacklink(0, 0);
                                 state.isBusy = false;
                             }
                         )
@@ -202,8 +195,6 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                                     })) : null
                             };
                             state.isBusy = false;
-                            // TODO
-                            // state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(state, this.backlink, action.payload.concId);
                         }
                     );
                 }
@@ -240,6 +231,22 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                             }
                         });
                     }
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            action => {
+                const args = this.stateToArgs(this.queryMatches[0]);
+                this.api.requestBacklink(args).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
                 });
             }
         );

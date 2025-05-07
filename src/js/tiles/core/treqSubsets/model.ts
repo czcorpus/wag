@@ -150,6 +150,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                             this.appServices.dataStreaming(),
                             this.api,
                             this.tileId,
+                            0,
                             this.api.stateToArgs(
                                 state,
                                 srchLemma.lemma,
