@@ -88,11 +88,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (ref.current) {
                 console.log('ref size: ', ref.current.offsetWidth, ref.current.offsetHeight)
             }
-        })
+        });
+
+        const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
 
         return (
             <S.Chart ref={ref}>
-                <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={200} >
+                <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={minTileHeight} >
                     <BarChart data={props.data} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis type="number" dataKey="ipm" />
@@ -121,7 +123,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             dispatcher.dispatch<typeof Actions.SetActiveBlock>({
                 name: Actions.SetActiveBlock.name,
                 payload: {
-                    idx: Math.round(chartsRef.current.scrollLeft / props.renderSize[0]),
+                    idx: Math.round(chartsRef.current.scrollLeft / 100), // TODO !!!
                     tileId: props.tileId
                 }
             });

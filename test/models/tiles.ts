@@ -55,18 +55,6 @@ describe('WdglanceTilesModel', function () {
         );
     });
 
-    it('sets tile render size', function (done) {
-        setupModel({tileProps: [{tileId: 1}]})
-        .checkState(
-            {name: Actions.SetTileRenderSize.name, payload: {tileId: 1, size: [10, 20]}},
-            Actions.SetTileRenderSize.name,
-            state => {
-                assert.deepEqual(state.tileProps[0].renderSize, [11, 20]);
-                done();
-            }
-        );
-    });
-
     describe('alt view', function () {
         it('enables alt view mode', function (done) {
             setupModel({altViewActiveTiles: []})

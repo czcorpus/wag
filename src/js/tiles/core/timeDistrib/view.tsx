@@ -442,7 +442,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         ''
                     }
                     <Chart data1={props.data} data2={props.dataCmp}
-                            size={[props.renderSize[0], 300]}
+                            size={[300, 300]}
                             loadingStatus={props.loadingStatus}
                             word={props.wordMainLabel}
                             displayFreq={props.useAbsFreq}

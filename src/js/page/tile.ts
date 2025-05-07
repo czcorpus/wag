@@ -159,8 +159,6 @@ export interface TileFrameProps {
 
     helpURL?:string;
 
-    renderSize:[number, number];
-
     /**
      * standard mode width in CSS grid fr units
      */
@@ -182,7 +180,6 @@ export interface TileFrameProps {
 export interface CoreTileComponentProps {
     tileId:number;
     tileName:string;
-    renderSize:[number, number];
     isMobile:boolean;
     widthFract:number;
     supportsReloadOnError:boolean;

@@ -91,7 +91,6 @@ const mkAttachTile = (
             supportsHelpView: !!helpURL,
             supportsAltView: tile.supportsAltView(),
             supportsSVGFigureSave: tile.supportsSVGFigureSave(),
-            renderSize: [50, 50],
             widthFract: tile.getWidthFract(),
             maxTileHeight: maxTileHeight,
             helpURL: helpURL,
@@ -239,7 +238,7 @@ export function createRootComponent({
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
 
-    const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
+    const WdglanceMain = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
     onResize.subscribe(
         (props) => {
@@ -251,7 +250,7 @@ export function createRootComponent({
     );
 
     return {
-        component,
+        component: WdglanceMain,
         tileGroups: layoutManager.getLayoutGroups(qType),
         mainPosAttr: layoutManager.getLayoutMainPosAttr(qType)
     };

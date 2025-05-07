@@ -114,14 +114,6 @@ export class Actions {
         name: 'MAIN_CHANGE_QUERY_TYPE'
     }
 
-    static SetTileRenderSize:Action<{
-        size:[number, number];
-        isMobile:boolean;
-        tileId:number;
-    }> = {
-        name: 'MAIN_SET_TILE_RENDER_SIZE'
-    }
-
     static SetScreenMode:Action<{
         isMobile:boolean;
         innerWidth:number;
