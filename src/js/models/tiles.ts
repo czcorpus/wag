@@ -123,16 +123,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 state.isMobile = action.payload.isMobile;
             }
         );
-        this.addActionHandler<typeof Actions.SetTileRenderSize>(
-            Actions.SetTileRenderSize.name,
-            (state, action) => {
-                const srchId = List.findIndex(v => v.tileId === action.payload.tileId, state.tileProps);
-                if (srchId > -1) {
-                    const tile = state.tileProps[srchId];
-                    state.tileProps[srchId] = {...tile, renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]]};
-                };
-            }
-        );
+
         this.addActionHandler<typeof Actions.EnableAltViewMode>(
             Actions.EnableAltViewMode.name,
             (state, action) => {

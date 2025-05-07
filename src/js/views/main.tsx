@@ -17,9 +17,8 @@
  */
 import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import * as domtoimage from 'dom-to-image-more';
 import { Keyboard, pipe, List } from 'cnc-tskit';
-import { tap } from 'rxjs/operators';
+import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { Input } from '../page/forms.js';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types.js';
@@ -32,7 +31,7 @@ import { QueryFormModel, QueryFormModelState } from '../models/query.js';
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight, TileResultFlag } from '../models/tiles.js';
 import { init as corpusInfoViewInit } from './common/corpusInfo.js';
 import { GlobalComponents } from './common/index.js';
-import { timer } from 'rxjs';
+import { fromEvent, timer } from 'rxjs';
 
 import * as S from './style.js';
 import * as SC from './common/style.js';
@@ -54,8 +53,13 @@ function mkTileSectionId(tileId:number):string {
 }
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:QueryFormModel, tilesModel:WdglanceTilesModel,
-            messagesModel:MessagesModel) {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    formModel:QueryFormModel,
+    tilesModel:WdglanceTilesModel,
+    messagesModel:MessagesModel
+):React.FC<WdglanceMainProps> {
 
     const globalComponents = ut.getComponents();
     const CorpusInfo = corpusInfoViewInit(dispatcher, ut);
@@ -837,18 +841,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         constructor(props) {
             super(props);
-            this.ref = React.createRef();
-        }
-
-        componentDidMount() {
-            dispatcher.dispatch<typeof Actions.SetTileRenderSize>({
-                name: Actions.SetTileRenderSize.name,
-                payload: {
-                    tileId: this.props.tile.tileId,
-                    size: ut.getElementSize(this.ref.current),
-                    isMobile: this.props.isMobile
-                }
-            });
         }
 
         private getHTMLClass() {
@@ -899,14 +891,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         </div>
                     </header>
-                    <div className="provider" ref={this.ref} style={{height: '100%', overflow: this.props.tile.maxTileHeight ? 'auto' : 'initial'}}>
+                    <div className="provider" style={{height: '100%', overflow: this.props.tile.maxTileHeight ? 'auto' : 'initial'}}>
                         <div style={{height: '100%', maxHeight: this.props.tile.maxTileHeight ? this.props.tile.maxTileHeight : 'initial'}}>
                             <globalComponents.ErrorBoundary>
                                 {this.props.supportsCurrQuery ?
                                     <this.props.tile.Component
                                             tileId={this.props.tile.tileId}
                                             tileName={this.props.tile.tileName}
-                                            renderSize={this.props.tile.renderSize}
                                             isMobile={this.props.isMobile}
                                             widthFract={this.props.tile.widthFract}
                                             supportsReloadOnError={this.props.tile.supportsReloadOnError}
@@ -1242,86 +1233,77 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <TilesSections /> -----------------------------
 
-    class TilesSections extends React.PureComponent<{
+    const TilesSections:React.FC<{
         layout:Array<TileGroup>;
         homepageSections:Array<{label:string; html:string}>;
+    } & WdglanceTilesState> = (props) => {
 
-    } & WdglanceTilesState> {
-
-        constructor(props) {
-            super(props);
-            this.handleCloseSourceInfo = this.handleCloseSourceInfo.bind(this);
-            this.handleCloseGroupHelp = this.handleCloseGroupHelp.bind(this);
-            this.handleCloseTileHelp = this.handleCloseTileHelp.bind(this);
-            this.handleAmbiguousResultHelp = this.handleAmbiguousResultHelp.bind(this);
-        }
-
-        private handleCloseSourceInfo() {
+        const handleCloseSourceInfo = () => {
             dispatcher.dispatch<typeof Actions.CloseSourceInfo>({
                 name: Actions.CloseSourceInfo.name
             });
-        }
+        };
 
-        private handleCloseGroupHelp() {
+        const handleCloseGroupHelp = () => {
             dispatcher.dispatch<typeof Actions.HideGroupHelp>({
                 name: Actions.HideGroupHelp.name
             });
-        }
+        };
 
-        private handleCloseTileHelp() {
+        const handleCloseTileHelp = () => {
             dispatcher.dispatch<typeof Actions.HideTileHelp>({
                 name: Actions.HideTileHelp.name
             });
-        }
+        };
 
-        private handleAmbiguousResultHelp() {
+        const handleAmbiguousResultHelp = () => {
             dispatcher.dispatch<typeof Actions.HideAmbiguousResultHelp>({
                 name: Actions.HideAmbiguousResultHelp.name
             });
-        }
+        };
 
-        private renderModal() {
-            if (this.props.activeSourceInfo !== null) {
+        const renderModal = () => {
+            if (props.activeSourceInfo !== null) {
                 return (
-                    <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
+                    <globalComponents.ModalBox onCloseClick={handleCloseSourceInfo}
                             title={ut.translate('global__source_detail')}>
                         <globalComponents.ErrorBoundary>
-                            {this.props.isBusy ?
+                            {props.isBusy ?
                                 <WithinModalAjaxLoader /> :
-                                <SourceInfo tileProps={this.props.tileProps} data={this.props.activeSourceInfo} />
+                                <SourceInfo tileProps={props.tileProps} data={props.activeSourceInfo} />
                             }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
                 );
 
-            } else if (this.props.activeGroupHelp !== null) {
-                const group = this.props.layout[this.props.activeGroupHelp.idx];
-                return <ModalHelpContent onClose={this.handleCloseGroupHelp} title={group.groupLabel}
-                            html={this.props.activeGroupHelp.html}
-                            isBusy={this.props.isBusy} />;
+            } else if (props.activeGroupHelp !== null) {
+                const group = props.layout[props.activeGroupHelp.idx];
+                return <ModalHelpContent onClose={handleCloseGroupHelp} title={group.groupLabel}
+                            html={props.activeGroupHelp.html}
+                            isBusy={props.isBusy} />;
 
-            } else if (this.props.activeTileHelp !== null) {
-                return <ModalHelpContent onClose={this.handleCloseTileHelp}
-                            title={this.props.tileProps[this.props.activeTileHelp.ident].label}
-                            html={this.props.activeTileHelp.html}
-                            isBusy={this.props.isBusy} />;
+            } else if (props.activeTileHelp !== null) {
+                return <ModalHelpContent onClose={handleCloseTileHelp}
+                            title={props.tileProps[props.activeTileHelp.ident].label}
+                            html={props.activeTileHelp.html}
+                            isBusy={props.isBusy} />;
 
-            } else if (this.props.showAmbiguousResultHelp) {
-                return <ModalHelpContent onClose={this.handleAmbiguousResultHelp}
+            } else if (props.showAmbiguousResultHelp) {
+                return <ModalHelpContent onClose={handleAmbiguousResultHelp}
                             title={ut.translate('global__not_using_lemmatized_query_title')}
                             html={'<p>' + ut.translate('global__not_using_lemmatized_query_msg') + '</p>'}
-                            isBusy={this.props.isBusy} />;
+                            isBusy={props.isBusy} />;
 
             } else {
                 return null;
             }
-        }
+        };
 
-        private renderContents() {
-            if (this.props.numTileErrors > this.props.maxTileErrors) {
-                return <TooManyErrorsBox reportHref={this.props.issueReportingUrl} />;
+        const renderContents = () => {
+            if (props.numTileErrors > props.maxTileErrors) {
+                return <TooManyErrorsBox reportHref={props.issueReportingUrl} />;
 
-            } else if (this.props.datalessGroups.length >= this.props.layout.length) {
+            } else if (props.datalessGroups.length >= props.layout.length) {
                 return <NothingFoundBox />;
 
             } else {
@@ -1331,30 +1313,50 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             key={`${group.groupLabel}:${groupIdx}`}
                             data={group}
                             idx={groupIdx}
-                            isHidden={List.some(v => v === groupIdx, this.props.hiddenGroups)}
-                            hasData={!List.some(v => v === groupIdx, this.props.datalessGroups)}
-                            isMobile={this.props.isMobile}
-                            tileFrameProps={this.props.tileProps}
-                            tweakActiveTiles={this.props.tweakActiveTiles}
-                            altViewActiveTiles={this.props.altViewActiveTiles}
-                            tileResultFlags={this.props.tileResultFlags}
-                            highlightedTileId={this.props.highlightedTileId} />
+                            isHidden={List.some(v => v === groupIdx, props.hiddenGroups)}
+                            hasData={!List.some(v => v === groupIdx, props.datalessGroups)}
+                            isMobile={props.isMobile}
+                            tileFrameProps={props.tileProps}
+                            tweakActiveTiles={props.tweakActiveTiles}
+                            altViewActiveTiles={props.altViewActiveTiles}
+                            tileResultFlags={props.tileResultFlags}
+                            highlightedTileId={props.highlightedTileId} />
 
                     ),
-                    this.props.layout
+                    props.layout
                 );
             }
         }
 
-        componentDidUpdate() {
-            if (this.props.allTilesLoaded && this.props.scrollToTileId > -1) {
+
+        const [height, setHeight] = React.useState(200);
+
+        React.useEffect(
+            () => {
+                const subsc = fromEvent(window, 'resize').pipe(
+                    debounceTime(500),
+                    map(v => window.innerWidth / props.layout.length)
+
+                ).subscribe(v => setHeight(v));
+
+                setHeight(window.innerHeight / props.layout.length);
+
+                return () => {
+                    subsc.unsubscribe();
+                }
+            },
+            []
+        );
+
+        React.useEffect(() => {
+            if (props.allTilesLoaded && props.scrollToTileId > -1) {
                 blinkAndDehighlight(
-                    this.props.scrollToTileId,
+                    props.scrollToTileId,
                     dispatcher,
                     timer(0).pipe(
                         tap(
                             () => {
-                                const elm = window.document.getElementById(mkTileSectionId(this.props.highlightedTileId));
+                                const elm = window.document.getElementById(mkTileSectionId(props.highlightedTileId));
                                 if (elm) {
                                     elm.scrollIntoView();
                                 }
@@ -1363,19 +1365,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     )
                 );
             }
-        }
+        });
 
-        render() {
-            return (
-                <S.TilesSections>
-                    {this.props.isAnswerMode ?
-                        this.renderContents() :
-                        <S.Tiles><InitialHelp sections={this.props.homepageSections} /></S.Tiles>
-                    }
-                    {this.renderModal()}
-                </S.TilesSections>
-            );
-        }
+        return (
+            <S.TilesSections>
+                {props.isAnswerMode ?
+                    <globalComponents.TileMinHeightContext value={height}>
+                        {renderContents()}
+                    </globalComponents.TileMinHeightContext> :
+                    <S.Tiles><InitialHelp sections={props.homepageSections} /></S.Tiles>
+                }
+                {renderModal()}
+            </S.TilesSections>
+        );
     }
 
     const BoundTilesSections = BoundWithProps<any, any>(TilesSections, tilesModel);

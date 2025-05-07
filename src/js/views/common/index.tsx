@@ -39,6 +39,8 @@ export type TooltipValues = {[key:string]:Array<{value:string|number; unit?:stri
 
 export interface GlobalComponents {
 
+    TileMinHeightContext:React.Context<number>;
+
     AjaxLoader:React.FC<{
         htmlClass?:string;
     }>;
@@ -132,7 +134,11 @@ export interface GlobalComponents {
     }>;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<{}>,
+    resize$:Observable<ScreenProps>
+):GlobalComponents {
 
     // --------------- <AjaxLoader /> -------------------------------------------
 
@@ -781,17 +787,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     // ===================
 
     return {
-        AjaxLoader: AjaxLoader,
-        MessageStatusIcon: MessageStatusIcon,
-        TileWrapper: TileWrapper,
-        ErrorBoundary: ErrorBoundary,
-        ModalBox: ModalBox,
-        HorizontalBlockSwitch: HorizontalBlockSwitch,
-        ImageWithMouseover: ImageWithMouseover,
-        ResponsiveWrapper: ResponsiveWrapper,
-        ElementTooltip: ElementTooltip,
-        SourceInfoBox: SourceInfoBox,
-        AlignedRechartsTooltip: AlignedRechartsTooltip,
-        Paginator: Paginator,
+        AjaxLoader,
+        MessageStatusIcon,
+        TileWrapper,
+        ErrorBoundary,
+        ModalBox,
+        HorizontalBlockSwitch,
+        ImageWithMouseover,
+        ResponsiveWrapper,
+        ElementTooltip,
+        SourceInfoBox,
+        AlignedRechartsTooltip,
+        Paginator,
+        TileMinHeightContext: React.createContext(100),
     };
 }

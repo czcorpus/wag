@@ -105,14 +105,6 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
         );
 
         this.addActionSubtypeHandler(
-            GlobalActions.SetTileRenderSize,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                console.log('SetTileRenderSize: ', action.payload)
-            }
-        )
-
-        this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
             action => action.payload.ident === this.tileId,
             action => {

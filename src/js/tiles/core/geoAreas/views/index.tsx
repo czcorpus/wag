@@ -228,7 +228,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // when tooltip is shown/hidden and cleaning labels in the process, which messes up tooltip events
 
     class Map extends React.PureComponent<{mapSVG:string}> {
-        
+
         render() {
             return (
                 <div style={{width: '100%', height: '100%', overflowX: 'auto'}}
@@ -247,11 +247,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
-        componentDidUpdate(prevProps) {            
+        componentDidUpdate(prevProps) {
             if (this.props.data.length > 0 && !this.props.isAltViewMode && (
                 prevProps.data !== this.props.data ||
-                prevProps.isAltViewMode !== this.props.isAltViewMode ||
-                prevProps.renderSize !== this.props.renderSize))
+                prevProps.isAltViewMode !== this.props.isAltViewMode))
             {
                 drawLabels(this.props, this.props.tileId, theme.geoAreaSpotFillColor);
             }
