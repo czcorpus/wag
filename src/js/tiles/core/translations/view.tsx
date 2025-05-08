@@ -20,12 +20,14 @@ import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { TranslationsModel, GeneralTranslationsModelState } from './model.js';
+import { TranslationsModel } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 import { Theme } from '../../../page/theme.js';
 import { WordTranslation } from '../../../api/abstract/translations.js';
+import { TranslationsModelState } from '../../../models/tiles/translations.js';
 
 import * as S from './style.js';
+
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TranslationsModel):TileComponent {
@@ -87,7 +89,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // --------------- <TranslationsTileView /> -----------------------------------
 
-    class TranslationsTileView extends React.PureComponent<GeneralTranslationsModelState & CoreTileComponentProps> {
+    class TranslationsTileView extends React.PureComponent<TranslationsModelState & CoreTileComponentProps> {
 
         render() {
             const dataTransform = (t:WordTranslation) => ({
