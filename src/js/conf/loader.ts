@@ -27,6 +27,7 @@ import {
 import { TileConf } from '../page/tile.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
+import urlJoin from 'url-join';
 
 
 /**
@@ -91,7 +92,7 @@ export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDb
     return rxOf(...List.map<[string, string], Observable<[string, StoredTileConf]>>(
         ([domain, tile]) => new Observable<[string, StoredTileConf]>((observer) => {
             axios.get<StoredTileConf>(
-                `${tileDBConf.server}/${tileDBConf.db}/${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${domain}:${tile}`,
+                urlJoin(tileDBConf.server, tileDBConf.db, `${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${domain}:${tile}`),
                 {
                     auth: {
                         username: tileDBConf.username,

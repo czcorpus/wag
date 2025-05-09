@@ -18,7 +18,7 @@
 
 import { LocalizedConfMsg } from '../types.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
-import { IActionDispatcher, ViewUtils, StatelessModel, StatefulModel, IFullActionControl } from 'kombo';
+import { ViewUtils, StatelessModel, StatefulModel, IFullActionControl } from 'kombo';
 import { GlobalComponents } from '../views/common/index.js';
 import { Theme } from './theme.js';
 import { IAppServices } from '../appServices.js';
