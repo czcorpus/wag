@@ -147,17 +147,22 @@ export class DataStreaming implements IDataStreaming {
         this.responseStream = this.requestSubject.pipe(
             scan(
                 (acc, value) => {
-                    if (acc.get(value.tileId) === undefined) {
-                        acc.set(value.tileId, value);
+                    const key = `${value.tileId}.${value.queryIdx}`;
+                    if (acc.get(key) === undefined) {
+                        acc.set(key, value);
                     }
                     return acc;
                 },
                 new Map(
                     pipe(
                         tileIds,
-                        List.map<number|string, [number, TileRequest|OtherTileRequest|undefined]>(
-                            v => tuple(typeof(v) === 'string' ? parseInt(v) : v, undefined),
-                        )
+                        List.map<number|string, Array<[string, TileRequest|OtherTileRequest|undefined]>>(
+                            v => List.repeat(
+                                i => tuple(`${v}.${i}`, undefined),
+                                List.size(userSession.queries)
+                            ),
+                        ),
+                        List.flatMap(x => x)
                     )
                 )
             ),
