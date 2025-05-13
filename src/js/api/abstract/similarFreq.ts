@@ -22,7 +22,7 @@ import { MainPosAttrValues } from '../../conf/index.js';
 
 
 export interface RequestArgs {
-    domain:string;
+    corpname:string;
     word:string;
     lemma:string;
 

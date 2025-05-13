@@ -75,11 +75,11 @@ export class SimilarFreqWordsFrodoAPI {
                             urlJoin(
                                 this.apiURL,
                                 'dictionary',
-                                args.domain,
+                                args.corpname,
                                 'similarARFWords',
                                 args.word
                             ) + '?' + encodeURLParameters(
-                                [['domain', args.domain],
+                                [['domain', args.corpname],
                                 ['lemma', args.lemma],
                                 ['pos', args.pos.join(' ')],
                                 ['mainPosAttr', args.mainPosAttr],
@@ -96,7 +96,7 @@ export class SimilarFreqWordsFrodoAPI {
                     'GET',
                     this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
                     new MultiDict([
-                        ['domain', args.domain],
+                        ['domain', args.corpname],
                         ['word', args.word],
                         ['lemma', args.lemma],
                         ['pos', args.pos.join(' ')],

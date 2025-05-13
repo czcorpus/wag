@@ -122,7 +122,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryFreqArgs):Observable<APIResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryFreqArgs|null):Observable<APIResponse> {
         return (
             this.useDataStream ?
                 streaming.registerTileRequest<HTTPResponse>({
@@ -130,24 +130,26 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                     body: {},
                     method: HTTP.Method.GET,
                     tileId,
-                    url: urlJoin(
-                        this.apiURL,
-                        args.path,
-                        args.corpname
-                    ) + '?' + encodeURLParameters(
-                        List.filter(
-                            item => !!item[1],
-                            [
-                                tuple('attr', args.queryArgs.attr),
-                                tuple('flimit', args.queryArgs.flimit),
-                                tuple('matchCase', args.queryArgs.matchCase),
-                                tuple('maxItems', args.queryArgs.maxItems),
-                                tuple('q', args.queryArgs.q),
-                                tuple('subcorpus', args.queryArgs.subcorpus),
-                                tuple('textProperty', args.queryArgs.textProperty),
-                            ]
-                        )
-                    )
+                    url: args ?
+                        urlJoin(
+                            this.apiURL,
+                            args.path,
+                            args.corpname
+                        ) + '?' + encodeURLParameters(
+                            List.filter(
+                                item => !!item[1],
+                                [
+                                    tuple('attr', args.queryArgs.attr),
+                                    tuple('flimit', args.queryArgs.flimit),
+                                    tuple('matchCase', args.queryArgs.matchCase),
+                                    tuple('maxItems', args.queryArgs.maxItems),
+                                    tuple('q', args.queryArgs.q),
+                                    tuple('subcorpus', args.queryArgs.subcorpus),
+                                    tuple('textProperty', args.queryArgs.textProperty),
+                                ]
+                            )
+                        ) :
+                        ''
                 }) :
                 ajax$<HTTPResponse>(
                     'GET',
