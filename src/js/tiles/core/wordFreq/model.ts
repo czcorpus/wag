@@ -228,7 +228,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     0,
                     args.variant.lemma ?
                         {
-                            domain: args.lang,
+                            corpname: state.corpname ? state.corpname : args.lang,
                             word: args.variant.word,
                             lemma: args.variant.lemma,
                             pos: state.mainPosAttr === 'pos' ?

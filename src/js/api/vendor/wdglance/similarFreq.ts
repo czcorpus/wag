@@ -49,7 +49,7 @@ export class SimilarFreqWordsAPI {
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
             new MultiDict([
-                ['domain', args.domain],
+                ['domain', args.corpname],
                 ['word', args.word],
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(' ')],
