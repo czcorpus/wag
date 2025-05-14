@@ -304,7 +304,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     this.collApi,
                     this.tileId,
                     0,
-                    this.stateToArgs(state, queryMatch),
+                    testIsDictMatch(queryMatch) ?
+                        this.stateToArgs(state, queryMatch) :
+                        null,
                     {queryId: queryId}
                 )
             }),

@@ -463,14 +463,16 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                             {
                                 concSize: 0,
                                 ipm: 0,
-                                lines: pipe(
-                                    resp.colls,
-                                    List.flatMap(x => x.examples),
-                                    List.map(ex => ({
-                                        ...ex,
-                                        metadata: []
-                                    }))
-                                ),
+                                lines: resp ?
+                                    pipe(
+                                        resp.colls,
+                                        List.flatMap(x => x.examples),
+                                        List.map(ex => ({
+                                            ...ex,
+                                            metadata: []
+                                        }))
+                                    ) :
+                                    [],
                                 resultType:'concordance'
                             },
                             0

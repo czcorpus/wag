@@ -23,7 +23,7 @@ import { List, tuple } from 'cnc-tskit';
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { QueryMatch } from '../../../query/index.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
 import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimWord } from './api.js';
@@ -218,16 +218,17 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             observer.complete();
 
         }).pipe(
-            mergeMap(([queryId, queryMatch]) => queryMatch.abs >= state.minMatchFreq ?
+            mergeMap(([queryId, queryMatch]) =>
                 callWithExtraVal(
                     dataStreaming,
                     this.api,
                     this.tileId,
-                    0,
-                    this.stateToArgs(state, queryMatch),
+                    queryId,
+                    testIsDictMatch(queryMatch) ?
+                        this.stateToArgs(state, queryMatch) :
+                        null,
                     queryId
-                ) :
-                rxOf(tuple({words: [] as Array<WordSimWord>}, queryId))
+                )
             )
         ).subscribe({
             next: ([data, queryId]) => {
