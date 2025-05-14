@@ -235,12 +235,13 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         queryIdx:number,
         queryArgs:TimeDistribArgs
     ):Observable<TimeDistribResponse> {
-        const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
         return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
                 {
                     tileId,
                     method: HTTP.Method.GET,
-                    url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${args}`,
+                    url: queryArgs ?
+                        `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}` :
+                        '',
                     body: {},
                     contentType: 'application/json',
                     isEventSource: true
@@ -248,8 +249,10 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         ).pipe(
             scan<MqueryStreamData, {curr:MqueryStreamData; chunks:Map<number, boolean>}>(
                 (acc, value) => {
-                    acc.chunks.set(value.chunkNum, true)
-                    acc.curr = value;
+                    if (value) {
+                        acc.chunks.set(value.chunkNum, true)
+                        acc.curr = value;
+                    }
                     return acc;
                 },
                 {
@@ -258,7 +261,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
                 }
             ),
             takeWhile(
-                ({curr, chunks}) => pipe(
+                ({curr, chunks}) => curr && pipe(
                     Array.from(chunks.entries()),
                     List.filter(([k, v]) => !!v),
                     List.size()
