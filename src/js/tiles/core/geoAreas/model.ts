@@ -29,7 +29,6 @@ import { Backlink } from '../../../page/tile.js';
 import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { findCurrQueryMatch, QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
-import { IDataStreaming } from '../../../page/streaming.js';
 
 /*
 oral2013:
