@@ -4,6 +4,9 @@
         "apiURL": {
             "type": "string"
         },
+        "infoApiURL": {
+            "type": "string"
+        },
         "apiType": {
             "type": "string"
         },
