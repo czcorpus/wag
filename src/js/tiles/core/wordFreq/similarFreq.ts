@@ -71,7 +71,7 @@ export class SimilarFreqWordsFrodoAPI {
                         body: {},
                         method: HTTP.Method.GET,
                         tileId,
-                        url: args ?
+                        url: args && this.apiURL ?
                             urlJoin(
                                 this.apiURL,
                                 'dictionary',

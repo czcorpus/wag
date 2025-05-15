@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { EMPTY, map, Observable, of as rxOf } from 'rxjs';
+import { EMPTY, map, Observable } from 'rxjs';
 
 import { QueryMatch } from '../../../../query/index.js';
-import { ResourceApi, SourceDetails } from '../../../../types.js';
+import { DataApi } from '../../../../types.js';
 import { IAppServices } from '../../../../appServices.js';
 import { ConcResponse, ViewMode } from './common.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
@@ -43,30 +43,18 @@ export interface ConcApiArgs {
 /**
  * @todo
  */
-export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcResponse, number]> {
+export class MQueryConcApi implements DataApi<Array<ConcApiArgs>, [ConcResponse, number]> {
 
     private readonly apiUrl:string;
-
-    private readonly usesDataStream:boolean;
 
     private readonly appServices:IAppServices;
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiUrl:string, usesDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf) {
+    constructor(apiUrl:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
         this.apiUrl = apiUrl;
-        this.usesDataStream = usesDataStream;
         this.appServices = appServices;
         this.backlinkConf = backlinkConf;
-    }
-
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return rxOf({
-            tileId,
-            title: '',
-            description: '',
-            author: ''
-        })
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
@@ -106,10 +94,10 @@ export class MQueryConcApi implements ResourceApi<Array<ConcApiArgs>, [ConcRespo
         ).join('&')
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
         // TODO cmp search support
         const singleSrchArgs = args[0];
-        if (this.usesDataStream) {
+        if (streaming) {
             return streaming.registerTileRequest<ConcResponse>(
                 {
                     tileId,

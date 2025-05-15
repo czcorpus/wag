@@ -216,7 +216,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 this.collApi.getSourceDescription(
-                    appServices.dataStreaming().startNewSubgroup(this.tileId, ...dependentTiles),
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
                     this.tileId,
                     this.appServices.getISO639UILang(),
                     state.corpname

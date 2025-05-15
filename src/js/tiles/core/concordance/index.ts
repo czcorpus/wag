@@ -18,7 +18,6 @@
 
 import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { IAppServices } from '../../../appServices.js';
 
 import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
@@ -28,6 +27,7 @@ import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
@@ -53,8 +53,6 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly model:ConcordanceTileModel;
 
-    private readonly appServices:IAppServices;
-
     private view:TileComponent;
 
     private readonly widthFract:number;
@@ -71,14 +69,17 @@ export class ConcordanceTile implements ITileProvider {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
-        this.appServices = appServices;
         this.readDataFromTile = readDataFromTile;
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
             readDataFromTile: readDataFromTile || null,
             appServices,
-            service: new MQueryConcApi(conf.apiURL, useDataStream, appServices, conf.backlink),
+            api: new MQueryConcApi(conf.apiURL, appServices, conf.backlink),
+            infoApi: new CorpusInfoAPI(
+                conf.srcInfoURL ? conf.srcInfoURL : conf.apiURL,
+                appServices
+            ),
             queryMatches,
             queryType,
             initState: {
