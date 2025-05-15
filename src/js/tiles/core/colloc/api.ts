@@ -83,17 +83,14 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    private readonly useDataStream:boolean;
-
     private readonly backlinkConf:BacklinkConf;
 
     private readonly useWithExamplesVariant:boolean;
 
-    constructor(apiURL:string, useWithExamplesVariant:boolean, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, useWithExamplesVariant:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
-        this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
         this.useWithExamplesVariant = useWithExamplesVariant;
     }
@@ -145,7 +142,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     }
 
     private mkRequest(streaming:IDataStreaming, tileId:number, args:MQueryCollArgs|null):Observable<BasicHTTPResponse> {
-        if (this.useDataStream) {
+        if (streaming) {
             return streaming.registerTileRequest<BasicHTTPResponse>(
                 {
                     tileId,

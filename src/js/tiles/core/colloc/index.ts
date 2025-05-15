@@ -82,7 +82,6 @@ export class CollocationsTile implements ITileProvider {
         this.api = new MQueryCollAPI(
             conf.apiURL,
             conf.apiType === 'with-examples',
-            useDataStream,
             appServices,
             conf.backlink
         );

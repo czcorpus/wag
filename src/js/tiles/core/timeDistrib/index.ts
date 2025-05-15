@@ -25,6 +25,7 @@ import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as viewInit } from './view.js';
 import { MQueryTimeDistribStreamApi } from '../../../api/vendor/mquery/timeDistrib.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 /**
@@ -94,7 +95,8 @@ export class TimeDistTile implements ITileProvider {
                 backlinks: [null, null],
                 subcBacklinkLabel: conf.subcBacklinkLabel || {}
             },
-            api: new MQueryTimeDistribStreamApi(conf.apiURL, useDataStream, appServices, conf.backlink),
+            api: new MQueryTimeDistribStreamApi(conf.apiURL, appServices, conf.backlink),
+            infoApi: new CorpusInfoAPI(conf.apiURL, appServices),
             tileId,
             appServices,
             queryMatches,
