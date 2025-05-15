@@ -77,9 +77,7 @@ export class WordFreqTile implements ITileProvider {
                 mainPosAttr,
             },
             tileId,
-            api: conf.apiURL ?
-                new SimilarFreqWordsFrodoAPI(conf.apiURL, appServices, useDataStream) :
-                undefined,
+            api: new SimilarFreqWordsFrodoAPI(conf.apiURL, appServices, useDataStream),
             sourceInfoApi: new CorpusInfoAPI(conf.infoApiURL ? conf.infoApiURL : conf.apiURL, appServices),
             queryMatches: queryMatches,
             queryDomain: domain1,

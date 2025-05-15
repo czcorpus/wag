@@ -37,6 +37,7 @@ import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordan
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { collWithExamplesResponse } from '../colloc/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 export interface ConcordanceTileState {
@@ -82,7 +83,8 @@ export interface ConcordanceTileModelArgs {
     tileId:number;
     readDataFromTile:number|null;
     appServices:IAppServices;
-    service:MQueryConcApi;
+    api:MQueryConcApi;
+    infoApi?:CorpusInfoAPI;
     queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
     queryType:QueryType;
@@ -103,12 +105,15 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
 
     private readonly readDataFromTile:number|null;
 
+    private readonly infoApi:CorpusInfoAPI|undefined;
+
     public static readonly CTX_SIZES = [8, 10, 18, 28];
 
-    constructor({dispatcher, tileId, appServices, service, queryMatches, initState,
+    constructor({dispatcher, tileId, appServices, api, infoApi, queryMatches, initState,
             queryType, readDataFromTile}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
-        this.concApi = service;
+        this.concApi = api;
+        this.infoApi = infoApi;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
@@ -302,18 +307,20 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             GlobalActions.GetSourceInfo,
             action => action.payload.tileId === this.tileId,
             action => {
-                this.concApi.getSourceDescription(
+                this.infoApi.call(
                     this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     this.tileId,
-                    this.appServices.getISO639UILang(),
-                    this.state.corpname
-
+                    0,
+                    {
+                        corpname: this.state.corpname,
+                        lang: this.appServices.getISO639UILang()
+                    }
                 ).subscribe({
                     next: data => {
                         this.dispatchSideEffect({
                             name: GlobalActions.GetSourceInfoDone.name,
                             payload: {
-                                tileId: this.tileId,
+                                tileId: this.readDataFromTile,
                                 data: data
                             }
                         });
@@ -324,7 +331,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                             name: GlobalActions.GetSourceInfoDone.name,
                             error: err,
                             payload: {
-                                tileId: this.tileId,
+                                tileId: this.readDataFromTile,
                             }
                         });
                     }
