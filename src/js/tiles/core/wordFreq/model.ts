@@ -25,10 +25,10 @@ import { Actions } from './actions.js';
 import { SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
 import { QueryMatch, RecognizedQueries, QueryType, findCurrQueryMatch } from '../../../query/index.js';
 import { List, pipe } from 'cnc-tskit';
-import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
-import { IDataStreaming } from '../../../page/streaming.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+
 
 export interface FlevelDistribItem {
     rel:number;
@@ -64,7 +64,7 @@ export interface SummaryModelArgs {
     initialState:SummaryModelState;
     tileId:number;
     api:SimilarFreqWordsFrodoAPI;
-    sourceInfoApi:InternalResourceInfoApi;
+    sourceInfoApi:CorpusInfoAPI;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryDomain:string;
@@ -87,7 +87,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly api:SimilarFreqWordsFrodoAPI;
 
-    private readonly sourceInfoApi:InternalResourceInfoApi;
+    private readonly sourceInfoApi:CorpusInfoAPI;
 
     private readonly appServices:IAppServices;
 
@@ -182,8 +182,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     this.tileId,
                     0,
                     {
-                        queryType,
-                        domain: this.queryDomain,
+                        lang: this.queryDomain,
                         corpname: state.corpname,
                     }
 

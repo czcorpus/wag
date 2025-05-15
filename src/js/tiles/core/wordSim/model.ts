@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Observable, Observer, of as rxOf } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { List, tuple } from 'cnc-tskit';
 

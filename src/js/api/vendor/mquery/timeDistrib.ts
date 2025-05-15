@@ -17,14 +17,14 @@
  */
 
 import { map, Observable, scan, takeWhile } from 'rxjs';
-import { CorpusDetails, ResourceApi } from '../../../types.js';
+import urlJoin from 'url-join';
+
+import { DataApi } from '../../../types.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
-import { CorpusInfoAPI } from './corpusInfo.js';
 import { ajax$ } from '../../../page/ajax.js';
-import urlJoin from 'url-join';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 
@@ -110,28 +110,18 @@ function getChunkYearRange(items:Array<FreqRowResponse>):[number, number] {
  * This is the main TimeDistrib API for KonText. It should work in any
  * case.
  */
-export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, TimeDistribResponse> {
+export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, TimeDistribResponse> {
 
     private readonly apiURL:string;
-
-    private readonly srcInfoService:CorpusInfoAPI;
-
-    private readonly useDataStream:boolean;
 
     private readonly apiServices:IApiServices;
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.backlinkConf = backlinkConf;
-    }
-
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
@@ -235,7 +225,7 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         queryIdx:number,
         queryArgs:TimeDistribArgs
     ):Observable<TimeDistribResponse> {
-        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
+        return streaming.registerTileRequest<MqueryStreamData>(
                 {
                     tileId,
                     method: HTTP.Method.GET,
@@ -350,8 +340,8 @@ export class MQueryTimeDistribStreamApi implements ResourceApi<TimeDistribArgs, 
         });
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return this.useDataStream ?
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return streaming ?
             this.callViaDataStream(streaming, tileId, queryIdx, queryArgs) :
             this.callViaAjAX(tileId, queryIdx, queryArgs);
     }

@@ -32,6 +32,7 @@ import { callWithExtraVal } from '../../../api/util.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 export enum FreqFilterQuantity {
@@ -96,6 +97,7 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     api:MQueryTimeDistribStreamApi;
+    infoApi:CorpusInfoAPI;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryDomain:string;
@@ -131,11 +133,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly api:MQueryTimeDistribStreamApi;
 
+    private readonly infoApi:CorpusInfoAPI;
+
     constructor({
         dispatcher,
         initState,
         tileId,
         api,
+        infoApi,
         appServices,
         queryMatches,
         queryDomain,
@@ -146,6 +151,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
         this.api = api;
+        this.infoApi = infoApi;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -262,11 +268,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.tileId === this.tileId,
             (state, action) => state,
             (state, action, dispatch) => {
-                this.api.getSourceDescription(
+                this.infoApi.call(
                     appServices.dataStreaming().startNewSubgroup(this.tileId),
                     this.tileId,
-                    appServices.getISO639UILang(),
-                    action.payload['corpusId']
+                    0,
+                    {
+                        lang: appServices.getISO639UILang(),
+                        corpname: action.payload['corpusId']
+                    }
 
                 ).subscribe({
                     next: (data) => {

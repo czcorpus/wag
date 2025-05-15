@@ -23,12 +23,11 @@ import { ajax$ } from '../../../page/ajax.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { map, catchError } from 'rxjs/operators';
 import { AjaxError } from 'rxjs/ajax';
-import { QueryType } from '../../../query/index.js';
 import { IApiServices } from '../../../appServices.js';
-import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
 import { Backlink } from '../../../page/tile.js';
 import urlJoin from 'url-join';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 
@@ -74,7 +73,7 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
 
     private readonly apiServices:IApiServices;
 
-    private readonly srcInfoApi:InternalResourceInfoApi;
+    private readonly srcInfoApi:CorpusInfoAPI;
 
     private readonly useDataStream:boolean;
 
@@ -87,7 +86,7 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         this.apiURL = apiURL;
         this.useDataStream = useDataStream;
         this.apiServices = apiServices;
-        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(srcInfoURL, apiServices) : null;
+        this.srcInfoApi = srcInfoURL ? new CorpusInfoAPI(srcInfoURL, apiServices) : null;
     }
 
     supportsTweaking():boolean {
@@ -102,8 +101,7 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         return this.srcInfoApi ?
             this.srcInfoApi.call(dataStreaming, tileId, 0, {
                 corpname: corpname,
-                domain: domain,
-                queryType: QueryType.SINGLE_QUERY
+                lang: domain
             }) :
              rxOf({
                 tileId: tileId,
