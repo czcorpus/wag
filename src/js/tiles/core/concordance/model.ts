@@ -390,11 +390,11 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
             action => action.payload.tileId === this.tileId,
-            state => {
+            action => {
                 if (this.concApi instanceof MQueryConcApi) {
                     const url = this.concApi.requestBacklink(this.stateToArgs(
-                        findCurrQueryMatch(this.queryMatches[0]),
-                        0, // TODO
+                        findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]),
+                        action.payload.backlink.queryId,
                         null
                     ));
                     window.open(url.toString(),'_blank');
@@ -428,9 +428,9 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
         streaming:IDataStreaming,
         otherLangCql:string
     ):Observable<[ConcResponse, number]>  {
-        return new Observable<Array<ConcApiArgs>>((observer) => {
+        return new Observable<ConcApiArgs>((observer) => {
             try {
-                observer.next(pipe(
+                pipe(
                     this.queryMatches,
                     List.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : this.queryMatches.length),
                     List.map((
@@ -439,8 +439,9 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                             queryIdx,
                             otherLangCql
                         )
-                    )
-                ));
+                    ),
+                    List.forEach(args => observer.next(args)),
+                );
                 observer.complete();
 
             } catch (e) {
@@ -448,7 +449,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(args => this.concApi.call(streaming, this.tileId, 0, args))
+            mergeMap(args => this.concApi.call(streaming, this.tileId, args.queryIdx, args))
         )
     }
 

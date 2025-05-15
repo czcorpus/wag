@@ -131,6 +131,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                     body: {},
                     method: HTTP.Method.GET,
                     tileId,
+                    queryIdx,
                     url: args ?
                         urlJoin(
                             this.apiURL,
@@ -150,7 +151,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                                 ]
                             )
                         ) :
-                        ''
+                        '',
                 }) :
                 ajax$<HTTPResponse>(
                     'GET',
