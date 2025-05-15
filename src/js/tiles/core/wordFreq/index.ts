@@ -26,6 +26,7 @@ import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 export interface WordFreqTileConf extends TileConf {
     apiURL?:string;
+    infoApiURL?:string;
     apiType?:string;
     corpname:string;
     corpusSize:number;
@@ -79,7 +80,7 @@ export class WordFreqTile implements ITileProvider {
             api: conf.apiURL ?
                 new SimilarFreqWordsFrodoAPI(conf.apiURL, appServices, useDataStream) :
                 undefined,
-            sourceInfoApi: new CorpusInfoAPI(conf.apiURL, appServices),
+            sourceInfoApi: new CorpusInfoAPI(conf.infoApiURL ? conf.infoApiURL : conf.apiURL, appServices),
             queryMatches: queryMatches,
             queryDomain: domain1,
             queryType,
