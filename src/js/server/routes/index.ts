@@ -396,6 +396,20 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         })
     });
 
+    app.get(HTTPAction.COMPARE, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.COMPARE,
+            queryType: QueryType.CMP_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
     app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({

@@ -21,13 +21,13 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
-import { RecognizedQueries } from '../query/index.js';
+import { QueryType, RecognizedQueries } from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
 import { encodeArgs, ajax$, encodeURLParameters } from './ajax.js';
 import { ScreenProps } from './hostPage.js';
-import { ClientConf, UserConf, HomepageTileConf } from '../conf/index.js';
+import { ClientConf, UserConf, HomepageTileConf, LayoutsConfig } from '../conf/index.js';
 import { Actions } from '../models/actions.js';
 import { SystemNotifications } from './notifications.js';
 import { GlobalComponents } from '../views/common/index.js';
@@ -180,6 +180,15 @@ export const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[iden
     return ans;
 };
 
+function filterTilesByQueryType(layouts:LayoutsConfig, tiles:{[ident:string]:TileConf}, qType:QueryType):{[tileId:string]:TileConf} {
+    return pipe(
+        layouts[qType].groups,
+        List.flatMap(x => typeof x !== 'string' ? x.tiles : []),
+        List.map(x => tuple(x.tile, tiles[x.tile])),
+        Dict.fromEntries()
+    );
+}
+
 
 export function initClient(
     mountElement:HTMLElement,
@@ -205,7 +214,11 @@ export function initClient(
     const dataStreaming = new DataStreaming(
         null,
         pipe(
-            config.tiles,
+            filterTilesByQueryType(
+                config.layouts,
+                config.tiles,
+                userSession.queryType
+            ),
             Dict.filter(
                 (v, k) => v.useDataStream
             ),
