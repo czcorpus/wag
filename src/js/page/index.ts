@@ -180,6 +180,10 @@ export const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[iden
     return ans;
 };
 
+/**
+ * Out of all the configured tiles for all the query types, filter out everything
+ * except for the provided query type.
+ */
 function filterTilesByQueryType(layouts:LayoutsConfig, tiles:{[ident:string]:TileConf}, qType:QueryType):{[tileId:string]:TileConf} {
     return pipe(
         layouts[qType].groups,
@@ -210,15 +214,18 @@ export function initClient(
                         (argsStr.length > 0 ? '?' + argsStr : '');
         }
     });
+    // !! here we rewrite the config so we can work only with tiles of the current query type
+    config.tiles = filterTilesByQueryType(
+        config.layouts,
+        config.tiles,
+        userSession.queryType
+    );
+
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming = new DataStreaming(
         null,
         pipe(
-            filterTilesByQueryType(
-                config.layouts,
-                config.tiles,
-                userSession.queryType
-            ),
+            config.tiles,
             Dict.filter(
                 (v, k) => v.useDataStream
             ),
