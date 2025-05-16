@@ -22,7 +22,6 @@ export enum HTTPAction {
     GET_LEMMAS = '/get-lemmas/',
     SIMILAR_FREQ_WORDS = '/similar-freq-words/',
     WORD_FORMS = '/word-forms/',
-    TELEMETRY = '/telemetry/',
     SET_THEME = '/set-theme/',
     SOURCE_INFO = '/source-info/',
     SEARCH = '/search/',

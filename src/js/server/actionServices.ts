@@ -92,7 +92,6 @@ export interface Services {
     serverConf:ServerConf;
     clientConf:ClientStaticConf;
     db:WordDatabases;
-    telemetryDB:Database;
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
     errorLog:pino.Logger<"query", boolean>;

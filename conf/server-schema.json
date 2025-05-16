@@ -290,9 +290,6 @@
             },
             "type": "object"
         },
-        "telemetryDB": {
-            "type": "string"
-        },
         "toolbar": {
             "$ref": "#/definitions/ToolbarDef"
         }

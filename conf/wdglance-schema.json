@@ -30397,24 +30397,6 @@
             },
             "type": "object"
         },
-        "telemetry": {
-            "properties": {
-                "participationProbability": {
-                    "type": "number"
-                },
-                "sendIntervalSecs": {
-                    "type": "number"
-                },
-                "url": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "participationProbability",
-                "sendIntervalSecs"
-            ],
-            "type": "object"
-        },
         "tiles": {
             "anyOf": [
                 {

@@ -137,7 +137,6 @@ function mkRuntimeClientConf({
                     tiles,
                     footer
                 },
-                telemetry: conf.telemetry,
                 maxTileErrors: conf.maxTileErrors,
                 maxQueryWords: maxQueryWords
             }

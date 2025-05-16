@@ -32,7 +32,6 @@ import { getLangFromCookie, fetchReqArgArray, createHelperServices,
 import { queryAction, importQueryRequest } from './main.js';
 import { Services } from '../actionServices.js';
 import { HTTPAction } from './actions.js';
-import { TelemetryAction } from '../../types.js';
 import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -125,72 +124,6 @@ function langSwitchError({req, res, services, messageKey, messageArgs}:LangSwitc
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
-
-    // endpoint to receive client telemetry
-    app.post(HTTPAction.TELEMETRY, (req, res, next) => {
-        const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
-        const t1 = new Date().getTime();
-
-        if (!services.telemetryDB) {
-            res.send({saved: false, procTimePerItem: 0});
-            return;
-        }
-
-        const statement = services.telemetryDB.prepare(
-            'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery, is_mobile) values (?, ?, ?, ?, ?, ?)'
-        );
-        services.telemetryDB.run('BEGIN TRANSACTION');
-        logAction({
-            actionWriter: services.actionWriter,
-            req,
-            httpAction: HTTPAction.TELEMETRY,
-            datetime: appServices.getISODatetime(),
-            userConf: null,
-            isMobileClient: clientIsLikelyMobile(req),
-            userId: null,
-            hasMatch: null
-        }).subscribe();
-        rxOf(
-            ...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])
-        ).pipe(
-            concatMap(
-                action => new Observable(observer => {
-                    const data = [
-                        req['session'].id,
-                        action.timestamp,
-                        action.actionName,
-                        action.tileName,
-                        action.isMobile ? 1 : 0
-                    ];
-                    statement.run(data, (err:Error, res) => {
-                        if (err) {
-                            observer.error(err);
-
-                        } else {
-                            observer.next(res);
-                            observer.complete();
-                        }
-                    });
-                })
-            ),
-            reduce(
-                (acc, curr) => acc + 1,
-                0
-            ),
-            tap(
-                () => services.telemetryDB.run('COMMIT')
-            )
-        ).subscribe({
-            next: total => {
-                const t2 = new Date().getTime() - t1;
-                res.send({saved: true, procTimePerItem: t2 / total});
-            },
-            error: (err:Error) => {
-                services.errorLog.error(err.message, {trace: err.stack});
-                res.status(500).send({saved: false, message: err});
-            }
-        });
-    });
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {

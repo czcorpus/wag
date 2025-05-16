@@ -211,12 +211,6 @@ export interface ClientStaticConf {
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
     layouts:DomainLayoutsConfig|string;
-
-    telemetry?:{
-        sendIntervalSecs:number;
-        participationProbability:number;
-        url?:string;
-    };
 }
 
 /**
@@ -278,11 +272,6 @@ export interface ClientConf {
     externalStyles:Array<string>;
     maxTileErrors:number;
     error?:Error;
-    telemetry?:{
-        sendIntervalSecs:number;
-        participationProbability:number;
-        url?:string;
-    };
     maxQueryWords:{[k in QueryType]?:number};
 }
 
@@ -482,7 +471,6 @@ export interface ServerConf {
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:LangCookieSetup;
-    telemetryDB?:string;
     logging:{
         path?:string;
         rotation?:boolean;
