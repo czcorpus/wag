@@ -92,13 +92,6 @@ export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
     return typeof d['structure'] === 'object' && d['structure'].numTokens !== undefined;
 }
 
-export interface TelemetryAction {
-    timestamp:number;
-    actionName:string;
-    tileName:string;
-    isMobile:boolean;
-}
-
 export type TileIdentMap = {[ident:string]:number};
 
 export interface PackageInfo {

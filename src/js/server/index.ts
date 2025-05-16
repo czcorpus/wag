@@ -173,7 +173,6 @@ forkJoin([ // load core configs
             serverConf,
             clientConf,
             db,
-            telemetryDB: serverConf.telemetryDB ? new sqlite3.Database(serverConf.telemetryDB) : null,
             translations,
             toolbar,
             errorLog: logger,
