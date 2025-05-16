@@ -122,7 +122,7 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly tilesReadyTimeoutSecs:number;
 
-    private readonly userSession:UserConf;
+    private readonly userSession:UserConf|null;
 
     private readonly tilesDataStreams:{[streamId:string]:DataStreaming};
 
@@ -135,7 +135,7 @@ export class DataStreaming implements IDataStreaming {
         tileIds:Array<string|number>,
         rootUrl:string|null,
         tilesReadyTimeoutSecs:number,
-        userSession:UserConf
+        userSession:UserConf|null
     ) {
         this.id = id ? id : DataStreaming.ID_GLOBAL;
         this.rootUrl = rootUrl;
@@ -159,7 +159,7 @@ export class DataStreaming implements IDataStreaming {
                         List.map<number|string, Array<[string, TileRequest|OtherTileRequest|undefined]>>(
                             v => List.repeat(
                                 i => tuple(`${v}.${i}`, undefined),
-                                List.size(userSession.queries)
+                                userSession ? List.size(userSession.queries) : 1
                             ),
                         ),
                         List.flatMap(x => x)
@@ -305,7 +305,7 @@ export class DataStreaming implements IDataStreaming {
             [mainTileId,...dependentTiles],
             this.rootUrl,
             this.tilesReadyTimeoutSecs,
-            this.userSession
+            null
         );
         return this.tilesDataStreams[groupId];
     }
