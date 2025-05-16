@@ -124,32 +124,36 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.EnableAltViewMode>(
-            Actions.EnableAltViewMode.name,
+        this.addActionHandler(
+            Actions.EnableAltViewMode,
             (state, action) => {
                 state.altViewActiveTiles = List.addUnique(action.payload.ident, state.altViewActiveTiles);
             }
         );
-        this.addActionHandler<typeof Actions.DisableAltViewMode>(
-            Actions.DisableAltViewMode.name,
+
+        this.addActionHandler(
+            Actions.DisableAltViewMode,
             (state, action) => {
                 state.altViewActiveTiles = List.removeValue(action.payload.ident, state.altViewActiveTiles);
             }
         );
-        this.addActionHandler<typeof Actions.EnableTileTweakMode>(
-            Actions.EnableTileTweakMode.name,
+
+        this.addActionHandler(
+            Actions.EnableTileTweakMode,
             (state, action) => {
                 state.tweakActiveTiles = List.addUnique(action.payload.ident, state.tweakActiveTiles);
             }
         );
+
         this.addActionHandler<typeof Actions.DisableTileTweakMode>(
             Actions.DisableTileTweakMode.name,
             (state, action) => {
                 state.tweakActiveTiles = List.removeValue(action.payload.ident, state.tweakActiveTiles);
             }
         );
-        this.addActionHandler<typeof Actions.ShowTileHelp>(
-            Actions.ShowTileHelp.name,
+
+        this.addActionHandler(
+            Actions.ShowTileHelp,
             (state, action) => {
                 state.activeTileHelp = {ident: action.payload.tileId, html: null};
                 state.isBusy = true;
@@ -200,8 +204,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 });
             }
         );
-        this.addActionHandler<typeof Actions.LoadTileHelpDone>(
-            Actions.LoadTileHelpDone.name,
+
+        this.addActionHandler(
+            Actions.LoadTileHelpDone,
             (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
@@ -212,14 +217,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
             }
         );
-        this.addActionHandler<typeof Actions.HideTileHelp>(
-            Actions.HideTileHelp.name,
+
+        this.addActionHandler(
+            Actions.HideTileHelp,
             (state, action) => {
                 state.activeTileHelp = null;
             }
         );
-        this.addActionHandler<typeof Actions.GetSourceInfo>(
-            Actions.GetSourceInfo.name,
+
+        this.addActionHandler(
+            Actions.GetSourceInfo,
             (state, action) => {
                 state.activeSourceInfo = {
                     tileId: action.payload.tileId,
@@ -230,8 +237,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 state.isBusy = true;
             }
         );
-        this.addActionHandler<typeof Actions.GetSourceInfoDone>(
-            Actions.GetSourceInfoDone.name,
+
+        this.addActionHandler(
+            Actions.GetSourceInfoDone,
             (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
@@ -242,14 +250,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
             }
         );
-        this.addActionHandler<typeof Actions.CloseSourceInfo>(
-            Actions.CloseSourceInfo.name,
+
+        this.addActionHandler(
+            Actions.CloseSourceInfo,
             (state, action) => {
                 state.activeSourceInfo = null;
             }
         );
-        this.addActionHandler<typeof Actions.ToggleGroupVisibility>(
-            Actions.ToggleGroupVisibility.name,
+
+        this.addActionHandler(
+            Actions.ToggleGroupVisibility,
             (state, action) => {
                 state.highlightedTileId = -1;
                 state.scrollToTileId = -1;
@@ -259,8 +269,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         List.addUnique(action.payload.groupIdx, state.hiddenGroups);
             }
         );
-        this.addActionHandler<typeof Actions.OpenGroupAndHighlightTile>(
-            Actions.OpenGroupAndHighlightTile.name,
+
+        this.addActionHandler(
+            Actions.OpenGroupAndHighlightTile,
             (state, action) => {
                 List.removeValue(action.payload.groupIdx, state.hiddenGroups);
             },
@@ -268,21 +279,24 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 blinkAndDehighlight(action.payload.tileId, dispatch);
             }
         );
-        this.addActionHandler<typeof Actions.HighlightTile>(
-            Actions.HighlightTile.name,
+
+        this.addActionHandler(
+            Actions.HighlightTile,
             (state, action) => {
                 state.highlightedTileId = action.payload.tileId;
             }
         );
-        this.addActionHandler<typeof Actions.DehighlightTile>(
-            Actions.DehighlightTile.name,
+
+        this.addActionHandler(
+            Actions.DehighlightTile,
             (state, action) => {
                 state.highlightedTileId = -1;
                 state.scrollToTileId = -1;
             }
         );
-        this.addActionHandler<typeof Actions.ShowGroupHelp>(
-            Actions.ShowGroupHelp.name,
+
+        this.addActionHandler(
+            Actions.ShowGroupHelp,
             (state, action) => {
                 state.isBusy = true;
                 state.activeGroupHelp = {html: '', idx: action.payload.groupIdx};
@@ -319,8 +333,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 });
             }
         );
-        this.addActionHandler<typeof Actions.ShowGroupHelpDone>(
-            Actions.ShowGroupHelpDone.name,
+
+        this.addActionHandler(
+            Actions.ShowGroupHelpDone,
             (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
@@ -331,14 +346,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
             }
         );
-        this.addActionHandler<typeof Actions.HideGroupHelp>(
-            Actions.HideGroupHelp.name,
+
+        this.addActionHandler(
+            Actions.HideGroupHelp,
             (state, action) => {
                 state.activeGroupHelp = null;
             }
         );
-        this.addActionHandler<typeof Actions.RequestQueryResponse>(
-            Actions.RequestQueryResponse.name,
+
+        this.addActionHandler(
+            Actions.RequestQueryResponse,
             (state, action) => {
                 if (action.payload?.focusedTile) {
                     const scrollToTile = List.find(v => v.tileName === action.payload.focusedTile, state.tileProps);
@@ -360,8 +377,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 state.datalessGroups = [];
             }
         );
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+
+        this.addActionHandler(
+            Actions.TileDataLoaded,
             (state, action) => {
                 const srchIdx = state.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchIdx > -1) {
@@ -384,8 +402,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 );
             }
         );
-        this.addActionHandler<typeof Actions.SetEmptyResult>(
-            Actions.SetEmptyResult.name,
+
+        this.addActionHandler(
+            Actions.SetEmptyResult,
             (state, action) => {
                 state.tileResultFlags = state.tileResultFlags
                     .map(v => ({
@@ -403,15 +422,17 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
             }
         );
-        this.addActionHandler<typeof Actions.ShowAmbiguousResultHelp>(
-            Actions.ShowAmbiguousResultHelp.name,
+
+        this.addActionHandler(
+            Actions.ShowAmbiguousResultHelp,
             (state, action) => {
                 state.showAmbiguousResultHelp = true;
                 return state;
             }
         );
-        this.addActionHandler<typeof Actions.HideAmbiguousResultHelp>(
-            Actions.HideAmbiguousResultHelp.name,
+
+        this.addActionHandler(
+            Actions.HideAmbiguousResultHelp,
             (state, action) => {
                 state.showAmbiguousResultHelp = false;
             }
