@@ -30,27 +30,17 @@ export interface FreqRowResponse {
     coOccScore:number;
 }
 
-
-function escapeVal(v:string) {
-    const map = {
-        '"': '\\"',
-        '?': '\\?',
-        '!': '\\!',
-        '.': '\\.',
-        '*': '\\*',
-        '+': '\\+'
-    };
-    return v.replace(/[?"!.*+]/g, match => map[match]);
+function escapeDQuotes(v:string):string {
+    return v.replaceAll('"', '\\"');
 }
-
 
 /**
  * Transform a provided QueryMatch into a valid CQL query.
  *
  * a) lemma with a PoS information like e.g.: lemma='foo bar', tag=['A', 'B']
- * is transformed into: [lemma="foo" & tag="A"] [lemma="bar" & tag="B"].
+ * is transformed into: [lemma=="foo" & tag="A"] [lemma=="bar" & tag="B"].
  * b) lemma without a PoS information, e.g.: lemma='foo bar'
- * is transformed into: [lemma="foo"] [lemma="bar"]
+ * is transformed into: [lemma=="foo"] [lemma=="bar"]
  */
 export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
 
@@ -58,8 +48,8 @@ export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):s
     return pipe(
         lvar.lemma.split(' '),
         List.map((lemma, i) => lvar.pos[i] !== undefined ?
-            `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
-            `[lemma="${escapeVal(lemma)}"]`)
+            `[lemma=="${escapeDQuotes(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
+            `[lemma=="${escapeDQuotes(lemma)}"]`)
     ).join(' ');
 }
 
@@ -71,7 +61,7 @@ export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):s
  */
 export function mkWordMatchQuery(lvar:QueryMatch):string {
     return List.map(
-        word => `[word="${escapeVal(word)}"]`,
+        word => `[word=="${escapeDQuotes(word)}"]`,
         lvar.word.split(' ')
     ).join('');
 }
