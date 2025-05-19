@@ -92,7 +92,6 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
                 )
 
         ).pipe(
-            share(),
             map<HTTPResponse, CorpusDetails>(
                 (resp) => ({
                     tileId,

@@ -281,9 +281,14 @@ export class DataStreaming implements IDataStreaming {
 
     /**
      * Creates a new DataStreaming instance with custom
-     * group of tiles. This is intended for tiles which
-     * have other dependent tiles and need to update
-     * data together.
+     * group of tiles. This is mostly used for:
+     *
+     * 1) obtaining source info (single tile stream)
+     * 2) updating independent tile's parameters (single tile stream)
+     * 3) updating dependent tiles (typically - two tile stream)
+     *
+     * The new instance does not produce caching tag which
+     * means the corresponding responses are not cached!
      *
      * The stream, once created, starts to measure time
      * and handle possible timeout so it is important
