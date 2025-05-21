@@ -68,36 +68,6 @@
             },
             "type": "object"
         },
-        "GroupedAuth": {
-            "properties": {
-                "authenticateUrl": {
-                    "type": "string"
-                },
-                "cookieDomain": {
-                    "type": "string"
-                },
-                "cookieName": {
-                    "type": "string"
-                },
-                "ident": {
-                    "type": "string"
-                },
-                "preflightUrl": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "authenticateUrl",
-                "cookieDomain",
-                "cookieName",
-                "ident",
-                "token"
-            ],
-            "type": "object"
-        },
         "LangCookieSetup": {
             "properties": {
                 "domain": {
@@ -243,12 +213,6 @@
         },
         "freqDB": {
             "$ref": "#/definitions/WordFreqDbConf"
-        },
-        "groupedAuth": {
-            "items": {
-                "$ref": "#/definitions/GroupedAuth"
-            },
-            "type": "array"
         },
         "langCookie": {
             "$ref": "#/definitions/LangCookieSetup"

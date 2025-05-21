@@ -145,8 +145,13 @@ export function createRootComponent({
         dispatcher: dispatcher,
         appServices: appServices,
         query1Domain: userSession.query1Domain || dfltDomain.code,
-        query2Domain: userSession.query2Domain || '',
+        translatLanguage: userSession.translatLanguage || '',
         queryType: qType,
+        availQueryTypes: pipe(
+            layoutManager.getQueryTypesMenuItems(),
+            List.filter(x => x.isEnabled),
+            List.map(x => x.type)
+        ),
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
@@ -165,7 +170,7 @@ export function createRootComponent({
         layoutManager,
         qType,
         userSession.query1Domain,
-        userSession.query2Domain
+        userSession.translatLanguage
     );
 
     const isMultiWordQuery = testIsMultiWordMode(queryMatches);
@@ -173,7 +178,7 @@ export function createRootComponent({
         qType,
         isMultiWordQuery,
         userSession.query1Domain,
-        userSession.query2Domain,
+        userSession.translatLanguage,
         appServices
     );
     const retryLoadModel = new RetryTileLoad(dispatcher);

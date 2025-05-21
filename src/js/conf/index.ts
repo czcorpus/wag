@@ -43,7 +43,7 @@ export interface UserConf {
     queries:Array<UserQuery>;
     queryType:QueryType;
 	query1Domain:string;
-    query2Domain:string;
+    translatLanguage:string;
     answerMode:boolean;
     error?:[number, string]; // server error (e.g. bad request)
 }
@@ -55,7 +55,7 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
         queries: [],
         queryType: QueryType.SINGLE_QUERY,
         query1Domain: '',
-        query2Domain: '',
+        translatLanguage: '',
         answerMode: false, // ??
         error: error
     };
@@ -190,6 +190,7 @@ export interface ClientStaticConf {
     htmlTitle?:{[lang:string]:string};
     colors?:ColorsConf|string;
     searchDomains:{[domain:string]:string};
+    defaultDomains:{[qt:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
     externalStyles?:Array<string>;
@@ -272,6 +273,7 @@ export interface ClientConf {
     externalStyles:Array<string>;
     maxTileErrors:number;
     error?:Error;
+    redirect?:[number, string];
     maxQueryWords:{[k in QueryType]?:number};
 }
 

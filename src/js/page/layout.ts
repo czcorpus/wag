@@ -245,4 +245,12 @@ export class LayoutManager {
     getTileNumber(tileId:string):number {
         return this.tileMap[tileId];
     }
+
+    isEmpty(queryType:QueryType):boolean {
+        return pipe(
+            this.getLayout(queryType).groups,
+            List.flatMap(v => v.tiles),
+            List.empty()
+        );
+    }
 }

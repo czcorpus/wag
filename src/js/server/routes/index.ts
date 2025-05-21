@@ -31,7 +31,7 @@ import { getLangFromCookie, fetchReqArgArray, createHelperServices,
     mkPageReturnUrl, renderResult, getQueryValue, clientIsLikelyMobile } from './common.js';
 import { queryAction, importQueryRequest } from './main.js';
 import { Services } from '../actionServices.js';
-import { HTTPAction } from './actions.js';
+import { HTTPAction } from '../../page/actions.js';
 import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -127,17 +127,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services);
-        queryAction({
-            services,
-            answerMode: false,
-            httpAction: HTTPAction.MAIN,
-            queryType: QueryType.SINGLE_QUERY,
-            uiLang,
-            req,
-            res,
-            next
-        });
+        if (!services.clientConf.defaultDomains[QueryType.SINGLE_QUERY]) {
+            res.status(HTTP.Status.InternalServerError).send('ERROR - no default domain set');
+            return;
+        }
+        res.redirect(301, '/' + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -238,7 +232,21 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }
     });
 
-    app.get(`${HTTPAction.SEARCH}:domain/:query`, (req, res, next) => {
+    app.get(`/:domain${HTTPAction.SEARCH}`, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.SEARCH,
+            queryType: QueryType.SINGLE_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(`/:domain${HTTPAction.SEARCH}:query`, (req, res, next) => {
         let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
 
@@ -292,7 +300,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`${HTTPAction.EMBEDDED_SEARCH}:domain/:query`, (req, res, next) => {
+    app.get(`/:domain${HTTPAction.EMBEDDED_SEARCH}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
@@ -329,7 +337,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         })
     });
 
-    app.get(HTTPAction.COMPARE, (req, res, next) => {
+    app.get(`/:domain${HTTPAction.COMPARE}`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -343,7 +351,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
+    app.get(`/:domain${HTTPAction.COMPARE}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -357,7 +365,21 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`${HTTPAction.TRANSLATE}:domain/:query`, (req, res, next) => {
+    app.get(`/:domain${HTTPAction.TRANSLATE}`, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.TRANSLATE,
+            queryType: QueryType.TRANSLAT_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(`/:domain${HTTPAction.TRANSLATE}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,

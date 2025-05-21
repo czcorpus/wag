@@ -24,7 +24,7 @@ import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
 import { RequestArgs, SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
-import { HTTPAction } from '../../../server/routes/actions.js';
+import { HTTPAction } from '../../../page/actions.js';
 import { IApiServices } from '../../../appServices.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 

@@ -19,12 +19,27 @@
 import { pipe, List } from 'cnc-tskit';
 import { PosItem, posTagsEqual } from '../postag.js';
 import { MainPosAttrValues } from '../conf/index.js';
+import { HTTPAction } from '../page/actions.js';
 
 
 export enum QueryType {
     SINGLE_QUERY = 'single',
     CMP_QUERY = 'cmp',
     TRANSLAT_QUERY = 'translat'
+}
+
+
+export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
+    switch (qt) {
+        case QueryType.CMP_QUERY:
+            return HTTPAction.COMPARE;
+        case QueryType.SINGLE_QUERY:
+            return HTTPAction.SEARCH;
+        case QueryType.TRANSLAT_QUERY:
+            return HTTPAction.TRANSLATE;
+        default:
+            return undefined;
+    }
 }
 
 export function importQueryTypeString(v:string, dflt:QueryType):QueryType {

@@ -30339,6 +30339,12 @@
             "description": "This specifies an URL used by the DataStreaming class\nto start an EventSource stream. The fact whether it will\nbe used or not is given solely by tiles configuration.\nI.e. if there will be no tile with `useDataStreaming` set\nto true, then it does not matter whether this value\nis filled or not.",
             "type": "string"
         },
+        "defaultDomains": {
+            "additionalProperties": {
+                "type": "string"
+            },
+            "type": "object"
+        },
         "externalStyles": {
             "items": {
                 "type": "string"
@@ -30414,6 +30420,7 @@
     "required": [
         "apiHeaders",
         "corpInfoApiUrl",
+        "defaultDomains",
         "homepage",
         "hostUrl",
         "layouts",
