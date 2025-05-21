@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
-import { Observable, of as rxOf, zip } from 'rxjs';
-import { concatMap, reduce, share, repeat } from 'rxjs/operators';
-import { Dict, List } from 'cnc-tskit';
+import { Observable, zip } from 'rxjs';
+import { reduce, share, mergeMap } from 'rxjs/operators';
+import { Dict, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq.js';
@@ -119,18 +119,41 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const dataStream = zip([
-                    this.mapLoader.call(appServices.dataStreaming(), this.tileId, 0, 'mapCzech.inline.svg').pipe(repeat(state.currQueryMatches.length)),
-                    rxOf(...state.currQueryMatches.map((_, queryId) => ({queryId}) as {queryId:number})).pipe(
-                        concatMap(args => this.freqApi.call(
-                            this.appServices.dataStreaming(),
-                            this.tileId,
-                            args.queryId,
-                            this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[args.queryId]))
-                        ))
-                    )
+                const dataStream = new Observable((observer) => {
+                    try {
+                        pipe(
+                            this.queryMatches,
+                            List.map((queryMatch, queryIdx) => (
+                                [
+                                    this.stateToArgs(
+                                        state,
+                                        findCurrQueryMatch(queryMatch),
+                                    ),
+                                    queryIdx,
+                                ]
+                            )),
+                            List.forEach(args => observer.next(args)),
+                        );
+                        observer.complete();
         
-                ]).pipe(share());
+                    } catch (e) {
+                        observer.error(e);
+                    }
+        
+                }).pipe(
+                    mergeMap(([args, queryIdx]) =>
+                        zip(
+                            this.mapLoader.call(this.appServices.dataStreaming(), this.tileId, queryIdx, 'mapCzech.inline.svg'),
+                            this.freqApi.call(
+                                this.appServices.dataStreaming(),
+                                this.tileId,
+                                queryIdx,
+                                args,
+                            ),
+                        )
+                    ),
+                    share(),
+                )
                 this.handleLoad(dataStream, state, dispatch);
             }
         );
