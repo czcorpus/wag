@@ -824,7 +824,7 @@ export function init(
 
     // ------------- <TileContainer /> --------------------------------------
 
-    class TileContainer extends React.Component<{
+    const TileContainer:React.FC<{
         isTweakMode:boolean;
         isMobile:boolean;
         isAltViewMode:boolean;
@@ -835,81 +835,73 @@ export function init(
         isHighlighted:boolean;
         altViewIcon:AltViewIconProps;
 
-    }, {}> {
+    }> = (props) => {
 
-        private ref:React.RefObject<HTMLDivElement>;
-
-        constructor(props) {
-            super(props);
-        }
-
-        private getHTMLClass() {
+        const getHTMLClass = () => {
             const ans = ['cnc-tile', 'app-output'];
-            if (this.props.isTweakMode) {
+            if (props.isTweakMode) {
                 ans.push('expanded');
             }
-            if (!this.props.isMobile) {
-                ans.push(`span${this.props.tile.widthFract}`);
+            if (!props.isMobile) {
+                ans.push(`span${props.tile.widthFract}`);
             }
-            if (this.props.isHighlighted) {
+            if (props.isHighlighted) {
                 ans.push('highlighted');
             }
             return ans.join(' ');
-        }
+        };
 
-        render() {
-            return (
-                <section id={mkTileSectionId(this.props.tile.tileId)} key={`tile-ident-${this.props.tile.tileId}`}
-                        className={this.getHTMLClass()}>
-                    <header className="cnc-tile-header panel">
-                        <h2>{this.props.tile.label}</h2>
-                        <div className="window-buttons">
-                        {this.props.tileResultFlag && this.props.tileResultFlag.canBeAmbiguousResult ?
-                            <AmbiguousResultWarning /> :
-                            null
-                        }
-                        {this.props.tile.supportsSVGFigureSave ?
-                            <SaveButton
-                                tileId={this.props.tile.tileId}
-                                disabled={!this.props.tileResultFlag || this.props.tileResultFlag.status !== TileResultFlag.VALID_RESULT} /> :
-                            null
-                        }
-                        {this.props.tile.supportsAltView ?
-                            <AltViewButton
-                                tileId={this.props.tile.tileId}
-                                isAltView={this.props.isAltViewMode}
-                                altIconProps={this.props.altViewIcon} />  :
-                            null
-                        }
-                        {this.props.tile.supportsTweakMode ?
-                            <TweakButton tileId={this.props.tile.tileId} isExtended={this.props.isTweakMode} /> :
-                            null
-                        }
-                        {this.props.tile.supportsHelpView ?
-                            <HelpButton tileId={this.props.tile.tileId} /> :
-                            null
-                        }
-                        </div>
-                    </header>
-                    <div className="provider" style={{height: '100%', overflow: this.props.tile.maxTileHeight ? 'auto' : 'initial'}}>
-                        <div style={{height: '100%', maxHeight: this.props.tile.maxTileHeight ? this.props.tile.maxTileHeight : 'initial'}}>
-                            <globalComponents.ErrorBoundary>
-                                {this.props.supportsCurrQuery ?
-                                    <this.props.tile.Component
-                                            tileId={this.props.tile.tileId}
-                                            tileName={this.props.tile.tileName}
-                                            isMobile={this.props.isMobile}
-                                            widthFract={this.props.tile.widthFract}
-                                            supportsReloadOnError={this.props.tile.supportsReloadOnError}
-                                            issueReportingUrl={this.props.tile.issueReportingUrl} /> :
-                                    <DisabledTile reason={this.props.tile.reasonTileDisabled} />
-                                }
-                            </globalComponents.ErrorBoundary>
-                        </div>
+        return (
+            <section id={mkTileSectionId(props.tile.tileId)} key={`tile-ident-${props.tile.tileId}`}
+                    className={getHTMLClass()}>
+                <header className="cnc-tile-header panel">
+                    <h2>{props.tile.label}</h2>
+                    <div className="window-buttons">
+                    {props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult ?
+                        <AmbiguousResultWarning /> :
+                        null
+                    }
+                    {props.tile.supportsSVGFigureSave ?
+                        <SaveButton
+                            tileId={props.tile.tileId}
+                            disabled={!props.tileResultFlag || props.tileResultFlag.status !== TileResultFlag.VALID_RESULT} /> :
+                        null
+                    }
+                    {props.tile.supportsAltView ?
+                        <AltViewButton
+                            tileId={props.tile.tileId}
+                            isAltView={props.isAltViewMode}
+                            altIconProps={props.altViewIcon} />  :
+                        null
+                    }
+                    {props.tile.supportsTweakMode ?
+                        <TweakButton tileId={props.tile.tileId} isExtended={props.isTweakMode} /> :
+                        null
+                    }
+                    {props.tile.supportsHelpView ?
+                        <HelpButton tileId={props.tile.tileId} /> :
+                        null
+                    }
                     </div>
-                </section>
-            );
-        }
+                </header>
+                <div className="provider" style={{height: '100%', overflow: props.tile.maxTileHeight ? 'auto' : 'initial'}}>
+                    <div style={{height: '100%', maxHeight: props.tile.maxTileHeight ? props.tile.maxTileHeight : 'initial'}}>
+                        <globalComponents.ErrorBoundary>
+                            {props.supportsCurrQuery ?
+                                <props.tile.Component
+                                        tileId={props.tile.tileId}
+                                        tileName={props.tile.tileName}
+                                        isMobile={props.isMobile}
+                                        widthFract={props.tile.widthFract}
+                                        supportsReloadOnError={props.tile.supportsReloadOnError}
+                                        issueReportingUrl={props.tile.issueReportingUrl} /> :
+                                <DisabledTile reason={props.tile.reasonTileDisabled} />
+                            }
+                        </globalComponents.ErrorBoundary>
+                    </div>
+                </div>
+            </section>
+        );
     }
 
 
@@ -1078,7 +1070,8 @@ export function init(
                     {pipe(
                         props.data.tiles,
                         List.map(v => props.tileFrameProps[v.tileId]),
-                        List.map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                        List.map(tile => <TileContainer key={`tile:${tile.tileId}`}
+                                            tile={tile}
                                             isMobile={props.isMobile}
                                             helpURL={tile.helpURL}
                                             isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}

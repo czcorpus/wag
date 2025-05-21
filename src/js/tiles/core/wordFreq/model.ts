@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { StatelessModel, IActionQueue } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -117,12 +117,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 state.similarFreqWords = mkEmptySimilarWords(queryMatches);
                 state.queryMatches = findCurrentMatches(queryMatches);
             },
-            (state, action, dispatch) => {
-                (this.queryType === QueryType.CMP_QUERY ?
-                    rxOf([]) :
-                    this.loadExtendedFreqInfo(state)
+            (state, action, dispatch) => this.loadExtendedFreqInfo(
+                state
 
-                ).subscribe({
+            ).subscribe({
                     next: (data) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
@@ -145,8 +143,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             }
                         });
                     }
-                });
-            }
+                })
         );
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
@@ -208,23 +205,29 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
     }
 
     private loadExtendedFreqInfo(state:SummaryModelState):Observable<Array<SimilarFreqWord>> {
-        return new Observable<{variant:QueryMatch; lang:string}>((observer) => {
+        return new Observable<{variant:QueryMatch; lang:string, idx:number}>((observer) => {
             try {
-                observer.next({
-                    variant: findCurrQueryMatch(this.queryMatches[0]),
-                    lang: this.queryDomain
-                });
+                List.forEach(
+                    (match, idx) => {
+                        observer.next({
+                            variant: findCurrQueryMatch(match),
+                            lang: this.queryDomain,
+                            idx
+                        });
+                    },
+                    this.queryMatches
+                );
                 observer.complete();
 
             } catch(err) {
                 observer.error(err);
             }
         }).pipe(
-            concatMap(
+            mergeMap(
                 (args) => this.api.call(
                     this.appServices.dataStreaming(),
                     this.tileId,
-                    0,
+                    args.idx,
                     args.variant.lemma ?
                         {
                             corpname: state.corpname ? state.corpname : args.lang,
