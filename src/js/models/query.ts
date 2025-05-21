@@ -67,8 +67,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.queryValidator = new QueryValidator(this.appServices);
-        this.addActionHandler<typeof Actions.ChangeQueryInput>(
-            Actions.ChangeQueryInput.name,
+        this.addActionHandler(
+            Actions.ChangeQueryInput,
             (state, action) => {
                 state.errors = [];
                 state.queries[action.payload.queryIdx] =
@@ -76,8 +76,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeCurrQueryMatch>(
-            Actions.ChangeCurrQueryMatch.name,
+        this.addActionHandler(
+            Actions.ChangeCurrQueryMatch,
             (state, action) => {
                 const group = state.queryMatches[action.payload.queryIdx];
                 state.queryMatches[action.payload.queryIdx] = List.map(
@@ -95,8 +95,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeTargetDomain>(
-            Actions.ChangeTargetDomain.name,
+        this.addActionHandler(
+            Actions.ChangeTargetDomain,
             (state, action) => {
                 const prevDomain2 = state.queryDomain2;
                 state.queryDomain = action.payload.domain1;
@@ -109,8 +109,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeQueryType>(
-            Actions.ChangeQueryType.name,
+        this.addActionHandler(
+            Actions.ChangeQueryType,
             (state, action) => {
                 state.queryType = action.payload.queryType;
                 const hasMoreQueries = pipe(state.queries, List.slice(1), List.some(v => v.value !== ''));
@@ -131,8 +131,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.SubmitQuery>(
-            Actions.SubmitQuery.name,
+        this.addActionHandler(
+            Actions.SubmitQuery,
             (state, action) => {
                 this.checkAndSubmitUserQuery(state);
             },
@@ -143,8 +143,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.AddCmpQueryInput>(
-            Actions.AddCmpQueryInput.name,
+        this.addActionHandler(
+            Actions.AddCmpQueryInput,
             (state, action) => {
                 if (state.queries.length < state.maxCmpQueries) {
                     state.queries.push(Forms.newFormValue('', true));
@@ -157,36 +157,36 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.RemoveCmpQueryInput>(
-            Actions.RemoveCmpQueryInput.name,
+        this.addActionHandler(
+            Actions.RemoveCmpQueryInput,
             (state, action) => {
                 state.queries.splice(action.payload.queryIdx, 1);
             }
         );
 
-        this.addActionHandler<typeof Actions.ShowQueryMatchModal>(
-            Actions.ShowQueryMatchModal.name,
+        this.addActionHandler(
+            Actions.ShowQueryMatchModal,
             (state, action) => {
                 state.lemmaSelectorModalVisible = true;
             }
         );
 
-        this.addActionHandler<typeof Actions.HideQueryMatchModal>(
-            Actions.HideQueryMatchModal.name,
+        this.addActionHandler(
+            Actions.HideQueryMatchModal,
             (state, action) => {
                 state.lemmaSelectorModalVisible = false;
             }
         );
 
-        this.addActionHandler<typeof Actions.SelectModalQueryMatch>(
-            Actions.SelectModalQueryMatch.name,
+        this.addActionHandler(
+            Actions.SelectModalQueryMatch,
             (state, action) => {
                 state.modalSelections[action.payload.queryIdx] = action.payload.variantIdx;
             }
         );
 
-        this.addActionHandler<typeof Actions.ApplyModalQueryMatchSelection>(
-            Actions.ApplyModalQueryMatchSelection.name,
+        this.addActionHandler(
+            Actions.ApplyModalQueryMatchSelection,
             (state, action) => {
                 state.lemmaSelectorModalVisible = false;
                 state.modalSelections.forEach((sel, idx) => {
