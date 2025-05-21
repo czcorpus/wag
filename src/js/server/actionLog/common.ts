@@ -18,7 +18,7 @@
 
 import { Request } from 'express';
 import { List } from 'cnc-tskit';
-import { HTTPAction } from '../routes/actions.js';
+import { HTTPAction } from '../../page/actions.js';
 import { IActionWriter } from './abstract.js';
 import { UserConf } from '../../conf/index.js';
 import { Observable, of as rxOf } from 'rxjs';
@@ -68,7 +68,7 @@ export function logAction({
                 referer: req.headers['referer']
             },
             lang1: userConf ? userConf.query1Domain : null,
-            lang2: userConf && httpAction === HTTPAction.TRANSLATE ? userConf.query2Domain : null,
+            lang2: userConf && httpAction === HTTPAction.TRANSLATE ? userConf.translatLanguage : null,
             isQuery: List.some(
                 a => a === httpAction,
                 [HTTPAction.SEARCH, HTTPAction.COMPARE, HTTPAction.TRANSLATE, HTTPAction.EMBEDDED_SEARCH]

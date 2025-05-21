@@ -92,24 +92,20 @@ export class Actions {
         name:'MAIN_CHANGE_CURR_QUERY_MATCH'
     }
 
-    // this action currently reload the page so we need
-    // more arguments than in SPA-mode
-    static ChangeTargetDomain:Action<{
-        domain1:string;
-        domain2:string;
-        queryType:QueryType;
-        queries:Array<string>;
+    static ChangeDomain:Action<{
+        domain:string;
     }> = {
-        name: 'MAIN_CHANGE_TARGET_DOMAIN'
+        name: 'MAIN_CHANGE_DOMAIN'
     }
 
-    // this action currently reload the page so we need
-    // more arguments than in SPA-mode
+    static ChangeTranslatLanguage:Action<{
+        lang:string;
+    }> = {
+        name: 'MAIN_CHANGE_TRANSLAT_LANGUAGE'
+    }
+
     static ChangeQueryType:Action<{
         queryType:QueryType;
-        domain1:string;
-        domain2:string;
-        queries:Array<string>;
     }> = {
         name: 'MAIN_CHANGE_QUERY_TYPE'
     }

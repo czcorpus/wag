@@ -20,7 +20,7 @@ import * as React from 'react';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../common/index.js';
 import { AvailableLanguage } from '../../page/hostPage.js';
-import { HTTPAction } from '../../server/routes/actions.js';
+import { HTTPAction } from '../../page/actions.js';
 import { List } from 'cnc-tskit';
 
 

@@ -23,7 +23,7 @@ import { ajax$ } from '../../../page/ajax.js';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
 import { RequestArgs, Response } from '../../abstract/similarFreq.js';
-import { HTTPAction } from '../../../server/routes/actions.js';
+import { HTTPAction } from '../../../page/actions.js';
 import { IApiServices } from '../../../appServices.js';
 
 

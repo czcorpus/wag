@@ -19,23 +19,21 @@
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
-import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
+import { fromEvent, Observable } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
-import { encodeArgs, ajax$, encodeURLParameters } from './ajax.js';
+import { encodeArgs, encodeURLParameters } from './ajax.js';
 import { ScreenProps } from './hostPage.js';
 import { ClientConf, UserConf, HomepageTileConf, LayoutsConfig } from '../conf/index.js';
 import { Actions } from '../models/actions.js';
 import { SystemNotifications } from './notifications.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { createRootComponent } from '../app.js';
-import { TileIdentMap } from '../types.js';
-import { HTTPAction } from '../server/routes/actions.js';
 import { MultiDict } from '../multidict.js';
-import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
+import { Client, tuple, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main.js';
 import { LayoutManager, TileGroup } from './layout.js';
 import { TileConf } from './tile.js';
@@ -163,7 +161,6 @@ export function initClient(
         config.tiles,
         userSession.queryType
     );
-
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming = new DataStreaming(
         null,

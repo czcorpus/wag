@@ -17,15 +17,15 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { catchError, concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
+import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices.js';
-import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index.js';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth,
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
          mergeToEmptyLayoutConf,
          MainPosAttrValues
 } from '../../conf/index.js';
@@ -40,9 +40,8 @@ import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, 
     clientIsLikelyMobile } from './common.js';
 import { maxQueryWordsForQueryType } from '../../conf/validation.js';
 import { Actions } from '../../models/actions.js';
-import { HTTPAction } from './actions.js';
+import { HTTPAction } from '../../page/actions.js';
 import { logAction } from '../actionLog/common.js';
-import { fullServerHttpRequest, serverHttpRequest } from '../request.js';
 import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
 
@@ -194,7 +193,7 @@ export function importQueryRequest({
                 uiLang,
                 uiLanguages: services.serverConf.languages,
                 query1Domain: queryDomain[0] ? queryDomain[0] : dfltDomain, // TODO this is not queryType sensitive
-                query2Domain: queryDomain[1] ? queryDomain[1] : dfltDomain2,
+                translatLanguage: queryDomain[1] ? queryDomain[1] : dfltDomain2,
                 queryType,
                 queries: compileQueries(
                     queries,
@@ -290,11 +289,24 @@ export function queryAction({
             )
         ),
         map(
-            ([runtimeConf, userConf]) => tuple(
-                runtimeConf,
-                userConf,
-                new LayoutManager(runtimeConf.layouts, attachNumericTileIdents(runtimeConf.tiles), appServices)
-            )
+            ([runtimeConf, userConf]) => {
+                const lm = new LayoutManager(
+                    runtimeConf.layouts,
+                    attachNumericTileIdents(runtimeConf.tiles),
+                    appServices
+                );
+                if (lm.isEmpty(queryType)) {
+                    const firstAvailQt = List.find(x => x.isEnabled, lm.getQueryTypesMenuItems());
+                    runtimeConf.redirect = tuple(
+                        303, appServices.createActionUrl(userConf.query1Domain + queryTypeToAction(firstAvailQt.type))
+                    )
+                }
+                return tuple(
+                    runtimeConf,
+                    userConf,
+                    lm
+                );
+            }
         ),
         concatMap(
             ([runtimeConf, userConf, layoutManager]) => forkJoin({
@@ -303,7 +315,7 @@ export function queryAction({
             viewUtils: rxOf(viewUtils),
             userConf: new Observable<UserConf>(
                 (observer) => {
-                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Domain === userConf.query2Domain) {
+                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Domain === userConf.translatLanguage) {
                         userConf.error = [400, appServices.translate('global__src_and_dst_domains_must_be_different')];
                     }
                     observer.next(userConf);
@@ -405,6 +417,11 @@ export function queryAction({
             dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
                 name: Actions.RequestQueryResponse.name
             });
+
+            if (runtimeConf.redirect) {
+                res.redirect(runtimeConf.redirect[0], runtimeConf.redirect[1]);
+                return;
+            }
 
             res.send(renderResult({
                 HtmlBody,

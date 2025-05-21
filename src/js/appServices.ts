@@ -22,7 +22,7 @@ import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma.js';
 import { SystemNotifications } from './page/notifications.js';
-import { HTTPAction } from './server/routes/actions.js';
+import { HTTPAction } from './page/actions.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
 import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf/index.js';

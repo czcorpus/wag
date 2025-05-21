@@ -343,7 +343,7 @@ export class DataStreaming implements IDataStreaming {
             queries: userSession.queries,
             queryType: userSession.queryType,
             query1Domain: userSession.query1Domain,
-            query2Domain: userSession.query2Domain
+            query2Domain: userSession.translatLanguage
         };
     }
 

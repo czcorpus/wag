@@ -207,7 +207,7 @@ export const WdglanceControls = styled.div`
 
     }
 
-    .QueryTypeSelector {
+    .DomainSelector {
 
         margin-top: 0.1em;
         margin-bottom: 1.5em;
@@ -340,7 +340,7 @@ export const WdglanceControls = styled.div`
         }
 
 
-        .QueryTypeSelector {
+        .DomainSelector {
 
             margin-bottom: 0.7em;
 
@@ -382,7 +382,7 @@ export const WdglanceControls = styled.div`
             padding: 0.5em 1.5em 0.5em 1.5em;
         }
 
-        .QueryTypeSelector {
+        .DomainSelector {
             margin-top: 0.2em;
         }
     }

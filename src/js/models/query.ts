@@ -24,12 +24,13 @@ import { MultiDict } from '../multidict.js';
 import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
-import { QueryType, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries, findCurrQueryMatch } from '../query/index.js';
+import { QueryType, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries, findCurrQueryMatch, queryTypeToAction } from '../query/index.js';
 import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
-import { HTTPAction } from '../server/routes/actions.js';
+import { HTTPAction } from '../page/actions.js';
 import { LayoutManager } from '../page/layout.js';
 import { MainPosAttrValues } from '../conf/index.js';
+import urlJoin from 'url-join';
 
 
 export interface QueryFormModelState {
@@ -37,10 +38,11 @@ export interface QueryFormModelState {
     initialQueryType:QueryType;
     multiWordQuerySupport:{[k in QueryType]?:number};
     queryType:QueryType;
+    availQueryTypes:Array<QueryType>;
     queryDomain:string;
-    queryDomain2:string;
+    currTranslatLanguage:string;
     searchDomains:Array<SearchDomain>;
-    targetDomains:{[k in QueryType]:Array<[string, string]>};
+    translatLanguages:{[k in QueryType]:Array<[string, string]>};
     queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Array<Error>;
     queryMatches:RecognizedQueries;
@@ -76,6 +78,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
+        this.DEBUG_logActions({handledOnly: true});
+
         this.addActionHandler(
             Actions.ChangeCurrQueryMatch,
             (state, action) => {
@@ -96,16 +100,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         );
 
         this.addActionHandler(
-            Actions.ChangeTargetDomain,
+            Actions.ChangeTranslatLanguage,
             (state, action) => {
-                const prevDomain2 = state.queryDomain2;
-                state.queryDomain = action.payload.domain1;
-                state.queryDomain2 = action.payload.domain2;
-                state.queryType = action.payload.queryType;
-                if (state.isAnswerMode && state.queryType === QueryType.TRANSLAT_QUERY &&
-                            prevDomain2 !== action.payload.domain2) {
-                    this.checkAndSubmitUserQuery(state);
-                }
+                state.currTranslatLanguage = action.payload.lang;
             }
         );
 
@@ -128,6 +125,21 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                         state.queries.push(Forms.newFormValue('', true));
                     }
                 }
+            },
+            (state, action, dispatch) => {
+                window.location.href = this.appServices.createActionUrl(
+                    state.queryDomain + queryTypeToAction(action.payload.queryType));
+            }
+        );
+
+        this.addActionHandler(
+            Actions.ChangeDomain,
+            (state, action) => {
+                console.log('action: ', action.payload.domain);
+            },
+            (state, action, dispatch) => {
+                window.location.href = this.appServices.createActionUrl(
+                    action.payload.domain + queryTypeToAction(state.queryType));
             }
         );
 
@@ -239,7 +251,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         this.normalizeQueries(state);
         state.errors = [];
         this.validateQuery(state);
-        if (state.errors.length === 0) { // we leave the page here, TODO: use some kind of routing
+        if (state.errors.length === 0) {
             window.location.href = this.appServices.createActionUrl(this.buildQueryPath(state));
         }
     }
@@ -253,7 +265,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         const domains = [state.queryDomain];
         if (state.queryType === QueryType.TRANSLAT_QUERY) {
-            domains.push(state.queryDomain2);
+            domains.push(state.currTranslatLanguage);
         }
 
         const queries = [state.queries[0].value];
@@ -263,7 +275,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             });
         }
 
-        return `${action}${domains.join('--')}/${queries.join('--')}`;
+        return `/${domains.join('--')}/${action}${queries.join('--')}`;
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
@@ -306,7 +318,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
             this.validateNthQuery(state, 0);
-            if (state.queryDomain === state.queryDomain2) {
+            if (state.queryDomain === state.currTranslatLanguage) {
                 state.errors.push(new Error(this.appServices.translate('global__src_and_dst_domains_must_be_different')));
             }
         }
@@ -318,8 +330,9 @@ export interface DefaultFactoryArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
     query1Domain:string;
-    query2Domain:string;
+    translatLanguage:string;
     queryType:QueryType;
+    availQueryTypes:Array<QueryType>;
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
@@ -333,8 +346,9 @@ export const defaultFactory = ({
     dispatcher,
     appServices,
     query1Domain,
-    query2Domain,
+    translatLanguage,
     queryType,
+    availQueryTypes,
     queryMatches,
     isAnswerMode,
     uiLanguages,
@@ -353,12 +367,13 @@ export const defaultFactory = ({
                 queryMatches
             ),
             queryType,
+            availQueryTypes,
             initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
             queryDomain: query1Domain,
-            queryDomain2: query2Domain,
+            currTranslatLanguage: translatLanguage,
             searchDomains,
-            targetDomains: layout.getTargetDomains(),
+            translatLanguages: layout.getTargetDomains(),
             errors: [],
             queryMatches,
             isAnswerMode,
