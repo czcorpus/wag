@@ -60,7 +60,6 @@ export class TranslationsTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        const apiOptions = {authenticateURL: appServices.createActionUrl("/TranslationsTile/authenticate")};
         this.model = new TranslationsModel({
             dispatcher,
             appServices,

@@ -53,6 +53,7 @@ export interface DataRow {
 
 
 export interface APIResponse {
+    queryIdx:number;
     concId:string;
     corpname:string;
     concsize:number;
@@ -130,6 +131,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                     body: {},
                     method: HTTP.Method.GET,
                     tileId,
+                    queryIdx,
                     url: args ?
                         urlJoin(
                             this.apiURL,
@@ -149,7 +151,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                                 ]
                             )
                         ) :
-                        ''
+                        '',
                 }) :
                 ajax$<HTTPResponse>(
                     'GET',
@@ -166,6 +168,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 usesubcorp: args.queryArgs.subcorpus,
                 concsize: resp.concSize,
                 concId: '',
+                queryIdx,
                 data: args.path === 'text-types' ?
                     pipe(
                         resp.freqs,

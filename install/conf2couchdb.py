@@ -17,9 +17,7 @@
 # limitations under the License.
 
 import requests
-from requests.auth import HTTPBasicAuth
 import json
-import sys
 import re
 from typing import Dict, Any
 import argparse

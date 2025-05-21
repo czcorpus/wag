@@ -228,6 +228,7 @@ export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, Time
         return streaming.registerTileRequest<MqueryStreamData>(
                 {
                     tileId,
+                    queryIdx,
                     method: HTTP.Method.GET,
                     url: queryArgs ?
                         `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}` :

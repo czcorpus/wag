@@ -480,7 +480,6 @@ export interface ServerConf {
         ttl?:number;
         secret?:string;
     };
-    groupedAuth?:Array<GroupedAuth>;
     CSPDomains?:Array<string>;
 }
 

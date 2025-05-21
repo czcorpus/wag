@@ -216,58 +216,6 @@ export function importQueryRequest({
     })
 }
 
-function testGroupedAuth(
-    currResp:Response,
-    req:Request,
-    items:Array<GroupedAuth>
-):Observable<any> {
-    return rxOf(...items).pipe(
-        concatMap(
-            item => serverHttpRequest<any>({
-                url: item.preflightUrl,
-                method: HTTP.Method.GET,
-                cookies: req.cookies
-            }).pipe(
-                map(
-                    resp => ({authorized: true, conf: item})
-                ),
-                catchError(
-                    err => {
-                        return rxOf({authorized: false, conf: item})
-                    }
-                )
-            )
-        ),
-        concatMap(
-            ({authorized, conf}) => {
-                return authorized ?
-                    rxOf(true) :
-                     fullServerHttpRequest<any>({
-                        url: conf.authenticateUrl,
-                        method: HTTP.Method.POST,
-                        data: {
-                            personal_access_token:  conf.token
-                        },
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded'
-                        }
-                    }).pipe(
-                        map(
-                            resp => {
-                                const cookies = resp.headers['set-cookie'];
-                                if (cookies) {
-                                    currResp.header('set-cookie', cookies);
-                                }
-                                return true;
-                            }
-                        )
-                    );
-            }
-        ),
-        defaultIfEmpty(true) // = no grouped authentication required => user has implicit grouped authentication
-    );
-}
-
 
 /**
  * note: functions expects availMatches sorted from highest ipm to lowest
@@ -365,10 +313,6 @@ export function queryAction({
             hostPageEnv: services.toolbar.get(userConf.uiLang, mkPageReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
             runtimeConf: rxOf(runtimeConf),
             layoutManager: rxOf(layoutManager),
-            groupedAuth: testGroupedAuth(
-                res,
-                req,
-                services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
                         services.db

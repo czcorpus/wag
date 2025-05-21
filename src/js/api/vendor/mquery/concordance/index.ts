@@ -43,7 +43,7 @@ export interface ConcApiArgs {
 /**
  * @todo
  */
-export class MQueryConcApi implements DataApi<Array<ConcApiArgs>, [ConcResponse, number]> {
+export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number]> {
 
     private readonly apiUrl:string;
 
@@ -94,23 +94,22 @@ export class MQueryConcApi implements DataApi<Array<ConcApiArgs>, [ConcResponse,
         ).join('&')
     }
 
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:Array<ConcApiArgs>):Observable<[ConcResponse, number]> {
-        // TODO cmp search support
-        const singleSrchArgs = args[0];
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:ConcApiArgs):Observable<[ConcResponse, number]> {
         if (streaming) {
             return streaming.registerTileRequest<ConcResponse>(
                 {
                     tileId,
+                    queryIdx,
                     method: HTTP.Method.GET,
                     url: args ?
-                        urlJoin(this.apiUrl, 'concordance', singleSrchArgs.corpusName) + `?${this.prepareArgs(singleSrchArgs)}` :
+                        urlJoin(this.apiUrl, 'concordance', args.corpusName) + `?${this.prepareArgs(args)}` :
                         '',
                     body: {},
                     contentType: 'application/json',
                 }
             ).pipe(
                 map(
-                    resp => tuple(resp, 0) // TODO upgrade once we support cmp
+                    resp => tuple(resp, queryIdx)
                 )
             )
 

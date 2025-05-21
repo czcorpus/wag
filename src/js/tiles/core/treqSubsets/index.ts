@@ -62,7 +62,6 @@ export class TreqSubsetsTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.readDataFromTile = readDataFromTile;
-        const apiOptions = {authenticateURL: appServices.createActionUrl("/TreqSubsetsTile/authenticate")};
         this.model = new TreqSubsetModel({
             dispatcher,
             appServices,

@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LocalizedConfMsg } from '../../types.js';
 
 export interface FreqBarModelStateBase {
     isBusy:boolean;
@@ -50,33 +49,6 @@ export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelState
 
     data:Array<T>;
 }
-
-export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase {
-
-    corpname:string;
-
-    subcname:string|null;
-
-    fcrit:string;
-
-    freqType:'tokens'|'text-types';
-
-    flimit:number;
-
-    freqSort:string;
-
-    fpage:number;
-
-    posQueryGenerator:[string, string];
-
-    fttIncludeEmpty?:boolean;
-
-    fmaxitems?:number;
-
-    corpusSize:number;
-    data:Array<Array<T>>;
-}
-
 
 
 /**

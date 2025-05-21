@@ -24,7 +24,7 @@ import { MultiDict } from '../multidict.js';
 import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries, findCurrQueryMatch } from '../query/index.js';
+import { QueryType, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries, findCurrQueryMatch } from '../query/index.js';
 import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
 import { HTTPAction } from '../server/routes/actions.js';
