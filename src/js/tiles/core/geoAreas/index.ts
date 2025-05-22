@@ -20,14 +20,14 @@ import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
-import { MultiWordGeoAreasModel } from './model.js';
+import { GeoAreasModel } from './model.js';
 import { init as compareViewInit } from './views/compare.js';
 import { init as singleViewInit } from './views/single.js';
 import { MapLoader } from './mapLoader.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 
 
-export interface MultiWordGeoAreasTileConf extends TileConf {
+export interface GeoAreasTileConf extends TileConf {
     apiURL:string;
     apiType:string;
     corpname:string;
@@ -46,7 +46,7 @@ export interface MultiWordGeoAreasTileConf extends TileConf {
 }
 
 
-export class MultiWordGeoAreasTile implements ITileProvider {
+export class GeoAreasTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -56,7 +56,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     private readonly appServices:IAppServices;
 
-    private readonly model:MultiWordGeoAreasModel;
+    private readonly model:GeoAreasModel;
 
     private readonly view:TileComponent;
 
@@ -67,14 +67,14 @@ export class MultiWordGeoAreasTile implements ITileProvider {
     constructor({
         tileId, dispatcher, appServices, ut, theme,
         widthFract, conf, isBusy, queryMatches, queryType,
-    }:TileFactoryArgs<MultiWordGeoAreasTileConf>) {
+    }:TileFactoryArgs<GeoAreasTileConf>) {
 
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.model = new MultiWordGeoAreasModel({
+        this.model = new GeoAreasModel({
             dispatcher,
             tileId,
             appServices,
@@ -179,10 +179,10 @@ export class MultiWordGeoAreasTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory<MultiWordGeoAreasTileConf> = {
+export const init:TileFactory<GeoAreasTileConf> = {
 
     sanityCheck: (args) => [],
 
-    create: (args) => new MultiWordGeoAreasTile(args)
+    create: (args) => new GeoAreasTile(args)
 };
 

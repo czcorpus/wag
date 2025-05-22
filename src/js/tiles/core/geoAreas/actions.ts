@@ -45,14 +45,14 @@ export class Actions {
         tooltipY:number;
 
     }> = {
-        name: 'MULTI_WORD_GEO_AREAS_SHOW_AREA_TOOLTIP'
+        name: 'GEO_AREAS_SHOW_AREA_TOOLTIP'
     }
 
     static HideAreaTooltip:Action<{
         tileId:number;
 
     }> = {
-        name: 'MULTI_WORD_GEO_AREAS_HIDE_AREA_TOOLTIP'
+        name: 'GEO_AREAS_HIDE_AREA_TOOLTIP'
     }
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & LoadFinishedPayload> = {

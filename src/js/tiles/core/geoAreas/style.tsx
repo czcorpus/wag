@@ -23,13 +23,9 @@ import { styled } from 'styled-components';
 
 export const GeoAreasTileView = styled.div`
     display: flex;
+    justify-content: center;
 `;
 
 export const Legend = styled.p`
     text-align: center;
-`;
-
-export const MultiWordGeoAreasTileView = styled.div`
-    display: flex;
-    justify-content: center;
 `;

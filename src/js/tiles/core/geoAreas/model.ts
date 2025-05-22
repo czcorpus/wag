@@ -69,7 +69,7 @@ ORAL_V1:
 "neznámé": "naUNK"
 */
 
-export interface MultiWordGeoAreasModelState extends GeneralSingleCritFreqBarModelState<Array<DataRow>> {
+export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<Array<DataRow>> {
     currQueryMatches:Array<QueryMatch>;
     areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, caption:string, data:TooltipValues, multiWordMode:boolean}|null;
@@ -80,18 +80,18 @@ export interface MultiWordGeoAreasModelState extends GeneralSingleCritFreqBarMod
     backlinks:Array<Backlink>;
 }
 
-interface MultiWordGeoAreasModelArgs {
+interface GeoAreasModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     freqApi:MQueryFreqDistribAPI;
     mapLoader:DataApi<string, string>;
-    initState:MultiWordGeoAreasModelState;
+    initState:GeoAreasModelState;
     queryType:QueryType;
 }
 
-export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasModelState> {
+export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly tileId:number;
 
@@ -106,7 +106,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
     private readonly queryType:QueryType;
 
     constructor({dispatcher, tileId, appServices, queryMatches,
-                freqApi, mapLoader, initState, queryType}:MultiWordGeoAreasModelArgs) {
+                freqApi, mapLoader, initState, queryType}:GeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -316,7 +316,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private handleLoad(
         dataStream:Observable<[string, APIResponse]>,
-        state:MultiWordGeoAreasModelState,
+        state:GeoAreasModelState,
         dispatch:SEDispatcher
     ):void {
         dataStream.subscribe({
@@ -366,7 +366,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         );
     }
 
-    private stateToArgs(state:MultiWordGeoAreasModelState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
+    private stateToArgs(state:GeoAreasModelState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
         return {
             corpname: state.corpname,
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
