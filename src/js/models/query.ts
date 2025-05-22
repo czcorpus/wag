@@ -78,8 +78,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.DEBUG_logActions({handledOnly: true});
-
         this.addActionHandler(
             Actions.ChangeCurrQueryMatch,
             (state, action) => {

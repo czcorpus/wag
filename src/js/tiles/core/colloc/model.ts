@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, tap, reduce } from 'rxjs/operators';
+import { concatMap, tap, reduce, mergeMap } from 'rxjs/operators';
 import { List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
@@ -298,18 +298,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         seDispatch:SEDispatcher
     ):Observable<boolean> {
         return freqReqs.pipe(
-            concatMap(([queryId, queryMatch]) => {
-                return callWithExtraVal(
+            mergeMap(
+                ([queryId, queryMatch]) => callWithExtraVal(
                     streaming,
                     this.collApi,
                     this.tileId,
-                    0,
+                    queryId,
                     testIsDictMatch(queryMatch) ?
                         this.stateToArgs(state, queryMatch) :
                         null,
                     {queryId: queryId}
                 )
-            }),
+            ),
             tap(
                 ([data, args]) => {
                     seDispatch<typeof Actions.PartialTileDataLoaded>({
@@ -327,7 +327,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             ),
             reduce(
                 (acc, [resp,]) => acc && resp.data.length === 0,
-                true // is empty
+                true // the "isEmpty" flag
             )
         );
     }
