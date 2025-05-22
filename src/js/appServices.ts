@@ -54,8 +54,6 @@ export interface IAppServices extends IApiServices {
 
     translate(key:string, args?:{[key: string]:string|number;}):string;
 
-    getDomainName(langCode:string):string;
-
     externalMessageIsDefined(label:string|{[lang:string]:string}):boolean;
 
     importExternalText(ident:string|{[lang:string]:string|{file:string}}, readResource:(path:string)=>Observable<string>):Observable<string>;
@@ -104,7 +102,6 @@ export interface IAppServices extends IApiServices {
 export interface AppServicesArgs {
     notifications:SystemNotifications;
     uiLang:string;
-    domainNames:Array<[string, string]>;
     translator:ITranslator;
     staticUrlCreator:(path:string)=>string;
     actionUrlCreator:(path: string)=>string;
@@ -143,20 +140,17 @@ export class AppServices implements IAppServices {
 
     private readonly audioPlayer:AudioPlayer;
 
-    private readonly domainNames:{[k:string]:string};
-
     private readonly sessionStorage:ISimpleSessionStorage;
 
     private readonly dataStreamingImpl:DataStreaming;
 
     constructor({
-            notifications, uiLang, domainNames, translator,
+            notifications, uiLang, translator,
             staticUrlCreator, actionUrlCreator, dataReadability,
             apiHeadersMapping, dataStreaming, mobileModeTest
     }:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
-        this.domainNames = Dict.fromEntries(domainNames);
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
@@ -206,10 +200,6 @@ export class AppServices implements IAppServices {
         return err instanceof AjaxError ?
             this.translate('global__api_error_short_{code}', {code: err.status}) :
             err.message;
-    }
-
-    getDomainName(langCode:string):string {
-        return Dict.get(langCode.split('-')[0], '??', this.domainNames);
     }
 
     private importText<T>(label:string|{[lang:string]:T}):string|T {

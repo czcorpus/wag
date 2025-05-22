@@ -229,7 +229,7 @@ export interface ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean;
+    supportsQueryType(qt:QueryType, domain2?:string):boolean;
 
     // TODO ??
     disable():void;

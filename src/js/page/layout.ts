@@ -53,7 +53,7 @@ interface LayoutOfQueryTypeCmp extends LayoutCore {}
 
 
 interface LayoutOfQueryTypeTranslat extends LayoutCore {
-    translatTargetLanguages:Array<[string, string]>;
+    translatTargetLanguages:Array<string>;
 }
 
 function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
@@ -136,8 +136,7 @@ export class LayoutManager {
                 appServices,
                 'global__word_translate'
             ),
-            translatTargetLanguages: (layouts.translat ?
-                    layouts.translat.targetDomains : []).map(c => [c, appServices.getDomainName(c)])
+            translatTargetLanguages: layouts.translat.targetDomains || []
         };
         this.validateLayouts();
         this.queryTypes = [
@@ -194,7 +193,7 @@ export class LayoutManager {
         }
     }
 
-    getTargetDomains():{[k in QueryType]:Array<[string, string]>} {
+    getTargetDomains():{[k in QueryType]:Array<string>} {
         return Dict.fromEntries([
             [QueryType.SINGLE_QUERY, []],
             [QueryType.CMP_QUERY, []],

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { HTTPHeaders, LocalizedConfMsg } from '../types.js';
-import { QueryType, SearchDomain } from '../query/index.js';
+import { QueryType } from '../query/index.js';
 import { TileConf } from '../page/tile.js';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
@@ -42,7 +42,6 @@ export interface UserConf {
     uiLang:string;
     queries:Array<UserQuery>;
     queryType:QueryType;
-	query1Domain:string;
     translatLanguage:string;
     answerMode:boolean;
     error?:[number, string]; // server error (e.g. bad request)
@@ -54,7 +53,6 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
         uiLang: uiLang,
         queries: [],
         queryType: QueryType.SINGLE_QUERY,
-        query1Domain: '',
         translatLanguage: '',
         answerMode: false, // ??
         error: error
@@ -189,8 +187,6 @@ export interface ClientStaticConf {
     homepage:HomepageConfI18n;
     htmlTitle?:{[lang:string]:string};
     colors?:ColorsConf|string;
-    searchDomains:{[domain:string]:string};
-    defaultDomains:{[qt:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
     externalStyles?:Array<string>;
@@ -211,16 +207,11 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-    layouts:DomainLayoutsConfig|string;
+    layouts:LayoutsConfig|string;
 }
 
-/**
- * These types are necessary to create config schemata
- * using Makefile for tiles and layouts only
- */
-export interface DomainLayoutsConfig {[domain:string]:LayoutsConfig};
 
-export interface DomainAnyTileConf {[domain:string]:{[ident:string]:TileConf}};
+export interface AllQueryTypesTileConf {[ident:string]:TileConf};
 
 export interface TileDbConf {
     server:string; // e.g. http://foo:5984
@@ -230,11 +221,11 @@ export interface TileDbConf {
     password:string; // please do not use admin credentials for this
 }
 
-export function isTileDBConf(tiles: TileDbConf|DomainAnyTileConf):tiles is TileDbConf {
+export function isTileDBConf(tiles: TileDbConf):tiles is TileDbConf {
     return (tiles as TileDbConf).server !== undefined;
 }
 
-type MultiSourceTileConf = DomainAnyTileConf|string|TileDbConf;
+type MultiSourceTileConf = string|TileDbConf;
 
 
 export interface HomepageTileConf {
@@ -265,16 +256,15 @@ export interface ClientConf {
         footer?:string;
     };
     tiles:{[ident:string]:TileConf};
-
     dataStreamingUrl:string;
 
     layouts:LayoutsConfig;
-    searchDomains:Array<SearchDomain>;
+    queryTypes:Array<QueryType>;
     externalStyles:Array<string>;
     maxTileErrors:number;
     error?:Error;
     redirect?:[number, string];
-    maxQueryWords:{[k in QueryType]?:number};
+    maxQueryWords:number;
 }
 
 export function emptyLayoutConf():LayoutsConfig {
@@ -354,14 +344,10 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         homepage: {
             tiles: []
         },
-        searchDomains: Object.keys(conf.searchDomains).map(k => ({
-            code: k,
-            label: conf.searchDomains[k],
-            queryTypes: []
-        })),
+        queryTypes: [],
         externalStyles: [],
         maxTileErrors: 0,
-        maxQueryWords: {}
+        maxQueryWords: 1
     };
 }
 
@@ -427,21 +413,12 @@ export interface FreqDbConf {
     options?:FreqDbOptions;
 }
 
-export interface QueryModeWordDb {
+export interface WordDbConf {
     maxQueryWords:number;
     minLemmaFreq:number;
-    databases:{[domain:string]:FreqDbConf};
-};
-
-export interface SingleModeWordDb extends QueryModeWordDb {
+    database:FreqDbConf;
     similarFreqWordsMaxCtx:number;
-}
-
-export interface WordFreqDbConf {
-    single?:SingleModeWordDb;
-    cmp?:QueryModeWordDb;
-    translat?:QueryModeWordDb;
-}
+};
 
 export interface LangCookieSetup {
     name:string;
@@ -469,7 +446,7 @@ export interface ServerConf {
         port:number;
         urlRootPath:string;
     };
-    freqDB:WordFreqDbConf;
+    freqDB:WordDbConf;
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:LangCookieSetup;
@@ -485,15 +462,3 @@ export interface ServerConf {
     CSPDomains?:Array<string>;
 }
 
-export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
-    switch (queryType) {
-        case QueryType.SINGLE_QUERY:
-            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0, maxQueryWords: 1};
-        case QueryType.CMP_QUERY:
-            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
-        case QueryType.TRANSLAT_QUERY:
-            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
-        default:
-            throw new Error(`Unknown query type ${queryType}`);
-    }
-}

@@ -69,7 +69,6 @@ export const mkTileFactory = (
     theme:Theme,
     layoutManager:LayoutManager,
     queryType:QueryType,
-    domain1:string,
     domain2:string) => (
             confName:string,
             conf:TileConf):ITileProvider|null => {
@@ -94,7 +93,6 @@ export const mkTileFactory = (
                 ut: viewUtils,
                 queryMatches,
                 appServices,
-                domain1: domain1,
                 domain2: domain2,
                 queryType,
                 readDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),

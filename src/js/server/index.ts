@@ -20,24 +20,23 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import session from 'express-session';
 import path from 'path';
-import sqlite3 from 'sqlite3';
 import translations from 'translations';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Dict, Ident, List, tuple } from 'cnc-tskit';
+import { Dict, Ident, tuple } from 'cnc-tskit';
 import sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
 
 import {
-    ClientStaticConf, ServerConf, DomainLayoutsConfig,
-    DomainAnyTileConf, isTileDBConf, ColorsConf,
-    DataReadabilityMapping } from '../conf/index.js';
+    ClientStaticConf, ServerConf, isTileDBConf, ColorsConf,
+    DataReadabilityMapping,
+    AllQueryTypesTileConf,
+    LayoutsConfig} from '../conf/index.js';
 import { validateTilesConf } from '../conf/validation.js';
 import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts } from '../conf/loader.js';
 import { wdgRouter } from './routes/index.js';
 import { createToolbarInstance } from './toolbar/factory.js';
-import { WordDatabases } from './actionServices.js';
 import { PackageInfo } from '../types.js';
 import { QueryActionWriter } from './actionLog/logWriter.js';
 import { ApiServices } from './apiServices.js';
@@ -45,13 +44,13 @@ import { initLogging } from './logging.js';
 import { DataStreaming } from '../page/streaming.js';
 
 
-function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
+function loadTilesConf(clientConf:ClientStaticConf):Observable<AllQueryTypesTileConf> {
     if (typeof clientConf.tiles === 'string') {
         return parseJsonConfig(clientConf.tiles);
 
     } else if (isTileDBConf(clientConf.tiles)) {
         return loadRemoteTileConf(
-            clientConf.layouts as DomainLayoutsConfig,
+            clientConf.layouts,
             clientConf.tiles
         );
 
@@ -87,10 +86,10 @@ forkJoin([ // load core configs
 ]).pipe(
     concatMap( // load layouts config
         ([serverConf, clientConf, pkgInfo]) => (typeof clientConf.layouts === 'string' ?
-            parseJsonConfig<DomainLayoutsConfig>(clientConf.layouts) :
+            parseJsonConfig<LayoutsConfig>(clientConf.layouts) :
             rxOf(clientConf.layouts)
         ).pipe(
-            map<DomainLayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
+            map<LayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
                 (layoutsExp) => {
                     clientConf.layouts = useCommonLayouts(layoutsExp);
                     return [serverConf, clientConf, pkgInfo];
@@ -121,7 +120,7 @@ forkJoin([ // load core configs
             ),
             tap( // validate tiles
                 ([,clientConf,]) => {
-                    if (!validateTilesConf(clientConf.tiles as DomainAnyTileConf)) {
+                    if (!validateTilesConf(clientConf.tiles as AllQueryTypesTileConf)) {
                         throw Error('\uD83D\uDC4E Invalid tile config found!');
                     }
                 }
@@ -160,11 +159,6 @@ forkJoin([ // load core configs
             next();
         });
 
-        const db:WordDatabases = new WordDatabases(
-            serverConf.freqDB,
-            new ApiServices(clientConf, new DataStreaming(null, [], undefined, 1000, undefined))
-        );
-
         const toolbar = createToolbarInstance(serverConf.toolbar);
 
         const logger = initLogging(serverConf, true);
@@ -172,7 +166,6 @@ forkJoin([ // load core configs
         wdgRouter({
             serverConf,
             clientConf,
-            db,
             translations,
             toolbar,
             errorLog: logger,

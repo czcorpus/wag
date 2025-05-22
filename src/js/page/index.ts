@@ -179,7 +179,6 @@ export function initClient(
     const appServices = new AppServices({
         notifications,
         uiLang: userSession.uiLang,
-        domainNames: List.map(v => tuple(v.code, v.label), config.searchDomains),
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,

@@ -52,11 +52,6 @@ export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     throw new Error(`Unknown query type '${v}'`);
 }
 
-export interface SearchDomain {
-    code:string;
-    label:string;
-    queryTypes:Array<QueryType>;
-}
 
 export interface QueryTypeMenuItem {
     type:QueryType;

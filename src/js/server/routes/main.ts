@@ -24,7 +24,7 @@ import { IAppServices } from '../../appServices.js';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
-         errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
+         errorUserConf, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
          THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
          mergeToEmptyLayoutConf,
          MainPosAttrValues
@@ -44,12 +44,13 @@ import { HTTPAction } from '../../page/actions.js';
 import { logAction } from '../actionLog/common.js';
 import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
+import { IFreqDB } from '../freqdb/freqdb.js';
+import { createInstance, FreqDBType } from '../freqdb/factory.js';
 
 
 interface MkRuntimeClientConfArgs {
     conf:ClientStaticConf;
     serverConf:ServerConf;
-    domain:string;
     themeId:string;
     appServices:IAppServices;
 }
@@ -57,7 +58,6 @@ interface MkRuntimeClientConfArgs {
 function mkRuntimeClientConf({
     conf,
     serverConf,
-    domain,
     themeId,
     appServices
 }:MkRuntimeClientConfArgs):Observable<ClientConf> {
@@ -83,15 +83,6 @@ function mkRuntimeClientConf({
             appServices.importExternalText(conf.homepage.footer, loadFile) : rxOf(undefined)
     ]).pipe(
         map(([tiles, footer]) => {
-            let maxQueryWords = {};
-            for (let queryType in QueryType) {
-                const qt = QueryType[queryType]
-                maxQueryWords[qt] = serverConf.freqDB[qt] ? serverConf.freqDB[qt].maxQueryWords : 1;
-            }
-            if (!conf.layouts[domain]) {
-                const avail = Object.keys(conf.layouts || {})
-                throw new Error(`Missing layouts configuration for domain "${domain}" (available: ${avail.map(x => `"${x}"`).join(', ')})`);
-            }
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
@@ -114,22 +105,18 @@ function mkRuntimeClientConf({
                     getThemeList(conf)
                 ),
                 dataStreamingUrl: conf.dataStreamingUrl,
-                tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
-                    {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
+                tiles: typeof conf.tiles !== 'string' ? conf.tiles : {},
+                layouts: mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
+                queryTypes: typeof conf.layouts !== 'string' ?
                     pipe(
-                        conf.tiles[domain],
-                        Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
-                    ),
-                layouts: mergeToEmptyLayoutConf(conf.layouts[domain]),
-                searchDomains: pipe(
-                    conf.searchDomains,
-                    Dict.keys(),
-                    List.map(k => ({
-                        code: k,
-                        label: conf.searchDomains[k],
-                        queryTypes: getSupportedQueryTypes(conf, k)
-                    }))
-                ),
+                        [
+                            tuple(conf.layouts.cmp, QueryType.CMP_QUERY),
+                            tuple(conf.layouts.single, QueryType.SINGLE_QUERY),
+                            tuple(conf.layouts.translat, QueryType.TRANSLAT_QUERY)
+                        ],
+                        List.filter(([tst,]) => !!tst),
+                        List.map(([,v]) => v)
+                    ) : [QueryType.SINGLE_QUERY],
                 externalStyles: conf.externalStyles || [],
                 issueReportingUrl: conf.issueReportingUrl,
                 homepage: {
@@ -137,7 +124,7 @@ function mkRuntimeClientConf({
                     footer
                 },
                 maxTileErrors: conf.maxTileErrors,
-                maxQueryWords: maxQueryWords
+                maxQueryWords: serverConf.freqDB.maxQueryWords
             }
         })
     );
@@ -172,7 +159,6 @@ export function importQueryRequest({
     return new Observable<UserConf>(observer => {
         try {
             const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
-            const queryDomain = fetchUrlParamArray(req, 'domain', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
             const layouts = services.clientConf.layouts;
             if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
                 const maxQueryWords = maxQueryWordsForQueryType(services.serverConf, queryType);
@@ -186,14 +172,10 @@ export function importQueryRequest({
                     queries
                 )
             }
-            const domains = Dict.keys(services.clientConf.searchDomains);
-            const dfltDomain = List.head(domains);
-            const dfltDomain2 = domains.length > 1 ? domains[1] : '';
             const userConfNorm:UserConf = {
                 uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Domain: queryDomain[0] ? queryDomain[0] : dfltDomain, // TODO this is not queryType sensitive
-                translatLanguage: queryDomain[1] ? queryDomain[1] : dfltDomain2,
+                translatLanguage: req.params.lang,
                 queryType,
                 queries: compileQueries(
                     queries,
@@ -269,9 +251,15 @@ export function queryAction({
     res,
     next
 }:QueryActionArgs) {
-
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang);
+    const freqDb = createInstance(
+        services.serverConf.freqDB.database.dbType as FreqDBType,
+        services.serverConf.freqDB.database.path,
+        services.serverConf.freqDB.database.corpusSize,
+        appServices,
+        services.serverConf.freqDB.database.options || {}
+    );
     // until now there should be no exceptions throw
     importQueryRequest({
         services, appServices, req, queryType, uiLang, answerMode
@@ -282,7 +270,6 @@ export function queryAction({
                 mkRuntimeClientConf({
                     conf: services.clientConf,
                     serverConf: services.serverConf,
-                    domain: userConf.query1Domain,
                     themeId: req.cookies[THEME_COOKIE_NAME] || '',
                     appServices
                 })
@@ -298,7 +285,7 @@ export function queryAction({
                 if (lm.isEmpty(queryType)) {
                     const firstAvailQt = List.find(x => x.isEnabled, lm.getQueryTypesMenuItems());
                     runtimeConf.redirect = tuple(
-                        303, appServices.createActionUrl(userConf.query1Domain + queryTypeToAction(firstAvailQt.type))
+                        303, appServices.createActionUrl(queryTypeToAction(firstAvailQt.type))
                     )
                 }
                 return tuple(
@@ -315,9 +302,6 @@ export function queryAction({
             viewUtils: rxOf(viewUtils),
             userConf: new Observable<UserConf>(
                 (observer) => {
-                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Domain === userConf.translatLanguage) {
-                        userConf.error = [400, appServices.translate('global__src_and_dst_domains_must_be_different')];
-                    }
                     observer.next(userConf);
                     observer.complete();
                 }
@@ -327,14 +311,12 @@ export function queryAction({
             layoutManager: rxOf(layoutManager),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
-                        services.db
-                            .getDatabase(userConf.queryType, userConf.query1Domain)
-                            .findQueryMatches(
-                                appServices,
-                                query.word,
-                                layoutManager.getLayoutMainPosAttr(userConf.queryType),
-                                getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
-                            ) :
+                        freqDb.findQueryMatches(
+                            appServices,
+                            query.word,
+                            layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                            services.serverConf.freqDB.minLemmaFreq,
+                        ) :
                         rxOf<Array<QueryMatch>>([]),
                     userConf.queries
 

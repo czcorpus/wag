@@ -92,12 +92,6 @@ export class Actions {
         name:'MAIN_CHANGE_CURR_QUERY_MATCH'
     }
 
-    static ChangeDomain:Action<{
-        domain:string;
-    }> = {
-        name: 'MAIN_CHANGE_DOMAIN'
-    }
-
     static ChangeTranslatLanguage:Action<{
         lang:string;
     }> = {
