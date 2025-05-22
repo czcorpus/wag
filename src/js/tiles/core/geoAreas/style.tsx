@@ -28,3 +28,8 @@ export const GeoAreasTileView = styled.div`
 export const Legend = styled.p`
     text-align: center;
 `;
+
+export const MultiWordGeoAreasTileView = styled.div`
+    display: flex;
+    justify-content: center;
+`;
