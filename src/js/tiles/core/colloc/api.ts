@@ -141,11 +141,12 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
             ) + `?${this.prepareArgs(args)}`;
     }
 
-    private mkRequest(streaming:IDataStreaming, tileId:number, args:MQueryCollArgs|null):Observable<BasicHTTPResponse> {
+    private mkRequest(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryCollArgs|null):Observable<BasicHTTPResponse> {
         if (streaming) {
             return streaming.registerTileRequest<BasicHTTPResponse>(
                 {
                     tileId,
+                    queryIdx,
                     method: HTTP.Method.GET,
                     url: args ? this.mkUrl(args) : '',
                     body: {},
@@ -180,7 +181,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     }
 
     call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryCollArgs|null):Observable<CollApiResponse> {
-        return this.mkRequest(streaming, tileId, args).pipe(
+        return this.mkRequest(streaming, tileId, queryIdx, args).pipe(
             map(
                 v => ({
                     concId: undefined,
