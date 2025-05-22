@@ -23,7 +23,7 @@ import { Theme } from '../../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { Actions } from '../actions.js';
-import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model.js';
+import { GeoAreasModel, GeoAreasModelState } from '../model.js';
 import { Dict, List } from 'cnc-tskit';
 import { DataRow } from '../../../../api/vendor/mquery/freqs.js';
 import { createSVGElement, createSVGEmptyCircle, Map } from './common.js';
@@ -31,7 +31,7 @@ import { createSVGElement, createSVGEmptyCircle, Map } from './common.js';
 import * as S from '../style.js';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MultiWordGeoAreasModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:GeoAreasModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -66,7 +66,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----------------
 
-    const drawLabels = (props:MultiWordGeoAreasModelState, tileId:number, fillColor:string) => {
+    const drawLabels = (props:GeoAreasModelState, tileId:number, fillColor:string) => {
         const data = props.data[0][0];
         const [min, max] = props.data[0].reduce(
             (acc, curr) => [Math.min(acc[0], curr.ipm), Math.max(acc[1], curr.ipm)],
@@ -169,7 +169,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <GeoAreasTileView /> ---------------------------------------------
 
-    class GeoAreasTileView extends React.PureComponent<MultiWordGeoAreasModelState & CoreTileComponentProps> {
+    class GeoAreasTileView extends React.PureComponent<GeoAreasModelState & CoreTileComponentProps> {
 
         componentDidMount() {
             if (this.props.data[0].length > 0) {
@@ -217,5 +217,5 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, MultiWordGeoAreasModelState>(GeoAreasTileView, model);
+    return BoundWithProps<CoreTileComponentProps, GeoAreasModelState>(GeoAreasTileView, model);
 }

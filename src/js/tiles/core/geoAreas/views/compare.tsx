@@ -23,7 +23,7 @@ import { Theme } from '../../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { Actions } from '../actions.js';
-import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model.js';
+import { GeoAreasModel, GeoAreasModelState } from '../model.js';
 import { QueryMatch } from '../../../../query/index.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { createSVGElement, createSVGEmptyCircle, Map } from './common.js';
@@ -67,7 +67,7 @@ const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataR
 }
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MultiWordGeoAreasModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:GeoAreasModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -325,7 +325,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <MultiWordGeoAreasTileView /> ---------------------------------------------
 
-    class MultiWordGeoAreasTileView extends React.PureComponent<MultiWordGeoAreasModelState & CoreTileComponentProps> {
+    class MultiWordGeoAreasTileView extends React.PureComponent<GeoAreasModelState & CoreTileComponentProps> {
 
         componentDidMount() {
             if (this.props.data.some(v => v.length > 0) && !this.props.isAltViewMode) {
@@ -351,7 +351,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}
                         backlink={this.props.backlinks}>
-                    <S.MultiWordGeoAreasTileView>
+                    <S.GeoAreasTileView>
                         {this.props.isAltViewMode ?
                             <div style={{overflowX: 'auto'}}>
                                 <DataTable data={this.props.data} queryMatches={this.props.currQueryMatches}/>
@@ -370,11 +370,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     /> : null}
                             </div>
                         }
-                    </S.MultiWordGeoAreasTileView>
+                    </S.GeoAreasTileView>
                 </globComponents.TileWrapper>
             );
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, MultiWordGeoAreasModelState>(MultiWordGeoAreasTileView, model);
+    return BoundWithProps<CoreTileComponentProps, GeoAreasModelState>(MultiWordGeoAreasTileView, model);
 }
