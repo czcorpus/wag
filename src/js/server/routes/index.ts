@@ -232,6 +232,27 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }
     });
 
+
+    app.get('/:domain', (req, res, next) => {
+        if (typeof services.clientConf.layouts === 'string') {
+            res.redirect(301, '/' + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
+
+        } else {
+            if (services.clientConf.layouts[req.params.domain].single) {
+                res.redirect(301, '/' + req.params.domain + HTTPAction.SEARCH);
+
+            } else if (services.clientConf.layouts[req.params.domain].cmp) {
+                res.redirect(301, '/' + req.params.domain + HTTPAction.COMPARE);
+
+            } else if (services.clientConf.layouts[req.params.domain].translat) {
+                res.redirect(301, '/' + req.params.domain + HTTPAction.TRANSLATE);
+
+            } else {
+                res.status(500).send('server misconfiguration - no query types defined for the domain');
+            }
+        }
+    });
+
     app.get(`/:domain${HTTPAction.SEARCH}`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
