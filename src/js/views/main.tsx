@@ -134,7 +134,7 @@ export function init(
                     props.queryTypes,
                     List.filter(v => v.isEnabled),
                     List.map(
-                        v => <option key={`qt:${v}`} value={v.type}>{v.label}</option>)
+                        v => <option key={`qt:${v.type}`} value={v.type}>{v.label}</option>)
                 )}
             </select>
         );
