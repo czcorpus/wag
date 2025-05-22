@@ -103,7 +103,7 @@ export class ConcordanceTile implements ITileProvider {
                 viewMode: typeof readDataFromTile === 'number' ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
-                backlinks: [],
+                backlinks: List.map(_ => null, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -16,30 +16,23 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-
+import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
-import {
-    AltViewIconProps,
-    DEFAULT_ALT_VIEW_ICON,
-    ITileProvider,
-    ITileReloader,
-    TileComponent,
-    TileConf,
-    TileFactory,
-    TileFactoryArgs } from '../../../page/tile.js';
-import { GeoAreasModel } from './model.js';
-import { init as viewInit } from './views/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { MultiWordGeoAreasModel } from './model.js';
+import { init as compareViewInit } from './views/compare.js';
+import { init as singleViewInit } from './views/single.js';
 import { MapLoader } from './mapLoader.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 
 
-export interface GeoAreasTileConf extends TileConf {
+export interface MultiWordGeoAreasTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     corpname:string;
     fcrit:string;
     freqType:'tokens'|'text-types';
-    flimit:number;
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
@@ -53,7 +46,7 @@ export interface GeoAreasTileConf extends TileConf {
 }
 
 
-export class GeoAreasTile implements ITileProvider {
+export class MultiWordGeoAreasTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -63,52 +56,59 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly appServices:IAppServices;
 
-    private readonly model:GeoAreasModel;
+    private readonly model:MultiWordGeoAreasModel;
 
     private readonly view:TileComponent;
 
     private readonly widthFract:number;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({
-        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, queryMatches
-    }:TileFactoryArgs<GeoAreasTileConf>) {
+        tileId, dispatcher, appServices, ut, theme,
+        widthFract, conf, isBusy, queryMatches, queryType,
+    }:TileFactoryArgs<MultiWordGeoAreasTileConf>) {
 
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.model = new GeoAreasModel({
+        this.model = new MultiWordGeoAreasModel({
             dispatcher,
             tileId,
             appServices,
             queryMatches,
             freqApi: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
             mapLoader: new MapLoader(appServices),
+            queryType,
             initState: {
                 isBusy: isBusy,
                 error: null,
                 areaCodeMapping: {...conf.areaCodeMapping},
                 mapSVG: '',
                 tooltipArea: null,
-                data: [],
+                data: List.map(_ => [], queryMatches),
                 corpname: conf.corpname,
                 subcname: null, // TODO
                 fcrit: conf.fcrit,
                 freqType: conf.freqType,
-                flimit: conf.flimit,
+                flimit: 1,  // necessary for the freqApi
+                frequencyDisplayLimit: conf.frequencyDisplayLimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 isAltViewMode: false,
-                frequencyDisplayLimit: conf.frequencyDisplayLimit,
-                backlink: null,
-                posQueryGenerator: conf.posQueryGenerator
+                posQueryGenerator: conf.posQueryGenerator,
+                currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
+                backlinks: List.map(_ => null, queryMatches),
             },
         });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
-        this.view = viewInit(this.dispatcher, ut, theme, this.model);
+        this.view = queryType === QueryType.SINGLE_QUERY ?
+            singleViewInit(this.dispatcher, ut, theme, this.model) :
+            compareViewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getLabel():string {
@@ -130,7 +130,7 @@ export class GeoAreasTile implements ITileProvider {
     /**
      */
     supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
     disable():void {
@@ -162,6 +162,10 @@ export class GeoAreasTile implements ITileProvider {
         return true;
     }
 
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
+    }
+
     supportsMultiWordQueries():boolean {
         return true;
     }
@@ -175,9 +179,10 @@ export class GeoAreasTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory<GeoAreasTileConf> = {
+export const init:TileFactory<MultiWordGeoAreasTileConf> = {
 
-    create: (args) => new GeoAreasTile(args),
+    sanityCheck: (args) => [],
 
-    sanityCheck: (args) => []
+    create: (args) => new MultiWordGeoAreasTile(args)
 };
+

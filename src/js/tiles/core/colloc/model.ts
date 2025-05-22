@@ -162,7 +162,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         )
                     )
                 );
-                state.backlinks.push(this.collApi.getBacklink(action.payload.queryIdx));
+                state.backlinks[action.payload.queryIdx] = this.collApi.getBacklink(action.payload.queryIdx);
             }
         );
 
@@ -172,7 +172,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action) => {
                 state.isBusy = true;
                 state.srchRangeType = action.payload.ctxType;
-                state.backlinks = [];
+                state.backlinks = List.map(_ => null, state.backlinks);
             },
             (state, action, seDispatch) => {
                 const subg = appServices.dataStreaming().startNewSubgroup(this.tileId, ...dependentTiles);

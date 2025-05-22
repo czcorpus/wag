@@ -198,7 +198,9 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                                 queryIdx: action.payload.queryIdx,
                                 lines: action.payload.resp.lines
                             };
-                            state.backlinks.push(this.concApi.getBacklink(action.payload.queryIdx));
+                            if (state.backlinks[action.payload.queryIdx] === null) {
+                                state.backlinks[action.payload.queryIdx] = this.concApi.getBacklink(action.payload.queryIdx);
+                            }
                         }
                     );
                 }
@@ -215,7 +217,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         if (action.error) {
                             state.concordances = createInitialLinesData(this.queryMatches.length);
                             state.error = this.appServices.normalizeHttpApiError(action.error);
-                            state.backlinks = [];
+                            state.backlinks = List.map(_ => null, state.backlinks);
                         }
                     }
                 );

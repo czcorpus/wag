@@ -26,6 +26,7 @@ import { Actions } from '../actions.js';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model.js';
 import { QueryMatch } from '../../../../query/index.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
+import { createSVGElement, createSVGEmptyCircle, Map } from './common.js';
 
 import * as S from '../style.js';
 import { DataRow } from '../../../../api/vendor/mquery/freqs.js';
@@ -65,68 +66,10 @@ const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataR
     return [Dict.fromEntries(groupedData), groupedIpmNorms, groupedAreaAbsFreqs]
 }
 
-const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
-    const elm = document.createElementNS('http://www.w3.org/2000/svg', name);
-    Object.keys(attrs).forEach(k => {
-        elm.setAttribute(k, attrs[k]);
-    });
-    parent.appendChild(elm);
-    return elm;
-}
-
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MultiWordGeoAreasModel):TileComponent {
 
     const globComponents = ut.getComponents();
-
-    const createSVGEmptyCircle = (parent:Element, radius:number):SVGElement => {
-        const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        const circle = createSVGElement(chart, 'g', {});
-
-        const position = radius*Math.sqrt(2)/4
-
-        createSVGElement(
-            circle,
-            'line',
-            {
-                'x1': (-position).toString(),
-                'y1': (-position).toString(),
-                'x2': position.toString(),
-                'y2': position.toString(),
-                'stroke-width': '2',
-                'stroke': 'black'
-            }
-        );
-
-        createSVGElement(
-            circle,
-            'line',
-            {
-                'x1': position.toString(),
-                'y1': (-position).toString(),
-                'x2': (-position).toString(),
-                'y2': position.toString(),
-                'stroke-width': '2',
-                'stroke': 'black'
-            }
-        );
-
-        createSVGElement(
-            circle,
-            'circle',
-            {
-                'cx': '0',
-                'cy': '0',
-                'r': radius.toString(),
-                'stroke': 'black',
-                'stroke-width': '2',
-                'fill-opacity': '0'
-            }
-        );
-
-        parent.appendChild(chart);
-        return chart;
-    }
 
     const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Array<TargetDataRow>, radius:number, currentQueryMatches:Array<QueryMatch>):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -241,19 +184,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <table className="DataTable data cnc-table">
                 <thead>
                     <tr>
-                        <th rowSpan={2}>{ut.translate('multi_word_geolocations__table_heading_area')}</th>
-                        <th colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_total_occurrence')}</th>
-                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>
-                            {ut.translate('multi_word_geolocations__table_heading_occurrence_of_{word}',
-                                {word: props.queryMatches[target].word})}</th>)}
+                        <th rowSpan={2}>{ut.translate('geolocations__table_heading_area')}</th>
+                        <th colSpan={2}>{ut.translate('geolocations__cmp_table_heading_total_occurrence')}</th>
+                        {List.map((targetData, target) => <th key={target} colSpan={2}>
+                            {ut.translate('geolocations__cmp_table_heading_occurrence_of_{word}',
+                                {word: props.queryMatches[target].word})}
+                            </th>,
+                            props.data)}
                     </tr>
                     <tr>
-                        <th key={`totalIpm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
-                        <th key={`totalAbs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
-                        {(props.data[0] || []).map(dataBlock => (
+                        <th key={`totalIpm`}>{ut.translate('geolocations__cmp_table_heading_freq_rel')}</th>
+                        <th key={`totalAbs`}>{ut.translate('geolocations__cmp_table_heading_freq_abs')}</th>
+                        {(props.data || []).map((_, idx) => (
                             <>
-                                <th key={`${dataBlock.name}Ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
-                                <th key={`${dataBlock.name}Abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
+                                <th key={`${idx}Ipm`}>{ut.translate('geolocations__cmp_table_heading_freq_rel')}</th>
+                                <th key={`${idx}Abs`}>{ut.translate('geolocations__cmp_table_heading_freq_abs')}</th>
                             </>
                         ))}
                     </tr>
@@ -376,20 +321,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         // insert legend
         const legendHolder = document.querySelector('#legend-g');
         createSVGLegend(legendHolder, currentQueryMatches);
-    }
-
-    // -------------- <Map /> ---------------------------------------------
-    // Having map as a separate separate class component prevents problematic re-rendering of the map
-    // when tooltip is shown/hidden and cleaning labels in the process
-
-    class Map extends React.PureComponent<{mapSVG:string}> {
-        
-        render() {
-            return (
-                <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}}
-                    dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
-            );
-        }
     }
 
     // -------------- <MultiWordGeoAreasTileView /> ---------------------------------------------

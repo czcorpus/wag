@@ -4,6 +4,9 @@
         "apiURL": {
             "type": "string"
         },
+        "apiType": {
+            "type": "string"
+        },
         "corpname": {
             "type": "string"
         },
@@ -17,11 +20,11 @@
             ],
             "type": "string"
         },
-        "flimit": {
-            "type": "number"
-        },
         "freqSort": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+                "rel"
+            ]
         },
         "fpage": {
             "type": "number"
@@ -35,11 +38,7 @@
                 "type": "string"
             }
         },
-        "frequencyDisplayLimit": {
-            "type": "number"
-        },
         "posQueryGenerator": {
-            "description": "A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).",
             "type": "array",
             "items": [
                 {
@@ -51,6 +50,9 @@
             ],
             "minItems": 2,
             "maxItems": 2
+        },
+        "frequencyDisplayLimit": {
+            "type": "number"
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -72,11 +74,14 @@
         },
         "backlink": {
             "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage.",
-            "$ref": "#/definitions/BacklinkConf<any>"
+            "$ref": "#/definitions/Backlink"
         },
         "isDisabled": {
             "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
             "type": "boolean"
+        },
+        "waitForTimeoutSecs": {
+            "type": "number"
         },
         "label": {
             "description": "A label used in the header of the tile",
@@ -106,26 +111,24 @@
             "items": {
                 "type": "string"
             }
-        },
-        "useDataStream": {
-            "type": "boolean"
         }
     },
     "required": [
+        "apiType",
         "apiURL",
         "areaCodeMapping",
         "corpname",
         "fcrit",
-        "flimit",
         "fpage",
         "freqSort",
         "freqType",
         "frequencyDisplayLimit",
         "fttIncludeEmpty",
+        "posQueryGenerator",
         "tileType"
     ],
     "definitions": {
-        "BacklinkConf<any>": {
+        "Backlink": {
             "type": "object",
             "properties": {
                 "url": {
@@ -144,11 +147,27 @@
                         }
                     ]
                 },
-                "args": {}
-            },
-            "required": [
-                "url"
-            ]
+                "method": {
+                    "enum": [
+                        "CONNECT",
+                        "DELETE",
+                        "GET",
+                        "HEAD",
+                        "OPTIONS",
+                        "PATCH",
+                        "POST",
+                        "PUT",
+                        "TRACE"
+                    ],
+                    "type": "string"
+                },
+                "subcname": {
+                    "type": "string"
+                },
+                "isAppUrl": {
+                    "type": "boolean"
+                }
+            }
         }
     },
     "$schema": "http://json-schema.org/draft-07/schema#"
