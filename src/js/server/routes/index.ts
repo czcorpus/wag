@@ -131,7 +131,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             res.status(HTTP.Status.InternalServerError).send('ERROR - no default domain set');
             return;
         }
-        res.redirect(301, '/' + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
+        res.redirect(301, services.clientConf.rootUrl + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -235,17 +235,17 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get('/:domain', (req, res, next) => {
         if (typeof services.clientConf.layouts === 'string') {
-            res.redirect(301, '/' + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
+            res.redirect(301, services.clientConf.rootUrl + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
 
         } else {
             if (services.clientConf.layouts[req.params.domain].single) {
-                res.redirect(301, '/' + req.params.domain + HTTPAction.SEARCH);
+                res.redirect(301, services.clientConf.rootUrl + req.params.domain + HTTPAction.SEARCH);
 
             } else if (services.clientConf.layouts[req.params.domain].cmp) {
-                res.redirect(301, '/' + req.params.domain + HTTPAction.COMPARE);
+                res.redirect(301, services.clientConf.rootUrl + req.params.domain + HTTPAction.COMPARE);
 
             } else if (services.clientConf.layouts[req.params.domain].translat) {
-                res.redirect(301, '/' + req.params.domain + HTTPAction.TRANSLATE);
+                res.redirect(301, services.clientConf.rootUrl + req.params.domain + HTTPAction.TRANSLATE);
 
             } else {
                 res.status(500).send('server misconfiguration - no query types defined for the domain');
