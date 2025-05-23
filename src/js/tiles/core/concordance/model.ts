@@ -503,9 +503,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         payload: {
                             tileId: this.tileId,
                             queryIdx,
-                            resp,
-                            domain1: null,
-                            domain2: null
+                            resp
                         }
                     });
                 }

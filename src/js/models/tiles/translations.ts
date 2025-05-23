@@ -21,8 +21,8 @@ import { Backlink } from '../../page/tile.js';
 
 interface TranslationsModelCoreState {
     minItemFreq:number;
-    domain1:string;
-    domain2:string;
+    lang1:string;
+    lang2:string;
 }
 
 

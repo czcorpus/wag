@@ -18,11 +18,11 @@
 
 import * as fs from 'fs';
 import axios from 'axios';
-import { pipe, List, Dict, tuple } from 'cnc-tskit';
+import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
 import {
-    DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig,
-    LayoutConfigCommon
+    TileDbConf, LayoutsConfig, LayoutConfigCommon,
+    AllQueryTypesTileConf
 } from './index.js';
 import { TileConf } from '../page/tile.js';
 import { Observable, of as rxOf } from 'rxjs';
@@ -32,13 +32,12 @@ import urlJoin from 'url-join';
 
 /**
  * StoredTileConf describes a JSON record for a tile
- * configuration as stored in a CouchDB instance.
+ * configuration as stored in a CouchDB or APIGuard instance.
  */
 interface StoredTileConf {
     _id:string;
     _rev:string;
     ident:string;
-    domain:string;
     conf:TileConf;
 }
 
@@ -66,33 +65,23 @@ export function parseJsonConfig<T>(confPath:string):Observable<T> {
 }
 
 
-export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDbConf|undefined):Observable<DomainAnyTileConf> {
+/**
+ * Load all the required tiles defined in the provided layout.
+ * The layout is expected to
+ */
+export function loadRemoteTileConf(layout:LayoutsConfig, tileDBConf:TileDbConf|undefined):Observable<AllQueryTypesTileConf> {
     const tiles = pipe(
-        layout,
-        Dict.toEntries(),
-        List.flatMap(
-            ([domain, conf]) => {
-                const configs:Array<GroupItemConfig> = [].concat(
-                    conf.cmp ? conf.cmp.groups : [],
-                    conf.single ? conf.single.groups : [],
-                    conf.translat ? conf.translat.groups : []);
-                return List.map<GroupItemConfig, [string, GroupItemConfig]>(v => [domain, v], configs);
-            }
-        ),
-        List.flatMap<[string, GroupItemConfig], [string, string]>(
-            ([domain, group]) => {
-                if (typeof group === 'string') {
-                    return [tuple(domain, group)];
-                }
-                return List.map(v => [domain, v.tile], group.tiles);
-            }
-        )
+        layout.cmp.groups,
+        List.concat(layout.single.groups),
+        List.concat(layout.translat.groups),
+        List.flatMap(group => group.tiles),
+        List.map(t => t.tile)
     );
     console.info(`Loading tile configuration from ${tileDBConf.server}/${tileDBConf.db}`);
-    return rxOf(...List.map<[string, string], Observable<[string, StoredTileConf]>>(
-        ([domain, tile]) => new Observable<[string, StoredTileConf]>((observer) => {
+    return rxOf(...List.map<string, Observable<StoredTileConf>>(
+        (tile) => new Observable<StoredTileConf>((observer) => {
             axios.get<StoredTileConf>(
-                urlJoin(tileDBConf.server, tileDBConf.db, `${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${domain}:${tile}`),
+                urlJoin(tileDBConf.server, tileDBConf.db, `${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${tile}`),
                 {
                     auth: {
                         username: tileDBConf.username,
@@ -101,7 +90,7 @@ export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDb
                 }
             ).then(
                 (resp) => {
-                    observer.next([domain, resp.data]);
+                    observer.next(resp.data);
                     observer.complete();
                 },
                 (err) => {
@@ -116,59 +105,64 @@ export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDb
             v => v
         ),
         reduce(
-            (tilesConf, [domain, data]) => {
-                if (!Dict.hasKey(domain, tilesConf)) {
-                    tilesConf[domain] = {};
-                }
-                tilesConf[domain][data.ident] = data.conf;
+            (tilesConf, data) => {
+                tilesConf[data.ident] = data.conf;
 
                 return tilesConf;
             },
-            {} as DomainAnyTileConf
+            {} as AllQueryTypesTileConf
         )
     );
+}
 
+/**
+ *
+ */
+function expandLayout<T extends LayoutConfigCommon>(
+    layout:T,
+    mkEmpty:()=>T,
+    layouts:LayoutsConfig
+):T {
+    if (!layout) {
+        return mkEmpty();
+    }
+    // if referenced layout, copy its groups
+    if (layout.useLayout) {
+        layout.groups = JSON.parse(JSON.stringify(layouts[layout.useLayout].groups)); // deep copy
 
+        layout.groups = List.map(
+            group => {
+                if (typeof group !== 'string') {
+                    group.tiles = List.reduce((tiles, tile) => {
+                        // replace referenced tile
+                        if (Dict.hasKey(tile.ref, layout.replace)) {
+                            tile.tile = layout.replace[tile.ref];
+                        }
+                        tiles.push(tile);
+
+                        // add more tiles after referenced one
+                        if (Dict.hasKey(tile.ref, layout.insertAfter)) {
+                            tiles = tiles.concat(layout.insertAfter[tile.ref]);
+                        }
+
+                        return tiles;
+                    }, [], group.tiles)
+                }
+                return group
+            },
+            layout.groups
+        );
+    }
+    return layout;
 }
 
 
-export function useCommonLayouts(layouts:DomainLayoutsConfig):DomainLayoutsConfig {
-    return Dict.map((queryTypes, domain) =>
-        Dict.map<LayoutConfigCommon, LayoutConfigCommon, string>((layout, queryType) =>
-            {
-                // if referenced layout, copy its groups
-                if (layout.useLayout) {
-                    const [d, qt] = layout.useLayout.split('.'); // get domain and query type
-                    layout.groups = JSON.parse(JSON.stringify(layouts[d][qt].groups)); // deep copy
-
-                    layout.groups = List.map(
-                        group => {
-                            if (typeof group !== 'string') {
-                                group.tiles = List.reduce((tiles, tile) => {
-                                    // replace referenced tile
-                                    if (Dict.hasKey(tile.ref, layout.replace)) {
-                                        tile.tile = layout.replace[tile.ref];
-                                    }
-                                    tiles.push(tile);
-
-                                    // add more tiles after referenced one
-                                    if (Dict.hasKey(tile.ref, layout.insertAfter)) {
-                                        tiles = tiles.concat(layout.insertAfter[tile.ref]);
-                                    }
-
-                                    return tiles;
-                                }, [], group.tiles)
-                            }
-                            return group
-                        },
-                        layout.groups
-                    );
-                }
-
-                return layout;
-            },
-            queryTypes as {[l:string]:LayoutConfigCommon}
-        ) as LayoutsConfig,
-        layouts
-    ) as DomainLayoutsConfig;
+export function useCommonLayouts(layouts:LayoutsConfig):LayoutsConfig {
+    layouts.cmp = expandLayout(
+        layouts.cmp, () => ({ groups: [], mainPosAttr: 'pos' }), layouts);
+    layouts.single = expandLayout(
+        layouts.single, () => ({ groups: [], mainPosAttr: 'pos' }), layouts);
+    layouts.translat = expandLayout(
+        layouts.translat, () => ({ groups: [], mainPosAttr: 'pos', targetLanguages: [] }), layouts);
+    return layouts;
 }

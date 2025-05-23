@@ -23,7 +23,6 @@ import { Observable } from 'rxjs';
 
 
 export interface RequestArgs {
-    domain:string;
     lemma:string;
     pos:Array<string>;
     mainPosAttr:MainPosAttrValues;
@@ -46,7 +45,7 @@ export interface Response {
 export interface IWordFormsApi extends ResourceApi<RequestArgs, Response> {
 
     supportsMultiWordQueries():boolean;
-    
+
     requestBacklink(args:RequestArgs, queryMatch:QueryMatch):Observable<URL>;
 
 }

@@ -55,8 +55,7 @@ interface AttachTileArgs {
 const mkAttachTile = (
     queryType:QueryType,
     isMultiWordQuery:boolean,
-    domain1:string,
-    domain2:string,
+    translatLang:string,
     appServices:IAppServices
 
     ) =>
@@ -69,9 +68,9 @@ const mkAttachTile = (
         maxTileHeight,
         retryLoadModel
     }:AttachTileArgs):void => {
-        const support = tile.supportsQueryType(queryType, domain1, domain2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
+        const support = tile.supportsQueryType(queryType, translatLang) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
         let reasonDisabled = undefined;
-        if (!tile.supportsQueryType(queryType, domain1, domain2)) {
+        if (!tile.supportsQueryType(queryType, translatLang)) {
             reasonDisabled = appServices.translate('global__query_type_not_supported');
 
         } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
@@ -134,17 +133,11 @@ export function createRootComponent({
 
     const tiles:Array<TileFrameProps> = [];
     const theme = new Theme(config.colors);
-
     const qType = userSession.queryType as QueryType; // TODO validate
-    const dfltDomainSrch = List.find(v => List.some(v2 => v2 === qType, v.queryTypes), config.searchDomains);
-    const dfltDomain = dfltDomainSrch ?
-        dfltDomainSrch :
-        { code: 'en', label: 'English', queryTypes: [QueryType.CMP_QUERY, QueryType.SINGLE_QUERY, QueryType.TRANSLAT_QUERY]};
 
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1Domain: userSession.query1Domain || dfltDomain.code,
         translatLanguage: userSession.translatLanguage || '',
         queryType: qType,
         availQueryTypes: pipe(
@@ -155,7 +148,6 @@ export function createRootComponent({
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
-        searchDomains: config.searchDomains,
         layout: layoutManager,
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords
@@ -169,7 +161,6 @@ export function createRootComponent({
         theme,
         layoutManager,
         qType,
-        userSession.query1Domain,
         userSession.translatLanguage
     );
 
@@ -177,7 +168,6 @@ export function createRootComponent({
     const attachTile = mkAttachTile(
         qType,
         isMultiWordQuery,
-        userSession.query1Domain,
         userSession.translatLanguage,
         appServices
     );

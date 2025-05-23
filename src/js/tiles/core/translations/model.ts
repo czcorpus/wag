@@ -196,8 +196,7 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
                                 }),
                                 data
                             ),
-                            domain1: state.domain1,
-                            domain2: state.domain2,
+                            translatLanguage: state.lang2,
                             data: {translations: data}
                         }
                     });
@@ -211,8 +210,7 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
                             isEmpty: true,
                             query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: [],
-                            domain1: state.domain1,
-                            domain2: state.domain2,
+                            translatLanguage: state.lang1,
                             data: {translations: []}
                         },
                         error

@@ -19,6 +19,11 @@
 import { QueryType } from '../../query/index.js';
 
 export interface ActionLogRecord {
+    /**
+     * In case of multiple WaG installations, each should
+     * have its unique applicationId.
+     */
+    applicationId:string;
     action:string;
     userId:number|null;  // provide userId if available
     datetime:string;
@@ -28,7 +33,6 @@ export interface ActionLogRecord {
         userAgent:string;
         referer:string;
     };
-    lang1:string;
     lang2:string;
     hasPosSpecification:boolean;
     isQuery:boolean;

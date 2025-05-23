@@ -105,54 +105,6 @@
             ],
             "type": "object"
         },
-        "QueryModeWordDb": {
-            "properties": {
-                "databases": {
-                    "additionalProperties": {
-                        "$ref": "#/definitions/FreqDbConf"
-                    },
-                    "type": "object"
-                },
-                "maxQueryWords": {
-                    "type": "number"
-                },
-                "minLemmaFreq": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "databases",
-                "maxQueryWords",
-                "minLemmaFreq"
-            ],
-            "type": "object"
-        },
-        "SingleModeWordDb": {
-            "properties": {
-                "databases": {
-                    "additionalProperties": {
-                        "$ref": "#/definitions/FreqDbConf"
-                    },
-                    "type": "object"
-                },
-                "maxQueryWords": {
-                    "type": "number"
-                },
-                "minLemmaFreq": {
-                    "type": "number"
-                },
-                "similarFreqWordsMaxCtx": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "databases",
-                "maxQueryWords",
-                "minLemmaFreq",
-                "similarFreqWordsMaxCtx"
-            ],
-            "type": "object"
-        },
         "ToolbarDef": {
             "properties": {
                 "type": {
@@ -167,18 +119,27 @@
             ],
             "type": "object"
         },
-        "WordFreqDbConf": {
+        "WordDbConf": {
             "properties": {
-                "cmp": {
-                    "$ref": "#/definitions/QueryModeWordDb"
+                "database": {
+                    "$ref": "#/definitions/FreqDbConf"
                 },
-                "single": {
-                    "$ref": "#/definitions/SingleModeWordDb"
+                "maxQueryWords": {
+                    "type": "number"
                 },
-                "translat": {
-                    "$ref": "#/definitions/QueryModeWordDb"
+                "minLemmaFreq": {
+                    "type": "number"
+                },
+                "similarFreqWordsMaxCtx": {
+                    "type": "number"
                 }
             },
+            "required": [
+                "database",
+                "maxQueryWords",
+                "minLemmaFreq",
+                "similarFreqWordsMaxCtx"
+            ],
             "type": "object"
         }
     },
@@ -212,7 +173,7 @@
             "type": "string"
         },
         "freqDB": {
-            "$ref": "#/definitions/WordFreqDbConf"
+            "$ref": "#/definitions/WordDbConf"
         },
         "langCookie": {
             "$ref": "#/definitions/LangCookieSetup"

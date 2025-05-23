@@ -24,25 +24,22 @@ import { MultiDict } from '../multidict.js';
 import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
-import { QueryType, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries, findCurrQueryMatch, queryTypeToAction } from '../query/index.js';
+import { QueryType, QueryTypeMenuItem, matchesPos, RecognizedQueries, findCurrQueryMatch, queryTypeToAction } from '../query/index.js';
 import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
 import { HTTPAction } from '../page/actions.js';
 import { LayoutManager } from '../page/layout.js';
 import { MainPosAttrValues } from '../conf/index.js';
-import urlJoin from 'url-join';
 
 
 export interface QueryFormModelState {
     queries:Array<Input>;
     initialQueryType:QueryType;
-    multiWordQuerySupport:{[k in QueryType]?:number};
+    multiWordQuerySupport:number;
     queryType:QueryType;
     availQueryTypes:Array<QueryType>;
-    queryDomain:string;
     currTranslatLanguage:string;
-    searchDomains:Array<SearchDomain>;
-    translatLanguages:{[k in QueryType]:Array<[string, string]>};
+    translatLanguages:{[k in QueryType]:Array<string>};
     queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Array<Error>;
     queryMatches:RecognizedQueries;
@@ -125,19 +122,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 }
             },
             (state, action, dispatch) => {
-                window.location.href = this.appServices.createActionUrl(
-                    state.queryDomain + queryTypeToAction(action.payload.queryType));
-            }
-        );
-
-        this.addActionHandler(
-            Actions.ChangeDomain,
-            (state, action) => {
-                console.log('action: ', action.payload.domain);
-            },
-            (state, action, dispatch) => {
-                window.location.href = this.appServices.createActionUrl(
-                    action.payload.domain + queryTypeToAction(state.queryType));
+                window.location.href = this.appServices.createActionUrl(queryTypeToAction(action.payload.queryType));
             }
         );
 
@@ -261,11 +246,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             HTTPAction.TRANSLATE
         );
 
-        const domains = [state.queryDomain];
-        if (state.queryType === QueryType.TRANSLAT_QUERY) {
-            domains.push(state.currTranslatLanguage);
-        }
-
         const queries = [state.queries[0].value];
         if (state.queryType === QueryType.CMP_QUERY) {
             state.queries.slice(1).forEach(v => {
@@ -273,7 +253,11 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             });
         }
 
-        return `/${domains.join('--')}/${action}${queries.join('--')}`;
+        const translatChunk = state.queryType === QueryType.TRANSLAT_QUERY ?
+            `/${state.currTranslatLanguage}` : ''
+
+
+        return `/${action}${translatChunk}/${queries.join('--')}`;
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
@@ -316,9 +300,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
             this.validateNthQuery(state, 0);
-            if (state.queryDomain === state.currTranslatLanguage) {
-                state.errors.push(new Error(this.appServices.translate('global__src_and_dst_domains_must_be_different')));
-            }
         }
     }
 
@@ -327,30 +308,26 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 export interface DefaultFactoryArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
-    query1Domain:string;
     translatLanguage:string;
     queryType:QueryType;
     availQueryTypes:Array<QueryType>;
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
-    searchDomains:Array<SearchDomain>;
     layout:LayoutManager;
     maxCmpQueries:number;
-    maxQueryWords:{[k in QueryType]?:number};
+    maxQueryWords:number;
 }
 
 export const defaultFactory = ({
     dispatcher,
     appServices,
-    query1Domain,
     translatLanguage,
     queryType,
     availQueryTypes,
     queryMatches,
     isAnswerMode,
     uiLanguages,
-    searchDomains,
     layout,
     maxCmpQueries,
     maxQueryWords
@@ -368,10 +345,8 @@ export const defaultFactory = ({
             availQueryTypes,
             initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
-            queryDomain: query1Domain,
             currTranslatLanguage: translatLanguage,
-            searchDomains,
-            translatLanguages: layout.getTargetDomains(),
+            translatLanguages: layout.getTranslatLanguages(),
             errors: [],
             queryMatches,
             isAnswerMode,

@@ -52,11 +52,6 @@ export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     throw new Error(`Unknown query type '${v}'`);
 }
 
-export interface SearchDomain {
-    code:string;
-    label:string;
-    queryTypes:Array<QueryType>;
-}
 
 export interface QueryTypeMenuItem {
     type:QueryType;
@@ -73,8 +68,7 @@ export interface SubQueryItem<T=string> {
 export interface SubqueryPayload {
     tileId:number;
     queryIdx:number;
-    domain1:string;
-    domain2:string;
+    translatLanguage?:string;
 }
 
 

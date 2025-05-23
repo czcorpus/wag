@@ -318,9 +318,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             tileId: this.tileId,
                             heading: data.collHeadings,
                             data: data.data,
-                            queryIdx: args.queryId,
-                            domain1: null,
-                            domain2: null
+                            queryIdx: args.queryId
                         }
                     });
                 }

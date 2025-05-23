@@ -204,8 +204,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                 tileId: this.tileId,
                                 isEmpty,
                                 queryIdx: 0,
-                                domain1: state.domain1,
-                                domain2: state.domain2,
+                                translatLanguage: state.lang2,
                                 subqueries: pipe(
                                     translations,
                                     Dict.keys(),
@@ -221,8 +220,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                 tileId: this.tileId,
                                 isEmpty: true,
                                 queryIdx: 0,
-                                domain1: state.domain1,
-                                domain2: state.domain2,
+                                translatLanguage: state.lang2,
                                 subqueries: []
                             },
                             error
@@ -354,7 +352,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                     this.tileId,
                     appServices.getISO639UILang(),
                     action.payload.corpusId
-                
+
                 ).subscribe({
                     next: (data) => {
                         dispatch<typeof GlobalActions.GetSourceInfoDone>({

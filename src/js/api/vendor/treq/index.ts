@@ -37,7 +37,7 @@ import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 
-export type SearchPackages = {[domain2:string]:Array<string>};
+export type SearchPackages = {[translatLang:string]:Array<string>};
 
 export interface RequestArgs {
     from:string;
@@ -237,8 +237,8 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 
     stateToArgs(state:TranslationsModelState, query:string):RequestArgs {
         return {
-            from: state.domain1,
-            to: state.domain2,
+            from: state.lang1,
+            to: state.lang2,
             multiword: query.split(' ').length > 1,
             regex: false,
             lemma: true,
@@ -252,8 +252,8 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 
     requestBacklink(state:TranslationsModelState, query:string):URL {
         const url = new URL(this.backlinkConf.url);
-        url.searchParams.set('jazyk1', state.domain1);
-        url.searchParams.set('jazyk2', state.domain2);
+        url.searchParams.set('jazyk1', state.lang1);
+        url.searchParams.set('jazyk2', state.lang2);
         url.searchParams.set('viceslovne', query.split(' ').length > 1 ? '1' : '0');
         url.searchParams.set('regularni', '0');
         url.searchParams.set('lemma', '1');
@@ -272,8 +272,8 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
 
     stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
         return {
-            from: state.domain1,
-            to: state.domain2,
+            from: state.lang1,
+            to: state.lang2,
             multiword: query.split(' ').length > 1,
             regex: false,
             lemma: true,
@@ -287,8 +287,8 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
 
     requestBacklink(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):URL {
         const url = new URL(this.backlinkConf.url);
-        url.searchParams.set('jazyk1', state.domain1);
-        url.searchParams.set('jazyk2', state.domain2);
+        url.searchParams.set('jazyk1', state.lang1);
+        url.searchParams.set('jazyk2', state.lang2);
         url.searchParams.set('viceslovne', query.split(' ').length > 1 ? '1' : '0');
         url.searchParams.set('regularni', '0');
         url.searchParams.set('lemma', '1');

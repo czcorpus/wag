@@ -1,8 +1,5 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "additionalProperties": {
-        "$ref": "#/definitions/LayoutsConfig"
-    },
     "definitions": {
         "GroupLayoutConfig": {
             "properties": {
@@ -49,14 +46,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -117,14 +107,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -185,14 +168,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -239,7 +215,7 @@
                     },
                     "type": "object"
                 },
-                "targetDomains": {
+                "targetLanguages": {
                     "items": {
                         "type": "string"
                     },
@@ -252,7 +228,7 @@
             "required": [
                 "groups",
                 "mainPosAttr",
-                "targetDomains"
+                "targetLanguages"
             ],
             "type": "object"
         },
@@ -277,20 +253,6 @@
             ],
             "type": "object"
         },
-        "LayoutsConfig": {
-            "properties": {
-                "cmp": {
-                    "$ref": "#/definitions/LayoutConfigCmpQuery"
-                },
-                "single": {
-                    "$ref": "#/definitions/LayoutConfigSingleQuery"
-                },
-                "translat": {
-                    "$ref": "#/definitions/LayoutConfigTranslatQuery"
-                }
-            },
-            "type": "object"
-        },
         "MainPosAttrValues": {
             "enum": [
                 "pos",
@@ -299,7 +261,17 @@
             "type": "string"
         }
     },
-    "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
+    "properties": {
+        "cmp": {
+            "$ref": "#/definitions/LayoutConfigCmpQuery"
+        },
+        "single": {
+            "$ref": "#/definitions/LayoutConfigSingleQuery"
+        },
+        "translat": {
+            "$ref": "#/definitions/LayoutConfigTranslatQuery"
+        }
+    },
     "type": "object"
 }
 

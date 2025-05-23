@@ -22,7 +22,7 @@ import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { Input } from '../page/forms.js';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types.js';
-import { QueryType, QueryMatch, SearchDomain, RecognizedQueries, QueryTypeMenuItem } from '../query/index.js';
+import { QueryType, QueryMatch, RecognizedQueries, QueryTypeMenuItem } from '../query/index.js';
 import { AltViewIconProps, TileFrameProps } from '../page/tile.js';
 import { TileGroup } from '../page/layout.js';
 import { Actions } from '../models/actions.js';
@@ -113,38 +113,11 @@ export function init(
         );
     };
 
-    // ------------------ <QueryDomainSelector /> ------------------------------
-
-    const QueryTypeSelector:React.FC<{
-        value:QueryType;
-        queryTypes:Array<QueryTypeMenuItem>;
-        htmlClass?:string;
-        onChange:(qType:string)=>void;
-
-    }> = (props) => {
-        const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            props.onChange(evt.target.value);
-        }
-
-        return (
-            <select className={`QueryDomainSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
-                    value={props.value}
-                    aria-label={ut.translate('global__aria_search_lang')}>
-                {pipe(
-                    props.queryTypes,
-                    List.filter(v => v.isEnabled),
-                    List.map(
-                        v => <option key={`qt:${v.type}`} value={v.type}>{v.label}</option>)
-                )}
-            </select>
-        );
-    };
-
     // ------------------ <QueryDomain2Selector /> ------------------------------
 
     const QueryDomain2Selector:React.FC<{
         value:string;
-        translatLanguages:Array<[string, string]>;
+        translatLanguages:Array<string>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
@@ -224,10 +197,10 @@ export function init(
         );
     };
 
-    // ------------------ <DomainSelector /> ------------------------------
+    // ------------------ <QueryTypeSelector /> ------------------------------
 
-    const DomainSelector:React.FC<{
-        domains:Array<SearchDomain>;
+    const QueryTypeSelector:React.FC<{
+        qeryTypes:Array<QueryTypeMenuItem>;
         value:string;
         isMobile:boolean;
         onChange:(v:string)=>void;
@@ -235,12 +208,12 @@ export function init(
     }> = (props) => (
         <div className="DomainSelector">
             <nav>
-            {props.domains.map((v, i) =>
-                <React.Fragment key={v.code}>
+            {props.qeryTypes.map((v, i) =>
+                <React.Fragment key={v.type}>
                     {i > 0 && <span className="separ"> | </span>}
-                    <span className={`item${v.code === props.value ? ' current' : ''}`}>
-                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.code)}
-                                    aria-current={v.code === props.value ? 'page' : null}>
+                    <span className={`item${v.type === props.value ? ' current' : ''}`}>
+                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
+                                    aria-current={v.type === props.value ? 'page' : null}>
                             {v.label}
                         </a>
                     </span>
@@ -302,10 +275,10 @@ export function init(
     const QueryFields:React.FC<{
         queries:Array<Input>;
         currQueryType:QueryType;
-        queryTypes:Array<QueryTypeMenuItem>;
+
         wantsFocus:boolean;
         translatLang:string;
-        translatLanguages:Array<[string, string]>;
+        translatLanguages:Array<string>;
         maxCmpQueries:number;
         onEnterKey:()=>void;
 
@@ -330,20 +303,11 @@ export function init(
             });
         };
 
-        const handleQueryTypeChange = (queryType:QueryType) => {
-            dispatcher.dispatch(
-                Actions.ChangeQueryType,
-                { queryType }
-            );
-        };
-
         switch (props.currQueryType) {
 
             case QueryType.SINGLE_QUERY:
                 return (
                     <>
-                        <QueryTypeSelector value={props.currQueryType} queryTypes={props.queryTypes}
-                                onChange={handleQueryTypeChange} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
@@ -355,8 +319,6 @@ export function init(
                 const focusOn = props.queries.findIndex((query, index) => query.value === '' || index === props.queries.length-1);
                 return (
                     <>
-                        <QueryTypeSelector value={props.currQueryType} queryTypes={props.queryTypes}
-                                onChange={handleQueryTypeChange} />
                         <ul className="input-group">
                             {props.queries.map((query, queryIdx) => (
                                 <li className="input-row" key={`query:${queryIdx}`}>
@@ -372,8 +334,6 @@ export function init(
             case QueryType.TRANSLAT_QUERY:
                 return (
                     <>
-                        <QueryTypeSelector value={props.currQueryType} queryTypes={props.queryTypes}
-                                onChange={handleQueryTypeChange} />
                         <span className="arrow">{'\u25B6'}</span>
                         <QueryDomain2Selector value={props.translatLang} translatLanguages={props.translatLanguages}
                                 htmlClass="secondary"
@@ -547,27 +507,22 @@ export function init(
             });
         };
 
-        const handleQueryDomainChange = (domain:string):void => {
+        const handleQueryTypeChange = (queryType:QueryType) => {
             dispatcher.dispatch(
-                Actions.ChangeDomain,
-                { domain }
+                Actions.ChangeQueryType,
+                { queryType }
             );
         };
 
         return (
             <S.WdglanceControls>
                 <form className="cnc-form">
-                    <div>
-                        <DomainSelector domains={props.searchDomains}
-                                value={props.queryDomain}
-                                onChange={handleQueryDomainChange}
-                                isMobile={props.isMobile} />
-                    </div>
+                    <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
+                            qeryTypes={props.queryTypesMenuItems} value={props.queryType} />
                     <div className="main">
                         <QueryFields
                                 wantsFocus={!props.isAnswerMode || props.initialQueryType !== props.queryType}
                                 queries={props.queries}
-                                queryTypes={props.queryTypesMenuItems}
                                 currQueryType={props.queryType}
                                 translatLang={props.currTranslatLanguage}
                                 translatLanguages={props.translatLanguages[props.queryType]}

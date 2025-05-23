@@ -1,12 +1,23 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "additionalProperties": {
-        "additionalProperties": {
-            "$ref": "#/definitions/TileConf"
+    "anyOf": [
+        {
+            "$ref": "#/definitions/TileDbConf"
         },
-        "type": "object"
-    },
+        {
+            "$ref": "#/definitions/AllQueryTypesTileConf"
+        },
+        {
+            "type": "string"
+        }
+    ],
     "definitions": {
+        "AllQueryTypesTileConf": {
+            "additionalProperties": {
+                "$ref": "#/definitions/TileConf"
+            },
+            "type": "object"
+        },
         "BacklinkConf<any>": {
             "properties": {
                 "args": {},
@@ -98,8 +109,34 @@
                 "tileType"
             ],
             "type": "object"
+        },
+        "TileDbConf": {
+            "properties": {
+                "db": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "db",
+                "password",
+                "prefix",
+                "server",
+                "username"
+            ],
+            "type": "object"
         }
-    },
-    "type": "object"
+    }
 }
 

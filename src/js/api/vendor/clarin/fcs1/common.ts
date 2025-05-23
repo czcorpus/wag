@@ -188,7 +188,6 @@ export interface ConcordanceMinState {
     tileId:number;
     queries:Array<string>;
     corpname:string;
-    otherCorpname:string;
     subcname:string;
     subcDesc:string;
     kwicLeftCtx:number;
