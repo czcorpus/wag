@@ -229,7 +229,7 @@ export interface ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain2?:string):boolean;
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean;
 
     // TODO ??
     disable():void;
@@ -295,10 +295,6 @@ export interface TileFactoryArgs<T> {
     appServices:IAppServices;
 
     queryMatches:RecognizedQueries;
-
-    domain1?:string;
-
-    domain2?:string;
 
     queryType:QueryType;
 

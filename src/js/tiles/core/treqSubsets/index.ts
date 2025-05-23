@@ -33,6 +33,8 @@ export interface PackageGroup {
 
 export interface TreqSubsetsTileConf extends TileConf {
     srchPackages:{[lang:string]:Array<PackageGroup>};
+    primaryPackage:string;
+    defaultSecondaryPackage:string;
     apiURL:string;
     minItemFreq?:number;
 }
@@ -55,7 +57,7 @@ export class TreqSubsetsTile implements ITileProvider {
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
-        tileId, dispatcher, appServices, theme, ut, domain1, domain2, widthFract, readDataFromTile,
+        tileId, dispatcher, appServices, theme, ut, widthFract, readDataFromTile,
         queryMatches, conf, isBusy
     }:TileFactoryArgs<TreqSubsetsTileConf>) {
 
@@ -66,8 +68,8 @@ export class TreqSubsetsTile implements ITileProvider {
             dispatcher,
             appServices,
             initialState: {
-                domain1: domain1,
-                domain2: domain2,
+                lang1: conf.primaryPackage,
+                lang2: conf.defaultSecondaryPackage,
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -79,13 +81,13 @@ export class TreqSubsetsTile implements ITileProvider {
                         packages: [...v.packages],
                         isPending: false
                     }),
-                    conf.srchPackages[domain2] || []
+                    conf.srchPackages[conf.defaultSecondaryPackage] || []
                 ),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
                 colorMap: {},
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ,
-                backlinks: List.map(_ => null, conf.srchPackages[domain2] || []),
+                backlinks: List.map(_ => null, conf.srchPackages[conf.defaultSecondaryPackage] || []),
             },
             tileId,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
@@ -114,7 +116,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLanguage?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 

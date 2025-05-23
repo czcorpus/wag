@@ -67,7 +67,7 @@ export function logAction({
                 userAgent: req.headers['user-agent'],
                 referer: req.headers['referer']
             },
-            lang1: userConf ? userConf.query1Domain : null,
+            applicationId: userConf ? userConf.applicationId : null,
             lang2: userConf && httpAction === HTTPAction.TRANSLATE ? userConf.translatLanguage : null,
             isQuery: List.some(
                 a => a === httpAction,

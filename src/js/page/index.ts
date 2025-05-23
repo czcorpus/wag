@@ -212,7 +212,12 @@ export function initClient(
     );
 
     try {
-        const layoutManager = new LayoutManager(config.layouts, tileIdentMap, appServices);
+        const layoutManager = new LayoutManager(
+            config.layouts,
+            tileIdentMap,
+            appServices,
+            userSession.queryType
+        );
         const {component, tileGroups} = createRootComponent({
             config,
             userSession,

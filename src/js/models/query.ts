@@ -346,7 +346,7 @@ export const defaultFactory = ({
             initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
             currTranslatLanguage: translatLanguage,
-            translatLanguages: layout.getTargetDomains(),
+            translatLanguages: layout.getTranslatLanguages(),
             errors: [],
             queryMatches,
             isAnswerMode,

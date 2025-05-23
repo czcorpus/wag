@@ -55,7 +55,7 @@ export class WordFreqTile implements ITileProvider {
     private readonly view:TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract,
+        tileId, dispatcher, appServices, ut, queryMatches, widthFract,
         conf, isBusy, queryType, mainPosAttr, useDataStream}:TileFactoryArgs<WordFreqTileConf>
     ) {
         this.tileId = tileId;
@@ -84,7 +84,6 @@ export class WordFreqTile implements ITileProvider {
             ),
             sourceInfoApi: new CorpusInfoAPI(conf.infoApiURL ? conf.infoApiURL : conf.apiURL, appServices),
             queryMatches: queryMatches,
-            queryDomain: domain1,
             queryType,
             appServices
         });
@@ -108,7 +107,7 @@ export class WordFreqTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 

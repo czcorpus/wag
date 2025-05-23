@@ -68,8 +68,7 @@ export interface SubQueryItem<T=string> {
 export interface SubqueryPayload {
     tileId:number;
     queryIdx:number;
-    domain1:string;
-    domain2:string;
+    translatLanguage?:string;
 }
 
 

@@ -105,7 +105,9 @@ function mkRuntimeClientConf({
                     getThemeList(conf)
                 ),
                 dataStreamingUrl: conf.dataStreamingUrl,
-                tiles: typeof conf.tiles !== 'string' ? conf.tiles : {},
+                tiles: typeof conf.tiles !== 'string' && !isTileDBConf(conf.tiles) ?
+                    conf.tiles :
+                    {},
                 layouts: mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
                 queryTypes: typeof conf.layouts !== 'string' ?
                     pipe(
@@ -173,6 +175,7 @@ export function importQueryRequest({
                 )
             }
             const userConfNorm:UserConf = {
+                applicationId: services.clientConf.applicationId,
                 uiLang,
                 uiLanguages: services.serverConf.languages,
                 translatLanguage: req.params.lang,
@@ -280,9 +283,11 @@ export function queryAction({
                 const lm = new LayoutManager(
                     runtimeConf.layouts,
                     attachNumericTileIdents(runtimeConf.tiles),
-                    appServices
+                    appServices,
+                    queryType
                 );
                 if (lm.isEmpty(queryType)) {
+                    console.log('lm.getQueryTypesMenuItems(): ',lm.getQueryTypesMenuItems())
                     const firstAvailQt = List.find(x => x.isEnabled, lm.getQueryTypesMenuItems());
                     runtimeConf.redirect = tuple(
                         303, appServices.createActionUrl(queryTypeToAction(firstAvailQt.type))
@@ -432,7 +437,8 @@ export function queryAction({
                 err
             });
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
-            const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
+            const userConf = errorUserConf(
+                services.clientConf.applicationId, services.serverConf.languages, error, uiLang);
             const { HtmlHead, HtmlBody } = viewInit(viewUtils);
             const errView = errPageInit(viewUtils);
             const currTheme = getAppliedThemeConf(services.clientConf);

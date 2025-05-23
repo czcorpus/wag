@@ -67,7 +67,6 @@ export interface SummaryModelArgs {
     sourceInfoApi:CorpusInfoAPI;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
-    queryDomain:string;
     queryType:QueryType;
 }
 
@@ -95,19 +94,16 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryDomain:string;
-
-    private readonly queryType:QueryType;
-
-    constructor({dispatcher, initialState, tileId, api, sourceInfoApi, appServices, queryMatches, queryDomain, queryType}:SummaryModelArgs) {
+    constructor({
+        dispatcher, initialState, tileId, api, sourceInfoApi, appServices,
+        queryMatches
+    }:SummaryModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.sourceInfoApi = sourceInfoApi;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
-        this.queryDomain = queryDomain;
-        this.queryType = queryType;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -179,7 +175,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     this.tileId,
                     0,
                     {
-                        lang: this.queryDomain,
+                        lang: appServices.getUILang(),
                         corpname: state.corpname,
                     }
 
@@ -211,7 +207,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     (match, idx) => {
                         observer.next({
                             variant: findCurrQueryMatch(match),
-                            lang: this.queryDomain,
+                            lang: this.appServices.getUILang(),
                             idx
                         });
                     },

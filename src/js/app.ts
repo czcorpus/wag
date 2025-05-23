@@ -55,7 +55,7 @@ interface AttachTileArgs {
 const mkAttachTile = (
     queryType:QueryType,
     isMultiWordQuery:boolean,
-    domain2:string,
+    translatLang:string,
     appServices:IAppServices
 
     ) =>
@@ -68,9 +68,9 @@ const mkAttachTile = (
         maxTileHeight,
         retryLoadModel
     }:AttachTileArgs):void => {
-        const support = tile.supportsQueryType(queryType, domain2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
+        const support = tile.supportsQueryType(queryType, translatLang) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
         let reasonDisabled = undefined;
-        if (!tile.supportsQueryType(queryType, domain2)) {
+        if (!tile.supportsQueryType(queryType, translatLang)) {
             reasonDisabled = appServices.translate('global__query_type_not_supported');
 
         } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {

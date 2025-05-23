@@ -20,16 +20,14 @@ import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
 import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
-import { LemmaDbApi, LemmaDbResponse } from './api/lemma.js';
 import { SystemNotifications } from './page/notifications.js';
-import { HTTPAction } from './page/actions.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
-import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf/index.js';
+import { DataReadabilityMapping, CommonTextStructures } from './conf/index.js';
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
-import { DataStreaming, IDataStreaming } from './page/streaming.js';
+import { DataStreaming } from './page/streaming.js';
 
 
 export interface IApiServices {
@@ -69,8 +67,6 @@ export interface IAppServices extends IApiServices {
     forceMobileMode():void;
 
     isMobileMode():boolean;
-
-    queryLemmaDbApi(streaming:IDataStreaming, tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
 
@@ -134,8 +130,6 @@ export class AppServices implements IAppServices {
 
     private readonly apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
 
-    private readonly lemmaDbApi:LemmaDbApi;
-
     private readonly mobileModeTest:()=>boolean;
 
     private readonly audioPlayer:AudioPlayer;
@@ -158,7 +152,6 @@ export class AppServices implements IAppServices {
         this.dataReadability = dataReadability;
         this.apiHeadersMapping = apiHeadersMapping || {};
         this.mobileModeTest = mobileModeTest;
-        this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
         this.audioPlayer = new AudioPlayer();
         this.sessionStorage = typeof window === 'undefined' ?
             new DummySessionStorage() :
@@ -315,10 +308,6 @@ export class AppServices implements IAppServices {
         apiKeyHeaders[apiUrl][headerName] = key;
         this.sessionStorage.setItem(
             AppServices.SESSION_STORAGE_API_KEYS_ENTRY, JSON.stringify(apiKeyHeaders));
-    }
-
-    queryLemmaDbApi(streaming:IDataStreaming, tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call(streaming, tileId, 0, {domain, q, mainPosAttr});
     }
 
     getISO639UILang():string {

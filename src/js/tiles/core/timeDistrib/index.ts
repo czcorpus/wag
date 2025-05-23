@@ -58,7 +58,7 @@ export class TimeDistTile implements ITileProvider {
     private readonly label:string;
 
     constructor({
-        dispatcher, tileId, ut, theme, appServices, widthFract, queryMatches, domain1, conf,
+        dispatcher, tileId, ut, theme, appServices, widthFract, queryMatches, conf,
         isBusy, mainPosAttr, useDataStream
     }:TileFactoryArgs<TimeDistTileConf>) {
 
@@ -100,7 +100,6 @@ export class TimeDistTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches,
-            queryDomain: domain1,
         });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
@@ -122,7 +121,7 @@ export class TimeDistTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 

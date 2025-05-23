@@ -34,25 +34,32 @@ import {
     AllQueryTypesTileConf,
     LayoutsConfig} from '../conf/index.js';
 import { validateTilesConf } from '../conf/validation.js';
-import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts } from '../conf/loader.js';
+import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts as expandLayouts } from '../conf/loader.js';
 import { wdgRouter } from './routes/index.js';
 import { createToolbarInstance } from './toolbar/factory.js';
 import { PackageInfo } from '../types.js';
 import { QueryActionWriter } from './actionLog/logWriter.js';
-import { ApiServices } from './apiServices.js';
 import { initLogging } from './logging.js';
-import { DataStreaming } from '../page/streaming.js';
 
 
+/**
+ * Note: when calling this, clientConf must already contain
+ * expanded layouts (see use of `expandLayouts`).
+ */
 function loadTilesConf(clientConf:ClientStaticConf):Observable<AllQueryTypesTileConf> {
     if (typeof clientConf.tiles === 'string') {
         return parseJsonConfig(clientConf.tiles);
 
     } else if (isTileDBConf(clientConf.tiles)) {
-        return loadRemoteTileConf(
-            clientConf.layouts,
-            clientConf.tiles
-        );
+        if (typeof clientConf.layouts !== 'string') {
+            return loadRemoteTileConf(
+                clientConf.layouts,
+                clientConf.tiles
+            );
+
+        } else {
+            throw new Error('expanded layouts must be used');
+        }
 
     } else {
         return rxOf(clientConf.tiles);
@@ -91,7 +98,7 @@ forkJoin([ // load core configs
         ).pipe(
             map<LayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
                 (layoutsExp) => {
-                    clientConf.layouts = useCommonLayouts(layoutsExp);
+                    clientConf.layouts = expandLayouts(layoutsExp);
                     return [serverConf, clientConf, pkgInfo];
                 }
             )
@@ -106,11 +113,8 @@ forkJoin([ // load core configs
         ]).pipe(
             map(
                 ([tiles, colors, dataReadability]) => {
-                    clientConf.tiles = Dict.map(
-                        (tiles, _) => Dict.filter(
-                            t => !t.isDisabled,
-                            tiles
-                        ),
+                    clientConf.tiles = Dict.filter(
+                        tile => !tile.isDisabled,
                         tiles
                     );
                     clientConf.colors = colors;

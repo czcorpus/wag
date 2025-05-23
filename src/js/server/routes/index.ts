@@ -54,7 +54,12 @@ interface ErrorPageArgs {
 }
 
 export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPageArgs):void {
-    const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
+    const userConf = errorUserConf(
+        services.clientConf.applicationId,
+        services.serverConf.languages,
+        error,
+        uiLang
+    );
     const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
     clientConfig.colorThemes = [];
     const {HtmlBody, HtmlHead} = viewInit(viewUtils);
@@ -229,6 +234,21 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }
     });
 
+    app.get(HTTPAction.SEARCH, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.SEARCH,
+            queryType: QueryType.SINGLE_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+
+    });
+
     app.get(`${HTTPAction.SEARCH}:query`, (req, res, next) => {
         let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
@@ -325,6 +345,22 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         })
     });
 
+    // -------------------- CMP mode ----------------------------------------
+
+    app.get(HTTPAction.COMPARE, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.COMPARE,
+            queryType: QueryType.CMP_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
     app.get(`${HTTPAction.COMPARE}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
@@ -338,6 +374,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             next
         });
     });
+
+    // -------------------- TRANSLAT mode ----------------------------------------
 
     app.get(`${HTTPAction.TRANSLATE}`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
@@ -366,6 +404,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             next
         });
     });
+
+    // ------------------------------------------------------------
 
     app.get(HTTPAction.WORD_FORMS, (req, res) => {
         const uiLang = getLangFromCookie(req, services);

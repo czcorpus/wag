@@ -35,7 +35,6 @@ export interface WordSimModelArgs {
     initState:WordSimModelState;
     tileId:number;
     api:CNCWord2VecSimApi;
-    queryDomain:string;
     appServices:IAppServices;
 }
 
@@ -68,13 +67,10 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:CNCWord2VecSimApi;
 
-    private readonly queryDomain:string;
-
-    constructor({dispatcher, initState, tileId, api, queryDomain, appServices}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api, appServices}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.queryDomain = queryDomain;
 
         this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
             GlobalActions.SubqItemHighlighted.name,

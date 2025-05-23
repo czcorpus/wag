@@ -38,6 +38,7 @@ export interface UserQuery {
  * user specific information/input.
  */
 export interface UserConf {
+    applicationId:string;
     uiLanguages:{[code:string]:string};
     uiLang:string;
     queries:Array<UserQuery>;
@@ -47,15 +48,21 @@ export interface UserConf {
     error?:[number, string]; // server error (e.g. bad request)
 }
 
-export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number, string], uiLang:string):UserConf {
+export function errorUserConf(
+    applicationId:string,
+    uiLanguages:{[code:string]:string},
+    error:[number, string],
+    uiLang:string
+):UserConf {
     return {
-        uiLanguages: uiLanguages,
-        uiLang: uiLang,
+        applicationId,
+        uiLanguages,
+        uiLang,
         queries: [],
         queryType: QueryType.SINGLE_QUERY,
         translatLanguage: '',
         answerMode: false, // ??
-        error: error
+        error
     };
 }
 
@@ -108,11 +115,9 @@ export interface GroupLayoutConfig {
     tiles:Array<LayoutVisibleTile>;
 }
 
-export type GroupItemConfig = GroupLayoutConfig|string;
-
 export interface LayoutConfigCommon {
     mainPosAttr:MainPosAttrValues;
-    groups:Array<GroupItemConfig>;
+    groups:Array<GroupLayoutConfig>;
     label?:LocalizedConfMsg;
     useLayout?:string;
     replace?:{[ref:string]:string};
@@ -125,7 +130,7 @@ export interface LayoutConfigCmpQuery extends LayoutConfigCommon {}
 
 
 export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
-    targetDomains:Array<string>;
+    targetLanguages:Array<string>;
 }
 
 export interface LayoutsConfig {
@@ -173,6 +178,7 @@ export interface DataReadabilityMapping {
  * configuration file.
  */
 export interface ClientStaticConf {
+    applicationId:string;
     rootUrl:string;
     hostUrl:string;
     runtimeAssetsUrl:string;
@@ -211,8 +217,6 @@ export interface ClientStaticConf {
 }
 
 
-export interface AllQueryTypesTileConf {[ident:string]:TileConf};
-
 export interface TileDbConf {
     server:string; // e.g. http://foo:5984
     db:string;
@@ -221,12 +225,15 @@ export interface TileDbConf {
     password:string; // please do not use admin credentials for this
 }
 
-export function isTileDBConf(tiles: TileDbConf):tiles is TileDbConf {
+export interface AllQueryTypesTileConf {[qType:string]:TileConf};
+
+
+type MultiSourceTileConf = string|TileDbConf|AllQueryTypesTileConf;
+
+
+export function isTileDBConf(tiles:MultiSourceTileConf):tiles is TileDbConf {
     return (tiles as TileDbConf).server !== undefined;
 }
-
-type MultiSourceTileConf = string|TileDbConf;
-
 
 export interface HomepageTileConf {
     label:string;
@@ -279,7 +286,7 @@ export function emptyLayoutConf():LayoutsConfig {
         },
         translat: {
             groups: [],
-            targetDomains: [],
+            targetLanguages: [],
             mainPosAttr: 'pos'
         }
     };
@@ -351,11 +358,11 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
     };
 }
 
-export function getSupportedQueryTypes(conf:ClientStaticConf, domain:string):Array<QueryType> {
+export function getSupportedQueryTypes(conf:ClientStaticConf, translatLang:string):Array<QueryType> {
     if (typeof conf.layouts === 'string') {
         return [];
     }
-    const layout = conf.layouts[domain] || emptyLayoutConf();
+    const layout = conf.layouts[translatLang] || emptyLayoutConf();
     const ans:Array<QueryType> = [];
     if (layout.single && Array.isArray(layout.single.groups) && layout.single.groups.length > 0) {
         ans.push(QueryType.SINGLE_QUERY);

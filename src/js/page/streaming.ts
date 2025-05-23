@@ -84,10 +84,10 @@ interface EventItem<T = unknown> {
 }
 
 interface RequestTag {
+    applicationId:string;
     queries:Array<UserQuery>;
     queryType:QueryType;
-    query1Domain:string;
-    query2Domain:string;
+    translatLang?:string;
 }
 
 export interface IDataStreaming {
@@ -334,16 +334,16 @@ export class DataStreaming implements IDataStreaming {
 
     /**
      * This method produces a simple tag based on user query,
-     * search domains, query type etc., which is used for easier
+     * query type etc., which is used for easier
      * navigation in the persistent cache. I.e. it has no direct
      * use for WaG itself.
      */
     private mkQueryTag(userSession:UserConf):RequestTag {
         return {
+            applicationId: userSession.applicationId,
             queries: userSession.queries,
             queryType: userSession.queryType,
-            query1Domain: userSession.query1Domain,
-            query2Domain: userSession.translatLanguage
+            translatLang: userSession.translatLanguage
         };
     }
 

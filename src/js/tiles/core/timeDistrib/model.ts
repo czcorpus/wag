@@ -100,7 +100,6 @@ export interface TimeDistribModelArgs {
     infoApi:CorpusInfoAPI;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
-    queryDomain:string;
 }
 
 function dateToSortNumber(s:string):number {
@@ -129,8 +128,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryDomain:string;
-
     private readonly api:MQueryTimeDistribStreamApi;
 
     private readonly infoApi:CorpusInfoAPI;
@@ -142,14 +139,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         api,
         infoApi,
         appServices,
-        queryMatches,
-        queryDomain,
+        queryMatches
     }:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
-        this.queryDomain = queryDomain;
         this.api = api;
         this.infoApi = infoApi;
 

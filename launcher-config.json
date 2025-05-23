@@ -10,8 +10,8 @@
     "schemata:make-conf": [
       "typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks",
-      "typescript-json-schema src/js/conf/index.ts DomainLayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks",
-      "typescript-json-schema src/js/conf/index.ts DomainAnyTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks",
+      "typescript-json-schema src/js/conf/index.ts LayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks",
+      "typescript-json-schema src/js/conf/index.ts MultiSourceTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts DataReadabilityMapping --ignoreErrors --out conf/dataReadability-schema.json --required --strictNullChecks"
     ],
