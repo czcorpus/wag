@@ -42,6 +42,7 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
 export interface DataLoadedPayload {
     tileId:number;
+    queryId?:number;
     overwritePrevious?:boolean;
     data?:Array<DataItemWithWCI>;
     dataCmp?:Array<DataItemWithWCI>;
@@ -126,6 +127,22 @@ export class Actions {
 
     }> = {
         name: 'MULTI_WORD_ZOOM_RESET'
+    }
+
+    static ChangeTimeWindow:Action<{
+        tileId:number;
+        value:number;
+
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
+    }
+
+	static ChangeUnits:Action<{
+        tileId:number;
+        units:string;
+
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
     }
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
