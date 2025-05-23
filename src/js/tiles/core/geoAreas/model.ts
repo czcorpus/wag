@@ -176,7 +176,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
                 } else {
                     state.data[action.payload.queryId] = action.payload.data;
-                    state.backlinks[action.payload.queryId] = this.freqApi.getBacklink(action.payload.queryId, 0);
+                    state.backlinks[action.payload.queryId] = this.freqApi.getBacklink(action.payload.queryId);
                 }
                 state.mapSVG = action.payload.mapSVG;
             }

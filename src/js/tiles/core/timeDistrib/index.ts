@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { Maths } from 'cnc-tskit';
+import { List, Maths } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
     TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
-import { init as viewInit } from './view.js';
+import { init as singleViewInit } from './views/single.js';
+import { init as compareViewInit } from './views/compare.js';
 import { MQueryTimeDistribStreamApi } from '../../../api/vendor/mquery/timeDistrib.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
@@ -59,7 +60,7 @@ export class TimeDistTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, ut, theme, appServices, widthFract, queryMatches, domain1, conf,
-        isBusy, mainPosAttr, useDataStream
+        isBusy, mainPosAttr, useDataStream, queryType
     }:TileFactoryArgs<TimeDistTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -75,15 +76,14 @@ export class TimeDistTile implements ITileProvider {
                 subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 mainPosAttr,
-                concId: null,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
-                data: [],
+                data: List.map(_ => [], queryMatches),
                 dataCmp: [],
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
                 useAbsFreq: false,
                 displayObserved: conf.showMeasuredFreq || false,
-                wordMainLabel: '',
+                wordMainLabels: List.map(_ => '', queryMatches),
                 wordCmpInput: '',
                 wordCmp: '',
                 zoom: [null, null],
@@ -92,8 +92,11 @@ export class TimeDistTile implements ITileProvider {
                 toYear: conf.toYear,
                 maxItems: conf.maxItems,
                 fcrit: conf.fcrit,
-                backlinks: [null, null],
-                subcBacklinkLabel: conf.subcBacklinkLabel || {}
+                mainBacklinks: List.map(_ => null, queryMatches),
+                cmpBacklink: null,
+                subcBacklinkLabel: conf.subcBacklinkLabel || {},
+                averagingYears: 0,
+                units: '%',
             },
             api: new MQueryTimeDistribStreamApi(conf.apiURL, appServices, conf.backlink),
             infoApi: new CorpusInfoAPI(conf.apiURL, appServices),
@@ -103,7 +106,9 @@ export class TimeDistTile implements ITileProvider {
             queryDomain: domain1,
         });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
-        this.view = viewInit(this.dispatcher, ut, theme, this.model);
+        this.view = queryType === QueryType.CMP_QUERY ?
+            compareViewInit(this.dispatcher, ut, theme, this.model) :
+            singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getIdent():number {
@@ -123,7 +128,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
