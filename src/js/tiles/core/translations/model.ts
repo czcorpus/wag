@@ -89,7 +89,7 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
                 } else {
                     state.translations = action.payload.data.translations;
-                    state.backlink = this.api.getBacklink(0, 0);
+                    state.backlink = this.api.getBacklink(0);
                 }
             }
         );

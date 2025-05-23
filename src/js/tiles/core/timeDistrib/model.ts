@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable } from 'rxjs';
-import { map, reduce, tap } from 'rxjs/operators';
+import { map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
@@ -57,27 +57,29 @@ export interface TimeDistribModelState {
     corpname:string;
     subcnames:Array<string>;
     subcDesc:string;
-    concId?:string;
     error:string;
     alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
     mainPosAttr:MainPosAttrValues;
     isTweakMode:boolean;
-    data:Array<DataItemWithWCI>;
+    data:Array<Array<DataItemWithWCI>>;
     dataCmp:Array<DataItemWithWCI>;
     useAbsFreq:boolean;
     displayObserved:boolean;
     wordCmp:string;
     wordCmpInput:string;
-    wordMainLabel:string; // a copy from mainform state used to attach a legend
-    backlinks:Array<Backlink>;
+    wordMainLabels:Array<string>; // a copy from mainform state used to attach a legend
+    mainBacklinks:Array<Backlink>;
+    cmpBacklink:Backlink;
     fcrit:string;
     fromYear:number;
     toYear:number;
     maxItems:number;
     refArea:[number,number];
+    averagingYears:number;
+    units:string;
     zoom:[number, number];
-    loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
+    loadingStatus:LoadingStatus;
     subcBacklinkLabel:{[subc:string]:string};
 }
 
@@ -90,6 +92,7 @@ const calcIPM = (v:DataItemWithWCI, domainSize:number) => Math.round(v.freq / do
 interface DataFetchArgsOwn {
     wordMainLabel:string;
     targetId:SubchartID;
+    queryIdx:number;
 }
 
 export interface TimeDistribModelArgs {
@@ -156,9 +159,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
             (state, action) => {
-                state.data = [];
-                state.backlinks = [null, null];
+                state.data = List.map(_ => [], this.queryMatches);
+                state.mainBacklinks = List.map(_ => null, this.queryMatches);
                 state.dataCmp = [];
+                state.cmpBacklink = null;
                 state.loadingStatus = LoadingStatus.BUSY_LOADING_MAIN;
                 state.error = null;
             },
@@ -178,8 +182,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => {
                 state.loadingStatus = LoadingStatus.IDLE;
                 if (action.error) {
-                    state.data = [];
-                    state.dataCmp = [];
+                    state.data = List.map(_ => [], this.queryMatches);
+                    state.mainBacklinks = List.map(_ => null, this.queryMatches);
+                    state.dataCmp = []; 
+                    state.cmpBacklink = null;
                     state.error = this.appServices.normalizeHttpApiError(action.error);
                 }
             }
@@ -190,17 +196,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.tileId === this.tileId,
             (state, action) => {
                 if (action.payload.data) {
-                    state.data = this.mergeChunks(
-                        action.payload.overwritePrevious ? [] : state.data, action.payload.data, state.alphaLevel);
-                    state.backlinks[0] = this.api.getBacklink(0, 0);
+                    state.data[action.payload.queryId] = this.mergeChunks(
+                        action.payload.overwritePrevious ? [] : state.data[action.payload.queryId], action.payload.data, state.alphaLevel);
+                    state.mainBacklinks[action.payload.queryId] = this.api.getBacklink(action.payload.queryId);
 
                 } else if (action.payload.dataCmp) {
                     state.dataCmp = this.mergeChunks(
                         action.payload.overwritePrevious ? [] : state.dataCmp, action.payload.dataCmp, state.alphaLevel);
-                    state.backlinks[1] = this.api.getBacklink(0, 1);
+                    state.cmpBacklink = this.api.getBacklink(0, 1);
                 }
                 if (action.payload.wordMainLabel) {
-                    state.wordMainLabel = action.payload.wordMainLabel;
+                    state.wordMainLabels[action.payload.queryId] = action.payload.wordMainLabel;
                 }
             }
         );
@@ -274,7 +280,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     0,
                     {
                         lang: appServices.getISO639UILang(),
-                        corpname: action.payload['corpusId']
+                        corpname: action.payload.corpusId,
                     }
 
                 ).subscribe({
@@ -306,7 +312,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const args = this.stateToArgs(state, action.payload.backlink.subqueryId === 1);
+                const args = this.stateToArgs(state, action.payload.backlink.queryId, action.payload.backlink.subqueryId === 1);
                 this.api.requestBacklink(args).subscribe({
                     next: url => {
                         window.open(url.toString(),'_blank');
@@ -325,6 +331,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.refArea = [null, null];
             }
         );
+
         this.addActionSubtypeHandler(
             Actions.ZoomMouseDown,
             action => action.payload.tileId === this.tileId,
@@ -332,6 +339,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.refArea = [action.payload.value, action.payload.value];
             }
         );
+
         this.addActionSubtypeHandler(
             Actions.ZoomMouseMove,
             action => action.payload.tileId === this.tileId,
@@ -339,6 +347,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.refArea[1] = action.payload.value;
             }
         );
+
         this.addActionSubtypeHandler(
             Actions.ZoomMouseUp,
             action => action.payload.tileId === this.tileId,
@@ -351,11 +360,26 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.refArea = [null, null];
             }
         );
+
         this.addActionSubtypeHandler(
             Actions.ZoomReset,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.zoom = [null, null]
+            }
+        );
+
+        this.addActionHandler<typeof Actions.ChangeTimeWindow>(
+            Actions.ChangeTimeWindow.name,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {state.averagingYears = action.payload.value}
+            }
+        );
+
+        this.addActionHandler<typeof Actions.ChangeUnits>(
+            Actions.ChangeUnits.name,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {state.units = action.payload.units}
             }
         );
     }
@@ -414,6 +438,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     }));
                     let ans:DataLoadedPayload = {
                         tileId: this.tileId,
+                        queryId: args.queryIdx,
                         overwritePrevious: resp.overwritePrevious,
                     };
                     if (args.targetId === SubchartID.MAIN) {
@@ -468,38 +493,61 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         targetId:SubchartID,
         dispatch:SEDispatcher
     ):void {
-        const currMatches = List.map(findCurrQueryMatch, this.queryMatches);
         const resp = targetId === SubchartID.MAIN ?
-            callWithExtraVal(
-                dataStreaming,
-                this.api,
-                this.tileId,
-                0,
-                testIsDictMatch(currMatches[0]) ? // TODO cmp not supported here
-                    this.stateToArgs(state) :
-                    null,
-                {
-                    wordMainLabel: currMatches[0].lemma,
-                    targetId,
+            new Observable<[TimeDistribArgs, {wordMainLabel:string; targetId:SubchartID, queryIdx:number;}]>((observer) => {
+                try {
+                    pipe(
+                        this.queryMatches,
+                        List.map(findCurrQueryMatch),
+                        List.map((currMatch, queryIdx) =>
+                            tuple(
+                                testIsDictMatch(currMatch) ?
+                                    this.stateToArgs(state, queryIdx) :
+                                    null,
+                                {
+                                    wordMainLabel: currMatch.lemma,
+                                    targetId,
+                                    queryIdx,
+                                },
+                            )
+                        ),
+                        List.forEach(args => observer.next(args)),
+                    );
+                    observer.complete();
+    
+                } catch (e) {
+                    observer.error(e);
                 }
+    
+            }).pipe(
+                mergeMap(([args, pass]) =>
+                    callWithExtraVal(
+                        dataStreaming,
+                        this.api,
+                        this.tileId,
+                        pass.queryIdx,
+                        args,
+                        pass,
+                    )
+                ),
             ) :
             this.api.loadSecondWord(
                 dataStreaming,
                 this.tileId,
                 0,
-                this.stateToArgs(state, true),
+                this.stateToArgs(state, 0, true),
             ).pipe(
                 map(
-                    resp => tuple(resp, { wordMainLabel: state.wordCmp, targetId})
+                    resp => tuple(resp, { wordMainLabel: state.wordCmp, targetId, queryIdx: 0 })
                 )
             );
         this.getFreqs(state, resp, dispatch);
     }
 
-    private stateToArgs(state:TimeDistribModelState, cmp?:boolean):TimeDistribArgs {
+    private stateToArgs(state:TimeDistribModelState, queryIdx:number, cmp?:boolean):TimeDistribArgs {
         return {
             corpname: state.corpname,
-            q: cmp ? `[word="${state.wordCmp}"]` : mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[0]), state.posQueryGenerator),
+            q: cmp ? `[word="${state.wordCmp}"]` : mkLemmaMatchQuery(findCurrQueryMatch(this.queryMatches[queryIdx]), state.posQueryGenerator),
             subcorpName: undefined, // TODO
             fromYear: state.fromYear ? state.fromYear + '' : undefined,
             toYear: state.toYear ? state.toYear + '' : undefined,

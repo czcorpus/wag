@@ -73,3 +73,80 @@ export const TweakControls = styled.form`
         }
     }
 `;
+
+export const MultiWordTimeDistribTile = styled.div`
+    position: relative;
+
+    #zoomResetButton {
+        position: absolute;
+        right: 1em;
+        bottom: 1em;
+    }
+
+    .recharts-responsive-container {
+        margin: 0 auto;
+    }
+
+    p.message {
+        margin-top: 0.2em;
+        margin-bottom: 0.8em;
+    }
+
+    .tweak-box {
+
+        form {
+            display: flex;
+            align-self: center;
+            line-height: 1.8em;
+
+            > *:not(:first-child) {
+                margin-left: 1em;
+            }
+
+            label > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            .range {
+                font-size: 1.2em;
+                padding: 0 0.2em;
+            }
+
+            #intervalSelect {
+                margin-left: 0.7em;
+            }
+        }
+    }
+`;
+
+export const MultiWordChartLegend = styled.div`
+    text-align: center;
+
+    .caption {
+        font-weight: bold;
+    }
+
+    .items {
+        margin: 0.5em;
+    }
+
+    .item {
+        font-weight: bold;
+
+        .box {
+            display: inline-block;
+            margin-right: 0.5em;
+            margin-bottom: 0.25em;
+            width: 1.5em;
+            height: 1.5em;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+
+    }
+
+    .item:not(:first-child) .box {
+        margin-left: 1em;
+    }
+`;

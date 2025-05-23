@@ -19,14 +19,14 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceArea } from 'recharts';
 
-import { Theme } from '../../../page/theme.js';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
-import { GlobalComponents } from '../../../views/common/index.js';
-import { DataItemWithWCI, Actions } from './common.js';
-import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model.js';
+import { Theme } from '../../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { DataItemWithWCI, Actions } from '../common.js';
+import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from '../model.js';
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
-import * as S from './style.js';
+import * as S from '../style.js';
 import { Formatter, NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
 
 
@@ -420,10 +420,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.loadingStatus !== LoadingStatus.IDLE} error={props.error}
-                        hasData={props.data.length >= MIN_DATA_ITEMS_TO_SHOW}
+                        hasData={List.head(props.data).length >= MIN_DATA_ITEMS_TO_SHOW}
                         sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                         supportsTileReload={props.supportsReloadOnError}
-                        backlink={List.size(props.backlinks) > 0 ? props.backlinks : null}
+                        backlink={[List.head(props.mainBacklinks), props.cmpBacklink]}
                         issueReportingUrl={props.issueReportingUrl}>
                 <S.TimeDistribTile>
                     {props.isTweakMode ?
@@ -441,10 +441,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </p> :
                         ''
                     }
-                    <Chart data1={props.data} data2={props.dataCmp}
+                    <Chart data1={List.head(props.data)} data2={props.dataCmp}
                             size={[300, 300]}
                             loadingStatus={props.loadingStatus}
-                            word={props.wordMainLabel}
+                            word={List.head(props.wordMainLabels)}
                             displayFreq={props.useAbsFreq}
                             displayObserved={props.displayObserved}
                             wordCmp={props.wordCmp}
