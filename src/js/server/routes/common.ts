@@ -141,11 +141,6 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
         new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
-            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,

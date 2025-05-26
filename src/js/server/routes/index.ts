@@ -40,6 +40,7 @@ import { importQueryPos } from '../../postag.js';
 import { ServerHTTPRequestError } from '../request.js';
 import { logAction } from '../actionLog/common.js';
 import { DataStreaming } from '../../page/streaming.js';
+import { createInstance, FreqDBType } from '../freqdb/factory.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -53,7 +54,12 @@ interface ErrorPageArgs {
 }
 
 export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPageArgs):void {
-    const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
+    const userConf = errorUserConf(
+        services.clientConf.applicationId,
+        services.serverConf.languages,
+        error,
+        uiLang
+    );
     const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
     clientConfig.colorThemes = [];
     const {HtmlBody, HtmlHead} = viewInit(viewUtils);
@@ -127,11 +133,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
-        if (!services.clientConf.defaultDomains[QueryType.SINGLE_QUERY]) {
-            res.status(HTTP.Status.InternalServerError).send('ERROR - no default domain set');
-            return;
-        }
-        res.redirect(301, services.clientConf.rootUrl + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
+        res.redirect(301, services.clientConf.rootUrl + HTTPAction.SEARCH);
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -146,17 +148,17 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             isMobileClient: clientIsLikelyMobile(req),
             hasMatch: null
         }).subscribe();
-        const queryDomain = getQueryValue(req, 'domain')[0];
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain);
-            if (db === undefined) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
+            const db = createInstance(
+                services.serverConf.freqDB.database.dbType as FreqDBType,
+                services.serverConf.freqDB.database.path,
+                services.serverConf.freqDB.database.corpusSize,
+                appServices,
+                services.serverConf.freqDB.database.options || {}
+            );
+            observer.next(db);
+            observer.complete();
 
-            } else {
-                observer.next(db);
-                observer.complete();
-            }
         }).pipe(
             concatMap(
                 (db) => {
@@ -166,7 +168,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                         getQueryValue(
                             req,
                             'mainPosAttr',
-                            services.clientConf.layouts[queryDomain][QueryType.SINGLE_QUERY].mainPosAttr,
+                            services.clientConf.layouts[QueryType.SINGLE_QUERY].mainPosAttr,
                         )[0] as MainPosAttrValues, // TODO validate
                         1
                     );
@@ -232,28 +234,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }
     });
 
-
-    app.get('/:domain', (req, res, next) => {
-        if (typeof services.clientConf.layouts === 'string') {
-            res.redirect(301, services.clientConf.rootUrl + services.clientConf.defaultDomains[QueryType.SINGLE_QUERY] + HTTPAction.SEARCH);
-
-        } else {
-            if (services.clientConf.layouts[req.params.domain].single) {
-                res.redirect(301, services.clientConf.rootUrl + req.params.domain + HTTPAction.SEARCH);
-
-            } else if (services.clientConf.layouts[req.params.domain].cmp) {
-                res.redirect(301, services.clientConf.rootUrl + req.params.domain + HTTPAction.COMPARE);
-
-            } else if (services.clientConf.layouts[req.params.domain].translat) {
-                res.redirect(301, services.clientConf.rootUrl + req.params.domain + HTTPAction.TRANSLATE);
-
-            } else {
-                res.status(500).send('server misconfiguration - no query types defined for the domain');
-            }
-        }
-    });
-
-    app.get(`/:domain${HTTPAction.SEARCH}`, (req, res, next) => {
+    app.get(HTTPAction.SEARCH, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -265,9 +246,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             res,
             next
         });
+
     });
 
-    app.get(`/:domain${HTTPAction.SEARCH}:query`, (req, res, next) => {
+    app.get(`${HTTPAction.SEARCH}:query`, (req, res, next) => {
         let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
 
@@ -321,7 +303,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`/:domain${HTTPAction.EMBEDDED_SEARCH}:query`, (req, res, next) => {
+    //TODO !!! keep legacy links operational
+    app.get(`/cs${HTTPAction.EMBEDDED_SEARCH}:query`, (req, res, next) => {
+
+    });
+
+    app.get(`/${HTTPAction.EMBEDDED_SEARCH}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
@@ -344,7 +331,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             next: (conf) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({
-                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.query1Domain}/${conf.queries[0].word}`),
+                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.queries[0].word}`),
                     error: null
                 }));
             },
@@ -358,7 +345,9 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         })
     });
 
-    app.get(`/:domain${HTTPAction.COMPARE}`, (req, res, next) => {
+    // -------------------- CMP mode ----------------------------------------
+
+    app.get(HTTPAction.COMPARE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -372,7 +361,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`/:domain${HTTPAction.COMPARE}:query`, (req, res, next) => {
+    app.get(`${HTTPAction.COMPARE}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -386,7 +375,9 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`/:domain${HTTPAction.TRANSLATE}`, (req, res, next) => {
+    // -------------------- TRANSLAT mode ----------------------------------------
+
+    app.get(`${HTTPAction.TRANSLATE}`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -400,7 +391,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`/:domain${HTTPAction.TRANSLATE}:query`, (req, res, next) => {
+    app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -414,111 +405,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    // Find words with similar frequency
-    app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
-        const posRaw = fetchReqArgArray(req, 'pos', 0)[0];
-        const pos:Array<string> = posRaw !== '' ? posRaw.split(',') :  [];
-        const uiLang = getLangFromCookie(req, services);
-
-        const viewUtils = new ViewUtils<GlobalComponents>({
-            uiLang: uiLang,
-            translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
-            actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
-        });
-        const appServices = new AppServices({
-            notifications: null, // TODO
-            uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
-            ),
-            translator: viewUtils,
-            staticUrlCreator: viewUtils.createStaticUrl,
-            actionUrlCreator: viewUtils.createActionUrl,
-            dataReadability: {metadataMapping: {}, commonStructures: {}},
-            apiHeadersMapping: services.clientConf.apiHeaders || {},
-            dataStreaming: new DataStreaming(null, [], null, 1000, null),
-            mobileModeTest: ()=>false
-        });
-        const queryDomain = getQueryValue(req, 'domain')[0];
-
-        logAction({
-            actionWriter: services.actionWriter,
-            req,
-            httpAction: HTTPAction.SIMILAR_FREQ_WORDS,
-            datetime: appServices.getISODatetime(),
-            userId: null,
-            userConf: null,
-            isMobileClient: clientIsLikelyMobile(req),
-            hasMatch: null
-        }).subscribe();
-
-        new Observable<{
-            domain:string;
-            word:string;
-            lemma:string;
-            pos:Array<string>;
-            posAttr:MainPosAttrValues,
-            rng:number;
-        }>((observer) => {
-            if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Invalid range provided, srchRange = ${req.query.srchRange}`));
-
-            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain) === undefined) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
-
-            } else {
-                const posAttr = getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues;
-                observer.next({
-                    domain: getQueryValue(req, 'domain')[0],
-                    word: getQueryValue(req, 'word')[0],
-                    lemma: getQueryValue(req, 'lemma')[0],
-                    pos: List.map(v => importQueryPos(v, posAttr), pos),
-                    posAttr: getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues, // TODO validate
-                    rng: Math.min(
-                        parseInt(getQueryValue(req, 'srchRange')[0]),
-                        services.serverConf.freqDB.single ?
-                            services.serverConf.freqDB.single.similarFreqWordsMaxCtx :
-                            0
-                    )
-                });
-                observer.complete();
-            }
-        }).pipe(
-            concatMap(
-                (data) => services.db
-                    .getDatabase(QueryType.SINGLE_QUERY, data.domain)
-                    .getSimilarFreqWords(
-                        appServices,
-                        data.lemma,
-                        data.pos,
-                        data.posAttr,
-                        data.rng
-                    )
-            ),
-            map(
-                (data) => data.sort((v1:QueryMatch, v2:QueryMatch) => {
-                    if (v1.arf !== v2.arf) {
-                        return v1.arf - v2.arf;
-                    }
-                    return v1.lemma.localeCompare(v2.lemma);
-                })
-            )
-        )
-        .subscribe({
-            next: (data) => {
-                res.setHeader('Content-Type', 'application/json');
-                res.send(JSON.stringify({result: data}));
-            },
-            error: (err:Error) => {
-                jsonOutputError(res, err);
-            }
-        });
-    });
+    // ------------------------------------------------------------
 
     app.get(HTTPAction.WORD_FORMS, (req, res) => {
         const uiLang = getLangFromCookie(req, services);
@@ -531,11 +418,6 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => [k, services.clientConf.searchDomains[k]])
-            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
@@ -545,7 +427,13 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
-        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'domain')[0]);
+        const freqDb = createInstance(
+            services.serverConf.freqDB.database.dbType as FreqDBType,
+            services.serverConf.freqDB.database.path,
+            services.serverConf.freqDB.database.corpusSize,
+            appServices,
+            services.serverConf.freqDB.database.options || {}
+        );
 
         logAction({
             actionWriter: services.actionWriter,
@@ -632,19 +520,23 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).subscribe();
 
         const uiLang = getLangFromCookie(req, services).split('-')[0];
-        const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
-        const queryDomain = getQueryValue(req, 'domain')[0];
 
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(queryType, queryDomain);
-            if (db === undefined) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
-
-            } else {
+            try {
+                const db = createInstance(
+                    services.serverConf.freqDB.database.dbType as FreqDBType,
+                    services.serverConf.freqDB.database.path,
+                    services.serverConf.freqDB.database.corpusSize,
+                    appServices,
+                    services.serverConf.freqDB.database.options || {}
+                );
                 observer.next(db);
                 observer.complete();
+
+            } catch (err) {
+                observer.error(err);
             }
+
         }).pipe(
             concatMap(
                 (db) => {

@@ -1,6 +1,12 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
+        "AllQueryTypesTileConf": {
+            "additionalProperties": {
+                "$ref": "#/definitions/TileConf"
+            },
+            "type": "object"
+        },
         "BacklinkConf<any>": {
             "properties": {
                 "args": {},
@@ -179,22 +185,6 @@
             ],
             "type": "object"
         },
-        "DomainAnyTileConf": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "$ref": "#/definitions/TileConf"
-                },
-                "type": "object"
-            },
-            "type": "object"
-        },
-        "DomainLayoutsConfig": {
-            "additionalProperties": {
-                "$ref": "#/definitions/LayoutsConfig"
-            },
-            "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
-            "type": "object"
-        },
         "FaviconConf": {
             "properties": {
                 "contentType": {
@@ -326,14 +316,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -394,14 +377,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -462,14 +438,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -516,7 +485,7 @@
                     },
                     "type": "object"
                 },
-                "targetDomains": {
+                "targetLanguages": {
                     "items": {
                         "type": "string"
                     },
@@ -529,7 +498,7 @@
             "required": [
                 "groups",
                 "mainPosAttr",
-                "targetDomains"
+                "targetLanguages"
             ],
             "type": "object"
         },
@@ -30312,6 +30281,9 @@
             },
             "type": "object"
         },
+        "applicationId": {
+            "type": "string"
+        },
         "colors": {
             "anyOf": [
                 {
@@ -30338,12 +30310,6 @@
         "dataStreamingUrl": {
             "description": "This specifies an URL used by the DataStreaming class\nto start an EventSource stream. The fact whether it will\nbe used or not is given solely by tiles configuration.\nI.e. if there will be no tile with `useDataStreaming` set\nto true, then it does not matter whether this value\nis filled or not.",
             "type": "string"
-        },
-        "defaultDomains": {
-            "additionalProperties": {
-                "type": "string"
-            },
-            "type": "object"
         },
         "externalStyles": {
             "items": {
@@ -30372,7 +30338,7 @@
         "layouts": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/DomainLayoutsConfig"
+                    "$ref": "#/definitions/LayoutsConfig"
                 },
                 {
                     "type": "string"
@@ -30397,19 +30363,13 @@
         "runtimeAssetsUrl": {
             "type": "string"
         },
-        "searchDomains": {
-            "additionalProperties": {
-                "type": "string"
-            },
-            "type": "object"
-        },
         "tiles": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/DomainAnyTileConf"
+                    "$ref": "#/definitions/TileDbConf"
                 },
                 {
-                    "$ref": "#/definitions/TileDbConf"
+                    "$ref": "#/definitions/AllQueryTypesTileConf"
                 },
                 {
                     "type": "string"
@@ -30419,15 +30379,14 @@
     },
     "required": [
         "apiHeaders",
+        "applicationId",
         "corpInfoApiUrl",
-        "defaultDomains",
         "homepage",
         "hostUrl",
         "layouts",
         "maxTileErrors",
         "rootUrl",
         "runtimeAssetsUrl",
-        "searchDomains",
         "tiles"
     ],
     "type": "object"

@@ -63,7 +63,7 @@ export class ConcordanceTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
-        widthFract, conf, domain2, isBusy, useDataStream, readDataFromTile
+        widthFract, conf, isBusy, useDataStream, readDataFromTile
     }:TileFactoryArgs<ConcordanceTileConf>
     ) {
         this.tileId = tileId;
@@ -93,10 +93,10 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: conf.pageSize,
                 concordances: createInitialLinesData(queryMatches.length),
                 corpname: conf.corpname,
-                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[domain2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
                 sentenceStruct: conf.sentenceStruct,
+                otherCorpname: null, // TODO change in case aligned conc. are supported
                 initialKwicWindow: this.calcContext(widthFract),
                 kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
@@ -135,7 +135,7 @@ export class ConcordanceTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
     }
 

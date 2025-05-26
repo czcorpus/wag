@@ -53,7 +53,7 @@ interface LayoutOfQueryTypeCmp extends LayoutCore {}
 
 
 interface LayoutOfQueryTypeTranslat extends LayoutCore {
-    translatTargetLanguages:Array<[string, string]>;
+    translatTargetLanguages:Array<string>;
 }
 
 function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
@@ -115,7 +115,7 @@ export class LayoutManager {
 
     private readonly tileMap:TileIdentMap;
 
-    constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:IAppServices) {
+    constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:IAppServices, queryType:QueryType) {
         this.tileMap = tileMap;
         this.layoutSingle = importLayout(
             layouts.single,
@@ -136,10 +136,9 @@ export class LayoutManager {
                 appServices,
                 'global__word_translate'
             ),
-            translatTargetLanguages: (layouts.translat ?
-                    layouts.translat.targetDomains : []).map(c => [c, appServices.getDomainName(c)])
+            translatTargetLanguages: layouts.translat.targetLanguages || []
         };
-        this.validateLayouts();
+        this.validateLayouts(queryType);
         this.queryTypes = [
             {
                 type: QueryType.SINGLE_QUERY,
@@ -162,9 +161,20 @@ export class LayoutManager {
     /**
      * Return a list of information about invalid items.
      */
-    private validateLayouts():void {
+    private validateLayouts(queryType:QueryType):void {
         pipe(
-            concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat),
+            (():LayoutCore => {
+                switch (queryType) {
+                    case QueryType.CMP_QUERY:
+                        return this.layoutCmp;
+                    case QueryType.SINGLE_QUERY:
+                        return this.layoutSingle;
+                    case QueryType.TRANSLAT_QUERY:
+                        return this.layoutTranslat;
+                    default:
+                        throw new Error('unknown query type: ', queryType);
+                }
+            })().groups,
             List.flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))),
             List.filter(v => v.tileId === undefined),
             List.forEach((item) => {
@@ -194,7 +204,7 @@ export class LayoutManager {
         }
     }
 
-    getTargetDomains():{[k in QueryType]:Array<[string, string]>} {
+    getTranslatLanguages():{[k in QueryType]:Array<string>} {
         return Dict.fromEntries([
             [QueryType.SINGLE_QUERY, []],
             [QueryType.CMP_QUERY, []],

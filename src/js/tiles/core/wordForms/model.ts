@@ -78,7 +78,6 @@ export interface WordFormsModelArgs {
     tileId:number;
     api:IWordFormsApi;
     queryMatches:RecognizedQueries;
-    queryDomain:string;
     appServices:IAppServices;
 }
 
@@ -91,8 +90,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryDomain:string;
-
     private readonly appServices:IAppServices;
 
     private readonly backlink:BacklinkConf;
@@ -100,13 +97,12 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
     private readonly dataStreaming:IDataStreaming;
 
     constructor({
-        dispatcher, initialState, tileId, api, queryMatches, queryDomain,
-        appServices}:WordFormsModelArgs) {
+        dispatcher, initialState, tileId, api, queryMatches, appServices
+    }:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.queryMatches = queryMatches;
-        this.queryDomain = queryDomain;
         this.appServices = appServices;
 
 
@@ -148,14 +144,12 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             queryIdx: 0,
                             isEmpty: true,
                             data: [],
-                            domain1: null,
-                            domain2: null,
+                            translatLanguage: null,
                         }
                     });
                 } else {
                     this.fetchWordForms(
                         {
-                            domain: this.queryDomain,
                             lemma: variant.lemma,
                             pos: List.map(v => v.value, variant.pos),
                             corpName: state.corpname,
@@ -229,7 +223,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action, dispatch) => {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
                 const args = {
-                    domain: this.queryDomain,
                     lemma: variant.lemma,
                     pos: List.map(v => v.value, variant.pos),
                     corpName: state.corpname,
@@ -276,9 +269,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         data: List.sortBy(
                             x => -x.freq,
                             data.forms
-                        ),
-                        domain1: null,
-                        domain2: null,
+                        )
                     }
                 });
             },
@@ -291,9 +282,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         tileId: this.tileId,
                         queryIdx: 0,
                         isEmpty: true,
-                        data: [],
-                        domain1: null,
-                        domain2: null,
+                        data: []
                     }
                 });
             }

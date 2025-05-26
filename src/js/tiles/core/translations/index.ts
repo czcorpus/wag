@@ -27,6 +27,8 @@ export interface TranslationsTileConf extends TileConf {
     apiURL:string;
     apiType:string;
     srchPackages:SearchPackages;
+    primaryPackage:string;
+    defaultSecondaryPackage:string;
     maxNumLines?:number;
     minItemFreq?:number;
 }
@@ -53,7 +55,7 @@ export class TranslationsTile implements ITileProvider {
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, domain1, domain2, queryMatches, widthFract,
+        tileId, dispatcher, appServices, ut, theme, queryMatches, widthFract,
         conf, isBusy
     }:TileFactoryArgs<TranslationsTileConf>) {
 
@@ -67,13 +69,13 @@ export class TranslationsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                searchPackages: (conf.srchPackages[domain2] || []),
+                searchPackages: (conf.srchPackages[conf.defaultSecondaryPackage] || []),
                 translations: [],
                 backlink: null,
                 maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
                 minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
-                domain1: domain1,
-                domain2: domain2
+                lang1: conf.primaryPackage,
+                lang2: conf.defaultSecondaryPackage
             },
             tileId,
             api: new TreqAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
@@ -100,7 +102,7 @@ export class TranslationsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 

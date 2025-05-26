@@ -18,7 +18,7 @@
 import { Maths } from 'cnc-tskit';
 
 import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps, 
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps,
     BacklinkConf} from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
@@ -55,7 +55,7 @@ export class WordFormsTile implements ITileProvider {
     private readonly view:TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy,
+        tileId, dispatcher, appServices, ut, queryMatches, widthFract, conf, isBusy,
         theme, mainPosAttr, useDataStream}:TileFactoryArgs<WordFormsTileConf>
     ) {
 
@@ -80,7 +80,6 @@ export class WordFormsTile implements ITileProvider {
             tileId,
             api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
-            queryDomain: domain1,
             appServices,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
@@ -114,7 +113,7 @@ export class WordFormsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 

@@ -16,82 +16,18 @@
  * limitations under the License.
  */
 
-import { Dict, List, pipe } from 'cnc-tskit';
 import pino from 'pino';
 
-import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf/index.js';
+import { ServerConf, ClientStaticConf } from '../conf/index.js';
 import { IToolbarProvider } from '../page/hostPage.js';
-import { QueryType } from '../query/index.js';
-import { IFreqDB } from './freqdb/freqdb.js';
-import { createInstance, FreqDBType } from './freqdb/factory.js';
-import { Database } from 'sqlite3';
-import { IApiServices } from '../appServices.js';
 import { IActionWriter } from './actionLog/abstract.js';
 
-
-
-export class WordDatabases {
-
-    private readonly single:{[lang:string]:IFreqDB};
-
-    private readonly cmp:{[lang:string]:IFreqDB};
-
-    private readonly translat:{[lang:string]:IFreqDB};
-
-    constructor(conf:WordFreqDbConf, apiServices:IApiServices) {
-        const uniqDb = {};
-        this.single = {};
-        this.cmp = {};
-        this.translat = {};
-
-        const databases:Array<[{[lang:string]:FreqDbConf}, {[lang:string]:IFreqDB}, QueryType]> = [
-            [conf.single?.databases || {}, this.single, QueryType.SINGLE_QUERY],
-            [conf.cmp?.databases || {}, this.cmp, QueryType.CMP_QUERY],
-            [conf.translat?.databases || {}, this.translat, QueryType.TRANSLAT_QUERY]
-        ];
-        databases.forEach(([dbConf, targetConf, ident]) => {
-            pipe(
-                dbConf,
-                Dict.toEntries(),
-                List.forEach(
-                    ([lang, db]:[string, FreqDbConf]) => {
-                        if (!uniqDb[db.path]) {
-                            uniqDb[db.path] = createInstance(
-                                db.dbType as FreqDBType,
-                                db.path,
-                                db.corpusSize,
-                                apiServices,
-                                db.options || {}
-                            );
-                        }
-                        targetConf[lang] = uniqDb[db.path];
-                        console.info(`Initialized '${ident}' mode frequency database ${db.path} (corpus size: ${db.corpusSize})`);
-                    }
-                )
-            )
-        });
-    }
-
-    getDatabase(qType:QueryType, lang:string):IFreqDB {
-        switch (qType) {
-            case QueryType.SINGLE_QUERY:
-                return this.single[lang];
-            case QueryType.CMP_QUERY:
-                return this.cmp[lang];
-            case QueryType.TRANSLAT_QUERY:
-                return this.translat[lang];
-            default:
-                throw new Error(`Query type ${qType} not supported`);
-        }
-    }
-}
 
 export interface Services {
     version:string;
     repositoryUrl:string;
     serverConf:ServerConf;
     clientConf:ClientStaticConf;
-    db:WordDatabases;
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
     errorLog:pino.Logger<"query", boolean>;
