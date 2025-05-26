@@ -377,7 +377,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // -------------------- TRANSLAT mode ----------------------------------------
 
-    app.get(`${HTTPAction.TRANSLATE}`, (req, res, next) => {
+    app.get(HTTPAction.TRANSLATE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,

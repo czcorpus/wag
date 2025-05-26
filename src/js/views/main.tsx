@@ -207,19 +207,28 @@ export function init(
 
     }> = (props) => (
         <div className="DomainSelector">
-            <nav>
-            {props.qeryTypes.map((v, i) =>
-                <React.Fragment key={v.type}>
-                    {i > 0 && <span className="separ"> | </span>}
-                    <span className={`item${v.type === props.value ? ' current' : ''}`}>
-                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
-                                    aria-current={v.type === props.value ? 'page' : null}>
-                            {v.label}
-                        </a>
-                    </span>
-                </React.Fragment>
-            )}
-            </nav>
+            {pipe(props.qeryTypes, List.filter(x => x.isEnabled), List.size()) < 2 ?
+                <span></span> :
+                <nav>
+                {pipe(
+                    props.qeryTypes,
+                    List.filter(v => v.isEnabled),
+                    List.map(
+                        (v, i) => (
+                            <React.Fragment key={v.type}>
+                                {i > 0 && <span className="separ"> | </span>}
+                                <span className={`item${v.type === props.value ? ' current' : ''}`}>
+                                    <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
+                                                aria-current={v.type === props.value ? 'page' : null}>
+                                        {v.label}
+                                    </a>
+                                </span>
+                            </React.Fragment>
+                        )
+                    )
+                )}
+                </nav>
+            }
         </div>
     );
 

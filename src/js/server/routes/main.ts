@@ -287,7 +287,6 @@ export function queryAction({
                     queryType
                 );
                 if (lm.isEmpty(queryType)) {
-                    console.log('lm.getQueryTypesMenuItems(): ',lm.getQueryTypesMenuItems())
                     const firstAvailQt = List.find(x => x.isEnabled, lm.getQueryTypesMenuItems());
                     runtimeConf.redirect = tuple(
                         303, appServices.createActionUrl(queryTypeToAction(firstAvailQt.type))
