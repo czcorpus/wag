@@ -140,7 +140,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         this.changeState(
                             state => {
                                 state.freqData.rows = data.data;
-                                state.backlink = this.api.getBacklink(0, 0);
+                                state.backlink = this.api.getBacklink(0);
                                 state.isBusy = false;
                             }
                         )
