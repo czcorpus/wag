@@ -112,9 +112,9 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlinks: List.map(_ => null, queryMatches),
-                queryMatches: List.map(findCurrQueryMatch, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator
-            }
+            },
+            queryMatches: List.map(findCurrQueryMatch, queryMatches),
         });
         this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');
         this.view = viewInit(

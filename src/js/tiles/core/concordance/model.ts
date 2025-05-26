@@ -217,7 +217,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         if (action.error) {
                             state.concordances = createInitialLinesData(this.queryMatches.length);
                             state.error = this.appServices.normalizeHttpApiError(action.error);
-                            state.backlinks = List.map(_ => null, state.backlinks);
+                            state.backlinks = List.map(_ => null, this.queryMatches);
                         }
                     }
                 );

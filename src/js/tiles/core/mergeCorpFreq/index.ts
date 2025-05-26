@@ -26,7 +26,6 @@ import { GlobalComponents } from '../../../views/common/index.js';
 import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MergeFreqsApi } from './api.js';
 
 
@@ -142,7 +141,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 tooltipData: null,
-                backlinks: [],
+                backlinks: List.map(_ => null, conf.sources),
             },
             downloadLabel: conf.downloadLabel,
         });

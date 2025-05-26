@@ -45,8 +45,11 @@ export const Charts = styled.div<{$incomplete:boolean}>`
     }
 `;
 
-
 export const Chart = styled.div`
     width: 100%;
     height: 100%;
+`;
+
+export const Tables = styled.div`
+    overflow-x: auto;
 `;

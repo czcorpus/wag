@@ -18,22 +18,26 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { List, Strings, tuple } from 'cnc-tskit';
+import { List, Strings } from 'cnc-tskit';
 
-import { Theme } from '../../../page/theme.js';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
-import { GlobalComponents } from '../../../views/common/index.js';
-import { Actions } from './actions.js';
-import { Actions as GlobalActions } from '../../../models/actions.js';
-import { FreqBarModel, FreqBarModelState } from './model.js';
-import { DataRow } from '../../../api/vendor/mquery/freqs.js';
+import { Theme } from '../../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { Actions } from '../actions.js';
+import { FreqBarModel, FreqBarModelState } from '../model.js';
+import { DataRow } from '../../../../api/vendor/mquery/freqs.js';
 
-import * as S from './style.js';
+import * as S from '../style.js';
 
 
 const CHART_LABEL_MAX_LEN = 20;
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:FreqBarModel,
+):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -48,8 +52,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <thead>
                     <tr>
                         <th />
-                        <th>{ut.translate('mergeCorpFreq_abs_freq')}</th>
-                        <th>{ut.translate('mergeCorpFreq_rel_freq')}</th>
+                        <th>{ut.translate('freqBar__table_heading_freq_abs')}</th>
+                        <th>{ut.translate('freqBar__table_heading_freq_rel')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -129,25 +133,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
+        const freqData = List.head(props.freqData);
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.freqData && !List.empty(props.freqData.rows)}
+                    hasData={freqData && !List.empty(freqData.rows)}
                     sourceIdent={{corp: props.corpname}}
-                    backlink={props.backlink}
+                    backlink={props.backlinks}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.FreqBarTile>
                     {props.isAltViewMode ?
                         <>
                             <h3  style={{textAlign: 'center'}}>{props.label}</h3>
-                            <TableView data={props.freqData.rows}/>
+                            <TableView data={freqData.rows}/>
                         </> :
                         <S.Charts $incomplete={props.isBusy} ref={chartsRef} onScroll={handleScroll}>
-                            {props.freqData.rows.length > 0 ?
-                                <Chart tileId={props.tileId} data={props.freqData.rows}
+                            {freqData.rows.length > 0 ?
+                                <Chart tileId={props.tileId} data={freqData.rows}
                                         width={props.tileBoxSize[0]} height={props.tileBoxSize[1]}
                                         isMobile={props.isMobile} /> :
-                                <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                <p className="note" style={{textAlign: 'center'}}>{ut.translate('freqBar__no_result')}</p>
                             }
                         </S.Charts>
                     }

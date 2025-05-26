@@ -119,7 +119,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
-                state.backlinks = List.map(_ => null, state.backlinks);
+                state.backlinks = List.map(_ => null, this.queryMatches);
                 state.error = null;
             },
             (state, action, dispatch) => {
@@ -168,7 +168,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             (state, action) => {
                 if (action.error) {
                     state.data = state.currQueryMatches.map(_ => []);
-                    state.backlinks = List.map(_ => null, state.backlinks);
+                    state.backlinks = List.map(_ => null, this.queryMatches);
                     state.error = this.appServices.normalizeHttpApiError(action.error);
 
                 } else if (action.payload.data.length === 0) {

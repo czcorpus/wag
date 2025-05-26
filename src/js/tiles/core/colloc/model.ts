@@ -39,6 +39,7 @@ export interface CollocModelArgs {
     service:MQueryCollAPI;
     initState:CollocModelState;
     queryType:QueryType;
+    queryMatches:Array<QueryMatch>;
 }
 
 
@@ -55,6 +56,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly queryType:QueryType;
 
+    private readonly queryMatches:Array<QueryMatch>;
+
     private readonly measureMap = {
         't': 'T-score',
         'm': 'MI',
@@ -67,12 +70,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     };
 
     constructor({
-        dispatcher, tileId, appServices, service, initState, queryType, dependentTiles}:CollocModelArgs) {
+        dispatcher, tileId, appServices, service, initState, queryType, dependentTiles, queryMatches}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.collApi = service;
         this.queryType = queryType;
+        this.queryMatches = queryMatches;
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -124,7 +128,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 this.reloadAllData(
                     state,
                     this.appServices.dataStreaming(),
-                    rxOf(...List.map((qm, i) => tuple(i, qm),  state.queryMatches)),
+                    rxOf(...List.map((qm, i) => tuple(i, qm),  this.queryMatches)),
                     seDispatch
                 );
             }
@@ -172,7 +176,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action) => {
                 state.isBusy = true;
                 state.srchRangeType = action.payload.ctxType;
-                state.backlinks = List.map(_ => null, state.backlinks);
+                state.backlinks = List.map(_ => null, this.queryMatches);
             },
             (state, action, seDispatch) => {
                 const subg = appServices.dataStreaming().startNewSubgroup(this.tileId, ...dependentTiles);
@@ -186,7 +190,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 this.reloadAllData(
                     state,
                     subg,
-                    rxOf(...List.map((qm, i) => tuple(i, qm), state.queryMatches)),
+                    rxOf(...List.map((qm, i) => tuple(i, qm), this.queryMatches)),
                     seDispatch
                 );
             }
@@ -198,7 +202,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null,
             (state, action, dispatch) => {
                 this.collApi.requestBacklink(
-                    this.stateToArgs(state, state.queryMatches[action.payload.backlink.queryId])
+                    this.stateToArgs(state, this.queryMatches[action.payload.backlink.queryId])
                 ).subscribe({
                     next: url => {
                         window.open(url.toString(),'_blank');

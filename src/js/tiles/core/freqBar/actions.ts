@@ -22,6 +22,7 @@ import { DataRow } from '../../../api/vendor/mquery/freqs.js';
 
 
 export interface DataLoadedPayload {
+    queryIdx:number;
     data:Array<DataRow>;
 }
 
