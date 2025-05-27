@@ -60,7 +60,7 @@ export class TimeDistTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, ut, theme, appServices, widthFract, queryMatches, conf,
-        isBusy, mainPosAttr, useDataStream
+        isBusy, mainPosAttr, queryType
     }:TileFactoryArgs<TimeDistTileConf>) {
 
         this.dispatcher = dispatcher;
