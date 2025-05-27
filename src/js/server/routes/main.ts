@@ -27,7 +27,9 @@ import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQu
          errorUserConf, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
          THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
          mergeToEmptyLayoutConf,
-         MainPosAttrValues
+         MainPosAttrValues,
+         LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
+         LayoutsConfig
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -149,6 +151,16 @@ interface ImportQueryReqArgs {
     answerMode:boolean;
 }
 
+function determineTranslatLang(req:Request, layoutsConf:LayoutsConfig) {
+    if (req.params['lang']) {
+        return req.params['lang'];
+    }
+    if (req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME]) {
+        return req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME];
+    }
+    return layoutsConf.translat.targetLanguages[0].code;
+}
+
 export function importQueryRequest({
     services,
     appServices,
@@ -178,7 +190,10 @@ export function importQueryRequest({
                 applicationId: services.clientConf.applicationId,
                 uiLang,
                 uiLanguages: services.serverConf.languages,
-                translatLanguage: req.params.lang,
+                translatLanguage: determineTranslatLang(
+                    req,
+                    typeof layouts === 'string' ? {} : layouts
+                ),
                 queryType,
                 queries: compileQueries(
                     queries,

@@ -19,16 +19,16 @@
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { mkInterctionId, TreqSubsetsAPI } from '../../../api/vendor/treq/index.js';
+import { mkInterctionId, RequestArgs, TreqAPI, WordTranslation } from '../translations/api.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
-import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations.js';
 import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
 import { isTranslationsPayload } from '../translations/actions.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 
 
 
@@ -44,6 +44,20 @@ export interface MultiSrcTranslationCell {
     abs:number;
     perc:number;
 }
+
+
+
+/**
+ * TranslationSubset specifies a subset of packages/subcorpora we
+ * search the translation in.
+ */
+export interface TranslationSubset {
+    ident:string;
+    label:string;
+    packages:Array<string>;
+    translations:Array<WordTranslation>;
+}
+
 
 
 // transpose "package-first" oriented data structure to "word first" and emit values for each row
@@ -92,12 +106,33 @@ export const flipRowColMapper = <T>(subsets:Array<TranslationSubset>, maxNumLine
 };
 
 
+/**
+ * TranslationsSubsetsModelState is a state for package/subcorpus based
+ * translation tile where we show how the translation differs when using
+ * different data as sources for translation.
+ */
+export interface TranslationsSubsetsModelState {
+    minItemFreq:number;
+    lang1:string;
+    lang2:string;
+    isBusy:boolean;
+    error:string;
+    isAltViewMode:boolean;
+    subsets:Array<TranslationSubset>;
+    highlightedRowIdx:number;
+    maxNumLines:number;
+    colorMap:{[k:string]:string};
+    backlinks:Array<Backlink>;
+    backlinkConf:BacklinkConf;
+}
+
+
 export interface TreqSubsetModelArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
     initialState:TranslationsSubsetsModelState;
     tileId:number;
-    api:TreqSubsetsAPI;
+    api:TreqAPI;
     queryMatches:RecognizedQueries;
     getColorsFromTile:number;
 }
@@ -110,7 +145,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly tileId:number;
 
-    private readonly api:TreqSubsetsAPI;
+    private readonly api:TreqAPI;
 
     private readonly queryMatches:RecognizedQueries;
 
@@ -119,7 +154,15 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
     private readonly appServices:IAppServices;
 
 
-    constructor({dispatcher, appServices, initialState, tileId, api, queryMatches, getColorsFromTile}:TreqSubsetModelArgs) {
+    constructor({
+        dispatcher,
+        appServices,
+        initialState,
+        tileId,
+        api,
+        queryMatches,
+        getColorsFromTile
+    }:TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
@@ -151,7 +194,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                             this.api,
                             this.tileId,
                             0,
-                            this.api.stateToArgs(
+                            this.stateToArgs(
                                 state,
                                 srchLemma.lemma,
                                 subset.packages
@@ -378,10 +421,44 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             action => action.payload.tileId === this.tileId,
             (state, action) => {
                 const srchLemma = findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]);
-                const url = this.api.requestBacklink(state, srchLemma.lemma, state.subsets[action.payload.backlink.subqueryId].packages);
+                const url = this.requestBacklink(
+                    state,
+                    srchLemma.lemma,
+                    state.subsets[action.payload.backlink.subqueryId].packages
+                );
                 window.open(url.toString(),'_blank');
             }
         );
+    }
+
+    private stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
+        return {
+            from: state.lang1,
+            to: state.lang2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            'pkgs[i]': packages,
+            query: query,
+            order: 'perc',
+            asc: false,
+        };
+    }
+
+    private requestBacklink(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):URL {
+        const url = new URL(state.backlinkConf.url);
+        url.searchParams.set('jazyk1', state.lang1);
+        url.searchParams.set('jazyk2', state.lang2);
+        url.searchParams.set('viceslovne', query.split(' ').length > 1 ? '1' : '0');
+        url.searchParams.set('regularni', '0');
+        url.searchParams.set('lemma', '1');
+        url.searchParams.set('caseInsen', '1');
+        url.searchParams.set('hledejCo', query);
+        for (const pkg of packages) {
+            url.searchParams.append('hledejKde[]', pkg);
+        }
+        return url;
     }
 
     private mkWordUnion(state:TranslationsSubsetsModelState):void {

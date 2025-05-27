@@ -22,10 +22,9 @@ import { List, pipe } from 'cnc-tskit'
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
-import { TranslationAPI } from '../../../api/abstract/translations.js';
-import { TranslationsModelState } from '../../../models/tiles/translations.js';
 import { IAppServices } from '../../../appServices.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
 
 
 export interface TranslationModelArgs {
@@ -33,8 +32,9 @@ export interface TranslationModelArgs {
     appServices:IAppServices;
     initialState:TranslationsModelState;
     tileId:number;
-    api:TranslationAPI<{}>;
+    api:TreqAPI;
     queryMatches:RecognizedQueries;
+    useDataStreaming:boolean;
     scaleColorGen:ColorScaleFunctionGenerator;
 }
 
@@ -43,13 +43,15 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:TranslationAPI<{}>;
+    private readonly api:TreqAPI;
 
     private readonly queryMatches:RecognizedQueries;
 
     private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
     private readonly appServices:IAppServices;
+
+    private readonly useDataStreaming:boolean;
 
     constructor({
         dispatcher,
@@ -58,12 +60,14 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
         tileId,
         api,
         queryMatches,
+        useDataStreaming,
         scaleColorGen}:TranslationModelArgs) {
 
         super(dispatcher, initialState);
         this.api = api;
         this.queryMatches = queryMatches;
         this.tileId = tileId;
+        this.useDataStreaming = useDataStreaming;
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
 
@@ -152,10 +156,30 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
         );
     }
 
+    private stateToArgs(state:TranslationsModelState, query:string):RequestArgs {
+        return {
+            from: state.lang1,
+            to: state.lang2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            'pkgs[i]': state.searchPackages,
+            query: query,
+            order: 'perc',
+            asc: false,
+        };
+    }
+
     private loadData(state:TranslationsModelState, dispatch:SEDispatcher):void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
-        this.api.call(this.appServices.dataStreaming(), this.tileId, 0, this.api.stateToArgs(state, srchLemma.lemma))
-            .pipe(
+        this.api.call(
+            this.appServices.dataStreaming(),
+            this.tileId,
+            0,
+            this.stateToArgs(state, srchLemma.lemma)
+
+        ).pipe(
                 map(item => {
                     const colors = this.scaleColorGen(0)
                     return pipe(

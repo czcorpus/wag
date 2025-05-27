@@ -25,6 +25,8 @@ export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 
 export const THEME_COOKIE_NAME = 'wag_theme';
 
+export const LAST_USED_TRANSLAT_LANG_COOKIE_NAME = 'wag_last_translat_lang';
+
 export type MainPosAttrValues = 'pos'|'upos';
 
 export interface UserQuery {
@@ -128,9 +130,13 @@ export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
 
 export interface LayoutConfigCmpQuery extends LayoutConfigCommon {}
 
+export interface TranslatLanguage {
+    code:string;
+    label:string;
+}
 
 export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
-    targetLanguages:Array<string>;
+    targetLanguages:Array<TranslatLanguage>;
 }
 
 export interface LayoutsConfig {

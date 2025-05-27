@@ -32,7 +32,7 @@ import { getLangFromCookie, fetchReqArgArray, createHelperServices,
 import { queryAction, importQueryRequest } from './main.js';
 import { Services } from '../actionServices.js';
 import { HTTPAction } from '../../page/actions.js';
-import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf/index.js';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues, LAST_USED_TRANSLAT_LANG_COOKIE_NAME } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
 import { emptyValue } from '../toolbar/empty.js';
@@ -41,6 +41,7 @@ import { ServerHTTPRequestError } from '../request.js';
 import { logAction } from '../actionLog/common.js';
 import { DataStreaming } from '../../page/streaming.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
+import urlJoin from 'url-join';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -133,7 +134,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
-        res.redirect(301, services.clientConf.rootUrl + HTTPAction.SEARCH);
+        res.redirect(301, urlJoin(services.clientConf.rootUrl, HTTPAction.SEARCH));
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -393,6 +394,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        res.cookie(
+            LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
+            req.params.lang,
+            {expires: new Date(Date.now() + 3600 * 24 * 365)}
+        );
         queryAction({
             services,
             answerMode: true,
