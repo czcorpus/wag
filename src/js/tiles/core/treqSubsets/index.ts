@@ -17,12 +17,15 @@
  */
 
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileConf, TileFactory, TileFactoryArgs
+} from '../../../page/tile.js';
 import { TreqSubsetModel } from './model.js';
-import { TreqSubsetsAPI } from '../../../api/vendor/treq/index.js';
 import {init as viewInit} from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
+import { TreqAPI } from '../translations/api.js';
 
 
 export interface PackageGroup {
@@ -60,7 +63,6 @@ export class TreqSubsetsTile implements ITileProvider {
         tileId, dispatcher, appServices, theme, ut, widthFract, readDataFromTile,
         queryMatches, conf, isBusy
     }:TileFactoryArgs<TreqSubsetsTileConf>) {
-
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.readDataFromTile = readDataFromTile;
@@ -87,10 +89,11 @@ export class TreqSubsetsTile implements ITileProvider {
                 maxNumLines: 12,
                 colorMap: {},
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ,
+                backlinkConf: conf.backlink,
                 backlinks: List.map(_ => null, conf.srchPackages[conf.defaultSecondaryPackage] || []),
             },
             tileId,
-            api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
+            api: new TreqAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
             getColorsFromTile: readDataFromTile
         });

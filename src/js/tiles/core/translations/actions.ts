@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import { SubqueryPayload } from '../../../query/index.js';
-import { TranslationResponse } from '../../../api/abstract/translations.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Action } from 'kombo';
+import { TranslationResponse } from './api.js';
 
 
 export interface DataLoadedPayload extends SubqueryPayload {

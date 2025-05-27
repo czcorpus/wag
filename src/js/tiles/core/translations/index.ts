@@ -18,7 +18,7 @@
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
-import { SearchPackages, TreqAPI } from '../../../api/vendor/treq/index.js';
+import { SearchPackages, TreqAPI } from './api.js';
 import { TranslationsModel } from './model.js';
 import { init as viewInit } from './view.js';
 
@@ -28,7 +28,6 @@ export interface TranslationsTileConf extends TileConf {
     apiType:string;
     srchPackages:SearchPackages;
     primaryPackage:string;
-    defaultSecondaryPackage:string;
     maxNumLines?:number;
     minItemFreq?:number;
 }
@@ -55,7 +54,7 @@ export class TranslationsTile implements ITileProvider {
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, queryMatches, widthFract,
+        tileId, dispatcher, appServices, ut, theme, queryMatches, translatLanguage, widthFract,
         conf, isBusy
     }:TileFactoryArgs<TranslationsTileConf>) {
 
@@ -65,20 +64,21 @@ export class TranslationsTile implements ITileProvider {
         this.model = new TranslationsModel({
             dispatcher,
             appServices,
+            useDataStreaming: conf.useDataStream,
             initialState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                searchPackages: (conf.srchPackages[conf.defaultSecondaryPackage] || []),
+                searchPackages: (conf.srchPackages[translatLanguage] || []),
                 translations: [],
                 backlink: null,
                 maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
                 minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
                 lang1: conf.primaryPackage,
-                lang2: conf.defaultSecondaryPackage
+                lang2: translatLanguage
             },
             tileId,
-            api: new TreqAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
+            api: new TreqAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed
         });

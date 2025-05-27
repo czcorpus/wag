@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../appServices.js';
 import { QueryType, QueryTypeMenuItem } from '../query/index.js';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, MainPosAttrValues } from '../conf/index.js';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
 import { TileIdentMap } from '../types.js';
 import { List, Dict, pipe } from 'cnc-tskit';
 
@@ -53,12 +53,9 @@ interface LayoutOfQueryTypeCmp extends LayoutCore {}
 
 
 interface LayoutOfQueryTypeTranslat extends LayoutCore {
-    translatTargetLanguages:Array<string>;
+    targetLanguages:Array<TranslatLanguage>;
 }
 
-function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
-    return List.flatMap(t => t, layouts.map(t => t.groups));
-}
 
 function layoutIsEmpty(layout:LayoutCore):boolean {
     return layout.groups.length === 0;
@@ -136,7 +133,7 @@ export class LayoutManager {
                 appServices,
                 'global__word_translate'
             ),
-            translatTargetLanguages: layouts.translat.targetLanguages || []
+            targetLanguages: layouts.translat.targetLanguages || []
         };
         this.validateLayouts(queryType);
         this.queryTypes = [
@@ -204,12 +201,8 @@ export class LayoutManager {
         }
     }
 
-    getTranslatLanguages():{[k in QueryType]:Array<string>} {
-        return Dict.fromEntries([
-            [QueryType.SINGLE_QUERY, []],
-            [QueryType.CMP_QUERY, []],
-            [QueryType.TRANSLAT_QUERY, this.layoutTranslat.translatTargetLanguages]
-        ]);
+    getTranslatLanguages():Array<TranslatLanguage> {
+        return this.layoutTranslat.targetLanguages;
     }
 
     getLayoutTileConf(queryType:QueryType, tileId:number):GroupedTileProps|null {

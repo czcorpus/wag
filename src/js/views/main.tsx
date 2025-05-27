@@ -36,7 +36,7 @@ import { fromEvent, timer } from 'rxjs';
 import * as S from './style.js';
 import * as SC from './common/style.js';
 import { GlobalStyle } from './layout/style.js';
-import { MainPosAttrValues } from '../conf/index.js';
+import { MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
 
 
 export interface WdglanceMainProps {
@@ -113,25 +113,26 @@ export function init(
         );
     };
 
-    // ------------------ <QueryDomain2Selector /> ------------------------------
+    // ------------------ <TranslationLangSelector /> ------------------------------
 
-    const QueryDomain2Selector:React.FC<{
+    const TranslationLangSelector:React.FC<{
         value:string;
-        translatLanguages:Array<string>;
+        translatLanguages:Array<TranslatLanguage>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
 
     }> = (props) => {
+
         const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
             props.onChange(evt.target.value);
         }
 
         return (
-            <select className={`QueryDomainSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
+            <select className={`translat-lang-selector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.translatLanguages.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
+                {props.translatLanguages.map(v => <option key={v.code} value={v.code}>{v.label}</option>)}
             </select>
         );
     };
@@ -207,19 +208,28 @@ export function init(
 
     }> = (props) => (
         <div className="DomainSelector">
-            <nav>
-            {props.qeryTypes.map((v, i) =>
-                <React.Fragment key={v.type}>
-                    {i > 0 && <span className="separ"> | </span>}
-                    <span className={`item${v.type === props.value ? ' current' : ''}`}>
-                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
-                                    aria-current={v.type === props.value ? 'page' : null}>
-                            {v.label}
-                        </a>
-                    </span>
-                </React.Fragment>
-            )}
-            </nav>
+            {pipe(props.qeryTypes, List.filter(x => x.isEnabled), List.size()) < 2 ?
+                <span></span> :
+                <nav>
+                {pipe(
+                    props.qeryTypes,
+                    List.filter(v => v.isEnabled),
+                    List.map(
+                        (v, i) => (
+                            <React.Fragment key={v.type}>
+                                {i > 0 && <span className="separ"> | </span>}
+                                <span className={`item${v.type === props.value ? ' current' : ''}`}>
+                                    <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
+                                                aria-current={v.type === props.value ? 'page' : null}>
+                                        {v.label}
+                                    </a>
+                                </span>
+                            </React.Fragment>
+                        )
+                    )
+                )}
+                </nav>
+            }
         </div>
     );
 
@@ -278,7 +288,7 @@ export function init(
 
         wantsFocus:boolean;
         translatLang:string;
-        translatLanguages:Array<string>;
+        translatLanguages:Array<TranslatLanguage>;
         maxCmpQueries:number;
         onEnterKey:()=>void;
 
@@ -335,7 +345,7 @@ export function init(
                 return (
                     <>
                         <span className="arrow">{'\u25B6'}</span>
-                        <QueryDomain2Selector value={props.translatLang} translatLanguages={props.translatLanguages}
+                        <TranslationLangSelector value={props.translatLang} translatLanguages={props.translatLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTranslatLangChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
@@ -525,7 +535,7 @@ export function init(
                                 queries={props.queries}
                                 currQueryType={props.queryType}
                                 translatLang={props.currTranslatLanguage}
-                                translatLanguages={props.translatLanguages[props.queryType]}
+                                translatLanguages={props.translatLanguages}
                                 onEnterKey={handleSubmit}
                                 maxCmpQueries={props.maxCmpQueries} />
                         <SubmitButton onClick={handleSubmit} />

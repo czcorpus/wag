@@ -21,16 +21,6 @@ import { map } from 'rxjs/operators';
 
 import { ajax$, encodeArgs } from '../../../page/ajax.js';
 import { SourceDetails } from '../../../types.js';
-import {
-    WordTranslation,
-    TranslationAPI,
-    TranslationResponse,
-    TranslationSubsetsAPI
-} from '../../abstract/translations.js';
-import {
-    TranslationsModelState,
-    TranslationsSubsetsModelState
-} from '../../../models/tiles/translations.js';
 import { IAppServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
@@ -81,7 +71,55 @@ export const mkInterctionId = (word:string):string => {
 };
 
 
-class TreqAPICaller {
+export interface WordTranslation {
+    score:number;
+    freq:number; // TODO probably a candidate for removal
+    word:string;
+    firstTranslatLc:string;
+    translations:Array<string>;
+    interactionId:string;
+    color?:string;
+}
+
+
+export interface TranslationResponse {
+    translations:Array<WordTranslation>;
+}
+
+
+/**
+ * TranslationsModelState is a general state for core and core-derived translation tiles.
+ * The 'T' generic parameter specifies a format for backlink page arguments to a possible
+ * original application which produces the results.
+ */
+export interface TranslationsModelState {
+
+    minItemFreq:number;
+    lang1:string;
+    lang2:string;
+
+    isBusy:boolean;
+    isAltViewMode:boolean;
+    error:string;
+
+    /**
+     * List of packages/subcorpora where we can search. If not
+     * applicable push just a single item.
+     */
+    searchPackages:Array<string>;
+
+    /**
+     * List of found translations
+     */
+    translations:Array<WordTranslation>;
+
+    backlink?:Backlink;
+
+    maxNumLines:number;
+}
+
+
+export class TreqAPICommon {
 
     private readonly apiURL:string;
 
@@ -91,11 +129,9 @@ class TreqAPICaller {
 
     private readonly appServices:IAppServices;
 
-    private readonly useDataStream:boolean;
-
     protected readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, appServices:IAppServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.appServices = appServices;
         this.titleI18n = {
@@ -106,7 +142,6 @@ class TreqAPICaller {
             'cs-CZ': 'Projekt spravovaný Ústavem Českého národního korpusu',
             'en-US': 'A project managed by the Institute of the Czech National Corpus',
         };
-        this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
     }
 
@@ -171,19 +206,19 @@ class TreqAPICaller {
         )).sort((x1, x2) => x2.score - x1.score);
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        const source = this.useDataStream ?
+        const source = streaming ?
             streaming.registerTileRequest<HTTPResponse>({
                 contentType: 'application/json',
                 body: {},
                 method: HTTP.Method.GET,
                 tileId,
-                url: this.apiURL + '?' + encodeArgs(args),
+                url: this.apiURL + '/' + '?' + encodeArgs(args),
             }) : ajax$<HTTPResponse>(
                 HTTP.Method.GET,
-                `${this.apiURL}/api/v1/`,
+                this.apiURL,
                 args,
                 {
                     headers,
@@ -229,25 +264,10 @@ class TreqAPICaller {
 }
 
 
-export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs> {
+export class TreqAPI extends TreqAPICommon {
 
-    constructor(apiURL:string, appServices:IAppServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
-        super(apiURL, appServices, useDataStream, backlinkConf);
-    }
-
-    stateToArgs(state:TranslationsModelState, query:string):RequestArgs {
-        return {
-            from: state.lang1,
-            to: state.lang2,
-            multiword: query.split(' ').length > 1,
-            regex: false,
-            lemma: true,
-            ci: true,
-            'pkgs[i]': state.searchPackages,
-            query: query,
-            order: 'perc',
-            asc: false,
-        };
+    constructor(apiURL:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
+        super(apiURL, appServices, backlinkConf);
     }
 
     requestBacklink(state:TranslationsModelState, query:string):URL {
@@ -267,36 +287,3 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 }
 
 
-
-export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsAPI<RequestArgs> {
-
-    stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
-        return {
-            from: state.lang1,
-            to: state.lang2,
-            multiword: query.split(' ').length > 1,
-            regex: false,
-            lemma: true,
-            ci: true,
-            'pkgs[i]': packages,
-            query: query,
-            order: 'perc',
-            asc: false,
-        };
-    }
-
-    requestBacklink(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):URL {
-        const url = new URL(this.backlinkConf.url);
-        url.searchParams.set('jazyk1', state.lang1);
-        url.searchParams.set('jazyk2', state.lang2);
-        url.searchParams.set('viceslovne', query.split(' ').length > 1 ? '1' : '0');
-        url.searchParams.set('regularni', '0');
-        url.searchParams.set('lemma', '1');
-        url.searchParams.set('caseInsen', '1');
-        url.searchParams.set('hledejCo', query);
-        for (const pkg of packages) {
-            url.searchParams.append('hledejKde[]', pkg);
-        }
-        return url;
-    }
-}

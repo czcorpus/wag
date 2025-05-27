@@ -69,7 +69,7 @@ export const mkTileFactory = (
     theme:Theme,
     layoutManager:LayoutManager,
     queryType:QueryType,
-    translatLang:string) => (
+    translatLanguage:string) => (
             confName:string,
             conf:TileConf):ITileProvider|null => {
         if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, layoutManager.getTileNumber(confName))) {
@@ -94,6 +94,7 @@ export const mkTileFactory = (
                 queryMatches,
                 appServices,
                 queryType,
+                translatLanguage,
                 readDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),
                 widthFract: tileLayoutConf.width,
                 theme,

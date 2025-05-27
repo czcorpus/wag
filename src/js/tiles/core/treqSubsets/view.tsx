@@ -17,13 +17,12 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { List } from 'cnc-tskit';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents, TooltipValues } from '../../../views/common/index.js';
-import { TreqSubsetModel, flipRowColMapper } from './model.js';
+import { TranslationSubset, TranslationsSubsetsModelState, TreqSubsetModel, flipRowColMapper } from './model.js';
 import { Theme } from '../../../page/theme.js';
-import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations.js';
-import { List } from 'cnc-tskit';
 
 import * as S from './style.js';
 

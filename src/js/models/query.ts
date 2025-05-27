@@ -29,7 +29,8 @@ import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
 import { HTTPAction } from '../page/actions.js';
 import { LayoutManager } from '../page/layout.js';
-import { MainPosAttrValues } from '../conf/index.js';
+import { MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
+import urlJoin from 'url-join';
 
 
 export interface QueryFormModelState {
@@ -39,7 +40,7 @@ export interface QueryFormModelState {
     queryType:QueryType;
     availQueryTypes:Array<QueryType>;
     currTranslatLanguage:string;
-    translatLanguages:{[k in QueryType]:Array<string>};
+    translatLanguages:Array<TranslatLanguage>;
     queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Array<Error>;
     queryMatches:RecognizedQueries;
@@ -246,18 +247,16 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             HTTPAction.TRANSLATE
         );
 
-        const queries = [state.queries[0].value];
-        if (state.queryType === QueryType.CMP_QUERY) {
-            state.queries.slice(1).forEach(v => {
-                queries.push(v.value);
-            });
-        }
+        const queries = state.queryType === QueryType.CMP_QUERY ?
+            List.map(v => v.value, state.queries) :
+            [state.queries[0].value];
+
 
         const translatChunk = state.queryType === QueryType.TRANSLAT_QUERY ?
-            `/${state.currTranslatLanguage}` : ''
+            state.currTranslatLanguage :
+            '';
 
-
-        return `/${action}${translatChunk}/${queries.join('--')}`;
+        return urlJoin(action, translatChunk, queries.join('--'));
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {

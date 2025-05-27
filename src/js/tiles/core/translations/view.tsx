@@ -23,10 +23,9 @@ import { GlobalComponents } from '../../../views/common/index.js';
 import { TranslationsModel } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 import { Theme } from '../../../page/theme.js';
-import { WordTranslation } from '../../../api/abstract/translations.js';
-import { TranslationsModelState } from '../../../models/tiles/translations.js';
 
 import * as S from './style.js';
+import { TranslationsModelState, WordTranslation } from './api.js';
 
 
 

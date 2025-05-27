@@ -298,6 +298,8 @@ export interface TileFactoryArgs<T> {
 
     queryType:QueryType;
 
+    translatLanguage:string;
+
     /**
      * If specified, then the tile will not need
      * its own data request but it will be served

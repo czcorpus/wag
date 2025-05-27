@@ -236,7 +236,7 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    .QueryDomainSelector {
+    .translat-lang-selector {
         margin: 0;
     }
 
@@ -335,7 +335,7 @@ export const WdglanceControls = styled.div`
             }
         }
 
-        .QueryDomainSelector {
+        .translat-lang-selector {
             margin-left: 0;
         }
 
