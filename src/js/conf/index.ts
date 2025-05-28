@@ -45,7 +45,7 @@ export interface UserConf {
     uiLang:string;
     queries:Array<UserQuery>;
     queryType:QueryType;
-    translatLanguage:string;
+    translatLanguage:string|undefined;
     answerMode:boolean;
     error?:[number, string]; // server error (e.g. bad request)
 }
