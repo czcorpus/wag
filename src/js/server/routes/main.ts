@@ -158,7 +158,11 @@ function determineTranslatLang(req:Request, layoutsConf:LayoutsConfig) {
     if (req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME]) {
         return req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME];
     }
-    return layoutsConf.translat.targetLanguages[0].code;
+    if (Array.isArray(layoutsConf.translat.targetLanguages) &&
+            layoutsConf.translat.targetLanguages.length > 0) {
+        return layoutsConf.translat.targetLanguages[0].code;
+    }
+    return undefined;
 }
 
 export function importQueryRequest({
