@@ -54,7 +54,7 @@ export function getQueryValue(req:Request, name:string, dflt?:string):Array<stri
 }
 
 
-export function getQueryParam(req:Request, name:string, dflt?:string):Array<string> {
+export function getPathParam(req:Request, name:string, dflt?:string):Array<string> {
     // we assume `--` as parameter separator
     const val = req.params[name];
     if (typeof val === 'string') {
@@ -110,7 +110,7 @@ export function fetchUrlParamArray(req:Request, param:string, minLen:number):Arr
         return ans;
     }
 
-    const values = getQueryParam(req, param);
+    const values = getPathParam(req, param);
     if (Array.isArray(values)) {
         return values.concat(mkEmpty(minLen - values.length));
     }

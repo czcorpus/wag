@@ -22,7 +22,7 @@ import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../../page/hostPage.js';
 import { RecognizedQueries } from '../../query/index.js';
-import { ClientConf, UserConf, ColorThemeIdent } from '../../conf/index.js';
+import { ClientConf, UserConf, ColorThemeIdent, UserQuery } from '../../conf/index.js';
 import { TileGroup } from '../../page/layout.js';
 import { GlobalComponents } from '../common/index.js';
 import { WdglanceMainProps } from '../main.js';
@@ -244,6 +244,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
                         homepageSections={props.homepageSections}
                         isMobile={props.isMobile}
                         isAnswerMode={props.isAnswerMode}
+                        queries={props.userConfig.queries}
                         error={props.error}
                         onMount={()=>undefined}
                             />

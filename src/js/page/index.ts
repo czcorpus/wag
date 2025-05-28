@@ -100,6 +100,7 @@ function mountReactComponent({
                 isMobile: appServices.isMobileMode(),
                 isAnswerMode: userSession.answerMode,
                 error: userSession.error,
+                queries: userSession.queries,
                 onMount
             }
         );

@@ -17,7 +17,7 @@
  */
 
 import { StatelessModel, IActionQueue } from 'kombo';
-import { pipe, List } from 'cnc-tskit';
+import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices.js';
 import { MultiDict } from '../multidict.js';
@@ -104,26 +104,15 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         this.addActionHandler(
             Actions.ChangeQueryType,
-            (state, action) => {
-                state.queryType = action.payload.queryType;
-                const hasMoreQueries = pipe(state.queries, List.slice(1), List.some(v => v.value !== ''));
-                const allowsValidSingleQuery = state.queryType !== QueryType.CMP_QUERY && state.queries[0].value !== '';
-                if (state.isAnswerMode && (allowsValidSingleQuery || hasMoreQueries)) {
-                    this.checkAndSubmitUserQuery(state);
-                }
-
-                if (state.queryType === QueryType.SINGLE_QUERY || state.queryType === QueryType.TRANSLAT_QUERY) {
-                    state.queries = state.queries.map(q => Forms.updateFormInput(q, {isRequired: false}));
-
-                } else {
-                    state.queries = state.queries.map(q => Forms.updateFormInput(q, {isRequired: true}));
-                    if (state.queries.length === 1) {
-                        state.queries.push(Forms.newFormValue('', true));
-                    }
-                }
-            },
+            null,
             (state, action, dispatch) => {
-                window.location.href = this.appServices.createActionUrl(queryTypeToAction(action.payload.queryType));
+                window.location.href = this.appServices.createActionUrl(
+                    queryTypeToAction(action.payload.queryType),
+                    pipe(
+                        state.queries,
+                        List.map(v => tuple('q', v.value))
+                    )
+                );
             }
         );
 

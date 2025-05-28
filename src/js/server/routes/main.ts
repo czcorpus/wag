@@ -18,18 +18,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
-import { Dict, pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
+import { pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices.js';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
-import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
-         errorUserConf, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
-         mergeToEmptyLayoutConf,
-         MainPosAttrValues,
-         LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
-         LayoutsConfig
+import {
+    UserConf, ClientStaticConf, ClientConf, emptyClientConf, errorUserConf, isTileDBConf,
+    THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
+    mergeToEmptyLayoutConf, MainPosAttrValues, LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
+    LayoutsConfig
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -46,7 +44,6 @@ import { HTTPAction } from '../../page/actions.js';
 import { logAction } from '../actionLog/common.js';
 import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
-import { IFreqDB } from '../freqdb/freqdb.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 
 
@@ -61,7 +58,7 @@ function mkRuntimeClientConf({
     conf,
     serverConf,
     themeId,
-    appServices
+    appServices,
 }:MkRuntimeClientConfArgs):Observable<ClientConf> {
     return forkJoin([
         forkJoin(
@@ -176,7 +173,22 @@ export function importQueryRequest({
     const validator = new QueryValidator(appServices);
     return new Observable<UserConf>(observer => {
         try {
-            const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
+            const queries = answerMode ?
+                fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1) :
+                pipe(
+                    Array.isArray(req.query.q) ? req.query.q : [req.query.q],
+                    List.map(
+                        v => {
+                            if (typeof v === 'string') {
+                                return v;
+                            }
+                            return '';
+                        }
+                    ),
+                    items => queryType === QueryType.CMP_QUERY ?
+                        List.concat(List.repeat(_ => '', 2 - items.length), items) :
+                        items
+                );
             const layouts = services.clientConf.layouts;
             if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
                 const maxQueryWords = maxQueryWordsForQueryType(services.serverConf, queryType);
