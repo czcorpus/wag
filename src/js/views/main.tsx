@@ -36,12 +36,13 @@ import { fromEvent, timer } from 'rxjs';
 import * as S from './style.js';
 import * as SC from './common/style.js';
 import { GlobalStyle } from './layout/style.js';
-import { MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
+import { MainPosAttrValues, TranslatLanguage, UserQuery } from '../conf/index.js';
 
 
 export interface WdglanceMainProps {
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
+    queries:Array<UserQuery>;
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;
