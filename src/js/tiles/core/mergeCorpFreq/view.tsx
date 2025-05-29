@@ -138,6 +138,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 (idx:number) => transformedData[idx].uniqueColor ?
                     theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
                     theme.categoryColor(0);
+        const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering

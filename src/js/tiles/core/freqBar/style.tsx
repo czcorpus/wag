@@ -24,11 +24,6 @@ export const FreqBarTile = styled.div`
     min-height: 15em;
 `;
 
-export const Chart = styled.div`
-    width: 100%;
-    height: 100%;
-`;
-
 export const Tables = styled.div`
     overflow-x: auto;
 `;

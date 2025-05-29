@@ -20,7 +20,6 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
 
-import { MultiDict } from '../../multidict.js';
 import { SystemMessageType, SourceDetails } from '../../types.js';
 import { ScreenProps } from '../../page/hostPage.js';
 import { Backlink, backlinkIsValid } from '../../page/tile.js';

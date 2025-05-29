@@ -91,6 +91,7 @@ export function init(
 
     const Chart:React.FC<{
         tileId:number;
+        barCategoryGap:number;
         data:Array<FreqDataBlock>;
         widthFract:number;
         isMobile:boolean;
@@ -119,32 +120,25 @@ export function init(
             return ['??', '??'];
         };
 
-        const ref = React.useRef(null);
-        React.useEffect(() => {
-            if (ref.current) {
-                console.log('ref size: ', ref.current.offsetWidth, ref.current.offsetHeight)
-            }
-        });
-        const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
         return (
-            <S.Chart ref={ref}>
-                <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={minTileHeight} >
-                    <BarChart data={processedData} layout="vertical">
-                        {List.map((item, index) =>
-                            <Bar key={`word:${index}`} dataKey={dataKeyFn(item.word)} isAnimationActive={false} name={item.word}
-                                stackId='a' fill={theme.cmpCategoryColor(index, props.data.length)} shape={<BarShape/>} />,
-                            props.data,
-                        )};
-                        <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                        <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0}
-                                tickFormatter={value => shouldShortenText ? Strings.shortenText(value, model.CHART_LABEL_MAX_LEN) : value}/>
-                        <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
-                        <Tooltip cursor={false} isAnimationActive={false}
-                            content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={(index)=>theme.cmpCategoryColor(index, props.data.length)}/>}
-                            formatter={tooltipFormatter} />
-                    </BarChart>
-                </ResponsiveContainer>
-            </S.Chart>
+            // 100% height makes parent ResponsiveWrapper
+            // to change size gradually after rendering
+            <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={300} >
+                <BarChart data={processedData} layout="vertical" barCategoryGap={props.barCategoryGap}>
+                    {List.map((item, index) =>
+                        <Bar key={`word:${index}`} dataKey={dataKeyFn(item.word)} isAnimationActive={false} name={item.word}
+                            stackId='a' fill={theme.cmpCategoryColor(index, props.data.length)} shape={<BarShape/>} />,
+                        props.data,
+                    )};
+                    <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
+                    <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0}
+                            tickFormatter={value => shouldShortenText ? Strings.shortenText(value, model.CHART_LABEL_MAX_LEN) : value}/>
+                    <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
+                    <Tooltip cursor={false} isAnimationActive={false}
+                        content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={(index)=>theme.cmpCategoryColor(index, props.data.length)}/>}
+                        formatter={tooltipFormatter} />
+                </BarChart>
+            </ResponsiveContainer>
         );
     };
 
@@ -197,6 +191,10 @@ export function init(
 
     const FreqBarTile:React.FC<FreqBarModelState & CoreTileComponentProps> = (props) => {
 
+        const numCats = Math.max(0, ...props.freqData.map(v => v ? v.rows.length : 0));
+        const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
+        const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
+
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={List.some(item => item.isReady, props.freqData)}
@@ -204,27 +202,29 @@ export function init(
                     backlink={props.backlinks}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <S.FreqBarTile>
-                    {props.isAltViewMode ?
-                        <S.Tables>{
-                            pipe(
-                                props.freqData,
-                                List.map(block => (
-                                    <>
-                                        <h3 style={{textAlign: 'center'}}>{block.word}</h3>
-                                        <DataTable data={props.freqData} />
-                                    </>
-                                ))
-                            )
-                        }</S.Tables> :
-                        <>
-                            {props.freqData.length > 0 ?
-                                <Chart tileId={props.tileId} data={props.freqData} widthFract={props.widthFract} isMobile={props.isMobile} /> :
-                                <p className="note" style={{textAlign: 'center'}}>{ut.translate('freqBar__no_result')}</p>
-                            }
-                        </>
-                    }
-                </S.FreqBarTile>
+                <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
+                    return <S.FreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
+                        {props.isAltViewMode ?
+                            <S.Tables>{
+                                pipe(
+                                    props.freqData,
+                                    List.map(block => (
+                                        <>
+                                            <h3 style={{textAlign: 'center'}}>{block.word}</h3>
+                                            <DataTable data={props.freqData} />
+                                        </>
+                                    ))
+                                )
+                            }</S.Tables> :
+                            <>
+                                {props.freqData.length > 0 ?
+                                    <Chart tileId={props.tileId} data={props.freqData} widthFract={props.widthFract} barCategoryGap={barCategoryGap} isMobile={props.isMobile} /> :
+                                    <p className="note" style={{textAlign: 'center'}}>{ut.translate('freqBar__no_result')}</p>
+                                }
+                            </>
+                        }
+                    </S.FreqBarTile>
+                }}/>
             </globComponents.TileWrapper>
         );
     }

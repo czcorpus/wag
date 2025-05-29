@@ -42,6 +42,7 @@ export interface FreqBarTileConf extends TileConf {
     flimit:number;
     fpage:number;
     matchCase:boolean;
+    pixelsPerCategory?:number;
 
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
@@ -108,7 +109,8 @@ export class FreqBarTile implements ITileProvider {
                 fmaxitems: 100,
                 backlinks: List.map(_ => null, queryMatches),
                 subqSyncPalette: false,
-                isAltViewMode: false
+                isAltViewMode: false,
+                pixelsPerCategory: conf.pixelsPerCategory || 30
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');

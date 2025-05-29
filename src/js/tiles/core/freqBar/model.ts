@@ -56,6 +56,7 @@ export interface FreqBarModelState {
     isAltViewMode:boolean;
     isBusy:boolean;
     error:string;
+    pixelsPerCategory:number;
 }
 
 export interface FreqBarModelArgs {
