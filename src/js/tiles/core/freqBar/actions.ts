@@ -28,13 +28,6 @@ export interface DataLoadedPayload {
 
 export class Actions {
 
-    static SetActiveBlock:Action<{
-        idx:number;
-        tileId:number;
-    }> = {
-        name: 'TT_DISTRIB_SET_ACTIVE_BLOCK'
-    };
-
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
         name: GlobalActions.TileDataLoaded.name
     };

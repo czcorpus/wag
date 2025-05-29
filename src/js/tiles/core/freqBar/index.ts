@@ -94,7 +94,6 @@ export class FreqBarTile implements ITileProvider {
                 isBusy,
                 error: null,
                 freqData: List.map(match => ({word: findCurrQueryMatch(match).word, isReady: false, rows: []}), queryMatches),
-                activeBlock: 0,
                 tileBoxSize: [100, 100],
                 corpname: conf.corpname,
                 subcname: conf.subcname,

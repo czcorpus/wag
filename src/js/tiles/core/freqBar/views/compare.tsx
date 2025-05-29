@@ -19,7 +19,6 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { Actions } from '../actions.js';
 import { pipe, List, Maths, Strings } from 'cnc-tskit';
 
 import * as S from '../style.js';
@@ -28,9 +27,6 @@ import { FreqBarModel, FreqBarModelState, FreqDataBlock } from '../model.js';
 import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
-
-
-const CHART_LABEL_MAX_LEN = 15;
 
 
 export function init(
@@ -96,19 +92,16 @@ export function init(
     const Chart:React.FC<{
         tileId:number;
         data:Array<FreqDataBlock>;
-        width:string|number;
         widthFract:number;
-        height:string|number;
         isMobile:boolean;
     }> = (props) => {
         const processedData = processData(props.data);
-        const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
         const shouldShortenText = props.isMobile || props.widthFract < 3;
         const maxLabelLength = pipe(
             processedData,
             List.foldl(
                 (acc, curr) => acc.concat(shouldShortenText ?
-                        Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ') :
+                        Strings.shortenText(curr.name, model.CHART_LABEL_MAX_LEN).split(' ') :
                         curr.name),
                 [] as Array<string>
             ),
@@ -125,7 +118,14 @@ export function init(
             }
             return ['??', '??'];
         };
+
         const ref = React.useRef(null);
+        React.useEffect(() => {
+            if (ref.current) {
+                console.log('ref size: ', ref.current.offsetWidth, ref.current.offsetHeight)
+            }
+        });
+        const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
         return (
             <S.Chart ref={ref}>
                 <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={minTileHeight} >
@@ -137,7 +137,7 @@ export function init(
                         )};
                         <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                         <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0}
-                                tickFormatter={value => shouldShortenText ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
+                                tickFormatter={value => shouldShortenText ? Strings.shortenText(value, model.CHART_LABEL_MAX_LEN) : value}/>
                         <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
                         <Tooltip cursor={false} isAnimationActive={false}
                             content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={(index)=>theme.cmpCategoryColor(index, props.data.length)}/>}
@@ -195,61 +195,38 @@ export function init(
 
     // -------------------------- <FreqBarTile /> --------------------------------------
 
-    class FreqBarTile extends React.PureComponent<FreqBarModelState & CoreTileComponentProps> {
+    const FreqBarTile:React.FC<FreqBarModelState & CoreTileComponentProps> = (props) => {
 
-        private chartsRef:React.RefObject<HTMLDivElement>;
-
-        constructor(props) {
-            super(props);
-            this.chartsRef = React.createRef();
-            this.handleScroll = this.handleScroll.bind(this);
-        }
-
-        private handleScroll():void {
-            dispatcher.dispatch<typeof Actions.SetActiveBlock>({
-                name: Actions.SetActiveBlock.name,
-                payload: {
-                    idx: Math.round(this.chartsRef.current.scrollLeft / 100), // TODO !!!
-                    tileId: this.props.tileId
-                }
-            });
-        }
-
-        render() {
-            return (
-                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={List.some(item => item.isReady, this.props.freqData)}
-                        sourceIdent={{corp: this.props.corpname}}
-                        backlink={this.props.backlinks}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <S.FreqBarTile>
-                        {this.props.isAltViewMode ?
-                            <S.Tables>{
-                                pipe(
-                                    this.props.freqData,
-                                    List.map(block => (
-                                        <div key={`${block.word}Wrapper`} className="table">
-                                            <h3 key={`${block.word}Heading`} style={{textAlign: 'center'}}>{block.word}</h3>
-                                            <DataTable key={`${block.word}Table`} data={this.props.freqData} />
-                                        </div>
-                                    ))
-                                )
-                            }</S.Tables> :
-                            <S.Charts $incomplete={this.props.isBusy} ref={this.chartsRef} onScroll={this.handleScroll}>
-                                {this.props.freqData.length > 0 ?
-                                    <Chart tileId={this.props.tileId} data={this.props.freqData}
-                                            width={this.props.tileBoxSize[0]} height={this.props.tileBoxSize[1]}
-                                            widthFract={this.props.widthFract}
-                                            isMobile={this.props.isMobile} /> :
-                                    <p className="note" style={{textAlign: 'center'}}>{ut.translate('freqBar__no_result')}</p>
-                                }
-                            </S.Charts>
-                        }
-                    </S.FreqBarTile>
-                </globComponents.TileWrapper>
-            );
-        }
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={List.some(item => item.isReady, props.freqData)}
+                    sourceIdent={{corp: props.corpname}}
+                    backlink={props.backlinks}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <S.FreqBarTile>
+                    {props.isAltViewMode ?
+                        <S.Tables>{
+                            pipe(
+                                props.freqData,
+                                List.map(block => (
+                                    <>
+                                        <h3 style={{textAlign: 'center'}}>{block.word}</h3>
+                                        <DataTable data={props.freqData} />
+                                    </>
+                                ))
+                            )
+                        }</S.Tables> :
+                        <>
+                            {props.freqData.length > 0 ?
+                                <Chart tileId={props.tileId} data={props.freqData} widthFract={props.widthFract} isMobile={props.isMobile} /> :
+                                <p className="note" style={{textAlign: 'center'}}>{ut.translate('freqBar__no_result')}</p>
+                            }
+                        </>
+                    }
+                </S.FreqBarTile>
+            </globComponents.TileWrapper>
+        );
     }
 
     return BoundWithProps<CoreTileComponentProps, FreqBarModelState>(FreqBarTile, model);

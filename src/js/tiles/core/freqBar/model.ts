@@ -51,7 +51,6 @@ export interface FreqBarModelState {
     fmaxitems?:number;
     concId?:string;
     freqData:Array<FreqDataBlock>;
-    activeBlock:number;
     backlinks:Array<Backlink>;
     subqSyncPalette:boolean;
     isAltViewMode:boolean;
@@ -72,13 +71,15 @@ export interface FreqBarModelArgs {
 
 export class FreqBarModel extends StatefulModel<FreqBarModelState> {
 
-    protected api:MQueryFreqDistribAPI;
+    readonly CHART_LABEL_MAX_LEN = 20;
 
-    protected readonly appServices:IAppServices;
+    private readonly api:MQueryFreqDistribAPI;
 
-    protected readonly tileId:number;
+    private readonly appServices:IAppServices;
 
-    protected readonly queryMatches:Array<QueryMatch>;
+    private readonly tileId:number;
+
+    private readonly queryMatches:Array<QueryMatch>;
 
     constructor({
         dispatcher,
@@ -196,18 +197,6 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         this.appServices.showMessage(SystemMessageType.ERROR, error);
                     }
                 });
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.SetActiveBlock,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.activeBlock = action.payload.idx;
-                    }
-                );
             }
         );
 

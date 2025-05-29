@@ -23,14 +23,11 @@ import { List, Strings } from 'cnc-tskit';
 import { Theme } from '../../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
-import { Actions } from '../actions.js';
 import { FreqBarModel, FreqBarModelState } from '../model.js';
 import { DataRow } from '../../../../api/vendor/mquery/freqs.js';
 
 import * as S from '../style.js';
 
-
-const CHART_LABEL_MAX_LEN = 20;
 
 export function init(
     dispatcher:IActionDispatcher,
@@ -74,28 +71,22 @@ export function init(
     const Chart:React.FC<{
         tileId:number;
         data:Array<DataRow>;
-        width:string|number;
-        height:string|number;
         isMobile:boolean;
 
     }> = (props) => {
 
-
         const maxLabelLength = (List.maxItem(
             v => v.length,
-            props.isMobile ? props.data.reduce((acc, curr) => acc.concat(Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ')), []) : props.data.map(v => v.name)
+            props.isMobile ? props.data.reduce((acc, curr) => acc.concat(Strings.shortenText(curr.name, model.CHART_LABEL_MAX_LEN).split(' ')), []) : props.data.map(v => v.name)
         ) as string).length;
 
         const ref = React.useRef(null);
-
         React.useEffect(() => {
             if (ref.current) {
                 console.log('ref size: ', ref.current.offsetWidth, ref.current.offsetHeight)
             }
         });
-
         const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
-
         return (
             <S.Chart ref={ref}>
                 <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={minTileHeight} >
@@ -121,18 +112,6 @@ export function init(
 
     const FreqBarTile:React.FC<FreqBarModelState & CoreTileComponentProps> = (props) => {
 
-        const chartsRef:React.RefObject<HTMLDivElement> = React.useRef(null);
-
-        const handleScroll = () => {
-            dispatcher.dispatch<typeof Actions.SetActiveBlock>({
-                name: Actions.SetActiveBlock.name,
-                payload: {
-                    idx: Math.round(chartsRef.current.scrollLeft / 100), // TODO !!!
-                    tileId: props.tileId
-                }
-            });
-        };
-
         const freqData = List.head(props.freqData);
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
@@ -143,18 +122,16 @@ export function init(
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.FreqBarTile>
                     {props.isAltViewMode ?
-                        <>
+                        <S.Tables>
                             <h3  style={{textAlign: 'center'}}>{props.label}</h3>
                             <TableView data={freqData.rows}/>
-                        </> :
-                        <S.Charts $incomplete={props.isBusy} ref={chartsRef} onScroll={handleScroll}>
+                        </S.Tables> :
+                        <>
                             {freqData.rows.length > 0 ?
-                                <Chart tileId={props.tileId} data={freqData.rows}
-                                        width={props.tileBoxSize[0]} height={props.tileBoxSize[1]}
-                                        isMobile={props.isMobile} /> :
+                                <Chart tileId={props.tileId} data={freqData.rows} isMobile={props.isMobile} /> :
                                 <p className="note" style={{textAlign: 'center'}}>{ut.translate('freqBar__no_result')}</p>
                             }
-                        </S.Charts>
+                        </>
                     }
                 </S.FreqBarTile>
             </globComponents.TileWrapper>
