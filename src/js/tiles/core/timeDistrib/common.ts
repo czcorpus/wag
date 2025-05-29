@@ -34,8 +34,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     posQueryGenerator:[string, string];
 
-    subcBacklinkLabel?:{[subc:string]:string};
-
     showMeasuredFreq?:boolean;
 }
 

@@ -80,7 +80,6 @@ export interface TimeDistribModelState {
     units:string;
     zoom:[number, number];
     loadingStatus:LoadingStatus;
-    subcBacklinkLabel:{[subc:string]:string};
 }
 
 

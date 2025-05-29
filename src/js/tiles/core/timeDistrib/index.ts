@@ -94,7 +94,6 @@ export class TimeDistTile implements ITileProvider {
                 fcrit: conf.fcrit,
                 mainBacklinks: List.map(_ => null, queryMatches),
                 cmpBacklink: null,
-                subcBacklinkLabel: conf.subcBacklinkLabel || {},
                 averagingYears: 0,
                 units: '%',
             },
