@@ -487,7 +487,7 @@
                 },
                 "targetLanguages": {
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/TranslatLanguage"
                     },
                     "type": "array"
                 },
@@ -30266,6 +30266,21 @@
                 "prefix",
                 "server",
                 "username"
+            ],
+            "type": "object"
+        },
+        "TranslatLanguage": {
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "label"
             ],
             "type": "object"
         }
