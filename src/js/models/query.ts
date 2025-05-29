@@ -251,7 +251,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
         const errors = this.queryValidator.validateQuery(
             state.queries[idx].value,
-            state.multiWordQuerySupport[state.queryType] || 1
+            state.multiWordQuerySupport || 1
         );
         state.queries[idx] = Forms.updateFormInput(state.queries[idx], {isValid: errors.length === 0});
         state.errors.push(...errors);

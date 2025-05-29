@@ -39,17 +39,17 @@ describe('HtmlTile model', function () {
         htmlApiStub = sinon.createStubInstance(
             RawHtmlAPI,
             {
-                call: sinon.stub<[any, any, HtmlApiArgs], Observable<string>>().callsFake(
-                    (streaming, _, args) => {
-                        return args.variant === 'anything' ?
+                call: sinon.stub<[any, number, number, HtmlApiArgs], Observable<string>>().callsFake(
+                    (dataStream, tileId, queryIdx, queryArgs) => {
+                        return queryArgs.query === 'anything' ?
                             rxOf('fake html response') :
                             rxOf('invalid html response');
                     }
                 ),
                 stateToArgs: sinon.stub<[{lemmaArg:string, args:{[key:string]:string}}, string], HtmlApiArgs>().callsFake(
-                    (args, variant) => {
+                    (state, query) => {
                         return {
-                            variant
+                            query
                         }
                     }
                 )

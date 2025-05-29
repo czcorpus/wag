@@ -58,9 +58,9 @@ export class TestModelWrapper<T extends IModel<U>, U> {
      * @param checkState function to check model state or called appServices
      */
     checkState(evokeAction:Action, checkActionName:string,
-                checkState:(state:U, appServicesStub?:sinon.SinonStubbedInstance<IAppServices>) => void) {
+                checkState:(state:U, appServicesStub:sinon.SinonStubbedInstance<IAppServices>) => void) {
         this.model.addListener(state => {
-            if (this.lastAction === checkActionName) {
+            if (this.lastAction === checkActionName && state !== undefined) {
                 checkState(state, this.appServicesStub);
             }
         });
