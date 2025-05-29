@@ -25,7 +25,7 @@ import { of as rxOf } from 'rxjs';
 
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query.js';
 import { QueryType, QueryMatch } from '../../src/js/query/index.js';
-import { PoSValues, UPoSValues } from '../../src/js/postag.js';
+import { PosItem, PoSValues, UPoSValues } from '../../src/js/postag.js';
 import { Forms } from '../../src/js/page/forms.js';
 import { SystemMessageType } from '../../src/js/types.js';
 import { Actions } from '../../src/js/models/actions.js';
@@ -34,9 +34,9 @@ import { Actions } from '../../src/js/models/actions.js';
 describe('QueryFormModel', function () {
     function setupModel(initialStateOverrides = {}):TestModelWrapper<QueryFormModel, QueryFormModelState> {
         const initialQueryMatches = [[
-            {word: 'test', lemma: 'test', upos: [], pos: [], isCurrent: true} as QueryMatch,
-            {word: 'test', lemma: 'test', upos: [{value: UPoSValues.VERB, label:'verb'}], pos: [{value: PoSValues.VERB, label:'verb'}], isCurrent: false} as QueryMatch
-        ]];
+            {word: 'test', lemma: 'test', upos: [] as PosItem[], pos: [] as PosItem[], isCurrent: true},
+            {word: 'test', lemma: 'test', upos: [{value: UPoSValues.VERB, label:'verb'}], pos: [{value: PoSValues.VERB, label:'verb'}], isCurrent: false},
+        ]] as QueryMatch[][];
 
         return new TestModelWrapper(
             (dispatcher, appServices) => new QueryFormModel(
@@ -44,18 +44,6 @@ describe('QueryFormModel', function () {
                 appServices,
                 {
                     initialQueryType: QueryType.SINGLE_QUERY,
-                    queryDomain: 'cs',
-                    queryDomain2: 'en',
-                    searchDomains: [{
-                        code: 'en',
-                        label: 'English',
-                        queryTypes: [QueryType.SINGLE_QUERY]
-                    }],
-                    targetDomains: {
-                        [QueryType.SINGLE_QUERY]: [],
-                        [QueryType.CMP_QUERY]: [],
-                        [QueryType.TRANSLAT_QUERY]: []
-                    },
                     queries: List.map(
                         (v, i) => Forms.newFormValue(v[0].word || '', i === 0),
                         initialQueryMatches
@@ -69,13 +57,12 @@ describe('QueryFormModel', function () {
                     modalSelections: [],
                     queryMatches: initialQueryMatches,
                     isAnswerMode: false,
-                    multiWordQuerySupport: {
-                        [QueryType.SINGLE_QUERY]: 1,
-                        [QueryType.CMP_QUERY]: 2,
-                        [QueryType.TRANSLAT_QUERY]: 1,
-                    },
+                    multiWordQuerySupport: 1,
+                    mainPosAttr: 'pos',
+                    availQueryTypes: [QueryType.SINGLE_QUERY, QueryType.CMP_QUERY, QueryType.TRANSLAT_QUERY],
+                    currTranslatLanguage: 'en',
+                    translatLanguages: [{code: 'en', label: 'English'}],
                     ...initialStateOverrides,
-                    mainPosAttr: 'pos'
                 }
             ),
             {
@@ -91,37 +78,6 @@ describe('QueryFormModel', function () {
 
     this.afterEach(function () {
         sinon.restore();
-    });
-
-    describe('domain change', function () {
-        it('changes target domain', function (done) {
-            setupModel({queryDomain: 'cs', queryDomain2: 'en'})
-            .checkState(
-                {name: Actions.ChangeTargetDomain.name, payload: {domain1: 'sk', domain2: 'pl', queryType: QueryType.SINGLE_QUERY}},
-                Actions.ChangeTargetDomain.name,
-                state => {
-                    assert.equal(state.queryDomain, 'sk');
-                    assert.equal(state.queryDomain2, 'pl');
-                    assert.equal(window.location.href, '')
-                    done();
-                }
-            );
-        });
-
-        it('submits query if in translate query type and answer mode', function (done) {
-            setupModel({queryDomain: 'cs', queryDomain2: 'en', isAnswerMode: true})
-            .checkState(
-                {name: Actions.ChangeTargetDomain.name, payload: {domain1: 'cs', domain2: 'pl', queryType: QueryType.TRANSLAT_QUERY}},
-                Actions.ChangeTargetDomain.name,
-                state => {
-                    assert.equal(state.queryDomain, 'cs');
-                    assert.equal(state.queryDomain2, 'pl');
-                    assert.equal(window.location.href, 'query submitted');
-                    assert.lengthOf(state.errors, 0);
-                    done();
-                }
-            );
-        });
     });
 
     describe('query input', function () {
@@ -231,7 +187,7 @@ describe('QueryFormModel', function () {
                 });
 
                 it('has not multiword support', function (done) {
-                    setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}]})
+                    setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}], multiWordQuerySupport: 1})
                     .checkState(
                         {name: Actions.SubmitQuery.name},
                         Actions.SubmitQuery.name,
@@ -246,7 +202,7 @@ describe('QueryFormModel', function () {
                 });
 
                 it('has multiword support', function (done) {
-                    setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}], multiWordQuerySupport: {[QueryType.SINGLE_QUERY]: 2}})
+                    setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}], multiWordQuerySupport: 2})
                     .checkState(
                         {name: Actions.SubmitQuery.name},
                         Actions.SubmitQuery.name,
@@ -274,7 +230,7 @@ describe('QueryFormModel', function () {
                 });
 
                 it('has identical domains (translat)', function (done) {
-                    setupModel({queryType: QueryType.TRANSLAT_QUERY, queryDomain: 'cs', queryDomain2: 'cs'})
+                    setupModel({queryType: QueryType.TRANSLAT_QUERY})
                     .checkState(
                         {name: Actions.SubmitQuery.name},
                         Actions.SubmitQuery.name,
