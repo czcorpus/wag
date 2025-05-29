@@ -24,29 +24,6 @@ export const FreqBarTile = styled.div`
     min-height: 15em;
 `;
 
-export const Charts = styled.div<{$incomplete:boolean}>`
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: ${props => props.$incomplete ? 'flex-start' : 'space-between'};
-    flex-wrap: nowrap;
+export const Tables = styled.div`
     overflow-x: auto;
-    overflow-y: hidden;
-
-    & > *:not(:last-child) {
-        box-sizing: border-box;
-        margin-right: 10px;
-    }
-
-    h3 {
-        margin: 0 0 1.5em 0;
-        text-align: center;
-        font-weight: normal;
-    }
-`;
-
-
-export const Chart = styled.div`
-    width: 100%;
-    height: 100%;
 `;

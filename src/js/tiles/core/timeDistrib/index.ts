@@ -94,7 +94,6 @@ export class TimeDistTile implements ITileProvider {
                 fcrit: conf.fcrit,
                 mainBacklinks: List.map(_ => null, queryMatches),
                 cmpBacklink: null,
-                subcBacklinkLabel: conf.subcBacklinkLabel || {},
                 averagingYears: 0,
                 units: '%',
             },
@@ -127,7 +126,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -187,6 +186,9 @@ export const init:TileFactory<TimeDistTileConf> = {
         }
         return ans;
     },
-
-    create: (args) => new TimeDistTile(args)
+    
+    create: (args) => {
+        console.log(args);
+        return new TimeDistTile(args);
+    }
 };

@@ -25,9 +25,14 @@ import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { SystemMessageType } from '../../../types.js';
+import { mergeMap, Observable } from 'rxjs';
+import { List, pipe, tuple } from 'cnc-tskit';
+import { callWithExtraVal } from '../../../api/util.js';
 
 
 export interface FreqDataBlock {
+    word:string;
+    isReady:boolean;
     rows:Array<DataRow>;
 }
 
@@ -45,13 +50,13 @@ export interface FreqBarModelState {
     fpage:number;
     fmaxitems?:number;
     concId?:string;
-    freqData:FreqDataBlock;
-    activeBlock:number;
-    backlink:Backlink;
+    freqData:Array<FreqDataBlock>;
+    backlinks:Array<Backlink>;
     subqSyncPalette:boolean;
     isAltViewMode:boolean;
     isBusy:boolean;
     error:string;
+    pixelsPerCategory:number;
 }
 
 export interface FreqBarModelArgs {
@@ -67,13 +72,15 @@ export interface FreqBarModelArgs {
 
 export class FreqBarModel extends StatefulModel<FreqBarModelState> {
 
-    protected api:MQueryFreqDistribAPI;
+    readonly CHART_LABEL_MAX_LEN = 20;
 
-    protected readonly appServices:IAppServices;
+    private readonly api:MQueryFreqDistribAPI;
 
-    protected readonly tileId:number;
+    private readonly appServices:IAppServices;
 
-    protected readonly queryMatches:Array<QueryMatch>;
+    private readonly tileId:number;
+
+    private readonly queryMatches:Array<QueryMatch>;
 
     constructor({
         dispatcher,
@@ -125,22 +132,56 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
             action => {
                 this.changeState(
                     state => {
+                        List.forEach(item => {item.isReady = false;}, state.freqData);
                         state.isBusy = true;
                         state.error = null;
                     }
                 );
-                this.api.call(
-                    this.appServices.dataStreaming(),
-                    this.tileId,
-                    0,
-                    this.stateToArgs(this.queryMatches[0])
 
+                new Observable<[MQueryFreqArgs, {queryIdx:number;}]>((observer) => {
+                    try {
+                        pipe(
+                            this.queryMatches,
+                            List.map((currMatch, queryIdx) =>
+                                tuple(
+                                    this.stateToArgs(currMatch),
+                                    {
+                                        queryIdx,
+                                    },
+                                )
+                            ),
+                            List.forEach(args => observer.next(args)),
+                        );
+                        observer.complete();
+        
+                    } catch (e) {
+                        observer.error(e);
+                    }
+        
+                }).pipe(
+                    mergeMap(([args, pass]) =>
+                        callWithExtraVal(
+                            this.appServices.dataStreaming(),
+                            this.api,
+                            this.tileId,
+                            pass.queryIdx,
+                            args,
+                            pass,
+                        )
+                    ),
                 ).subscribe({
-                    next: data => {
+                    next: ([data, pass]) => {
                         this.changeState(
                             state => {
-                                state.freqData.rows = data.data;
-                                state.backlink = this.api.getBacklink(0);
+                                state.freqData[pass.queryIdx].rows = data.data;
+                                state.freqData[pass.queryIdx].isReady = true;
+                                state.backlinks[pass.queryIdx] = this.api.getBacklink(pass.queryIdx);
+                            }
+                        )
+                    },
+                    complete: () => {
+                        this.changeState(
+                            state => {
                                 state.isBusy = false;
                             }
                         )
@@ -148,56 +189,15 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                     error: error => {
                         this.changeState(
                             state => {
+                                state.freqData = List.map(match => ({word: match.word, isReady: true, rows: []}), this.queryMatches);
+                                state.backlinks = List.map(_ => null, this.queryMatches);
+                                state.error = this.appServices.normalizeHttpApiError(action.error);
                                 state.isBusy = false;
                             }
                         )
                         this.appServices.showMessage(SystemMessageType.ERROR, error);
                     }
                 });
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.SetActiveBlock,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.activeBlock = action.payload.idx;
-                    }
-                );
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.TileDataLoaded,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                if (action.error) {
-                    this.changeState(
-                        state => {
-                            state.freqData = {rows: []};
-                            state.error = this.appServices.normalizeHttpApiError(action.error);
-                            state.isBusy = false;
-                        }
-                    );
-
-                } else {
-                    this.changeState(
-                        state => {
-                            state.freqData = {
-                                rows: action.payload.data ?
-                                    action.payload.data.map(v => ({
-                                        name: this.appServices.translateResourceMetadata(state.corpname, v.name),
-                                        freq: v.freq,
-                                        ipm: v.ipm,
-                                        norm: v.norm
-                                    })) : null
-                            };
-                            state.isBusy = false;
-                        }
-                    );
-                }
             }
         );
 
@@ -239,7 +239,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
             GlobalActions.FollowBacklink,
             action => action.payload.tileId === this.tileId,
             action => {
-                const args = this.stateToArgs(this.queryMatches[0]);
+                const args = this.stateToArgs(this.queryMatches[action.payload.backlink.queryId]);
                 this.api.requestBacklink(args).subscribe({
                     next: url => {
                         window.open(url.toString(),'_blank');

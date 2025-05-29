@@ -96,8 +96,20 @@
         "conf_name": "SpeechesTileConf"
       },
       {
+        "path": "core/syntacticColls",
+        "conf_name": "SyntacticCollsTileConf"
+      },
+      {
         "path": "core/timeDistrib",
         "conf_name": "TimeDistTileConf"
+      },
+      {
+        "path": "core/translations",
+        "conf_name": "TranslationsTileConf"
+      },
+      {
+        "path": "core/treqSubsets",
+        "conf_name": "TreqSubsetsTileConf"
       },
       {
         "path": "core/wordForms",
@@ -110,10 +122,6 @@
       {
         "path": "core/wordSim",
         "conf_name": "WordSimTileConf"
-      },
-      {
-        "path": "core/syntacticColls",
-        "conf_name": "SyntacticCollsTileConf"
       }
     ]
   }

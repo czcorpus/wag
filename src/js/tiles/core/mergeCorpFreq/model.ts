@@ -96,7 +96,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             Actions.PartialTileDataLoaded,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.backlinks.push(this.freqApi.getBacklink(action.payload.queryId, action.payload.sourceIdx));
+                state.backlinks[action.payload.sourceIdx] = this.freqApi.getBacklink(action.payload.queryId, action.payload.sourceIdx);
                 if (state.data[action.payload.queryId] === undefined) {
                     state.data[action.payload.queryId] = [];
                 }

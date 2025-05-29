@@ -19,15 +19,17 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
     TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { FreqBarModel } from './model.js';
-import { init as viewInit } from './view.js';
+import { init as singleViewInit } from './views/single.js';
+import { init as compareViewInit } from './views/compare.js';
 import { findCurrentMatches } from '../wordFreq/model.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import { List } from 'cnc-tskit';
 
 
 export interface FreqBarTileConf extends TileConf {
@@ -40,6 +42,7 @@ export interface FreqBarTileConf extends TileConf {
     flimit:number;
     fpage:number;
     matchCase:boolean;
+    pixelsPerCategory?:number;
 
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
@@ -72,7 +75,7 @@ export class FreqBarTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy,
-        useDataStream, readDataFromTile, queryMatches
+        useDataStream, readDataFromTile, queryMatches, queryType
     }:TileFactoryArgs<FreqBarTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -91,8 +94,7 @@ export class FreqBarTile implements ITileProvider {
             initState: {
                 isBusy,
                 error: null,
-                freqData: {rows: []},
-                activeBlock: 0,
+                freqData: List.map(match => ({word: findCurrQueryMatch(match).word, isReady: false, rows: []}), queryMatches),
                 tileBoxSize: [100, 100],
                 corpname: conf.corpname,
                 subcname: conf.subcname,
@@ -105,13 +107,16 @@ export class FreqBarTile implements ITileProvider {
                 flimit: conf.flimit,
                 fpage: conf.fpage,
                 fmaxitems: 100,
-                backlink: null,
+                backlinks: List.map(_ => null, queryMatches),
                 subqSyncPalette: false,
-                isAltViewMode: false
+                isAltViewMode: false,
+                pixelsPerCategory: conf.pixelsPerCategory || 30
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');
-        this.view = viewInit(this.dispatcher, ut, theme, this.model);
+        this.view = queryType === QueryType.CMP_QUERY ?
+            compareViewInit(this.dispatcher, ut, theme, this.model) :
+            singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getIdent():number {
@@ -131,7 +136,7 @@ export class FreqBarTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
