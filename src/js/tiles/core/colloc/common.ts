@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { SubqueryPayload, QueryMatch } from '../../../query/index.js';
+import { SubqueryPayload, QueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 import { Line } from '../../../api/vendor/mquery/concordance/common.js';
@@ -158,6 +158,8 @@ export interface CollocModelState {
     citemsperpage:number;
 
     backlinks:Array<Backlink>;
+
+    queryMatches:Array<QueryMatch>;
 
     posQueryGenerator:[string, string];
 }
