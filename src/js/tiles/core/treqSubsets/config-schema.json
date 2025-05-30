@@ -13,9 +13,6 @@
         "primaryPackage": {
             "type": "string"
         },
-        "defaultSecondaryPackage": {
-            "type": "string"
-        },
         "apiURL": {
             "type": "string"
         },
@@ -83,7 +80,6 @@
     },
     "required": [
         "apiURL",
-        "defaultSecondaryPackage",
         "primaryPackage",
         "srchPackages",
         "tileType"
