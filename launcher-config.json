@@ -62,7 +62,6 @@
     "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
     "server": [
       "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
-      "ajv -s ./conf/server-schema.json -d $SERVER_CONF",
       "node dist-server/service.js"
     ],
     "test": "npm test"

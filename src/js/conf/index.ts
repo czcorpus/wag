@@ -184,6 +184,7 @@ export interface DataReadabilityMapping {
  * configuration file.
  */
 export interface ClientStaticConf {
+    import?:string; // if present, then this is a path to another JSON file
     applicationId:string;
     rootUrl:string;
     hostUrl:string;
@@ -451,6 +452,7 @@ export interface GroupedAuth {
  * Server side app configuration.
  */
 export interface ServerConf {
+    import?:string; // if present, then this is a path to another JSON file
     address:string;
     port:number;
     distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
