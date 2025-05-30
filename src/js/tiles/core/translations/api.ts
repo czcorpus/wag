@@ -61,7 +61,7 @@ interface HTTPResponseLine {
     to:string;
 }
 
-interface HTTPResponse {
+export interface HTTPResponse {
     sum:number;
     lines:Array<HTTPResponseLine>;
 }
@@ -121,13 +121,13 @@ export interface TranslationsModelState {
 
 export class TreqAPICommon {
 
-    private readonly apiURL:string;
+    protected readonly apiURL:string;
 
     private readonly titleI18n:{[lang:string]:string};
 
     private readonly descI18n:{[lang:string]:string};
 
-    private readonly appServices:IAppServices;
+    protected readonly appServices:IAppServices;
 
     protected readonly backlinkConf:BacklinkConf;
 
@@ -178,7 +178,7 @@ export class TreqAPICommon {
         });
     }
 
-    private mergeByLowercase(lines:Array<WordTranslation>):Array<WordTranslation> {
+    protected mergeByLowercase(lines:Array<WordTranslation>):Array<WordTranslation> {
         return Object.values<WordTranslation>(lines.reduce(
             (acc, curr) => {
                 if (!(curr.firstTranslatLc in acc)) {
@@ -206,7 +206,29 @@ export class TreqAPICommon {
         )).sort((x1, x2) => x2.score - x1.score);
     }
 
+
+
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        if (this.backlinkConf) {
+            return {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'Treq',
+            }
+        }
+        return null;
+    }
+}
+
+
+export class TreqAPI extends TreqAPICommon {
+
+    constructor(apiURL:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
+        super(apiURL, appServices, backlinkConf);
+    }
+
     call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
+        console.log('calling with ', streaming, tileId, queryIdx)
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         const source = streaming ?
@@ -249,25 +271,6 @@ export class TreqAPICommon {
                 }
             )
         );
-    }
-
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf) {
-            return {
-                queryId,
-                subqueryId,
-                label: this.backlinkConf.label || 'Treq',
-            }
-        }
-        return null;
-    }
-}
-
-
-export class TreqAPI extends TreqAPICommon {
-
-    constructor(apiURL:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
-        super(apiURL, appServices, backlinkConf);
     }
 
     requestBacklink(state:TranslationsModelState, query:string):URL {

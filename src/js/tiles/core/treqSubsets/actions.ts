@@ -27,10 +27,7 @@ export interface DataLoadedPayload extends SubqueryPayload {
 }
 
 export interface PartialDataLoadedPayload {
-    query:string;
-    lines:Array<WordTranslation>;
-    sum:number;
-    subsetId:string|null;
+    subsets:{[subsetId:string]:Array<WordTranslation>};
 }
 
 

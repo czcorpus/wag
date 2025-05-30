@@ -26,6 +26,7 @@ import {init as viewInit} from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
 import { TreqAPI } from '../translations/api.js';
+import { TreqSubsetsAPI } from './api.js';
 
 
 export interface PackageGroup {
@@ -37,7 +38,6 @@ export interface PackageGroup {
 export interface TreqSubsetsTileConf extends TileConf {
     srchPackages:{[lang:string]:Array<PackageGroup>};
     primaryPackage:string;
-    defaultSecondaryPackage:string;
     apiURL:string;
     minItemFreq?:number;
 }
@@ -61,7 +61,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, theme, ut, widthFract, readDataFromTile,
-        queryMatches, conf, isBusy
+        queryMatches, conf, isBusy, translatLanguage
     }:TileFactoryArgs<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -71,7 +71,7 @@ export class TreqSubsetsTile implements ITileProvider {
             appServices,
             initialState: {
                 lang1: conf.primaryPackage,
-                lang2: conf.defaultSecondaryPackage,
+                lang2: translatLanguage,
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -83,17 +83,17 @@ export class TreqSubsetsTile implements ITileProvider {
                         packages: [...v.packages],
                         isPending: false
                     }),
-                    conf.srchPackages[conf.defaultSecondaryPackage] || []
+                    conf.srchPackages[translatLanguage] || []
                 ),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
                 colorMap: {},
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ,
                 backlinkConf: conf.backlink,
-                backlinks: List.map(_ => null, conf.srchPackages[conf.defaultSecondaryPackage] || []),
+                backlinks: List.map(_ => null, conf.srchPackages[translatLanguage] || []),
             },
             tileId,
-            api: new TreqAPI(conf.apiURL, appServices, conf.backlink),
+            api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
             getColorsFromTile: readDataFromTile
         });

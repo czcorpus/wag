@@ -19,16 +19,16 @@
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { mkInterctionId, RequestArgs, TreqAPI, WordTranslation } from '../translations/api.js';
+import { mkInterctionId, RequestArgs } from '../translations/api.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { callWithExtraVal } from '../../../api/util.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
-import { mergeMap, reduce, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { isTranslationsPayload } from '../translations/actions.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { filterByMinFreq, TreqSubsetsAPI, WordTranslation } from './api.js';
 
 
 
@@ -132,7 +132,7 @@ export interface TreqSubsetModelArgs {
     appServices:IAppServices;
     initialState:TranslationsSubsetsModelState;
     tileId:number;
-    api:TreqAPI;
+    api:TreqSubsetsAPI;
     queryMatches:RecognizedQueries;
     getColorsFromTile:number;
 }
@@ -145,7 +145,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly tileId:number;
 
-    private readonly api:TreqAPI;
+    private readonly api:TreqSubsetsAPI;
 
     private readonly queryMatches:RecognizedQueries;
 
@@ -175,77 +175,37 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
-                state.subsets = List.map(
-                    v => ({
-                        ident: v.ident,
-                        label: v.label,
-                        packages: v.packages,
-                        translations: v.translations
-                    }),
-                    state.subsets
-                );
             },
             (state, action, dispatch) => {
                 const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
-                rxOf(...state.subsets).pipe(
-                    mergeMap(subset =>
-                        callWithExtraVal(
-                            this.appServices.dataStreaming(),
-                            this.api,
-                            this.tileId,
-                            0,
-                            this.stateToArgs(
-                                state,
-                                srchLemma.lemma,
-                                subset.packages
-                            ),
-                            subset.ident
-                        )
-                    ),
+                this.api.call(
+                    this.appServices.dataStreaming(),
+                    this.tileId,
+                    0,
+                    this.stateToArgs(
+                        state,
+                        srchLemma.lemma,
+                    )
+                ).pipe(
                     tap(
-                        ([data, reqId]) => {
+                        (data) => {
                             dispatch<typeof Actions.PartialTileDataLoaded>({
                                 name: Actions.PartialTileDataLoaded.name,
                                 payload: {
                                     tileId: this.tileId,
-                                    query: srchLemma.word, // TODO give up
-                                    lines: List.filter(
-                                        v => v.freq >= state.minItemFreq,
-                                        data.translations
-                                    ),
-                                    sum: List.reduce(
-                                        (acc, curr) => acc + curr.freq,
-                                        0,
-                                        data.translations
-                                    ),
-                                    subsetId: reqId
+                                    subsets: filterByMinFreq(data.subsets, state.minItemFreq)
                                 }
                             });
                         }
-                    ),
-                    reduce(
-                        (acc, [resp,]) => ({
-                            isEmpty: acc.isEmpty && resp.translations.length === 0,
-                            translations: {
-                                ...acc.translations,
-                                ...pipe(
-                                    resp.translations,
-                                    List.flatMap(t => t.translations),
-                                    List.map(t => tuple(t, true)),
-                                    Dict.fromEntries()
-                                )
-                            }
-                        }),
-                        {isEmpty: true, translations: {} as {[k:string]:boolean} }
                     )
 
                 ).subscribe({
-                    next: ({isEmpty, translations}) => {
+                    next: (translations) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty,
+                                isEmpty: Dict.every(x => x.length === 0, translations.subsets),
                                 queryIdx: 0,
                                 translatLanguage: state.lang2,
                                 subqueries: pipe(
@@ -323,29 +283,32 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             Actions.PartialTileDataLoaded,
             action => this.tileId === action.payload.tileId,
             (state, action) => {
-                const srchIdx = state.subsets.findIndex(v => v.ident === action.payload.subsetId);
-                if (srchIdx > -1) {
-                    const val = state.subsets[srchIdx];
-                    state.subsets[srchIdx] = {
-                        ident: val.ident,
-                        label: val.label,
-                        packages: val.packages,
-                        translations: List.map(
-                            tran => ({
-                                freq: tran.freq,
-                                score: tran.score,
-                                word: tran.word,
-                                translations: tran.translations,
-                                firstTranslatLc: tran.firstTranslatLc,
-                                interactionId: tran.interactionId,
-                                color: state.colorMap[tran.firstTranslatLc] || TreqSubsetModel.UNMATCHING_ITEM_COLOR
-                            }),
-                            action.payload.lines
-                        )
-                    };
-                    this.mkWordUnion(state);
-                    state.backlinks[srchIdx] = this.api.getBacklink(0, srchIdx);
-                }
+                Dict.forEach(
+                    (translations, subsetId) => {
+                        const srchIdx = List.findIndex(v => v.ident === subsetId, state.subsets);
+                        const val = state.subsets[srchIdx];
+                        state.subsets[srchIdx] = {
+                            ident: val.ident,
+                            label: val.label,
+                            packages: val.packages,
+                            translations: List.map(
+                                tran => ({
+                                    freq: tran.freq,
+                                    score: tran.score,
+                                    word: tran.word,
+                                    translations: tran.translations,
+                                    firstTranslatLc: tran.firstTranslatLc,
+                                    interactionId: tran.interactionId,
+                                    color: state.colorMap[tran.firstTranslatLc] || TreqSubsetModel.UNMATCHING_ITEM_COLOR
+                                }),
+                                translations
+                            )
+                        };
+                        this.mkWordUnion(state);
+                        state.backlinks[srchIdx] = this.api.getBacklink(0, srchIdx);
+                    },
+                    action.payload.subsets
+                );
             }
         );
 
@@ -431,19 +394,28 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
         );
     }
 
-    private stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
-        return {
-            from: state.lang1,
-            to: state.lang2,
-            multiword: query.split(' ').length > 1,
-            regex: false,
-            lemma: true,
-            ci: true,
-            'pkgs[i]': packages,
-            query: query,
-            order: 'perc',
-            asc: false,
-        };
+    private stateToArgs(state:TranslationsSubsetsModelState, query:string):{[subsetId:string]:RequestArgs} {
+        return pipe(
+            state.subsets,
+            List.map(
+                subset => tuple(
+                    subset.ident,
+                    {
+                        from: state.lang1,
+                        to: state.lang2,
+                        multiword: query.split(' ').length > 1,
+                        regex: false,
+                        lemma: true,
+                        ci: true,
+                        'pkgs[i]': subset.packages,
+                        query: query,
+                        order: 'perc',
+                        asc: false,
+                    }
+                )
+            ),
+            Dict.fromEntries()
+        )
     }
 
     private requestBacklink(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):URL {

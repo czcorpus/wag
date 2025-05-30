@@ -16,8 +16,9 @@
       "typescript-json-schema src/js/conf/index.ts DataReadabilityMapping --ignoreErrors --out conf/dataReadability-schema.json --required --strictNullChecks"
     ],
     "schemata:check-conf": [
+      "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
       "_CONFIG_PATH=\"$(node -pe '\"$CONFIG_PATH\" || \"./conf\"')\"",
-      "ajv --allow-union-types --all-errors -s \"${_CONFIG_PATH}/server-schema.json\" -d ./conf/server.json",
+      "ajv --allow-union-types --all-errors -s \"${_CONFIG_PATH}/server-schema.json\" -d ${SERVER_CONF}",
       "ajv -s \"${_CONFIG_PATH}/wdglance-schema.json\" -d ./conf/wdglance.json",
       "LAYOUTS_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(process.env.CONFIG_PATH || \"./conf\" + \"/wdglance.json\", \"utf8\")).layouts')\"",
       "if test -f $LAYOUTS_PATH 2> /dev/null; then ajv -s ./conf/layouts-schema.json -d $LAYOUTS_PATH ; else echo \"layouts config file not found\"; fi",
@@ -60,7 +61,8 @@
     "create:tile-conf": "tsx ./scripts/create-tile-conf.ts $1",
     "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
     "server": [
-      "ajv -s ./conf/server-schema.json -d ./conf/server.json",
+      "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
+      "ajv -s ./conf/server-schema.json -d $SERVER_CONF",
       "node dist-server/service.js"
     ],
     "test": "npm test"

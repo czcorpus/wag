@@ -217,7 +217,7 @@
                 },
                 "targetLanguages": {
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/TranslatLanguage"
                     },
                     "type": "array"
                 },
@@ -259,6 +259,21 @@
                 "upos"
             ],
             "type": "string"
+        },
+        "TranslatLanguage": {
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "label"
+            ],
+            "type": "object"
         }
     },
     "properties": {
