@@ -133,7 +133,10 @@ export function init(
             <select className={`translat-lang-selector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.translatLanguages.map(v => <option key={v.code} value={v.code}>{v.label}</option>)}
+                {List.map(
+                    v => <option key={v.code} value={v.code}>{v.label}</option>,
+                    props.translatLanguages
+                )}
             </select>
         );
     };
@@ -305,11 +308,11 @@ export function init(
             });
         };
 
-        const handleTranslatLangChange = (primary:boolean) => (domain:string) => {
+        const handleTranslatLangChange = (lang:string) => {
             dispatcher.dispatch<typeof Actions.ChangeTranslatLanguage>({
                 name: Actions.ChangeTranslatLanguage.name,
                 payload: {
-                    lang: props.translatLang
+                    lang
                 }
             });
         };
@@ -348,7 +351,7 @@ export function init(
                         <span className="arrow">{'\u25B6'}</span>
                         <TranslationLangSelector value={props.translatLang} translatLanguages={props.translatLanguages}
                                 htmlClass="secondary"
-                                onChange={handleTranslatLangChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
+                                onChange={handleTranslatLangChange} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}

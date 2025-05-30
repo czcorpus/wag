@@ -67,6 +67,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.queryValidator = new QueryValidator(this.appServices);
+
         this.addActionHandler(
             Actions.ChangeQueryInput,
             (state, action) => {
