@@ -63,7 +63,7 @@ export class ConcordanceTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryType, queryMatches,
-        widthFract, conf, isBusy, useDataStream, readDataFromTile
+        widthFract, conf, isBusy, readDataFromTile
     }:TileFactoryArgs<ConcordanceTileConf>
     ) {
         this.tileId = tileId;

@@ -464,7 +464,9 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                 streaming.registerTileRequest<collWithExamplesResponse>(
                     {
                         tileId: this.tileId,
+                        queryIdx: 0, // TODO
                         otherTileId: this.readDataFromTile,
+                        otherTileQueryIdx: 0, // TODO
                         contentType: 'application/json',
                     }
                 ).pipe(

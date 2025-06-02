@@ -120,20 +120,21 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         )
     }
 
-    private prepareCollWithExArgs(queryArgs:MQueryCollArgs):string {
+    private prepareCollWithExArgs(queryArgs:MQueryCollArgs, event:string):string {
         return this.prepareArgs({
             ...queryArgs,
-            examplesPerColl: 2
+            examplesPerColl: 2,
+            event
         });
     }
 
-    private mkUrl(args:MQueryCollArgs):string {
+    private mkUrl(args:MQueryCollArgs, event:string):string {
         return this.useWithExamplesVariant ?
             urlJoin(
                 this.apiURL,
                 'collocations-with-examples',
                 args.corpusId
-            ) + `?${this.prepareCollWithExArgs(args)}` :
+            ) + `?${this.prepareCollWithExArgs(args, event)}` :
             urlJoin(
                 this.apiURL,
                 'collocations',
@@ -148,8 +149,9 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                     tileId,
                     queryIdx,
                     method: HTTP.Method.GET,
-                    url: args ? this.mkUrl(args) : '',
+                    url: args ? this.mkUrl(args, `DataTile-${tileId}.${queryIdx}`) : '',
                     body: {},
+                    isEventSource: this.useWithExamplesVariant,
                     contentType: 'application/json',
                 }
             ).pipe(

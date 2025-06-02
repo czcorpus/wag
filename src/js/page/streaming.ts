@@ -384,7 +384,14 @@ export class DataStreaming implements IDataStreaming {
         );
         return this.responseStream.pipe(
             filter(
-                (response:EventItem<T>) => response.tileId === normEntry.tileId && response.queryIdx === normEntry.queryIdx
+                (response:EventItem<T>) => {
+                    if (isOtherTileRequest(normEntry)) {
+                        return response.tileId === normEntry.otherTileId && response.queryIdx === normEntry.otherTileQueryIdx;
+
+                    } else {
+                        return response.tileId === normEntry.tileId && response.queryIdx === normEntry.queryIdx;
+                    }
+                }
             ),
             map(response => {
                 if (response.error) {
