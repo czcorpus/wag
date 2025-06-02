@@ -102,5 +102,12 @@ export class ProcTranslationsPlugin {
 
 
 export function loadConf(path) {
-    return JSON.parse(fs.readFileSync(path, 'utf-8'));
+    const conf = JSON.parse(fs.readFileSync(path, 'utf-8'));
+    if (conf['import']) {
+        console.log('Importing configuration from:', conf.import);
+        const importedConf = JSON.parse(fs.readFileSync(conf['import'], 'utf-8'));
+        Object.assign(importedConf, conf);
+        return importedConf;
+    }
+    return conf;
 };

@@ -42,6 +42,13 @@ interface StoredTileConf {
 }
 
 /**
+ * Checks if the given object has an `import` property.
+ */
+function isPartialConf<T>(obj: Partial<T>): obj is Partial<T> & { 'import': string } {
+    return obj['import'] !== undefined;
+}
+
+/**
  * Load a locally stored general JSON file.
  */
 export function parseJsonConfig<T>(confPath:string):Observable<T> {
@@ -53,8 +60,24 @@ export function parseJsonConfig<T>(confPath:string):Observable<T> {
                     observer.error(new Error(`Failed to read file ${confPath}: ${err}`));
 
                 } else {
-                    observer.next(JSON.parse(data) as T);
-                    observer.complete();
+                    const conf = JSON.parse(data) as Partial<T>;
+                    if (isPartialConf(conf)) {
+                        console.info(`Loading import configuration ${conf.import}`);
+                        fs.readFile(conf.import, 'utf8', (importErr, importData) => {
+                            if (importErr) {
+                                observer.error(new Error(`Failed to read imported file ${conf.import}: ${importErr}`));
+
+                            } else {
+                                const importedConf = JSON.parse(importData) as T;
+                                observer.next(Object.assign(importedConf, conf));
+                                observer.complete();
+                            }
+                        });
+                    
+                    } else {
+                        observer.next(conf as T);
+                        observer.complete();
+                    }
                 }
             });
 

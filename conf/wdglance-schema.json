@@ -30347,6 +30347,9 @@
             },
             "type": "object"
         },
+        "import": {
+            "type": "string"
+        },
         "issueReportingUrl": {
             "type": "string"
         },

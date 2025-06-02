@@ -175,6 +175,9 @@
         "freqDB": {
             "$ref": "#/definitions/WordDbConf"
         },
+        "import": {
+            "type": "string"
+        },
         "langCookie": {
             "$ref": "#/definitions/LangCookieSetup"
         },
