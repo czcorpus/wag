@@ -80,6 +80,7 @@ export interface DataRow {
     interactionId:string;
     examples?:{
         text:Array<Line>;
+        interactionId:string;
         ref:string;
     }
 }

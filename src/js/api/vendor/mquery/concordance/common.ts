@@ -45,6 +45,8 @@ export interface Line {
     ref:string;
     text:Array<Token>;
     metadata:Array<{value:string; label:string}>;
+    interactionId?:string;
+    highlighted?:boolean;
 }
 
 export function getLineLeftCtx(line:Line):Array<Token> {

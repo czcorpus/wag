@@ -203,6 +203,11 @@ export const Row = styled.tr`
 
 
 export const SentRow = styled.tr`
+
+    &.highlighted {
+        background-color: ${theme.colorDataHighlightRow};
+    }
+
     white-space: inherit;
 
     td {

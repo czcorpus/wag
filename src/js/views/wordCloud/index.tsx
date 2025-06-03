@@ -40,16 +40,9 @@ export interface WordCloudProps<T> {
     selectedText?:string;
     underlineWords?:Array<string>;
 }
-interface WordCloudState<T> {
-    data:Array<T>;
-    rects:Array<Rect>;
-    transform:string;
-    activeItem:WordCloudItem|null;
-    tooltipPos:[number,number]|null;
-}
 
 
-export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps<T>, {}> {
+export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.FC<WordCloudProps<T>> {
 
     // -------------------------- <Word /> -----------------------------------------
 
@@ -167,43 +160,27 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
 
     // -------------------------- <WordCloud /> -----------------------------------------
 
-    class WordCloud<T> extends React.Component<WordCloudProps<T>, WordCloudState<T>> {
+    const WordCloud:React.FC<WordCloudProps<T>> = (props) => {
 
-        private readonly chartContainer:React.RefObject<HTMLDivElement>;
 
-        constructor(props) {
-            super(props);
-            this.chartContainer = React.createRef();
-            this.state = {
-                data: this.props.data,
-                rects: [],
-                transform: '',
-                activeItem: null,
-                tooltipPos: [0, 0]
-            };
-            this.handleMouseMove = this.handleMouseMove.bind(this);
-            this.handleMouseOver = this.handleMouseOver.bind(this);
-            this.handleMouseOut = this.handleMouseOut.bind(this);
-        }
+        const chartContainer:React.RefObject<HTMLDivElement> = React.useRef(null);
 
-        handleMouseMove(x:number, y:number, data:WordCloudItem) {
-            this.setState({
-                data: this.state.data,
-                rects: this.state.rects,
-                transform: this.state.transform,
-                activeItem: this.state.activeItem !== data ? data : this.state.activeItem,
-                tooltipPos: [x, y]
+        const [currState, setState] = React.useState<{tooltipPos:[number, number], activeItem:WordCloudItem|undefined}>(
+            {tooltipPos:[0, 0], activeItem: undefined}
+        );
+
+        const handleMouseMove = (x:number, y:number, data:WordCloudItem) => {
+            setState({
+                tooltipPos: [x, y],
+                activeItem: currState.activeItem !== data ? data : currState.activeItem
             });
-        }
+        };
 
-        handleMouseOver(x:number, y:number, data:WordCloudItem) {
-            if (data !== this.state.activeItem) {
-                this.setState({
-                    data: this.state.data,
-                    rects: this.state.rects,
-                    transform: this.state.transform,
-                    activeItem: data,
-                    tooltipPos: [x, y]
+        const handleMouseOver = (x:number, y:number, data:WordCloudItem) => {
+            if (data !== currState.activeItem) {
+                setState({
+                    tooltipPos: [x, y],
+                    activeItem: data
                 });
                 dispatcher.dispatch<typeof GlobalActions.SubqItemHighlighted>({
                     name: GlobalActions.SubqItemHighlighted.name,
@@ -213,13 +190,10 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                     }
                 });
             }
-        }
+        };
 
-        handleMouseOut(data:WordCloudItem) {
-            this.setState({
-                data: this.state.data,
-                rects: this.state.rects,
-                transform: this.state.transform,
+        const handleMouseOut = (data:WordCloudItem) => {
+            setState({
                 activeItem: null,
                 tooltipPos: [0, 0]
             });
@@ -229,58 +203,43 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                     interactionId: data.interactionId
                 }
             });
-        }
+        };
 
-        // TODO (use memoize helper?, what about resize?)
-        static getDerivedStateFromProps<T>(props:WordCloudProps<T>, state:WordCloudState<T>) {
-            if (props.data !== state.data) {
-                return {
-                    data: props.data,
-                    rects: [],
-                    transform: state.transform,
-                    activeItem: null,
-                    tooltipPos: [0, 0]
-                };
-            }
-            return null;
-        }
 
-        render() {
-            const boxWidth = 200;
-            const vboxAspectRatio = this.props.width / this.props.height;
-            const wcloud = createWordCloud(
-                this.props.data.map(this.props.dataTransform),
-                boxWidth,
-                boxWidth / vboxAspectRatio,
-                this.props.isMobile,
-                this.props.font
-            );
+        const boxWidth = chartContainer.current ? chartContainer.current.offsetWidth : 200;
+        const vboxAspectRatio = props.width / props.height;
+        const wcloud = createWordCloud(
+            props.data.map(props.dataTransform),
+            boxWidth,
+            boxWidth / vboxAspectRatio,
+            props.isMobile,
+            props.font
+        );
 
-            const style = {...this.props.style, width: '100%', height: '100%'};
-            style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
-            const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed();
-            return (
-                <div ref={this.chartContainer} style={style}>
-                    <Tooltip x={this.state.tooltipPos[0]} y={this.state.tooltipPos[1]}
-                            data={this.state.activeItem ? this.state.activeItem.tooltip : []} />
-                    <svg width="100%" height="100%" preserveAspectRatio="xMinYMid meet"
-                            viewBox={`0 0 ${boxWidth} ${(boxWidth / vboxAspectRatio).toFixed()}`}>
-                        <g transform={wcloud.transform}>
-                            {wcloud.rectangles.map((r, i) =>
-                                <Word key={`${r.x}:${r.y}:${r.w}:${r.h}`}
-                                        color={r.data && r.data.color ? r.data.color : colors(i)} rect={r}
-                                    onMouseMove={this.handleMouseMove}
-                                    onMouseOut={this.handleMouseOut}
-                                    onMouseOver={this.handleMouseOver}
-                                    font={this.props.font}
-                                    selectedText={this.props.selectedText}
-                                    underline={this.props.underlineWords && this.props.underlineWords.includes(r.data.text)}/>
-                            )}
-                        </g>
-                    </svg>
-                </div>
-            );
-        }
+        const style = {...props.style, width: '100%', height: '100%'};
+        style['minHeight'] = `${2 * (props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
+        const colors = props.colors ? props.colors : theme.scaleColorIndexed();
+        return (
+            <div ref={chartContainer} style={style}>
+                <Tooltip x={currState.tooltipPos[0]} y={currState.tooltipPos[1]}
+                        data={currState.activeItem ? currState.activeItem.tooltip : []} />
+                <svg width="100%" height="100%" preserveAspectRatio="xMinYMid meet"
+                        viewBox={`0 0 ${boxWidth} ${(boxWidth / vboxAspectRatio).toFixed()}`}>
+                    <g transform={wcloud.transform}>
+                        {wcloud.rectangles.map((r, i) =>
+                            <Word key={`${r.x}:${r.y}:${r.w}:${r.h}`}
+                                    color={r.data && r.data.color ? r.data.color : colors(i)} rect={r}
+                                onMouseMove={handleMouseMove}
+                                onMouseOut={handleMouseOut}
+                                onMouseOver={handleMouseOver}
+                                font={props.font}
+                                selectedText={props.selectedText}
+                                underline={props.underlineWords && props.underlineWords.includes(r.data.text)}/>
+                        )}
+                    </g>
+                </svg>
+            </div>
+        );
     }
 
     return WordCloud;

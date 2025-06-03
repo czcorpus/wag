@@ -106,12 +106,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const CollocTile:React.FC<CollocModelState & CoreTileComponentProps> = (props) => {
 
         const sortItemIdx = props.heading.findIndex(v => v.ident === props.sortByMetric);
-        const dataTransform = (v:DataRow) => ({
+        const dataTransform = (v:DataRow) => {
+            return ({
             text: v.str,
             value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
             tooltip: v.stats.map((v, i) => ({label: props.heading[i+1].label,  value: v, round: 3})),
             interactionId: v.interactionId
-        });
+        })
+    }
 
         const colorGen = props.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, props.data.length) : (_:number) => theme.scaleColorIndexed();
 
@@ -127,7 +129,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <S.Boxes $isMobile={props.isMobile}>
                     {List.map((data, index) => {
                         const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), props.data);
-
                         return props.isAltViewMode ?
                             <TableView key={index} heading={props.heading} data={data} caption={props.data.length > 1 ? props.queryMatches[index].word : null} /> :
                             data ?

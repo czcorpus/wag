@@ -588,10 +588,11 @@ export function init(
 
         private calcAndSetSizes():void {
             if (this.ref.current) {
+                const wrapper = this.ref.current.closest('.cnc-tile-body');
                 const cellWidthFract = this.props.widthFract ?? 1;
                 const maxHeightPortion = cellWidthFract > 2 ? 0.25 : 0.32;
-                const newWidth = this.ref.current.getBoundingClientRect().width;
-                const newHeight = this.ref.current.getBoundingClientRect().height;
+                const newWidth = wrapper.getBoundingClientRect().width;
+                const newHeight = wrapper.getBoundingClientRect().height;
                 this.setState({
                     width: newWidth,
                     height: newHeight < window.innerHeight * maxHeightPortion ? newHeight : window.innerHeight * maxHeightPortion,

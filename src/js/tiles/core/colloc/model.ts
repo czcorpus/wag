@@ -17,18 +17,18 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, tap, reduce, mergeMap } from 'rxjs/operators';
+import { tap, reduce, mergeMap } from 'rxjs/operators';
 import { List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
-import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
-import { DataStreaming, IDataStreaming } from '../../../page/streaming.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface CollocModelArgs {
@@ -38,7 +38,6 @@ export interface CollocModelArgs {
     appServices:IAppServices;
     service:MQueryCollAPI;
     initState:CollocModelState;
-    queryType:QueryType;
     queryMatches:Array<QueryMatch>;
 }
 
@@ -54,8 +53,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly tileId:number;
 
-    private readonly queryType:QueryType;
-
     private readonly queryMatches:Array<QueryMatch>;
 
     private readonly measureMap = {
@@ -70,12 +67,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     };
 
     constructor({
-        dispatcher, tileId, appServices, service, initState, queryType, dependentTiles, queryMatches}:CollocModelArgs) {
+        dispatcher, tileId, appServices, service, initState,
+        dependentTiles, queryMatches
+    }:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.collApi = service;
-        this.queryType = queryType;
         this.queryMatches = queryMatches;
 
         this.addActionHandler(
