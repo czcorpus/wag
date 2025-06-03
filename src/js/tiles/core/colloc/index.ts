@@ -91,7 +91,6 @@ export class CollocationsTile implements ITileProvider {
             dependentTiles,
             appServices,
             service: this.api,
-            queryType: queryType,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

@@ -207,7 +207,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         handleLineClick:(e:React.MouseEvent)=>void;
 
     }> = (props) => (
-        <S.SentRow>
+        <S.SentRow className={props.data.highlighted ? 'highlighted' : null}>
             <td>
                 {List.map(
                     (s, i) => (
@@ -233,7 +233,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         return (
             <>
-                <S.Row>
+                <S.Row className={props.data.highlighted ? 'highlighted' : null}>
                     <td>
                         {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
                     </td>

@@ -407,6 +407,23 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                 }
             }
         );
+
+        this.addActionHandler(
+            GlobalActions.SubqItemHighlighted,
+            action => {
+                this.changeState(
+                    state => {
+                        state.concordances[state.visibleQueryIdx].lines = List.map(
+                            v => ({
+                                ...v,
+                                highlighted: v.interactionId === action.payload.interactionId
+                            }),
+                            state.concordances[state.visibleQueryIdx].lines
+                        );
+                    }
+                );
+            }
+        );
     }
 
 

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Dict, HTTP, List, pipe } from 'cnc-tskit';
+import { map, tap } from 'rxjs/operators';
+import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
 import { ajax$ } from '../../../page/ajax.js';
@@ -37,6 +37,7 @@ export interface BasicHTTPResponse {
         word:string;
         score:number;
         freq:number;
+        interactionId:string;
     }>;
     measure:string;
     srchRange:[number, number];
@@ -163,7 +164,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                             corpusSize: 0,
                             colls: [],
                             measure: null,
-                            srchRange:[0, 0],
+                            srchRange: tuple(0, 0),
                             resultType:'coll'
                         }
                 )
@@ -204,7 +205,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                             freq: x.freq,
                             nfilter: [null, null],
                             pfilter: [null, null],
-                            interactionId: null // TODO
+                            interactionId: x.interactionId
                         }),
                         v.colls
                     )
