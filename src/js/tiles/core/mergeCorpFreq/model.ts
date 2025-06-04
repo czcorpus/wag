@@ -32,6 +32,7 @@ import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import urlJoin from 'url-join';
 
 
 export interface MergeCorpFreqModelArgs {
@@ -161,14 +162,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     tooltipX: action.payload.tooltipX,
                     tooltipY: action.payload.tooltipY,
                     caption: state.data.length > 0 ? action.payload.dataName : '-',
+                    showClickTip: !!state.sources[action.payload.barIdx].viewInOtherWagUrl,
                     data: state.queryMatches.length > 1 ?
                         Dict.fromEntries(
                             List.map((v, i) => {
                                     const index = List.findIndex(v => v.name === action.payload.dataName, state.data[i]);
-                                    return ([v.word, [
-                                        {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
-                                        {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].freq : 0}
-                                    ]])
+                                    return [
+                                        v.word,
+                                        [
+                                            {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                            {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].freq : 0}
+                                        ]
+                                    ]
                                 },
                                 state.queryMatches
                             )
@@ -231,6 +236,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 });
             }
         );
+
+        this.addActionSubtypeHandler(
+            Actions.ViewInOtherWag,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const currMatch = findCurrQueryMatch(state.queryMatches);
+                const target = urlJoin(state.sources[action.payload.barIdx].viewInOtherWagUrl, 'search', currMatch.word) +
+                    `?pos=${List.map(v => v.value, currMatch.pos).join(' ')}&lemma=${currMatch.lemma}`;
+                window.open(target, '_blank');
+            }
+        )
     }
 
     private allSourcesToArgs(state:MergeCorpFreqModelState, queryMatch:QueryMatch):Array<MQueryFreqArgs|null> {
@@ -322,7 +339,13 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                         name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
-                            data: resp.freqs,
+                            data: List.map(
+                                v => ({
+                                    ...v,
+                                    viewInOtherWagUrl: state.sources[sourceIdx].viewInOtherWagUrl
+                                }),
+                                resp.freqs,
+                            ),
                             queryId,
                             sourceIdx
                         }

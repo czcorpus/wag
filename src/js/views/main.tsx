@@ -43,6 +43,7 @@ export interface WdglanceMainProps {
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
     queries:Array<UserQuery>;
+    parentWagUrl:string|undefined;
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;

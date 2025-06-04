@@ -231,11 +231,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     }
 
     private buildQueryPath(state:QueryFormModelState):string {
-        const action = (
-            state.queryType === QueryType.SINGLE_QUERY ? HTTPAction.SEARCH :
-            state.queryType === QueryType.CMP_QUERY ? HTTPAction.COMPARE :
-            HTTPAction.TRANSLATE
-        );
+        const action = queryTypeToAction(state.queryType);
 
         const queries = state.queryType === QueryType.CMP_QUERY ?
             List.map(v => v.value, state.queries) :

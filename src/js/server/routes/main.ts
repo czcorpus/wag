@@ -21,7 +21,7 @@ import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices.js';
-import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction, RecognizedQueries, findCurrQueryMatch } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
     UserConf, ClientStaticConf, ClientConf, emptyClientConf, errorUserConf, isTileDBConf,
@@ -45,6 +45,7 @@ import { logAction } from '../actionLog/common.js';
 import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
+import urlJoin from 'url-join';
 
 
 interface MkRuntimeClientConfArgs {
@@ -54,6 +55,34 @@ interface MkRuntimeClientConfArgs {
     appServices:IAppServices;
 }
 
+function createParentWagLink(
+    baseUrl:string,
+    queryType:QueryType,
+    queries:Array<UserQuery>,
+    answerMode:boolean
+):string|undefined {
+    if (!baseUrl) {
+        return undefined;
+    }
+    const action = queryTypeToAction(queryType) || '';
+    if (answerMode) {
+        return urlJoin(
+            baseUrl,
+            action,
+            List.map(
+                v => v.word,
+                queries
+            ).join('--')
+        );
+
+    } else {
+        return urlJoin(baseUrl, action);
+    }
+}
+/**
+ * Based on the static configuration, current query and other runtime
+ * information, generate request-specific configuration for the client.
+ */
 function mkRuntimeClientConf({
     conf,
     serverConf,
@@ -86,6 +115,7 @@ function mkRuntimeClientConf({
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
                 runtimeAssetsUrl: conf.runtimeAssetsUrl,
+                parentWagUrl: conf.parentWagUrl,
                 favicon: conf.favicon,
                 logo: conf.logo,
                 corpInfoApiUrl: conf.corpInfoApiUrl,
@@ -414,6 +444,14 @@ export function queryAction({
                 },
                 qMatchesEachQuery
             );
+
+            const parentWagUrl = createParentWagLink(
+                runtimeConf.parentWagUrl,
+                queryType,
+                userConf.queries,
+                answerMode
+            );
+
             const {component, tileGroups,} = createRootComponent({
                 config: runtimeConf,
                 userSession: userConf,
@@ -449,6 +487,7 @@ export function queryAction({
                 themes: runtimeConf.colorThemes,
                 currTheme: runtimeConf.colors.themeId,
                 userConfig: userConf,
+                currentParentWagPageUrl: parentWagUrl,
                 clientConfig: runtimeConf,
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
                 rootView: component,
@@ -481,6 +520,7 @@ export function queryAction({
                 themes: [],
                 currTheme: currTheme.themeId,
                 userConfig: userConf,
+                currentParentWagPageUrl: undefined,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,

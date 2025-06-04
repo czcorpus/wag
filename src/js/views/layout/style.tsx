@@ -33,7 +33,8 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
 
         > header.wdg-header {
 
-            text-align: center;
+            display:flex;
+
             margin-top: 1.2em;
 
             a {
@@ -44,6 +45,41 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                 img {
                     width: 25em;
                 }
+            }
+
+            .parent-link-wrapper {
+
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                flex: 0 0 15em;
+
+                .parent-wag-link {
+                    display: flex;
+                    align-items: center;
+                    color: ${theme.colorLogoBlue};
+                    text-decoration: underline;
+                    cursor: pointer;
+
+                    img {
+                        width: 1em;
+                        margin-right: 0.4em;
+                    }
+                }
+            }
+
+            .parent-wag-link:hover {
+                text-decoration: none;
+            }
+
+            .logo-wrapper {
+                display: flex;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .right-ballast {
+                flex: 0 0 15em;
             }
         }
 

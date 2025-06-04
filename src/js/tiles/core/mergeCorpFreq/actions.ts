@@ -32,6 +32,7 @@ export class Actions {
 
     static ShowTooltip:Action<{
         tileId:number;
+        barIdx:number;
         dataName:string;
         tooltipX:number;
         tooltipY:number;
@@ -45,6 +46,13 @@ export class Actions {
 
     }> = {
         name: 'MERGECORP_HIDE_TOOLTIP'
+    };
+
+    static ViewInOtherWag:Action<{
+        tileId:number;
+        barIdx:number;
+    }> = {
+        name: 'MERGECORP_VIEW_IN_OTHER_WAG'
     };
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {

@@ -76,6 +76,7 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
             themes: [],
             currTheme: clientConfig.colors.themeId,
             userConfig: userConf,
+            currentParentWagPageUrl: undefined,
             clientConfig: clientConfig,
             returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
             rootView: errView,

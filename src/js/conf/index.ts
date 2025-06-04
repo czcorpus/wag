@@ -189,6 +189,7 @@ export interface ClientStaticConf {
     rootUrl:string;
     hostUrl:string;
     runtimeAssetsUrl:string;
+    parentWagUrl?:string;
     favicon?:FaviconConf;
     logo?:LogoConf;
 	corpInfoApiUrl:string;
@@ -263,6 +264,7 @@ export interface ClientConf {
     colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
     onLoadInit?:Array<string>;
+    parentWagUrl?:string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
     homepage:{
