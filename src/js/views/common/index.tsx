@@ -104,6 +104,7 @@ export interface GlobalComponents {
         visible:boolean;
         caption?:string;
         values:TooltipValues;
+        customFooter?:React.ReactElement;
 
         multiWord?:boolean;
         colors?:(idx:number) => string;
@@ -679,6 +680,7 @@ export function init(
                         )}
                     </tbody>
                 </table>
+                {props.customFooter ?  <div className="footer">{props.customFooter}</div> : null}
             </S.WdgTooltip>
         );
     }

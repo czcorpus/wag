@@ -2,11 +2,13 @@
     "en-US": {
         "mergeCorpFreq__main_label": "Frequency distribution",
         "mergeCorpFreq__abs_freq": "frequency (number of occurrences)",
-        "mergeCorpFreq__rel_freq": "ipm (instances per million words)"
+        "mergeCorpFreq__rel_freq": "ipm (instances per million words)",
+        "mergeCorpFreq__click_to_see_details": "Click to see details about the word in this text type"
     },
     "cs-CZ": {
         "mergeCorpFreq__main_label": "Frekvenční distribuce",
         "mergeCorpFreq__abs_freq": "frekvence (absolutní počet výskytů)",
-        "mergeCorpFreq__rel_freq": "ipm (počet výskytů na milion slov)"
+        "mergeCorpFreq__rel_freq": "ipm (počet výskytů na milion slov)",
+        "mergeCorpFreq__click_to_see_details": "Klikněte pro zobrazení detailů o slově v tomto textovém typu"
     }
 }

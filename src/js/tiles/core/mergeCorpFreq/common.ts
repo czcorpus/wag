@@ -45,6 +45,8 @@ export interface ModelSourceArgs {
 
     corpusSize:number;
 
+    viewInOtherWagUrl:string|null;
+
     /**
      * In case 'fcrit' describes a positional
      * attribute we have to replace an actual
@@ -64,6 +66,7 @@ export interface SourceMappedDataRow extends DataRow {
     sourceIdx:number;
     name:string;
     uniqueColor:boolean;
+    viewInOtherWagUrl:string|null;
 }
 
 
@@ -83,6 +86,12 @@ export interface MergeCorpFreqModelState {
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;
     queryMatches:Array<QueryMatch>;
-    tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
+    tooltipData:{
+        tooltipX:number;
+        tooltipY:number;
+        data:TooltipValues;
+        caption:string;
+        showClickTip:boolean;
+    }|null;
     backlinks:Array<Backlink>;
 }

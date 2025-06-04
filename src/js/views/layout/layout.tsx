@@ -21,7 +21,7 @@ import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../../page/hostPage.js';
-import { RecognizedQueries } from '../../query/index.js';
+import { findCurrQueryMatch, QueryType, RecognizedQueries } from '../../query/index.js';
 import { ClientConf, UserConf, ColorThemeIdent, UserQuery } from '../../conf/index.js';
 import { TileGroup } from '../../page/layout.js';
 import { GlobalComponents } from '../common/index.js';
@@ -44,6 +44,7 @@ export interface HtmlBodyProps {
     currTheme:string;
     RootComponent:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
     layout:Array<TileGroup>;
+    currentParentWagPageUrl:string|undefined;
     homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
@@ -70,7 +71,12 @@ function marshalJSON(data:any):string {
 }
 
 
-export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBodyProps>; HtmlHead: React.FC<HtmlHeadProps>} {
+export function init(
+    ut:ViewUtils<GlobalComponents>
+):{
+    HtmlBody: React.FC<HtmlBodyProps>;
+    HtmlHead: React.FC<HtmlHeadProps>
+} {
 
     // -------- <ThemeSelection /> -----------------------------
 
@@ -231,12 +237,24 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
             <body>
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
-                    <a href={props.config.hostUrl} title={createLabel()}>
-                        {props.config.logo ?
-                            <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
-                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                    <div className="parent-link-wrapper">
+                        {props.currentParentWagPageUrl ?
+                            <a className="parent-wag-link" href={props.currentParentWagPageUrl}>
+                                <img src={ut.createStaticUrl('triangle_left.svg')} />
+                                {ut.translate('global__back_to_main_overview')}
+                            </a> :
+                            null
                         }
-                    </a>
+                    </div>
+                    <div className="logo-wrapper">
+                        <a href={props.config.hostUrl} title={createLabel()}>
+                            {props.config.logo ?
+                                <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
+                                <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                            }
+                        </a>
+                    </div>
+                    <div className="right-ballast"> </div>
                 </header>
                 <section className="wdglance-mount">
                     <props.RootComponent
@@ -246,6 +264,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
                         isAnswerMode={props.isAnswerMode}
                         queries={props.userConfig.queries}
                         error={props.error}
+                        parentWagUrl={props.currentParentWagPageUrl}
                         onMount={()=>undefined}
                             />
                 </section>

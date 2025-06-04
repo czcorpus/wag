@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel } from './model.js';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
@@ -40,7 +40,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     function transformData(
         data:Array<Array<SourceMappedDataRow>>,
         queryMatches: Array<QueryMatch>
-    ):Array<{name:string; ipm:Array<number>; freq:Array<number>; uniqueColor:boolean}> {
+    ):Array<{
+        name:string;
+        ipm:Array<number>;
+        freq:Array<number>;
+        uniqueColor:boolean;
+        sourceIdx:number;
+        isClickable:boolean;
+    }> {
         return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
@@ -51,7 +58,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         name: row.name,
                         ipm: List.map(_ => 0, queryMatches),
                         freq: List.map(_ => 0, queryMatches),
-                        uniqueColor: row.uniqueColor
+                        uniqueColor: row.uniqueColor,
+                        sourceIdx: row.sourceIdx,
+                        isClickable: !!row.viewInOtherWagUrl
                     };
                     item.ipm[queryIdx] = row.ipm;
                     item.freq[queryIdx] = row.freq;
@@ -114,6 +123,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
+    // ---------------------------- <CustomLabel /> --------------------------------
+
+    const CustomLabel:React.FC<{
+        x:number;
+        y:number;
+        width:number;
+        height:number;
+        payload:unknown;
+        onClick:()=>void;
+    }> = (props) => (
+        typeof props.onClick === 'function' ?
+            <g>
+                <foreignObject x={props.x + props.width + 10} y={props.y + 5} width={16} height={16}>
+                <div className="text-white">
+                {'\uD83D\uDD17'}
+                </div>
+                </foreignObject>
+            </g> :
+            null
+    );
+
 
     // -------------------------- <Chart /> --------------------------------------
 
@@ -124,6 +154,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isPartial:boolean;
         isMobile:boolean;
         tileId:number;
+        onBarClick:(barIdx:number) => () => void;
     }> = (props) => {
         const queries = props.queryMatches.length;
         const transformedData = transformData(props.data, props.queryMatches);
@@ -138,22 +169,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 (idx:number) => transformedData[idx].uniqueColor ?
                     theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
                     theme.categoryColor(0);
-        const minTileHeight = React.useContext(globComponents.TileMinHeightContext);
+
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering
             <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={300} >
                 <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
                     onMouseMove={e => {
-                        e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
-                            name: Actions.ShowTooltip.name,
-                            payload: {
-                                dataName: e.activeLabel,
-                                tileId: props.tileId,
-                                tooltipX: e.chartX,
-                                tooltipY: e.chartY
-                            }
-                        }) : null}}
+                        if (e && Array.isArray(e.activePayload)) {
+                            dispatcher.dispatch<typeof Actions.ShowTooltip>({
+                                name: Actions.ShowTooltip.name,
+                                payload: {
+                                    dataName: e.activeLabel,
+                                    tileId: props.tileId,
+                                    tooltipX: e.chartX,
+                                    tooltipY: e.chartY,
+                                    barIdx: e.activePayload[0]['payload']['sourceIdx']
+                                }
+                            })
+                        }
+                    }}
                     onMouseLeave={d =>
                         dispatcher.dispatch<typeof Actions.HideTooltip>({
                             name: Actions.HideTooltip.name,
@@ -168,9 +203,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     dataKey={x => x.ipm[index]}
                                     fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
                                     isAnimationActive={false}
-                                    name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
+                                    name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}
+                                    label={(props) => <CustomLabel {...props} />}
+                                    >
                                 {List.map(
-                                    (entry, i) => <Cell key={`cell-${index}`} />,
+                                    (entry, i) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            cursor={entry.isClickable ? "pointer" : null}
+                                            onClick={entry.isClickable ? props.onBarClick(entry.sourceIdx) : null}
+                                        />
+                                    ),
                                     transformedData)
                                 }
                             </Bar>
@@ -193,6 +236,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const numCats = Math.max(0, ...props.data.map(v => v ? v.length : 0));
         const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
         const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
+
+        const handleBarClick = (barIdx:number) => () => {
+            dispatcher.dispatch(
+                Actions.ViewInOtherWag,
+                {
+                    barIdx,
+                    tileId: props.tileId
+                }
+            );
+        };
 
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
@@ -218,6 +271,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             colors={props.queryMatches.length > 1 ?
                                 idx => theme.cmpCategoryColor(idx, props.queryMatches.length) :
                                 null}
+                            customFooter={props.tooltipData.showClickTip ?
+                                         <strong style={{fontSize: '1.2em'}}>
+                                             {ut.translate('mergeCorpFreq__click_to_see_details')}
+                                        </strong> :
+                                        null}
                         /> : null}
                 </div>
 
@@ -229,7 +287,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <TableView tileId={props.tileId} data={props.data} queryMatches={props.queryMatches} />
                                 </S.Tables> :
                                 <Chart tileId={props.tileId} data={props.data} barCategoryGap={barCategoryGap}
-                                        queryMatches={props.queryMatches} isPartial={props.isBusy} isMobile={props.isMobile} />
+                                        queryMatches={props.queryMatches} isPartial={props.isBusy} isMobile={props.isMobile}
+                                        onBarClick={handleBarClick} />
                             }
                         </S.MergeCorpFreqBarTile>
                     );

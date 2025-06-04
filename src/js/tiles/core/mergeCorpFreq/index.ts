@@ -20,7 +20,7 @@ import { List } from 'cnc-tskit';
 
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
-    AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader,
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader,
     TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { MergeCorpFreqModel } from './model.js';
@@ -46,6 +46,8 @@ export interface MergeCorpFreqTileConf extends TileConf {
         freqSort:string;
         fpage:number;
         fttIncludeEmpty:boolean;
+
+        viewInOtherWagUrl?:string;
 
         /**
          * If true, then WaG will colorize a respective
@@ -134,7 +136,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                                 null,
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
-                        posQueryGenerator: src.posQueryGenerator
+                        posQueryGenerator: src.posQueryGenerator,
+                        viewInOtherWagUrl: src.viewInOtherWagUrl || null,
                     }),
                     conf.sources
                 ),

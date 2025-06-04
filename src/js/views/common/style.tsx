@@ -305,6 +305,10 @@ export const WdgTooltip = styled.div<{$multiword?:boolean}>`
     line-height: 1.2em;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
 
+    .footer {
+        margin-top: 0.7em;
+    }
+
     table {
         .value {
             ${props => props.$multiword ? null : 'font-weight: bold'};

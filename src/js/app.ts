@@ -122,7 +122,7 @@ export function createRootComponent({
     dispatcher,
     onResize,
     viewUtils,
-    layoutManager,
+    layoutManager
 }:InitIntArgs):{
     component:React.FunctionComponent<WdglanceMainProps>,
     tileGroups:Array<TileGroup>,

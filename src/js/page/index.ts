@@ -49,6 +49,7 @@ interface MountArgs {
     dispatcher:ActionDispatcher;
     homepage:Array<HomepageTileConf>;
     queryMatches:RecognizedQueries;
+    parentWagUrl:string|undefined;
 }
 
 
@@ -62,6 +63,7 @@ function mountReactComponent({
     dispatcher,
     appServices,
     queryMatches,
+    parentWagUrl,
     homepage,
     userSession
 }:MountArgs) {
@@ -101,6 +103,7 @@ function mountReactComponent({
                 isAnswerMode: userSession.answerMode,
                 error: userSession.error,
                 queries: userSession.queries,
+                parentWagUrl,
                 onMount
             }
         );
@@ -239,6 +242,7 @@ export function initClient(
             dispatcher,
             appServices,
             queryMatches,
+            parentWagUrl: config.parentWagUrl,
             homepage: [...config.homepage.tiles]
         });
 
