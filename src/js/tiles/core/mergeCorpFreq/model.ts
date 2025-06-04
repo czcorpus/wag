@@ -245,7 +245,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 const currMatch = findCurrQueryMatch(state.queryMatches);
                 const target = urlJoin(state.sources[action.payload.barIdx].viewInOtherWagUrl, 'search', currMatch.word) +
                     `?pos=${List.map(v => v.value, currMatch.pos).join(' ')}&lemma=${currMatch.lemma}`;
-                window.open(target, '_blank');
+                window.location.href = target;
             }
         )
     }
