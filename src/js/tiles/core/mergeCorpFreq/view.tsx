@@ -170,6 +170,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
                     theme.categoryColor(0);
 
+        const [hoveredIndex, setHoveredIndex] = React.useState(null);
+
+        const handleMouseEnter = (data, index) => {
+            setHoveredIndex(index);
+        };
+
+        const handleMouseLeave = () => {
+            setHoveredIndex(null);
+        };
+
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering
@@ -198,26 +208,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 >
                     <CartesianGrid />
                     {List.map(
-                        (_, index) => (
-                            <Bar key={index}
-                                    dataKey={x => x.ipm[index]}
-                                    fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
-                                    isAnimationActive={false}
-                                    name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}
-                                    label={(props) => <CustomLabel {...props} />}
-                                    >
-                                {List.map(
-                                    (entry, i) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            cursor={entry.isClickable ? "pointer" : null}
-                                            onClick={entry.isClickable ? props.onBarClick(entry.sourceIdx) : null}
-                                        />
-                                    ),
-                                    transformedData)
-                                }
-                            </Bar>
-                        ),
+                        (_, index) => {
+                            const dfltFill = props.isPartial ? theme.unfinishedChartColor : colorFn(index);
+                            const hgltFill = theme.lineChartColor1;
+                            return (
+                                <Bar key={index}
+                                        dataKey={x => x.ipm[index]}
+                                        fill={dfltFill}
+                                        isAnimationActive={false}
+                                        name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}
+                                        label={(props) => <CustomLabel {...props} />}
+                                        onMouseEnter={handleMouseEnter}
+                                        onMouseLeave={handleMouseLeave}
+                                        >
+                                    {List.map(
+                                        (entry, i) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                cursor={entry.isClickable ? "pointer" : null}
+                                                fill={hoveredIndex === i && entry.isClickable ? hgltFill : dfltFill}
+                                                onClick={entry.isClickable ? props.onBarClick(entry.sourceIdx) : null}
+                                            />
+                                        ),
+                                        transformedData)
+                                    }
+                                </Bar>
+                            );
+                        },
                         props.queryMatches
                     )}
                     <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
