@@ -229,7 +229,7 @@ export class AudioLinkGenerator {
     }
 
     createUrl(corpname:string, audioId:string):string {
-        return urlJoin(this.rootUrl, corpname, 'audio') + '?chunk=' + encodeURIComponent(audioId);
+        return urlJoin(this.rootUrl, 'audio', corpname) + '?chunk=' + encodeURIComponent(audioId);
     }
 
     getFormat(audioId:string):string {
