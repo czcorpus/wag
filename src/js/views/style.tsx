@@ -237,7 +237,7 @@ export const WdglanceControls = styled.div`
     }
 
     .translat-lang-selector {
-        margin: 0;
+        margin: 0 1em 0 0;
     }
 
     input.invalid {
@@ -246,12 +246,9 @@ export const WdglanceControls = styled.div`
 
     .arrow {
         margin-right: 0.3em;
-        margin-left: 0.3em;
+        margin-left: 0;
         font-size: 1.5em;
         color: rgba(0, 0, 0, 0.2);
-    }
-
-    .SubmitButton {
     }
 
     .QueryInput {
@@ -384,6 +381,17 @@ export const WdglanceControls = styled.div`
 
         .DomainSelector {
             margin-top: 0.2em;
+        }
+    }
+`;
+
+// -------------- <SubmitButton /> -------------------------------------------
+
+export const SubmitButton = styled.span`
+
+    ${theme.media.small} {
+        button {
+            padding: 0.5em 1.5em 0.5em 1.5em;
         }
     }
 `;

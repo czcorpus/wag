@@ -50,7 +50,13 @@ export default (env) => ({
         rules: [
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                type: 'asset/resource'
+                type: 'asset/resource',
+                resourceQuery: /^(?!.*inline).*$/
+            },
+            {
+                test: /\.svg$/,
+                resourceQuery: /inline/,
+                use: ['@svgr/webpack'],
             },
             {
                 test: /\.tsx?$/,
