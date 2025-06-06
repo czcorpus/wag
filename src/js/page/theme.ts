@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { ColorTheme } from '../conf/index.js';
-import { Dict, Color, pipe } from 'cnc-tskit';
+import { Dict, Color, pipe, List } from 'cnc-tskit';
 
 
 export enum SystemColor {
@@ -86,7 +86,13 @@ export class Theme {
 
     private readonly catColors:Array<string>;
 
+    // this is auto-generated
+    private readonly catColorsHighlighted:Array<string>;
+
     private readonly cmpCategoryColors:Array<string>;
+
+    // this is auto-generated
+    private readonly cmpCategoryColorsHighlighted:Array<string>;
 
     public readonly unfinishedChartColor:string;
 
@@ -111,11 +117,29 @@ export class Theme {
     constructor(conf?:ColorTheme) {
         const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
         this.catColors = confSrc.category || [];
+        this.catColorsHighlighted = List.map(
+            color => pipe(
+                color,
+                Color.importColor(1),
+                Color.highlight(0.3),
+                Color.color2str(),
+            ),
+            this.catColors
+        );
         this.lineChartColor1 = confSrc.lineChartColor1 || this.catColors[0];
         this.lineConfidenceAreaColor1 = confSrc.lineConfidenceAreaColor1 || this.catColors[0];
         this.lineChartColor2 = confSrc.lineChartColor2 || this.catColors[1];
         this.lineConfidenceAreaColor2 = confSrc.lineConfidenceAreaColor2 || this.catColors[1];
         this.cmpCategoryColors = confSrc.cmpCategory || [];
+        this.cmpCategoryColorsHighlighted = List.map(
+            color => pipe(
+                color,
+                Color.importColor(1),
+                Color.highlight(0.3),
+                Color.color2str(),
+            ),
+            this.cmpCategoryColors
+        );
         this.scaleColors = confSrc.scale || [];
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
@@ -148,15 +172,33 @@ export class Theme {
         return this.catColors[idx % this.catColors.length];
     }
 
+    categoryColorHighlighted(idx:number):string {
+        return this.catColorsHighlighted[idx % this.catColors.length];
+    }
+
     /**
      * Produce a category color for word comparison mode where
      * each word data is expected to be of a specific color
      * (i.e. 1st word => idx = 0, 2nd word => idx 1,...)
      */
     cmpCategoryColor(idx:number, dynamicSize?:number):string {
-        if (dynamicSize && this.cmpCategoryColors.length === 1)
+        if (dynamicSize && this.cmpCategoryColors.length === 1) {
             return this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
+        }
         return this.cmpCategoryColors[idx % this.cmpCategoryColors.length];
+    }
+
+    cmpCategoryColorHighlighted(idx:number, dynamicSize?:number):string {
+        if (dynamicSize && this.cmpCategoryColors.length === 1) {
+            const ans = this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
+            return pipe(
+                ans,
+                Color.importColor(1),
+                Color.highlight(0.3),
+                Color.color2str()
+            );
+        }
+        return this.cmpCategoryColorsHighlighted[idx % this.cmpCategoryColors.length];
     }
 
     /**

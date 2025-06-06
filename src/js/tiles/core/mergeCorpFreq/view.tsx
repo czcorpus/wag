@@ -26,6 +26,7 @@ import { Theme } from '../../../page/theme.js';
 import { QueryMatch } from '../../../query/index.js';
 import { List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions.js';
+import SVGLink from '../../../../../assets/external-link.svg?inline';
 
 import * as S from './style.js';
 import { MergeCorpFreqModelState, SourceMappedDataRow } from './common.js';
@@ -54,6 +55,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             List.reduce((acc, [row, queryIdx]) => {
                 const itemIndex = acc.findIndex(v => v.name === row.name);
                 if (itemIndex < 0) {
+                    console.log('name: ', row.name, ', uniqueColor: ', row.uniqueColor)
                     const item = {
                         name: row.name,
                         ipm: List.map(_ => 0, queryMatches),
@@ -134,12 +136,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         onClick:()=>void;
     }> = (props) => (
         typeof props.onClick === 'function' ?
-            <g>
-                <foreignObject x={props.x + props.width + 10} y={props.y + 5} width={16} height={16}>
-                <div className="text-white">
-                {'\uD83D\uDD17'}
-                </div>
-                </foreignObject>
+            <g transform={`translate(${props.x + props.width + 10}, ${props.y + 1}) scale(2)`}>
+                <SVGLink />
             </g> :
             null
     );
@@ -169,6 +167,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 (idx:number) => transformedData[idx].uniqueColor ?
                     theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
                     theme.categoryColor(0);
+
+        const colorHgltFn = queries > 1 ?
+        (idx:number) => theme.cmpCategoryColorHighlighted(idx, props.queryMatches.length) :
+        (idx:number) => transformedData[idx].uniqueColor ?
+            theme.cmpCategoryColorHighlighted(idx + 1, List.size(transformedData) + 1) :
+            theme.categoryColorHighlighted(0);
 
         const [hoveredIndex, setHoveredIndex] = React.useState(null);
 
@@ -210,7 +214,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {List.map(
                         (_, index) => {
                             const dfltFill = props.isPartial ? theme.unfinishedChartColor : colorFn(index);
-                            const hgltFill = theme.lineChartColor1;
+                            const hgltFill = props.isPartial ? theme.unfinishedChartColor : colorHgltFn(index);
                             return (
                                 <Bar key={index}
                                         dataKey={x => x.ipm[index]}

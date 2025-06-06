@@ -194,12 +194,12 @@ export function init(
     }> = (props) => {
 
         return (
-            <span className="SubmitButton">
+            <S.SubmitButton>
                 <button className="cnc-button cnc-button-primary" type="button" onClick={props.onClick}
                         aria-label={ut.translate('global__aria_search_btn')}>
                     {ut.translate('global__search')}
                 </button>
-            </span>
+            </S.SubmitButton>
         );
     };
 
@@ -349,15 +349,15 @@ export function init(
             case QueryType.TRANSLAT_QUERY:
                 return (
                     <>
-                        <span className="arrow">{'\u25B6'}</span>
-                        <TranslationLangSelector value={props.translatLang} translatLanguages={props.translatLanguages}
-                                htmlClass="secondary"
-                                onChange={handleTranslatLangChange} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
                                     allowRemoval={false} />
                         </span>
+                        <span className="arrow">{'\u25B6'}</span>
+                        <TranslationLangSelector value={props.translatLang} translatLanguages={props.translatLanguages}
+                                htmlClass="secondary"
+                                onChange={handleTranslatLangChange} queryType={QueryType.TRANSLAT_QUERY} />
                     </>
                 );
         }

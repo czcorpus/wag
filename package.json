@@ -16,6 +16,7 @@
   },
   "sideEffects": false,
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.11.1",
     "@swc/plugin-styled-components": "^7.0.0",
@@ -57,7 +58,7 @@
     "ajv": "^8.17.1",
     "axios": "^1.8.2",
     "buffer": "^6.0.3",
-    "cnc-tskit": "~1.8.0",
+    "cnc-tskit": "~1.10.0",
     "cookie-parser": "^1.4.6",
     "d3": "^7.8.2",
     "dom-to-image-more": "^3.5.0",
