@@ -26,10 +26,12 @@ import { Theme } from '../../../page/theme.js';
 import { QueryMatch } from '../../../query/index.js';
 import { List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions.js';
-import SVGLink from '../../../../../assets/external-link.svg?inline';
 
 import * as S from './style.js';
 import { MergeCorpFreqModelState, SourceMappedDataRow } from './common.js';
+
+// @ts-ignore
+import SVGLink from '../../../../../assets/external-link.svg?inline';
 
 const CHART_LABEL_MAX_LEN = 20;
 
@@ -55,7 +57,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             List.reduce((acc, [row, queryIdx]) => {
                 const itemIndex = acc.findIndex(v => v.name === row.name);
                 if (itemIndex < 0) {
-                    console.log('name: ', row.name, ', uniqueColor: ', row.uniqueColor)
                     const item = {
                         name: row.name,
                         ipm: List.map(_ => 0, queryMatches),
@@ -184,6 +185,31 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             setHoveredIndex(null);
         };
 
+        const legendFormatter = (value, payload) => {
+            return <span style={{ color: 'black' }}>{value}</span>;
+        };
+
+        const CustomizedAxisTick = ({ x, y, stroke, payload }) => {
+            const data = transformedData[payload.index];
+            return (
+                <g transform={`translate(${x},${y})`}>
+                    {data['isClickable'] ?
+                        <a onClick={props.onBarClick(payload.index)} style={{ cursor: 'pointer' }}>
+                            <text x={0} y={0} dy={5} dx={-20} textAnchor="end">
+                            {payload.value}
+                            </text>
+                            <g transform={`translate(-15, -8) scale(1.5)`}>
+                                <SVGLink />
+                            </g>
+                        </a> :
+                        <text x={0} y={0} dy={5} textAnchor="end">
+                        {payload.value}
+                        </text>
+                    }
+                </g>
+            );
+        };
+
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering
@@ -221,7 +247,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         fill={dfltFill}
                                         isAnimationActive={false}
                                         name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}
-                                        label={(props) => <CustomLabel {...props} />}
                                         onMouseEnter={handleMouseEnter}
                                         onMouseLeave={handleMouseLeave}
                                         >
@@ -241,10 +266,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         },
                         props.queryMatches
                     )}
-                    <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
-                            tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
-                    <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={(value) => <span style={{ color: 'black' }}>{value}</span>}/>
+                    <XAxis
+                        type="number"
+                        label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
+                    <YAxis
+                        type="category"
+                        dataKey="name"
+                        width={Math.max(60, maxLabelLength * 7)}
+                        tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}
+                        tick={CustomizedAxisTick} />
+                    <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={legendFormatter} />
                 </BarChart>
             </ResponsiveContainer>
         );
