@@ -19,12 +19,12 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import * as domtoimage from 'dom-to-image-more';
-import { concatMap, map, tap } from 'rxjs/operators';
-import { of as rxOf } from 'rxjs';
+import { concatMap, map, mergeMap, tap } from 'rxjs/operators';
+import { Observable, of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { findCurrQueryMatch, QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
@@ -33,6 +33,7 @@ import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import urlJoin from 'url-join';
+import { callWithExtraVal } from '../../../api/util.js';
 
 
 export interface MergeCorpFreqModelArgs {
@@ -88,8 +89,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 state.error = null;
             },
             (state, action, dispatch) => {
-                // TODO add support for the cmp mode
-                this.loadFreqs(state, appServices.dataStreaming(), findCurrQueryMatch(state.queryMatches), 0, dispatch);
+                this.loadFreqs(state, appServices.dataStreaming(), dispatch);
             }
         );
 
@@ -224,7 +224,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action, dispatch) => {
                 const args = this.stateToArgs(
                     state.sources[action.payload.backlink.subqueryId],
-                    findCurrQueryMatch(state.queryMatches),
+                    state.queryMatches[action.payload.backlink.queryId],
                 );
                 this.freqApi.requestBacklink(args).subscribe({
                     next: url => {
@@ -242,7 +242,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const currMatch = findCurrQueryMatch(state.queryMatches);
+                const currMatch = state.queryMatches[0]; // TODO
                 const target = urlJoin(state.sources[action.payload.barIdx].viewInOtherWagUrl, 'search', currMatch.word) +
                     `?pos=${List.map(v => v.value, currMatch.pos).join(' ')}&lemma=${currMatch.lemma}`;
                 window.location.href = target;
@@ -274,22 +274,41 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
     private loadFreqs(
         state:MergeCorpFreqModelState,
         dataStreaming:IDataStreaming,
-        queryMatch:QueryMatch,
-        queryId:number,
         seDispatch:SEDispatcher
     ):void {
-        this.freqApi.call(
-            dataStreaming,
-            this.tileId,
-            0,
-            this.allSourcesToArgs(state, queryMatch)
+        new Observable<[Array<MQueryFreqArgs>, {queryIdx:number;}]>((observer) => {
+            try {
+                pipe(
+                    state.queryMatches,
+                    List.map((currMatch, queryIdx) => tuple(
+                        this.allSourcesToArgs(state, currMatch),
+                        {queryIdx},
+                    )),
+                    List.forEach(args => observer.next(args)),
+                );
+                observer.complete();
 
-        ).pipe(
+            } catch (e) {
+                observer.error(e);
+            }
+
+        }).pipe(
+            tap(args => {console.log(`MergeCorpFreqModel.loadFreqs: args=${JSON.stringify(args)}`)}),
+            mergeMap(([args, pass]) =>
+                callWithExtraVal(
+                    dataStreaming,
+                    this.freqApi,
+                    this.tileId,
+                    pass.queryIdx,
+                    args,
+                    pass,
+                )
+            ),
             concatMap(
-                resp => rxOf(...List.map((x, i) => tuple(i, x), resp))
+                ([resp, pass]) => rxOf(...List.map((item, sourceIdx) => tuple(sourceIdx, item, pass), resp))
             ),
             map(
-                ([sourceIdx, resp]) => tuple(
+                ([sourceIdx, resp, pass]) => tuple(
                     sourceIdx,
                     {
                         ...resp,
@@ -330,11 +349,12 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                             ),
 
                         )
-                    }
+                    },
+                    pass,
                 )
              ),
              tap(
-                ([sourceIdx, resp]) => {
+                ([sourceIdx, resp, pass]) => {
                     seDispatch<typeof Actions.PartialTileDataLoaded>({
                         name: Actions.PartialTileDataLoaded.name,
                         payload: {
@@ -346,7 +366,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 }),
                                 resp.freqs,
                             ),
-                            queryId,
+                            queryId: pass.queryIdx,
                             sourceIdx
                         }
                     });

@@ -42,7 +42,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     function transformData(
         data:Array<Array<SourceMappedDataRow>>,
-        queryMatches: Array<QueryMatch>
+        queryMatches: Array<QueryMatch>,
     ):Array<{
         name:string;
         ipm:Array<number>;

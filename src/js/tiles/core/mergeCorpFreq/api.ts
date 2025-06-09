@@ -105,7 +105,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         return List.some(x => !x, args);
     }
 
-    private mkRequest(dataStreaming:IDataStreaming, tileId:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
+    private mkRequest(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
         if (this.useDataStream) {
             return dataStreaming.registerTileRequest<HTTPResponse>(
                 {
@@ -121,6 +121,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
                             )
                     },
                     contentType: 'application/json',
+                    queryIdx,
                 }
             );
 
@@ -141,7 +142,7 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
     }
 
     call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
-        return this.mkRequest(dataStreaming, tileId, args).pipe(map(resp => resp.parts));
+        return this.mkRequest(dataStreaming, tileId, queryIdx, args).pipe(map(resp => resp.parts));
     }
 
     getSourceDescription(
