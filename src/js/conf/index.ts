@@ -227,8 +227,7 @@ export interface ClientStaticConf {
 
 export interface TileDbConf {
     server:string; // e.g. http://foo:5984
-    db:string;
-    prefix:string; // e.g. 'cnc:wag-test'
+    appId:string;
     username:string;
     password:string; // please do not use admin credentials for this
 }

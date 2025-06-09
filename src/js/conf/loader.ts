@@ -73,7 +73,7 @@ export function parseJsonConfig<T>(confPath:string):Observable<T> {
                                 observer.complete();
                             }
                         });
-                    
+
                     } else {
                         observer.next(conf as T);
                         observer.complete();
@@ -100,11 +100,12 @@ export function loadRemoteTileConf(layout:LayoutsConfig, tileDBConf:TileDbConf|u
         List.flatMap(group => group.tiles),
         List.map(t => t.tile)
     );
-    console.info(`Loading tile configuration from ${tileDBConf.server}/${tileDBConf.db}`);
     return rxOf(...List.map<string, Observable<StoredTileConf>>(
         (tile) => new Observable<StoredTileConf>((observer) => {
+            const url = urlJoin(tileDBConf.server, `${tileDBConf.appId}:${tile}`)
+            console.info(`Loading tile configuration from ${url}`);
             axios.get<StoredTileConf>(
-                urlJoin(tileDBConf.server, tileDBConf.db, `${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${tile}`),
+                url,
                 {
                     auth: {
                         username: tileDBConf.username,
