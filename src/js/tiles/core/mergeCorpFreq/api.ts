@@ -16,8 +16,8 @@
 * limitations under the License.
 */
 
-import { map, of as rxOf } from 'rxjs';
-import { SourceDetails, ResourceApi } from '../../../types.js';
+import { map } from 'rxjs';
+import { ResourceApi, CorpusDetails } from '../../../types.js';
 import { Observable } from 'rxjs';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
@@ -145,18 +145,8 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         return this.mkRequest(dataStreaming, tileId, queryIdx, args).pipe(map(resp => resp.parts));
     }
 
-    getSourceDescription(
-        dataStreaming:IDataStreaming,
-        tileId:number,
-        lang:string,
-        corpname:string
-    ):Observable<SourceDetails> {
-        return rxOf({
-            tileId,
-            title: 'Title TODO',
-            description: 'Description TODO',
-            author: 'Author TODO'
-        });
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
