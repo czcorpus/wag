@@ -144,7 +144,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                 ),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
                 tooltipData: null,
-                backlinks: List.map(_ => null, conf.sources),
+                backlinks: List.map(_ => List.map(_ => null, conf.sources), queryMatches),
                 queryMatches: List.map(match => findCurrQueryMatch(match), queryMatches),
             },
             downloadLabel: conf.downloadLabel,

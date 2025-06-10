@@ -92,6 +92,6 @@ export interface MergeCorpFreqModelState {
         caption:string;
         showClickTip:boolean;
     }|null;
-    backlinks:Array<Backlink>;
+    backlinks:Array<Array<Backlink>>;
     queryMatches:Array<QueryMatch>;
 }

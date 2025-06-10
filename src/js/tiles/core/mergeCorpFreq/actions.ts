@@ -51,6 +51,7 @@ export class Actions {
     static ViewInOtherWag:Action<{
         tileId:number;
         barIdx:number;
+        queryIdx:number;
     }> = {
         name: 'MERGECORP_VIEW_IN_OTHER_WAG'
     };

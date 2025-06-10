@@ -97,7 +97,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             Actions.PartialTileDataLoaded,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.backlinks[action.payload.sourceIdx] = this.freqApi.getBacklink(action.payload.queryId, action.payload.sourceIdx);
+                state.backlinks[action.payload.queryId][action.payload.sourceIdx] = this.freqApi.getBacklink(action.payload.queryId, action.payload.sourceIdx);
                 if (state.data[action.payload.queryId] === undefined) {
                     state.data[action.payload.queryId] = [];
                 }
@@ -242,7 +242,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const currMatch = state.queryMatches[0]; // TODO
+                const currMatch = state.queryMatches[action.payload.queryIdx];
                 const target = urlJoin(state.sources[action.payload.barIdx].viewInOtherWagUrl, 'search', currMatch.word) +
                     `?pos=${List.map(v => v.value, currMatch.pos).join(' ')}&lemma=${currMatch.lemma}`;
                 window.location.href = target;

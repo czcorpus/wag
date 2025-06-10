@@ -113,8 +113,8 @@ export function init(
         const tooltipFormatter:Formatter<ValueType, NameType> = (value, name, props) => {
             if (typeof value === 'number') {
                 return [
-                    `${value}%, ${props.payload.data[name].ipm} ipm, ${ut.translate('global__frequency')}, ${props.payload.data[name].freq}`,
-                    name
+                    `${ut.formatNumber(value)}%, ${ut.formatNumber(props.payload.data[name].ipm)} ipm, ${ut.translate('global__frequency')} ${ut.formatNumber(props.payload.data[name].freq)}`,
+                    name,
                 ]
             }
             return ['??', '??'];

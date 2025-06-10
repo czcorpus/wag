@@ -153,7 +153,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isPartial:boolean;
         isMobile:boolean;
         tileId:number;
-        onBarClick:(barIdx:number) => () => void;
+        onBarClick:(barIdx:number, queryIdx:number) => () => void;
     }> = (props) => {
         const queries = props.queryMatches.length;
         const transformedData = transformData(props.data, props.queryMatches);
@@ -193,8 +193,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const data = transformedData[payload.index];
             return (
                 <g transform={`translate(${x},${y})`}>
-                    {data['isClickable'] ?
-                        <a onClick={props.onBarClick(payload.index)} style={{ cursor: 'pointer' }}>
+                    {data.isClickable && data.freq.length === 1 ?
+                        <a onClick={props.onBarClick(payload.index, 0)} style={{ cursor: 'pointer' }}>
                             <text x={0} y={0} dy={5} dx={-20} textAnchor="end">
                             {payload.value}
                             </text>
@@ -238,25 +238,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 >
                     <CartesianGrid />
                     {List.map(
-                        (_, index) => {
-                            const dfltFill = props.isPartial ? theme.unfinishedChartColor : colorFn(index);
-                            const hgltFill = props.isPartial ? theme.unfinishedChartColor : colorHgltFn(index);
+                        (_, queryIdx) => {
+                            const dfltFill = props.isPartial ? theme.unfinishedChartColor : colorFn(queryIdx);
+                            const hgltFill = props.isPartial ? theme.unfinishedChartColor : colorHgltFn(queryIdx);
                             return (
-                                <Bar key={index}
-                                        dataKey={x => x.ipm[index]}
+                                <Bar key={queryIdx}
+                                        dataKey={x => x.ipm[queryIdx]}
                                         fill={dfltFill}
                                         isAnimationActive={false}
-                                        name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}
+                                        name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[queryIdx].word}
                                         onMouseEnter={handleMouseEnter}
                                         onMouseLeave={handleMouseLeave}
                                         >
                                     {List.map(
                                         (entry, i) => (
                                             <Cell
-                                                key={`cell-${index}`}
+                                                key={`cell-${queryIdx}`}
                                                 cursor={entry.isClickable ? "pointer" : null}
                                                 fill={hoveredIndex === i && entry.isClickable ? hgltFill : dfltFill}
-                                                onClick={entry.isClickable ? props.onBarClick(entry.sourceIdx) : null}
+                                                onClick={entry.isClickable ? props.onBarClick(entry.sourceIdx, queryIdx) : null}
                                             />
                                         ),
                                         transformedData)
@@ -289,12 +289,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
         const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
 
-        const handleBarClick = (barIdx:number) => () => {
+        const handleBarClick = (barIdx:number, queryIdx:number) => () => {
             dispatcher.dispatch(
                 Actions.ViewInOtherWag,
                 {
+                    tileId: props.tileId,
                     barIdx,
-                    tileId: props.tileId
+                    queryIdx,                    
                 }
             );
         };
@@ -308,7 +309,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         List.flatMap(([,v]) => v),
                         List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
                     }
-                    backlink={props.backlinks}
+                    backlink={List.flatMap(v => v, props.backlinks)}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <div style={{position: 'relative'}}>
