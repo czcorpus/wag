@@ -20,7 +20,7 @@ import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { pipe, HTTP, List, Rx, tuple, Dict } from 'cnc-tskit';
 
-import { IAppServices } from '../../appServices.js';
+import { AppServices, IAppServices } from '../../appServices.js';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction, RecognizedQueries, findCurrQueryMatch } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
@@ -58,7 +58,7 @@ interface MkRuntimeClientConfArgs {
     queryType:QueryType;
 }
 
-function createParentWagLink(
+export function createParentWagLink(
     baseUrl:string,
     queryType:QueryType,
     queries:Array<UserQuery>,
@@ -107,7 +107,7 @@ function filterTilesByQueryType(
  * Based on the static configuration, current query and other runtime
  * information, generate request-specific configuration for the client.
  */
-function mkRuntimeClientConf({
+export function mkRuntimeClientConf({
     conf,
     serverConf,
     themeId,
@@ -308,7 +308,7 @@ export function importQueryRequest({
 /**
  * note: functions expects availMatches sorted from highest ipm to lowest
  */
-function markMatch(userQuery:UserQuery, posAttr:MainPosAttrValues, availMatches:Array<QueryMatch>):Array<QueryMatch> {
+export function markMatch(userQuery:UserQuery, posAttr:MainPosAttrValues, availMatches:Array<QueryMatch>):Array<QueryMatch> {
     if (List.size(availMatches) === 0) {
         return availMatches;
     }

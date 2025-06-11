@@ -42,7 +42,7 @@ export interface IApiServices {
 
     importExternalMessage(label:LocalizedConfMsg):string;
 
-    dataStreaming():DataStreaming;
+    dataStreaming():IDataStreaming;
 }
 
 
@@ -92,7 +92,7 @@ export interface IAppServices extends IApiServices {
 
     callAPIWithExtraVal:IAPICaller['callAPIWithExtraVal'];
 
-    dataStreaming():DataStreaming;
+    dataStreaming():IDataStreaming;
 }
 
 
@@ -116,7 +116,7 @@ export interface AppServicesArgs {
     dataReadability:DataReadabilityMapping;
     apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
     apiCaller:IAPICaller;
-    dataStreaming:DataStreaming;
+    dataStreaming:IDataStreaming;
     mobileModeTest:()=>boolean;
 }
 
@@ -149,7 +149,7 @@ export class AppServices implements IAppServices {
 
     private readonly sessionStorage:ISimpleSessionStorage;
 
-    private readonly dataStreamingImpl:DataStreaming;
+    private readonly dataStreamingImpl:IDataStreaming;
 
     private readonly apiCaller:IAPICaller;
 
@@ -350,7 +350,7 @@ export class AppServices implements IAppServices {
         return ajax$<T>(method, url, args, options);
     }
 
-    dataStreaming():DataStreaming {
+    dataStreaming():IDataStreaming {
         return this.dataStreamingImpl;
     }
 
