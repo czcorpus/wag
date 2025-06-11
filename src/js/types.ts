@@ -56,9 +56,7 @@ export interface DataApi<T, U> {
  */
 export interface ResourceApi<T, U> extends DataApi<T, U> {
 
-    getSourceDescription(
-        streaming:IDataStreaming, tileId:number, lang:string, corpname:string
-    ):Observable<SourceDetails>;
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null;
 }

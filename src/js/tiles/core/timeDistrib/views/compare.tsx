@@ -299,6 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} />
                         <Tooltip isAnimationActive={false}
                             formatter={tooltipFormatter}
+                            
                             content = {<globComponents.AlignedRechartsTooltip multiWord={true} colors={idx => theme.cmpCategoryColor(idx, this.props.words.length)}/>}
                         />
                         {List.map(

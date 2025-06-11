@@ -27,6 +27,7 @@ import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { MergeFreqsApi } from './api.js';
+import { findCurrentMatches } from '../wordFreq/model.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -142,9 +143,9 @@ export class MergeCorpFreqTile implements ITileProvider {
                     conf.sources
                 ),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
-                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 tooltipData: null,
-                backlinks: List.map(_ => null, conf.sources),
+                backlinks: List.map(_ => List.map(_ => null, conf.sources), queryMatches),
+                queryMatches: List.map(match => findCurrQueryMatch(match), queryMatches),
             },
             downloadLabel: conf.downloadLabel,
         });

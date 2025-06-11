@@ -20,7 +20,6 @@ import { IFullActionControl, StatefulModel } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { Actions } from './actions.js';
 import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';

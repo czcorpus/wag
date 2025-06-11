@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { Backlink } from '../../../page/tile.js';
 import { QueryMatch } from '../../../query/index.js';
+import { Backlink } from '../../../page/tile.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import { DataRow } from './api.js';
 
@@ -85,7 +85,6 @@ export interface MergeCorpFreqModelState {
     data:Array<Array<SourceMappedDataRow>>;
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;
-    queryMatches:Array<QueryMatch>;
     tooltipData:{
         tooltipX:number;
         tooltipY:number;
@@ -93,5 +92,6 @@ export interface MergeCorpFreqModelState {
         caption:string;
         showClickTip:boolean;
     }|null;
-    backlinks:Array<Backlink>;
+    backlinks:Array<Array<Backlink>>;
+    queryMatches:Array<QueryMatch>;
 }
