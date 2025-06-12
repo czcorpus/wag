@@ -22,9 +22,10 @@ import { map } from 'rxjs/operators';
 import { ajax$, encodeArgs } from '../../../page/ajax.js';
 import { SourceDetails } from '../../../types.js';
 import { IAppServices } from '../../../appServices.js';
-import { HTTP, List } from 'cnc-tskit';
+import { HTTP, List, pipe } from 'cnc-tskit';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { Line } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 export type SearchPackages = {[translatLang:string]:Array<string>};
@@ -58,12 +59,21 @@ interface HTTPResponseLine {
     freq:string;
     perc:string;
     from:string;
-    to:string;
+    to:{
+        word:string;
+        examples?:{
+            text:Array<Line>;
+            interactionId:string;
+            ref:string;
+        }
+    }
 }
 
 export interface HTTPResponse {
     sum:number;
     lines:Array<HTTPResponseLine>;
+    fromCorp?:string;
+    toCorp?:string;
 }
 
 export const mkInterctionId = (word:string):string => {
@@ -71,12 +81,22 @@ export const mkInterctionId = (word:string):string => {
 };
 
 
+export interface Translation {
+    word:string;
+    examples?:{
+        text:Array<Line>;
+        interactionId:string;
+        ref:string;
+    }
+}
+
+
 export interface WordTranslation {
     score:number;
     freq:number; // TODO probably a candidate for removal
     word:string;
     firstTranslatLc:string;
-    translations:Array<string>;
+    translations:Array<Translation>;
     interactionId:string;
     color?:string;
 }
@@ -185,7 +205,7 @@ export class TreqAPICommon {
                     acc[curr.firstTranslatLc] = {
                         freq: curr.freq,
                         score: curr.score,
-                        left: curr.word,
+                        word: curr.word,
                         translations: curr.translations,
                         firstTranslatLc: curr.firstTranslatLc,
                         interactionId: mkInterctionId(curr.firstTranslatLc)
@@ -223,21 +243,33 @@ export class TreqAPICommon {
 
 export class TreqAPI extends TreqAPICommon {
 
-    constructor(apiURL:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
+    private readonly fetchExamplesFrom:[string, string]|undefined;
+
+    constructor(
+        apiURL:string,
+        fetchExamplesFrom:[string, string]|undefined,
+        appServices:IAppServices,
+        backlinkConf:BacklinkConf
+    ) {
         super(apiURL, appServices, backlinkConf);
+        this.fetchExamplesFrom = fetchExamplesFrom;
     }
 
     call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
-        console.log('calling with ', streaming, tileId, queryIdx)
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
+        const allArgs = this.fetchExamplesFrom ?
+            {...args, fromCorp: this.fetchExamplesFrom[0], toCorp: this.fetchExamplesFrom[1]} :
+            args;
         const source = streaming ?
             streaming.registerTileRequest<HTTPResponse>({
                 contentType: 'application/json',
                 body: {},
                 method: HTTP.Method.GET,
                 tileId,
-                url: this.apiURL + '/' + '?' + encodeArgs(args),
+                url: this.fetchExamplesFrom ?
+                    this.apiURL + '/with-examples' + '?' + encodeArgs(allArgs) :
+                    this.apiURL + '/' + '?' + encodeArgs(allArgs),
             }) : ajax$<HTTPResponse>(
                 HTTP.Method.GET,
                 this.apiURL,
@@ -256,17 +288,24 @@ export class TreqAPI extends TreqAPICommon {
                     }
                     return {
                         translations: this.mergeByLowercase(
-                            List.map(
-                                v => ({
-                                    freq: parseInt(v.freq),
-                                    score: parseFloat(v.perc),
-                                    word: v.from,
-                                    firstTranslatLc: v.to.toLowerCase(),
-                                    translations: [v.to],
-                                    interactionId: ''
-                                }),
-                                resp.lines
-                            )).slice(0, 10)
+                            pipe(
+                                resp.lines,
+                                List.map(
+                                    v => ({
+                                        freq: parseInt(v.freq),
+                                        score: parseFloat(v.perc),
+                                        word: v.from,
+                                        firstTranslatLc: v.to.word.toLowerCase(),
+                                        translations: [{
+                                            word: v.to.word,
+                                            examples: v.to.examples
+                                        }],
+                                        interactionId: ''
+                                    })
+                                ),
+                                x => x.slice(0, 10)
+                            )
+                        )
                     };
                 }
             )

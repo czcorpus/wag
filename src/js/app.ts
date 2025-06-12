@@ -205,7 +205,7 @@ export function createRootComponent({
             hiddenGroups: [],
             datalessGroups: [],
             tileResultFlags: pipe(
-                layoutManager.getLayoutGroups(qType),
+                layoutManager.getLayoutGroups(),
                 List.flatMap(
                     (v, groupIdx) => List.map(v2 => [groupIdx, v2] as [number, GroupedTileProps],
                         v.tiles)
@@ -246,7 +246,7 @@ export function createRootComponent({
 
     return {
         component: WdglanceMain,
-        tileGroups: layoutManager.getLayoutGroups(qType),
-        mainPosAttr: layoutManager.getLayoutMainPosAttr(qType)
+        tileGroups: layoutManager.getLayoutGroups(),
+        mainPosAttr: layoutManager.getLayoutMainPosAttr()
     };
 }

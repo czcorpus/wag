@@ -343,7 +343,7 @@ export const defaultFactory = ({
                 v => v.findIndex(v2 => v2.isCurrent),
                 queryMatches
             ),
-            mainPosAttr: layout.getLayoutMainPosAttr(queryType),
+            mainPosAttr: layout.getLayoutMainPosAttr(),
         }
     );
 };

@@ -22,7 +22,7 @@ import { map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
 
 import { IDataStreaming } from '../../../page/streaming.js';
-import { RequestArgs, TreqAPICommon } from '../translations/api.js';
+import { RequestArgs, TreqAPICommon, Translation } from '../translations/api.js';
 import { ajax$, encodeArgs } from '../../../page/ajax.js';
 
 
@@ -40,22 +40,22 @@ interface HTTPResponse {
 }
 
 
-export interface WordTranslation {
+export interface WordEntry {
     score:number;
     freq:number; // TODO probably a candidate for removal
     word:string;
     firstTranslatLc:string;
-    translations:Array<string>;
+    translations:Array<Translation>;
     interactionId:string;
     color?:string;
 }
 
 export interface TranslationResponse {
-    subsets:{[subsetId:string]:Array<WordTranslation>};
+    subsets:{[subsetId:string]:Array<WordEntry>};
 }
 
 
-export function filterByMinFreq(data:{[subsetId:string]:Array<WordTranslation>}, minFreq:number):{[subsetId:string]:Array<WordTranslation>} {
+export function filterByMinFreq(data:{[subsetId:string]:Array<WordEntry>}, minFreq:number):{[subsetId:string]:Array<WordEntry>} {
     return Dict.map(
         (values, subsetId) => List.filter(
             x => x.freq >= minFreq,
@@ -106,7 +106,9 @@ export class TreqSubsetsAPI extends TreqAPICommon {
                                             score: parseFloat(v.perc),
                                             word: v.from,
                                             firstTranslatLc: v.to.toLowerCase(),
-                                            translations: [v.to],
+                                            translations: [{
+                                                word: v.to
+                                            }],
                                             interactionId: ''
                                         }),
                                         values.lines

@@ -18,7 +18,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
-import { pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
+import { pipe, HTTP, List, Rx, tuple, Dict } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices.js';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction, RecognizedQueries, findCurrQueryMatch } from '../../query/index.js';
@@ -27,7 +27,8 @@ import {
     UserConf, ClientStaticConf, ClientConf, emptyClientConf, errorUserConf, isTileDBConf,
     THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
     mergeToEmptyLayoutConf, MainPosAttrValues, LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
-    LayoutsConfig
+    LayoutsConfig,
+    HomepageTileConf
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -46,6 +47,7 @@ import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
+import { TileConf } from '../../page/tile.js';
 
 
 interface MkRuntimeClientConfArgs {
@@ -53,6 +55,7 @@ interface MkRuntimeClientConfArgs {
     serverConf:ServerConf;
     themeId:string;
     appServices:IAppServices;
+    queryType:QueryType;
 }
 
 function createParentWagLink(
@@ -79,6 +82,27 @@ function createParentWagLink(
         return urlJoin(baseUrl, action);
     }
 }
+
+
+
+/**
+ * Out of all the configured tiles for all the query types, filter out everything
+ * except for the provided query type.
+ */
+function filterTilesByQueryType(
+    layouts:LayoutsConfig,
+    tiles:{[ident:string]:TileConf},
+    qType:QueryType
+):{[tileId:string]:TileConf} {
+    return pipe(
+        layouts[qType].groups,
+        List.flatMap(x => typeof x !== 'string' ? x.tiles : []),
+        List.map(x => tuple(x.tile, tiles[x.tile])),
+        Dict.fromEntries()
+    );
+}
+
+
 /**
  * Based on the static configuration, current query and other runtime
  * information, generate request-specific configuration for the client.
@@ -88,7 +112,17 @@ function mkRuntimeClientConf({
     serverConf,
     themeId,
     appServices,
+    queryType
 }:MkRuntimeClientConfArgs):Observable<ClientConf> {
+
+    const layouts = mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {});
+    const tiles = filterTilesByQueryType(
+        layouts,
+        typeof conf.tiles !== 'string' && !isTileDBConf(conf.tiles) ? conf.tiles : {},
+        queryType
+
+    );
+
     return forkJoin([
         forkJoin(
             List.map(
@@ -105,12 +139,12 @@ function mkRuntimeClientConf({
                 conf.homepage.tiles
             )
         ).pipe(
-            defaultIfEmpty([])
+            defaultIfEmpty<Array<HomepageTileConf>, Array<HomepageTileConf>>([])
         ),
         conf.homepage.footer ?
             appServices.importExternalText(conf.homepage.footer, loadFile) : rxOf(undefined)
     ]).pipe(
-        map(([tiles, footer]) => {
+        map(([hpTiles, footer]) => {
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
@@ -134,9 +168,7 @@ function mkRuntimeClientConf({
                     getThemeList(conf)
                 ),
                 dataStreamingUrl: conf.dataStreamingUrl,
-                tiles: typeof conf.tiles !== 'string' && !isTileDBConf(conf.tiles) ?
-                    conf.tiles :
-                    {},
+                tiles,
                 layouts: mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
                 queryTypes: typeof conf.layouts !== 'string' ?
                     pipe(
@@ -151,7 +183,7 @@ function mkRuntimeClientConf({
                 externalStyles: conf.externalStyles || [],
                 issueReportingUrl: conf.issueReportingUrl,
                 homepage: {
-                    tiles,
+                    tiles: hpTiles,
                     footer
                 },
                 maxTileErrors: conf.maxTileErrors,
@@ -335,7 +367,8 @@ export function queryAction({
                     conf: services.clientConf,
                     serverConf: services.serverConf,
                     themeId: req.cookies[THEME_COOKIE_NAME] || '',
-                    appServices
+                    appServices,
+                    queryType
                 })
             )
         ),
@@ -347,7 +380,7 @@ export function queryAction({
                     appServices,
                     queryType
                 );
-                if (lm.isEmpty(queryType)) {
+                if (lm.isEmpty()) {
                     const firstAvailQt = List.find(x => x.isEnabled, lm.getQueryTypesMenuItems());
                     runtimeConf.redirect = tuple(
                         303, appServices.createActionUrl(queryTypeToAction(firstAvailQt.type))
@@ -379,7 +412,7 @@ export function queryAction({
                         freqDb.findQueryMatches(
                             appServices,
                             query.word,
-                            layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                            layoutManager.getLayoutMainPosAttr(),
                             services.serverConf.freqDB.minLemmaFreq,
                         ) :
                         rxOf<Array<QueryMatch>>([]),
@@ -435,7 +468,7 @@ export function queryAction({
                     }
                     return markMatch(
                         userConf.queries[queryIdx],
-                        layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                        layoutManager.getLayoutMainPosAttr(),
                         List.sorted(
                             (v1, v2) => v2.ipm - v1.ipm,
                             addWildcardMatches([...queryMatches])

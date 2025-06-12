@@ -229,7 +229,12 @@ export class DataStreaming implements IDataStreaming {
                                             });
 
                                         } catch (e) {
-                                            observer.error(new Error(`Failed to process response for tile ${val.tileId}: ${e}`));
+                                            observer.next({
+                                                data: undefined,
+                                                error: `Failed to process response for tile ${val.tileId}: ${e}`,
+                                                tileId: val.tileId,
+                                                queryIdx: val.queryIdx
+                                            });
                                         }
 
                                     } else if (val.base64EncodeResult && typeof evt.data === 'string') {

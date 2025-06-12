@@ -72,7 +72,7 @@ export const mkTileFactory = (
     translatLanguage:string) => (
             confName:string,
             conf:TileConf):ITileProvider|null => {
-        if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, layoutManager.getTileNumber(confName))) {
+        if (conf.isDisabled || !layoutManager.isInCurrentLayout(layoutManager.getTileNumber(confName))) {
             return new EmptyTile(layoutManager.getTileNumber(confName));
 
         } else {
@@ -85,8 +85,7 @@ export const mkTileFactory = (
             }
 
             const tileId = layoutManager.getTileNumber(confName);
-            const tileLayoutConf = layoutManager.getLayoutTileConf(queryType, tileId);
-
+            const tileLayoutConf = layoutManager.getLayoutTileConf(tileId);
             const args:TileFactoryArgs<{}> = {
                 tileId,
                 dispatcher,
@@ -100,9 +99,9 @@ export const mkTileFactory = (
                 theme,
                 conf,
                 isBusy: true,
-                mainPosAttr: layoutManager.getLayoutMainPosAttr(queryType),
+                mainPosAttr: layoutManager.getLayoutMainPosAttr(),
                 useDataStream: !!conf.useDataStream,
-                dependentTiles: layoutManager.getDependentTiles(queryType, tileId)
+                dependentTiles: layoutManager.getDependentTiles(tileId)
             };
             const errs = tileFactory.sanityCheck(args);
             if (!List.empty(errs)) {

@@ -73,7 +73,7 @@ export class ConcordanceTile implements ITileProvider {
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
-            readDataFromTile: readDataFromTile || null,
+            readDataFromTile: typeof readDataFromTile === 'number' ? readDataFromTile : null,
             appServices,
             api: new MQueryConcApi(conf.apiURL, appServices, conf.backlink),
             infoApi: new CorpusInfoAPI(

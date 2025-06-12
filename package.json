@@ -65,7 +65,7 @@
     "express": "^4.18.2",
     "express-session": "^1.18.1",
     "howler": "^2.2.4",
-    "kombo": "^1.0.4",
+    "kombo": "^1.1.2",
     "path-browserify": "^1.0.1",
     "pino": "~9.6.0",
     "pino-pretty": "~13.0.0",

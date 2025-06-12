@@ -44,6 +44,7 @@ export interface Token {
 export interface Line {
     ref:string;
     text:Array<Token>;
+    alignedText:Array<Text>;
     metadata:Array<{value:string; label:string}>;
     interactionId?:string;
     highlighted?:boolean;
@@ -90,6 +91,8 @@ export interface ConcResponse {
     concSize:number;
     ipm:number;
     lines:Array<Line>;
+    corpname?:string;
+    alignedCorpname?:string;
     resultType:'concordance';
 }
 

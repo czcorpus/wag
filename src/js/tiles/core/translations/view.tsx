@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
@@ -25,7 +25,8 @@ import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 import { Theme } from '../../../page/theme.js';
 
 import * as S from './style.js';
-import { TranslationsModelState, WordTranslation } from './api.js';
+import { WordTranslation } from './api.js';
+import { List, pipe } from 'cnc-tskit';
 
 
 
@@ -88,40 +89,54 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // --------------- <TranslationsTileView /> -----------------------------------
 
-    class TranslationsTileView extends React.PureComponent<TranslationsModelState & CoreTileComponentProps> {
+    const TranslationsTileView:React.FC<CoreTileComponentProps> = (props) => {
 
-        render() {
-            const dataTransform = (t:WordTranslation) => ({
-                text: t.translations.length > 1 ? t.firstTranslatLc : t.translations[0],
-                value: t.score,
-                tooltip: [
-                    {label: ut.translate('treq__abs_freq'), value: t.freq},
-                    {label: ut.translate('treq__rel_freq'), value: t.score, round: 1},
-                    {label: ut.translate('treq__found_variants'), value: t.translations.join(', ')}
-                ],
-                interactionId: t.interactionId,
-                color: t.color
-            });
+        const state = useModel(model);
 
-            return (
-                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                            hasData={this.props.translations.length > 0}
-                            sourceIdent={{corp: 'InterCorp'}}
-                            backlink={this.props.backlink}
-                            supportsTileReload={this.props.supportsReloadOnError}
-                            issueReportingUrl={this.props.issueReportingUrl}>
-                    {this.props.isAltViewMode ?
-                        <TranslationsTable translations={this.props.translations} /> :
-                        <globComponents.ResponsiveWrapper widthFract={this.props.widthFract} render={(width:number, height:number) => (
-                                    <WordCloud width={width} height={height}
-                                            isMobile={this.props.isMobile}
-                                            data={this.props.translations} font={theme.infoGraphicsFont}
-                                            dataTransform={dataTransform} />)} />
-                    }
-                </globComponents.TileWrapper>
-            );
-        }
+        const dataTransform = (t:WordTranslation) => ({
+            text: t.translations.length > 1 ? t.firstTranslatLc : t.translations[0].word,
+            value: t.score,
+            tooltip: [
+                {
+                    label: ut.translate('treq__abs_freq'),
+                    value: t.freq
+                },
+                {
+                    label: ut.translate('treq__rel_freq'),
+                    value: t.score,
+                    round: 1
+                },
+                {
+                    label: ut.translate('treq__found_variants'),
+                    value: pipe(
+                        t.translations,
+                        List.map(v => v.word),
+                        x => x.join(', ')
+                    )
+                }
+            ],
+            interactionId: t.interactionId,
+            color: t.color
+        });
+
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
+                        hasData={state.translations.length > 0}
+                        sourceIdent={{corp: 'InterCorp'}}
+                        backlink={state.backlink}
+                        supportsTileReload={props.supportsReloadOnError}
+                        issueReportingUrl={props.issueReportingUrl}>
+                {state.isAltViewMode ?
+                    <TranslationsTable translations={state.translations} /> :
+                    <globComponents.ResponsiveWrapper widthFract={props.widthFract} render={(width:number, height:number) => (
+                                <WordCloud width={width} height={height}
+                                        isMobile={props.isMobile}
+                                        data={state.translations} font={theme.infoGraphicsFont}
+                                        dataTransform={dataTransform} />)} />
+                }
+            </globComponents.TileWrapper>
+        );
     }
 
-    return BoundWithProps(TranslationsTileView, model);
+    return TranslationsTileView;
 }
