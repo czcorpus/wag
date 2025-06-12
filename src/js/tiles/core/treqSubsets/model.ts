@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
 import { mkInterctionId, RequestArgs } from '../translations/api.js';
@@ -28,7 +27,7 @@ import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 import { isTranslationsPayload } from '../translations/actions.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
-import { filterByMinFreq, TreqSubsetsAPI, WordTranslation } from './api.js';
+import { filterByMinFreq, TreqSubsetsAPI, WordEntry } from './api.js';
 
 
 
@@ -55,7 +54,7 @@ export interface TranslationSubset {
     ident:string;
     label:string;
     packages:Array<string>;
-    translations:Array<WordTranslation>;
+    translations:Array<WordEntry>;
 }
 
 
@@ -85,14 +84,14 @@ export const flipRowColMapper = <T>(subsets:Array<TranslationSubset>, maxNumLine
                         subs => subs.translations[i].translations,
                     ),
                     List.map(v => {
-                        const ans:[string, true] = [v, true];
+                        const ans:[string, true] = [v.word, true];
                         return ans;
                     })
                 )
         );
         tmp.push({
             idx: i,
-            heading: Dict.size(variants) > 1 ? fitem.firstTranslatLc : fitem.translations[0],
+            heading: Dict.size(variants) > 1 ? fitem.firstTranslatLc : fitem.translations[0].word,
             cells: [...row],
             color: subsets[0].translations[i].color
         });
@@ -446,37 +445,42 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             List.map(([idx,]) => idx)
         );
 
-        state.subsets = state.subsets.map(subset => ({
-            ident: subset.ident,
-            label: subset.label,
-            packages: subset.packages,
-            translations: List.map(
-                w => {
-                    const srch = List.find(v => v.firstTranslatLc === w, subset.translations);
-                    if (srch) {
-                        return {
-                            freq: srch.freq,
-                            score: srch.score,
-                            word: srch.word,
-                            translations: srch.translations,
-                            firstTranslatLc: srch.firstTranslatLc,
-                            interactionId: srch.interactionId,
-                            color: Dict.get(srch.firstTranslatLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR, state.colorMap)
-                        };
-                    }
-                    return {
-                        freq: 0,
-                        score: 0,
-                        word: '',
-                        translations: [w],
-                        firstTranslatLc: w.toLowerCase(),
-                        color: Dict.get(w.toLowerCase(), TreqSubsetModel.UNMATCHING_ITEM_COLOR, state.colorMap),
-                        interactionId: mkInterctionId(w.toLowerCase())
-                    }
-                },
-                allWords
+        state.subsets = pipe(
+            state.subsets,
+            List.map(
+                subset => ({
+                    ident: subset.ident,
+                    label: subset.label,
+                    packages: subset.packages,
+                    translations: List.map(
+                        w => {
+                            const srch = List.find(v => v.firstTranslatLc === w, subset.translations);
+                            if (srch) {
+                                return {
+                                    freq: srch.freq,
+                                    score: srch.score,
+                                    word: srch.word,
+                                    translations: srch.translations,
+                                    firstTranslatLc: srch.firstTranslatLc,
+                                    interactionId: srch.interactionId,
+                                    color: Dict.get(srch.firstTranslatLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR, state.colorMap)
+                                };
+                            }
+                            return {
+                                freq: 0,
+                                score: 0,
+                                word: '',
+                                translations: [{word: w}],
+                                firstTranslatLc: w.toLowerCase(),
+                                color: Dict.get(w.toLowerCase(), TreqSubsetModel.UNMATCHING_ITEM_COLOR, state.colorMap),
+                                interactionId: mkInterctionId(w.toLowerCase())
+                            }
+                        },
+                        allWords
+                    )
+                })
             )
-        }));
+        );
     }
 
 }

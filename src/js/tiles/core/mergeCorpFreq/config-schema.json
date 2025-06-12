@@ -62,6 +62,9 @@
                     "fttIncludeEmpty": {
                         "type": "boolean"
                     },
+                    "viewInOtherWagUrl": {
+                        "type": "string"
+                    },
                     "uniqueColor": {
                         "description": "If true, then WaG will colorize a respective\nfreq. bar to a color different from the default one.\nIf multiple source items have this set to true\nthen each item will have its own unique color.\n\nCurrently, this works only for the \"single\" mode.",
                         "type": "boolean"

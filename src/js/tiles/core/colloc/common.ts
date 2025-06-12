@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { SubqueryPayload, QueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { SubqueryPayload, QueryMatch } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 import { Line } from '../../../api/vendor/mquery/concordance/common.js';
@@ -166,7 +166,7 @@ export interface CollocModelState {
 }
 
 
-interface collItem {
+interface CollItem {
     word:string;
     freq:number;
     score:number;
@@ -174,13 +174,14 @@ interface collItem {
 }
 
 
-export interface collWithExamplesResponse {
+export interface CollWithExamplesResponse {
     concSize:number;
     corpusSize:number;
     subcSize?:number;
-    colls:Array<collItem>;
+    colls:Array<CollItem>;
     measure:string;
     srchRange:[number, number];
     error?:string;
     resultType:'collWithExamples';
 }
+

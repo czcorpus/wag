@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import { List, Strings } from 'cnc-tskit';
 
@@ -23,7 +23,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { Actions } from './actions.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { ConcordanceTileModel, ConcordanceTileState } from './model.js';
+import { ConcordanceTileModel } from './model.js';
 
 import * as S from './style.js';
 import { getKwicCtx, getLineLeftCtx, getLineRightCtx, Line, Token, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
@@ -281,30 +281,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <ConcordanceTileView /> --------------------------------------------
 
-    class ConcordanceTileView extends React.PureComponent<ConcordanceTileState & CoreTileComponentProps> {
+    const ConcordanceTileView:React.FC<CoreTileComponentProps> = (props) => {
 
-        constructor(props) {
-            super(props);
-            this.handleQueryVariantClick = this.handleQueryVariantClick.bind(this);
-            this.handleLineClick = this.handleLineClick.bind(this);
-        }
+        const state = useModel(model);
 
-        handleQueryVariantClick() {
+        const handleQueryVariantClick = () => {
             dispatcher.dispatch<typeof GlobalActions.EnableTileTweakMode>({
                 name: GlobalActions.EnableTileTweakMode.name,
                 payload: {
-                    ident: this.props.tileId
+                    ident: props.tileId
                 }
             });
-        }
+        };
 
-        private handleLineClick(idx:number) {
+        const handleLineClick = (idx:number) => {
             return (e:React.MouseEvent) => {
-                if (this.props.visibleMetadataLine === idx) {
+                if (state.visibleMetadataLine === idx) {
                     dispatcher.dispatch<typeof Actions.HideLineMetadata>({
                         name: Actions.HideLineMetadata.name,
                         payload: {
-                            tileId: this.props.tileId
+                            tileId: props.tileId
                         }
                     });
 
@@ -312,7 +308,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     dispatcher.dispatch<typeof Actions.ShowLineMetadata>({
                         name: Actions.ShowLineMetadata.name,
                         payload: {
-                            tileId: this.props.tileId,
+                            tileId: props.tileId,
                             idx: idx
                         }
                     });
@@ -321,91 +317,89 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
-        render() {
 
-            const tableClasses = ['conc-lines'];
-            if (this.props.viewMode === ViewMode.SENT || this.props.viewMode === ViewMode.ALIGN) {
-                tableClasses.push('sent');
-            }
-            if (this.props.otherCorpname) {
-                tableClasses.push('aligned');
-            }
-
-            const conc = this.props.concordances[this.props.visibleQueryIdx];
-            return (
-                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.concordances.some(conc => conc.lines.length > 0)}
-                        sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                        backlink={this.props.backlinks}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <S.ConcordanceTileView>
-                        {this.props.isTweakMode ?
-                            <div className="tweak-box">
-                                    <Controls
-                                        currPage={conc.currPage}
-                                        numPages={conc.numPages}
-                                        viewMode={this.props.viewMode}
-                                        tileId={this.props.tileId}
-                                        viewModeEnabled={!this.props.otherCorpname && !this.props.disableViewModes}
-                                        queries={this.props.queries}
-                                        currVisibleQueryIdx={this.props.visibleQueryIdx} />
-                            </div> :
-                            null
-                        }
-                        {
-                            this.props.queries.length > 1 ?
-                            <S.QueryInfo>
-                                {ut.translate('concordance__showing_results_for')}:{'\u00a0'}
-                                <a className="variant" onClick={this.handleQueryVariantClick}>
-                                    {`[${this.props.visibleQueryIdx + 1}] ${this.props.queries[this.props.visibleQueryIdx]}`}
-                                </a>
-                            </S.QueryInfo> :
-                            null
-                        }
-                        {this.props.isExamplesMode ?
-                            null :
-                            <S.Summary>
-                                <dt>{ut.translate('concordance__num_matching_items')}:</dt>
-                                <dd>{ut.formatNumber(conc.concSize, 0)}</dd>
-                                {conc.ipm > -1 ?
-                                    <>
-                                        <dt>{ut.translate('concordance__ipm')}:</dt>
-                                        <dd>{ut.formatNumber(conc.ipm, 2)}</dd>
-                                    </> :
-                                    null
-                                }
-                            </S.Summary>
-                        }
-                        <S.ConcLines>
-                            <table className={tableClasses.join(' ')}>
-                                <tbody>
-                                    {List.map(
-                                        (line, i) => (
-                                            this.props.viewMode === ViewMode.KWIC ?
-                                                <KWICRow
-                                                    key={`${i}:${line.ref}`}
-                                                    data={line}
-                                                    isParallel={!!this.props.otherCorpname}
-                                                    hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)}
-                                                    /> :
-                                                <SentRow
-                                                    key={`${i}:${line.ref}`}
-                                                    data={line}
-                                                    isParallel={!!this.props.otherCorpname}
-                                                    hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)}
-                                                    />
-                                        ),
-                                        conc.lines
-                                    )}
-                                </tbody>
-                            </table>
-                        </S.ConcLines>
-                    </S.ConcordanceTileView>
-                </globalComponents.TileWrapper>
-            );
+        const tableClasses = ['conc-lines'];
+        if (state.viewMode === ViewMode.SENT || state.viewMode === ViewMode.ALIGN) {
+            tableClasses.push('sent');
         }
+        if (state.otherCorpname) {
+            tableClasses.push('aligned');
+        }
+
+        const conc = state.concordances[state.visibleQueryIdx];
+        return (
+            <globalComponents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
+                    hasData={state.concordances.some(conc => conc.lines.length > 0)}
+                    sourceIdent={{corp: state.corpname, subcorp: state.subcDesc}}
+                    backlink={state.backlinks}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <S.ConcordanceTileView>
+                    {state.isTweakMode ?
+                        <div className="tweak-box">
+                                <Controls
+                                    currPage={conc.currPage}
+                                    numPages={conc.numPages}
+                                    viewMode={state.viewMode}
+                                    tileId={props.tileId}
+                                    viewModeEnabled={!state.otherCorpname && !state.disableViewModes}
+                                    queries={state.queries}
+                                    currVisibleQueryIdx={state.visibleQueryIdx} />
+                        </div> :
+                        null
+                    }
+                    {
+                        state.queries.length > 1 ?
+                        <S.QueryInfo>
+                            {ut.translate('concordance__showing_results_for')}:{'\u00a0'}
+                            <a className="variant" onClick={handleQueryVariantClick}>
+                                {`[${state.visibleQueryIdx + 1}] ${state.queries[state.visibleQueryIdx]}`}
+                            </a>
+                        </S.QueryInfo> :
+                        null
+                    }
+                    {state.isExamplesMode ?
+                        null :
+                        <S.Summary>
+                            <dt>{ut.translate('concordance__num_matching_items')}:</dt>
+                            <dd>{ut.formatNumber(conc.concSize, 0)}</dd>
+                            {conc.ipm > -1 ?
+                                <>
+                                    <dt>{ut.translate('concordance__ipm')}:</dt>
+                                    <dd>{ut.formatNumber(conc.ipm, 2)}</dd>
+                                </> :
+                                null
+                            }
+                        </S.Summary>
+                    }
+                    <S.ConcLines>
+                        <table className={tableClasses.join(' ')}>
+                            <tbody>
+                                {List.map(
+                                    (line, i) => (
+                                        state.viewMode === ViewMode.KWIC ?
+                                            <KWICRow
+                                                key={`${i}:${line.ref}`}
+                                                data={line}
+                                                isParallel={!!state.otherCorpname}
+                                                hasVisibleMetadata={state.visibleMetadataLine === i} handleLineClick={handleLineClick(i)}
+                                                /> :
+                                            <SentRow
+                                                key={`${i}:${line.ref}`}
+                                                data={line}
+                                                isParallel={!!state.otherCorpname}
+                                                hasVisibleMetadata={state.visibleMetadataLine === i} handleLineClick={handleLineClick(i)}
+                                                />
+                                    ),
+                                    conc.lines
+                                )}
+                            </tbody>
+                        </table>
+                    </S.ConcLines>
+                </S.ConcordanceTileView>
+            </globalComponents.TileWrapper>
+        );
     }
 
-    return BoundWithProps<CoreTileComponentProps, ConcordanceTileState>(ConcordanceTileView, model);
+    return ConcordanceTileView;
 }

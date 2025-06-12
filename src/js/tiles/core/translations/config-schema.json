@@ -4,9 +4,6 @@
         "apiURL": {
             "type": "string"
         },
-        "apiType": {
-            "type": "string"
-        },
         "srchPackages": {
             "type": "object",
             "additionalProperties": {
@@ -18,6 +15,19 @@
         },
         "primaryPackage": {
             "type": "string"
+        },
+        "fetchExamplesFrom": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ],
+            "minItems": 2,
+            "maxItems": 2
         },
         "maxNumLines": {
             "type": "number"
@@ -85,7 +95,6 @@
         }
     },
     "required": [
-        "apiType",
         "apiURL",
         "primaryPackage",
         "srchPackages",

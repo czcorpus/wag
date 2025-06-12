@@ -17,7 +17,10 @@
  */
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileConf, TileFactory, TileFactoryArgs
+} from '../../../page/tile.js';
 import { SearchPackages, TreqAPI } from './api.js';
 import { TranslationsModel } from './model.js';
 import { init as viewInit } from './view.js';
@@ -25,9 +28,9 @@ import { init as viewInit } from './view.js';
 
 export interface TranslationsTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
     srchPackages:SearchPackages;
     primaryPackage:string;
+    fetchExamplesFrom?:[string, string];
     maxNumLines?:number;
     minItemFreq?:number;
 }
@@ -78,7 +81,7 @@ export class TranslationsTile implements ITileProvider {
                 lang2: translatLanguage
             },
             tileId,
-            api: new TreqAPI(conf.apiURL, appServices, conf.backlink),
+            api: new TreqAPI(conf.apiURL, conf.fetchExamplesFrom, appServices, conf.backlink),
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed
         });

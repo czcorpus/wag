@@ -45,19 +45,16 @@ interface LayoutCore {
     groups:Array<TileGroup>;
 }
 
-
-interface LayoutOfQueryTypeSingle extends LayoutCore {}
-
-
-interface LayoutOfQueryTypeCmp extends LayoutCore {}
-
-
 interface LayoutOfQueryTypeTranslat extends LayoutCore {
     targetLanguages:Array<TranslatLanguage>;
 }
 
+function layoutIsLayoutOfQueryTypeTranslat(t:LayoutCore):t is LayoutOfQueryTypeTranslat {
+    return t['targetLanguages'] !== undefined;
+}
 
-function layoutIsEmpty(layout:LayoutCore):boolean {
+
+function layoutIsEmpty(layout:LayoutConfigCommon):boolean {
     return layout.groups.length === 0;
 }
 
@@ -102,11 +99,7 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
 
 export class LayoutManager {
 
-    private readonly layoutSingle:LayoutOfQueryTypeSingle;
-
-    private readonly layoutCmp:LayoutOfQueryTypeCmp;
-
-    private readonly layoutTranslat:LayoutOfQueryTypeTranslat;
+    private readonly layout:LayoutCore;
 
     private readonly queryTypes:Array<QueryTypeMenuItem>;
 
@@ -114,43 +107,49 @@ export class LayoutManager {
 
     constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:IAppServices, queryType:QueryType) {
         this.tileMap = tileMap;
-        this.layoutSingle = importLayout(
-            layouts.single,
-            tileMap,
-            appServices,
-            'global__single_word_sel'
-        );
-        this.layoutCmp = importLayout(
-            layouts.cmp,
-            tileMap,
-            appServices,
-            'global__words_compare'
-        );
-        this.layoutTranslat = {
-            ...importLayout(
-                layouts.translat,
+        if (queryType === QueryType.SINGLE_QUERY) {
+            this.layout = importLayout(
+                layouts.single,
                 tileMap,
                 appServices,
-                'global__word_translate'
-            ),
-            targetLanguages: layouts.translat.targetLanguages || []
+                'global__single_word_sel'
+            );
+
+        } else if (queryType === QueryType.CMP_QUERY) {
+            this.layout = importLayout(
+                layouts.cmp,
+                tileMap,
+                appServices,
+                'global__words_compare'
+            );
+
+        } else {
+            this.layout = {
+                ...importLayout(
+                    layouts.translat,
+                    tileMap,
+                    appServices,
+                    'global__word_translate'
+                ),
+                targetLanguages: layouts.translat.targetLanguages || []
+            } as LayoutOfQueryTypeTranslat;
         };
-        this.validateLayouts(queryType);
+        this.validateLayout();
         this.queryTypes = [
             {
                 type: QueryType.SINGLE_QUERY,
-                label: this.layoutSingle.label,
-                isEnabled: !layoutIsEmpty(this.layoutSingle)
+                label: appServices.importExternalMessage(layouts.single?.label),
+                isEnabled: !layoutIsEmpty(layouts.single)
             },
             {
                 type: QueryType.CMP_QUERY,
-                label: this.layoutCmp.label,
-                isEnabled: !layoutIsEmpty(this.layoutCmp)
+                label: appServices.importExternalMessage(layouts.cmp?.label),
+                isEnabled: !layoutIsEmpty(layouts.cmp)
             },
             {
                 type: QueryType.TRANSLAT_QUERY,
-                label: this.layoutTranslat.label,
-                isEnabled: !layoutIsEmpty(this.layoutTranslat)
+                label: appServices.importExternalMessage(layouts.cmp?.label),
+                isEnabled: !layoutIsEmpty(layouts.translat)
             }
         ];
     }
@@ -158,20 +157,9 @@ export class LayoutManager {
     /**
      * Return a list of information about invalid items.
      */
-    private validateLayouts(queryType:QueryType):void {
+    private validateLayout():void {
         pipe(
-            (():LayoutCore => {
-                switch (queryType) {
-                    case QueryType.CMP_QUERY:
-                        return this.layoutCmp;
-                    case QueryType.SINGLE_QUERY:
-                        return this.layoutSingle;
-                    case QueryType.TRANSLAT_QUERY:
-                        return this.layoutTranslat;
-                    default:
-                        throw new Error('unknown query type: ', queryType);
-                }
-            })().groups,
+            this.layout.groups,
             List.flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))),
             List.filter(v => v.tileId === undefined),
             List.forEach((item) => {
@@ -180,43 +168,37 @@ export class LayoutManager {
         );
     }
 
-    getLayoutGroups(queryType:QueryType):Array<TileGroup> {
-        return this.getLayout(queryType).groups;
+    getLayoutGroups():Array<TileGroup> {
+        return this.getLayout().groups;
     }
 
-    getLayoutMainPosAttr(queryType:QueryType):MainPosAttrValues {
-        return this.getLayout(queryType).mainPosAttr;
+    getLayoutMainPosAttr():MainPosAttrValues {
+        return this.getLayout().mainPosAttr;
     }
 
-    private getLayout(queryType:QueryType):LayoutCore {
-        switch (queryType) {
-            case QueryType.SINGLE_QUERY:
-                return this.layoutSingle;
-            case QueryType.CMP_QUERY:
-                return this.layoutCmp;
-            case QueryType.TRANSLAT_QUERY:
-                return this.layoutTranslat;
-            default:
-                throw new Error(`No layout for ${queryType}`);
-        }
+    private getLayout():LayoutCore {
+        return this.layout;
     }
 
     getTranslatLanguages():Array<TranslatLanguage> {
-        return this.layoutTranslat.targetLanguages;
+        if (layoutIsLayoutOfQueryTypeTranslat(this.layout)) {
+            return this.layout.targetLanguages;
+        }
+        return [];
     }
 
-    getLayoutTileConf(queryType:QueryType, tileId:number):GroupedTileProps|null {
+    getLayoutTileConf(tileId:number):GroupedTileProps|null {
         const srch = pipe(
-            this.getLayout(queryType).groups,
+            this.getLayout().groups,
             List.flatMap(v => v.tiles),
             List.find(v => v.tileId === tileId)
         );
         return srch ? srch : null;
     }
 
-    getDependentTiles(queryType:QueryType, tileId:number):Array<number> {
+    getDependentTiles(tileId:number):Array<number> {
         return pipe(
-            this.getLayout(queryType).groups,
+            this.getLayout().groups,
             List.flatMap(v => v.tiles),
             List.filter(v => {
                 const srchId = this.getTileNumber(v.readDataFrom);
@@ -232,10 +214,10 @@ export class LayoutManager {
      * Test whether provided tile (identified either by its numeric ID or its string identifier)
      * belongs to the current layout. Service tiles are examined too.
      */
-    isInCurrentLayout(queryType:QueryType, tileId:number|string):boolean {
+    isInCurrentLayout(tileId:number|string):boolean {
         const tTileId = typeof tileId === 'string' ? this.getTileNumber(tileId) : tileId;
         return pipe(
-            this.getLayout(queryType).groups,
+            this.getLayout().groups,
             List.flatMap(v => v.tiles),
             List.some(v => v.tileId === tTileId)
         );
@@ -249,9 +231,9 @@ export class LayoutManager {
         return this.tileMap[tileId];
     }
 
-    isEmpty(queryType:QueryType):boolean {
+    isEmpty():boolean {
         return pipe(
-            this.getLayout(queryType).groups,
+            this.getLayout().groups,
             List.flatMap(v => v.tiles),
             List.empty()
         );

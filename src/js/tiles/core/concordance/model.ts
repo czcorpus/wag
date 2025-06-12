@@ -31,13 +31,14 @@ import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import {
-    AttrViewMode, ConcData, ConcResponse, createInitialLinesData, ViewMode
+    AttrViewMode, ConcData, ConcResponse, createInitialLinesData, Line, ViewMode
 } from '../../../api/vendor/mquery/concordance/common.js';
 import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
-import { collWithExamplesResponse } from '../colloc/common.js';
+import { CollWithExamplesResponse } from '../colloc/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { HTTPResponse as TranslatHTTPResponse } from '../translations/api.js';
 
 
 export interface ConcordanceTileState {
@@ -90,7 +91,54 @@ export interface ConcordanceTileModelArgs {
     queryType:QueryType;
 }
 
+export type SupportedForeignResponses = CollWithExamplesResponse | TranslatHTTPResponse;
 
+function isCollWithExamplesResponse(v:SupportedForeignResponses):v is CollWithExamplesResponse {
+    return Array.isArray(v['colls']) && v['resultType'] === 'collWithExamples';
+}
+
+function isTranslationResponse(v:SupportedForeignResponses):v is TranslatHTTPResponse {
+    return Array.isArray(v['lines']) && v['sum'] !== undefined;
+}
+
+
+function transformSupportedForeignResponse(resp:SupportedForeignResponses):Array<Line> {
+    if (isCollWithExamplesResponse(resp)) {
+        return pipe(
+            resp.colls,
+            List.flatMap(x => x.examples),
+            List.map(ex => ({
+                ...ex,
+                metadata: []
+            }))
+        );
+
+    } else if (isTranslationResponse(resp)) {
+        return pipe(
+            resp.lines,
+            List.flatMap(
+                item => item.to.examples.text
+            ),
+            List.map(
+                item => ({
+                    text: item.text,
+                    alignedText: item.alignedText,
+                    ref: item.ref,
+                    metadata: item.metadata,
+                    interactionId: item.interactionId,
+                    highlighted: item.highlighted
+                })
+            )
+        );
+
+    } else {
+        throw new Error('unknown foreign response');
+    }
+}
+
+/**
+ *
+ */
 export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
 
     private readonly concApi:MQueryConcApi;
@@ -198,6 +246,13 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                                 queryIdx: action.payload.queryIdx,
                                 lines: action.payload.resp.lines
                             };
+                            if (action.payload.resp.corpname) { // this applies for foreign data conc.
+                                state.corpname = action.payload.resp.corpname;
+                            }
+                            if (action.payload.resp.alignedCorpname) {
+                                state.otherCorpname = action.payload.resp.alignedCorpname;
+                                state.viewMode = ViewMode.ALIGN
+                            }
                             if (state.backlinks[action.payload.queryIdx] === null) {
                                 state.backlinks[action.payload.queryIdx] = this.concApi.getBacklink(action.payload.queryIdx);
                             }
@@ -275,14 +330,14 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             action => {
                 const subgroup = this.appServices.dataStreaming().getSubgroup(action.payload.subgroupId);
                 this.getDataFromStream(
-                    subgroup.registerTileRequest<collWithExamplesResponse>(
+                    subgroup.registerTileRequest<CollWithExamplesResponse>(
                         {
                             tileId: this.tileId,
                             otherTileId: this.readDataFromTile,
                             contentType: 'application/json',
                         }
                     ).pipe(
-                        map<collWithExamplesResponse, [ConcResponse, number]> (
+                        map<CollWithExamplesResponse, [ConcResponse, number]> (
                             resp => tuple(
                                 {
                                     concSize: 0,
@@ -478,7 +533,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
     ):void {
         this.getDataFromStream(
             typeof this.readDataFromTile === 'number' ?
-                streaming.registerTileRequest<collWithExamplesResponse>(
+                streaming.registerTileRequest<SupportedForeignResponses>(
                     {
                         tileId: this.tileId,
                         queryIdx: 0, // TODO
@@ -487,21 +542,14 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         contentType: 'application/json',
                     }
                 ).pipe(
-                    map<collWithExamplesResponse, [ConcResponse, number]> (
+                    map(
                         resp => tuple(
                             {
                                 concSize: 0,
                                 ipm: 0,
-                                lines: resp ?
-                                    pipe(
-                                        resp.colls,
-                                        List.flatMap(x => x.examples),
-                                        List.map(ex => ({
-                                            ...ex,
-                                            metadata: []
-                                        }))
-                                    ) :
-                                    [],
+                                lines: transformSupportedForeignResponse(resp),
+                                corpname: isTranslationResponse(resp) ? resp.fromCorp : undefined,
+                                alignedCorpname: isTranslationResponse(resp) ? resp.toCorp : undefined,
                                 resultType:'concordance'
                             },
                             0
