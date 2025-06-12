@@ -17,7 +17,7 @@
  */
 
 import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, of as rxOf, Subject } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
@@ -405,6 +405,28 @@ export class DataStreaming implements IDataStreaming {
                 return response.data as T;
             })
         );
+    }
+
+}
+
+export class DataStreamingMock extends DataStreaming {
+
+    private readonly mockData:Array<Array<any>>;
+
+    constructor(
+        id:string|null,
+        tileIds:Array<string|number>,
+        rootUrl:string|null,
+        tilesReadyTimeoutSecs:number,
+        userSession:UserConf|null,
+        mockData:Array<Array<any>>,
+    ) {
+        super(id, tileIds, rootUrl, tilesReadyTimeoutSecs, userSession);
+        this.mockData = mockData;
+    }
+        
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
+        return rxOf(this.mockData[entry.tileId][entry.queryIdx] as T);
     }
 
 }
