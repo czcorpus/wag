@@ -19,7 +19,7 @@ import { IAppServices } from '../appServices.js';
 import { QueryType, QueryTypeMenuItem } from '../query/index.js';
 import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
 import { TileIdentMap } from '../types.js';
-import { List, Dict, pipe } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
@@ -138,17 +138,23 @@ export class LayoutManager {
         this.queryTypes = [
             {
                 type: QueryType.SINGLE_QUERY,
-                label: appServices.importExternalMessage(layouts.single?.label),
+                label: layouts.single?.label ?
+                    appServices.importExternalMessage(layouts.single?.label) :
+                    appServices.translate('global__single_word_sel'),
                 isEnabled: !layoutIsEmpty(layouts.single)
             },
             {
                 type: QueryType.CMP_QUERY,
-                label: appServices.importExternalMessage(layouts.cmp?.label),
+                label: layouts.cmp?.label ?
+                    appServices.importExternalMessage(layouts.cmp?.label) :
+                    appServices.translate('global__words_compare'),
                 isEnabled: !layoutIsEmpty(layouts.cmp)
             },
             {
                 type: QueryType.TRANSLAT_QUERY,
-                label: appServices.importExternalMessage(layouts.cmp?.label),
+                label: layouts.translat?.label ?
+                    appServices.importExternalMessage(layouts.translat?.label) :
+                     appServices.translate('global__word_translate'),
                 isEnabled: !layoutIsEmpty(layouts.translat)
             }
         ];
