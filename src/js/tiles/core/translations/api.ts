@@ -61,6 +61,7 @@ interface HTTPResponseLine {
     from:string;
     to:{
         word:string;
+        error?:string;
         examples?:{
             text:Array<Line>;
             interactionId:string;
@@ -298,7 +299,9 @@ export class TreqAPI extends TreqAPICommon {
                                         firstTranslatLc: v.to.word.toLowerCase(),
                                         translations: [{
                                             word: v.to.word,
-                                            examples: v.to.examples
+                                            examples: v.to.examples,
+                                            error: v.to.error
+
                                         }],
                                         interactionId: ''
                                     })

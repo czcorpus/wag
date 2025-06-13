@@ -116,8 +116,27 @@ function transformSupportedForeignResponse(resp:SupportedForeignResponses):Array
     } else if (isTranslationResponse(resp)) {
         return pipe(
             resp.lines,
+            List.map(
+                item => item.to.error ?
+                    [{
+                        ref: '',
+                        text: [{
+                            type: 'token' as 'token',
+                            word: `-- ${item.to.error} -- `,
+                            matchType: 'kwic' as 'kwic',
+                            strong: true,
+                            attrs:{},
+                            interactionId: '',
+                            highlighted: false
+
+                        }],
+                        alignedText: [],
+                        metadata: []
+                    }] :
+                    item.to.examples.text
+            ),
             List.flatMap(
-                item => item.to.examples.text
+                item => item
             ),
             List.map(
                 item => ({

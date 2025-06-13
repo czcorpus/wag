@@ -216,7 +216,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <RowItem data={s} isKwic={s.matchType === 'kwic'} isColl={s.matchType === 'coll'} />
                         </React.Fragment>
                     ),
-                    props.data.text
+                    props.isParallel ? props.data.alignedText : props.data.text
                 )}
             </td>
         </S.SentRow>
@@ -317,7 +317,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
-
         const tableClasses = ['conc-lines'];
         if (state.viewMode === ViewMode.SENT || state.viewMode === ViewMode.ALIGN) {
             tableClasses.push('sent');
@@ -327,6 +326,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         const conc = state.concordances[state.visibleQueryIdx];
+
         return (
             <globalComponents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
                     hasData={state.concordances.some(conc => conc.lines.length > 0)}
@@ -382,14 +382,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 key={`${i}:${line.ref}`}
                                                 data={line}
                                                 isParallel={!!state.otherCorpname}
-                                                hasVisibleMetadata={state.visibleMetadataLine === i} handleLineClick={handleLineClick(i)}
+                                                hasVisibleMetadata={state.visibleMetadataLine === i}
+                                                handleLineClick={handleLineClick(i)}
                                                 /> :
-                                            <SentRow
-                                                key={`${i}:${line.ref}`}
-                                                data={line}
-                                                isParallel={!!state.otherCorpname}
-                                                hasVisibleMetadata={state.visibleMetadataLine === i} handleLineClick={handleLineClick(i)}
-                                                />
+                                            <React.Fragment key={`${i}:${line.ref}`}>
+                                                <SentRow
+                                                    data={line}
+                                                    isParallel={false}
+                                                    hasVisibleMetadata={state.visibleMetadataLine === i}
+                                                    handleLineClick={handleLineClick(i)}
+                                                    />
+                                                {!!state.otherCorpname ?
+                                                    <SentRow
+                                                        data={line}
+                                                        isParallel={true}
+                                                        hasVisibleMetadata={state.visibleMetadataLine === i}
+                                                        handleLineClick={handleLineClick(i)}
+                                                    /> :
+                                                    null
+                                                }
+                                            </React.Fragment>
                                     ),
                                     conc.lines
                                 )}
