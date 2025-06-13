@@ -134,10 +134,14 @@ export const ConcLines = styled.div`
         }
     }
 
-    tr:not(:last-of-type) td {
+    tr.separator:not(:last-of-type) td {
         border-width: 0 0 1px 0;
         border-color: ${theme.colorLightGrey};
         border-style: solid;
+    }
+
+    tr:not(:last-of-type) td {
+        border: none;
     }
 
     &.sent {
