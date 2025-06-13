@@ -202,25 +202,35 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SentRow:React.FC<{
         data:Line;
+        useSeparator:boolean;
         isParallel:boolean;
         hasVisibleMetadata:boolean;
         handleLineClick:(e:React.MouseEvent)=>void;
 
-    }> = (props) => (
-        <S.SentRow className={props.data.highlighted ? 'highlighted' : null}>
-            <td>
-                {List.map(
-                    (s, i) => (
-                        <React.Fragment key={`${props.data.ref}:L${i}`} >
-                            {i > 0 ? <span> </span> : null}
-                            <RowItem data={s} isKwic={s.matchType === 'kwic'} isColl={s.matchType === 'coll'} />
-                        </React.Fragment>
-                    ),
-                    props.isParallel ? props.data.alignedText : props.data.text
-                )}
-            </td>
-        </S.SentRow>
-    );
+    }> = (props) => {
+        const classes = [];
+        if (props.data.highlighted) {
+            classes.push('highlighted');
+        }
+        if (props.useSeparator) {
+            classes.push('separator');
+        }
+        return (
+            <S.SentRow className={classes.join(' ')}>
+                <td>
+                    {List.map(
+                        (s, i) => (
+                            <React.Fragment key={`${props.data.ref}:L${i}`} >
+                                {i > 0 ? <span> </span> : null}
+                                <RowItem data={s} isKwic={s.matchType === 'kwic'} isColl={s.matchType === 'coll'} />
+                            </React.Fragment>
+                        ),
+                        props.isParallel ? props.data.alignedText : props.data.text
+                    )}
+                </td>
+            </S.SentRow>
+        );
+    };
 
     // ------------------ <KWICRow /> --------------------------------------------
 
@@ -388,6 +398,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             <React.Fragment key={`${i}:${line.ref}`}>
                                                 <SentRow
                                                     data={line}
+                                                    useSeparator={!state.otherCorpname}
                                                     isParallel={false}
                                                     hasVisibleMetadata={state.visibleMetadataLine === i}
                                                     handleLineClick={handleLineClick(i)}
@@ -395,6 +406,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 {!!state.otherCorpname ?
                                                     <SentRow
                                                         data={line}
+                                                        useSeparator={true}
                                                         isParallel={true}
                                                         hasVisibleMetadata={state.visibleMetadataLine === i}
                                                         handleLineClick={handleLineClick(i)}

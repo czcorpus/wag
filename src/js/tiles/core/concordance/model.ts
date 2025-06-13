@@ -125,28 +125,25 @@ function transformSupportedForeignResponse(resp:SupportedForeignResponses):Array
                             word: `-- ${item.to.error} -- `,
                             matchType: 'kwic' as 'kwic',
                             strong: true,
-                            attrs:{},
-                            interactionId: '',
-                            highlighted: false
-
+                            attrs:{}
                         }],
+                        interactionId: item.to.examples?.interactionId,
                         alignedText: [],
                         metadata: []
-                    }] :
-                    item.to.examples.text
+                    } as Line] :
+                    List.map(
+                        text => ({
+                            ref: text.ref,
+                            text: text.text,
+                            alignedText: text.alignedText,
+                            metadata: text.metadata,
+                            interactionId: item.to.examples.interactionId
+                        }),
+                        item.to.examples.text
+                    )
             ),
             List.flatMap(
                 item => item
-            ),
-            List.map(
-                item => ({
-                    text: item.text,
-                    alignedText: item.alignedText,
-                    ref: item.ref,
-                    metadata: item.metadata,
-                    interactionId: item.interactionId,
-                    highlighted: item.highlighted
-                })
             )
         );
 
@@ -487,12 +484,33 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             action => {
                 this.changeState(
                     state => {
-                        state.concordances[state.visibleQueryIdx].lines = List.map(
-                            v => ({
-                                ...v,
-                                highlighted: v.interactionId === action.payload.interactionId
-                            }),
-                            state.concordances[state.visibleQueryIdx].lines
+                        state.concordances[state.visibleQueryIdx].lines = pipe(
+                            state.concordances[state.visibleQueryIdx].lines,
+                            List.map(
+                                v => ({
+                                    ...v,
+                                    highlighted: v.interactionId === action.payload.interactionId
+                                })
+                            )
+                        );
+                    }
+                );
+            }
+        );
+
+        this.addActionHandler(
+            GlobalActions.SubqItemDehighlighted,
+            action => {
+                this.changeState(
+                    state => {
+                        state.concordances[state.visibleQueryIdx].lines = pipe(
+                            state.concordances[state.visibleQueryIdx].lines,
+                            List.map(
+                                v => ({
+                                    ...v,
+                                    highlighted: false
+                                })
+                            )
                         );
                     }
                 );
