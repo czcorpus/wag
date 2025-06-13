@@ -44,7 +44,7 @@ export interface Token {
 export interface Line {
     ref:string;
     text:Array<Token>;
-    alignedText:Array<Text>;
+    alignedText:Array<Token>;
     metadata:Array<{value:string; label:string}>;
     interactionId?:string;
     highlighted?:boolean;
