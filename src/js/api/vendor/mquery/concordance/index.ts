@@ -96,7 +96,7 @@ export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number
         ).join('&')
     }
 
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:ConcApiArgs):Observable<[ConcResponse, number]> {
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:ConcApiArgs|null):Observable<[ConcResponse, number]> {
         if (streaming) {
             return streaming.registerTileRequest<ConcResponse>(
                 {

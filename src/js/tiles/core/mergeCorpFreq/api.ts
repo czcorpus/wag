@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 import { ResourceApi, CorpusDetails } from '../../../types.js';
 import { Observable } from 'rxjs';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
@@ -123,7 +123,23 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
                     contentType: 'application/json',
                     queryIdx,
                 }
-            );
+            ).pipe(
+                map(
+                    resp => resp ?
+                        resp :
+                        {
+                            parts: List.repeat(
+                                x => ({
+                                    concSize: 0,
+                                    corpusSize: 0,
+                                    fcrit: 0,
+                                    freqs: []
+                                }),
+                                List.size(args)
+                            )
+                        }
+                )
+            )
 
         } else {
             return ajax$<HTTPResponse>(

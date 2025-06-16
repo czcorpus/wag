@@ -25,7 +25,8 @@ import { List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import {
-    RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch
+    RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch,
+    testIsDictMatch
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -98,12 +99,15 @@ function isCollWithExamplesResponse(v:SupportedForeignResponses):v is CollWithEx
 }
 
 function isTranslationResponse(v:SupportedForeignResponses):v is TranslatHTTPResponse {
-    return Array.isArray(v['lines']) && v['sum'] !== undefined;
+    return !!v && Array.isArray(v['lines']) && v['sum'] !== undefined;
 }
 
 
-function transformSupportedForeignResponse(resp:SupportedForeignResponses):Array<Line> {
-    if (isCollWithExamplesResponse(resp)) {
+function transformSupportedForeignResponse(resp:SupportedForeignResponses|null):Array<Line> {
+    if (!resp) {
+        return [];
+
+    } else if (isCollWithExamplesResponse(resp)) {
         return pipe(
             resp.colls,
             List.flatMap(x => x.examples),
@@ -203,7 +207,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
 
                 if (this.state.concordances.some(conc => conc.lines.length > 0)) {
                     const subgroup = this.appServices.dataStreaming().startNewSubgroup(this.tileId);
-                    this.reloadData(subgroup, null);
+                    this.reloadData(subgroup);
                 }
             }
         );
@@ -241,7 +245,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         state.error = null;
                     }
                 );
-                this.reloadData(this.appServices.dataStreaming(), null);
+                this.reloadData(this.appServices.dataStreaming());
             }
         );
 
@@ -306,7 +310,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage + 1;
                     }
                 );
-                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId), null);
+                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId));
             }
         );
 
@@ -321,7 +325,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage - 1;
                     }
                 );
-                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId), null);
+                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId));
             }
         );
 
@@ -336,7 +340,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                         state.viewMode = action.payload.mode;
                     }
                 );
-                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId), null);
+                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId));
             }
         );
 
@@ -467,8 +471,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                 if (this.concApi instanceof MQueryConcApi) {
                     const url = this.concApi.requestBacklink(this.stateToArgs(
                         findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]),
-                        action.payload.backlink.queryId,
-                        null
+                        action.payload.backlink.queryId
                     ));
                     window.open(url.toString(),'_blank');
 
@@ -522,7 +525,6 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
     private stateToArgs(
         queryMatch:QueryMatch|null,
         queryIdx:number,
-        otherLangCql:string|null
     ):ConcApiArgs {
         return {
             corpusName: this.state.corpname,
@@ -537,21 +539,23 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
 
     private loadViaDefaultApi(
         streaming:IDataStreaming,
-        otherLangCql:string
     ):Observable<[ConcResponse, number]>  {
-        return new Observable<ConcApiArgs>((observer) => {
+        return new Observable<[ConcApiArgs|null, number]>((observer) => {
             try {
                 pipe(
                     this.queryMatches,
-                    List.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : this.queryMatches.length),
-                    List.map((
-                        queryMatch, queryIdx) => this.stateToArgs(
-                            findCurrQueryMatch(queryMatch),
+                    List.map(match => findCurrQueryMatch(match)),
+                     List.map(
+                        (currMatch, queryIdx) => tuple(
+                            testIsDictMatch(currMatch) ? this.stateToArgs(currMatch, queryIdx) : null,
                             queryIdx,
-                            otherLangCql
                         )
                     ),
-                    List.forEach(args => observer.next(args)),
+                    List.forEach(
+                        v => {
+                            observer.next(v)
+                        }
+                    ),
                 );
                 observer.complete();
 
@@ -560,13 +564,14 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(args => this.concApi.call(streaming, this.tileId, args.queryIdx, args))
+            mergeMap(
+                ([args, queryIdx]) => this.concApi.call(streaming, this.tileId, queryIdx, args)
+            )
         )
     }
 
     private reloadData(
-        streaming:IDataStreaming,
-        otherLangCql:string
+        streaming:IDataStreaming
     ):void {
         this.getDataFromStream(
             typeof this.readDataFromTile === 'number' ?
@@ -587,18 +592,17 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                                 lines: transformSupportedForeignResponse(resp),
                                 corpname: isTranslationResponse(resp) ? resp.fromCorp : undefined,
                                 alignedCorpname: isTranslationResponse(resp) ? resp.toCorp : undefined,
-                                resultType:'concordance'
+                                resultType:'concordance' as 'concordance'
                             },
                             0
                         ) // TODO upgrade once we support cmp
                     )
                 ) :
-                this.loadViaDefaultApi(streaming, otherLangCql)
+                this.loadViaDefaultApi(streaming)
         );
     }
 
     private getDataFromStream(data:Observable<[ConcResponse, number]>) {
-
         data.pipe(
             tap(
                 ([resp, queryIdx]) => {
