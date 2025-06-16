@@ -206,8 +206,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SentRow:React.FC<{
         data:Line;
-        useSeparator:boolean;
         isParallel:boolean;
+        isFirstOfLinePair:boolean;
         hasVisibleMetadata:boolean;
         handleLineClick:(e:React.MouseEvent)=>void;
 
@@ -216,19 +216,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         if (props.data.highlighted) {
             classes.push('highlighted');
         }
-        if (props.useSeparator) {
+        if (!props.isFirstOfLinePair) {
             classes.push('separator');
         }
         return (
             <S.SentRow className={classes.join(' ')}>
                     {props.isParallel ?
                         null :
-                        <td rowSpan={props.isParallel ? 1 : 2}>
+                        <td rowSpan={props.isFirstOfLinePair ? 2 : 1}>
                             {props.hasVisibleMetadata ? <LineMetadata data={props.data.props} /> : null}
                         </td>
                     }
                     {!props.isParallel && !!props.data.props && !Dict.empty(props.data.props) ?
-                        <td className="meta" rowSpan={2}>
+                        <td className="meta" rowSpan={props.isFirstOfLinePair ? 2 : 1}>
                             <a className="info-click" onClick={props.handleLineClick}>
                                 <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
                             </a>
@@ -417,7 +417,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             <React.Fragment key={`${i}:${line.ref}`}>
                                                 <SentRow
                                                     data={line}
-                                                    useSeparator={!state.otherCorpname}
+                                                    isFirstOfLinePair={!!state.otherCorpname}
                                                     isParallel={false}
                                                     hasVisibleMetadata={state.visibleMetadataLine === i}
                                                     handleLineClick={handleLineClick(i)}
@@ -425,7 +425,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 {!!state.otherCorpname ?
                                                     <SentRow
                                                         data={line}
-                                                        useSeparator={true}
+                                                        isFirstOfLinePair={false}
                                                         isParallel={true}
                                                         hasVisibleMetadata={state.visibleMetadataLine === i}
                                                         handleLineClick={handleLineClick(i)}
