@@ -36,6 +36,7 @@ export interface ConcApiArgs {
     rowsOffset:number;
     contextWidth:number;
     contextStruct:string;
+    showTextProps?:'0'|'1';
 }
 
 // ------------------------------
@@ -86,7 +87,8 @@ export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number
                 maxRows: queryArgs.maxRows,
                 rowsOffset: queryArgs.rowsOffset,
                 contextWidth: queryArgs.contextWidth,
-                contextStruct: queryArgs.contextStruct || undefined
+                contextStruct: queryArgs.contextStruct || undefined,
+                showTextProps: '1'
             },
             Dict.filter((v,) => v !== undefined && v !== null),
             Dict.toEntries(),
