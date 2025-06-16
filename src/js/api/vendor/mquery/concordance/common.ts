@@ -45,7 +45,7 @@ export interface Line {
     ref:string;
     text:Array<Token>;
     alignedText:Array<Token>;
-    metadata:Array<{value:string; label:string}>;
+    props:{[name:string]:string};
     interactionId?:string;
     highlighted?:boolean;
 }

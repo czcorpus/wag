@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
-import { List, Strings } from 'cnc-tskit';
+import { Dict, List, pipe, Strings } from 'cnc-tskit';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
@@ -168,7 +168,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <LineMetadata /> --------------------------------------------
 
     const LineMetadata:React.FC<{
-        data:Array<{value:string; label:string}>;
+        data:{[k:string]:string};
 
     }> = (props) => {
 
@@ -179,19 +179,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <S.LineMetadata onClick={handleClick}>
                 <dl>
-                    {List.map(
-                        v => (
-                            <React.Fragment key={v.label}>
-                                <dt>{v.label}:</dt>
-                                <dd>
-                                    {/^https?:\/\//.exec(v.value) ?
-                                        <a href={v.value} title={v.value} target="_blank" rel="noopener">{Strings.shortenText(v.value, 30)}</a> :
-                                        v.value
-                                    }
-                                </dd>
-                            </React.Fragment>
-                        ),
-                        props.data
+                    {pipe(
+                        props.data,
+                        Dict.toEntries(),
+                        List.sortAlphaBy(([label, ]) => label),
+                        List.map(
+                            ([label, value]) => (
+                                <React.Fragment key={label}>
+                                    <dt>{label}:</dt>
+                                    <dd>
+                                        {/^https?:\/\//.exec(value) ?
+                                            <a href={value} title={value} target="_blank" rel="noopener">{Strings.shortenText(value, 30)}</a> :
+                                            value
+                                        }
+                                    </dd>
+                                </React.Fragment>
+                            )
+                        )
                     )}
                 </dl>
             </S.LineMetadata>
@@ -217,6 +221,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
         return (
             <S.SentRow className={classes.join(' ')}>
+                    {props.isParallel ?
+                        null :
+                        <td rowSpan={props.isParallel ? 1 : 2}>
+                            {props.hasVisibleMetadata ? <LineMetadata data={props.data.props} /> : null}
+                        </td>
+                    }
+                    {!props.isParallel && !!props.data.props && !Dict.empty(props.data.props) ?
+                        <td className="meta" rowSpan={2}>
+                            <a className="info-click" onClick={props.handleLineClick}>
+                                <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
+                            </a>
+                        </td> :
+                        null
+                    }
                 <td>
                     {List.map(
                         (s, i) => (
@@ -241,13 +259,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         handleLineClick:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
+
         return (
             <>
                 <S.Row className={props.data.highlighted ? 'highlighted' : null}>
                     <td>
-                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
+                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.props} /> : null}
                     </td>
-                    {props.data.metadata && props.data.metadata.length > 0 ?
+                    {!!props.data.props && !Dict.empty(props.data.props) ?
                         <td className="meta">
                             <a className="info-click" onClick={props.handleLineClick}>
                                 <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />

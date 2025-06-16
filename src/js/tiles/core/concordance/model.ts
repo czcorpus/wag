@@ -129,14 +129,14 @@ function transformSupportedForeignResponse(resp:SupportedForeignResponses):Array
                         }],
                         interactionId: item.to.examples?.interactionId,
                         alignedText: [],
-                        metadata: []
+                        props: {}
                     } as Line] :
                     List.map(
                         text => ({
                             ref: text.ref,
                             text: text?.text,
                             alignedText: text.alignedText,
-                            metadata: text.metadata,
+                            props: text.props,
                             interactionId: item.to.examples?.interactionId
                         }),
                         item.to.examples?.text || []
