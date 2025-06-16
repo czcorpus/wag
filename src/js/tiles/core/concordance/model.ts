@@ -134,12 +134,12 @@ function transformSupportedForeignResponse(resp:SupportedForeignResponses):Array
                     List.map(
                         text => ({
                             ref: text.ref,
-                            text: text.text,
+                            text: text?.text,
                             alignedText: text.alignedText,
                             metadata: text.metadata,
-                            interactionId: item.to.examples.interactionId
+                            interactionId: item.to.examples?.interactionId
                         }),
-                        item.to.examples.text
+                        item.to.examples?.text || []
                     )
             ),
             List.flatMap(
