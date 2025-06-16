@@ -175,12 +175,12 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 )
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
-                corpname: args.corpname,
-                usesubcorp: args.queryArgs.subcorpus,
+                corpname: args?.corpname,
+                usesubcorp: args?.queryArgs.subcorpus,
                 concsize: resp.concSize,
                 concId: '',
                 queryIdx,
-                data: args.path === 'text-types' ?
+                data: args?.path === 'text-types' ?
                     pipe(
                         resp.freqs,
                         List.map(
