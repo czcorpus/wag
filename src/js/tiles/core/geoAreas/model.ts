@@ -18,7 +18,7 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, zip } from 'rxjs';
 import { reduce, share, mergeMap } from 'rxjs/operators';
-import { Dict, List, pipe } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq.js';
@@ -26,7 +26,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
-import { findCurrQueryMatch, QueryMatch, QueryType, RecognizedQueries } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryMatch, QueryType, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { APIResponse, DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
@@ -123,27 +123,28 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const dataStream = new Observable((observer) => {
+                const dataStream = new Observable<[MQueryFreqArgs|null, number]>((observer) => {
                     try {
                         pipe(
                             this.queryMatches,
-                            List.map((queryMatch, queryIdx) => (
-                                [
-                                    this.stateToArgs(
-                                        state,
-                                        findCurrQueryMatch(queryMatch),
-                                    ),
-                                    queryIdx,
-                                ]
-                            )),
+                            List.map(
+                                (queryMatch, queryIdx) => {
+                                    const match = findCurrQueryMatch(queryMatch);
+                                    return tuple(
+                                        testIsDictMatch(match) ?
+                                            this.stateToArgs(state, match) : null,
+                                        queryIdx
+                                    )
+                                }
+                            ),
                             List.forEach(args => observer.next(args)),
                         );
                         observer.complete();
-        
+
                     } catch (e) {
                         observer.error(e);
                     }
-        
+
                 }).pipe(
                     mergeMap(([args, queryIdx]) =>
                         zip(
