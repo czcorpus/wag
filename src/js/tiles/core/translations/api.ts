@@ -66,6 +66,7 @@ interface HTTPResponseLine {
             text:Array<Line>;
             interactionId:string;
             ref:string;
+            props?:{[name:string]:string}
         }
     }
 }
@@ -88,6 +89,7 @@ export interface Translation {
         text:Array<Line>;
         interactionId:string;
         ref:string;
+        props:{[name:string]:string};
     }
 }
 
@@ -305,7 +307,10 @@ export class TreqAPI extends TreqAPICommon {
                                         firstTranslatLc: v.to.word.toLowerCase(),
                                         translations: [{
                                             word: v.to.word,
-                                            examples: v.to.examples,
+                                            examples: {
+                                                ...v.to.examples,
+                                                props: v.to.examples || {}
+                                            },
                                             error: v.to.error
 
                                         }],
