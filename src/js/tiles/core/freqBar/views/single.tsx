@@ -78,7 +78,13 @@ export function init(
 
         const maxLabelLength = (List.maxItem(
             v => v.length,
-            props.isMobile ? props.data.reduce((acc, curr) => acc.concat(Strings.shortenText(curr.name, model.CHART_LABEL_MAX_LEN).split(' ')), []) : props.data.map(v => v.name)
+            props.isMobile ?
+                List.reduce(
+                    (acc, curr) => acc.concat(Strings.shortenText(curr.name, model.CHART_LABEL_MAX_LEN).split(' ')),
+                    [],
+                    props.data
+                ) :
+                List.map(v => v.name, props.data)
         ) as string).length;
 
         return (
@@ -88,7 +94,7 @@ export function init(
                 <BarChart data={props.data} layout="vertical" barCategoryGap={props.barCategoryGap}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis type="number" dataKey="ipm" />
-                    <YAxis type="category" dataKey="name" />
+                    <YAxis type="category" dataKey="name" width={maxLabelLength * 6} />
                     <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
                     <Tooltip cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip
                         payloadMapper={payload => [
@@ -110,7 +116,7 @@ export function init(
         const numCats = freqData ? freqData.rows.length : 0;
         const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
         const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
-        
+
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={freqData && !List.empty(freqData.rows)}
