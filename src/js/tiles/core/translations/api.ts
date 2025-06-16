@@ -260,11 +260,17 @@ export class TreqAPI extends TreqAPICommon {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         const allArgs = this.fetchExamplesFrom ?
-            {...args, fromCorp: this.fetchExamplesFrom[0], toCorp: this.fetchExamplesFrom[1]} :
+            {
+                ...args,
+                fromCorp: this.fetchExamplesFrom[0],
+                toCorp: this.fetchExamplesFrom[1],
+                tileId
+            } :
             args;
         const source = streaming ?
             streaming.registerTileRequest<HTTPResponse>({
                 contentType: 'application/json',
+                isEventSource: true,
                 body: {},
                 method: HTTP.Method.GET,
                 tileId,
