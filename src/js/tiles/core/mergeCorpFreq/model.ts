@@ -276,15 +276,21 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         dataStreaming:IDataStreaming,
         seDispatch:SEDispatcher
     ):void {
-        new Observable<[Array<MQueryFreqArgs>, {queryIdx:number;}]>((observer) => {
+        new Observable<[Array<MQueryFreqArgs>, {queryIdx:number}]>((observer) => {
             try {
                 pipe(
                     state.queryMatches,
-                    List.map((currMatch, queryIdx) => tuple(
-                        this.allSourcesToArgs(state, currMatch),
-                        {queryIdx},
-                    )),
-                    List.forEach(args => observer.next(args)),
+                    List.map(
+                        (currMatch, queryIdx) => tuple(
+                            this.allSourcesToArgs(state, currMatch),
+                            { queryIdx },
+                        )
+                    ),
+                    List.forEach(
+                        args => {
+                            observer.next(args);
+                        }
+                    ),
                 );
                 observer.complete();
 
@@ -293,15 +299,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             }
 
         }).pipe(
-            tap(args => {console.log(`MergeCorpFreqModel.loadFreqs: args=${JSON.stringify(args)}`)}),
-            mergeMap(([args, pass]) =>
+            mergeMap(([args, {queryIdx}]) =>
                 callWithExtraVal(
                     dataStreaming,
                     this.freqApi,
                     this.tileId,
-                    pass.queryIdx,
+                    queryIdx,
                     args,
-                    pass,
+                    {queryIdx},
                 )
             ),
             concatMap(
