@@ -152,7 +152,18 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                             )
                         ) :
                         '',
-                }) :
+                }).pipe(
+                    map(
+                        resp => resp ?
+                            resp :
+                            ({
+                                concSize: 0,
+                                corpusSize: 0,
+                                freqs: [],
+                                fcrit: ''
+                            })
+                    )
+                ) :
                 ajax$<HTTPResponse>(
                     'GET',
                     urlJoin(this.apiURL, args.path, args.corpname),
