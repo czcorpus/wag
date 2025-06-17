@@ -152,10 +152,10 @@ function mkRuntimeClientConf({
                 parentWagUrl: conf.parentWagUrl,
                 favicon: conf.favicon,
                 logo: {
-                    url: appServices.importExternalMessage(conf.logo.url),
+                    url: appServices.importExternalMessage(conf.logo?.url),
                     inlineStyle: conf.logo.inlineStyle || {},
-                    label: appServices.importExternalMessage(conf.logo.label),
-                    subWag: conf.logo.subWag ?
+                    label: appServices.importExternalMessage(conf.logo?.label),
+                    subWag: conf.logo?.subWag ?
                         {
                             url: appServices.importExternalMessage(conf.logo.subWag.url),
                             inlineStyle: conf.logo.subWag.inlineStyle || {},
