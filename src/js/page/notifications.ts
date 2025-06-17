@@ -42,6 +42,26 @@ export const importMessageType = (t:string):SystemMessageType => {
 }
 
 
+export interface ISystemNotifications {
+    showMessage(type:SystemMessageType, text:string|Error):void;
+}
+
+
+export class ServerNotifications {
+    showMessage(type:SystemMessageType, text:string|Error):void {
+        switch (type) {
+            case SystemMessageType.ERROR:
+                console.error(text);
+            case SystemMessageType.WARNING:
+                console.warn(text);
+            case SystemMessageType.INFO:
+            default:
+                console.info(text);
+        }
+    }
+}
+
+
 export class SystemNotifications {
 
     private static DEFAULT_MESSAGE_TTL = 10;
