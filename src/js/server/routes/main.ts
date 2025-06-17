@@ -151,7 +151,18 @@ function mkRuntimeClientConf({
                 runtimeAssetsUrl: conf.runtimeAssetsUrl,
                 parentWagUrl: conf.parentWagUrl,
                 favicon: conf.favicon,
-                logo: conf.logo,
+                logo: {
+                    url: appServices.importExternalMessage(conf.logo.url),
+                    inlineStyle: conf.logo.inlineStyle || {},
+                    label: appServices.importExternalMessage(conf.logo.label),
+                    subWag: conf.logo.subWag ?
+                        {
+                            url: appServices.importExternalMessage(conf.logo.subWag.url),
+                            inlineStyle: conf.logo.subWag.inlineStyle || {},
+                            label: appServices.importExternalMessage(conf.logo.subWag.label)
+                        } :
+                        undefined
+                },
                 corpInfoApiUrl: conf.corpInfoApiUrl,
                 apiHeaders: conf.apiHeaders,
                 onLoadInit: conf.onLoadInit,

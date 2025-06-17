@@ -160,10 +160,42 @@ export interface FaviconConf {
     url:string;
 }
 
-export interface LogoConf {
-    url:string;
+export interface LogoStaticConf {
+    url:LocalizedConfMsg;
     inlineStyle?:CSSProperties;
-    label?:string;
+    label?:LocalizedConfMsg;
+
+    /**
+     * For WaG instances displaying specific text type / media / etc.,
+     * an additional logo can be used to display something like e.g.:
+     * [Word at a Glance] [ / Fiction].
+     */
+    subWag?:{
+        url:LocalizedConfMsg; // for different language versions, use object
+        inlineStyle?:CSSProperties;
+        label?:LocalizedConfMsg; // for different language versions, use object
+    }
+}
+
+/**
+ * LogoRuntimeConf represents a runtime version
+ * of the LogoStaticConf (i.e. once we know ui language)
+ */
+export interface LogoRuntimeConf {
+    url:string;
+    inlineStyle:CSSProperties;
+    label:string;
+
+    /**
+     * For WaG instances displaying specific text type / media / etc.,
+     * an additional logo can be used to display something like e.g.:
+     * [Word at a Glance] [ / Fiction].
+     */
+    subWag?:{
+        url:string;
+        inlineStyle:CSSProperties;
+        label:string;
+    }
 }
 
 export interface CommonTextStructures {
@@ -191,7 +223,7 @@ export interface ClientStaticConf {
     runtimeAssetsUrl:string;
     parentWagUrl?:string;
     favicon?:FaviconConf;
-    logo?:LogoConf;
+    logo?:LogoStaticConf;
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping|string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
@@ -259,7 +291,7 @@ export interface ClientConf {
     favicon?:FaviconConf;
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping;
-    logo?:LogoConf;
+    logo?:LogoRuntimeConf;
     colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
     onLoadInit?:Array<string>;
@@ -343,7 +375,11 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         hostUrl: conf.hostUrl,
         runtimeAssetsUrl: conf.runtimeAssetsUrl,
         favicon: conf.favicon,
-        logo: conf.logo,
+        logo: {
+            url: '',
+            inlineStyle: {},
+            label: '',
+        },
         corpInfoApiUrl: conf.corpInfoApiUrl,
         apiHeaders: conf.apiHeaders,
         dataReadability: {

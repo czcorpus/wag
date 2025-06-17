@@ -537,16 +537,74 @@
             },
             "type": "object"
         },
-        "LogoConf": {
+        "LogoStaticConf": {
             "properties": {
                 "inlineStyle": {
                     "$ref": "#/definitions/React.CSSProperties"
                 },
                 "label": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "subWag": {
+                    "description": "For WaG instances displaying specific text type / media / etc.,\nan additional logo can be used to display something like e.g.:\n[Word at a Glance] [ / Fiction].",
+                    "properties": {
+                        "inlineStyle": {
+                            "$ref": "#/definitions/React.CSSProperties"
+                        },
+                        "label": {
+                            "anyOf": [
+                                {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "anyOf": [
+                                {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "url"
+                    ],
+                    "type": "object"
                 },
                 "url": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -30244,13 +30302,10 @@
         },
         "TileDbConf": {
             "properties": {
-                "db": {
+                "appId": {
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "prefix": {
                     "type": "string"
                 },
                 "server": {
@@ -30261,9 +30316,8 @@
                 }
             },
             "required": [
-                "db",
+                "appId",
                 "password",
-                "prefix",
                 "server",
                 "username"
             ],
@@ -30364,7 +30418,7 @@
             ]
         },
         "logo": {
-            "$ref": "#/definitions/LogoConf"
+            "$ref": "#/definitions/LogoStaticConf"
         },
         "maxTileErrors": {
             "type": "number"
@@ -30374,6 +30428,9 @@
                 "type": "string"
             },
             "type": "array"
+        },
+        "parentWagUrl": {
+            "type": "string"
         },
         "rootUrl": {
             "type": "string"
