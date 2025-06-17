@@ -247,12 +247,19 @@ export function init(
                         }
                     </div>
                     <div className="logo-wrapper">
-                        <a href={props.config.hostUrl} title={createLabel()}>
-                            {props.config.logo ?
+                        <a href={props.config.parentWagUrl ?  props.config.parentWagUrl : props.config.hostUrl} title={createLabel()}>
+                            {props.config.logo?.url ?
                                 <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
                                 <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
                             }
                         </a>
+                        {
+                            props.config.logo.subWag ?
+                                <a href={props.config.hostUrl}>
+                                    <img src={props.config.logo.subWag.url} alt="logo" style={props.config.logo.subWag.inlineStyle} />
+                                </a> :
+                                null
+                        }
                     </div>
                     <div className="right-ballast"> </div>
                 </header>

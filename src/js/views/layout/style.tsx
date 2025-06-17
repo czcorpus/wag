@@ -76,6 +76,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                 display: flex;
                 flex: 1 1 auto;
                 justify-content: center;
+                align-items: center;
             }
 
             .right-ballast {

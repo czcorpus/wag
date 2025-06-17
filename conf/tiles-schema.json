@@ -112,13 +112,10 @@
         },
         "TileDbConf": {
             "properties": {
-                "db": {
+                "appId": {
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "prefix": {
                     "type": "string"
                 },
                 "server": {
@@ -129,9 +126,8 @@
                 }
             },
             "required": [
-                "db",
+                "appId",
                 "password",
-                "prefix",
                 "server",
                 "username"
             ],
