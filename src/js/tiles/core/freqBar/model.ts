@@ -186,9 +186,13 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         )
                     },
                     error: error => {
+
                         this.changeState(
                             state => {
-                                state.freqData = List.map(match => ({word: match.word, isReady: true, rows: []}), this.queryMatches);
+                                state.freqData = List.map(
+                                    match => ({word: match.word, isReady: true, rows: []}),
+                                    this.queryMatches
+                                );
                                 state.backlinks = List.map(_ => null, this.queryMatches);
                                 state.error = this.appServices.normalizeHttpApiError(error);
                                 state.isBusy = false;

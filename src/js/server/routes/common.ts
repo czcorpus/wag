@@ -34,6 +34,7 @@ import { WdglanceMainProps } from '../../views/main.js';
 import { ErrPageProps } from '../../views/error.js';
 import { TileGroup } from '../../page/layout.js';
 import { DataStreaming } from '../../page/streaming.js';
+import { ServerNotifications } from '../../page/notifications.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -139,7 +140,7 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
     return [
         viewUtils,
         new AppServices({
-            notifications: null, // TODO
+            notifications: new ServerNotifications(),
             uiLang: uiLang,
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,

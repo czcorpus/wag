@@ -42,6 +42,7 @@ import { logAction } from '../actionLog/common.js';
 import { DataStreaming } from '../../page/streaming.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
+import { ServerNotifications } from '../../page/notifications.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -423,7 +424,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({
-            notifications: null, // TODO
+            notifications: new ServerNotifications(),
             uiLang: uiLang,
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,

@@ -20,7 +20,7 @@ import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
 import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
-import { SystemNotifications } from './page/notifications.js';
+import { ISystemNotifications as ISystemNotifications, SystemNotifications } from './page/notifications.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
 import { DataReadabilityMapping, CommonTextStructures } from './conf/index.js';
@@ -96,7 +96,7 @@ export interface IAppServices extends IApiServices {
  *
  */
 export interface AppServicesArgs {
-    notifications:SystemNotifications;
+    notifications:ISystemNotifications;
     uiLang:string;
     translator:ITranslator;
     staticUrlCreator:(path:string)=>string;
@@ -114,7 +114,7 @@ export class AppServices implements IAppServices {
 
     private static SESSION_STORAGE_API_KEYS_ENTRY = 'api_keys';
 
-    private readonly notifications:SystemNotifications;
+    private readonly notifications:ISystemNotifications;
 
     private readonly translator:ITranslator;
 
