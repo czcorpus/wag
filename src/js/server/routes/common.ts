@@ -35,6 +35,8 @@ import { ErrPageProps } from '../../views/error.js';
 import { TileGroup } from '../../page/layout.js';
 import { DataStreaming } from '../../page/streaming.js';
 import { ServerNotifications } from '../../page/notifications.js';
+import { DataApi } from '../../types.js';
+import { EMPTY, Observable } from 'rxjs';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -141,6 +143,10 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
         viewUtils,
         new AppServices({
             notifications: new ServerNotifications(),
+            apiCaller: {
+                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => EMPTY,
+                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => EMPTY
+            },
             uiLang: uiLang,
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,

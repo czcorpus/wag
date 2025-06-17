@@ -37,7 +37,9 @@ import { Client, tuple, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main.js';
 import { LayoutManager, TileGroup } from './layout.js';
 import { TileConf } from './tile.js';
-import { DataStreaming } from './streaming.js';
+import { DataStreaming, IDataStreaming } from './streaming.js';
+import { callWithExtraVal } from '../api/util.js';
+import { DataApi } from '../types.js';
 
 
 interface MountArgs {
@@ -170,6 +172,17 @@ export function initClient(
         actionUrlCreator: viewUtils.createActionUrl,
         dataReadability: config.dataReadability || {metadataMapping: {}, commonStructures: {}},
         apiHeadersMapping: config.apiHeaders,
+        apiCaller: {
+            callAPI: (api, streaming, tileId, queryIdx, queryArgs) => api.call(streaming, tileId, queryIdx, queryArgs),
+            callAPIWithExtraVal: <T, U, V>(
+                api:DataApi<T, U>,
+                streaming:IDataStreaming,
+                tileId:number,
+                queryIdx:number,
+                args:T,
+                passThrough:V
+            ) => callWithExtraVal(streaming, api, tileId, queryIdx, args, passThrough)
+        },
         dataStreaming,
         mobileModeTest: () => Client.isMobileTouchDevice()
     });

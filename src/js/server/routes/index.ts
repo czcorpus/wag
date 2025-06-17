@@ -17,7 +17,7 @@
  */
 import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
+import { EMPTY, Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 
@@ -431,6 +431,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
+            apiCaller: {
+                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => EMPTY,
+                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => EMPTY
+            },
             dataStreaming: new DataStreaming(null, [], null, 1000, null),
             mobileModeTest: ()=>false
         });

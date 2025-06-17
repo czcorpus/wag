@@ -159,9 +159,9 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
 
                 }).pipe(
                     mergeMap(([args, pass]) =>
-                        callWithExtraVal(
-                            this.appServices.dataStreaming(),
+                        appServices.callAPIWithExtraVal(
                             this.api,
+                            this.appServices.dataStreaming(),
                             this.tileId,
                             pass.queryIdx,
                             args,
