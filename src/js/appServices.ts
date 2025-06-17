@@ -19,7 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
-import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
+import { DataApi, HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
 import { ISystemNotifications as ISystemNotifications, SystemNotifications } from './page/notifications.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
@@ -27,7 +27,7 @@ import { DataReadabilityMapping, CommonTextStructures } from './conf/index.js';
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
-import { DataStreaming } from './page/streaming.js';
+import { DataStreaming, IDataStreaming } from './page/streaming.js';
 
 
 export interface IApiServices {
@@ -88,7 +88,19 @@ export interface IAppServices extends IApiServices {
 
     ajax$<T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T>;
 
+    callAPI:IAPICaller['callAPI'];
+
+    callAPIWithExtraVal:IAPICaller['callAPIWithExtraVal'];
+
     dataStreaming():DataStreaming;
+}
+
+
+export interface IAPICaller {
+
+    callAPI<T, U>(api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U>;
+
+    callAPIWithExtraVal<T, U, V>(api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T, v:V):Observable<[U, V]>;
 }
 
 
@@ -103,6 +115,7 @@ export interface AppServicesArgs {
     actionUrlCreator:(path: string)=>string;
     dataReadability:DataReadabilityMapping;
     apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
+    apiCaller:IAPICaller;
     dataStreaming:DataStreaming;
     mobileModeTest:()=>boolean;
 }
@@ -138,10 +151,12 @@ export class AppServices implements IAppServices {
 
     private readonly dataStreamingImpl:DataStreaming;
 
+    private readonly apiCaller:IAPICaller;
+
     constructor({
             notifications, uiLang, translator,
             staticUrlCreator, actionUrlCreator, dataReadability,
-            apiHeadersMapping, dataStreaming, mobileModeTest
+            apiHeadersMapping, apiCaller, dataStreaming, mobileModeTest
     }:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
@@ -157,6 +172,7 @@ export class AppServices implements IAppServices {
             new DummySessionStorage() :
             window.sessionStorage;
         this.dataStreamingImpl = dataStreaming;
+        this.apiCaller = apiCaller;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -336,5 +352,14 @@ export class AppServices implements IAppServices {
 
     dataStreaming():DataStreaming {
         return this.dataStreamingImpl;
+    }
+
+    callAPI<T, U>(api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U> {
+        return this.apiCaller.callAPI(api, streaming, tileId, queryIdx, queryArgs);
+    }
+
+    callAPIWithExtraVal<T, U, V>(
+        api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T, passThrough:V):Observable<[U, V]> {
+        return this.apiCaller.callAPIWithExtraVal(api, streaming, tileId, queryIdx, queryArgs, passThrough);
     }
 }

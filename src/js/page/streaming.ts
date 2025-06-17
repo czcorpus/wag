@@ -144,133 +144,135 @@ export class DataStreaming implements IDataStreaming {
         this.userSession = userSession;
         this.tilesDataStreams = {};
         this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
-        this.responseStream = this.requestSubject.pipe(
-            scan(
-                (acc, value) => {
-                    const key = `${value.tileId}.${value.queryIdx}`;
-                    if (acc.get(key) === undefined) {
-                        acc.set(key, value);
-                    }
-                    return acc;
-                },
-                new Map(
-                    pipe(
-                        tileIds,
-                        List.map<number|string, Array<[string, TileRequest|OtherTileRequest|undefined]>>(
-                            v => List.repeat(
-                                i => tuple(`${v}.${i}`, undefined),
-                                userSession ? List.size(userSession.queries) : 1
-                            ),
-                        ),
-                        List.flatMap(x => x)
-                    )
-                )
-            ),
-            // TODO, remove when in production-ready quality
-            tap(
-                v => {
-                    console.log('tile dispatching status:');
-                    v.forEach((v, k) => {
-                        console.log('   ', k, ': ', v);
-                    })
-
-                }
-            ),
-            first(
-                v => {
-                    for (const [key, value] of v) {
-                        if (value === undefined) {
-                            return false;
+        this.responseStream = this.rootUrl ?
+            this.requestSubject.pipe(
+                scan(
+                    (acc, value) => {
+                        const key = `${value.tileId}.${value.queryIdx}`;
+                        if (acc.get(key) === undefined) {
+                            acc.set(key, value);
                         }
-                    }
-                    return true
-                }
-            ),
-            timeout(this.tilesReadyTimeoutSecs),
-            concatMap(
-                tileReqMap => ajax$<{id:string}>(
-                    HTTP.Method.PUT,
-                    this.rootUrl,
-                    {
-                        requests: pipe(
-                            Array.from(tileReqMap.entries()),
-                            List.map(
-                                ([k, tileReq]) => tileReq
-                            )
-                        ),
-                        tag: this.reqTag
+                        return acc;
                     },
-                    {
-                        contentType: 'application/json'
-                    }
-                ).pipe(
-                    map(
-                        resp => tuple(tileReqMap, resp)
+                    new Map(
+                        pipe(
+                            tileIds,
+                            List.map<number|string, Array<[string, TileRequest|OtherTileRequest|undefined]>>(
+                                v => List.repeat(
+                                    i => tuple(`${v}.${i}`, undefined),
+                                    userSession ? List.size(userSession.queries) : 1
+                                ),
+                            ),
+                            List.flatMap(x => x)
+                        )
                     )
-                )
-            ),
-            concatMap(
-                ([tileReqMap, resp]) => new Observable<EventItem>(
-                    observer => {
-                        const evtSrc = new EventSource(
-                            urlJoin(this.rootUrl, resp.id)
-                        );
-                        tileReqMap.forEach(
-                            (val, key) => {
-                                evtSrc.addEventListener(`DataTile-${val.tileId}.${val.queryIdx}`, evt => {
-                                    if (val.contentType == 'application/json') {
-                                        try {
-                                            const tmp = JSON.parse(evt.data);
+                ),
+                // TODO, remove when in production-ready quality
+                tap(
+                    v => {
+                        console.log('tile dispatching status:');
+                        v.forEach((v, k) => {
+                            console.log('   ', k, ': ', v);
+                        })
+
+                    }
+                ),
+                first(
+                    v => {
+                        for (const [key, value] of v) {
+                            if (value === undefined) {
+                                return false;
+                            }
+                        }
+                        return true
+                    }
+                ),
+                timeout(this.tilesReadyTimeoutSecs),
+                concatMap(
+                    tileReqMap => ajax$<{id:string}>(
+                        HTTP.Method.PUT,
+                        this.rootUrl,
+                        {
+                            requests: pipe(
+                                Array.from(tileReqMap.entries()),
+                                List.map(
+                                    ([k, tileReq]) => tileReq
+                                )
+                            ),
+                            tag: this.reqTag
+                        },
+                        {
+                            contentType: 'application/json'
+                        }
+                    ).pipe(
+                        map(
+                            resp => tuple(tileReqMap, resp)
+                        )
+                    )
+                ),
+                concatMap(
+                    ([tileReqMap, resp]) => new Observable<EventItem>(
+                        observer => {
+                            const evtSrc = new EventSource(
+                                urlJoin(this.rootUrl, resp.id)
+                            );
+                            tileReqMap.forEach(
+                                (val, key) => {
+                                    evtSrc.addEventListener(`DataTile-${val.tileId}.${val.queryIdx}`, evt => {
+                                        if (val.contentType == 'application/json') {
+                                            try {
+                                                const tmp = JSON.parse(evt.data);
+                                                observer.next({
+                                                    data: tmp,
+                                                    error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
+                                                    tileId: val.tileId,
+                                                    queryIdx: val.queryIdx
+                                                });
+
+                                            } catch (e) {
+                                                observer.next({
+                                                    data: undefined,
+                                                    error: `Failed to process response for tile ${val.tileId}: ${e}`,
+                                                    tileId: val.tileId,
+                                                    queryIdx: val.queryIdx
+                                                });
+                                            }
+
+                                        } else if (val.base64EncodeResult && typeof evt.data === 'string') {
+                                            const tmp = atob(evt.data);
                                             observer.next({
                                                 data: tmp,
-                                                error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
                                                 tileId: val.tileId,
                                                 queryIdx: val.queryIdx
-                                            });
+                                            })
 
-                                        } catch (e) {
+                                        } else {
                                             observer.next({
-                                                data: undefined,
-                                                error: `Failed to process response for tile ${val.tileId}: ${e}`,
+                                                data: evt.data,
                                                 tileId: val.tileId,
                                                 queryIdx: val.queryIdx
-                                            });
+                                            })
                                         }
-
-                                    } else if (val.base64EncodeResult && typeof evt.data === 'string') {
-                                        const tmp = atob(evt.data);
-                                        observer.next({
-                                            data: tmp,
-                                            tileId: val.tileId,
-                                            queryIdx: val.queryIdx
-                                        })
-
-                                    } else {
-                                        observer.next({
-                                            data: evt.data,
-                                            tileId: val.tileId,
-                                            queryIdx: val.queryIdx
-                                        })
-                                    }
-                                });
-                            }
-                        );
-                        evtSrc.addEventListener('close', () => {
-                            observer.complete();
-                            evtSrc.close();
-                        })
-                        evtSrc.onerror = v => {
-                            console.error(v);
-                            if (evtSrc.readyState === EventSource.CLOSED) {
-                                evtSrc.close();
+                                    });
+                                }
+                            );
+                            evtSrc.addEventListener('close', () => {
                                 observer.complete();
+                                evtSrc.close();
+                            })
+                            evtSrc.onerror = v => {
+                                console.error(v);
+                                if (evtSrc.readyState === EventSource.CLOSED) {
+                                    evtSrc.close();
+                                    observer.complete();
+                                }
                             }
                         }
-                    }
-                )
-            ),
-            share()
-        );
+                    )
+                ),
+                share()
+            ) :
+            EMPTY;
         if (typeof window !== 'undefined') {
             this.responseStream.subscribe({
                 error: error => {
