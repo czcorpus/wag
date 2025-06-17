@@ -152,11 +152,11 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                             List.forEach(args => observer.next(args)),
                         );
                         observer.complete();
-        
+
                     } catch (e) {
                         observer.error(e);
                     }
-        
+
                 }).pipe(
                     mergeMap(([args, pass]) =>
                         callWithExtraVal(
@@ -190,7 +190,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                             state => {
                                 state.freqData = List.map(match => ({word: match.word, isReady: true, rows: []}), this.queryMatches);
                                 state.backlinks = List.map(_ => null, this.queryMatches);
-                                state.error = this.appServices.normalizeHttpApiError(action.error);
+                                state.error = this.appServices.normalizeHttpApiError(error);
                                 state.isBusy = false;
                             }
                         )
