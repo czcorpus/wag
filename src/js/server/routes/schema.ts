@@ -20,7 +20,7 @@ import { concatMap, map, reduce } from 'rxjs/operators';
 import { HTTP, List, Rx, tuple } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices.js';
-import { QueryMatch, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
+import { QueryMatch, QueryType, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
 import {
     UserConf, emptyClientConf, errorUserConf,
     THEME_COOKIE_NAME, getAppliedThemeConf,
@@ -39,8 +39,10 @@ import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/common/index.js';
 import { createParentWagLink, markMatch, mkRuntimeClientConf, QueryActionArgs } from './main.js';
 import { DataStreamingMock } from '../../page/streaming.js';
-import { layoutConf, responseDataConf, tileConf } from '../../conf/static.js';
+import { layoutConf, queriesConf, tileConf, prepareTileData } from '../../conf/static.js';
+import { randomInt } from 'crypto';
 
+// static page handler
 export function schemaPage({
     services,
     answerMode,
@@ -70,7 +72,7 @@ export function schemaPage({
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
         dataReadability: {metadataMapping: {}, commonStructures: {}},
-        dataStreaming: new DataStreamingMock(responseDataConf),
+        dataStreaming: new DataStreamingMock(prepareTileData(queryType)),
         apiHeadersMapping: services.clientConf.apiHeaders || {},
         mobileModeTest: ()=>false,
         apiCaller: {
@@ -86,7 +88,7 @@ export function schemaPage({
         uiLanguages: services.serverConf.languages,
         translatLanguage: undefined,
         queryType,
-        queries: [{word: 'hlava', lemma: 'hlava', pos: ['N']}],
+        queries: queryType === QueryType.CMP_QUERY ? queriesConf : [queriesConf[0]],
         answerMode,
         staticPage: true,
     } as UserConf).pipe(
@@ -142,9 +144,9 @@ export function schemaPage({
                         word: query.word,
                         lemma: query.lemma,
                         pos: List.map(v => ({value: v, label: v}), query.pos),
-                        ipm: 2.1,
-                        abs: 500,
-                        flevel: 2,
+                        ipm: randomInt(100)/10,
+                        abs: randomInt(100000),
+                        flevel: randomInt(5),
                         isCurrent: true,
                     }]] as Array<Array<QueryMatch>>),
                     userConf.queries

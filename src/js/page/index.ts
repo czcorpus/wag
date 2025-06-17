@@ -40,7 +40,7 @@ import { TileConf } from './tile.js';
 import { DataStreaming, IDataStreaming, DataStreamingMock } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
 import { DataApi } from '../types.js';
-import { responseDataConf } from '../conf/static.js';
+import { prepareTileData } from '../conf/static.js';
 
 
 interface MountArgs {
@@ -152,7 +152,7 @@ export function initClient(
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming = userSession.staticPage ?
-        new DataStreamingMock(responseDataConf) :
+        new DataStreamingMock(prepareTileData(userSession.queryType)) :
         new DataStreaming(
             null,
             pipe(

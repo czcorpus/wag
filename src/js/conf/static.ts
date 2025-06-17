@@ -1,6 +1,6 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2019 Institute of the Czech National Corpus,
+ * Copyright 2025 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2025 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LayoutsConfig } from './index.js';
+import { List, pipe } from 'cnc-tskit';
+import { GroupLayoutConfig, LayoutsConfig } from './index.js';
+import { QueryType } from '../query/index.js';
 
+
+export const queriesConf = [
+  {word: 'hlava', lemma: 'hlava', pos: ['N']},
+  {word: 'ruka', lemma: 'ruka', pos: ['N']},
+  {word: 'noha', lemma: 'noha', pos: ['N']},
+]
 
 export const tileConf: {[name:string]:any} = {
     wordFreq: {
@@ -212,23 +220,58 @@ export const tileConf: {[name:string]:any} = {
             "url": "http://localhost/kontext"
         }
     },
+    wordSim: {
+      tileType: "WordSimTile",
+      useDataStream: true,
+      apiURL: "---",
+      maxResultItems: 20,
+      minMatchFreq: 0,
+    }
 };
 
 export const layoutConf: LayoutsConfig = {
     single: {
         groups: [
             {
-                groupLabel: "Tile examples",
+                groupLabel: "Frequency information",
                 tiles: [
                     {tile: 'wordFreq', width: 1},
                     {tile: 'mergeCorpFreq', width: 1},
                     {tile: 'wordForms', width: 1},
+                ]
+            },
+            {
+                groupLabel: "Written language",
+                tiles: [
                     {tile: 'colloc', width: 1},
                     {tile: 'concordance', width: 2},
                     {tile: 'timeDistrib', width: 2},
-                    {tile: 'freqBar', width: 1},
+                    {tile: 'wordSim', width: 1},
+                ]
+            },
+            {
+                groupLabel: "Spoken language",
+                tiles: [
+                    {tile: 'freqBar', width: 3},
                     {tile: 'speeches', width: 1},
                     {tile: 'geoAreas', width: 2},
+                ]
+            }
+        ],
+        mainPosAttr: 'pos',
+    },
+    cmp: {
+        groups: [
+            {
+                groupLabel: "Tile examples",
+                tiles: [
+                    {tile: 'wordFreq', width: 1},
+                    {tile: 'mergeCorpFreq', width: 1},
+                    {tile: 'freqBar', width: 1},
+                    {tile: 'colloc', width: 3},
+                    {tile: 'concordance', width: 3},
+                    {tile: 'timeDistrib', width: 3},
+                    {tile: 'geoAreas', width: 3},
                 ]
             }
         ],
@@ -236,8 +279,16 @@ export const layoutConf: LayoutsConfig = {
     }
 };
 
-export const responseDataConf: Array<Array<any>> = [
-    [
+export function prepareTileData(queryType:QueryType):Array<Array<any>> {  
+  return pipe(
+    layoutConf[queryType]['groups'] as GroupLayoutConfig[],
+    List.flatMap(v => v.tiles),
+    List.map(v => tileDataConf[v.tile]),
+  );
+}
+
+const tileDataConf: {[key:string]:Array<any>} = {
+    wordFreq: [
         {
             "matches": [
               {
@@ -679,8 +730,913 @@ export const responseDataConf: Array<Array<any>> = [
               }
             ]
         },
+        {
+          "matches": [
+            {
+              "_id": "000000",
+              "lemma": "ruka",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 66547,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 66547,
+              "ipm": 0.001539560590293446,
+              "ngramSize": 1,
+              "simFreqScore": 37602.5
+            },
+            {
+              "_id": "000001",
+              "lemma": "jak",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 69447,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "J",
+              "is_pname": false,
+              "count": 69447,
+              "ipm": 0.0016066519048808954,
+              "ngramSize": 1,
+              "simFreqScore": 37840.69921875
+            },
+            {
+              "_id": "000002",
+              "lemma": "tam",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 72434,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 72434,
+              "ipm": 0.0016757559589059682,
+              "ngramSize": 1,
+              "simFreqScore": 37856.1015625
+            },
+            {
+              "_id": "000003",
+              "lemma": "každý",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 69495,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "P",
+              "is_pname": false,
+              "count": 69495,
+              "ipm": 0.001607762381811998,
+              "ngramSize": 1,
+              "simFreqScore": 38279.3984375
+            },
+            {
+              "_id": "000004",
+              "lemma": "čas",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 71314,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 71314,
+              "ipm": 0.001649844830513574,
+              "ngramSize": 1,
+              "simFreqScore": 39185.30078125
+            },
+            {
+              "_id": "000005",
+              "lemma": "stát",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 71395,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "V",
+              "is_pname": false,
+              "count": 71395,
+              "ipm": 0.0016517187603348098,
+              "ngramSize": 1,
+              "simFreqScore": 39838.80078125
+            },
+            {
+              "_id": "000006",
+              "lemma": "sám",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 76120,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "P",
+              "is_pname": false,
+              "count": 76120,
+              "ipm": 0.0017610313332402229,
+              "ngramSize": 1,
+              "simFreqScore": 39912.80078125
+            },
+            {
+              "_id": "000007",
+              "lemma": "jeden",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 69915,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "C",
+              "is_pname": false,
+              "count": 69915,
+              "ipm": 0.001617479054959146,
+              "ngramSize": 1,
+              "simFreqScore": 40060.1015625
+            },
+            {
+              "_id": "000008",
+              "lemma": "dát",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 74677,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "V",
+              "is_pname": false,
+              "count": 74677,
+              "ipm": 0.0017276476204989507,
+              "ngramSize": 1,
+              "simFreqScore": 40836.69921875
+            },
+            {
+              "_id": "000009",
+              "lemma": "pak",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 76177,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 76177,
+              "ipm": 0.0017623500245959073,
+              "ngramSize": 1,
+              "simFreqScore": 42116.1015625
+            },
+            {
+              "_id": "00000a",
+              "lemma": "snad",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 70519,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "T",
+              "is_pname": false,
+              "count": 70519,
+              "ipm": 0.001631452556342187,
+              "ngramSize": 1,
+              "simFreqScore": 37116.80078125
+            },
+            {
+              "_id": "00000b",
+              "lemma": "ze",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 62655,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "R",
+              "is_pname": false,
+              "count": 62655,
+              "ipm": 0.001449519419129876,
+              "ngramSize": 1,
+              "simFreqScore": 36853.19921875
+            },
+            {
+              "_id": "00000c",
+              "lemma": "duše",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 69189,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 69189,
+              "ipm": 0.001600683091376219,
+              "ngramSize": 1,
+              "simFreqScore": 36653
+            },
+            {
+              "_id": "00000d",
+              "lemma": "teď",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 67454,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 67454,
+              "ipm": 0.0015605439773040725,
+              "ngramSize": 1,
+              "simFreqScore": 36116.3984375
+            },
+            {
+              "_id": "00000e",
+              "lemma": "nic",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 65092,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "P",
+              "is_pname": false,
+              "count": 65092,
+              "ipm": 0.0015058992583193982,
+              "ngramSize": 1,
+              "simFreqScore": 35903.30078125
+            },
+            {
+              "_id": "00000f",
+              "lemma": "sen",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 68182,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 68182,
+              "ipm": 0.0015773862107591287,
+              "ngramSize": 1,
+              "simFreqScore": 35804.5
+            },
+            {
+              "_id": "00000g",
+              "lemma": "kdo",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 67351,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "P",
+              "is_pname": false,
+              "count": 67351,
+              "ipm": 0.0015581610788894147,
+              "ngramSize": 1,
+              "simFreqScore": 35442.19921875
+            },
+            {
+              "_id": "00000h",
+              "lemma": "kde",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 67027,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 67027,
+              "ipm": 0.0015506653596044722,
+              "ngramSize": 1,
+              "simFreqScore": 35338.3984375
+            },
+            {
+              "_id": "00000i",
+              "lemma": "ještě",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 64889,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 64889,
+              "ipm": 0.0015012028662982767,
+              "ngramSize": 1,
+              "simFreqScore": 35334.3984375
+            }
+          ]
+        },
+        {
+          "matches": [
+            {
+              "_id": "000000",
+              "lemma": "noha",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 25186,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 25186,
+              "ipm": 0.0005826764997239655,
+              "ngramSize": 1,
+              "simFreqScore": 14246.2001953125
+            },
+            {
+              "_id": "000001",
+              "lemma": "dítě",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27006,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 27006,
+              "ipm": 0.0006247820833616062,
+              "ngramSize": 1,
+              "simFreqScore": 14282.099609375
+            },
+            {
+              "_id": "000002",
+              "lemma": "další",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26166,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "A",
+              "is_pname": false,
+              "count": 26166,
+              "ipm": 0.0006053487370673105,
+              "ngramSize": 1,
+              "simFreqScore": 14349.400390625
+            },
+            {
+              "_id": "000003",
+              "lemma": "někdo",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26887,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "P",
+              "is_pname": false,
+              "count": 26887,
+              "ipm": 0.0006220290259699142,
+              "ngramSize": 1,
+              "simFreqScore": 14403.099609375
+            },
+            {
+              "_id": "000004",
+              "lemma": "dál",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27358,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 27358,
+              "ipm": 0.0006329255808563587,
+              "ngramSize": 1,
+              "simFreqScore": 14408
+            },
+            {
+              "_id": "000005",
+              "lemma": "štěstí",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27368,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 27368,
+              "ipm": 0.000633156930217005,
+              "ngramSize": 1,
+              "simFreqScore": 14411.599609375
+            },
+            {
+              "_id": "000006",
+              "lemma": "padat",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26837,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "V",
+              "is_pname": false,
+              "count": 26837,
+              "ipm": 0.0006208722791666824,
+              "ngramSize": 1,
+              "simFreqScore": 14481.400390625
+            },
+            {
+              "_id": "000007",
+              "lemma": "pohled",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26517,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 26517,
+              "ipm": 0.0006134690996259983,
+              "ngramSize": 1,
+              "simFreqScore": 14672.400390625
+            },
+            {
+              "_id": "000008",
+              "lemma": "myslet",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27245,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "V",
+              "is_pname": false,
+              "count": 27245,
+              "ipm": 0.0006303113330810545,
+              "ngramSize": 1,
+              "simFreqScore": 14738.900390625
+            },
+            {
+              "_id": "000009",
+              "lemma": "tak",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27178,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "J",
+              "is_pname": false,
+              "count": 27178,
+              "ipm": 0.0006287612923647238,
+              "ngramSize": 1,
+              "simFreqScore": 14750.7001953125
+            },
+            {
+              "_id": "00000a",
+              "lemma": "člověk",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27333,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 27333,
+              "ipm": 0.0006323472074547427,
+              "ngramSize": 1,
+              "simFreqScore": 14213.2001953125
+            },
+            {
+              "_id": "00000b",
+              "lemma": "konec",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 25336,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 25336,
+              "ipm": 0.0005861467401336611,
+              "ngramSize": 1,
+              "simFreqScore": 14137.900390625
+            },
+            {
+              "_id": "00000c",
+              "lemma": "krása",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26330,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 26330,
+              "ipm": 0.0006091428665819111,
+              "ngramSize": 1,
+              "simFreqScore": 14125.2998046875
+            },
+            {
+              "_id": "00000d",
+              "lemma": "síla",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 25637,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 25637,
+              "ipm": 0.0005931103558891171,
+              "ngramSize": 1,
+              "simFreqScore": 14086.5
+            },
+            {
+              "_id": "00000e",
+              "lemma": "starý",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 25764,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "A",
+              "is_pname": false,
+              "count": 25764,
+              "ipm": 0.0005960484927693261,
+              "ngramSize": 1,
+              "simFreqScore": 14054.7001953125
+            },
+            {
+              "_id": "00000f",
+              "lemma": "pár",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26619,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "D",
+              "is_pname": false,
+              "count": 26619,
+              "ipm": 0.0006158288631045914,
+              "ngramSize": 1,
+              "simFreqScore": 14054.2001953125
+            },
+            {
+              "_id": "00000g",
+              "lemma": "okno",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26262,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 26262,
+              "ipm": 0.0006075696909295157,
+              "ngramSize": 1,
+              "simFreqScore": 14017.7998046875
+            },
+            {
+              "_id": "00000h",
+              "lemma": "naděje",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 27170,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 27170,
+              "ipm": 0.0006285762128762067,
+              "ngramSize": 1,
+              "simFreqScore": 14004.7998046875
+            },
+            {
+              "_id": "00000i",
+              "lemma": "nový",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 24612,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "A",
+              "is_pname": false,
+              "count": 24612,
+              "ipm": 0.0005693970464228635,
+              "ngramSize": 1,
+              "simFreqScore": 13988.7998046875
+            },
+            {
+              "_id": "00000j",
+              "lemma": "strom",
+              "forms": [
+                {
+                  "word": "-",
+                  "count": 26225,
+                  "arf": 0
+                }
+              ],
+              "sublemmas": [
+                {
+                  "value": "-",
+                  "count": 1
+                }
+              ],
+              "pos": "N",
+              "is_pname": false,
+              "count": 26225,
+              "ipm": 0.0006067136982951241,
+              "ngramSize": 1,
+              "simFreqScore": 13955.599609375
+            }
+          ]
+        }
     ],
-    [
+    mergeCorpFreq: [
         {
             parts: [
                 {
@@ -723,8 +1679,92 @@ export const responseDataConf: Array<Array<any>> = [
                 }
             ],
         },
+        {
+          "parts": [
+            {
+              "concSize": 91336,
+              "corpusSize": 121826797,
+              "freqs": [
+                {
+                  "word": "FIC: beletrie",
+                  "freq": 64800,
+                  "base": 41591113,
+                  "ipm": 1558.0251
+                },
+                {
+                  "word": "NMG: publicistika",
+                  "freq": 13586,
+                  "base": 39966492,
+                  "ipm": 339.93478
+                },
+                {
+                  "word": "NFC: oborová literatura",
+                  "freq": 12950,
+                  "base": 40269192,
+                  "ipm": 321.58582
+                }
+              ],
+              "fcrit": "doc.txtype_group 0 0"
+            },
+            {
+              "concSize": 1455,
+              "corpusSize": 6361707,
+              "freqs": [
+                {
+                  "word": "ruka",
+                  "freq": 1455,
+                  "base": 6361707,
+                  "ipm": 228.7122
+                }
+              ],
+              "fcrit": "lemma/e 0~0>0/i 0~0>0"
+            }
+          ]
+        },
+        {
+          "parts": [
+            {
+              "concSize": 32504,
+              "corpusSize": 121826797,
+              "freqs": [
+                {
+                  "word": "FIC: beletrie",
+                  "freq": 21359,
+                  "base": 41591113,
+                  "ipm": 513.54724
+                },
+                {
+                  "word": "NMG: publicistika",
+                  "freq": 6537,
+                  "base": 39966492,
+                  "ipm": 163.56201
+                },
+                {
+                  "word": "NFC: oborová literatura",
+                  "freq": 4608,
+                  "base": 40269192,
+                  "ipm": 114.42991
+                }
+              ],
+              "fcrit": "doc.txtype_group 0 0"
+            },
+            {
+              "concSize": 1375,
+              "corpusSize": 6361707,
+              "freqs": [
+                {
+                  "word": "noha",
+                  "freq": 1375,
+                  "base": 6361707,
+                  "ipm": 216.13696
+                }
+              ],
+              "fcrit": "lemma/e 0~0>0/i 0~0>0"
+            }
+          ]
+        },
     ],
-    [
+    wordForms: [
         [
             {
               "lemma": "hlava",
@@ -800,7 +1840,7 @@ export const responseDataConf: Array<Array<any>> = [
             }
         ],
     ],
-    [
+    colloc: [
         {
             "corpusSize": 121826797,
             "concSize": 0,
@@ -864,8 +1904,134 @@ export const responseDataConf: Array<Array<any>> = [
               3
             ]
         },
+        {
+          "corpusSize": 121826797,
+          "concSize": 0,
+          "subcSize": 121826797,
+          "colls": [
+            {
+              "word": "držet",
+              "score": 10.2123,
+              "freq": 4302
+            },
+            {
+              "word": "vzít",
+              "score": 9.3968,
+              "freq": 2801
+            },
+            {
+              "word": "zvednout",
+              "score": 9.3814,
+              "freq": 2242
+            },
+            {
+              "word": "položit",
+              "score": 9.3632,
+              "freq": 2123
+            },
+            {
+              "word": "pravý",
+              "score": 9.1558,
+              "freq": 1892
+            },
+            {
+              "word": "natáhnout",
+              "score": 9.1298,
+              "freq": 1659
+            },
+            {
+              "word": "levý",
+              "score": 8.9747,
+              "freq": 1530
+            },
+            {
+              "word": "mávnout",
+              "score": 8.9318,
+              "freq": 1393
+            },
+            {
+              "word": "ruka",
+              "score": 8.8654,
+              "freq": 2600
+            },
+            {
+              "word": "podat",
+              "score": 8.7388,
+              "freq": 1344
+            }
+          ],
+          "resultType": "coll",
+          "measure": "logDice",
+          "srchRange": [
+            3,
+            3
+          ]
+        },
+        {
+          "corpusSize": 121826797,
+          "concSize": 0,
+          "subcSize": 121826797,
+          "colls": [
+            {
+              "word": "pod",
+              "score": 9.1729,
+              "freq": 1970
+            },
+            {
+              "word": "vzhůru",
+              "score": 9.1342,
+              "freq": 653
+            },
+            {
+              "word": "ruka",
+              "score": 8.664,
+              "freq": 1533
+            },
+            {
+              "word": "noha",
+              "score": 8.6465,
+              "freq": 795
+            },
+            {
+              "word": "postavit",
+              "score": 8.6372,
+              "freq": 658
+            },
+            {
+              "word": "levý",
+              "score": 8.6314,
+              "freq": 494
+            },
+            {
+              "word": "bosý",
+              "score": 8.5628,
+              "freq": 392
+            },
+            {
+              "word": "pravý",
+              "score": 8.3162,
+              "freq": 485
+            },
+            {
+              "word": "prst",
+              "score": 8.0898,
+              "freq": 421
+            },
+            {
+              "word": "zvednout",
+              "score": 7.9301,
+              "freq": 382
+            }
+          ],
+          "resultType": "coll",
+          "measure": "logDice",
+          "srchRange": [
+            3,
+            3
+          ]
+        },
     ],
-    [
+    concordance: [
         {
             "lines": [
               {
@@ -3289,8 +4455,4884 @@ export const responseDataConf: Array<Array<any>> = [
             "ipm": 596.5518407251567,
             "resultType": "conc"
         },
+        {
+          "lines": [
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "začala",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "začít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pálit",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pálit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "kůže",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kůže"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "chvílemi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chvíle"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jsem",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "necítila",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "cítit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "prsty",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prst"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rukou",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "brnělo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "brnět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "já"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ucho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ucho"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "“",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vypráví",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vyprávět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Potíže",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "potíž"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#111552106",
+              "props": {
+                "s.id": "blze1827:27:4:5"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "“",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "řekl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "říci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Nils",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Nils"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Jestli",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jestli"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "on"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "dáme",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "dát"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "do",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "do"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruky",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "tamburínu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "tamburína"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "půjde",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rytmus",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "rytmus"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "do",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "do"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "kytek",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kytka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "“",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#24905254",
+              "props": {
+                "s.id": "solbe_valkaproti:1:1071:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "platby",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "platba"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "podivné",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "podivný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "dění",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "dění"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "v",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Egyptě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Egypt"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "…",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "..."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "“",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Rozhodila",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "rozhodit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruce",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Kdo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kdo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ví",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vědět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jak",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jak"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "to",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "prozradilo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prozradit"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#6752447",
+              "props": {
+                "s.id": "sussm_ztracenaoa:1:3583:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "rozměrného",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "rozměrný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "koberce",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "koberec"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "který",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "který"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "roztáhli",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "roztáhnout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "prknech",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prkno"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jednu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeden"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruku",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "v",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "bok",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "bok"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Řekla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "říci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ":",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ":"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Chtěla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chtít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "bych",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#37094166",
+              "props": {
+                "s.id": "mcewa_prvnilaska:1:198:7"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "dobyli",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "dobýt"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pevnost",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pevnost"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mého",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "můj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "otce",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "otec"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "přivedli",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "přivést"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "já"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "do",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "do"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jeho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeho"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rukou",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "A",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "také",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "také"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "je",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mezi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mezi"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "námi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "my"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "všeobecně",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "všeobecně"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "známo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "známý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#11382034",
+              "props": {
+                "s.id": "bengt_zrzavyorm:1:308:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Jako",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jako"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "by",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "čas",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "čas"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zastavil",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zastavit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Vzal",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vzít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "její",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "její"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruku",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "do",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "do"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "své",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "svůj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Najednou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "najednou"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pocítil",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pocítit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jak",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jak"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "je",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "příjemné",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "příjemný"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#7336511",
+              "props": {
+                "s.id": "fossu_indickanev:1:1035:3"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "jen",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jen"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "špičkami",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "špička"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zbytek",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zbytek"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "její",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "její"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "váhy",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "váha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "spočíval",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "spočívat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "v",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jeho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeho"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rukou",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Hank",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Hank"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "opustil",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "opustit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "její",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "její"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rty",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ret"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zkoumal",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zkoumat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "si",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ústy",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ústa"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#1687698",
+              "props": {
+                "s.id": "dever_procitnuti:1:1059:5"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "v",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "květinovém",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "květinový"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "záhonu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "záhon"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "u",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "u"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "okna",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "okno"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "sálu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "sál"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pak",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pak"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "napřáhl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "napřáhnout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruku",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "hodil",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "hodit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "k",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "k"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "on"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "do",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "do"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "okna",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "okno"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "novou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nový"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "hrst",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "hrst"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "země",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "země"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#4996104",
+              "props": {
+                "s.id": "dumau_hospodajam:1:1109:3"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "mohl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "moci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Lev",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "lev"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "odpovědět",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "odpovědět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "uviděl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "uvidět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Austin",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Austin"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "frontu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "fronta"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Zvedl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zvednout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruku",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ukázal",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ukázat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "klikatícího",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "klikatící"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "lidského",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "lidský"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "hada",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "had"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "čekajícího",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "čekající"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "před",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "před"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#13712733",
+              "props": {
+                "s.id": "smith_agent6:1:307:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "že",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "že"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "viděla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vidět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "krůpěje",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "krůpěj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "potu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pot"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jeho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeho"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "čele",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "čelo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Ruka",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "on"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ve",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vzduchu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vzduch"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "chvěla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chvět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Ty",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ty"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "seš",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#16381442",
+              "props": {
+                "s.id": "mathi_dvanactkmf:1:1161:4"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "sebou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "trhaly",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "trhat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "takže",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "takže"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Groves",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Groves"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ji",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "on"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "musel",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "muset"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "svýma",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "svůj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "velkýma",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "velký"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rukama",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "přimáčknout",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "přimáčknout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "aby",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "aby|být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mohl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "moci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Slater",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Slater"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "sevřít",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "sevřít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zadní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zadní"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "část",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "část"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "hlavy",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "hlava"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#30768313",
+              "props": {
+                "s.id": "masel_krizromano:1:60:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "daleko",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "daleko"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "že",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "že"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "uvedenou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "uvedený"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pizzerii",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pizzerie"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "navštívil",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "navštívit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "s"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zbraní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zbraň"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "v",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruce",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mladík",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mladík"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "aby",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "aby|být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zjednal",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zjednat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pořádek",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pořádek"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Samozřejmě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "samozřejmě"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "že",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "že"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nic",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nic"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#121256021",
+              "props": {
+                "s.id": "rozh1835:5:7:4"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "novými",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nový"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "výtahy",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "výtah"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Měl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "při",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "při"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "tom",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "s",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "s"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "sebou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "k",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "k"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruce",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "asistenta",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "asistent"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "z",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "z"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "řad",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "řada"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "čerstvě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "čerstvě"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "přijatých",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "přijatý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zaměstnanců",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zaměstnanec"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "S",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "s"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jeho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeho"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#20366748",
+              "props": {
+                "s.id": "murak_bezbarvycu:2:530:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "Za",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "za"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Pinochetových",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Pinochetův"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "let",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "rok"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "měl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vlastní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vlastní"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "středisko",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "středisko"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "výslechů",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "výslech"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jeho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeho"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "rukama",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "prošly",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "projít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "stovky",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "stovka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vězňů",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vězeň"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "“",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Bokobza",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Bokobza"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "otevřel",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "otevřít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jednu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeden"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ze",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "z"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#5299061",
+              "props": {
+                "s.id": "grang_miserere:1:3155:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "POMALU",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pomalu"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ŽMOULÁ",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "žmoulat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "–",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "-"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "HELE",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "hele"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "!",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "!"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "MÁM",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "KULIČKU",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kulička"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "!",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "!"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "CHECHTAJÍC",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chechtat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "RUKA",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ZATŘESE",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zatřást"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "POVĚTŘÍM",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "povětří"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "VZPOMÍNEK",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vzpomínka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "PRÁZDNOTOU",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prázdnota"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "POKOJE",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pokoj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "SNÁŠÍ",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "snášet"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "SE",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "MALINKÝ",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "malinký"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "PAPÍREK",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "papírek"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#39197387",
+              "props": {
+                "s.id": "kofla_doduchoduz:1:57:1"
+              }
+            }
+          ],
+          "concSize": 91336,
+          "corpusSize": 121826797,
+          "ipm": 749.7201128910907,
+          "resultType": "conc"
+        },
+        {
+          "lines": [
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "podotkla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "podotknout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ":",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ":"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Ty",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ty"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jsi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "samá",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "samý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ruka",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ruka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "samá",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "samý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "noha",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jsi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vytrénovaný",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vytrénovaný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "máš",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "tělo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "tělo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "sportovce",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "sportovec"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "to",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#15392049",
+              "props": {
+                "s.id": "enqui_knihapodob:1:635:5"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "je",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nerezový",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nerezový"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nástavec",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nástavec"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "PowerBell",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "PowerBell"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "s",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "s"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "patentovanou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "patentovaný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "spodní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "spodní"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "částí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "část"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mixovací",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mixovací"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Její",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "její"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zvonovitá",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zvonovitý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "část",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "část"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "je",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "otočena",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "otočit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "proti",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "proti"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "směru",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "směr"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pohybu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pohyb"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#111867242",
+              "props": {
+                "s.id": "mami1809:28:57:4"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "Vtom",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vtom"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "někdo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "někdo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zabuší",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zabušit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "dveře",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "dveře"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Kovář",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kovář"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vyskočí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vyskočit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jako",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jako"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "když",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "když"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "střelí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "střelit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "žene",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "hnát"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ke",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "k"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#19819825",
+              "props": {
+                "s.id": "leine_prorocizfj:1:1887:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "mi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "já"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "postupně",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "postupně"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "umyla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "umýt"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "paže",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "paže"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "prsa",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prsa"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "břicho",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "břicho"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "„",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Zvládneme",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zvládnout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "to",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "“",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "\""
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ozve",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ozvat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "po",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "po"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#18568998",
+              "props": {
+                "s.id": "colem_knihavzpom:1:1548:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "druhý",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "druhý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zase",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zase"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "začínáme",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "začínat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Jdu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pomalu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pomalu"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zvednout",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zvednout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "kluky",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kluk"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Jo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ještě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ještě"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "něco",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "něco"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Byla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "tu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "tu"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nějaká",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nějaký"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#34101136",
+              "props": {
+                "s.id": "hajic_vzpominkyo:1:2112:3"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "Saru",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Sára"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "teď",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "teď"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "už",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "už"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ani",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ani"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nenapadlo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "napadnout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "že",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "že"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "by",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "její",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "její"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mohly",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "moci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "být",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nějak",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nějak"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "elegantní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "elegantní"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Staly",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "stát"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "z",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "z"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nich",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "oni"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#21832054",
+              "props": {
+                "s.id": "bival_ctenarizbr:1:486:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "kočky",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kočka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Motaly",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "motat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "návštěvníkům",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "návštěvník"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "přátelsky",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "přátelsky"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pod",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pod"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohama",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Podle",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "podle"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "správcové",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "správcová"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "choval",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chovat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "svérázný",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "svérázný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "spisovatel",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "spisovatel"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "asi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "asi"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "třicet",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "třicet"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "čtyřnohých",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "čtyřnohý"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#4908922",
+              "props": {
+                "s.id": "dudov_zivotasouz:1:3083:4"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "voda",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "voda"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "teče",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "téci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "do",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "do"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "kopce",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "kopec"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "princové",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "princ"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "padají",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "padat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "k",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "k"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohám",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "koukám",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "koukat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "že",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "že"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "sem",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "sem"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "chodí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chodit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "i",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "i"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "tvoje",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "tvůj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mladší",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mladý"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#14917415",
+              "props": {
+                "s.id": "cerve_zavriociot:1:556:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "krásná",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "krásný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "!",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "!"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Růžolící",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "růžolící"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "krásná",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "krásný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "dáma",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "dáma"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "svírající",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "svírající"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nástroj",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nástroj"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mezi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mezi"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohama",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Tak",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "tak"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "přímý",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "přímý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jindy",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jindy"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nejsem",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "!",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "!"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "To",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mi",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "já"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "věř",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "věřit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "!",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "!"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#41287364",
+              "props": {
+                "s.id": "demps_carodejkyz:1:485:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "ale",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ale"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "opakovat",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "opakovat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nemohl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "moci"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "neboť",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "neboť"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "již",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "již"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "sotva",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "sotva"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "stál",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "stát"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohou",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Poslední",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "poslední"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jsme",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "měli",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zase",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zase"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "číslo",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "číslo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "my",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "my"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "S",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "s"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#81071151",
+              "props": {
+                "s.id": "mlcoc_zapiskyleg:1:539:12"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "po",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "po"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "prknech",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prkno"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "V",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pokojíku",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pokojík"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ve",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "věžičce",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "věžička"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Shauna",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Shaun"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vrtí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vrtět"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohama",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jako",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jako"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "cvrček",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "cvrček"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Sní",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "snít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jen",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jen"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "o",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "o"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Mahonym",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "Mahony"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Odvádí",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "odvádět"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#27204124",
+              "props": {
+                "s.id": "kiddo_zivel:1:1237:1"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "ale",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ale"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "byla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "to",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "krev",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "krev"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Hladký",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "hladký"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vyhrabal",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vyhrabat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ohlédl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ohlédnout"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "se",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "po",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "po"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "mně",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "já"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Oči",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "oko"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "měl",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "mít"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vyvalené",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vyvalený"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#31267259",
+              "props": {
+                "s.id": "snego_krevprorus:1:2254:3"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "pasu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pas"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "i",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "i"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "boků",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "bok"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "neméně",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "málo"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "důležitá",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "důležitý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "je",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "i",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "i"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "délka",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "délka"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohou",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Ve",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "v"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "specializovaném",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "specializovaný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "obchodu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "obchod"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "je",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "možné",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "možný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "si",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "se"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "vybrat",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "vybrat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nejen",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nejen"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#121287746",
+              "props": {
+                "s.id": "styl1843:6:5:2"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "bude",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "potřebovat",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "potřebovat"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "zraněná",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "zraněný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "bez",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "bez"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pevné",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pevný"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "půdy",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "půda"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pod",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pod"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohama",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Prostě",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "prostě"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "a",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jednoduše",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jednoduše"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "bude",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "být"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "na",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "na"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "pravdu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pravda"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "připravená",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "připravený"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#15520248",
+              "props": {
+                "s.id": "hjort_ucednik:1:370:4"
+              }
+            },
+            {
+              "text": [
+                {
+                  "type": "token",
+                  "word": "signál",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "signál"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "polnice",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "polnice"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "Pravda",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "pravda"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "chodila",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "chodit"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nějak",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "nějak"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "divně",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "divně"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ",",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": ","
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "nohy",
+                  "strong": true,
+                  "matchType": "kwic",
+                  "attrs": {
+                    "lemma": "noha"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "kladla",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "klást"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jako",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jako"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "provazochodkyně",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "provazochodkyně"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "jednu",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "jeden"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "před",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "před"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "druhou",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "druhý"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": ".",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "."
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "A",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "a"
+                  }
+                },
+                {
+                  "type": "token",
+                  "word": "ty",
+                  "strong": false,
+                  "attrs": {
+                    "lemma": "ten"
+                  }
+                }
+              ],
+              "alignedText": null,
+              "ref": "#37821493",
+              "props": {
+                "s.id": "bocor_hlavamehoo:1:116:3"
+              }
+            }
+          ],
+          "concSize": 32504,
+          "corpusSize": 121826797,
+          "ipm": 266.8050117085488,
+          "resultType": "conc"
+        },
     ],
-    [
+    timeDistrib: [
         {
             "entries": {
               "concSize": 72676,
@@ -3451,9 +9493,331 @@ export const responseDataConf: Array<Array<any>> = [
             },
             "chunkNum": 1,
             "totalChunks": 3
-        }
+        },
+        {
+          "entries": {
+            "concSize": 91336,
+            "corpusSize": 121826797,
+            "freqs": [
+              {
+                "word": "2017",
+                "freq": 14324,
+                "base": 19839356,
+                "ipm": 721.99927
+              },
+              {
+                "word": "2016",
+                "freq": 12063,
+                "base": 17929079,
+                "ipm": 672.81757
+              },
+              {
+                "word": "2015",
+                "freq": 11594,
+                "base": 17644046,
+                "ipm": 657.1055
+              },
+              {
+                "word": "2013",
+                "freq": 7141,
+                "base": 7196676,
+                "ipm": 992.2637
+              },
+              {
+                "word": "2014",
+                "freq": 6625,
+                "base": 6107369,
+                "ipm": 1084.7551
+              },
+              {
+                "word": "2012",
+                "freq": 5567,
+                "base": 4981385,
+                "ipm": 1117.5607
+              },
+              {
+                "word": "2018",
+                "freq": 8949,
+                "base": 16132615,
+                "ipm": 554.7148
+              },
+              {
+                "word": "2010",
+                "freq": 5450,
+                "base": 4934398,
+                "ipm": 1104.4915
+              },
+              {
+                "word": "2008",
+                "freq": 4382,
+                "base": 4095099,
+                "ipm": 1070.0596
+              },
+              {
+                "word": "2009",
+                "freq": 3483,
+                "base": 3216945,
+                "ipm": 1082.7043
+              },
+              {
+                "word": "2011",
+                "freq": 2317,
+                "base": 2974202,
+                "ipm": 779.0325
+              },
+              {
+                "word": "2019",
+                "freq": 5381,
+                "base": 11822369,
+                "ipm": 455.15414
+              },
+              {
+                "word": "2007",
+                "freq": 586,
+                "base": 686298,
+                "ipm": 853.8565
+              },
+              {
+                "word": "1995",
+                "freq": 487,
+                "base": 315097,
+                "ipm": 1545.5558
+              },
+              {
+                "word": "2001",
+                "freq": 523,
+                "base": 386104,
+                "ipm": 1354.5574
+              },
+              {
+                "word": "2006",
+                "freq": 511,
+                "base": 919116,
+                "ipm": 555.969
+              },
+              {
+                "word": "1999",
+                "freq": 393,
+                "base": 399836,
+                "ipm": 982.90295
+              },
+              {
+                "word": "1997",
+                "freq": 339,
+                "base": 305381,
+                "ipm": 1110.0886
+              },
+              {
+                "word": "2004",
+                "freq": 326,
+                "base": 263512,
+                "ipm": 1237.1353
+              },
+              {
+                "word": "2005",
+                "freq": 323,
+                "base": 648991,
+                "ipm": 497.69565
+              },
+              {
+                "word": "1998",
+                "freq": 254,
+                "base": 333078,
+                "ipm": 762.58417
+              },
+              {
+                "word": "2000",
+                "freq": 91,
+                "base": 204948,
+                "ipm": 444.01508
+              },
+              {
+                "word": "2002",
+                "freq": 91,
+                "base": 67665,
+                "ipm": 1344.8607
+              },
+              {
+                "word": "2003",
+                "freq": 79,
+                "base": 324759,
+                "ipm": 243.25731
+              },
+              {
+                "word": "1996",
+                "freq": 57,
+                "base": 98473,
+                "ipm": 578.83887
+              }
+            ],
+            "fcrit": ""
+          },
+          "chunkNum": 2,
+          "totalChunks": 3
+        },
+        {
+          "entries": {
+            "concSize": 32504,
+            "corpusSize": 121826797,
+            "freqs": [
+              {
+                "word": "2017",
+                "freq": 5169,
+                "base": 19839356,
+                "ipm": 260.54272
+              },
+              {
+                "word": "2015",
+                "freq": 4257,
+                "base": 17644046,
+                "ipm": 241.2712
+              },
+              {
+                "word": "2016",
+                "freq": 4230,
+                "base": 17929079,
+                "ipm": 235.92957
+              },
+              {
+                "word": "2013",
+                "freq": 2626,
+                "base": 7196676,
+                "ipm": 364.8907
+              },
+              {
+                "word": "2014",
+                "freq": 2115,
+                "base": 6107369,
+                "ipm": 346.30295
+              },
+              {
+                "word": "2018",
+                "freq": 3443,
+                "base": 16132615,
+                "ipm": 213.4186
+              },
+              {
+                "word": "2012",
+                "freq": 1734,
+                "base": 4981385,
+                "ipm": 348.09595
+              },
+              {
+                "word": "2010",
+                "freq": 1796,
+                "base": 4934398,
+                "ipm": 363.9755
+              },
+              {
+                "word": "2008",
+                "freq": 1423,
+                "base": 4095099,
+                "ipm": 347.48856
+              },
+              {
+                "word": "2009",
+                "freq": 1334,
+                "base": 3216945,
+                "ipm": 414.67914
+              },
+              {
+                "word": "2011",
+                "freq": 703,
+                "base": 2974202,
+                "ipm": 236.36594
+              },
+              {
+                "word": "2019",
+                "freq": 2007,
+                "base": 11822369,
+                "ipm": 169.76294
+              },
+              {
+                "word": "2007",
+                "freq": 280,
+                "base": 686298,
+                "ipm": 407.98602
+              },
+              {
+                "word": "2001",
+                "freq": 235,
+                "base": 386104,
+                "ipm": 608.64435
+              },
+              {
+                "word": "1995",
+                "freq": 182,
+                "base": 315097,
+                "ipm": 577.5999
+              },
+              {
+                "word": "2006",
+                "freq": 221,
+                "base": 919116,
+                "ipm": 240.44843
+              },
+              {
+                "word": "2004",
+                "freq": 137,
+                "base": 263512,
+                "ipm": 519.9004
+              },
+              {
+                "word": "1999",
+                "freq": 174,
+                "base": 399836,
+                "ipm": 435.17844
+              },
+              {
+                "word": "1997",
+                "freq": 123,
+                "base": 305381,
+                "ipm": 402.77554
+              },
+              {
+                "word": "1998",
+                "freq": 73,
+                "base": 333078,
+                "ipm": 219.16788
+              },
+              {
+                "word": "2005",
+                "freq": 119,
+                "base": 648991,
+                "ipm": 183.36156
+              },
+              {
+                "word": "2000",
+                "freq": 39,
+                "base": 204948,
+                "ipm": 190.29216
+              },
+              {
+                "word": "1996",
+                "freq": 29,
+                "base": 98473,
+                "ipm": 294.49698
+              },
+              {
+                "word": "2003",
+                "freq": 36,
+                "base": 324759,
+                "ipm": 110.85143
+              },
+              {
+                "word": "2002",
+                "freq": 19,
+                "base": 67665,
+                "ipm": 280.7951
+              }
+            ],
+            "fcrit": ""
+          },
+          "chunkNum": 2,
+          "totalChunks": 3
+        },
     ],
-    [
+    freqBar: [
       {
         "concSize": 1384,
         "corpusSize": 6361707,
@@ -3479,9 +9843,61 @@ export const responseDataConf: Array<Array<any>> = [
         ],
         "fcrit": "sp.gender 0 0",
         "resultType": "freqs"
-      }
+      },
+      {
+        "concSize": 1455,
+        "corpusSize": 6361707,
+        "freqs": [
+          {
+            "word": "Z: žena",
+            "freq": 791,
+            "base": 3477226,
+            "ipm": 227.48018
+          },
+          {
+            "word": "M: muž",
+            "freq": 664,
+            "base": 2855090,
+            "ipm": 232.5671
+          },
+          {
+            "word": "Y",
+            "freq": 0,
+            "base": 29391,
+            "ipm": 0
+          }
+        ],
+        "fcrit": "sp.gender 0 0",
+        "resultType": "freqs"
+      },
+      {
+        "concSize": 1375,
+        "corpusSize": 6361707,
+        "freqs": [
+          {
+            "word": "Z: žena",
+            "freq": 763,
+            "base": 3477226,
+            "ipm": 219.4278
+          },
+          {
+            "word": "M: muž",
+            "freq": 612,
+            "base": 2855090,
+            "ipm": 214.35402
+          },
+          {
+            "word": "Y",
+            "freq": 0,
+            "base": 29391,
+            "ipm": 0
+          }
+        ],
+        "fcrit": "sp.gender 0 0",
+        "resultType": "freqs"
+      },
     ],
-    [
+    speeches: [
       {
         "context": {
           "text": [
@@ -4474,7 +10890,7 @@ export const responseDataConf: Array<Array<any>> = [
         "resultType": "tokenContext"
       }
     ],
-    [
+    geoAreas: [
       {
         "concSize": 1384,
         "corpusSize": 6361707,
@@ -4560,6 +10976,232 @@ export const responseDataConf: Array<Array<any>> = [
         ],
         "fcrit": "sp.reg_current 0 0",
         "resultType": "freqs"
-      }
+      },
+      {
+        "concSize": 1455,
+        "corpusSize": 6361707,
+        "freqs": [
+          {
+            "word": "středočeská",
+            "freq": 440,
+            "base": 2155505,
+            "ipm": 204.12851
+          },
+          {
+            "word": "severovýchodočeská",
+            "freq": 254,
+            "base": 1170854,
+            "ipm": 216.93567
+          },
+          {
+            "word": "středomoravská",
+            "freq": 212,
+            "base": 874753,
+            "ipm": 242.35413
+          },
+          {
+            "word": "pohraničí české",
+            "freq": 154,
+            "base": 568470,
+            "ipm": 270.9026
+          },
+          {
+            "word": "slezská",
+            "freq": 98,
+            "base": 292150,
+            "ipm": 335.44412
+          },
+          {
+            "word": "východomoravská",
+            "freq": 83,
+            "base": 364947,
+            "ipm": 227.43028
+          },
+          {
+            "word": "jihočeská",
+            "freq": 77,
+            "base": 297619,
+            "ipm": 258.72003
+          },
+          {
+            "word": "západočeská",
+            "freq": 67,
+            "base": 369985,
+            "ipm": 181.08842
+          },
+          {
+            "word": "pohraničí moravské",
+            "freq": 31,
+            "base": 68870,
+            "ipm": 450.1234
+          },
+          {
+            "word": "česko-moravská",
+            "freq": 30,
+            "base": 122521,
+            "ipm": 244.856
+          },
+          {
+            "word": "neznámé",
+            "freq": 8,
+            "base": 11483,
+            "ipm": 696.68207
+          },
+          {
+            "word": "zahraničí",
+            "freq": 1,
+            "base": 35159,
+            "ipm": 28.44222
+          },
+          {
+            "word": "Y",
+            "freq": 0,
+            "base": 29391,
+            "ipm": 0
+          }
+        ],
+        "fcrit": "sp.reg_current 0 0",
+        "resultType": "freqs"
+      },
+      {
+        "concSize": 1375,
+        "corpusSize": 6361707,
+        "freqs": [
+          {
+            "word": "středočeská",
+            "freq": 447,
+            "base": 2155505,
+            "ipm": 207.37599
+          },
+          {
+            "word": "severovýchodočeská",
+            "freq": 249,
+            "base": 1170854,
+            "ipm": 212.66528
+          },
+          {
+            "word": "středomoravská",
+            "freq": 186,
+            "base": 874753,
+            "ipm": 212.63145
+          },
+          {
+            "word": "pohraničí české",
+            "freq": 149,
+            "base": 568470,
+            "ipm": 262.10706
+          },
+          {
+            "word": "západočeská",
+            "freq": 109,
+            "base": 369985,
+            "ipm": 294.60654
+          },
+          {
+            "word": "východomoravská",
+            "freq": 78,
+            "base": 364947,
+            "ipm": 213.72968
+          },
+          {
+            "word": "slezská",
+            "freq": 70,
+            "base": 292150,
+            "ipm": 239.60295
+          },
+          {
+            "word": "česko-moravská",
+            "freq": 33,
+            "base": 122521,
+            "ipm": 269.34158
+          },
+          {
+            "word": "jihočeská",
+            "freq": 26,
+            "base": 297619,
+            "ipm": 87.360016
+          },
+          {
+            "word": "pohraničí moravské",
+            "freq": 20,
+            "base": 68870,
+            "ipm": 290.40222
+          },
+          {
+            "word": "zahraničí",
+            "freq": 7,
+            "base": 35159,
+            "ipm": 199.09554
+          },
+          {
+            "word": "neznámé",
+            "freq": 1,
+            "base": 11483,
+            "ipm": 87.08526
+          },
+          {
+            "word": "Y",
+            "freq": 0,
+            "base": 29391,
+            "ipm": 0
+          }
+        ],
+        "fcrit": "sp.reg_current 0 0",
+        "resultType": "freqs"
+      },
+    ],
+    wordSim: [
+      [
+        {
+          "word": "ruka",
+          "pos": "N",
+          "score": 0.9081081
+        },
+        {
+          "word": "noha",
+          "pos": "N",
+          "score": 0.8799323
+        },
+        {
+          "word": "potom",
+          "pos": "D",
+          "score": 0.84114397
+        },
+        {
+          "word": "jenže",
+          "pos": "J",
+          "score": 0.82253796
+        },
+        {
+          "word": "když",
+          "pos": "J",
+          "score": 0.8196497
+        },
+        {
+          "word": "zase",
+          "pos": "D",
+          "score": 0.818619
+        },
+        {
+          "word": "nechat",
+          "pos": "V",
+          "score": 0.80789137
+        },
+        {
+          "word": "nakonec",
+          "pos": "D",
+          "score": 0.80778503
+        },
+        {
+          "word": "snad",
+          "pos": "T",
+          "score": 0.801815
+        },
+        {
+          "word": "kdyby",
+          "pos": "J",
+          "score": 0.79879415
+        }
+      ],
     ]
-];
+};
