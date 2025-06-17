@@ -186,9 +186,8 @@ export const init:TileFactory<TimeDistTileConf> = {
         }
         return ans;
     },
-    
+
     create: (args) => {
-        console.log(args);
         return new TimeDistTile(args);
     }
 };
