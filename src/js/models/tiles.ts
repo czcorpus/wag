@@ -381,8 +381,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler(
             Actions.TileDataLoaded,
             (state, action) => {
-                console.log(action.error);
-                
                 const srchIdx = state.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchIdx > -1) {
                     const curr = state.tileResultFlags[srchIdx];

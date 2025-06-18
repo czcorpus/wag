@@ -43,7 +43,7 @@ import { DataStreaming } from '../../page/streaming.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { ServerNotifications } from '../../page/notifications.js';
-import { schemaPage } from './schema.js';
+import { staticPage } from './static.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -569,12 +569,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // -------------------- schema page ----------------------------------------
 
-    app.get(HTTPAction.SCHEMA_SEARCH, (req, res, next) => {
+    app.get(HTTPAction.STATIC_SEARCH, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        schemaPage({
+        staticPage({
             services,
             answerMode: true,
-            httpAction: HTTPAction.SCHEMA_SEARCH,
+            httpAction: HTTPAction.STATIC_SEARCH,
             queryType: QueryType.SINGLE_QUERY,
             uiLang,
             req,
@@ -583,13 +583,27 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(HTTPAction.SCHEMA_COMPARE, (req, res, next) => {
+    app.get(HTTPAction.STATIC_COMPARE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        schemaPage({
+        staticPage({
             services,
             answerMode: true,
-            httpAction: HTTPAction.SCHEMA_COMPARE,
+            httpAction: HTTPAction.STATIC_COMPARE,
             queryType: QueryType.CMP_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(HTTPAction.STATIC_TRANSLATE, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        staticPage({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.STATIC_TRANSLATE,
+            queryType: QueryType.TRANSLAT_QUERY,
             uiLang,
             req,
             res,

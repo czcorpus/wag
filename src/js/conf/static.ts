@@ -146,27 +146,27 @@ export const tileConf: {[name:string]:any} = {
         }
     },
     freqBar: {
-      tileType: "FreqBarTile",
-      apiURL: "http://localhost:8182/service/4/mquery/",
-      useDataStream: true,
-      corpname: "oral_v1",
-      fcrit: "sp.gender 0",
-      freqType: "text-types",
-      label: {
-          "cs-CZ": "Autoři podle pohlaví",
-          "en-US": "Authors by gender"
-      },
-      flimit: 1,
-      fpage: 1,
-      matchCase: true,
-      fttIncludeEmpty: false,
-      posQueryGenerator: [
-          "tag",
-          "ppTagset"
-      ],
-      backlink: {
-          "url": "http://localhost/kontext"
-      }
+        tileType: "FreqBarTile",
+        apiURL: "http://localhost:8182/service/4/mquery/",
+        useDataStream: true,
+        corpname: "oral_v1",
+        fcrit: "sp.gender 0",
+        freqType: "text-types",
+        label: {
+            "cs-CZ": "Autoři podle pohlaví",
+            "en-US": "Authors by gender"
+        },
+        flimit: 1,
+        fpage: 1,
+        matchCase: true,
+        fttIncludeEmpty: false,
+        posQueryGenerator: [
+            "tag",
+            "ppTagset"
+        ],
+        backlink: {
+            "url": "http://localhost/kontext"
+        }
     },
     speeches: {
         tileType: "SpeechesTile",
@@ -221,11 +221,46 @@ export const tileConf: {[name:string]:any} = {
         }
     },
     wordSim: {
-      tileType: "WordSimTile",
-      useDataStream: true,
-      apiURL: "---",
-      maxResultItems: 20,
-      minMatchFreq: 0,
+        tileType: "WordSimTile",
+        useDataStream: true,
+        apiURL: "---",
+        maxResultItems: 20,
+        minMatchFreq: 0,
+    },
+    translations: {
+        tileType: "TranslationsTile",
+        apiURL: "http://localhost/treq",
+        useDataStream: true,
+        primaryPackage: "CORE",
+        srchPackages: {
+            en: [
+                "SYNDICATE",
+                "CORE",
+                "EUROPARL",
+                "PRESSEUROP",
+                "SUBTITLES"
+            ]
+        },
+        backlink:{
+            url: "http://treq.korpus.cz/index.php"
+        },
+    },
+    treqSubsets: {
+        tileType: "TreqSubsetsTile",
+        apiURL: "http://localhost/treq",
+        useDataStream: true,
+        primaryPackage: "CORE",
+        srchPackages: {
+            en: [
+                {packages: ["ACQUIS"]},
+                {packages: ["CORE"]},
+                {packages: ["EUROPARL"]},
+                {packages: ["SUBTITLES"]}
+            ]
+        },
+        backlink:{
+            url: "http://treq.korpus.cz/index.php"
+        },
     }
 };
 
@@ -256,7 +291,7 @@ export const layoutConf: LayoutsConfig = {
                     {tile: 'speeches', width: 1},
                     {tile: 'geoAreas', width: 2},
                 ]
-            }
+            },
         ],
         mainPosAttr: 'pos',
     },
@@ -274,6 +309,24 @@ export const layoutConf: LayoutsConfig = {
                     {tile: 'geoAreas', width: 3},
                 ]
             }
+        ],
+        mainPosAttr: 'pos',
+    },
+    translat: {
+        targetLanguages: [
+            {
+                code: "en",
+                label: "English",
+            }
+        ],
+        groups: [
+            {
+                groupLabel: "Translations",
+                tiles: [
+                    {tile: 'translations', width: 1},
+                    {tile: 'treqSubsets', width: 2},
+                ]
+            },
         ],
         mainPosAttr: 'pos',
     }
@@ -11203,5 +11256,5015 @@ const tileDataConf: {[key:string]:Array<any>} = {
           "score": 0.79879415
         }
       ],
-    ]
+    ],
+    translations: [
+      {
+        "sum": 35769,
+        "lines": [
+          {
+            "freq": "30699",
+            "perc": "85.8",
+            "from": "hlava",
+            "to": {
+              "word": "head",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "na",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "na",
+                          "tag": "RR--6-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "koni",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "kůň",
+                          "tag": "NNMS6-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "ale",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "ale",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "najdou",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "najít",
+                          "tag": "VB-P---3P-AA---P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "ho",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "on",
+                          "tag": "PHIS4--3--------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "v",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "v",
+                          "tag": "RR--6-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "posteli",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "postel",
+                          "tag": "NNFS6-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "jeho",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "jeho",
+                          "tag": "PSFS1-S3--------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "udeří",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "udeřit",
+                          "tag": "VB-S---3P-AA---P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "o",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "o",
+                          "tag": "RR--4-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "práh",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "práh",
+                          "tag": "NNIS4-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "ends",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "end",
+                          "tag": "VBZ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "up",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "up",
+                          "tag": "RP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "back",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "back",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "on",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "on",
+                          "tag": "IN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "bed",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "bed",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "and",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "and",
+                          "tag": "CC"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "then",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "then",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "with",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "with",
+                          "tag": "IN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "his",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "his",
+                          "tag": "PP$"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "head",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "head",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hitting",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "hit",
+                          "tag": "VBG"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "the",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "the",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "doorsill",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "doorsill",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#74885132",
+                    "props": {
+                      "text.author": "Kundera",
+                      "text.group": "Core",
+                      "text.srclang": "cs",
+                      "text.title": "Kniha smíchu a zapomnění",
+                      "text.txtype": "fiction"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:head",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "1409",
+            "perc": "3.9",
+            "from": "hlava",
+            "to": {
+              "word": "mind",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "Naplňte",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "naplnit",
+                          "tag": "Vi-P---2--A----P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "si",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "se",
+                          "tag": "P7--3-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "mysl",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "mysl",
+                          "tag": "NNFS4-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "odpadem",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "odpad",
+                          "tag": "NNIS7-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "vaše",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "váš",
+                          "tag": "PSFS1-P2--------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "shnije",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "shnít",
+                          "tag": "VB-S---3P-AA---P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "Fill",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "fill",
+                          "tag": "VB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "your",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "your",
+                          "tag": "PP$"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "mind",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "mind",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "with",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "with",
+                          "tag": "IN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "rubbish",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "rubbish",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": ","
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "and",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "and",
+                          "tag": "CC"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "it",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "it",
+                          "tag": "PP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "'ll",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "will",
+                          "tag": "MD"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "rot",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "rot",
+                          "tag": "VB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "your",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "your",
+                          "tag": "PP$"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "head",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "head",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#235468465",
+                    "props": {
+                      "text.group": "Subtitles",
+                      "text.srclang": "en",
+                      "text.title": "Angela's Ashes",
+                      "text.txtype": "subtitles"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:mind",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "432",
+            "perc": "1.2",
+            "from": "hlava",
+            "to": {
+              "word": "Heads",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "Tak",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "tak",
+                          "tag": "Db--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "co",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "co",
+                          "tag": "PQ--1-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "to",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "ten",
+                          "tag": "PDNS1-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "bude",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "být",
+                          "tag": "VB-S---3F-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Špinavá",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "špinavý",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Sal",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Sal",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "nebo",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "nebo",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "nohy",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "noha",
+                          "tag": "NNFP1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "?",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "?",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "Heads",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "head",
+                          "tag": "NNS"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "or",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "or",
+                          "tag": "CC"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "tails",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "tail",
+                          "tag": "NNS"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "?",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "?",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#204577753",
+                    "props": {
+                      "text.group": "Subtitles",
+                      "text.srclang": "en",
+                      "text.title": "Stardust",
+                      "text.txtype": "subtitles"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:Heads",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "391",
+            "perc": "1.1",
+            "from": "hlava",
+            "to": {
+              "word": "headache",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "Porodní",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "porodní",
+                          "tag": "AAFP1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "bolesti",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "bolest",
+                          "tag": "NNFP1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Maribeth",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Maribeth",
+                          "tag": "X@--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "sice",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "sice",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "nedostala",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "dostat",
+                          "tag": "VpFS---3R-NA---P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "ale",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "ale",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "bolela",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "bolet",
+                          "tag": "VpFS---3R-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "ji",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "on",
+                          "tag": "PPFS4--3--------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "had",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "have",
+                          "tag": "VBD"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "no",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "no",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "labor",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "labor",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "pains",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "pain",
+                          "tag": "NNS"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": ","
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "but",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "but",
+                          "tag": "CC"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "she",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "she",
+                          "tag": "PP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "had",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "have",
+                          "tag": "VBD"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "good-sized",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "good-sized",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "headache",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "headache",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#120016846",
+                    "props": {
+                      "text.author": "Steelová",
+                      "text.group": "Core",
+                      "text.srclang": "en",
+                      "text.title": "Dar",
+                      "text.txtype": "fiction"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:headache",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "348",
+            "perc": "1.0",
+            "from": "hlava",
+            "to": {
+              "word": "brain",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "Morrell",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Morrell",
+                          "tag": "NNMS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "vždycky",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "vždycky",
+                          "tag": "Db--------A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "opravdový",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "opravdový",
+                          "tag": "AAMS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "kamarád",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "kamarád",
+                          "tag": "NNMS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "byl",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "být",
+                          "tag": "VpIS---3R-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "také",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "také",
+                          "tag": "Db--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "skvělá",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "skvělý",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": ","
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "ever",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "ever",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "true",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "true",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "comrade",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "comrade",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": ","
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "too",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "too",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "had",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "have",
+                          "tag": "VBD"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "splendid",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "splendid",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "brain",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "brain",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#81534905",
+                    "props": {
+                      "text.author": "London",
+                      "text.group": "Core",
+                      "text.srclang": "en",
+                      "text.title": "Tulák po hvězdách",
+                      "text.txtype": "fiction"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:brain",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "269",
+            "perc": "0.8",
+            "from": "hlava",
+            "to": {
+              "word": "face",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "v",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "v",
+                          "tag": "RR--4-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Austin",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "austin",
+                          "tag": "NNIS4-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Friars",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Friars",
+                          "tag": "X@--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "příslušné",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "příslušný",
+                          "tag": "AAFP4----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "listiny",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "listina",
+                          "tag": "NNFP4-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "objeví",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "objevit",
+                          "tag": "VB-S---3P-AA---P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "se",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "se",
+                          "tag": "P7--4-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "ve",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "v",
+                          "tag": "RV--6-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "dveřích",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "dveře",
+                          "tag": "NNFP6-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ":",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ":",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "malá",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "malý",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "úzká",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "úzký",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "londýnská",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "londýnský",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "vyholená",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "vyholený",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "s",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "s",
+                          "tag": "RR--7-----------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "London",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "London",
+                          "tag": "NP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "head",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "head",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "with",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "with",
+                          "tag": "IN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "close-shaved",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "close-shaved",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "skull",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "skull",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "and",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "and",
+                          "tag": "CC"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "raw",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "raw",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "young",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "young",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "face",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "face",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#84660864",
+                    "props": {
+                      "text.author": "Mantelová",
+                      "text.group": "Core",
+                      "text.srclang": "en",
+                      "text.title": "Wolf Hall",
+                      "text.txtype": "fiction"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:face",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "241",
+            "perc": "0.7",
+            "from": "hlava",
+            "to": {
+              "word": "capita",
+              "examples": {
+                "text": [],
+                "interactionId": "treqInteractionKey:capita",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "110",
+            "perc": "0.3",
+            "from": "hlava",
+            "to": {
+              "word": "skull",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "udělala",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "udělat",
+                          "tag": "VpFS---3R-AA---P"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "úplná",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "úplný",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "tma",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "tma",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "cítil",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "cítit",
+                          "tag": "VpMS---1R-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "jsem",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "být",
+                          "tag": "VB-S---1P-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "jak",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "jak",
+                          "tag": "Db--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "mě",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "já",
+                          "tag": "PH-S4--1--------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "bolí",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "bolet",
+                          "tag": "VB-S---3P-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "jenže",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "jenže",
+                          "tag": "J^--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "jsem",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "být",
+                          "tag": "VB-S---1P-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "nevěděl",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "vědět",
+                          "tag": "VpMS---1R-NA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "že",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "že",
+                          "tag": "J,--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "je",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "být",
+                          "tag": "VB-S---3P-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "to",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "ten",
+                          "tag": "PDNS1-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "od",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "od",
+                          "tag": "RR--2-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "toho",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "ten",
+                          "tag": "PDNS2-----------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "did",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "do",
+                          "tag": "VBD"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "n’t",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "n’t",
+                          "tag": "NP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "know",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "know",
+                          "tag": "VBP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "then",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "then",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "that",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "that",
+                          "tag": "IN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "a",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "a",
+                          "tag": "DT"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "bullet",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "bullet",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "had",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "have",
+                          "tag": "VBD"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "fractured",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "fracture",
+                          "tag": "VBN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "my",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "my",
+                          "tag": "PP$"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "skull",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "skull",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#57192923",
+                    "props": {
+                      "text.author": "Chandler",
+                      "text.group": "Core",
+                      "text.srclang": "en",
+                      "text.title": "Muž",
+                      "text.txtype": "fiction"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:skull",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "91",
+            "perc": "0.3",
+            "from": "hlava",
+            "to": {
+              "word": "worry",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "Nedělej",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "dělat",
+                          "tag": "Vi-S---2--N----I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "si",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "se",
+                          "tag": "P7--3-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "kvůli",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "kvůli",
+                          "tag": "RR--3-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "mně",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "já",
+                          "tag": "PP-S3--1--------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "starosti",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "starost",
+                          "tag": "NNFP4-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "je",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "být",
+                          "tag": "VB-S---3P-AA---I"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "úplně",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "úplně",
+                          "tag": "Dg-------1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "v",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "v",
+                          "tag": "RR--6-----------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "pořádku",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "pořádek",
+                          "tag": "NNIS6-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "Do",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "do",
+                          "tag": "VBP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "n't",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "n't",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "worry",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "worry",
+                          "tag": "VB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "about",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "about",
+                          "tag": "IN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "me",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "me",
+                          "tag": "PP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": ","
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "my",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "my",
+                          "tag": "PP$"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "head",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "head",
+                          "tag": "NN"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "feels",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "feel",
+                          "tag": "VBZ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "completely",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "completely",
+                          "tag": "RB"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "normal",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "normal",
+                          "tag": "JJ"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ".",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "SENT"
+                        }
+                      }
+                    ],
+                    "ref": "#107923460",
+                    "props": {
+                      "text.author": "Rowlingová",
+                      "text.group": "Core",
+                      "text.srclang": "en",
+                      "text.title": "Harry Potter a ohnivý pohár",
+                      "text.txtype": "fiction"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:worry",
+                "ref": ""
+              }
+            }
+          },
+          {
+            "freq": "124",
+            "perc": "0.3",
+            "from": "hlava",
+            "to": {
+              "word": "Head",
+              "examples": {
+                "text": [
+                  {
+                    "text": [
+                      {
+                        "type": "token",
+                        "word": "Hora",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "hora",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Etna",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Etno",
+                          "tag": "NNNS2-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": "Z:--------------"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Severní",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "severní",
+                          "tag": "AAFS1----1A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "hlava",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "hlava",
+                          "tag": "NNFS1-----A-----"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "…",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ".",
+                          "tag": "Z:--------------"
+                        }
+                      }
+                    ],
+                    "alignedText": [
+                      {
+                        "type": "token",
+                        "word": "Mount",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Mount",
+                          "tag": "NP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Etna",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "Etna",
+                          "tag": "NP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": ",",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": ",",
+                          "tag": ","
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "North",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "North",
+                          "tag": "NP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "Head",
+                        "strong": true,
+                        "matchType": "kwic",
+                        "attrs": {
+                          "lemma": "Head",
+                          "tag": "NP"
+                        }
+                      },
+                      {
+                        "type": "token",
+                        "word": "…",
+                        "strong": false,
+                        "attrs": {
+                          "lemma": "…",
+                          "tag": "NP"
+                        }
+                      }
+                    ],
+                    "ref": "#232677418",
+                    "props": {
+                      "text.group": "Subtitles",
+                      "text.srclang": "en",
+                      "text.title": "Under the Mountain",
+                      "text.txtype": "subtitles"
+                    }
+                  }
+                ],
+                "interactionId": "treqInteractionKey:Head",
+                "ref": ""
+              }
+            }
+          }
+        ],
+        "fromCorp": "intercorp_v13_cs",
+        "toCorp": "intercorp_v13_en"
+      }
+    ],
+    treqSubsets: [
+      {
+        "subsets": {
+          "ACQUIS": {
+            "sum": 4782,
+            "lines": [
+              {
+                "freq": "2647",
+                "from": "hlava",
+                "perc": "55.4",
+                "to": "Title"
+              },
+              {
+                "freq": "1385",
+                "from": "hlava",
+                "perc": "29.0",
+                "to": "title"
+              },
+              {
+                "freq": "191",
+                "from": "hlava",
+                "perc": "4.0",
+                "to": "head"
+              },
+              {
+                "freq": "189",
+                "from": "Hlava",
+                "perc": "4.0",
+                "to": "Title"
+              },
+              {
+                "freq": "180",
+                "from": "hlava",
+                "perc": "3.8",
+                "to": "Titles"
+              },
+              {
+                "freq": "56",
+                "from": "hlava",
+                "perc": "1.2",
+                "to": "Heads"
+              },
+              {
+                "freq": "26",
+                "from": "hlava",
+                "perc": "0.5",
+                "to": "capita"
+              },
+              {
+                "freq": "19",
+                "from": "hlava",
+                "perc": "0.4",
+                "to": "Chapter"
+              },
+              {
+                "freq": "13",
+                "from": "hlava",
+                "perc": "0.3",
+                "to": "Head"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "Pre-2005"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "chapter"
+              },
+              {
+                "freq": "4",
+                "from": "Hlava",
+                "perc": "0.1",
+                "to": "Section"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "TITLES"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "legal"
+              },
+              {
+                "freq": "7",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "Section"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "section"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "Subpart"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "Appropriations"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "p"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Subparts"
+              },
+              {
+                "freq": "2",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Policy"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "BASIS"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "XX"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "unforeseeable"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "seminar"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "remark"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "note"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "child"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headless"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Communication"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Appropriations"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "subsequent"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Remarks"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "commitment"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Article"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Venture"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "title"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "see"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "PRE-ACCESSION"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "nor"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Chapters"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "expansion"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "ASPECTS"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "administrative"
+              }
+            ]
+          },
+          "CORE": {
+            "sum": 21988,
+            "lines": [
+              {
+                "freq": "20093",
+                "from": "hlava",
+                "perc": "91.4",
+                "to": "head"
+              },
+              {
+                "freq": "857",
+                "from": "hlava",
+                "perc": "3.9",
+                "to": "mind"
+              },
+              {
+                "freq": "189",
+                "from": "hlava",
+                "perc": "0.9",
+                "to": "face"
+              },
+              {
+                "freq": "143",
+                "from": "hlava",
+                "perc": "0.7",
+                "to": "brain"
+              },
+              {
+                "freq": "83",
+                "from": "hlava",
+                "perc": "0.4",
+                "to": "think"
+              },
+              {
+                "freq": "63",
+                "from": "hlava",
+                "perc": "0.3",
+                "to": "skull"
+              },
+              {
+                "freq": "42",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "hair"
+              },
+              {
+                "freq": "34",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "Head"
+              },
+              {
+                "freq": "46",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "neck"
+              },
+              {
+                "freq": "36",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "thought"
+              },
+              {
+                "freq": "27",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "her"
+              },
+              {
+                "freq": "22",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "eye"
+              },
+              {
+                "freq": "21",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "forehead"
+              },
+              {
+                "freq": "20",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "idea"
+              },
+              {
+                "freq": "17",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "nod"
+              },
+              {
+                "freq": "11",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "back"
+              },
+              {
+                "freq": "27",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "his"
+              },
+              {
+                "freq": "23",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "wonder"
+              },
+              {
+                "freq": "21",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "worry"
+              },
+              {
+                "freq": "20",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "top"
+              },
+              {
+                "freq": "19",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "chin"
+              },
+              {
+                "freq": "11",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "him"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "distress"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "brow"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "blood"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "around"
+              },
+              {
+                "freq": "9",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "drunk"
+              },
+              {
+                "freq": "7",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Head"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "man"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "up"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "memory"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "again"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "high"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hand"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "me"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headache"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "forget"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "with"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "off"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "editor"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "devise"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "their"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shot"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Ruler"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "point"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "nose"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "madhouse"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "loose"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "lean"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "jerk"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Cheer"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "head-a"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Harry"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "forward"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "dement"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bow"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bald"
+              },
+              {
+                "freq": "10",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shoulder"
+              },
+              {
+                "freq": "9",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "air"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "scalp"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "end"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "stupid"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "look"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "worryin"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Heads"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "wit"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "inside"
+              },
+              {
+                "freq": "3",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "head"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "about"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pillow"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hit"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "ead"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "upside-down"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "skull-full"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shit-faced"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "round"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "over"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "my"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Mad"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "liquor"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "kill"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "important"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headcase"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "haunt"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "goodness"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "forte"
+              }
+            ]
+          },
+          "EUROPARL": {
+            "sum": 892,
+            "lines": [
+              {
+                "freq": "418",
+                "from": "hlava",
+                "perc": "46.9",
+                "to": "Heads"
+              },
+              {
+                "freq": "327",
+                "from": "hlava",
+                "perc": "36.7",
+                "to": "head"
+              },
+              {
+                "freq": "46",
+                "from": "hlava",
+                "perc": "5.2",
+                "to": "Head"
+              },
+              {
+                "freq": "38",
+                "from": "hlava",
+                "perc": "4.3",
+                "to": "capita"
+              },
+              {
+                "freq": "23",
+                "from": "hlava",
+                "perc": "2.6",
+                "to": "Title"
+              },
+              {
+                "freq": "9",
+                "from": "hlava",
+                "perc": "1.0",
+                "to": "mind"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.7",
+                "to": "leader"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.4",
+                "to": "title"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.3",
+                "to": "clear-headed"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.3",
+                "to": "chief"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "mainly"
+              },
+              {
+                "freq": "2",
+                "from": "Hlava",
+                "perc": "0.2",
+                "to": "Catch-22"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "person"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "clear-headedness"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "off-the-cuff"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "idea"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "deliberation"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.1",
+                "to": "Title"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "nurse"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "Chapter"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "beyond"
+              }
+            ]
+          },
+          "SUBTITLES": {
+            "sum": 12276,
+            "lines": [
+              {
+                "freq": "9888",
+                "from": "hlava",
+                "perc": "80.5",
+                "to": "head"
+              },
+              {
+                "freq": "528",
+                "from": "hlava",
+                "perc": "4.3",
+                "to": "mind"
+              },
+              {
+                "freq": "388",
+                "from": "hlava",
+                "perc": "3.2",
+                "to": "headache"
+              },
+              {
+                "freq": "201",
+                "from": "hlava",
+                "perc": "1.6",
+                "to": "brain"
+              },
+              {
+                "freq": "80",
+                "from": "hlava",
+                "perc": "0.7",
+                "to": "face"
+              },
+              {
+                "freq": "70",
+                "from": "hlava",
+                "perc": "0.6",
+                "to": "worry"
+              },
+              {
+                "freq": "45",
+                "from": "hlava",
+                "perc": "0.4",
+                "to": "hair"
+              },
+              {
+                "freq": "47",
+                "from": "hlava",
+                "perc": "0.4",
+                "to": "skull"
+              },
+              {
+                "freq": "41",
+                "from": "hlava",
+                "perc": "0.3",
+                "to": "Head"
+              },
+              {
+                "freq": "41",
+                "from": "Hlava",
+                "perc": "0.3",
+                "to": "head"
+              },
+              {
+                "freq": "38",
+                "from": "hlava",
+                "perc": "0.3",
+                "to": "air"
+              },
+              {
+                "freq": "29",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "crazy"
+              },
+              {
+                "freq": "23",
+                "from": "Hlava",
+                "perc": "0.2",
+                "to": "Head"
+              },
+              {
+                "freq": "20",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "neck"
+              },
+              {
+                "freq": "25",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "upside"
+              },
+              {
+                "freq": "20",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "nut"
+              },
+              {
+                "freq": "20",
+                "from": "hlava",
+                "perc": "0.2",
+                "to": "about"
+              },
+              {
+                "freq": "18",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "up"
+              },
+              {
+                "freq": "18",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "man"
+              },
+              {
+                "freq": "16",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "it"
+              },
+              {
+                "freq": "14",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "away"
+              },
+              {
+                "freq": "13",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "heads"
+              },
+              {
+                "freq": "12",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "thought"
+              },
+              {
+                "freq": "12",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "behead"
+              },
+              {
+                "freq": "11",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "decapitate"
+              },
+              {
+                "freq": "11",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "ass"
+              },
+              {
+                "freq": "8",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "Heads"
+              },
+              {
+                "freq": "7",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "thinking"
+              },
+              {
+                "freq": "7",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "here"
+              },
+              {
+                "freq": "18",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "top"
+              },
+              {
+                "freq": "17",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "off"
+              },
+              {
+                "freq": "16",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "hand"
+              },
+              {
+                "freq": "13",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "mental"
+              },
+              {
+                "freq": "13",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "hat"
+              },
+              {
+                "freq": "12",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "smart"
+              },
+              {
+                "freq": "11",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "think"
+              },
+              {
+                "freq": "11",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "back"
+              },
+              {
+                "freq": "10",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "life"
+              },
+              {
+                "freq": "8",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "ear"
+              },
+              {
+                "freq": "7",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "scalp"
+              },
+              {
+                "freq": "7",
+                "from": "hlava",
+                "perc": "0.1",
+                "to": "drunk"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bump"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shirt"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "nuts"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bulbhead"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shadow"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "high"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "brassy"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "ruler"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "health"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bother"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "retard"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headshot"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bit"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "puppet"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "dead"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "biggie"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "preference"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "body"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bat"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pothead"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "behind"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "around"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "point"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "backbone"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "alarm"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pluck"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "way"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "ahead"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "plate"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "upward"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "ACD"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pillow"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "though"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "-"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "percent"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "these"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "penny"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "table"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "over"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "straight"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "one"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "split"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "novel"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "screw"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "no-brainer"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "real"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Mm-hm"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "on"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "method"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "nerve"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "melon"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Mother"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "L00k"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "migraine"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "lop"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "keep"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "logic"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Huddle"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "knot"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "home"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "JFK"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "head-ache"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "insane"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "handstand"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Iesson"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "full"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "cheek"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "foot"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "chairman"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fancy"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "housekeeper"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "dome"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Hennessy"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "delusional"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Heads"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "calm"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "head-first"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bone"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "whole"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headdoesn"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bean"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shit"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "heada"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "wire"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "own"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hammer"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "water"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "okay"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fumble"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "wacko"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "mouth"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fist"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "two"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "forget"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "father"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "turn"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "tipsy"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "face-first"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Topics"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "sense"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "escapade"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "thick"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "easy"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "ead"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "temple"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "too"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "dumb"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "target"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "step"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "duck"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "stress"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "me"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "delay"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "story"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "idea"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Cross"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Stay"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hangover"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "crack"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "stage"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "wear"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "contract"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "smarter"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "together"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "combo"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "siren"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "that"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "clear"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "sight"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "sleep"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "cave"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Scheisse"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "place"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "offhand"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bulkhead"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shaII"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "night"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "brilliant"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "run"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "her"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Brains"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "right"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headstrong"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bonus"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "relax"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "em"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bigwig"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "psychotic"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "day"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Ben"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "prayer"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "blood"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "at"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pop"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bad"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "anybody"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "plunge"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "your"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "achy"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "plot"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "wall"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Adil"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Pipe"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "upstairs"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "above"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pie"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "thing"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "pen-pal"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "them"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "part"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "system"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "or"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "stay"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "OCD"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shot"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "noogie"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "rope"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "moment"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "parade"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "midsection"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "noodle"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "mentally"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "myself"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "mad"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "mine"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "low"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "little"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "loose"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "inside"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "lemon"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hook"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "kitty"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hit"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Jack"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hard"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "impression"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "get"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Chin"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "forgotten"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "chance"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fault"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hypothesis"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "dude"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "hers"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "die"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "head-sized"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "confuse"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "headless"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "bug"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "header"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "blank"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "stupid"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Headbutt"
+              },
+              {
+                "freq": "2",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "ball"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "right"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "hand"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "weird"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "out"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "guy"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "waist"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "now"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fond"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "video"
+              },
+              {
+                "freq": "6",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "heart"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fight"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "twist"
+              },
+              {
+                "freq": "6",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "Catch-22"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "fall"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "trouble"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "there"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "especially"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "thinkin"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "look"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "eliminate"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "terrible"
+              },
+              {
+                "freq": "5",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "down"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "Dummkopf"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "temper"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "throat"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "dude"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "talk"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "sick"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "drive"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "straighten"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "leader"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "death"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "stickup"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "helmet"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "crate"
+              },
+              {
+                "freq": "1",
+                "from": "Hlava",
+                "perc": "0.0",
+                "to": "stay"
+              },
+              {
+                "freq": "4",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "block"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "cool"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "soldier"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "upset"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "concern"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "skulling"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "the"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "cleverness"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "sink"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "sweat"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "certifiable"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "side"
+              },
+              {
+                "freq": "3",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "retarded"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "cake"
+              },
+              {
+                "freq": "1",
+                "from": "hlava",
+                "perc": "0.0",
+                "to": "shoulder"
+              }
+            ]
+          },
+        }
+      }
+    ],
 };
