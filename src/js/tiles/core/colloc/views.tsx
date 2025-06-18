@@ -116,7 +116,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         })
     }
 
-        const colorGen = state.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, state.data.length) : (_:number) => theme.scaleColorIndexed();
+        const colorGen = state.data.length > 1 ?
+            idx => theme.scaleColorCmpDerived(idx, state.data.length) :
+            (_:number) => theme.scaleColorIndexed();
+
+        const caption = (idx:number) => {
+            if (state.comparisonCorpname) {
+                if (idx === 0) {
+                    return state.queryMatches[0].word;
+
+                } else {
+                    return `${state.queryMatches[0].word} (${state.comparisonCorpname})`;
+
+                }
+            } else {
+                return state.queryMatches[idx].word;
+            }
+        };
 
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
@@ -131,13 +147,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {List.map((data, index) => {
                         const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), state.data);
                         return state.isAltViewMode ?
-                            <TableView key={index} heading={state.heading} data={data} caption={state.data.length > 1 ? state.queryMatches[index].word : null} /> :
+                            <TableView key={index} heading={state.heading} data={data} caption={caption(index)} /> :
                             data ?
                                 <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                                         key={index} widthFract={props.widthFract} render={(width:number, height:number) => (
                                     <S.CollocCloud>
                                         {state.data.length > 1 ?
-                                            <h2>{state.queryMatches[index].word}</h2> :
+                                            <h2>{caption(index)}</h2> :
                                             null
                                         }
                                         <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}

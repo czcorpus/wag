@@ -24,8 +24,7 @@ import { IAppServices } from '../../../appServices.js';
 import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
-import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
-import { callWithExtraVal } from '../../../api/util.js';
+import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -149,21 +148,51 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             Actions.PartialTileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.data[action.payload.queryIdx] = action.payload.data;
-                state.heading = pipe(
-                    [{label: 'Abs', ident: ''}],
-                    List.concat(
-                        pipe(
-                            action.payload.heading,
-                            List.map(
-                                (v, i) => this.measureMap[v.ident] ?
-                                    {label: this.measureMap[v.ident], ident: v.ident} :
-                                    null
-                            ),
-                            List.filter(v => v !== null)
+                if (state.queryType === QueryType.SINGLE_QUERY && state.comparisonCorpname) {
+                    state.data[action.payload.queryIdx] = action.payload.data;
+                    state.data[action.payload.queryIdx+1] = List.map(
+                        v => ({
+                            str: v.word,
+                            stats: [v.score],
+                            freq: v.freq,
+                            nfilter: [null, null],
+                            pfilter: [null, null],
+                            interactionId: null,
+                        }),
+                        action.payload.cmpData
+                    );
+                    state.heading = pipe(
+                        [{label: 'Abs', ident: ''}],
+                        List.concat(
+                            pipe(
+                                action.payload.heading,
+                                List.map(
+                                    (v, i) => this.measureMap[v.ident] ?
+                                        {label: this.measureMap[v.ident], ident: v.ident} :
+                                        null
+                                ),
+                                List.filter(v => v !== null)
+                            )
                         )
-                    )
-                );
+                    );
+
+                } else {
+                    state.data[action.payload.queryIdx] = action.payload.data;
+                    state.heading = pipe(
+                        [{label: 'Abs', ident: ''}],
+                        List.concat(
+                            pipe(
+                                action.payload.heading,
+                                List.map(
+                                    (v, i) => this.measureMap[v.ident] ?
+                                        {label: this.measureMap[v.ident], ident: v.ident} :
+                                        null
+                                ),
+                                List.filter(v => v !== null)
+                            )
+                        )
+                    );
+                }
                 state.backlinks[action.payload.queryIdx] = this.collApi.getBacklink(action.payload.queryIdx);
             }
         );
@@ -250,6 +279,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
             return {
                 corpusId: state.corpname,
+                cmpCorp: state.comparisonCorpname || undefined,
                 q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],
@@ -301,9 +331,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     ):Observable<boolean> {
         return freqReqs.pipe(
             mergeMap(
-                ([queryId, queryMatch]) => callWithExtraVal(
-                    streaming,
+                ([queryId, queryMatch]) => this.appServices.callAPIWithExtraVal(
                     this.collApi,
+                    streaming,
                     this.tileId,
                     queryId,
                     testIsDictMatch(queryMatch) ?
@@ -320,6 +350,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             tileId: this.tileId,
                             heading: data.collHeadings,
                             data: data.data,
+                            cmpData: data.cmpData || [],
                             queryIdx: args.queryId
                         }
                     });
