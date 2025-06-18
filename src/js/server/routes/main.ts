@@ -20,8 +20,8 @@ import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { pipe, HTTP, List, Rx, tuple, Dict } from 'cnc-tskit';
 
-import { AppServices, IAppServices } from '../../appServices.js';
-import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction, RecognizedQueries, findCurrQueryMatch } from '../../query/index.js';
+import { IAppServices } from '../../appServices.js';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
     UserConf, ClientStaticConf, ClientConf, emptyClientConf, errorUserConf, isTileDBConf,

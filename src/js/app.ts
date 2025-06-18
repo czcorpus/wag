@@ -147,6 +147,7 @@ export function createRootComponent({
         ),
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
+        isStaticPage: userSession.staticPage,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
         layout: layoutManager,
         maxCmpQueries: 10,

@@ -33,8 +33,8 @@ export const tileConf: {[name:string]:any} = {
             "cs-CZ": "Základní charakteristika",
             "en-US": "Basic characteristics"
         },
-        apiURL: "http://localhost:8182/service/2/frodo/",
-        infoApiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
+        infoApiURL: "---",
         helpURL: "/wag/static/vendor/ucnk/tiles-help/single/WordFreqProfile.cs.html",
         corpname: "ksp_2",
         corpusSize: 43224671,
@@ -44,7 +44,7 @@ export const tileConf: {[name:string]:any} = {
     mergeCorpFreq: {
         tileType: "MergeCorpFreqTile",
         apiType: "mquery",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
         pixelsPerItem: 80,
         sources: [
@@ -74,13 +74,13 @@ export const tileConf: {[name:string]:any} = {
             }
         ],
         backlink:{
-            "url": "http://localhost/kontext"
+            "url": "---"
         },
     },
     wordForms: {
         tileType: "WordFormsTile",
         apiType: "mquery",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
         label: {
             "cs-CZ": "Tvary",
@@ -90,12 +90,12 @@ export const tileConf: {[name:string]:any} = {
         maxNumItems: 10,
         corpusSize: 150426,
         freqFilterAlphaLevel: "0.05",
-        helpURL: "anything",
+        helpURL: "---",
     },
     colloc: {
         tileType: "CollocTile",
         apiType: "default",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
         corpname: "syn2020",
         minFreq: 5,
@@ -104,7 +104,7 @@ export const tileConf: {[name:string]:any} = {
         helpURL: "anything",
         posQueryGenerator: ["tag", "ppTagset"],
         backlink:{
-            url: "http://localhost/kontext"
+            url: "---"
         }
     },
     concordance: {
@@ -124,7 +124,7 @@ export const tileConf: {[name:string]:any} = {
     timeDistrib: {
         tileType: "TimeDistribTile",
         apiType: "mquery",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
         corpname: "syn2020",
         subcname: ["9eSmyKII"],
@@ -142,12 +142,12 @@ export const tileConf: {[name:string]:any} = {
         subcorpName: "9eSmyKII",
         maxItems: 100,
         backlink: {
-            "url": "http://localhost/kontext"
+            "url": "---"
         }
     },
     freqBar: {
         tileType: "FreqBarTile",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
         corpname: "oral_v1",
         fcrit: "sp.gender 0",
@@ -165,13 +165,13 @@ export const tileConf: {[name:string]:any} = {
             "ppTagset"
         ],
         backlink: {
-            "url": "http://localhost/kontext"
+            "url": "---"
         }
     },
     speeches: {
         tileType: "SpeechesTile",
         apiType: "mquery",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
 
         audioPlaybackUrl: "/kontext/audio",
@@ -183,13 +183,13 @@ export const tileConf: {[name:string]:any} = {
         speechOverlapVal: "ano",
         posQueryGenerator: ["tag", "ppTagset"],
         backlink:{
-            "url": "http://localhost/kontext"
+            "url": "---"
         }
     },
     geoAreas: {
         tileType: "GeoAreasTile",
         apiType: "mquery",
-        apiURL: "http://localhost:8182/service/4/mquery/",
+        apiURL: "---",
         useDataStream: true,
 
         helpURL: "/wag/static/help/czcorpus/missing.html",
@@ -217,7 +217,7 @@ export const tileConf: {[name:string]:any} = {
             "neznámé": "naUNK"
         },
         backlink:{
-            "url": "http://localhost/kontext"
+            "url": "---"
         }
     },
     wordSim: {
@@ -229,7 +229,7 @@ export const tileConf: {[name:string]:any} = {
     },
     translations: {
         tileType: "TranslationsTile",
-        apiURL: "http://localhost/treq",
+        apiURL: "---",
         useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
@@ -242,12 +242,12 @@ export const tileConf: {[name:string]:any} = {
             ]
         },
         backlink:{
-            url: "http://treq.korpus.cz/index.php"
+            url: "---"
         },
     },
     treqSubsets: {
         tileType: "TreqSubsetsTile",
-        apiURL: "http://localhost/treq",
+        apiURL: "---",
         useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
@@ -259,7 +259,7 @@ export const tileConf: {[name:string]:any} = {
             ]
         },
         backlink:{
-            url: "http://treq.korpus.cz/index.php"
+            url: "---"
         },
     }
 };

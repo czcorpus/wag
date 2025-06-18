@@ -42,6 +42,19 @@ export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
     }
 }
 
+export function queryTypeToStaticAction(qt:QueryType):HTTPAction|undefined {
+    switch (qt) {
+        case QueryType.CMP_QUERY:
+            return HTTPAction.STATIC_COMPARE;
+        case QueryType.SINGLE_QUERY:
+            return HTTPAction.STATIC_SEARCH;
+        case QueryType.TRANSLAT_QUERY:
+            return HTTPAction.STATIC_TRANSLATE;
+        default:
+            return undefined;
+    }
+}
+
 export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     if (v === QueryType.SINGLE_QUERY || v === QueryType.CMP_QUERY || v === QueryType.TRANSLAT_QUERY) {
         return v as QueryType;
