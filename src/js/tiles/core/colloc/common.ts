@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { SubqueryPayload, QueryMatch } from '../../../query/index.js';
+import { SubqueryPayload, QueryMatch, QueryType } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 import { Line } from '../../../api/vendor/mquery/concordance/common.js';
@@ -35,6 +35,11 @@ export enum CollocMetric {
 
 export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<DataRow>;
+    cmpData:Array<{
+        word:string;
+        score:number;
+        freq:number;
+    }>;
     heading:DataHeading;
 }
 
@@ -88,6 +93,11 @@ export interface DataRow {
 export interface CollApiResponse {
     collHeadings:DataHeading;
     data:Array<DataRow>;
+    cmpData?:Array<{
+        word:string;
+        score:number;
+        freq:number;
+    }>;
 }
 
 export enum SrchContextType {
@@ -119,6 +129,15 @@ export interface CollocModelState {
     error:string|null;
     widthFract:number;
     corpname:string;
+
+    /**
+     * If set, then the tile behaves visually in a similar way to the "cmp" mode,
+     * but it compares results from two different corpora for a single query.
+     * (it does not work for the cmp mode, and the tile will always check that
+     * in the sanity check routine).
+     */
+    comparisonCorpname:string|undefined;
+
     selectedText:string;
 
     /**
@@ -159,6 +178,8 @@ export interface CollocModelState {
     citemsperpage:number;
 
     backlinks:Array<Backlink>;
+
+    queryType:QueryType;
 
     queryMatches:Array<QueryMatch>;
 

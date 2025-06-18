@@ -35,6 +35,7 @@ export interface CollocationsTileConf extends TileConf {
     apiURL:string;
     apiType:'default'|'with-examples';
     corpname:string;
+    comparisonCorpname?:string;
     minFreq:number;
     minLocalFreq:number;
     rangeSize:number;
@@ -99,6 +100,7 @@ export class CollocationsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
+                comparisonCorpname: conf.comparisonCorpname,
                 selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,
@@ -112,6 +114,7 @@ export class CollocationsTile implements ITileProvider {
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlinks: List.map(_ => null, queryMatches),
                 queryMatches: List.map(v => findCurrQueryMatch(v), queryMatches),
+                queryType,
                 posQueryGenerator: conf.posQueryGenerator
             },
             queryMatches: List.map(findCurrQueryMatch, queryMatches),
@@ -191,7 +194,10 @@ export const init:TileFactory<CollocationsTileConf> = {
 
     sanityCheck: (args) => {
         if (typeof args.readDataFromTile === 'number' && !List.empty(args.dependentTiles)) {
-            return [new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time')]
+            return [new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time')];
+        }
+        if (!!args.conf.comparisonCorpname && args.queryType === QueryType.CMP_QUERY) {
+            return [new Error('collocation tile cannot work in both cmp and two corpora comparison mode at the same time')];
         }
     },
     create: (args) => new CollocationsTile(args)

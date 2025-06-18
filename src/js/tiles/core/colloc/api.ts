@@ -39,6 +39,11 @@ export interface BasicHTTPResponse {
         freq:number;
         interactionId:string;
     }>;
+    cmpColls?:Array<{
+        word:string;
+        score:number;
+        freq:number;
+    }>;
     measure:string;
     srchRange:[number, number];
     error?:string;
@@ -47,6 +52,7 @@ export interface BasicHTTPResponse {
 
 export interface MQueryCollArgs {
     corpusId:string;
+    cmpCorp?:string;
     q:string;
     subcorpus:string;
     measure:
@@ -114,6 +120,9 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                 ...queryArgs
             },
             Dict.toEntries(),
+            List.filter(
+                ([k, v]) => v !== undefined
+            ),
             List.map(
                 ([k, v]) => `${k}=${encodeURIComponent(v)}`
             ),
@@ -133,7 +142,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
         return this.useWithExamplesVariant ?
             urlJoin(
                 this.apiURL,
-                'collocations-with-examples',
+                'collocations-extended',
                 args.corpusId
             ) + `?${this.prepareCollWithExArgs(args, event)}` :
             urlJoin(
@@ -208,7 +217,8 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                             interactionId: x.interactionId
                         }),
                         v.colls
-                    )
+                    ),
+                    cmpData: v.cmpColls
                 })
             )
         );
