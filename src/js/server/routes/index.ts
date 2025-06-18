@@ -17,17 +17,17 @@
  */
 import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
-import { EMPTY, Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, reduce, tap } from 'rxjs/operators';
-import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
+import { EMPTY, Observable } from 'rxjs';
+import { concatMap, tap } from 'rxjs/operators';
+import { HTTP, List, Dict } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices.js';
 import { encodeArgs } from '../../page/ajax.js';
-import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index.js';
+import { QueryType } from '../../query/index.js';
 import { GlobalComponents } from '../../views/common/index.js';
 import { IFreqDB } from '../freqdb/freqdb.js';
 
-import { getLangFromCookie, fetchReqArgArray, createHelperServices,
+import { getLangFromCookie, createHelperServices,
     mkPageReturnUrl, renderResult, getQueryValue, clientIsLikelyMobile } from './common.js';
 import { queryAction, importQueryRequest } from './main.js';
 import { Services } from '../actionServices.js';
@@ -43,6 +43,7 @@ import { DataStreaming } from '../../page/streaming.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { ServerNotifications } from '../../page/notifications.js';
+import { staticPage } from './static.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -565,6 +566,52 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             }
         });
     })
+
+    // -------------------- schema page ----------------------------------------
+
+    app.get(HTTPAction.STATIC_SEARCH, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        staticPage({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.STATIC_SEARCH,
+            queryType: QueryType.SINGLE_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(HTTPAction.STATIC_COMPARE, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        staticPage({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.STATIC_COMPARE,
+            queryType: QueryType.CMP_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(HTTPAction.STATIC_TRANSLATE, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        staticPage({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.STATIC_TRANSLATE,
+            queryType: QueryType.TRANSLAT_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    // ----------------------------------------------------------------------
 
     app.use(function (req, res, next) {
         const uiLang = getLangFromCookie(req, services);

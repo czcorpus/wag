@@ -21,25 +21,26 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import { QueryType, RecognizedQueries } from '../query/index.js';
+import { RecognizedQueries } from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
 import { encodeArgs, encodeURLParameters } from './ajax.js';
 import { ScreenProps } from './hostPage.js';
-import { ClientConf, UserConf, HomepageTileConf, LayoutsConfig } from '../conf/index.js';
+import { ClientConf, UserConf, HomepageTileConf } from '../conf/index.js';
 import { Actions } from '../models/actions.js';
 import { SystemNotifications } from './notifications.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { createRootComponent } from '../app.js';
 import { MultiDict } from '../multidict.js';
-import { Client, tuple, List, pipe, Dict } from 'cnc-tskit';
+import { Client, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main.js';
 import { LayoutManager, TileGroup } from './layout.js';
 import { TileConf } from './tile.js';
-import { DataStreaming, IDataStreaming } from './streaming.js';
+import { DataStreaming, IDataStreaming, DataStreamingMock } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
 import { DataApi } from '../types.js';
+import { prepareTileData } from '../conf/static.js';
 
 
 interface MountArgs {
@@ -150,20 +151,22 @@ export function initClient(
         }
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
-    const dataStreaming = new DataStreaming(
-        null,
-        pipe(
-            config.tiles,
-            Dict.filter(
-                (v, k) => v.useDataStream
+    const dataStreaming = userSession.staticPage ?
+        new DataStreamingMock(prepareTileData(userSession.queryType)) :
+        new DataStreaming(
+            null,
+            pipe(
+                config.tiles,
+                Dict.filter(
+                    (v, k) => v.useDataStream
+                ),
+                Dict.keys(),
+                List.map(v => tileIdentMap[v])
             ),
-            Dict.keys(),
-            List.map(v => tileIdentMap[v])
-        ),
-        config.dataStreamingUrl,
-        DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
-        userSession
-    );
+            config.dataStreamingUrl,
+            DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
+            userSession
+        );
     const appServices = new AppServices({
         notifications,
         uiLang: userSession.uiLang,

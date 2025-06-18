@@ -24,10 +24,9 @@ import { MultiDict } from '../multidict.js';
 import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
-import { QueryType, QueryTypeMenuItem, matchesPos, RecognizedQueries, findCurrQueryMatch, queryTypeToAction } from '../query/index.js';
+import { QueryType, QueryTypeMenuItem, matchesPos, RecognizedQueries, findCurrQueryMatch, queryTypeToAction, queryTypeToStaticAction } from '../query/index.js';
 import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
-import { HTTPAction } from '../page/actions.js';
 import { LayoutManager } from '../page/layout.js';
 import { MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
 import urlJoin from 'url-join';
@@ -45,6 +44,7 @@ export interface QueryFormModelState {
     errors:Array<Error>;
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
+    isStaticPage?:boolean;
     uiLanguages:Array<AvailableLanguage>;
     maxCmpQueries:number;
     lemmaSelectorModalVisible:boolean;
@@ -108,11 +108,15 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             null,
             (state, action, dispatch) => {
                 window.location.href = this.appServices.createActionUrl(
-                    queryTypeToAction(action.payload.queryType),
-                    pipe(
-                        state.queries,
-                        List.map(v => tuple('q', v.value))
-                    )
+                    state.isStaticPage ?
+                        queryTypeToStaticAction(action.payload.queryType) :
+                        queryTypeToAction(action.payload.queryType),
+                    state.isStaticPage ?
+                        [] :
+                        pipe(
+                            state.queries,
+                            List.map(v => tuple('q', v.value))
+                        )
                 );
             }
         );
@@ -298,6 +302,7 @@ export interface DefaultFactoryArgs {
     availQueryTypes:Array<QueryType>;
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
+    isStaticPage?:boolean;
     uiLanguages:Array<AvailableLanguage>;
     layout:LayoutManager;
     maxCmpQueries:number;
@@ -312,6 +317,7 @@ export const defaultFactory = ({
     availQueryTypes,
     queryMatches,
     isAnswerMode,
+    isStaticPage,
     uiLanguages,
     layout,
     maxCmpQueries,
@@ -335,6 +341,7 @@ export const defaultFactory = ({
             errors: [],
             queryMatches,
             isAnswerMode,
+            isStaticPage,
             uiLanguages,
             multiWordQuerySupport: maxQueryWords,
             maxCmpQueries,

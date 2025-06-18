@@ -17,7 +17,7 @@
  */
 
 import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, of as rxOf, Subject } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
@@ -91,13 +91,31 @@ interface RequestTag {
 }
 
 export interface IDataStreaming {
-    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T>
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T>;
+
+    getId():string;
+
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming;
+
+    getSubgroup(subgroupId:string):IDataStreaming;
 }
 
 export class EmptyDataStreaming implements IDataStreaming {
 
     registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
         return EMPTY;
+    }
+
+    getId(): string {
+        return "empty";
+    }
+
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming {
+        return undefined;
+    }
+
+    getSubgroup(subgroupId:string):IDataStreaming {
+        return undefined;
     }
 }
 
@@ -409,4 +427,31 @@ export class DataStreaming implements IDataStreaming {
         );
     }
 
+}
+
+export class DataStreamingMock implements IDataStreaming {
+
+    private readonly mockData:Array<Array<any>>;
+
+    constructor(mockData:Array<Array<any>>) {
+        this.mockData = mockData;
+    }
+        
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
+        const tileData = this.mockData[entry.tileId];
+        const queryIdx = (entry.queryIdx !== undefined) && (tileData.length > entry.queryIdx) ? entry.queryIdx : 0;
+        return rxOf(tileData[queryIdx] as T);
+    }
+
+    getId(): string {
+        return "mock";
+    }
+
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming {
+        return this;
+    }
+
+    getSubgroup(subgroupId:string):IDataStreaming {
+        return this;
+    }
 }

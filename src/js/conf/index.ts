@@ -47,6 +47,7 @@ export interface UserConf {
     queryType:QueryType;
     translatLanguage:string|undefined;
     answerMode:boolean;
+    staticPage?:boolean;
     error?:[number, string]; // server error (e.g. bad request)
 }
 
@@ -64,6 +65,7 @@ export function errorUserConf(
         queryType: QueryType.SINGLE_QUERY,
         translatLanguage: '',
         answerMode: false, // ??
+        staticPage: false,
         error
     };
 }

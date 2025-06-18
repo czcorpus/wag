@@ -25,7 +25,6 @@ import { TreqSubsetModel } from './model.js';
 import {init as viewInit} from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
-import { TreqAPI } from '../translations/api.js';
 import { TreqSubsetsAPI } from './api.js';
 
 
