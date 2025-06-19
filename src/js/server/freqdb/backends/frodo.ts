@@ -60,6 +60,7 @@ export class FrodoClient implements IFreqDB {
         posAttr:MainPosAttrValues,
         minFreq:number
     ):Observable<Array<QueryMatch>> {
+
         return serverHttpRequest<HTTPNgramResponse>({
             url: urlJoin(this.apiURL, `search`, word),
             method: HTTP.Method.GET,
@@ -72,7 +73,9 @@ export class FrodoClient implements IFreqDB {
                             word,
                             lemma: v.lemma,
                             pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
-                            upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
+                            upos: v.upos ?
+                                importQueryPosWithLabel(v.upos, 'upos', appServices) :
+                                importQueryPosWithLabel(v.pos, 'upos', appServices),
                             abs: v.count,
                             ipm: v.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
