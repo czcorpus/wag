@@ -201,20 +201,17 @@ export class ScollexSyntacticCollsExamplesAPI implements DataApi<SCERequestArgs,
 
     private readonly apiURL:string;
 
-    private readonly useDataStream:boolean;
-
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.useDataStream = useDataStream;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, request:SCERequestArgs):Observable<SCollsExamples> {
+    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, request:SCERequestArgs):Observable<SCollsExamples> {
         const url = urlJoin(this.apiURL, 'conc-examples', request.params.corpname);
-        if (this.useDataStream) {
-            dataStreaming.registerTileRequest<SCollsExamples>(
+        if (dataStreaming) {
+            return dataStreaming.registerTileRequest<SCollsExamples>(
                 {
                     tileId,
                     method: HTTP.Method.GET,
