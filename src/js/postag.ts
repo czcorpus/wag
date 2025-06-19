@@ -317,7 +317,7 @@ export function importQueryPos(s:string, posAttr:MainPosAttrValues):string {
             if (Object.values<string>(usedValues).indexOf(v.toUpperCase()) > -1) {
                 return v.toUpperCase();
             }
-            throw new Error(`Invalid PoS value [${v}]`);
+            throw new Error(`Invalid PoS value [${v}], attribute ${posAttr}`);
         },
         s.split(' ')
     ).join(' ');
@@ -346,7 +346,7 @@ export function importQueryPosWithLabel(s:string, posAttr:MainPosAttrValues, app
                             label: appServices.importExternalMessage(labels[ident])
                         };
                     }
-                    throw new Error(`Invalid PoS value [${v}]`);
+                    throw new Error(`Invalid PoS value [${v}], attribute ${posAttr}`);
                 }
             ),
             List.foldl(
