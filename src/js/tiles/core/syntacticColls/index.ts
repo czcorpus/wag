@@ -66,7 +66,7 @@ export class SyntacticCollsTile implements ITileProvider {
             queryType: queryType,
             maxItems: conf.maxItems,
             api: new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
-            eApi: new ScollexSyntacticCollsExamplesAPI(conf.eApiURL, conf.useDataStream, appServices),
+            eApi: new ScollexSyntacticCollsExamplesAPI(conf.eApiURL, appServices),
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
