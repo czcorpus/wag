@@ -282,9 +282,6 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             Actions.PartialTileDataLoaded,
             action => this.tileId === action.payload.tileId,
             (state, action) => {
-                console.log(JSON.stringify(state.subsets));
-                console.log(action.payload.subsets);
-                
                 Dict.forEach(
                     (translations, subsetId) => {
                         const srchIdx = List.findIndex(v => v.ident === subsetId, state.subsets);
