@@ -166,7 +166,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const colorFn = queries > 1 ?
                 (idx:number) => theme.cmpCategoryColor(idx, props.queryMatches.length) :
                 (idx:number) => transformedData[idx].uniqueColor ?
-                    theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
+                    theme.cmpCategoryColor(idx, List.size(transformedData)) :
                     theme.categoryColor(0);
 
         const colorHgltFn = queries > 1 ?
@@ -295,7 +295,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 {
                     tileId: props.tileId,
                     barIdx,
-                    queryIdx,                    
+                    queryIdx,
                 }
             );
         };
