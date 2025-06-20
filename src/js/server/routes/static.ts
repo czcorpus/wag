@@ -76,8 +76,16 @@ export function staticPage({
         apiHeadersMapping: services.clientConf.apiHeaders || {},
         mobileModeTest: ()=>false,
         apiCaller: {
-            callAPI: (api, streaming, tileId, queryIdx, queryArgs) => EMPTY,
-            callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => EMPTY
+            callAPI: (api, streaming, tileId, queryIdx, queryArgs) => new Observable(
+                observer => {
+                    setTimeout(()=> { observer.complete()});
+                }
+            ),
+            callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => new Observable(
+                observer => {
+                    setTimeout(()=> { observer.complete()});
+                }
+            )
         },
     });
 
@@ -167,7 +175,7 @@ export function staticPage({
             dispatcher,
             viewUtils,
             layoutManager
-        }) => { 
+        }) => {
             const queryMatchesExtended = List.map(
                 (queryMatches, queryIdx) => {
                     if (queryMatches.length === 0) {

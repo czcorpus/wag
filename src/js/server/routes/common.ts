@@ -144,8 +144,16 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
         new AppServices({
             notifications: new ServerNotifications(),
             apiCaller: {
-                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => EMPTY,
-                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => EMPTY
+                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                ),
+                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                )
             },
             uiLang: uiLang,
             translator: viewUtils,
