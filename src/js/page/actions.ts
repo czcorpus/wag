@@ -28,7 +28,7 @@ export enum HTTPAction {
     TRANSLATE = '/translate/',
     COMPARE = '/compare/',
     EMBEDDED_SEARCH = '/embedded/search/',
-    STATIC_SEARCH = '/static/search',
-    STATIC_COMPARE = '/static/compare',
-    STATIC_TRANSLATE = '/static/translate',
+    PREVIEW_SEARCH = '/preview/search',
+    PREVIEW_COMPARE = '/preview/compare',
+    PREVIEW_TRANSLATE = '/preview/translate',
 }
