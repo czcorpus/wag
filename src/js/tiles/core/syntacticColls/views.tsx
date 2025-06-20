@@ -149,7 +149,10 @@ export function init(
 
         const renderTable = (qType:SCollsQueryType) => {
             return <S.SCollsTable key={`table:${qType}`}>
-                <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
+                {Object.values(state.data).filter(v => !!v).length > 1 ?
+                    <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2> :
+                    null
+                }
                 {state.data[qType] ?
                     isEmpty(qType) ?
                         <p>{ut.translate('syntactic_colls__no_data')}</p> :
