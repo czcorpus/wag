@@ -45,11 +45,11 @@ export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
 export function queryTypeToStaticAction(qt:QueryType):HTTPAction|undefined {
     switch (qt) {
         case QueryType.CMP_QUERY:
-            return HTTPAction.STATIC_COMPARE;
+            return HTTPAction.PREVIEW_COMPARE;
         case QueryType.SINGLE_QUERY:
-            return HTTPAction.STATIC_SEARCH;
+            return HTTPAction.PREVIEW_SEARCH;
         case QueryType.TRANSLAT_QUERY:
-            return HTTPAction.STATIC_TRANSLATE;
+            return HTTPAction.PREVIEW_TRANSLATE;
         default:
             return undefined;
     }

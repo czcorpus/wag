@@ -569,12 +569,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // -------------------- schema page ----------------------------------------
 
-    app.get(HTTPAction.STATIC_SEARCH, (req, res, next) => {
+    app.get(HTTPAction.PREVIEW_SEARCH, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         staticPage({
             services,
             answerMode: true,
-            httpAction: HTTPAction.STATIC_SEARCH,
+            httpAction: HTTPAction.PREVIEW_SEARCH,
             queryType: QueryType.SINGLE_QUERY,
             uiLang,
             req,
@@ -583,12 +583,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(HTTPAction.STATIC_COMPARE, (req, res, next) => {
+    app.get(HTTPAction.PREVIEW_COMPARE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         staticPage({
             services,
             answerMode: true,
-            httpAction: HTTPAction.STATIC_COMPARE,
+            httpAction: HTTPAction.PREVIEW_COMPARE,
             queryType: QueryType.CMP_QUERY,
             uiLang,
             req,
@@ -597,12 +597,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(HTTPAction.STATIC_TRANSLATE, (req, res, next) => {
+    app.get(HTTPAction.PREVIEW_TRANSLATE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         staticPage({
             services,
             answerMode: true,
-            httpAction: HTTPAction.STATIC_TRANSLATE,
+            httpAction: HTTPAction.PREVIEW_TRANSLATE,
             queryType: QueryType.TRANSLAT_QUERY,
             uiLang,
             req,
