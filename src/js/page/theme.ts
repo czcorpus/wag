@@ -180,6 +180,10 @@ export class Theme {
      * Produce a category color for word comparison mode where
      * each word data is expected to be of a specific color
      * (i.e. 1st word => idx = 0, 2nd word => idx 1,...)
+     *
+     * Provide also dynamic size (typically - number of involved categorical
+     * values) in case your themes do not contain predefined colors
+     * for categories.
      */
     cmpCategoryColor(idx:number, dynamicSize?:number):string {
         if (dynamicSize && this.cmpCategoryColors.length === 1) {

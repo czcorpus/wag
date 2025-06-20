@@ -433,8 +433,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             apiCaller: {
-                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => EMPTY,
-                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => EMPTY
+                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                ),
+                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                )
             },
             dataStreaming: new DataStreaming(null, [], null, 1000, null),
             mobileModeTest: ()=>false
