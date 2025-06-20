@@ -50,21 +50,17 @@ export const SCollsTable = styled.div`
 
 
 export const Examples = styled.div`
-
-    position: absolute;
-    top: 4em;
-    left: 50%;
-    transform: translateX(-50%);
     background-color: #fefefe;
     border: ${theme.defaultBorderStyle};
     border-radius: ${theme.defaultBorderRadius};
     box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
-    padding: 0.7em;
-    width: 90%;
+    padding: 0.5em;
 
     > div.texts {
         display: flex;
         flex-direction: column;
+        max-height: 30em;
+        overflow-y: scroll;
 
         > p {
             margin: 0;
