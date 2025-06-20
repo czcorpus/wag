@@ -15,20 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { SyntacticCollsModel, SyntacticCollsModelState } from './model.js';
+import { SyntacticCollsModel } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
 import { Dict, List, pipe } from 'cnc-tskit';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
-import { mkScollExampleLineHash, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api.js';
+import { mkScollExampleLineHash, SCollsData, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api.js';
 
 
 export function init(
@@ -99,20 +99,25 @@ export function init(
 
     // -------------- <SyntacticCollsTile /> -------------------------------------
 
-    const SyntacticCollsTile:React.FC<SyntacticCollsModelState & CoreTileComponentProps> = (props) => {
+    const SyntacticCollsTile:React.FC<CoreTileComponentProps> = (props) => {
 
-        const isEmpty = (qType:SCollsQueryType) => props.data[qType].rows.length === 0;
+        const state = useModel(model);
+
+        const isEmpty = (qType:SCollsQueryType) => state.data[qType].rows.length === 0;
 
         const renderWordCloud = (qType:SCollsQueryType) => {
             return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
-                <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
-                {props.data[qType] ?
+                {Object.values(state.data).filter(v => !!v).length > 1 ?
+                    <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2> :
+                    null
+                }
+                {state.data[qType] ?
                     isEmpty(qType) ?
                         <p>{ut.translate('syntactic_colls__no_data')}</p> :
                         <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                                 key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
                             <WordCloud width={width} height={height} isMobile={props.isMobile}
-                                data={props.data[qType].rows}
+                                data={state.data[qType].rows}
                                 font={theme.infoGraphicsFont}
                                 dataTransform={dataTransform}
                             />
@@ -145,7 +150,7 @@ export function init(
         const renderTable = (qType:SCollsQueryType) => {
             return <S.SCollsTable key={`table:${qType}`}>
                 <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2>
-                {props.data[qType] ?
+                {state.data[qType] ?
                     isEmpty(qType) ?
                         <p>{ut.translate('syntactic_colls__no_data')}</p> :
                         <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
@@ -173,7 +178,7 @@ export function init(
                                                 <td key="cooc-score" className="num">{ut.formatNumber(row.coOccScore, 4)}</td>
                                             </tr>
                                         ),
-                                        props.data[qType].rows
+                                        state.data[qType].rows
                                     )}
                                 </tbody>
                             </table>
@@ -184,26 +189,35 @@ export function init(
         };
 
         return (
-            <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={true} sourceIdent={{corp: props.corpname}}
+            <globalCompontents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
+                    hasData={true} sourceIdent={{corp: state.corpname}}
                     backlink={[]} supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.SyntacticColls>
-                    <div className="tables">
-                        {props.isAltViewMode ?
-                            List.map(qType => renderWordCloud(qType), props.displayTypes) :
-                            List.map(qType => renderTable(qType), props.displayTypes)
+                    {(() => {
+                        if (state.isAltViewMode) {
+                            return (
+                                <div className="tables">
+                                    {List.map(qType => renderWordCloud(qType), state.displayTypes)}
+                                </div>
+                            );
+
+                        } else if (state.exampleWindowData) {
+                            return <Examples data={state.exampleWindowData} onClose={handleExamplesClick} />;
+
+                        } else {
+                            return (
+                                <div className="tables">
+                                    {List.map(qType => renderTable(qType), state.displayTypes)}
+                                </div>
+                            );
                         }
-                    </div>
-                    {props.exampleWindowData ?
-                        <Examples data={props.exampleWindowData} onClose={handleExamplesClick} /> :
-                        null
-                    }
+                    })()}
                 </S.SyntacticColls>
             </globalCompontents.TileWrapper>
         );
     }
 
-    return BoundWithProps<CoreTileComponentProps, SyntacticCollsModelState>(SyntacticCollsTile, model);
+    return SyntacticCollsTile;
 
 }
