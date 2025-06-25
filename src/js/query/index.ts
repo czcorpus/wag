@@ -25,7 +25,8 @@ import { HTTPAction } from '../page/actions.js';
 export enum QueryType {
     SINGLE_QUERY = 'single',
     CMP_QUERY = 'cmp',
-    TRANSLAT_QUERY = 'translat'
+    TRANSLAT_QUERY = 'translat',
+    PREVIEW = 'preview',
 }
 
 
@@ -37,19 +38,6 @@ export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
             return HTTPAction.SEARCH;
         case QueryType.TRANSLAT_QUERY:
             return HTTPAction.TRANSLATE;
-        default:
-            return undefined;
-    }
-}
-
-export function queryTypeToStaticAction(qt:QueryType):HTTPAction|undefined {
-    switch (qt) {
-        case QueryType.CMP_QUERY:
-            return HTTPAction.PREVIEW_COMPARE;
-        case QueryType.SINGLE_QUERY:
-            return HTTPAction.PREVIEW_SEARCH;
-        case QueryType.TRANSLAT_QUERY:
-            return HTTPAction.PREVIEW_TRANSLATE;
         default:
             return undefined;
     }

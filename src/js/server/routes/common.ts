@@ -29,14 +29,14 @@ import { GlobalComponents } from '../../views/common/index.js';
 import { AppServices } from '../../appServices.js';
 import { HtmlBodyProps, HtmlHeadProps} from '../../views/layout/layout.js';
 import { HostPageEnv } from '../../page/hostPage.js';
-import { RecognizedQueries } from '../../query/index.js';
+import { QueryType, RecognizedQueries } from '../../query/index.js';
 import { WdglanceMainProps } from '../../views/main.js';
 import { ErrPageProps } from '../../views/error.js';
 import { TileGroup } from '../../page/layout.js';
-import { DataStreaming } from '../../page/streaming.js';
+import { DataStreaming, DataStreamingMock } from '../../page/streaming.js';
 import { ServerNotifications } from '../../page/notifications.js';
-import { DataApi } from '../../types.js';
-import { EMPTY, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { prepareTileData } from '../../conf/preview.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -129,7 +129,7 @@ export function mkPageReturnUrl(req:Request, rootUrl:string):string {
 }
 
 
-export function createHelperServices(services:Services, uiLang:string):[ViewUtils<GlobalComponents>, AppServices] {
+export function createHelperServices(services:Services, uiLang:string, queryType?:QueryType):[ViewUtils<GlobalComponents>, AppServices] {
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang,
         translations: services.translations,
@@ -138,6 +138,9 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
                 (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
                 (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
     });
+    const streaming = queryType === QueryType.PREVIEW ?
+        new DataStreamingMock(prepareTileData(queryType)) :
+        new DataStreaming(null, [], undefined, 1000, undefined);
 
     return [
         viewUtils,
@@ -160,9 +163,9 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
-            dataStreaming: new DataStreaming(null, [], undefined, 1000, undefined),
+            dataStreaming: streaming,
             apiHeadersMapping: services.clientConf.apiHeaders || {},
-            mobileModeTest: ()=>false
+            mobileModeTest: ()=>false,
         })
     ]
 }

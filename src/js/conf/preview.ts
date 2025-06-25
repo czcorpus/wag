@@ -298,7 +298,7 @@ export const layoutConf: LayoutsConfig = {
     cmp: {
         groups: [
             {
-                groupLabel: "Tile examples",
+                groupLabel: "Comparison",
                 tiles: [
                     {tile: 'wordFreq', width: 1},
                     {tile: 'mergeCorpFreq', width: 1},
@@ -332,9 +332,11 @@ export const layoutConf: LayoutsConfig = {
     }
 };
 
-export function prepareTileData(queryType:QueryType):Array<Array<any>> {  
+export function prepareTileData(qType:QueryType):Array<Array<any>> {  
   return pipe(
-    layoutConf[queryType]['groups'] as GroupLayoutConfig[],
+    Object.entries(layoutConf),
+    List.filter(([qt, ]) => qt === qType || qType === QueryType.PREVIEW),
+    List.flatMap(([, layout]) => layout.groups as Array<GroupLayoutConfig>),
     List.flatMap(v => v.tiles),
     List.map(v => tileDataConf[v.tile]),
   );

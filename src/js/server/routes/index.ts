@@ -17,7 +17,7 @@
  */
 import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
-import { EMPTY, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { concatMap, tap } from 'rxjs/operators';
 import { HTTP, List, Dict } from 'cnc-tskit';
 
@@ -43,7 +43,6 @@ import { DataStreaming } from '../../page/streaming.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { ServerNotifications } from '../../page/notifications.js';
-import { staticPage } from './static.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -575,43 +574,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     })
 
-    // -------------------- schema page ----------------------------------------
+    // -------------------- preview page ----------------------------------------
 
-    app.get(HTTPAction.PREVIEW_SEARCH, (req, res, next) => {
+    app.get(HTTPAction.PREVIEW, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        staticPage({
+        queryAction({
             services,
             answerMode: true,
-            httpAction: HTTPAction.PREVIEW_SEARCH,
-            queryType: QueryType.SINGLE_QUERY,
-            uiLang,
-            req,
-            res,
-            next
-        });
-    });
-
-    app.get(HTTPAction.PREVIEW_COMPARE, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services);
-        staticPage({
-            services,
-            answerMode: true,
-            httpAction: HTTPAction.PREVIEW_COMPARE,
-            queryType: QueryType.CMP_QUERY,
-            uiLang,
-            req,
-            res,
-            next
-        });
-    });
-
-    app.get(HTTPAction.PREVIEW_TRANSLATE, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services);
-        staticPage({
-            services,
-            answerMode: true,
-            httpAction: HTTPAction.PREVIEW_TRANSLATE,
-            queryType: QueryType.TRANSLAT_QUERY,
+            httpAction: HTTPAction.PREVIEW,
+            queryType: QueryType.PREVIEW,
             uiLang,
             req,
             res,
