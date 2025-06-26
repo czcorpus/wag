@@ -26,7 +26,7 @@ import { Backlink, backlinkIsValid } from '../../page/tile.js';
 import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
-import { SourceCitation } from 'src/js/api/abstract/sourceInfo.js';
+import { SourceCitation } from '../../api/abstract/sourceInfo.js';
 
 
 export interface SourceInfo {
