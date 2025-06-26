@@ -20,14 +20,15 @@ import { Observable, of as rxOf } from 'rxjs';
 import { Ident, HTTP, pipe, Dict, List } from 'cnc-tskit';
 
 import { ajax$ } from '../../../page/ajax.js';
-import { ResourceApi, SourceDetails } from '../../../types.js';
+import { DataApi, ResourceApi, SourceDetails } from '../../../types.js';
 import { map, catchError } from 'rxjs/operators';
 import { AjaxError } from 'rxjs/ajax';
 import { IApiServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import urlJoin from 'url-join';
 import { IDataStreaming } from '../../../page/streaming.js';
-import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { CorpusInfoAPI, QueryArgs, HTTPResponse as MQHTTPResponse }
+    from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 
@@ -64,6 +65,97 @@ export enum OperationMode {
 }
 
 /**
+ *
+ */
+class WSServerCorpusInfo implements DataApi<QueryArgs, SourceDetails> {
+
+    private readonly apiURL:string;
+
+    private readonly apiServices:IApiServices;
+
+    constructor(apiURL:string, apiServices:IApiServices) {
+        this.apiURL = apiURL;
+        this.apiServices = apiServices;
+    }
+
+
+    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:QueryArgs):Observable<SourceDetails> {
+        if (dataStreaming) {
+            return dataStreaming.registerTileRequest<MQHTTPResponse>(
+                {
+                    tileId,
+                    method: HTTP.Method.GET,
+                    url: args ?
+                        urlJoin(
+                            this.apiURL,
+                            'corpora',
+                            encodeURIComponent(args.corpname),
+                        ) :
+                        '',
+                    body: {},
+                    contentType: 'application/json',
+                }
+            ).pipe(
+                map<MQHTTPResponse, SourceDetails>(
+                    (resp) => ({
+                        tileId,
+                        title: resp.corpus.data.corpname,
+                        description: resp.corpus.data.description,
+                        author: '',
+                        href: resp.corpus.data.webUrl,
+                        attrList: resp.corpus.data.attrList,
+                        citationInfo: {
+                            sourceName: resp.corpus.data.corpname,
+                            main: resp.corpus.data.citationInfo?.default_ref,
+                            papers: resp.corpus.data.citationInfo?.article_ref || [],
+                            otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
+                        },
+
+                        keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
+                    })
+                )
+            );
+
+
+        } else {
+            return ajax$(
+                    HTTP.Method.GET,
+                    urlJoin(
+                        this.apiURL,
+                        'corpora',
+                        encodeURIComponent(args.corpname),
+                    ),
+                    {},
+                    {contentType: 'application/json'},
+
+            ).pipe(
+                map<MQHTTPResponse, SourceDetails>(
+                    (resp) => ({
+                        tileId,
+                        title: resp.corpus.data.corpname,
+                        description: resp.corpus.data.description,
+                        author: '',
+                        href: resp.corpus.data.webUrl,
+                        attrList: resp.corpus.data.attrList,
+                        citationInfo: {
+                            sourceName: resp.corpus.data.corpname,
+                            main: resp.corpus.data.citationInfo?.default_ref,
+                            papers: resp.corpus.data.citationInfo?.article_ref || [],
+                            otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
+                        },
+
+                        keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
+                    })
+                )
+            );
+        }
+
+    }
+
+
+}
+
+/**
  * This is a client for CNC's Word-Sim-Service (https://is.korpus.cz/git/machalek/word-sim-service)
  * which is just a glue for http server and word2vec handling libraries.
  */
@@ -73,9 +165,7 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
 
     private readonly apiServices:IApiServices;
 
-    private readonly srcInfoApi:CorpusInfoAPI;
-
-    private readonly useDataStream:boolean;
+    private readonly srcInfoApi:DataApi<QueryArgs, SourceDetails>;
 
     constructor(
         apiURL:string,
@@ -84,9 +174,10 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         apiServices:IApiServices
     ) {
         this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
-        this.srcInfoApi = srcInfoURL ? new CorpusInfoAPI(srcInfoURL, apiServices) : null;
+        this.srcInfoApi = srcInfoURL ?
+            new CorpusInfoAPI(srcInfoURL, apiServices) :
+            new WSServerCorpusInfo(apiURL, apiServices);
     }
 
     supportsTweaking():boolean {
@@ -133,8 +224,8 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         )
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
-        if (this.useDataStream) {
+    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
+        if (dataStreaming) {
             return this.apiServices.dataStreaming().registerTileRequest<WordSimApiLegacyResponse>(
                 {
                     tileId,
