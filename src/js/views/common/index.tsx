@@ -18,7 +18,7 @@
 import { ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
-import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
+import { List, Keyboard, pipe, Dict, Color, tuple } from 'cnc-tskit';
 
 import { SystemMessageType, SourceDetails } from '../../types.js';
 import { ScreenProps } from '../../page/hostPage.js';
@@ -26,6 +26,7 @@ import { Backlink, backlinkIsValid } from '../../page/tile.js';
 import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
+import { SourceCitation } from 'src/js/api/abstract/sourceInfo.js';
 
 
 export interface SourceInfo {
@@ -304,18 +305,96 @@ export function init(
         );
     };
 
+    // ------------------- <SourceCitations /> -----------------------------------------
+
+    const SourceCitations:React.FC<{
+        data:SourceCitation;
+
+    }> = (props) => {
+        if (props.data.papers.length > 0 || props.data.main || props.data.otherBibliography) {
+            return (
+                <>
+                    <h2>
+                        {ut.translate('global__corpus_as_resource_{corpus}', {corpus: props.data.sourceName})}:
+                    </h2>
+                    <div className="html" dangerouslySetInnerHTML={{__html: props.data.main}} />
+                    {props.data.papers.length > 0 ?
+                        (<>
+                            <h2>{ut.translate('global__references')}:</h2>
+                            {List.map(
+                                (item, i) => <div key={i} className="html" dangerouslySetInnerHTML={{__html: item }} />,
+                                props.data.papers
+                            )}
+                        </>) :
+                        null
+                    }
+                    {props.data.otherBibliography ?
+                        (<>
+                            <h2>{ut.translate('global__general_references')}:</h2>
+                            <div className="html" dangerouslySetInnerHTML={{__html: props.data.otherBibliography}} />
+                        </>) :
+                        null}
+                </>
+            );
+
+        } else {
+            return <div className="empty-citation-info">{ut.translate('global__no_citation_info')}</div>
+        }
+    };
+
     // ------------------ <SourceInfoBox /> --------------------------------------------
 
     const SourceInfoBox:React.FC<{
         data:SourceDetails;
 
     }> = (props) => {
+
+        const mkStyle = (bgCol:string) => ({
+            color: pipe(
+                bgCol,
+                Color.importColor(1),
+                Color.textColorFromBg(),
+                Color.color2str()
+            ),
+            backgroundColor: pipe(
+                bgCol,
+                Color.importColor(1),
+                ([r, g, b, o]) => {
+                    return tuple(r, g, b, 0.6)
+                },
+                Color.color2str()
+            )
+        });
+
+        const renderKeywords = () => {
+            if (props.data.keywords && props.data.keywords.length > 0) {
+                return props.data.keywords.map(kw =>
+                    <span key={kw.name} className="keyword" style={kw.color ? mkStyle(kw.color) : undefined}>
+                        {kw.name}
+                    </span>
+                );
+            } else {
+                return '-';
+            }
+        };
+
         return (
             <S.SourceInfoBox $createStaticUrl={ut.createStaticUrl}>
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ?
                     <p>{ut.translate('global__more_info')}: <a className="external" href={props.data.href} target="_blank" rel="noopener">{props.data.href}</a></p> :
+                    null
+                }
+                {props.data.keywords && props.data.keywords.length > 0 ?
+                    <>
+                        <h2>{ut.translate('global__keywords')}:</h2>
+                        <p>{renderKeywords()}</p>
+                    </> :
+                    null
+                }
+                {props.data.citationInfo ?
+                        <SourceCitations data={props.data.citationInfo} /> :
                     null
                 }
             </S.SourceInfoBox>

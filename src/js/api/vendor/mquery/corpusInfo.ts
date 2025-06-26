@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { share, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../../page/ajax.js';
 import { DataApi, CorpusDetails } from '../../../types.js';
@@ -25,7 +25,7 @@ import { HTTP, List } from 'cnc-tskit';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 
-interface HTTPResponse {
+export interface HTTPResponse {
     corpus: {
         data: {
             corpname:string;

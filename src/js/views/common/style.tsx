@@ -411,8 +411,9 @@ export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => stri
     }
 
     h2 {
-        margin-bottom: 1em;
-        font-size: 1.3em;
+        margin-bottom: 0;
+        margin-top: 0.9em;
+        font-size: 1.2em;
         font-weight: normal;
     }
 
