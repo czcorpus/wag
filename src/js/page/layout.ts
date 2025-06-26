@@ -123,7 +123,7 @@ export class LayoutManager {
                 'global__words_compare'
             );
 
-        } else {
+        } else if (queryType === QueryType.TRANSLAT_QUERY) {
             this.layout = {
                 ...importLayout(
                     layouts.translat,
@@ -133,9 +133,25 @@ export class LayoutManager {
                 ),
                 targetLanguages: layouts.translat.targetLanguages || []
             } as LayoutOfQueryTypeTranslat;
+
+        } else if (queryType === QueryType.PREVIEW) {
+            const single = importLayout(layouts.single, tileMap, appServices, 'global__single_word_sel');
+            const cmp = importLayout(layouts.cmp, tileMap, appServices, 'global__words_compare');
+            const translat = importLayout(layouts.translat, tileMap, appServices, 'global__word_translate');
+            this.layout = {
+                mainPosAttr: single.mainPosAttr,
+                label: appServices.translate('global__preview_layout'),
+                groups: [
+                    ...single.groups,
+                    ...cmp.groups,
+                    ...translat.groups,
+                ],
+                targetLanguages: layouts.translat.targetLanguages || []
+            } as LayoutOfQueryTypeTranslat;
         };
+
         this.validateLayout();
-        this.queryTypes = [
+        this.queryTypes = queryType === QueryType.PREVIEW ? [] : [
             {
                 type: QueryType.SINGLE_QUERY,
                 label: layouts.single?.label ?

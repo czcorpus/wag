@@ -28,7 +28,8 @@ import {
     THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
     mergeToEmptyLayoutConf, MainPosAttrValues, LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
     LayoutsConfig,
-    HomepageTileConf
+    HomepageTileConf,
+    GroupLayoutConfig
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -48,6 +49,7 @@ import { attachNumericTileIdents } from '../../page/index.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { TileConf } from '../../page/tile.js';
+import { layoutConf, queriesConf, tileConf } from '../../conf/preview.js';
 
 
 interface MkRuntimeClientConfArgs {
@@ -95,7 +97,9 @@ function filterTilesByQueryType(
     qType:QueryType
 ):{[tileId:string]:TileConf} {
     return pipe(
-        layouts[qType].groups,
+        Object.entries(layouts),
+        List.filter(([qt, ]) => qt === qType || qType === QueryType.PREVIEW),
+        List.flatMap(([, layout]) => layout.groups as Array<GroupLayoutConfig>),
         List.flatMap(x => typeof x !== 'string' ? x.tiles : []),
         List.map(x => tuple(x.tile, tiles[x.tile])),
         Dict.fromEntries()
@@ -263,7 +267,7 @@ export function importQueryRequest({
                         items
                 );
             const layouts = services.clientConf.layouts;
-            if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
+            if (queryType !== QueryType.PREVIEW && answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
                 const maxQueryWords = maxQueryWordsForQueryType(services.serverConf, queryType);
                 List.forEach(
                     query => {
@@ -284,14 +288,16 @@ export function importQueryRequest({
                     typeof layouts === 'string' ? {} : layouts
                 ),
                 queryType,
-                queries: compileQueries(
-                    queries,
-                    List.map(
-                        v => List.filter(v => !!v, v.split(' ')),
-                        fetchReqArgArray(req, 'pos', queries.length)
+                queries: queryType === QueryType.PREVIEW ?
+                    queriesConf :
+                    compileQueries(
+                        queries,
+                        List.map(
+                            v => List.filter(v => !!v, v.split(' ')),
+                            fetchReqArgArray(req, 'pos', queries.length)
+                        ),
+                        fetchReqArgArray(req, 'lemma', queries.length)
                     ),
-                    fetchReqArgArray(req, 'lemma', queries.length)
-                ),
                 answerMode: answerMode
             };
 
@@ -358,8 +364,13 @@ export function queryAction({
     res,
     next
 }:QueryActionArgs) {
+    if (queryType === QueryType.PREVIEW) {
+        services.clientConf.tiles = tileConf;
+        services.clientConf.layouts = layoutConf;
+    }
+
     const dispatcher = new ServerSideActionDispatcher();
-    const [viewUtils, appServices] = createHelperServices(services, uiLang);
+    const [viewUtils, appServices] = createHelperServices(services, uiLang, queryType);
     const freqDb = createInstance(
         services.serverConf.freqDB.database.dbType as FreqDBType,
         services.serverConf.freqDB.database.path,

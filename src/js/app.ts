@@ -68,13 +68,15 @@ const mkAttachTile = (
         maxTileHeight,
         retryLoadModel
     }:AttachTileArgs):void => {
-        const support = tile.supportsQueryType(queryType, translatLang) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
+        const support = (tile.supportsQueryType(queryType, translatLang) && (!isMultiWordQuery || tile.supportsMultiWordQueries())) || queryType === QueryType.PREVIEW;
         let reasonDisabled = undefined;
-        if (!tile.supportsQueryType(queryType, translatLang)) {
-            reasonDisabled = appServices.translate('global__query_type_not_supported');
+        if (!support) {
+            if (!tile.supportsQueryType(queryType, translatLang)) {
+                reasonDisabled = appServices.translate('global__query_type_not_supported');
 
-        } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-            reasonDisabled = appServices.translate('global__multi_word_query_not_supported');
+            } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
+                reasonDisabled = appServices.translate('global__multi_word_query_not_supported');
+            }
         }
 
         data.push({
@@ -147,7 +149,6 @@ export function createRootComponent({
         ),
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
-        isStaticPage: userSession.staticPage,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
         layout: layoutManager,
         maxCmpQueries: 10,

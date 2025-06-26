@@ -21,7 +21,7 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import { RecognizedQueries } from '../query/index.js';
+import { QueryType, RecognizedQueries } from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
@@ -40,7 +40,7 @@ import { TileConf } from './tile.js';
 import { DataStreaming, IDataStreaming, DataStreamingMock } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
 import { DataApi } from '../types.js';
-import { prepareTileData } from '../conf/static.js';
+import { prepareTileData } from '../conf/preview.js';
 
 
 interface MountArgs {
@@ -151,7 +151,7 @@ export function initClient(
         }
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
-    const dataStreaming = userSession.staticPage ?
+    const dataStreaming = userSession.queryType === QueryType.PREVIEW ?
         new DataStreamingMock(prepareTileData(userSession.queryType)) :
         new DataStreaming(
             null,
