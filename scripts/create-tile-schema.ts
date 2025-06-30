@@ -41,10 +41,12 @@ if (process.argv.length === 4) {
     });
 
     rl.question("Enter tile dir (e.g. core/html): ", tileDir => {
-        rl.question("Enter config type name (e.g. HtmlTileConf): ", typeName => {
-            generateSchema(tileDir, typeName);
+        const tileName = tileDir.split('/')[1];
+        const defaultTileConf = tileName[0].toUpperCase() + tileName.slice(1) + 'TileConf';
+        rl.question(`Enter config type name (e.g. HtmlTileConf, default ${defaultTileConf}): `, typeName => {
+            generateSchema(tileDir, typeName || defaultTileConf);
             rl.close();
-            console.log(`Config schema ${tileDir} ${typeName} created!`);
+            console.log(`Config schema ${tileDir} ${typeName || defaultTileConf} created!`);
         });
     });
 
