@@ -19,29 +19,29 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { Ident, HTTP, pipe, Dict, List } from 'cnc-tskit';
 
-import { ajax$ } from '../../../page/ajax.js';
-import { DataApi, ResourceApi, SourceDetails } from '../../../types.js';
+import { ajax$ } from '../../../../page/ajax.js';
+import { DataApi, ResourceApi, SourceDetails } from '../../../../types.js';
 import { map, catchError } from 'rxjs/operators';
 import { AjaxError } from 'rxjs/ajax';
-import { IApiServices } from '../../../appServices.js';
-import { Backlink } from '../../../page/tile.js';
+import { IApiServices } from '../../../../appServices.js';
+import { Backlink } from '../../../../page/tile.js';
 import urlJoin from 'url-join';
-import { IDataStreaming } from '../../../page/streaming.js';
+import { IDataStreaming } from '../../../../page/streaming.js';
 import { CorpusInfoAPI, QueryArgs, HTTPResponse as MQHTTPResponse }
-    from '../../../api/vendor/mquery/corpusInfo.js';
+    from '../../../../api/vendor/mquery/corpusInfo.js';
 
 
 
-export interface WordSimWord {
+export interface WordSimEntry {
     word:string;
     score:number;
     interactionId?:string;
 }
 
-export type WordSimApiLegacyResponse = Array<WordSimWord>;
+export type WordSimApiLegacyResponse = Array<WordSimEntry>;
 
 export interface WordSimApiResponse {
-    words:Array<WordSimWord>;
+    words:Array<WordSimEntry>;
 }
 
 export interface CNCWord2VecSimApiArgs {
@@ -53,7 +53,7 @@ export interface CNCWord2VecSimApiArgs {
     limit:number; // default 10
 }
 
-type HTTPResponse = Array<{
+export type HTTPResponse = Array<{
     word:string;
     score:number;
 }>;
@@ -67,7 +67,7 @@ export enum OperationMode {
 /**
  *
  */
-class WSServerCorpusInfo implements DataApi<QueryArgs, SourceDetails> {
+export class WSServerCorpusInfo implements DataApi<QueryArgs, SourceDetails> {
 
     private readonly apiURL:string;
 

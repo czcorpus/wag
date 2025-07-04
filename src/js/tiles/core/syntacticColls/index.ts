@@ -21,11 +21,13 @@ import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api.js';
+import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api/scollex.js';
+import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
     apiURL:string;
+    apiType?:'default'|'wss';
     eApiURL:string;
     corpname:string;
     maxItems:number;
@@ -65,13 +67,16 @@ export class SyntacticCollsTile implements ITileProvider {
             appServices: appServices,
             queryType: queryType,
             maxItems: conf.maxItems,
-            api: new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            api: conf.apiType === 'wss' ?
+                new WSServerSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink) :
+                new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
             eApi: new ScollexSyntacticCollsExamplesAPI(conf.eApiURL, appServices),
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
                 isAltViewMode: false,
                 tileId: tileId,
+                apiType: conf.apiType || 'default',
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,

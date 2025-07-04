@@ -18,24 +18,27 @@
 import { Observable, map } from 'rxjs';
 import urlJoin from 'url-join';
 
-import { ajax$ } from '../../../page/ajax.js';
-import { DataApi, ResourceApi, SourceDetails } from '../../../types.js';
-import { IApiServices } from '../../../appServices.js';
+import { ajax$ } from '../../../../page/ajax.js';
+import { DataApi, ResourceApi, SourceDetails } from '../../../../types.js';
+import { IApiServices } from '../../../../appServices.js';
 import { Dict, HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
-import { FreqRowResponse } from '../../../api/vendor/mquery/common.js';
-import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { IDataStreaming } from '../../../page/streaming.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
+import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
+import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
+import { IDataStreaming } from '../../../../page/streaming.js';
+import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 
 
 
 export interface SCollsDataRow {
+    searchMatchSyntFn?:string;
     value:string;
+    valueSyntFn?:string;
     freq:number;
     base:number;
     ipm:number;
     collWeight:number;
     coOccScore:number;
+    mutualDist?:number;
 }
 
 export interface SCollsData {
@@ -91,7 +94,7 @@ export interface SCollsRequest {
 
 
 // query types are mquery endpoint values
-export type SCollsQueryType = 'noun-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object';
+export type SCollsQueryType = 'noun-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed';
 
 
 

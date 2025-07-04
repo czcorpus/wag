@@ -21,14 +21,18 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { SyntacticCollsModel } from './model.js';
+import { SyntacticCollsModel, SyntacticCollsModelState } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
 import { Dict, List, pipe } from 'cnc-tskit';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
-import { mkScollExampleLineHash, SCollsData, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api.js';
+import { mkScollExampleLineHash, SCollsData, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api/scollex.js';
+
+
+
+const isEmpty = (data:{[key in SCollsQueryType]?:SCollsData}, qType:SCollsQueryType) => data[qType].rows.length === 0;
 
 
 export function init(
@@ -97,35 +101,17 @@ export function init(
         </S.Examples>
     );
 
-    // -------------- <SyntacticCollsTile /> -------------------------------------
 
-    const SyntacticCollsTile:React.FC<CoreTileComponentProps> = (props) => {
+    // ---------------------- <ScollexTable /> ---------------------------
 
-        const state = useModel(model);
+    const ScollexTable:React.FC<{
+        data:{[key in SCollsQueryType]?:SCollsData};
+        qType:SCollsQueryType;
+        isMobile:boolean;
+        widthFract:number;
+        tileId:number;
 
-        const isEmpty = (qType:SCollsQueryType) => state.data[qType].rows.length === 0;
-
-        const renderWordCloud = (qType:SCollsQueryType) => {
-            return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
-                {Object.values(state.data).filter(v => !!v).length > 1 ?
-                    <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2> :
-                    null
-                }
-                {state.data[qType] ?
-                    isEmpty(qType) ?
-                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
-                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                                key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
-                            <WordCloud width={width} height={height} isMobile={props.isMobile}
-                                data={state.data[qType].rows}
-                                font={theme.infoGraphicsFont}
-                                dataTransform={dataTransform}
-                            />
-                        )}/> :
-                    null
-                }
-            </S.SCollsWordCloud>
-        };
+    }> = (props) => {
 
         const handleWordClick = (word:string, qType:SCollsQueryType) => () => {
             dispatcher.dispatch(
@@ -138,26 +124,17 @@ export function init(
             )
         };
 
-        const handleExamplesClick = () => {
-            dispatcher.dispatch(
-                Actions.HideExampleWindow,
-                {
-                    tileId: props.tileId
-                }
-            );
-        };
-
-        const renderTable = (qType:SCollsQueryType) => {
-            return <S.SCollsTable key={`table:${qType}`}>
-                {Object.values(state.data).filter(v => !!v).length > 1 ?
-                    <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2> :
+        return (
+            <S.SCollsTable key={`table:${props.qType}`}>
+                {Object.values(props.data).filter(v => !!v).length > 1 ?
+                    <h2>{ut.translate(`syntactic_colls__heading_${props.qType}`)}</h2> :
                     null
                 }
-                {state.data[qType] ?
-                    isEmpty(qType) ?
+                {props.data[props.qType] ?
+                    isEmpty(props.data, props.qType) ?
                         <p>{ut.translate('syntactic_colls__no_data')}</p> :
                         <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                                key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
+                                key={props.qType} widthFract={props.widthFract} render={(width:number, height:number) => (
                             <table className='data'>
                                 <thead>
                                     <tr>
@@ -173,7 +150,7 @@ export function init(
                                         (row, i) => (
                                             <tr key={i}>
                                                 <td key="word" className="word">
-                                                    <a onClick={handleWordClick(row.value, qType)}>{row.value}</a>
+                                                    <a onClick={handleWordClick(row.value, props.qType)}>{row.value}</a>
                                                 </td>
                                                 <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
                                                 <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
@@ -181,14 +158,144 @@ export function init(
                                                 <td key="cooc-score" className="num">{ut.formatNumber(row.coOccScore, 4)}</td>
                                             </tr>
                                         ),
-                                        state.data[qType].rows
+                                        props.data[props.qType].rows
                                     )}
                                 </tbody>
                             </table>
                         )}/> :
                     null
-                }
+                    }
             </S.SCollsTable>
+        );
+    };
+
+
+    // ---------------------- <WSSTable /> ---------------------------
+
+    const WSSTable:React.FC<{
+        data:{[key in SCollsQueryType]?:SCollsData};
+        qType:SCollsQueryType;
+        isMobile:boolean;
+        widthFract:number;
+        tileId:number;
+
+    }> = (props) => {
+
+        const handleWordClick = (word:string, qType:SCollsQueryType) => () => {
+            dispatcher.dispatch(
+                Actions.ClickForExample,
+                {
+                    tileId: props.tileId,
+                    word,
+                    qType
+                }
+            )
+        };
+
+        return (
+            <S.SCollsTable key={`table:${props.qType}`}>
+                {Object.values(props.data).filter(v => !!v).length > 1 ?
+                    <h2>{ut.translate(`syntactic_colls__heading_${props.qType}`)}</h2> :
+                    null
+                }
+                {props.data[props.qType] ?
+                    isEmpty(props.data, props.qType) ?
+                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                widthFract={props.widthFract} render={(width:number, height:number) => (
+                            <table className="data">
+                                <thead>
+                                    <tr>
+                                        <th>{ut.translate('syntactic_colls__tab_hd_word')}</th>
+                                        <th>{ut.translate('syntactic_colls__tab_hd_score')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {List.map(
+                                        (row, i) => (
+                                            <tr key={`row:${i}`}>
+                                                <td className="word">
+                                                    {row.mutualDist < 0 ?
+                                                        <>
+                                                            <a onClick={handleWordClick(row.value, props.qType)}>{row.value}</a>
+                                                            <span className="fn">({row.valueSyntFn})</span>
+                                                            {row.mutualDist < -1 ?
+                                                                <>
+                                                                    <span className="arrows">{'\u2192'}</span>
+                                                                    {'\u25EF'}
+                                                                </> :
+                                                                null
+                                                            }
+                                                            <span className="arrows">{'\u2192'}</span>
+                                                            <span>{'\u2B24'}</span>
+                                                            <span className="fn">({row.searchMatchSyntFn})</span>
+
+                                                        </> :
+                                                        <>
+                                                            {'\u2B24'}
+                                                            <span className="fn">({row.searchMatchSyntFn})</span>
+                                                            <span className="arrows">{'\u2192'}</span>
+                                                            {row.mutualDist > 1 ?
+                                                                <>
+                                                                    <span className="arrows">{'\u2192'}</span>
+                                                                    {'\u25EF'}
+                                                                </> :
+                                                                null
+                                                            }
+                                                            <a onClick={handleWordClick(row.value, props.qType)}>{row.value}</a>
+                                                            <span className="fn">({row.valueSyntFn})</span>
+                                                        </>
+                                                    }
+                                                </td>
+                                                <td className="num">{ut.formatNumber(row.collWeight, 4)}</td>
+                                            </tr>
+                                        ),
+                                        props.data[props.qType].rows
+                                    )}
+                                </tbody>
+                            </table>
+                        )}/> :
+                    null
+                    }
+            </S.SCollsTable>
+        );
+    };
+
+    // -------------- <SyntacticCollsTile /> -------------------------------------
+
+    const SyntacticCollsTile:React.FC<CoreTileComponentProps> = (props) => {
+
+        const state = useModel(model);
+
+        const renderWordCloud = (qType:SCollsQueryType) => {
+            return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
+                {Object.values(state.data).filter(v => !!v).length > 1 ?
+                    <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2> :
+                    null
+                }
+                {state.data[qType] ?
+                    isEmpty(state.data, qType) ?
+                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
+                            <WordCloud width={width} height={height} isMobile={props.isMobile}
+                                data={state.data[qType].rows}
+                                font={theme.infoGraphicsFont}
+                                dataTransform={dataTransform}
+                            />
+                        )}/> :
+                    null
+                }
+            </S.SCollsWordCloud>
+        };
+
+        const handleExamplesClick = () => {
+            dispatcher.dispatch(
+                Actions.HideExampleWindow,
+                {
+                    tileId: props.tileId
+                }
+            );
         };
 
         return (
@@ -211,7 +318,15 @@ export function init(
                         } else {
                             return (
                                 <div className="tables">
-                                    {List.map(qType => renderTable(qType), state.displayTypes)}
+                                    {List.map(
+                                        (qType, i) => state.apiType === 'default' ?
+                                            <ScollexTable key={`scollex:${qType}:${i}`}
+                                                tileId={props.tileId} qType={qType} data={state.data}
+                                                isMobile={props.isMobile} widthFract={props.widthFract} /> :
+                                            <WSSTable  key={`wss:${qType}:${i}`} tileId={props.tileId} qType={qType} data={state.data}
+                                                isMobile={props.isMobile} widthFract={props.widthFract} />,
+                                        state.displayTypes
+                                    )}
                                 </div>
                             );
                         }

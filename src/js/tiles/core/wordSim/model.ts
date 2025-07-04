@@ -26,15 +26,16 @@ import { Actions } from './actions.js';
 import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
-import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimWord } from './api.js';
+import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimEntry } from './api/standard.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { CNCWSServerApi } from './api/wss.js';
 
 
 export interface WordSimModelArgs {
     dispatcher:IActionDispatcher;
     initState:WordSimModelState;
     tileId:number;
-    api:CNCWord2VecSimApi;
+    api:CNCWord2VecSimApi|CNCWSServerApi;
     appServices:IAppServices;
 }
 
@@ -52,7 +53,7 @@ export interface WordSimModelState {
     maxResultItems:number;
     minScore:number;
     minMatchFreq:number;
-    data:Array<Array<WordSimWord>>;
+    data:Array<Array<WordSimEntry>>;
     operationMode:OperationMode;
     corpus:string;
     model:string;
@@ -65,7 +66,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:CNCWord2VecSimApi;
+    private readonly api:CNCWord2VecSimApi|CNCWSServerApi;
 
     constructor({dispatcher, initState, tileId, api, appServices}:WordSimModelArgs) {
         super(dispatcher, initState);

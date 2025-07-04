@@ -32,8 +32,8 @@ import {
     SCollsData,
     SCollsExamples,
     SCollsQueryType,
-    SCollsRequest } from './api.js';
-    import { IDataStreaming } from '../../../page/streaming.js';
+    SCollsRequest } from './api/scollex.js';
+import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 
 
 export interface SyntacticCollsModelArgs {
@@ -42,7 +42,7 @@ export interface SyntacticCollsModelArgs {
     appServices:IAppServices;
     initState:SyntacticCollsModelState;
     queryType:QueryType;
-    api:ScollexSyntacticCollsAPI;
+    api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
     eApi:ScollexSyntacticCollsExamplesAPI;
     maxItems:number;
 }
@@ -53,6 +53,7 @@ export interface SyntacticCollsModelState {
     tileId:number;
     isMobile:boolean;
     isAltViewMode:boolean;
+    apiType:'default'|'wss';
     error:string|null;
     widthFract:number;
     corpname:string;
@@ -72,7 +73,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly queryType:QueryType;
 
-    private readonly api:ScollexSyntacticCollsAPI;
+    private readonly api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
 
     private readonly eApi:ScollexSyntacticCollsExamplesAPI;
 

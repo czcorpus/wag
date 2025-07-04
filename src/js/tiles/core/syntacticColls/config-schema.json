@@ -4,6 +4,13 @@
         "apiURL": {
             "type": "string"
         },
+        "apiType": {
+            "enum": [
+                "default",
+                "wss"
+            ],
+            "type": "string"
+        },
         "eApiURL": {
             "type": "string"
         },
@@ -17,6 +24,7 @@
             "type": "array",
             "items": {
                 "enum": [
+                    "mixed",
                     "modifiers-of",
                     "noun-modified-by",
                     "verbs-object",

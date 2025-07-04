@@ -14,6 +14,9 @@
         "corpname": {
             "type": "string"
         },
+        "comparisonCorpname": {
+            "type": "string"
+        },
         "minFreq": {
             "type": "number"
         },
