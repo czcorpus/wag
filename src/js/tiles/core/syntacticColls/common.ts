@@ -17,7 +17,7 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SCollsData, SCollsExamples, SCollsQueryType } from './api.js';
+import { SCollsData, SCollsExamples, SCollsQueryType } from './api/scollex.js';
 
 
 export class Actions {

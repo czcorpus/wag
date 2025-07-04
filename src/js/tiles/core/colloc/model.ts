@@ -25,7 +25,7 @@ import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
 import { QueryMatch, QueryType, testIsDictMatch } from '../../../query/index.js';
-import { MQueryCollAPI, MQueryCollArgs } from './api.js';
+import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 

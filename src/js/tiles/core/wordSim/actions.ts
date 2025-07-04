@@ -18,13 +18,13 @@
 
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { OperationMode, WordSimWord } from './api.js';
+import { OperationMode, WordSimEntry } from './api/standard.js';
 
 
 export interface DataLoadedPayload {
     tileId:number;
     queryIdx:number;
-    words:Array<WordSimWord>;
+    words:Array<WordSimEntry>;
 }
 
 

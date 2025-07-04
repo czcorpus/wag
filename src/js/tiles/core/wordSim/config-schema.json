@@ -5,6 +5,10 @@
             "type": "string"
         },
         "apiType": {
+            "enum": [
+                "default",
+                "wss"
+            ],
             "type": "string"
         },
         "maxResultItems": {
@@ -82,7 +86,6 @@
         }
     },
     "required": [
-        "apiType",
         "apiURL",
         "maxResultItems",
         "minMatchFreq",

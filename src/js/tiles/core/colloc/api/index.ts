@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
-import { ajax$ } from '../../../page/ajax.js';
-import { CorpusDetails, ResourceApi } from '../../../types.js';
-import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { Backlink, BacklinkConf } from '../../../page/tile.js';
-import { IApiServices } from '../../../appServices.js';
-import { CollApiResponse } from './common.js';
-import { IDataStreaming } from '../../../page/streaming.js';
+import { ajax$ } from '../../../../page/ajax.js';
+import { CorpusDetails, ResourceApi } from '../../../../types.js';
+import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
+import { Backlink, BacklinkConf } from '../../../../page/tile.js';
+import { IApiServices } from '../../../../appServices.js';
+import { CollApiResponse } from '../common.js';
+import { IDataStreaming } from '../../../../page/streaming.js';
 
 
 export interface BasicHTTPResponse {

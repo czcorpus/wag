@@ -35,9 +35,13 @@ export const SyntacticColls = styled.div`
 
 `;
 
+// -------------------- <SCollsWordCloud /> ----------------------
+
 export const SCollsWordCloud = styled.div`
     flex-grow: 1;
 `;
+
+// ------------------- <SCollsTable /> ------------------------
 
 export const SCollsTable = styled.div`
     flex-grow: 1;
@@ -45,6 +49,24 @@ export const SCollsTable = styled.div`
     h2 {
         text-align: center;
         font-size: 1.3em;
+    }
+
+
+    table.data td {
+
+        span {
+            padding-left: 0.4em;
+            padding-right: 0.4em;
+        }
+
+        .arrows {
+            color: ${theme.colorLogoPink};
+        }
+
+        .fn {
+            color: ${theme.colorLightText};
+        }
+
     }
 `;
 

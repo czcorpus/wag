@@ -23,12 +23,13 @@ import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
-import { CNCWord2VecSimApi, OperationMode } from './api.js';
+import { CNCWord2VecSimApi, OperationMode } from './api/standard.js';
+import { CNCWSServerApi } from './api/wss.js';
 
 
 export interface WordSimTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
+    apiType?:'wss'|'default';
     maxResultItems:number;
     minMatchFreq:number;
     minScore?:number;
@@ -58,7 +59,7 @@ export class WordSimTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly api:CNCWord2VecSimApi;
+    private readonly api:CNCWord2VecSimApi|CNCWSServerApi;
 
     constructor({
         tileId, dispatcher, appServices, ut, widthFract, conf, theme,
@@ -69,7 +70,9 @@ export class WordSimTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
-        this.api = new CNCWord2VecSimApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices);
+        this.api = conf.apiType === 'wss' ?
+            new CNCWSServerApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices) :
+            new CNCWord2VecSimApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices);
         this.model = new WordSimModel({
             appServices,
             dispatcher,

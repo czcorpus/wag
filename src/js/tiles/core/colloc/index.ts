@@ -27,7 +27,7 @@ import {
     TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
 } from '../../../page/tile.js';
-import { MQueryCollAPI } from './api.js';
+import { MQueryCollAPI } from './api/index.js';
 
 
 
