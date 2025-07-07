@@ -30,7 +30,7 @@ import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
 import { mkScollExampleLineHash, SCollsData, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api/scollex.js';
 import { DeprelValue } from './deprel.js';
-import { QueryMatch } from 'src/js/query/index.js';
+import { QueryMatch } from '../../../query/index.js';
 
 
 

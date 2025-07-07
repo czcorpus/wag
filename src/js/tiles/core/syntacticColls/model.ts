@@ -19,7 +19,6 @@ import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
-import { BacklinkConf } from '../../../page/tile.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { merge, of as rxOf } from 'rxjs';
@@ -35,8 +34,7 @@ import {
     SCollsRequest } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { DeprelValue } from './deprel.js';
-import { IDataStreaming } from 'src/js/page/streaming.js';
-import { P } from 'pino';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface SyntacticCollsModelArgs {
