@@ -106,9 +106,9 @@ export class GeoAreasTile implements ITileProvider {
             },
         });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
-        this.view = queryType === QueryType.SINGLE_QUERY ?
-            singleViewInit(this.dispatcher, ut, theme, this.model) :
-            compareViewInit(this.dispatcher, ut, theme, this.model);
+        this.view = queryType === QueryType.CMP_QUERY || queryType === QueryType.PREVIEW && queryMatches.length > 1 ?
+            compareViewInit(this.dispatcher, ut, theme, this.model) :
+            singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getLabel():string {

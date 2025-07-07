@@ -17,8 +17,11 @@
  */
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
-import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf,
+    TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
 import { init as viewInit } from './views/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
@@ -154,8 +157,6 @@ export class WordFreqTile implements ITileProvider {
 }
 
 export const init:TileFactory<WordFreqTileConf> = {
-
     sanityCheck: (args) => [],
-
     create: (args) => new WordFreqTile(args)
 };

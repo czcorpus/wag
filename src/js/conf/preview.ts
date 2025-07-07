@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { List, pipe } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { GroupLayoutConfig, LayoutsConfig } from './index.js';
 import { QueryType } from '../query/index.js';
 
@@ -26,7 +26,7 @@ export const queriesConf = [
   {word: 'noha', lemma: 'noha', pos: ['N']},
 ]
 
-export const tileConf: {[name:string]:any} = {
+const tileConf: {[name:string]:any} = {
     wordFreq: {
         tileType: "WordFreqTile",
         label: {
@@ -264,6 +264,24 @@ export const tileConf: {[name:string]:any} = {
     }
 };
 
+/**
+ * Create tile configurations for the preview mode. Data that is
+ * taken from a hardcoded configuration structure which extended
+ * in a way that each tile (e.g. FooTile => {... conf ...}) is entered
+ * twice (for the second time it is: FooTile2 => { ... conf ... }). This
+ * allows for using cmp+single supporting tiles in both modes on the same page
+ * (with additional tricks performed by tile factory - see mkTileFactory() in tileLoader.ts)
+ */
+export function generatePreviewTileConf() {
+  return pipe(
+    tileConf,
+    Dict.toEntries(),
+    List.map(([k, v]) => [ tuple(k, v), tuple(k+'2', v)]),
+    List.flatMap(v => v),
+    Dict.fromEntries()
+  )
+}
+
 export const layoutConf: LayoutsConfig = {
     single: {
         groups: [
@@ -300,13 +318,13 @@ export const layoutConf: LayoutsConfig = {
             {
                 groupLabel: "Comparison",
                 tiles: [
-                    {tile: 'wordFreq', width: 1},
-                    {tile: 'mergeCorpFreq', width: 1},
-                    {tile: 'freqBar', width: 1},
-                    {tile: 'colloc', width: 3},
-                    {tile: 'concordance', width: 3},
-                    {tile: 'timeDistrib', width: 3},
-                    {tile: 'geoAreas', width: 3},
+                    {tile: 'wordFreq2', width: 1},
+                    {tile: 'mergeCorpFreq2', width: 1},
+                    {tile: 'freqBar2', width: 1},
+                    {tile: 'colloc2', width: 3},
+                    {tile: 'concordance2', width: 3},
+                    {tile: 'timeDistrib2', width: 3},
+                    {tile: 'geoAreas2', width: 3},
                 ]
             }
         ],
@@ -332,13 +350,21 @@ export const layoutConf: LayoutsConfig = {
     }
 };
 
-export function prepareTileData(qType:QueryType):Array<Array<any>> {  
+export function prepareTileData(qType:QueryType):Array<Array<any>> {
   return pipe(
     Object.entries(layoutConf),
     List.filter(([qt, ]) => qt === qType || qType === QueryType.PREVIEW),
     List.flatMap(([, layout]) => layout.groups as Array<GroupLayoutConfig>),
     List.flatMap(v => v.tiles),
-    List.map(v => tileDataConf[v.tile]),
+    List.map(v => {
+      if (tileDataConf[v.tile]) {
+        return tileDataConf[v.tile];
+
+      } else if (/^.+2/.test(v.tile)) { // these are 2nd variants of preview tiles (for tiles supporting both single and cmp)
+        return tileDataConf[v.tile.substring(0, v.tile.length - 1)];
+      }
+
+    }),
   );
 }
 

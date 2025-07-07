@@ -104,7 +104,7 @@ export class TimeDistTile implements ITileProvider {
             queryMatches,
         });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
-        this.view = queryType === QueryType.CMP_QUERY ?
+        this.view = queryType === QueryType.CMP_QUERY || queryType === QueryType.PREVIEW && queryMatches.length > 1 ?
             compareViewInit(this.dispatcher, ut, theme, this.model) :
             singleViewInit(this.dispatcher, ut, theme, this.model);
     }

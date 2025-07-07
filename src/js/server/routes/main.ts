@@ -49,7 +49,7 @@ import { attachNumericTileIdents } from '../../page/index.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { TileConf } from '../../page/tile.js';
-import { layoutConf, queriesConf, tileConf } from '../../conf/preview.js';
+import { layoutConf, queriesConf, generatePreviewTileConf } from '../../conf/preview.js';
 
 
 interface MkRuntimeClientConfArgs {
@@ -365,7 +365,7 @@ export function queryAction({
     next
 }:QueryActionArgs) {
     if (queryType === QueryType.PREVIEW) {
-        services.clientConf.tiles = tileConf;
+        services.clientConf.tiles = generatePreviewTileConf();
         services.clientConf.layouts = layoutConf;
     }
 
