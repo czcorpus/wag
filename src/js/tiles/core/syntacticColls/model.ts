@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionQueue } from 'kombo';
+import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
@@ -34,6 +34,9 @@ import {
     SCollsQueryType,
     SCollsRequest } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
+import { DeprelValue } from './deprel.js';
+import { IDataStreaming } from 'src/js/page/streaming.js';
+import { P } from 'pino';
 
 
 export interface SyntacticCollsModelArgs {
@@ -53,7 +56,10 @@ export interface SyntacticCollsModelState {
     tileId:number;
     isMobile:boolean;
     isAltViewMode:boolean;
+    isTweakMode:boolean;
     apiType:'default'|'wss';
+    deprelValues:Array<DeprelValue>;
+    srchWordDeprelFilter:string;
     error:string|null;
     widthFract:number;
     corpname:string;
@@ -116,39 +122,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                merge(...List.map(qType =>
-                    this.api.call(
-                        appServices.dataStreaming(),
-                        this.tileId,
-                        0,
-                        this.stateToArgs(state, qType)
-                    ),
-                    state.displayTypes,
-                )).subscribe({
-                    next: ([qType, data]) => {
-                        seDispatch<typeof Actions.TileDataLoaded>({
-                            name: Actions.TileDataLoaded.name,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: false,
-                                data,
-                                qType,
-                            }
-                        })
-                    },
-                    error: (error) => {
-                        seDispatch<typeof Actions.TileDataLoaded>({
-                            name: Actions.TileDataLoaded.name,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true,
-                                data: undefined,
-                                qType: undefined,
-                            },
-                            error,
-                        })
-                    },
-                });
+                this.reloadData(appServices.dataStreaming(), state, seDispatch);
             }
         );
 
@@ -250,6 +224,70 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             (state, action) => {},
             (state, action, seDispatch) => {},
         );
+
+        this.addActionSubtypeHandler(
+            Actions.SetSrchWordDeprelFilter,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.srchWordDeprelFilter = action.payload.value || null;
+                state.isTweakMode = false;
+            },
+            (state, action, seDispatch) => {
+                this.reloadData(appServices.dataStreaming().startNewSubgroup(this.tileId), state, seDispatch);
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableTileTweakMode,
+            action => action.payload.ident === this.tileId,
+            (state, action) => {
+                state.isTweakMode = true;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableTileTweakMode,
+            action => action.payload.ident === this.tileId,
+            (state, action) => {
+                state.isTweakMode = false;
+            }
+        );
+    }
+
+    private reloadData(streaming:IDataStreaming, state:SyntacticCollsModelState, seDispatch:SEDispatcher) {
+        merge(...List.map(qType =>
+            this.api.call(
+                streaming,
+                this.tileId,
+                0,
+                this.stateToArgs(state, qType)
+            ),
+            state.displayTypes,
+        )).subscribe({
+            next: ([qType, data]) => {
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: false,
+                        data,
+                        qType,
+                    }
+                })
+            },
+            error: (error) => {
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        data: undefined,
+                        qType: undefined,
+                    },
+                    error,
+                })
+            },
+        });
     }
 
 
@@ -259,6 +297,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         };
         if (state.queryMatch.upos.length > 0) {
             args['pos'] = state.queryMatch.upos[0].value;
+            args['deprel'] = state.srchWordDeprelFilter || undefined;
         }
         return {
             params: {

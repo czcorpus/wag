@@ -88,6 +88,7 @@ export interface SCollsRequest {
     },
     args:{
         w:string;
+        deprel?:string;
         pos?:string;
     }
 }

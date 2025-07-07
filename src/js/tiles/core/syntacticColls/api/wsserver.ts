@@ -75,14 +75,22 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
         queryIdx:number,
         request:SCollsRequest
     ):Observable<[SCollsQueryType, SCollsData]> {
-
-        const url = urlJoin(
-            this.apiURL,
-            'dataset',
-            request.params.corpname,
-            'collocations',
-            encodeURIComponent(request.args.w)
-        );
+        const url = request.args.deprel ?
+            urlJoin(
+                this.apiURL,
+                'dataset',
+                request.params.corpname,
+                'collocations',
+                encodeURIComponent(request.args.w),
+                request.args.deprel
+            ) :
+            urlJoin(
+                this.apiURL,
+                'dataset',
+                request.params.corpname,
+                'collocations',
+                encodeURIComponent(request.args.w)
+            );
 
         return (
             dataStreaming ?

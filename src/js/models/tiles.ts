@@ -395,6 +395,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     state.allTilesLoaded = true;
                     this.findEmptyGroups(state);
                 }
+                state.tweakActiveTiles = List.removeValue(action.payload.tileId, state.tweakActiveTiles);
                 state.numTileErrors = List.foldl(
                     (acc, v) => v.status === TileResultFlag.ERROR ? acc + 1 : acc,
                     0,
