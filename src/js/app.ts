@@ -178,7 +178,7 @@ export function createRootComponent({
         config.tiles,
         Dict.forEach(
             (tileConf, tileId) => {
-                const tile = factory(tileId, tileConf);
+                const tile = factory.create(tileId, tileConf);
                 attachTile({
                     data: tiles,
                     tileName: tileId,
