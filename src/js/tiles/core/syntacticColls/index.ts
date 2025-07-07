@@ -23,6 +23,7 @@ import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
+import { deprelValues } from './deprel.js';
 
 
 export interface SyntacticCollsTileConf extends TileConf {
@@ -51,6 +52,8 @@ export class SyntacticCollsTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly apiType:'default'|'wss';
+
     private view:TileComponent;
 
     constructor({
@@ -61,6 +64,7 @@ export class SyntacticCollsTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.apiType = conf.apiType;
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -75,6 +79,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
                 isAltViewMode: false,
+                isTweakMode: false,
                 tileId: tileId,
                 apiType: conf.apiType || 'default',
                 widthFract: widthFract,
@@ -84,7 +89,9 @@ export class SyntacticCollsTile implements ITileProvider {
                 data: {},
                 displayTypes: conf.displayTypes,
                 examplesCache: {},
-                exampleWindowData: undefined
+                exampleWindowData: undefined,
+                deprelValues,
+                srchWordDeprelFilter: ''
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
@@ -125,7 +132,7 @@ export class SyntacticCollsTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return this.apiType === 'wss';
     }
 
     supportsAltView():boolean {

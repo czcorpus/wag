@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { SyntacticCollsModel, SyntacticCollsModelState } from './model.js';
+import { SyntacticCollsModel } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
@@ -29,6 +29,8 @@ import { Dict, List, pipe } from 'cnc-tskit';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
 import { mkScollExampleLineHash, SCollsData, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api/scollex.js';
+import { DeprelValue } from './deprel.js';
+import { QueryMatch } from 'src/js/query/index.js';
 
 
 
@@ -100,6 +102,48 @@ export function init(
             </div>
         </S.Examples>
     );
+
+
+    // ---------------------- <Controls /> --------------------------------
+
+    const Controls:React.FC<{
+        tileId:number;
+        deprelValues:Array<DeprelValue>;
+        value:string;
+        queryMatch:QueryMatch;
+
+    }> = (props) => {
+
+        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            dispatcher.dispatch(
+                Actions.SetSrchWordDeprelFilter,
+                {
+                    value: evt.target.value,
+                    tileId: props.tileId
+                }
+            )
+        };
+
+        return (
+            <div>
+                <h3>Options</h3>
+                <form className="Controls cnc-form tile-tweak">
+                    <fieldset>
+                        <label>
+                            syntactic function of the word <strong>&quot;{props.queryMatch.word}&quot;</strong>:{'\u00a0'}
+                            <select value={props.value} onChange={handleChange}>
+                                <option value="">---</option>
+                                {List.map(
+                                    ([id, label,]) => <option value={id}>{id}</option>,
+                                    props.deprelValues
+                                )}
+                            </select>
+                        </label>
+                    </fieldset>
+                </form>
+            </div>
+        );
+    };
 
 
     // ---------------------- <ScollexTable /> ---------------------------
@@ -303,35 +347,45 @@ export function init(
                     hasData={true} sourceIdent={{corp: state.corpname}}
                     backlink={[]} supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <S.SyntacticColls>
-                    {(() => {
-                        if (state.isAltViewMode) {
-                            return (
-                                <div className="tables">
-                                    {List.map(qType => renderWordCloud(qType), state.displayTypes)}
-                                </div>
-                            );
+                {
+                    state.isTweakMode ?
+                        <div className="tweak-box">
+                            <Controls
+                                tileId={props.tileId}
+                                deprelValues={state.deprelValues}
+                                value={state.srchWordDeprelFilter}
+                                queryMatch={state.queryMatch} />
+                        </div> :
+                        <S.SyntacticColls>
+                            {(() => {
+                                if (state.isAltViewMode) {
+                                    return (
+                                        <div className="tables">
+                                            {List.map(qType => renderWordCloud(qType), state.displayTypes)}
+                                        </div>
+                                    );
 
-                        } else if (state.exampleWindowData) {
-                            return <Examples data={state.exampleWindowData} onClose={handleExamplesClick} />;
+                                } else if (state.exampleWindowData) {
+                                    return <Examples data={state.exampleWindowData} onClose={handleExamplesClick} />;
 
-                        } else {
-                            return (
-                                <div className="tables">
-                                    {List.map(
-                                        (qType, i) => state.apiType === 'default' ?
-                                            <ScollexTable key={`scollex:${qType}:${i}`}
-                                                tileId={props.tileId} qType={qType} data={state.data}
-                                                isMobile={props.isMobile} widthFract={props.widthFract} /> :
-                                            <WSSTable  key={`wss:${qType}:${i}`} tileId={props.tileId} qType={qType} data={state.data}
-                                                isMobile={props.isMobile} widthFract={props.widthFract} />,
-                                        state.displayTypes
-                                    )}
-                                </div>
-                            );
-                        }
-                    })()}
-                </S.SyntacticColls>
+                                } else {
+                                    return (
+                                        <div className="tables">
+                                            {List.map(
+                                                (qType, i) => state.apiType === 'default' ?
+                                                    <ScollexTable key={`scollex:${qType}:${i}`}
+                                                        tileId={props.tileId} qType={qType} data={state.data}
+                                                        isMobile={props.isMobile} widthFract={props.widthFract} /> :
+                                                    <WSSTable  key={`wss:${qType}:${i}`} tileId={props.tileId} qType={qType} data={state.data}
+                                                        isMobile={props.isMobile} widthFract={props.widthFract} />,
+                                                state.displayTypes
+                                            )}
+                                        </div>
+                                    );
+                                }
+                            })()}
+                        </S.SyntacticColls>
+                }
             </globalCompontents.TileWrapper>
         );
     }

@@ -51,4 +51,11 @@ export class Actions {
         name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'
     }
 
+    static SetSrchWordDeprelFilter:Action<{
+        tileId:number;
+        value:string;
+    }> = {
+        name: 'SYNTACTIC_COLLS_SET_SRCH_WORD_DEPREL_FILTER'
+    }
+
 }
