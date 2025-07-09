@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
-import { GroupLayoutConfig, LayoutsConfig } from './index.js';
-import { QueryType } from '../query/index.js';
+import { GroupLayoutConfig } from './index.js';
 
 
 export const queriesConf = [
@@ -33,7 +32,7 @@ const tileConf: {[name:string]:any} = {
             "cs-CZ": "Základní charakteristika",
             "en-US": "Basic characteristics"
         },
-        apiURL: "PREVIEW__wordFreq",
+        apiURL: "/PREVIEW__wordFreq",
         infoApiURL: "---",
         helpURL: "/wag/static/vendor/ucnk/tiles-help/single/WordFreqProfile.cs.html",
         corpname: "ksp_2",
@@ -44,7 +43,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__mergeCorpFreq: {
         tileType: "MergeCorpFreqTile",
         apiType: "mquery",
-        apiURL: "PREVIEW__mergeCorpFreq",
+        apiURL: "/PREVIEW__mergeCorpFreq",
         useDataStream: true,
         pixelsPerItem: 80,
         sources: [
@@ -80,7 +79,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__wordForms: {
         tileType: "WordFormsTile",
         apiType: "mquery",
-        apiURL: "PREVIEW__wordForms",
+        apiURL: "/PREVIEW__wordForms",
         useDataStream: true,
         label: {
             "cs-CZ": "Tvary",
@@ -95,7 +94,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__colloc: {
         tileType: "CollocTile",
         apiType: "default",
-        apiURL: "PREVIEW__colloc",
+        apiURL: "/PREVIEW__colloc",
         useDataStream: true,
         corpname: "syn2020",
         minFreq: 5,
@@ -121,13 +120,13 @@ const tileConf: {[name:string]:any} = {
             "tag",
             "ppTagset"
         ],
-        apiURL: "PREVIEW__concordance",
+        apiURL: "/PREVIEW__concordance",
         corpname: "syn2020",
     },
     PREVIEW__timeDistrib: {
         tileType: "TimeDistribTile",
         apiType: "mquery",
-        apiURL: "PREVIEW__timeDistrib",
+        apiURL: "/PREVIEW__timeDistrib",
         useDataStream: true,
         corpname: "syn2020",
         subcname: ["9eSmyKII"],
@@ -150,7 +149,7 @@ const tileConf: {[name:string]:any} = {
     },
     PREVIEW__freqBar: {
         tileType: "FreqBarTile",
-        apiURL: "PREVIEW__freqBar",
+        apiURL: "/PREVIEW__freqBar",
         useDataStream: true,
         corpname: "oral_v1",
         fcrit: "sp.gender 0",
@@ -174,7 +173,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__speeches: {
         tileType: "SpeechesTile",
         apiType: "mquery",
-        apiURL: "PREVIEW__speeches",
+        apiURL: "/PREVIEW__speeches",
         useDataStream: true,
 
         audioPlaybackUrl: "/kontext/audio",
@@ -192,7 +191,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__geoAreas: {
         tileType: "GeoAreasTile",
         apiType: "mquery",
-        apiURL: "PREVIEW__geoAreas",
+        apiURL: "/PREVIEW__geoAreas",
         useDataStream: true,
 
         helpURL: "/wag/static/help/czcorpus/missing.html",
@@ -226,13 +225,13 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__wordSim: {
         tileType: "WordSimTile",
         useDataStream: true,
-        apiURL: "PREVIEW__wordSim",
+        apiURL: "/PREVIEW__wordSim",
         maxResultItems: 20,
         minMatchFreq: 0,
     },
     PREVIEW__translations: {
         tileType: "TranslationsTile",
-        apiURL: "PREVIEW__translations",
+        apiURL: "/PREVIEW__translations",
         useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
@@ -250,7 +249,7 @@ const tileConf: {[name:string]:any} = {
     },
     PREVIEW__treqSubsets: {
         tileType: "TreqSubsetsTile",
-        apiURL: "PREVIEW__treqSubsets",
+        apiURL: "/PREVIEW__treqSubsets",
         useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
