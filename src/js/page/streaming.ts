@@ -441,8 +441,9 @@ export class DataStreamingPreview implements IDataStreaming {
         if (isOtherTileRequest(entry)) {
             return EMPTY;
         }
+        // we assume that the fake preview api URLs are always absolute
         const splitUrl = entry.url.split('/');
-        const tileId = splitUrl[0].endsWith('2') ? splitUrl[0].substring(0, entry.url.length - 1) : splitUrl[0];
+        const tileId = splitUrl[1].endsWith('2') ? splitUrl[1].substring(0, entry.url.length - 1) : splitUrl[1];
         const tileData = this.mockData[tileId];
         const queryIdx = (entry.queryIdx !== undefined) && (tileData.length > entry.queryIdx) ? entry.queryIdx : 0;
         return rxOf(tileData[queryIdx] as T);
