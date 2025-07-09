@@ -135,19 +135,14 @@ export class LayoutManager {
             } as LayoutOfQueryTypeTranslat;
 
         } else if (queryType === QueryType.PREVIEW) {
-            const single = importLayout(layouts.single, tileMap, appServices, 'global__single_word_sel');
-            const cmp = importLayout(layouts.cmp, tileMap, appServices, 'global__words_compare');
-            const translat = importLayout(layouts.translat, tileMap, appServices, 'global__word_translate');
             this.layout = {
-                mainPosAttr: single.mainPosAttr,
-                label: appServices.translate('global__preview_layout'),
-                groups: [
-                    ...single.groups,
-                    ...cmp.groups,
-                    ...translat.groups,
-                ],
-                targetLanguages: layouts.translat.targetLanguages || []
-            } as LayoutOfQueryTypeTranslat;
+                ...importLayout(
+                    layouts.preview,
+                    tileMap,
+                    appServices,
+                    'global__preview_layout'
+                )
+            }
         };
 
         this.validateLayout();

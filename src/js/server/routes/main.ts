@@ -49,7 +49,7 @@ import { attachNumericTileIdents } from '../../page/index.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { TileConf } from '../../page/tile.js';
-import { layoutConf, queriesConf, generatePreviewTileConf } from '../../conf/preview.js';
+import { queriesConf, previewLayoutConf } from '../../conf/preview.js';
 
 
 interface MkRuntimeClientConfArgs {
@@ -98,7 +98,7 @@ function filterTilesByQueryType(
 ):{[tileId:string]:TileConf} {
     return pipe(
         Object.entries(layouts),
-        List.filter(([qt, ]) => qt === qType || qType === QueryType.PREVIEW),
+        List.filter(([qt, ]) => qt === qType),
         List.flatMap(([, layout]) => layout.groups as Array<GroupLayoutConfig>),
         List.flatMap(x => typeof x !== 'string' ? x.tiles : []),
         List.map(x => tuple(x.tile, tiles[x.tile])),
@@ -119,7 +119,14 @@ export function mkRuntimeClientConf({
     queryType
 }:MkRuntimeClientConfArgs):Observable<ClientConf> {
 
-    const layouts = mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {});
+    const layouts:LayoutsConfig = {
+            ...mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
+            preview: {
+                groups: previewLayoutConf,
+                mainPosAttr: 'pos'
+            }
+    };
+
     const tiles = filterTilesByQueryType(
         layouts,
         typeof conf.tiles !== 'string' && !isTileDBConf(conf.tiles) ? conf.tiles : {},
@@ -184,7 +191,7 @@ export function mkRuntimeClientConf({
                 ),
                 dataStreamingUrl: conf.dataStreamingUrl,
                 tiles,
-                layouts: mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
+                layouts,
                 queryTypes: typeof conf.layouts !== 'string' ?
                     pipe(
                         [
