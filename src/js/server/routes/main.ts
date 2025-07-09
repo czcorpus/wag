@@ -157,12 +157,12 @@ export function mkRuntimeClientConf({
                 favicon: conf.favicon,
                 logo: {
                     url: appServices.importExternalMessage(conf.logo?.url),
-                    inlineStyle: conf.logo.inlineStyle || {},
+                    inlineStyle: conf.logo?.inlineStyle || {},
                     label: appServices.importExternalMessage(conf.logo?.label),
                     subWag: conf.logo?.subWag ?
                         {
                             url: appServices.importExternalMessage(conf.logo.subWag.url),
-                            inlineStyle: conf.logo.subWag.inlineStyle || {},
+                            inlineStyle: conf.logo.subWag?.inlineStyle || {},
                             label: appServices.importExternalMessage(conf.logo.subWag.label)
                         } :
                         undefined
@@ -364,11 +364,6 @@ export function queryAction({
     res,
     next
 }:QueryActionArgs) {
-    if (queryType === QueryType.PREVIEW) {
-        services.clientConf.tiles = generatePreviewTileConf();
-        services.clientConf.layouts = layoutConf;
-    }
-
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang, queryType);
     const freqDb = createInstance(

@@ -23,7 +23,7 @@ import path from 'path';
 import translations from 'translations';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Dict, Ident, tuple } from 'cnc-tskit';
+import { Dict, Ident, pipe, tuple } from 'cnc-tskit';
 import sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
@@ -40,6 +40,7 @@ import { createToolbarInstance } from './toolbar/factory.js';
 import { PackageInfo } from '../types.js';
 import { QueryActionWriter } from './actionLog/logWriter.js';
 import { initLogging } from './logging.js';
+import { generatePreviewTileConf } from '../conf/preview.js';
 
 
 /**
@@ -113,9 +114,12 @@ forkJoin([ // load core configs
         ]).pipe(
             map(
                 ([tiles, colors, dataReadability]) => {
-                    clientConf.tiles = Dict.filter(
-                        tile => !tile.isDisabled,
-                        tiles
+                    clientConf.tiles = pipe(
+                        tiles,
+                        Dict.filter(
+                            tile => !tile.isDisabled,
+                        ),
+                        curr => ({...curr, ...generatePreviewTileConf()})
                     );
                     clientConf.colors = colors;
                     clientConf.dataReadability = dataReadability;

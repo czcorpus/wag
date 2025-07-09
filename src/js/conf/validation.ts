@@ -39,39 +39,45 @@ export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
     let validationError = false;
     console.info('Validating tiles configuration...');
 
-    Dict.forEach((tileConf, tileName) => {
-        let configSchema:{};
-        const tileType = tileConf.tileType + '';
-        const folderName = tileType[0].toLowerCase() + tileType.slice(1).split('Tile')[0];
-        const confPath = path.resolve(CORE_TILES_ROOT_DIR, folderName, SCHEMA_FILENAME);
-        if (fs.existsSync(confPath)) {
-            configSchema = JSON.parse(fs.readFileSync(confPath, 'utf-8'));
-
-        } else {
-            const confPath = path.resolve(CUSTOM_TILES_ROOT_DIR, folderName, SCHEMA_FILENAME);
+    Dict.forEach(
+        (tileConf, tileName) => {
+            let configSchema:{};
+            const tileType = tileConf.tileType + '';
+            const folderName = tileType[0].toLowerCase() + tileType.slice(1).split('Tile')[0];
+            const confPath = path.resolve(CORE_TILES_ROOT_DIR, folderName, SCHEMA_FILENAME);
             if (fs.existsSync(confPath)) {
                 configSchema = JSON.parse(fs.readFileSync(confPath, 'utf-8'));
+
+            } else {
+                const confPath = path.resolve(CUSTOM_TILES_ROOT_DIR, folderName, SCHEMA_FILENAME);
+                if (fs.existsSync(confPath)) {
+                    configSchema = JSON.parse(fs.readFileSync(confPath, 'utf-8'));
+                }
             }
-        }
-        if (!configSchema) {
-            console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
-            console.info(`    \u25B6 schema "${tileType}" not found`);
-            validationError = true;
+            if (!configSchema) {
+                console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                console.info(`    \u25B6 schema "${tileType}" not found`);
+                validationError = true;
+                return;
+            }
+            const isPreviewTile = tileName.startsWith('PREVIEW__');
+            const isValid = validator.validate(configSchema, tileConf);
+            if (isValid && !isPreviewTile) {
+                console.info(`  ${tileName} [\x1b[32m OK \x1b[0m]`);
 
-        } else if (validator.validate(configSchema, tileConf)) {
-            console.info(`  ${tileName} [\x1b[32m OK \x1b[0m]`);
-
-        } else {
-            console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
-            List.forEach(
-                err => {
-                    console.error(`    \u25B6 ${err.message}`)
-                },
-                validator.errors
-            );
-            validationError = true;
-        }
-    }, tilesConf);
+            } else if (!isValid) {
+                console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                List.forEach(
+                    err => {
+                        console.error(`    \u25B6 ${err.message}`)
+                    },
+                    validator.errors
+                );
+                validationError = true;
+            }
+        },
+        tilesConf
+    );
     if (validationError) {
         return false;
     }
