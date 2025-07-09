@@ -27,7 +27,7 @@ export const queriesConf = [
 ]
 
 const tileConf: {[name:string]:any} = {
-    wordFreq: {
+    PREVIEW__wordFreq: {
         tileType: "WordFreqTile",
         label: {
             "cs-CZ": "Základní charakteristika",
@@ -41,7 +41,7 @@ const tileConf: {[name:string]:any} = {
         sfwRowRange: 7,
         useDataStream: true,
     },
-    mergeCorpFreq: {
+    PREVIEW__mergeCorpFreq: {
         tileType: "MergeCorpFreqTile",
         apiType: "mquery",
         apiURL: "---",
@@ -77,7 +77,7 @@ const tileConf: {[name:string]:any} = {
             "url": "---"
         },
     },
-    wordForms: {
+    PREVIEW__wordForms: {
         tileType: "WordFormsTile",
         apiType: "mquery",
         apiURL: "---",
@@ -92,7 +92,7 @@ const tileConf: {[name:string]:any} = {
         freqFilterAlphaLevel: "0.05",
         helpURL: "---",
     },
-    colloc: {
+    PREVIEW__colloc: {
         tileType: "CollocTile",
         apiType: "default",
         apiURL: "---",
@@ -107,13 +107,16 @@ const tileConf: {[name:string]:any} = {
             url: "---"
         }
     },
-    concordance: {
+    PREVIEW__concordance: {
         tileType: 'ConcordanceTile',
         label: {
             "cs-CZ": "Konkordance",
             "en-US": "Concordance"
         },
+        pageSize: 10,
+        posAttrs: ["word"],
         useDataStream: true,
+        sentenceStruct: "s",
         posQueryGenerator: [
             "tag",
             "ppTagset"
@@ -121,7 +124,7 @@ const tileConf: {[name:string]:any} = {
         apiURL: "---",
         corpname: "syn2020",
     },
-    timeDistrib: {
+    PREVIEW__timeDistrib: {
         tileType: "TimeDistribTile",
         apiType: "mquery",
         apiURL: "---",
@@ -145,7 +148,7 @@ const tileConf: {[name:string]:any} = {
             "url": "---"
         }
     },
-    freqBar: {
+    PREVIEW__freqBar: {
         tileType: "FreqBarTile",
         apiURL: "---",
         useDataStream: true,
@@ -168,7 +171,7 @@ const tileConf: {[name:string]:any} = {
             "url": "---"
         }
     },
-    speeches: {
+    PREVIEW__speeches: {
         tileType: "SpeechesTile",
         apiType: "mquery",
         apiURL: "---",
@@ -186,7 +189,7 @@ const tileConf: {[name:string]:any} = {
             "url": "---"
         }
     },
-    geoAreas: {
+    PREVIEW__geoAreas: {
         tileType: "GeoAreasTile",
         apiType: "mquery",
         apiURL: "---",
@@ -220,14 +223,14 @@ const tileConf: {[name:string]:any} = {
             "url": "---"
         }
     },
-    wordSim: {
+    PREVIEW__wordSim: {
         tileType: "WordSimTile",
         useDataStream: true,
         apiURL: "---",
         maxResultItems: 20,
         minMatchFreq: 0,
     },
-    translations: {
+    PREVIEW__translations: {
         tileType: "TranslationsTile",
         apiURL: "---",
         useDataStream: true,
@@ -245,7 +248,7 @@ const tileConf: {[name:string]:any} = {
             url: "---"
         },
     },
-    treqSubsets: {
+    PREVIEW__treqSubsets: {
         tileType: "TreqSubsetsTile",
         apiURL: "---",
         useDataStream: true,
@@ -288,26 +291,26 @@ export const layoutConf: LayoutsConfig = {
             {
                 groupLabel: "Frequency information",
                 tiles: [
-                    {tile: 'wordFreq', width: 1},
-                    {tile: 'mergeCorpFreq', width: 1},
-                    {tile: 'wordForms', width: 1},
+                    {tile: 'PREVIEW__wordFreq', width: 1},
+                    {tile: 'PREVIEW__mergeCorpFreq', width: 1},
+                    {tile: 'PREVIEW__wordForms', width: 1},
                 ]
             },
             {
                 groupLabel: "Written language",
                 tiles: [
-                    {tile: 'colloc', width: 1},
-                    {tile: 'concordance', width: 2},
-                    {tile: 'timeDistrib', width: 2},
-                    {tile: 'wordSim', width: 1},
+                    {tile: 'PREVIEW__colloc', width: 1},
+                    {tile: 'PREVIEW__concordance', width: 2},
+                    {tile: 'PREVIEW__timeDistrib', width: 2},
+                    {tile: 'PREVIEW__wordSim', width: 1},
                 ]
             },
             {
                 groupLabel: "Spoken language",
                 tiles: [
-                    {tile: 'freqBar', width: 3},
-                    {tile: 'speeches', width: 1},
-                    {tile: 'geoAreas', width: 2},
+                    {tile: 'PREVIEW__freqBar', width: 3},
+                    {tile: 'PREVIEW__speeches', width: 1},
+                    {tile: 'PREVIEW__geoAreas', width: 2},
                 ]
             },
         ],
@@ -318,13 +321,13 @@ export const layoutConf: LayoutsConfig = {
             {
                 groupLabel: "Comparison",
                 tiles: [
-                    {tile: 'wordFreq2', width: 1},
-                    {tile: 'mergeCorpFreq2', width: 1},
-                    {tile: 'freqBar2', width: 1},
-                    {tile: 'colloc2', width: 3},
-                    {tile: 'concordance2', width: 3},
-                    {tile: 'timeDistrib2', width: 3},
-                    {tile: 'geoAreas2', width: 3},
+                    {tile: 'PREVIEW__wordFreq2', width: 1},
+                    {tile: 'PREVIEW__mergeCorpFreq2', width: 1},
+                    {tile: 'PREVIEW__freqBar2', width: 1},
+                    {tile: 'PREVIEW__colloc2', width: 3},
+                    {tile: 'PREVIEW__concordance2', width: 3},
+                    {tile: 'PREVIEW__timeDistrib2', width: 3},
+                    {tile: 'PREVIEW__geoAreas2', width: 3},
                 ]
             }
         ],
@@ -341,8 +344,8 @@ export const layoutConf: LayoutsConfig = {
             {
                 groupLabel: "Translations",
                 tiles: [
-                    {tile: 'translations', width: 1},
-                    {tile: 'treqSubsets', width: 2},
+                    {tile: 'PREVIEW__translations', width: 1},
+                    {tile: 'PREVIEW__treqSubsets', width: 2},
                 ]
             },
         ],
@@ -369,7 +372,7 @@ export function prepareTileData(qType:QueryType):Array<Array<any>> {
 }
 
 const tileDataConf: {[key:string]:Array<any>} = {
-    wordFreq: [
+    PREVIEW__wordFreq: [
         {
             "matches": [
               {
@@ -1717,7 +1720,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
           ]
         }
     ],
-    mergeCorpFreq: [
+    PREVIEW__mergeCorpFreq: [
         {
             parts: [
                 {
@@ -1845,7 +1848,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
           ]
         },
     ],
-    wordForms: [
+    PREVIEW__wordForms: [
         [
             {
               "lemma": "hlava",
@@ -1921,7 +1924,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
             }
         ],
     ],
-    colloc: [
+    PREVIEW__colloc: [
         {
             "corpusSize": 121826797,
             "concSize": 0,
@@ -2112,7 +2115,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
           ]
         },
     ],
-    concordance: [
+    PREVIEW__concordance: [
         {
             "lines": [
               {
@@ -9413,7 +9416,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
           "resultType": "conc"
         },
     ],
-    timeDistrib: [
+    PREVIEW__timeDistrib: [
         {
             "entries": {
               "concSize": 72676,
@@ -9898,7 +9901,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
           "totalChunks": 3
         },
     ],
-    freqBar: [
+    PREVIEW__freqBar: [
       {
         "concSize": 1384,
         "corpusSize": 6361707,
@@ -9978,7 +9981,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
         "resultType": "freqs"
       },
     ],
-    speeches: [
+    PREVIEW__speeches: [
       {
         "context": {
           "text": [
@@ -10971,7 +10974,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
         "resultType": "tokenContext"
       }
     ],
-    geoAreas: [
+    PREVIEW__geoAreas: [
       {
         "concSize": 1384,
         "corpusSize": 6361707,
@@ -11231,7 +11234,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
         "resultType": "freqs"
       },
     ],
-    wordSim: [
+    PREVIEW__wordSim: [
       [
         {
           "word": "ruka",
@@ -11285,7 +11288,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
         }
       ],
     ],
-    translations: [
+    PREVIEW__translations: [
       {
         "sum": 35769,
         "lines": [
@@ -13527,7 +13530,7 @@ const tileDataConf: {[key:string]:Array<any>} = {
         "toCorp": "intercorp_v13_en"
       }
     ],
-    treqSubsets: [
+    PREVIEW__treqSubsets: [
       {
         "subsets": {
           "ACQUIS": {

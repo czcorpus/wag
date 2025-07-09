@@ -249,7 +249,7 @@ export function init(
                     <div className="logo-wrapper">
                         <a href={props.config.parentWagUrl ?  props.config.parentWagUrl : props.config.hostUrl} title={createLabel()}>
                             {props.config.logo?.url ?
-                                <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
+                                <img src={props.config.logo.url} alt="logo" style={props.config.logo?.inlineStyle} /> :
                                 <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
                             }
                         </a>
