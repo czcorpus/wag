@@ -429,16 +429,21 @@ export class DataStreaming implements IDataStreaming {
 
 }
 
-export class DataStreamingMock implements IDataStreaming {
+export class DataStreamingPreview implements IDataStreaming {
 
-    private readonly mockData:Array<Array<any>>;
+    private readonly mockData:{[key:string]:Array<any>};
 
-    constructor(mockData:Array<Array<any>>) {
+    constructor(mockData:{[key:string]:Array<any>}) {
         this.mockData = mockData;
     }
-        
+
     registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
-        const tileData = this.mockData[entry.tileId];
+        if (isOtherTileRequest(entry)) {
+            return EMPTY;
+        }
+        const splitUrl = entry.url.split('/');
+        const tileId = splitUrl[0].endsWith('2') ? splitUrl[0].substring(0, entry.url.length - 1) : splitUrl[0];
+        const tileData = this.mockData[tileId];
         const queryIdx = (entry.queryIdx !== undefined) && (tileData.length > entry.queryIdx) ? entry.queryIdx : 0;
         return rxOf(tileData[queryIdx] as T);
     }

@@ -145,6 +145,7 @@ export interface LayoutsConfig {
     single?:LayoutConfigSingleQuery;
     cmp?:LayoutConfigCmpQuery;
     translat?:LayoutConfigTranslatQuery;
+    preview?:LayoutConfigCommon;
 }
 
 export interface HomePageTileConfI18n {
@@ -339,7 +340,8 @@ export function mergeToEmptyLayoutConf(other:LayoutsConfig):LayoutsConfig {
     return {
         single: {...layout.single, ...other.single},
         cmp: {...layout.cmp, ...other.cmp},
-        translat: {...layout.translat, ...other.translat}
+        translat: {...layout.translat, ...other.translat},
+        preview: {...layout.preview, ...other.preview}
     };
 }
 

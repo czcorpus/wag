@@ -33,7 +33,7 @@ const tileConf: {[name:string]:any} = {
             "cs-CZ": "Základní charakteristika",
             "en-US": "Basic characteristics"
         },
-        apiURL: "---",
+        apiURL: "PREVIEW__wordFreq",
         infoApiURL: "---",
         helpURL: "/wag/static/vendor/ucnk/tiles-help/single/WordFreqProfile.cs.html",
         corpname: "ksp_2",
@@ -44,7 +44,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__mergeCorpFreq: {
         tileType: "MergeCorpFreqTile",
         apiType: "mquery",
-        apiURL: "---",
+        apiURL: "PREVIEW__mergeCorpFreq",
         useDataStream: true,
         pixelsPerItem: 80,
         sources: [
@@ -80,7 +80,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__wordForms: {
         tileType: "WordFormsTile",
         apiType: "mquery",
-        apiURL: "---",
+        apiURL: "PREVIEW__wordForms",
         useDataStream: true,
         label: {
             "cs-CZ": "Tvary",
@@ -95,7 +95,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__colloc: {
         tileType: "CollocTile",
         apiType: "default",
-        apiURL: "---",
+        apiURL: "PREVIEW__colloc",
         useDataStream: true,
         corpname: "syn2020",
         minFreq: 5,
@@ -121,13 +121,13 @@ const tileConf: {[name:string]:any} = {
             "tag",
             "ppTagset"
         ],
-        apiURL: "---",
+        apiURL: "PREVIEW__concordance",
         corpname: "syn2020",
     },
     PREVIEW__timeDistrib: {
         tileType: "TimeDistribTile",
         apiType: "mquery",
-        apiURL: "---",
+        apiURL: "PREVIEW__timeDistrib",
         useDataStream: true,
         corpname: "syn2020",
         subcname: ["9eSmyKII"],
@@ -150,7 +150,7 @@ const tileConf: {[name:string]:any} = {
     },
     PREVIEW__freqBar: {
         tileType: "FreqBarTile",
-        apiURL: "---",
+        apiURL: "PREVIEW__freqBar",
         useDataStream: true,
         corpname: "oral_v1",
         fcrit: "sp.gender 0",
@@ -174,7 +174,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__speeches: {
         tileType: "SpeechesTile",
         apiType: "mquery",
-        apiURL: "---",
+        apiURL: "PREVIEW__speeches",
         useDataStream: true,
 
         audioPlaybackUrl: "/kontext/audio",
@@ -192,7 +192,7 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__geoAreas: {
         tileType: "GeoAreasTile",
         apiType: "mquery",
-        apiURL: "---",
+        apiURL: "PREVIEW__geoAreas",
         useDataStream: true,
 
         helpURL: "/wag/static/help/czcorpus/missing.html",
@@ -226,13 +226,13 @@ const tileConf: {[name:string]:any} = {
     PREVIEW__wordSim: {
         tileType: "WordSimTile",
         useDataStream: true,
-        apiURL: "---",
+        apiURL: "PREVIEW__wordSim",
         maxResultItems: 20,
         minMatchFreq: 0,
     },
     PREVIEW__translations: {
         tileType: "TranslationsTile",
-        apiURL: "---",
+        apiURL: "PREVIEW__translations",
         useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
@@ -250,7 +250,7 @@ const tileConf: {[name:string]:any} = {
     },
     PREVIEW__treqSubsets: {
         tileType: "TreqSubsetsTile",
-        apiURL: "---",
+        apiURL: "PREVIEW__treqSubsets",
         useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
@@ -285,93 +285,58 @@ export function generatePreviewTileConf() {
   )
 }
 
-export const layoutConf: LayoutsConfig = {
-    single: {
-        groups: [
-            {
-                groupLabel: "Frequency information",
-                tiles: [
-                    {tile: 'PREVIEW__wordFreq', width: 1},
-                    {tile: 'PREVIEW__mergeCorpFreq', width: 1},
-                    {tile: 'PREVIEW__wordForms', width: 1},
-                ]
-            },
-            {
-                groupLabel: "Written language",
-                tiles: [
-                    {tile: 'PREVIEW__colloc', width: 1},
-                    {tile: 'PREVIEW__concordance', width: 2},
-                    {tile: 'PREVIEW__timeDistrib', width: 2},
-                    {tile: 'PREVIEW__wordSim', width: 1},
-                ]
-            },
-            {
-                groupLabel: "Spoken language",
-                tiles: [
-                    {tile: 'PREVIEW__freqBar', width: 3},
-                    {tile: 'PREVIEW__speeches', width: 1},
-                    {tile: 'PREVIEW__geoAreas', width: 2},
-                ]
-            },
-        ],
-        mainPosAttr: 'pos',
-    },
-    cmp: {
-        groups: [
-            {
-                groupLabel: "Comparison",
-                tiles: [
-                    {tile: 'PREVIEW__wordFreq2', width: 1},
-                    {tile: 'PREVIEW__mergeCorpFreq2', width: 1},
-                    {tile: 'PREVIEW__freqBar2', width: 1},
-                    {tile: 'PREVIEW__colloc2', width: 3},
-                    {tile: 'PREVIEW__concordance2', width: 3},
-                    {tile: 'PREVIEW__timeDistrib2', width: 3},
-                    {tile: 'PREVIEW__geoAreas2', width: 3},
-                ]
-            }
-        ],
-        mainPosAttr: 'pos',
-    },
-    translat: {
-        targetLanguages: [
-            {
-                code: "en",
-                label: "English",
-            }
-        ],
-        groups: [
-            {
-                groupLabel: "Translations",
-                tiles: [
-                    {tile: 'PREVIEW__translations', width: 1},
-                    {tile: 'PREVIEW__treqSubsets', width: 2},
-                ]
-            },
-        ],
-        mainPosAttr: 'pos',
-    }
-};
+export const previewLayoutConf:Array<GroupLayoutConfig> = [
+  {
+      groupLabel: "Frequency information",
+      tiles: [
+          {tile: 'PREVIEW__wordFreq', width: 1},
+          {tile: 'PREVIEW__mergeCorpFreq', width: 1},
+          {tile: 'PREVIEW__wordForms', width: 1},
+      ]
+  },
+  {
+      groupLabel: "Written language",
+      tiles: [
+          {tile: 'PREVIEW__colloc', width: 1},
+          {tile: 'PREVIEW__concordance', width: 2},
+          {tile: 'PREVIEW__timeDistrib', width: 2},
+          {tile: 'PREVIEW__wordSim', width: 1},
+      ]
+  },
+  {
+      groupLabel: "Spoken language",
+      tiles: [
+          {tile: 'PREVIEW__freqBar', width: 3},
+          {tile: 'PREVIEW__speeches', width: 1},
+          {tile: 'PREVIEW__geoAreas', width: 2},
+      ]
+  },
+  {
+      groupLabel: "Comparison",
+      tiles: [
+          {tile: 'PREVIEW__wordFreq2', width: 1},
+          {tile: 'PREVIEW__mergeCorpFreq2', width: 1},
+          {tile: 'PREVIEW__freqBar2', width: 1},
+          {tile: 'PREVIEW__colloc2', width: 3},
+          {tile: 'PREVIEW__concordance2', width: 3},
+          {tile: 'PREVIEW__timeDistrib2', width: 3},
+          {tile: 'PREVIEW__geoAreas2', width: 3},
+      ]
+  },
+  {
+      groupLabel: "Translations",
+      tiles: [
+          {tile: 'PREVIEW__translations', width: 1},
+          {tile: 'PREVIEW__treqSubsets', width: 2},
+      ]
+  },
+];
 
-export function prepareTileData(qType:QueryType):Array<Array<any>> {
-  return pipe(
-    Object.entries(layoutConf),
-    List.filter(([qt, ]) => qt === qType || qType === QueryType.PREVIEW),
-    List.flatMap(([, layout]) => layout.groups as Array<GroupLayoutConfig>),
-    List.flatMap(v => v.tiles),
-    List.map(v => {
-      if (tileDataConf[v.tile]) {
-        return tileDataConf[v.tile];
-
-      } else if (/^.+2/.test(v.tile)) { // these are 2nd variants of preview tiles (for tiles supporting both single and cmp)
-        return tileDataConf[v.tile.substring(0, v.tile.length - 1)];
-      }
-
-    }),
-  );
+export function prepareTileData():{[key:string]:Array<any>} {
+  return tileDataConf;
 }
 
-const tileDataConf: {[key:string]:Array<any>} = {
+const tileDataConf:{[key:string]:Array<any>} = {
     PREVIEW__wordFreq: [
         {
             "matches": [
