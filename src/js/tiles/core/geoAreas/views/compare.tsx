@@ -250,7 +250,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const minIpmNorm = Math.min(...Dict.toEntries(groupedAreaIpmNorms).map(([, v]) => v));
 
         // clear possible previous labels
-        document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
+        document.querySelectorAll(`section#tile-${tileId} .svg-graph-p  g.label-mount`).forEach(elm => {
             while (elm.firstChild) {
                 elm.removeChild(elm.firstChild);
             }
@@ -259,7 +259,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         // insert data
         Dict.forEach(
             (areaIdent, areaName) => {
-                const element = document.getElementById(`${areaIdent}-g`);
+                const element = document.querySelector(`section#tile-${tileId} .svg-graph-p .${areaIdent}-g`);
                 if (element) {
                     let pieChart, areaIpmNorm, scale;
                     const areaData = groupedAreaData[areaName]
@@ -319,7 +319,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
 
         // insert legend
-        const legendHolder = document.querySelector('#legend-g');
+        const legendHolder = document.querySelector(`section#tile-${tileId} .svg-graph-p .legend-g`);
         createSVGLegend(legendHolder, currentQueryMatches);
     }
 
