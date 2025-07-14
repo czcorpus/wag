@@ -79,7 +79,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const mkSize = (v:number) => a * v + b;
 
         // clear possible previous labels
-        document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
+        document.querySelectorAll(`section#tile-${tileId} .svg-graph-p g.label-mount`).forEach(elm => {
             while (elm.firstChild) {
                 elm.removeChild(elm.firstChild);
             }
@@ -87,7 +87,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         // insert data
         Dict.forEach((areaIdent, areaName) => {
-            const elm = document.getElementById(`${areaIdent}-g`);
+            const elm = document.querySelector(`section#tile-${tileId} .svg-graph-p .${areaIdent}-g`);
             if (elm) {
                 let label;
                 const areaIndex = List.findIndex((v, i) => v.name === areaName, props.data[0]);

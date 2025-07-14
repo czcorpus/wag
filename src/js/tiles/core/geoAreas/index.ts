@@ -68,7 +68,6 @@ export class GeoAreasTile implements ITileProvider {
         tileId, dispatcher, appServices, ut, theme,
         widthFract, conf, isBusy, queryMatches, queryType,
     }:TileFactoryArgs<GeoAreasTileConf>) {
-
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;

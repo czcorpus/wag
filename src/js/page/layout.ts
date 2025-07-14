@@ -141,8 +141,9 @@ export class LayoutManager {
                     tileMap,
                     appServices,
                     'global__preview_layout'
-                )
-            }
+                ),
+                targetLanguages: layouts.preview.targetLanguages || []
+            } as LayoutOfQueryTypeTranslat
         };
 
         this.validateLayout();

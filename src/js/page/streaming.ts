@@ -450,7 +450,7 @@ export class DataStreamingPreview implements IDataStreaming {
     }
 
     getId(): string {
-        return "mock";
+        return 'mock';
     }
 
     startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming {
