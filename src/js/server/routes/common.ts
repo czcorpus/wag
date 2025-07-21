@@ -36,7 +36,6 @@ import { TileGroup } from '../../page/layout.js';
 import { DataStreaming, DataStreamingPreview } from '../../page/streaming.js';
 import { ServerNotifications } from '../../page/notifications.js';
 import { Observable } from 'rxjs';
-import { prepareTileData } from '../../conf/preview.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -139,7 +138,7 @@ export function createHelperServices(services:Services, uiLang:string, queryType
                 (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
     });
     const streaming = queryType === QueryType.PREVIEW ?
-        new DataStreamingPreview(prepareTileData()) :
+        new DataStreamingPreview() :
         new DataStreaming(null, [], undefined, 1000, undefined);
 
     return [

@@ -40,7 +40,6 @@ import { TileConf } from './tile.js';
 import { DataStreaming, IDataStreaming, DataStreamingPreview } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
 import { DataApi } from '../types.js';
-import { prepareTileData } from '../conf/preview.js';
 
 
 interface MountArgs {
@@ -152,7 +151,7 @@ export function initClient(
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming = userSession.queryType === QueryType.PREVIEW ?
-        new DataStreamingPreview(prepareTileData()) :
+        new DataStreamingPreview() :
         new DataStreaming(
             null,
             pipe(

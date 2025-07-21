@@ -103,7 +103,7 @@ export default (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: (chunk) => chunk.name !== 'sanitize-html',
+            chunks: (chunk) => chunk.name !== 'sanitize-html' && chunk.name !== 'previewData',
             name: 'common'
         },
         minimizer: [] // no big deal on server-side (code is loaded once)

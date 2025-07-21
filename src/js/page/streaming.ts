@@ -431,12 +431,6 @@ export class DataStreaming implements IDataStreaming {
 
 export class DataStreamingPreview implements IDataStreaming {
 
-    private readonly mockData:{[key:string]:Array<any>};
-
-    constructor(mockData:{[key:string]:Array<any>}) {
-        this.mockData = mockData;
-    }
-
     registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
         if (isOtherTileRequest(entry)) {
             return EMPTY;
@@ -444,9 +438,17 @@ export class DataStreamingPreview implements IDataStreaming {
         // we assume that the fake preview api URLs are always absolute
         const splitUrl = entry.url.split('/');
         const tileId = splitUrl[1].endsWith('2') ? splitUrl[1].substring(0, entry.url.length - 1) : splitUrl[1];
-        const tileData = this.mockData[tileId];
-        const queryIdx = (entry.queryIdx !== undefined) && (tileData.length > entry.queryIdx) ? entry.queryIdx : 0;
-        return rxOf(tileData[queryIdx] as T);
+        return new Observable<T>(observer => {
+            import(/* webpackChunkName: "previewData" */ '../conf/previewData.js').then(module => {
+                const tileData = module.loadTileData(tileId, entry.queryIdx);
+                if (tileData) {
+                    observer.next(tileData as T);
+                } else {
+                    observer.error(new Error(`No preview data for tile ${tileId} and query index ${entry.queryIdx}`));
+                }
+                observer.complete();           
+            });
+        });
     }
 
     getId(): string {
