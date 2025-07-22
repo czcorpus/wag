@@ -110,7 +110,7 @@ export default (env) => ({
             publicPath: (CONF.develServer || {}).urlRootPath + 'dist/'
         },
         client: {
-            webSocketURL: 'ws://wag.korpus.test/ws', // TODO configurable
+            webSocketURL: (CONF.develServer || {}).webSocketURL || 'ws://wag.korpus.test/ws',
         },
         headers: {
             "Access-Control-Allow-Origin": "*",
