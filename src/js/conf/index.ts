@@ -141,11 +141,15 @@ export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
     targetLanguages:Array<TranslatLanguage>;
 }
 
+export interface LayoutConfigPreviewQuery extends LayoutConfigCommon {
+    targetLanguages:Array<TranslatLanguage>;
+}
+
 export interface LayoutsConfig {
     single?:LayoutConfigSingleQuery;
     cmp?:LayoutConfigCmpQuery;
     translat?:LayoutConfigTranslatQuery;
-    preview?:LayoutConfigCommon;
+    preview?:LayoutConfigPreviewQuery;
 }
 
 export interface HomePageTileConfI18n {

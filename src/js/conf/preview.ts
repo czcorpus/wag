@@ -17,6 +17,7 @@
  */
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { GroupLayoutConfig } from './index.js';
+import { TileConf } from '../page/tile.js';
 
 
 export const queriesConf = [
@@ -25,7 +26,7 @@ export const queriesConf = [
   {word: 'noha', lemma: 'noha', pos: ['N']},
 ]
 
-const tileConf: {[name:string]:any} = {
+const tileConf: {[name:string]:AnyPreviewTileConf} = {
     PREVIEW__wordFreq: {
         tileType: "WordFreqTile",
         label: {
@@ -132,7 +133,6 @@ const tileConf: {[name:string]:any} = {
         subcname: ["9eSmyKII"],
         showMeasuredFreq: true,
         posQueryGenerator: ["tag", "ppTagset"],
-        waitForTimeoutSecs: 10,
         helpURL: "anything",
         subcBacklinkLabel: {
             "9eSmyKII": "pub"
@@ -267,6 +267,55 @@ const tileConf: {[name:string]:any} = {
 };
 
 /**
+ * AnyPreviewTileConf is a mix of all the preview mode tiles' configs.
+ */
+interface AnyPreviewTileConf extends TileConf {
+  apiURL:string;
+  infoApiURL?:string;
+  apiType?:string;
+  corpname?:string;
+  corpName?:string;
+  sentenceStruct?:string;
+  subcname?:unknown;
+  subcorpName?:string;
+  matchCase?:boolean;
+  pixelsPerItem?:number;
+  primaryPackage?:string;
+  srchPackages?:unknown;
+  maxResultItems?:number;
+  subcBacklinkLabel?:unknown;
+  freqType?:string;
+  frequencyDisplayLimit?:number;
+  minMatchFreq?:number;
+  fcrit?:string;
+  audioPlaybackUrl?:string;
+  flimit?:number;
+  fpage?:number;
+  speakerIdAttr?:unknown;
+  speechSegment?:unknown;
+  speechOverlapAttr?:unknown;
+  speechOverlapVal?:string;
+  posQueryGenerator?:unknown;
+  freqSort?:string;
+  fttIncludeEmpty?:boolean;
+  areaCodeMapping?:unknown;
+  showMeasuredFreq?:boolean;
+  pageSize?:number;
+  minFreq?:number;
+  fromYear?:number;
+  toYear?:number;
+  posAttrs?:Array<string>;
+  maxItems?:number;
+  minLocalFreq?:number;
+  maxNumItems?:number;
+  rangeSize?:number;
+  corpusSize?:number;
+  sources?:unknown;
+  freqFilterAlphaLevel?:string;
+  sfwRowRange?:unknown;
+}
+
+/**
  * Create tile configurations for the preview mode. Data that is
  * taken from a hardcoded configuration structure which extended
  * in a way that each tile (e.g. FooTile => {... conf ...}) is entered
@@ -274,11 +323,14 @@ const tileConf: {[name:string]:any} = {
  * allows for using cmp+single supporting tiles in both modes on the same page
  * (with additional tricks performed by tile factory - see mkTileFactory() in tileLoader.ts)
  */
-export function generatePreviewTileConf() {
+export function generatePreviewTileConf():{[name:string]:AnyPreviewTileConf} {
   return pipe(
     tileConf,
     Dict.toEntries(),
-    List.map(([k, v]) => [ tuple(k, v), tuple(k+'2', v)]),
+    List.map(([k, v]) => [
+      tuple(k, v),
+      tuple(k+'2', v)
+    ]),
     List.flatMap(v => v),
     Dict.fromEntries()
   )

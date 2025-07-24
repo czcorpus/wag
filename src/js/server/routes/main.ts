@@ -123,7 +123,10 @@ export function mkRuntimeClientConf({
             ...mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
             preview: {
                 groups: previewLayoutConf,
-                mainPosAttr: 'pos'
+                mainPosAttr: 'pos',
+                targetLanguages: [
+                    { code: "en", label: "English" }
+                ]
             }
     };
 
@@ -232,7 +235,16 @@ interface ImportQueryReqArgs {
     answerMode:boolean;
 }
 
-function determineTranslatLang(req:Request, layoutsConf:LayoutsConfig) {
+function determineTranslatLang(req:Request, queryType:QueryType, layoutsConf:LayoutsConfig):string|undefined {
+    if (queryType === QueryType.CMP_QUERY || queryType === QueryType.SINGLE_QUERY) {
+        return undefined;
+    }
+    console.log('>>>>>> layoutsConf.preview: ', layoutsConf.preview)
+    if (queryType === QueryType.PREVIEW) {
+        // the preview mode has target languages hardcoded,
+        // so we can be pretty sure about len > 0
+        return layoutsConf.preview.targetLanguages[0].code;
+    }
     if (req.params['lang']) {
         return req.params['lang'];
     }
@@ -240,8 +252,8 @@ function determineTranslatLang(req:Request, layoutsConf:LayoutsConfig) {
         return req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME];
     }
     if (Array.isArray(layoutsConf.translat.targetLanguages) &&
-            layoutsConf.translat.targetLanguages.length > 0) {
-        return layoutsConf.translat.targetLanguages[0].code;
+        layoutsConf.translat.targetLanguages.length > 0) {
+            return layoutsConf.translat.targetLanguages[0].code;
     }
     return undefined;
 }
@@ -290,10 +302,7 @@ export function importQueryRequest({
                 applicationId: services.clientConf.applicationId,
                 uiLang,
                 uiLanguages: services.serverConf.languages,
-                translatLanguage: determineTranslatLang(
-                    req,
-                    typeof layouts === 'string' ? {} : layouts
-                ),
+                translatLanguage: undefined, // here we cannot determine the language yet!
                 queryType,
                 queries: queryType === QueryType.PREVIEW ?
                     queriesConf :
@@ -398,6 +407,11 @@ export function queryAction({
         ),
         map(
             ([runtimeConf, userConf]) => {
+                userConf.translatLanguage = determineTranslatLang(
+                    req,
+                    queryType,
+                    runtimeConf.layouts
+                );
                 const lm = new LayoutManager(
                     runtimeConf.layouts,
                     attachNumericTileIdents(runtimeConf.tiles),
