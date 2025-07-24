@@ -155,7 +155,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
             <ThemeMenu returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
             <section className="project-info">
                 <span className="copy">
-                    &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
+                    &copy; <a href="https://ul.ff.cuni.cz/" target="_blank" rel="noopener">
                         {ut.translate('global__institute_cnc')}
                         </a>
                 </span>
