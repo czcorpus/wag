@@ -503,8 +503,10 @@ export interface ServerConf {
     distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
     languages:{[code:string]:string};
     develServer:{
+        host:string;
         port:number;
         urlRootPath:string;
+        webSocketURL?:string;
     };
     freqDB:WordDbConf;
     logQueue?:LogQueueConf;

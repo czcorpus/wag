@@ -156,14 +156,21 @@
         },
         "develServer": {
             "properties": {
+                "host": {
+                    "type": "string"
+                },
                 "port": {
                     "type": "number"
                 },
                 "urlRootPath": {
                     "type": "string"
+                },
+                "webSocketURL": {
+                    "type": "string"
                 }
             },
             "required": [
+                "host",
                 "port",
                 "urlRootPath"
             ],

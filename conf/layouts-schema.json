@@ -103,6 +103,74 @@
             ],
             "type": "object"
         },
+        "LayoutConfigPreviewQuery": {
+            "properties": {
+                "groups": {
+                    "items": {
+                        "$ref": "#/definitions/GroupLayoutConfig"
+                    },
+                    "type": "array"
+                },
+                "insertAfter": {
+                    "additionalProperties": {
+                        "items": {
+                            "properties": {
+                                "tile": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "tile",
+                                "width"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "mainPosAttr": {
+                    "$ref": "#/definitions/MainPosAttrValues"
+                },
+                "replace": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "targetLanguages": {
+                    "items": {
+                        "$ref": "#/definitions/TranslatLanguage"
+                    },
+                    "type": "array"
+                },
+                "useLayout": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "groups",
+                "mainPosAttr",
+                "targetLanguages"
+            ],
+            "type": "object"
+        },
         "LayoutConfigSingleQuery": {
             "properties": {
                 "groups": {
@@ -279,6 +347,9 @@
     "properties": {
         "cmp": {
             "$ref": "#/definitions/LayoutConfigCmpQuery"
+        },
+        "preview": {
+            "$ref": "#/definitions/LayoutConfigPreviewQuery"
         },
         "single": {
             "$ref": "#/definitions/LayoutConfigSingleQuery"
