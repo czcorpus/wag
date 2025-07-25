@@ -95,7 +95,7 @@ export default (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: (chunk) => chunk.name !== 'sanitize-html',
+            chunks: (chunk) => chunk.name !== 'sanitize-html' && chunk.name !== 'previewData',
             name: 'common'
         },
     },
@@ -110,7 +110,7 @@ export default (env) => ({
             publicPath: (CONF.develServer || {}).urlRootPath + 'dist/'
         },
         client: {
-            webSocketURL: 'ws://wag.korpus.test/ws', // TODO configurable
+            webSocketURL: (CONF.develServer || {}).webSocketURL || 'ws://wag.korpus.test/ws',
         },
         headers: {
             "Access-Control-Allow-Origin": "*",
@@ -120,4 +120,4 @@ export default (env) => ({
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
     ]
- });
+});
