@@ -281,8 +281,8 @@ export function init(
                                                             <span className="arrows">{'\u2192'}</span>
                                                             {row.mutualDist > 1 ?
                                                                 <>
-                                                                    <span className="arrows">{'\u2192'}</span>
                                                                     {'\u25EF'}
+                                                                    <span className="arrows">{'\u2192'}</span>
                                                                 </> :
                                                                 null
                                                             }
