@@ -16,6 +16,13 @@
  * limitations under the License.
  */
 /// <reference path="../translations.d.ts" />
+
+// Fix webpack public path for dynamic imports when distFilesUrl is not configured
+declare var __webpack_public_path__: string;
+if (typeof __webpack_public_path__ !== 'undefined' && __webpack_public_path__ === '/') {
+    __webpack_public_path__ = '/dist/';
+}
+
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
