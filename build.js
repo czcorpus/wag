@@ -73,8 +73,9 @@ export class ProcTranslationsPlugin {
     }
 
     apply(compiler) {
+        const tmpJsDir = path.resolve(this._distPath, '.compiled');
+
         compiler.hooks.afterPlugins.tap('ProcTranslationsPlugin', (compilation) => {
-            const tmpJsDir = path.resolve(this._distPath, '.compiled');
             if (fs.existsSync(tmpJsDir)) {
                 fs.readdirSync(tmpJsDir).forEach(item => {
                     try {
@@ -96,6 +97,21 @@ export class ProcTranslationsPlugin {
             Object.keys(compiler.options.resolve.alias).forEach(item => {
                 console.log("\x1b[32m", item, "\x1b[0m", '\u21D2', compiler.options.resolve.alias[item]);
             });
+        });
+
+        // Cleanup phase - remove temp directory after compilation
+        compiler.hooks.afterEmit.tap('ProcTranslationsPlugin', (compilation) => {
+            if (fs.existsSync(tmpJsDir)) {
+                try {
+                    fs.readdirSync(tmpJsDir).forEach(item => {
+                        fs.unlinkSync(path.resolve(tmpJsDir, item));
+                    });
+                    fs.rmdirSync(tmpJsDir);
+                    console.log("\x1b[33m", 'Cleaned up temporary directory:', tmpJsDir, "\x1b[0m");
+                } catch (err) {
+                    console.log('Error cleaning up temp directory:', err);
+                }
+            }
         });
     }
 }
