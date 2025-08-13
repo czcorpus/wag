@@ -4,6 +4,9 @@
         {
             "themeId": "cnc-default",
             "themeLabel": "CNC default",
+            "colorLightText": "#9a9a9a",
+            "colorSecondaryText": "#444444",
+            "colorInvertedSecondaryText": "#565656",
             "lineChartColor1": "#009ee0",
             "lineConfidenceAreaColor1": "#ddedf3",
             "lineChartColor2": "#E2007A",
@@ -47,16 +50,68 @@
            "geoAreaSpotTextColor": "#FFFFFF"
         },
         {
-            "themeId": "cvd",
-            "themeLabel": "Color vision deficiency",
+            "themeId": "cnc-dark",
+            "themeLabel": "CNC dark",
+            "colorLogoBlue": "#DD6644",
+            "colorDefaultText": "#ddddee",
+            "colorInvertedSecondaryText": "#333333",
+            "defaultFontFamily": "Monospace",
+            "pageBackgroundColor": "#333355",
+            "tileBackgroundColor": "RGB(30, 30, 30, 0.7)",
+            "svgIconsFilter": "filter: hue-rotate(-172deg) brightness(103%) contrast(101%)",
+
+
+            "lineChartColor1": "#009ee0",
+            "lineConfidenceAreaColor1": "#ddedf3",
+            "lineChartColor2": "#E2007A",
+            "lineConfidenceAreaColor2": "#eed4e2",
             "cmpCategory": [
-                "#F4917C",
-                "#EF8FA7",
-                "#C79DCD",
-                "#81B0DA",
-                "#32BCC2",
-                "#41C090",
-                "#84BA57"
+                "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
+            ],
+            "category": [
+                "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
+            ],
+            "categoryOther": "#494949",
+            "scale": [
+                "#009EE0",
+                "#66C5EC",
+                "#A93F9F",
+                "#D49FCF",
+                "#EA9358",
+                "#F5C9AB",
+                "#A5A94B",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5"
+            ],
+            "geoAreaSpotFillColor": "#009ee0",
+            "geoAreaSpotTextColor": "#FFFFFF"
+        },
+        {
+            "themeId": "dynamic",
+            "themeLabel": "Dynamic",
+            "lineChartColor1": "#009ee0",
+            "lineConfidenceAreaColor1": "#84c5e0",
+            "lineChartColor2": "#94a3ff",
+            "lineConfidenceAreaColor2": "#bbade8",
+            "cmpCategory": [
+                "#60CFFF"
             ],
             "category": [
                 "#60CFFF",
@@ -83,14 +138,17 @@
                 "#FFC584",
                 "#FFC584"
            ],
-           "geoAreaSpotFillColor": "#009ee0",
-           "geoAreaSpotTextColor": "#FFFFFF"
+           "geoAreaSpotFillColor": "#009ee0"
         },
         {
-            "themeId": "dynamic",
-            "themeLabel": "Dynamic",
+            "themeId": "auto-color",
+            "themeLabel": "Auto color",
+            "lineChartColor1": "#009ee0",
+            "lineConfidenceAreaColor1": "#84c5e0",
+            "lineChartColor2": "#94a3ff",
+            "lineConfidenceAreaColor2": "#bbade8",
             "cmpCategory": [
-                "#60CFFF"
+                "#F8766D"
             ],
             "category": [
                 "#60CFFF",
