@@ -118,6 +118,6 @@ export default (env) => ({
         liveReload: false
     },
     plugins: [
-        new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
+        new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF, {cleanupTempDir: false})
     ]
 });

@@ -66,10 +66,11 @@ function validateLanguageCodes(codeList) {
 
 export class ProcTranslationsPlugin {
 
-    constructor(srcPath, distPath, conf) {
+    constructor(srcPath, distPath, conf, options = {}) {
         this._srcPath = srcPath;
         this._distPath = distPath;
-        this._conf = conf
+        this._conf = conf;
+        this._cleanupTempDir = options.cleanupTempDir !== false;
     }
 
     apply(compiler) {
@@ -99,20 +100,22 @@ export class ProcTranslationsPlugin {
             });
         });
 
-        // Cleanup phase - remove temp directory after compilation
-        compiler.hooks.afterEmit.tap('ProcTranslationsPlugin', (compilation) => {
-            if (fs.existsSync(tmpJsDir)) {
-                try {
-                    fs.readdirSync(tmpJsDir).forEach(item => {
-                        fs.unlinkSync(path.resolve(tmpJsDir, item));
-                    });
-                    fs.rmdirSync(tmpJsDir);
-                    console.log("\x1b[33m", 'Cleaned up temporary directory:', tmpJsDir, "\x1b[0m");
-                } catch (err) {
-                    console.log('Error cleaning up temp directory:', err);
+        if (this._cleanupTempDir) {
+            // Cleanup phase - remove temp directory after compilation
+            compiler.hooks.afterEmit.tap('ProcTranslationsPlugin', (compilation) => {
+                if (fs.existsSync(tmpJsDir)) {
+                    try {
+                        fs.readdirSync(tmpJsDir).forEach(item => {
+                            fs.unlinkSync(path.resolve(tmpJsDir, item));
+                        });
+                        fs.rmdirSync(tmpJsDir);
+                        console.log("\x1b[33m", 'Cleaned up temporary directory:', tmpJsDir, "\x1b[0m");
+                    } catch (err) {
+                        console.log('Error cleaning up temp directory:', err);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
 
