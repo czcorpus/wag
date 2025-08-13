@@ -21,13 +21,14 @@ import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../../page/hostPage.js';
-import { findCurrQueryMatch, QueryType, RecognizedQueries } from '../../query/index.js';
-import { ClientConf, UserConf, ColorThemeIdent, UserQuery } from '../../conf/index.js';
+import { RecognizedQueries } from '../../query/index.js';
+import { ClientConf, UserConf, ColorThemeIdent } from '../../conf/index.js';
 import { TileGroup } from '../../page/layout.js';
 import { GlobalComponents } from '../common/index.js';
 import { WdglanceMainProps } from '../main.js';
 import { ErrPageProps } from '../error.js';
 import { List, pipe } from 'cnc-tskit';
+import { Theme } from '../../page/theme.js';
 
 
 
@@ -72,10 +73,11 @@ function marshalJSON(data:any):string {
 
 
 export function init(
-    ut:ViewUtils<GlobalComponents>
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme
 ):{
-    HtmlBody: React.FC<HtmlBodyProps>;
-    HtmlHead: React.FC<HtmlHeadProps>
+    HtmlBody:React.FC<HtmlBodyProps>;
+    HtmlHead:React.FC<HtmlHeadProps>;
 } {
 
     // -------- <ThemeSelection /> -----------------------------
@@ -166,7 +168,7 @@ export function init(
                         </a>
                 </span>
                 {props.config.logo ?
-                    <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
+                    <span><img className="filtered logo" src={ut.createStaticUrl('logo-small.svg')} alt="WaG installation logo" /></span> :
                     null
                 }
                 <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
@@ -240,7 +242,7 @@ export function init(
                     <div className="parent-link-wrapper">
                         {props.currentParentWagPageUrl ?
                             <a className="parent-wag-link" href={props.currentParentWagPageUrl}>
-                                <img src={ut.createStaticUrl('triangle_left.svg')} />
+                                <img  className="filtered" src={ut.createStaticUrl('triangle_left.svg')} />
                                 {ut.translate('global__back_to_main_overview')}
                             </a> :
                             null
@@ -249,8 +251,8 @@ export function init(
                     <div className="logo-wrapper">
                         <a href={props.config.parentWagUrl ?  props.config.parentWagUrl : props.config.hostUrl} title={createLabel()}>
                             {props.config.logo?.url ?
-                                <img src={props.config.logo.url} alt="logo" style={props.config.logo?.inlineStyle} /> :
-                                <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                                <img className="logo-filtered" src={props.config.logo.url} alt="logo" style={props.config.logo?.inlineStyle} /> :
+                                <img className="logo-filtered" src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
                             }
                         </a>
                         {

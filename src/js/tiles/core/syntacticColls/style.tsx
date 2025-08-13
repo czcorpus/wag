@@ -17,7 +17,7 @@
  */
 
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
+import { Theme } from '../../../page/theme.js';
 
 export const SyntacticColls = styled.div`
 
@@ -43,7 +43,7 @@ export const SCollsWordCloud = styled.div`
 
 // ------------------- <SCollsTable /> ------------------------
 
-export const SCollsTable = styled.div`
+export const SCollsTable = styled.div<{theme:Theme}>`
     flex-grow: 1;
 
     h2 {
@@ -60,21 +60,21 @@ export const SCollsTable = styled.div`
         }
 
         .arrows {
-            color: ${theme.colorLogoPink};
+            color: ${props => props.theme.colorLogoPink};
         }
 
         .fn {
-            color: ${theme.colorLightText};
+            color: ${props => props.theme.colorLightText};
         }
 
     }
 `;
 
 
-export const Examples = styled.div`
+export const Examples = styled.div<{theme:Theme}>`
     background-color: #fefefe;
-    border: ${theme.defaultBorderStyle};
-    border-radius: ${theme.defaultBorderRadius};
+    border: ${props => props.theme.defaultBorderStyle};
+    border-radius: ${props => props.theme.defaultBorderRadius};
     box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
     padding: 0.5em;
 
@@ -89,7 +89,7 @@ export const Examples = styled.div`
             padding: 0.5em 1em 0.5em 1em;
 
             strong {
-                color: ${theme.colorLogoPink};
+                color: ${props => props.theme.colorLogoPink};
             }
         }
 
@@ -111,11 +111,11 @@ export const Examples = styled.div`
             padding-left: 1em;
 
             span.words {
-                color: ${theme.colorLogoPink};
+                color: ${props => props.theme.colorLogoPink};
                 font-weight: normal;
 
                 span.plus {
-                    color: ${theme.colorDefaultText};
+                    color: ${props => props.theme.colorDefaultText};
                 }
             }
         }

@@ -18,18 +18,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
 
 
-export const TreqSubsetsView = styled.div`
+// --------------------- <TreqSubsetsView /> ----------------------
+
+export const TreqSubsetsView = styled.div<{theme:Theme}>`
     .data {
         overflow-x: auto;
         overflow-y: hidden;
     }
 `;
 
-export const AltViewTable = styled.table`
+
+// --------------------- <AltViewTable /> ----------------------
+
+export const AltViewTable = styled.table<{theme:Theme}>`
     th.word {
         text-align: right;
         padding-right: 0.7em;
@@ -41,7 +46,9 @@ export const AltViewTable = styled.table`
     }
 `;
 
-export const ChartLikeTable = styled.table`
+// --------------------- <ChartLikeTable /> ----------------------
+
+export const ChartLikeTable = styled.table<{theme:Theme}>`
     border-spacing: 0;
     border-collapse: collapse;
 
@@ -66,7 +73,7 @@ export const ChartLikeTable = styled.table`
     }
 
     tr.highlighted {
-        background-color: ${theme.colorDataHighlightRow};
+        background-color: ${props => props.theme.colorDataHighlightRow};
     }
 
     .SimpleBar {
@@ -89,7 +96,9 @@ export const ChartLikeTable = styled.table`
     }
 `;
 
-export const SimpleBar = styled.svg`
+// --------------------- <SimpleBar /> ----------------------
+
+export const SimpleBar = styled.svg<{theme:Theme}>`
     .bar {
         position: absolute;
         margin-top: 5px;

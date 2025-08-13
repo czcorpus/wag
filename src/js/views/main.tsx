@@ -32,11 +32,13 @@ import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehi
 import { init as corpusInfoViewInit } from './common/corpusInfo.js';
 import { GlobalComponents } from './common/index.js';
 import { fromEvent, timer } from 'rxjs';
+import { ThemeProvider } from 'styled-components';
 
 import * as S from './style.js';
-import * as SC from './common/style.js';
+import * as CS from './common/style.js';
 import { GlobalStyle } from './layout/style.js';
 import { MainPosAttrValues, TranslatLanguage, UserQuery } from '../conf/index.js';
+import { Theme } from '../page/theme.js';
 
 
 export interface WdglanceMainProps {
@@ -47,7 +49,7 @@ export interface WdglanceMainProps {
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;
-    onMount:()=>void
+    onMount:()=>void;
 }
 
 function mkTileSectionId(tileId:number):string {
@@ -60,11 +62,13 @@ export function init(
     ut:ViewUtils<GlobalComponents>,
     formModel:QueryFormModel,
     tilesModel:WdglanceTilesModel,
-    messagesModel:MessagesModel
+    messagesModel:MessagesModel,
+    dynamicTheme:Theme
 ):React.FC<WdglanceMainProps> {
 
     const globalComponents = ut.getComponents();
     const CorpusInfo = corpusInfoViewInit(dispatcher, ut);
+    const GlobalStyleWithDynamicTheme = GlobalStyle(dynamicTheme);
 
     // ------------------ <SystemMessage /> ------------------------------
 
@@ -106,7 +110,7 @@ export function init(
                         <p className="text">{props.text}</p>
                         <div className="close">
                             <a onClick={handleCloseClick}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                                <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                             </a>
                         </div>
                     </div>
@@ -578,7 +582,7 @@ export function init(
         return (
             <span className="HelpButton bar-button">
                 <button type="button" onClick={handleClick} title={ut.translate('global__show_tile_help')}>
-                    <img src={ut.createStaticUrl('question-mark.svg')}
+                    <img className="filtered" src={ut.createStaticUrl('question-mark.svg')}
                         alt={ut.translate('global__img_alt_question_mark')} />
                 </button>
             </span>
@@ -624,6 +628,7 @@ export function init(
             <span className="AltViewButton bar-button">
                 <button type="button" onClick={handleClick} title={label}>
                     <img
+                        className="filtered"
                         src={isAltView ? lightIcon : icon}
                         alt={ut.translate('global__img_alt_alt_view')}
                         style={inlineCss} />
@@ -663,7 +668,7 @@ export function init(
         return (
             <span className="TweakButton bar-button">
                 <button type="button" onClick={handleClick} title={props.isExtended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
-                    <img src={ut.createStaticUrl(props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg')}
+                    <img className="filtered" src={ut.createStaticUrl(props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg')}
                         alt={props.isExtended ? 'configuration icon (highlighted)' : 'configuration icon'} />
                 </button>
             </span>
@@ -690,7 +695,7 @@ export function init(
         return (
             <span className="SaveButton bar-button">
                 <button type="button" onClick={handleClick} title={ut.translate('global__save_svg')}>
-                    <img src={props.disabled ? ut.createStaticUrl('download-button_g.svg') : ut.createStaticUrl('download-button.svg')} alt={'download button'} />
+                    <img className="filtered" src={props.disabled ? ut.createStaticUrl('download-button_g.svg') : ut.createStaticUrl('download-button.svg')} alt={'download button'} />
                 </button>
             </span>
         );
@@ -764,7 +769,7 @@ export function init(
         reason:string;
 
     }> = (props) => (
-        <SC.TileWrapper className="empty">
+        <CS.TileWrapper className="empty">
             <div className="loader-wrapper"></div>
             <div className="cnc-tile-body content empty">
                 <div className="not-applicable-box">
@@ -777,7 +782,7 @@ export function init(
                     <p className="not-applicable" title={ut.translate('global__not_applicable')}><span>N/A</span></p>
                 </div>
             </div>
-        </SC.TileWrapper>
+        </CS.TileWrapper>
     );
 
 
@@ -909,8 +914,8 @@ export function init(
                     <span className="flex">
                     <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
                                 {props.groupHidden ?
-                                    <img src={ut.createStaticUrl('triangle_w_right.svg')} alt={ut.translate('global__img_alt_triangle_w_right')} /> :
-                                    <img src={ut.createStaticUrl('triangle_w_down.svg')} alt={ut.translate('global__img_alt_triangle_w_down')} />
+                                    <img className="filtered" src={ut.createStaticUrl('triangle_w_right.svg')} alt={ut.translate('global__img_alt_triangle_w_right')} /> :
+                                    <img className="filtered" src={ut.createStaticUrl('triangle_w_down.svg')} alt={ut.translate('global__img_alt_triangle_w_down')} />
                                 }
                             </span>
                         <a className="switch-common" onClick={props.groupDisabled ? null : ()=>props.clickHandler()}
@@ -1003,7 +1008,7 @@ export function init(
                     <S.Tiles>
                         <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
                             <div className="provider">
-                                <SC.TileWrapper>
+                                <CS.TileWrapper>
                                     <div className="cnc-tile-body content empty">
                                         <div className="message">
                                             <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
@@ -1012,7 +1017,7 @@ export function init(
                                             </p>
                                         </div>
                                     </div>
-                                </SC.TileWrapper>
+                                </CS.TileWrapper>
                             </div>
                         </section>
                     </S.Tiles>
@@ -1347,10 +1352,12 @@ export function init(
 
         return (
             <S.WdglanceMain>
-                <GlobalStyle createStaticUrl={ut.createStaticUrl} />
-                <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
-                <BoundMessagesBox />
-                <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />
+                <GlobalStyleWithDynamicTheme createStaticUrl={ut.createStaticUrl} />
+                <ThemeProvider theme={dynamicTheme}>
+                    <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
+                    <BoundMessagesBox />
+                    <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />
+                </ThemeProvider>
             </S.WdglanceMain>
         );
     }

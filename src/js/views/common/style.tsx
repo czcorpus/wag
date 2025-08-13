@@ -18,8 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../page/theme.js';
 import { styled } from 'styled-components';
-import * as theme from './theme.js';
+
 
 // ---------------- <AjaxLoader /> --------------------------------------
 
@@ -54,12 +55,12 @@ export const TileWrapper = styled.div`
     .source {
         font-size: .9em;
         padding: 1.25em;
-        color: ${theme.colorLightText};
+        color: ${props => props.theme.colorLightText};
 
         a {
             cursor: pointer;
             text-decoration: none;
-            color: ${theme.colorLogoBlue};
+            color: ${props => props.theme.colorLogoBlue};
         }
 
         a:hover {
@@ -78,7 +79,7 @@ export const TileWrapper = styled.div`
                 display: flex;
                 flex-grow: 1;
                 margin: 0;
-                color: ${theme.colorSuperlightGrey};
+                color: ${props => props.theme.colorSuperlightGrey};
                 font-size: 9em;
                 text-align: center;
                 justify-content: center;
@@ -94,8 +95,8 @@ export const TileWrapper = styled.div`
     hr {
         border: none;
         height: 2px;
-        color: ${theme.colorWhitelikeBlue};
-        background-color: ${theme.colorWhitelikeBlue};
+        color: ${props => props.theme.colorWhitelikeBlue};
+        background-color: ${props => props.theme.colorWhitelikeBlue};
     }
 `;
 
@@ -118,7 +119,7 @@ export const TitleLoaderBar = styled.div`
         margin-left: -110%;
         width: 100%;
         height: 0.2em;
-        background: linear-gradient(0.25turn, #ffffff, ${theme.colorLogoPink}, #ffffff);
+        background: linear-gradient(0.25turn, #ffffff, ${(props:{theme:Theme}) => props.theme.colorLogoPink}, #ffffff);
     }
 `;
 
@@ -130,7 +131,7 @@ export const HorizontalBlockSwitch = styled.div`
     text-align: center;
 
     a {
-        color: ${theme.colorLogoBlue};
+        color: ${props => props.theme.colorLogoBlue};
         cursor: pointer;
         font-size: 2em;
         padding: 0.2em;
@@ -142,7 +143,7 @@ export const HorizontalBlockSwitch = styled.div`
     }
 
     a.current {
-        color: ${theme.colorLogoBlueShining};
+        color: ${props => props.theme.colorLogoBlueShining};
     }
 `;
 
@@ -223,7 +224,7 @@ export const ModalOverlay = styled.div`
     }
 
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -270,7 +271,7 @@ export const ModalOverlay = styled.div`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         background-color: hsla(0,0%,8%,.7);
 
         .box {
@@ -294,11 +295,11 @@ export const ModalOverlay = styled.div`
 
 // ---------------- <WdgTooltip /> --------------------------------------
 
-export const WdgTooltip = styled.div<{$multiword?:boolean}>`
+export const WdgTooltip = styled.div<{$multiword?:boolean, theme:Theme}>`
     background-color: #FFFFFF;
     z-index: 10000;
     padding: ${props => props.$multiword ? '0.3em 1em 1.3em 1em' : '1em'};
-    border: 1px solid ${theme.colorLightGrey};
+    border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
@@ -349,14 +350,14 @@ export const WdgTooltip = styled.div<{$multiword?:boolean}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkButton = styled.button<{$createStaticUrl: (file:string) => string}>`
+export const BacklinkButton = styled.button<{$createStaticUrl: (file:string) => string, theme:Theme}>`
     display: inline;
     padding: 0 12px 0 0;
     border: none;
     background-color: transparent;
     cursor: pointer;
     text-decoration: none;
-    color: #009ee0;
+    color: ${props => props.theme.colorLogoBlue};
     background-image: url(${props => props.$createStaticUrl('external-link.svg')});
     background-repeat: no-repeat;
     background-position: 99% 0;
@@ -368,7 +369,7 @@ export const BacklinkButton = styled.button<{$createStaticUrl: (file:string) => 
 
 // ---------------- <SourceInfoBox /> --------------------------------------
 
-export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => string}>`
+export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:string) => string}>`
     font-size: 1.1em;
 
     ul.information-tab-sel {
@@ -384,14 +385,14 @@ export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => stri
             font-size: 1em;
 
             a {
-                color: ${theme.colorDefaultText};
+                color: ${props => props.theme.colorDefaultText};
                 cursor: pointer;
                 margin: 0 0.6em;
                 text-decoration: none;
             }
 
             a.current {
-                border-color: ${theme.colorLogoBlue};
+                border-color: ${props => props.theme.colorLogoBlue};
                 border-style: solid;
                 border-width: 0 0 2px 0;
             }
@@ -406,7 +407,7 @@ export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => stri
         th {
             text-align: left;
             font-weight: normal;
-            color: ${theme.colorLogoPink};
+            color: ${props => props.theme.colorLogoPink};
         }
     }
 
@@ -421,8 +422,8 @@ export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => stri
 
         dt {
             margin-bottom: 0.4em;
-            color: ${theme.colorLightText};
-            font-family: ${theme.condensedFontFamily};
+            color: ${props => props.theme.colorLightText};
+            font-family: ${props => props.theme.condensedFontFamily};
         }
 
         dd {
@@ -445,7 +446,7 @@ export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => stri
 
     .keyword {
         border-style: solid;
-        border-color: ${theme.colorLogoBlue};
+        border-color: ${props => props.theme.colorLogoBlue};
         border-width: 1pt;
         border-radius: 5px;
         margin: 0.4em 0.2em;
@@ -455,11 +456,11 @@ export const SourceInfoBox = styled.div<{$createStaticUrl: (file:string) => stri
 
     .citation {
         em {
-            color: ${theme.colorLogoPink};
+            color: ${props => props.theme.colorLogoPink};
         }
 
         a {
-            color: ${theme.colorLogoBlue};
+            color: ${props => props.theme.colorLogoBlue};
         }
     }
 

@@ -19,7 +19,7 @@
  */
 
 import { styled } from 'styled-components';
-import * as theme from './common/theme.js';
+import { Theme } from '../page/theme.js';
 
 // ---------------- <WdglanceMain /> --------------------------------------
 
@@ -47,7 +47,7 @@ export const Messages = styled.ul`
 
 // ---------------- <SystemMessage /> --------------------------------------
 
-export const SystemMessage = styled.li`
+export const SystemMessage = styled.li<{theme:Theme}>`
     background-color: #444444;
     border-radius: .25em;
     box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0,0,0, 0.2);
@@ -109,7 +109,7 @@ export const SystemMessage = styled.li`
 
 // ---------------- <WdglanceControls /> --------------------------------------
 
-export const WdglanceControls = styled.div`
+export const WdglanceControls = styled.div<{theme:Theme}>`
     text-align: center;
     padding: 1em;
 
@@ -120,7 +120,7 @@ export const WdglanceControls = styled.div`
 
         .curr {
             font-size: 125%;
-            color: ${theme.colorLogoPink};
+            color: ${props => props.theme.colorLogoPink};
         }
 
         .variants > ul {
@@ -135,7 +135,7 @@ export const WdglanceControls = styled.div`
                 display: inline-block;
 
                 a {
-                    color: ${theme.colorLogoBlue};
+                    color: ${props => props.theme.colorLogoBlue};
                     cursor: pointer;
                 }
 
@@ -147,7 +147,7 @@ export const WdglanceControls = styled.div`
 
         a.modal-box-trigger {
             cursor: pointer;
-            color: ${theme.colorLogoPink};
+            color: ${props => props.theme.colorLogoPink};
         }
     }
 
@@ -178,7 +178,7 @@ export const WdglanceControls = styled.div`
 
                 em {
                     font-style: normal;
-                    color: ${theme.colorLogoPink};
+                    color: ${props => props.theme.colorLogoPink};
                 }
 
                 input[type="radio"] {
@@ -224,14 +224,14 @@ export const WdglanceControls = styled.div`
             }
 
             a:hover {
-                color: ${theme.colorLogoBlue};
+                color: ${props => props.theme.colorLogoBlue};
             }
 
         }
 
         .item.current {
             border-style: solid;
-            border-color: ${theme.colorLogoBlue};
+            border-color: ${props => props.theme.colorLogoBlue};
             border-width: 0 0 2px 0;
         }
     }
@@ -257,7 +257,7 @@ export const WdglanceControls = styled.div`
     }
 
     .QueryInput.invalid {
-        border-color: ${theme.colorLogoOrange};
+        border-color: ${props => props.theme.colorLogoOrange};
     }
 
     .input-group .input-row:not(:last-child) {
@@ -322,7 +322,7 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         .main {
             flex-wrap: wrap;
 
@@ -354,7 +354,7 @@ export const WdglanceControls = styled.div`
 
             .item.current {
                 border: none;
-                color: ${theme.colorLogoBlue};
+                color: ${props => props.theme.colorLogoBlue};
             }
 
             .item.current a:after {
@@ -371,7 +371,7 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         padding: 0;
         margin-bottom: 2em;
 
@@ -387,9 +387,9 @@ export const WdglanceControls = styled.div`
 
 // -------------- <SubmitButton /> -------------------------------------------
 
-export const SubmitButton = styled.span`
+export const SubmitButton = styled.span<{theme:Theme}>`
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         button {
             padding: 0.5em 1.5em 0.5em 1.5em;
         }
@@ -418,7 +418,7 @@ export const TooManyErrorsBox = styled(NothingFoundBox)`
 
 // ---------------- <TilesSections /> --------------------------------------
 
-export const TilesSections = styled.section`
+export const TilesSections = styled.section<{theme:Theme}>`
     padding: 0.7em;
 
     & > header .loader {
@@ -426,18 +426,18 @@ export const TilesSections = styled.section`
         left: calc(100% - 100px);
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         padding: 0;
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         padding: 0;
     }
 `;
 
 // ---------------- <Group /> --------------------------------------
 
-export const Group = styled.section`
+export const Group = styled.section<{theme:Theme}>`
 
     & > header {
 
@@ -454,7 +454,7 @@ export const Group = styled.section`
         margin-top: 1.7em;
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         & > header {
             display: block;
 
@@ -464,7 +464,7 @@ export const Group = styled.section`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         & > header {
             display: block;
 
@@ -478,7 +478,7 @@ export const Group = styled.section`
 
 // ---------------- <MinimizedGroup /> --------------------------------------
 
-export const MinimizedGroup = styled.ul`
+export const MinimizedGroup = styled.ul<{theme:Theme}>`
     background-color: #FFFFFF;
     border-radius: 0.25em;
 
@@ -488,7 +488,7 @@ export const MinimizedGroup = styled.ul`
 
     li {
         a {
-            color: ${theme.colorLogoBlue};
+            color: ${props => props.theme.colorLogoBlue};
             cursor: pointer;
         }
     }
@@ -500,7 +500,7 @@ export const MinimizedGroup = styled.ul`
 
 // ---------------- <Tiles /> --------------------------------------
 
-export const Tiles = styled.section`
+export const Tiles = styled.section<{theme:Theme}>`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 1fr 1fr 1fr;
@@ -520,8 +520,8 @@ export const Tiles = styled.section`
     }
 
     .app-output {
-        border-color: ${theme.colorLogoBlue};
-        border-radius: ${theme.defaultBorderRadius};
+        border-color: ${props => props.theme.colorLogoBlue};
+        border-radius: ${props => props.theme.defaultBorderRadius};
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -599,7 +599,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         display: grid;
         grid-gap: 1em;
         grid-template-columns: 1fr;
@@ -625,7 +625,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         .app-output .panel h2 {
             font-size: 1.1em;
         }
@@ -634,14 +634,14 @@ export const Tiles = styled.section`
 
 // ---------------- <TileGroupButton /> --------------------------------------
 
-export const TileGroupButton = styled.section`
+export const TileGroupButton = styled.section<{theme:Theme}>`
 
     width: 25em;
 
     &.disabled {
 
         h2 {
-            background-color: ${theme.colorLightText};
+            background-color: ${props => props.theme.colorLightText};
 
             .flex {
 
@@ -661,8 +661,8 @@ export const TileGroupButton = styled.section`
     }
 
     h2 {
-        background-color: ${theme.colorLogoBlue};
-        color: #ffffff;
+        background-color: ${props => props.theme.colorLogoBlue};
+        color: ${props => props.theme.colorInvertText};
         border-radius: 0.25em;
         font-weight: 400;
         font-size: 1.3em;
@@ -693,7 +693,7 @@ export const TileGroupButton = styled.section`
             }
 
             a:hover {
-                color: ${theme.colorLogoBlueShining};
+                color: ${props => props.theme.colorLogoBlueShining};
             }
 
             .triangle {
@@ -728,7 +728,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
 
         white-space: normal;
 
@@ -757,7 +757,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
 
         width: 100%;
         white-space: normal;
@@ -789,16 +789,16 @@ export const TileGroupButton = styled.section`
 
 // ---------------- <ErrPage /> --------------------------------------
 
-export const ErrPage = styled.div`
+export const ErrPage = styled.div<{theme:Theme}>`
     margin: 2em auto 3em auto;
     margin-bottom: 2em;
     max-width: 20em;
 
     header.err {
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
     }
 
     a {
-        color: ${theme.colorLogoBlue};
+        color: ${props => props.theme.colorLogoBlue};
     }
 `;

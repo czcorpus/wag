@@ -130,11 +130,12 @@ export function createRootComponent({
     tileGroups:Array<TileGroup>,
     mainPosAttr:MainPosAttrValues
  } {
-    const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
+    const theme = new Theme(config.colors);
+    const globalComponents = globalCompInit(dispatcher, viewUtils, onResize, theme);
     viewUtils.attachComponents(globalComponents);
 
     const tiles:Array<TileFrameProps> = [];
-    const theme = new Theme(config.colors);
+
     const qType = userSession.queryType as QueryType; // TODO validate
 
     const formModel = mainFormFactory({
@@ -235,7 +236,8 @@ export function createRootComponent({
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
 
-    const WdglanceMain = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
+    const WdglanceMain = viewInit(
+        dispatcher, viewUtils, formModel, tilesModel, messagesModel, theme);
 
     onResize.subscribe(
         (props) => {

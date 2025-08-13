@@ -18,19 +18,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
 
 export const ConcordanceTileView = styled.div`
     overflow: hidden;
 `;
 
-export const QueryInfo = styled.p`
+export const QueryInfo = styled.p<{theme:Theme}>`
     font-size: 1.2em;
 
     a.variant {
         cursor: pointer;
-        color: ${theme.colorDefaultText};
+        color: ${props => props.theme.colorDefaultText};
         font-weight: bold;
         text-decoration: none;
     }
@@ -40,7 +40,7 @@ export const QueryInfo = styled.p`
     }
 `;
 
-export const Summary = styled.dl`
+export const Summary = styled.dl<{theme:Theme}>`
     margin-top: 0.7em;
     margin-bottom: 1.5em;
 
@@ -50,14 +50,14 @@ export const Summary = styled.dl`
     }
 
     dt {
-        font-family: ${theme.condensedFontFamily};
-        color: ${theme.colorLightText};
+        font-family: ${props => props.theme.condensedFontFamily};
+        color: ${props => props.theme.colorLightText};
     }
 
     dd {
         font-weight: bold;
         margin-left: 0.3em;
-        color: ${theme.colorLightText};
+        color: ${props => props.theme.colorLightText};
     }
 
     dd:not(:last-child)::after {
@@ -70,13 +70,13 @@ export const Summary = styled.dl`
     }
 `;
 
-export const LineMetadata = styled.div`
+export const LineMetadata = styled.div<{theme:Theme}>`
     max-width: 30em;
     position: absolute;
     padding: 1em;
     background-color: #FFFFFF;
     margin-left: 0em;
-    border: 1px solid ${theme.colorLightGrey};
+    border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
@@ -105,8 +105,8 @@ export const LineMetadata = styled.div`
     }
 `;
 
-export const ConcLines = styled.div`
-    font-family: ${theme.condensedFontFamily};
+export const ConcLines = styled.div<{theme:Theme}>`
+    font-family: ${props => props.theme.condensedFontFamily};
     display: flex;
     justify-content: center;
     border-spacing: 0;
@@ -130,13 +130,13 @@ export const ConcLines = styled.div`
             display: inline-block;
             padding-left: 0.3em;
             padding-right: 0.3em;
-            color: ${theme.colorLogoPink};
+            color: ${props => props.theme.colorLogoPink};
         }
     }
 
     tr.separator:not(:last-of-type) td {
         border-width: 0 0 1px 0;
-        border-color: ${theme.colorLightGrey};
+        border-color: ${props => props.theme.colorInvertedSecondaryText};
         border-style: solid;
     }
 
@@ -148,7 +148,7 @@ export const ConcLines = styled.div`
         display: block;
 
         tr:nth-child(odd) {
-            background-color: ${theme.colorWhitelikeBlue};
+            background-color: ${props => props.theme.colorWhitelikeBlue};
         }
 
         tr {
@@ -173,7 +173,7 @@ export const ConcLines = styled.div`
     }
 `;
 
-export const Row = styled.tr`
+export const Row = styled.tr<{theme:Theme}>`
     white-space: nowrap;
 
     td {
@@ -193,11 +193,11 @@ export const Row = styled.tr`
         padding-left: 0.5em;
         padding-right: 0.5em;
         text-align: center;
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
     }
 
     td .coll {
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
         font-style: italic;
         display: inline-block;
         padding-left: 0.2em;
@@ -206,10 +206,10 @@ export const Row = styled.tr`
 `;
 
 
-export const SentRow = styled.tr`
+export const SentRow = styled.tr<{theme:Theme}>`
 
     &.highlighted {
-        background-color: ${theme.colorDataHighlightRow};
+        background-color: ${props => props.theme.colorDataHighlightRow};
     }
 
     white-space: inherit;
@@ -220,7 +220,7 @@ export const SentRow = styled.tr`
     }
 
     td .coll {
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
         font-style: italic;
         display: inline-block;
         padding-left: 0.2em;
@@ -229,7 +229,7 @@ export const SentRow = styled.tr`
 
 `;
 
-export const Controls = styled.form`
+export const Controls = styled.form<{theme:Theme}>`
     margin-bottom: 0.7em;
 
     fieldset {

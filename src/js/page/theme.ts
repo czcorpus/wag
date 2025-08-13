@@ -17,6 +17,8 @@
  */
 import { ColorTheme } from '../conf/index.js';
 import { Dict, Color, pipe, List } from 'cnc-tskit';
+import * as theme from '../views/common/theme.js';
+import grooveBg from '../../../assets/groovepaper2.jpg';
 
 
 export enum SystemColor {
@@ -41,6 +43,16 @@ const defaultTheme:ColorTheme = {
 
     themeId: 'default',
     themeLabel: 'Default',
+
+    // text color
+
+    pageBackgroundColor: '#ffffff',
+
+    tileBackgroundColor: '#ffffff',
+
+
+    // charts
+
     lineChartColor1: "#DD8959",
     lineConfidenceAreaColor1: "#f2d9ca",
     lineChartColor2: "#1334FF",
@@ -84,6 +96,51 @@ const defaultTheme:ColorTheme = {
  */
 export class Theme {
 
+    public readonly ident:string;
+
+    // main styling
+
+    public readonly pageBackgroundColor:string|undefined;
+
+    public readonly tileBackgroundColor:string|undefined;
+
+    public readonly defaultFontFamily:string;
+
+    public readonly condensedFontFamily:string;
+
+    public readonly defaultFontSize:string;
+
+    public readonly backgroundImage:string|undefined;
+
+    public readonly colorLogoBlue:string;
+
+    public readonly colorWhitelikeBlue:string;
+
+    public readonly colorDefaultText:string;
+
+    public readonly colorInvertText:string;
+
+    public readonly colorSecondaryText:string;
+
+    public readonly colorLightText:string;
+
+    public readonly colorLogoPink:string;
+
+    public readonly colorSuperlightGrey:string;
+
+    public readonly colorLogoBlueShining:string;
+
+    public readonly colorInvertedSecondaryText:string;
+
+
+    public readonly cssMediaMediumSize:string;
+
+    public readonly cssMediaSmallSize:string;
+
+    public readonly svgIconsFilter:string|undefined;
+
+
+
     private readonly catColors:Array<string>;
 
     // this is auto-generated
@@ -115,7 +172,32 @@ export class Theme {
     public readonly lineConfidenceAreaColor2:string;
 
     constructor(conf?:ColorTheme) {
+
         const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
+        this.ident = confSrc.themeId;
+
+        this.defaultFontFamily = confSrc.defaultFontFamily || theme.defaultFontFamily;
+        this.condensedFontFamily = confSrc.condensedFontFamily || theme.condensedFontFamily;
+        this.defaultFontSize = confSrc.defaultFontSize || '1em';
+        this.backgroundImage = confSrc.backgroundImage || `url(${grooveBg})`;
+        this.pageBackgroundColor = confSrc.pageBackgroundColor || defaultTheme.pageBackgroundColor;
+        this.tileBackgroundColor = confSrc.tileBackgroundColor || defaultTheme.tileBackgroundColor;
+        this.colorLogoBlue = confSrc.colorLogoBlue || theme.colorLogoBlue;
+        this.colorWhitelikeBlue = confSrc.colorWhitelikeBlue || theme.colorWhitelikeBlue;
+        this.colorLightText = confSrc.colorLightText || theme.colorLightText;
+        this.colorDefaultText = confSrc.colorDefaultText || theme.colorDefaultText;
+        this.colorInvertText = confSrc.colorInvertText || theme.colorInvertedSecondary;
+        this.colorSecondaryText = confSrc.colorSecondaryText || theme.colorInvertedSecondary;
+        this.colorLogoPink = confSrc.colorLogoPink || theme.colorLogoPink;
+        this.colorSuperlightGrey = confSrc.colorSuperlightGrey || theme.colorSuperlightGrey;
+        this.colorLogoBlueShining = confSrc.colorLogoBlueShining || theme.colorLogoBlueShining;
+        this.colorInvertedSecondaryText = confSrc.colorInvertedSecondaryText || theme.colorInvertedSecondary;
+
+        this.cssMediaMediumSize = confSrc.cssMediaMediumSize || theme.media.medium;
+        this.cssMediaSmallSize = confSrc.cssMediaSmallSize || theme.media.small;
+        this.svgIconsFilter = confSrc.svgIconsFilter;
+
+
         this.catColors = confSrc.category || [];
         this.catColorsHighlighted = List.map(
             color => pipe(

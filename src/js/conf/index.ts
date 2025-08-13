@@ -82,6 +82,30 @@ export interface ColorThemeIdent {
  * (mainly chart colors).
  */
 export interface ColorTheme extends ColorThemeIdent {
+
+    defaultFontFamily?:string;
+    condensedFontFamily?:string;
+    defaultFontSize?:string;
+    backgroundImage?:string;
+    pageBackgroundColor?:string;
+    tileBackgroundColor?:string;
+    colorLogoBlue?:string;
+    colorLogoBlueShining?:string;
+    colorWhitelikeBlue?:string;
+    colorLightText?:string;
+    colorDefaultText?:string;
+    colorInvertText?:string;
+    colorInvertedSecondaryText?:string;
+    colorSecondaryText?:string;
+    colorLogoPink?:string;
+    colorSuperlightGrey?:string;
+    svgIconsFilter?:string;
+
+
+    cssMediaMediumSize?:string;
+    cssMediaSmallSize?:string;
+
+
     lineChartColor1:string;
     lineConfidenceAreaColor1:string;
     lineChartColor2:string;
