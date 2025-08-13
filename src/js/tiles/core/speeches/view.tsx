@@ -186,7 +186,7 @@ export function init(
 
         return (
             <a style={props.active ? null : {pointerEvents: 'none', cursor: 'default'}} onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
-                <img src={ut.createStaticUrl(props.active ? 'next.svg' : 'next_grey.svg')} style={{width: '1.8em'}} alt={ut.translate('speeches__load_different_sp_button')} />
+                <img className="filtered" src={ut.createStaticUrl(props.active ? 'next.svg' : 'next_grey.svg')} style={{width: '1.8em'}} alt={ut.translate('speeches__load_different_sp_button')} />
             </a>
         );
     };
@@ -214,7 +214,7 @@ export function init(
 
         return (
             <S.PlayerIcon onClick={handleClick}>
-                <img src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')}
+                <img className="filtered" src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')}
                         alt={ut.translate('global__img_alt_play_audio')} />
             </S.PlayerIcon>
         )

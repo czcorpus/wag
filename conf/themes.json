@@ -1,48 +1,54 @@
 {
-    "default": "devel2",
+    "default": "cnc-default",
     "themes": [
         {
-            "themeId": "devel1",
-            "themeLabel": "Devel 1",
+            "themeId": "cnc-default",
+            "themeLabel": "CNC default",
+            "lineChartColor1": "#009ee0",
+            "lineConfidenceAreaColor1": "#ddedf3",
+            "lineChartColor2": "#E2007A",
+            "lineConfidenceAreaColor2": "#eed4e2",
             "cmpCategory": [
-                "#009ee0",
-                "#6692eb",
-                "#a87fe1",
-                "#db66c1",
-                "#fa5090",
-                "#ff5056",
-                "#ea670c"
+                "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
             ],
             "category": [
-                "#60CFFF",
-                "#94A3FF",
-                "#FFDC84",
-                "#FFB058",
-                "#53a82c",
-                "#8ADCFF",
-                "#C1C9FF",
-                "#FFEBB8",
-                "#FFC584"
+               "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
             ],
-            "categoryOther": "#494949",
-            "scale": [
-                "#60CFFF",
-                "#8ADCFF",
-                "#94A3FF",
-                "#C1C9FF",
-                "#FFDC84",
-                "#FFEBB8",
-                "#FFB058",
-                "#FFC584",
-                "#FFC584",
-                "#FFC584",
-                "#FFC584"
-            ],
-            "geoAreaSpotFillColor": "#009ee0"
+           "categoryOther": "#494949",
+           "scale": [
+                "#009EE0",
+                "#66C5EC",
+                "#A93F9F",
+                "#D49FCF",
+                "#EA9358",
+                "#F5C9AB",
+                "#A5A94B",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5"
+           ],
+           "geoAreaSpotFillColor": "#009ee0",
+           "geoAreaSpotTextColor": "#FFFFFF"
         },
         {
-            "themeId": "devel2",
-            "themeLabel": "Devel 2",
+            "themeId": "cvd",
+            "themeLabel": "Color vision deficiency",
             "cmpCategory": [
                 "#F4917C",
                 "#EF8FA7",
@@ -85,39 +91,6 @@
             "themeLabel": "Dynamic",
             "cmpCategory": [
                 "#60CFFF"
-            ],
-            "category": [
-                "#60CFFF",
-                "#94A3FF",
-                "#FFDC84",
-                "#FFB058",
-                "#53a82c",
-                "#8ADCFF",
-                "#C1C9FF",
-                "#FFEBB8",
-                "#FFC584"
-           ],
-           "categoryOther": "#494949",
-           "scale": [
-                "#60CFFF",
-                "#8ADCFF",
-                "#94A3FF",
-                "#C1C9FF",
-                "#FFDC84",
-                "#FFEBB8",
-                "#FFB058",
-                "#FFC584",
-                "#FFC584",
-                "#FFC584",
-                "#FFC584"
-           ],
-           "geoAreaSpotFillColor": "#009ee0"
-        },
-        {
-            "themeId": "auto-color",
-            "themeLabel": "Auto color",
-            "cmpCategory": [
-                "#F8766D"
             ],
             "category": [
                 "#60CFFF",

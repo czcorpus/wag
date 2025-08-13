@@ -43,6 +43,7 @@ import { DataStreaming } from '../../page/streaming.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { ServerNotifications } from '../../page/notifications.js';
+import { Theme } from '../../page/theme.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -64,7 +65,7 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
     );
     const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
     clientConfig.colorThemes = [];
-    const {HtmlBody, HtmlHead} = viewInit(viewUtils);
+    const {HtmlBody, HtmlHead} = viewInit(viewUtils, new Theme());
     const errView = errPageInit(viewUtils);
     res
         .status(HTTP.Status.NotFound)

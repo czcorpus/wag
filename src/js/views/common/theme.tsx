@@ -32,7 +32,7 @@ export const colorDataHighlightRow = '#cdf0fe';
 export const colorLogoGreen = '#53a82c';
 export const colorWhitelikeBlue = '#eff9fe';
 export const colorLogoOrange = '#EA670C';
-export const colorLightGrey = '#dadada';
+export const colorInvertedSecondary = '#dadada';
 export const colorLightText = '#888888';
 export const colorSuperlightGrey = '#efefef';
 export const colorDefaultText = '#010101';
@@ -44,12 +44,13 @@ export const closeButtonSize = '1.1em';
 
 //
 
-export const defaultBorderStyle = `solid 1px ${colorLightGrey}`;
+export const defaultBorderStyle = `solid 1px ${colorInvertedSecondary}`;
 export const defaultBorderRadius = '0.25em';
 
 // media queries
 
 export const media = {
-   small: '@media screen and (max-width: 480px)',
-   medium: '@media screen and (max-width: 1200px)'
+    small: '@media screen and (max-width: 480px)',
+    medium: '@media screen and (max-width: 1200px)'
 }
+

@@ -18,15 +18,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
+
 
 
 export const WordSimView = styled.div`
     height: 100%;
 `;
 
-export const Boxes = styled.div<{$isMobile:boolean}>`
+export const Boxes = styled.div<{$isMobile:boolean, theme:Theme}>`
     height: 100%;
     overflow-y: hidden;
     overflow-x: auto;
@@ -44,7 +45,7 @@ export const Boxes = styled.div<{$isMobile:boolean}>`
         margin-right: 0.7em;
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         & > .chart {
             min-width: initial;
             width: 100%;
@@ -52,7 +53,7 @@ export const Boxes = styled.div<{$isMobile:boolean}>`
     }
 `;
 
-export const SimCloud = styled.div`
+export const SimCloud = styled.div<{theme:Theme}>`
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -63,7 +64,7 @@ export const SimCloud = styled.div`
         font-size: 1.4em;
         padding-bottom: 0.3em;
         padding-left: 0.7em;
-        border-color: ${theme.colorLightGrey};
+        border-color: ${props => props.theme.colorInvertedSecondaryText};
         border-style: solid;
         border-width: 0 0 1px 0;
         margin: 0 0.5em 1em 0.5em;

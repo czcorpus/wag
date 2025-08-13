@@ -27,6 +27,7 @@ import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
 import { SourceCitation } from '../../api/abstract/sourceInfo.js';
+import { Theme } from '../../page/theme.js';
 
 
 export interface SourceInfo {
@@ -138,8 +139,11 @@ export interface GlobalComponents {
 export function init(
     dispatcher:IActionDispatcher,
     ut:ViewUtils<{}>,
-    resize$:Observable<ScreenProps>
+    resize$:Observable<ScreenProps>,
+    theme:Theme
 ):GlobalComponents {
+
+
 
     // --------------- <AjaxLoader /> -------------------------------------------
 
@@ -589,7 +593,7 @@ export function init(
                                     onClick={this.props.onCloseClick}
                                     onKeyDown={this.handleKey}
                                     title={ut.translate('global__close_modal')}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                                <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                             </button>
                         </header>
                         <div className={tileClasses}>
@@ -853,12 +857,12 @@ export function init(
         return (
             <S.Paginator>
                 <a onClick={props.onPrev} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
+                    <img className="filtered arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
                         alt={ut.translate('global__img_alt_triable_left')} />
                 </a>
                 <input className="page" type="text" readOnly={true} value={props.page} />
                 <a onClick={props.onNext} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
+                    <img className="filtered arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
                         alt={ut.translate('global__img_alt_triable_right')} />
                 </a>
             </S.Paginator>

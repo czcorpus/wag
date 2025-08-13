@@ -75,7 +75,7 @@ export function init(
                 </h3>
                 <div className="controls">
                     <a onClick={onClose} className="close">
-                        <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                        <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                     </a>
                 </div>
             </div>

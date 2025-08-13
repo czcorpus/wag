@@ -230,7 +230,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {!props.isParallel && !!props.data.props && !Dict.empty(props.data.props) ?
                         <td className="meta" rowSpan={props.isFirstOfLinePair ? 2 : 1}>
                             <a className="info-click" onClick={props.handleLineClick}>
-                                <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
+                                <img className="filtered" src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
                             </a>
                         </td> :
                         null
@@ -269,7 +269,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {!!props.data.props && !Dict.empty(props.data.props) ?
                         <td className="meta">
                             <a className="info-click" onClick={props.handleLineClick}>
-                                <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
+                                <img className="filtered" src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
                             </a>
                         </td> :
                         null

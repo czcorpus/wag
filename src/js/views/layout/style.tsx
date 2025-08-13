@@ -19,17 +19,25 @@
  */
 
 import { createGlobalStyle } from 'styled-components';
-import * as theme from '../common/theme.js';
-import grooveBg from '../../../../assets/groovepaper2.jpg';
+import { Theme } from '../../page/theme.js';
 
 // ---------------- <GlobalStyle /> --------------------------------------
 
-export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) => string}>`
+export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticUrl: (file: string) => string}>`
 
     body {
-        font-family: ${theme.defaultFontFamily};
-        font-size: 1em;
-        background-image: url(${grooveBg});
+        font-family: ${confTheme.defaultFontFamily};
+        font-size: ${confTheme.defaultFontSize};
+        background-image: ${confTheme.backgroundImage};
+        background-color: ${confTheme.pageBackgroundColor};
+
+        img.filtered {
+            ${confTheme.svgIconsFilter};
+        }
+
+        .logo-wrapper img.logo-filtered {
+            ${confTheme.svgIconsFilter};
+        }
 
         > header.wdg-header {
 
@@ -57,7 +65,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                 .parent-wag-link {
                     display: flex;
                     align-items: center;
-                    color: ${theme.colorLogoBlue};
+                    color: ${confTheme.colorLogoBlue};
                     text-decoration: underline;
                     cursor: pointer;
 
@@ -100,7 +108,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         border-collapse: collapse;
 
         tbody tr:nth-child(odd):not(.heading) {
-            background-color: ${theme.colorWhitelikeBlue};
+            background-color: ${confTheme.colorWhitelikeBlue};
         }
 
         tr.top-grouped th {
@@ -139,19 +147,19 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
     .note {
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
     }
 
     footer {
         font-size: 0.9em;
         text-align: center;
         margin-top: 1.5em;
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
 
         section {
             > span {
                 border-style: solid;
-                border-color: ${theme.colorLightText};
+                border-color: ${confTheme.colorLightText};
                 border-width: 0 0 0 0.15em;
                 padding-left: 0.4em;
                 padding-right: 0.4em;
@@ -168,17 +176,17 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
 
         section.links > span:first-child {
             border-style: solid;
-            border-color: ${theme.colorLightText};
+            border-color: ${confTheme.colorLightText};
             border-width: 0 0 0 0.15em;
         }
 
         a {
-            color: ${theme.colorLightText};
+            color: ${confTheme.colorLightText};
             text-decoration: none;
         }
 
         .action a {
-            color: ${theme.colorDefaultText};
+            color: ${confTheme.colorDefaultText};
         }
 
         a:hover {
@@ -204,7 +212,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
 
     .ThemeSelection {
         display: block;
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
 
         button {
             display: inline-block;
@@ -217,13 +225,13 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         }
 
         button.current {
-            color: ${theme.colorLogoBlue};
+            color: ${confTheme.colorLogoBlue};
             cursor: default;
         }
     }
 
     .LangSwitchToolbar {
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
         text-align: right;
         font-size: 0.9em;
 
@@ -240,19 +248,19 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                     border: none;
                     background-color: transparent;
                     cursor: pointer;
-                    color: ${theme.colorLightText};
+                    color: ${confTheme.colorLightText};
                     padding: 0 0.2em;
                 }
 
                 button:hover {
-                    color: ${theme.colorLogoBlue};
+                    color: ${confTheme.colorLogoBlue};
                 }
 
                 button.current {
                     text-decoration: none;
                     border-style: solid;
                     border-width: 0 0 1px 0;
-                    border-color: ${theme.colorLogoBlue};
+                    border-color: ${confTheme.colorLogoBlue};
                 }
             }
 
@@ -274,11 +282,11 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         .raw-html {
 
             em {
-                color: ${theme.colorLogoPink};
+                color: ${confTheme.colorLogoPink};
             }
 
             a {
-                color: ${theme.colorLogoBlue};
+                color: ${confTheme.colorLogoBlue};
             }
 
             a:hover {
@@ -304,9 +312,9 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     .cnc-tile {
         border-radius: .25em;
         box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
-        background-color: white;
+        background-color: ${confTheme.tileBackgroundColor};
         font-size: .92em;
-        color: #333;
+        color: ${confTheme.colorSecondaryText};
     }
 
     .cnc-tile.highlighted {
@@ -321,7 +329,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
     .cnc-tile-body a {
-        color: #009ee0;
+        color: ${confTheme.colorLogoBlue};
         text-decoration: none;
     }
 
@@ -442,7 +450,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     .cnc-form input[type=email]:focus,
     .cnc-form textarea:focus,
     .cnc-form select:focus {
-        border-color: #009ee0;
+        background-color: ${confTheme.colorLogoBlue};
     }
 
     a.cnc-button.cnc-button {
@@ -455,8 +463,8 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
     .cnc-button.cnc-button-primary {
-        background-color: #009ee0;
-        color: white;
+        background-color: ${confTheme.colorLogoBlue};
+        color: ${confTheme.colorInvertText};
     }
 
     .cnc-button.cnc-button-primary:hover {
@@ -477,7 +485,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
 
-    ${theme.media.medium} {
+    ${confTheme.cssMediaMediumSize} {
 
         body {
             > header.wdg-header {
@@ -504,7 +512,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         }
     }
 
-    ${theme.media.small} {
+    ${confTheme.cssMediaSmallSize} {
 
         body > header.wdg-header a img {
             width: 15em;

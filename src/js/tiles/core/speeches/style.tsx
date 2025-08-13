@@ -18,11 +18,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
 
+// -------------- <SpeechesTile /> -----------------
 
-export const SpeechesTile = styled.div`
+export const SpeechesTile = styled.div<{theme:Theme}>`
     tr.expand {
 
         th {
@@ -78,7 +79,10 @@ export const SpeechesTile = styled.div`
     }
 `;
 
-export const Speeches = styled.dl`
+
+// -------------- <Speeches /> -----------------
+
+export const Speeches = styled.dl<{theme:Theme}>`
     border-spacing: 0;
 
     dd, dt {
@@ -86,11 +90,13 @@ export const Speeches = styled.dl`
     }
 `;
 
-export const Speaker = styled.dt`
+// -------------- <Speaker /> -----------------
+
+export const Speaker = styled.dt<{theme:Theme}>`
     text-align: left;
     strong {
-        border: 1px solid ${theme.colorLightText};
-        border-radius: ${theme.defaultBorderRadius};
+        border: 1px solid ${props => props.theme.colorLightText};
+        border-radius: ${props => props.theme.defaultBorderRadius};
         display: inline-block;
         vertical-align: middle;
         font-size: 0.8em;
@@ -102,6 +108,8 @@ export const Speaker = styled.dt`
         margin-top: 1.2em;
     }
 `;
+
+// -------------- <Speech /> -----------------
 
 export const Speech = styled.dd`
     margin-top: 0.3em;
@@ -127,12 +135,14 @@ export const Speech = styled.dd`
     }
 
     .coll {
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
         font-weight: bold;
     }
 `;
 
-export const PlayerIcon = styled.a`
+// -------------- <PlayerIcon /> -----------------
+
+export const PlayerIcon = styled.a<{theme:Theme}>`
     display: inline-block;
     vertical-align: middle;
     margin-left: 1em;

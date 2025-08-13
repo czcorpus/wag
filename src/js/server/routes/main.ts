@@ -50,6 +50,7 @@ import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { TileConf } from '../../page/tile.js';
 import { queriesConf, previewLayoutConf } from '../../conf/preview.js';
+import { Theme } from '../../page/theme.js';
 
 
 interface MkRuntimeClientConfArgs {
@@ -534,7 +535,9 @@ export function queryAction({
                 layoutManager
             });
 
-            const {HtmlHead, HtmlBody} = viewInit(viewUtils);
+            const currTheme = new Theme(getAppliedThemeConf(services.clientConf));
+
+            const {HtmlHead, HtmlBody} = viewInit(viewUtils, currTheme);
             // Here we're going to use the fact that (the current)
             // server-side action dispatcher does not trigger side effects
             // so our models just set 'busy' state and nothing else happens.
@@ -579,9 +582,9 @@ export function queryAction({
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(
                 services.clientConf.applicationId, services.serverConf.languages, error, uiLang);
-            const { HtmlHead, HtmlBody } = viewInit(viewUtils);
+            const currTheme = new Theme(getAppliedThemeConf(services.clientConf));
+            const { HtmlHead, HtmlBody } = viewInit(viewUtils, currTheme);
             const errView = errPageInit(viewUtils);
-            const currTheme = getAppliedThemeConf(services.clientConf);
             res.send(renderResult({
                 HtmlBody,
                 HtmlHead,
@@ -589,7 +592,7 @@ export function queryAction({
                 toolbarData: emptyValue(),
                 queryMatches: [],
                 themes: [],
-                currTheme: currTheme.themeId,
+                currTheme: currTheme.ident,
                 userConfig: userConf,
                 currentParentWagPageUrl: undefined,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
