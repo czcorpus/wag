@@ -179,7 +179,7 @@ export class Theme {
         this.defaultFontFamily = confSrc.defaultFontFamily || theme.defaultFontFamily;
         this.condensedFontFamily = confSrc.condensedFontFamily || theme.condensedFontFamily;
         this.defaultFontSize = confSrc.defaultFontSize || '1em';
-        this.backgroundImage = confSrc.backgroundImage || `url(${grooveBg})`;
+        this.backgroundImage = confSrc.backgroundImage || undefined;
         this.pageBackgroundColor = confSrc.pageBackgroundColor || defaultTheme.pageBackgroundColor;
         this.tileBackgroundColor = confSrc.tileBackgroundColor || defaultTheme.tileBackgroundColor;
         this.colorLogoBlue = confSrc.colorLogoBlue || theme.colorLogoBlue;
