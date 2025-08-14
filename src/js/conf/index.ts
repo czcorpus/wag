@@ -101,9 +101,11 @@ export interface ColorTheme extends ColorThemeIdent {
     colorSuperlightGrey?:string;
     svgIconsFilter?:string;
 
+    tileBorderStyle?:string;
+    tileBorderRadius?:string;
 
-    cssMediaMediumSize?:string;
-    cssMediaSmallSize?:string;
+    cssMediaMediumScreen?:string;
+    cssMediaSmallScreen?:string;
 
 
     lineChartColor1:string;
