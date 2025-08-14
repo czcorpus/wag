@@ -17,21 +17,6 @@
  */
 import { ColorTheme } from '../conf/index.js';
 import { Dict, Color, pipe, List } from 'cnc-tskit';
-import * as theme from '../views/common/theme.js';
-import grooveBg from '../../../assets/groovepaper2.jpg';
-
-
-export enum SystemColor {
-    COLOR_LOGO_ORANGE = '#F0680B',
-    COLOR_LOGO_GREEN = '#57AB27',
-    COLOR_LOGO_PINK = '#E2007A',
-    COLOR_LOGO_PINK_LIGHT = '#FFC8AD',
-    COLOR_LOGO_BLUE = '#009EE0',
-    COLOR_LOGO_BLUE_OPAQUE = 'RGBA(0, 158, 224, 0.7)',
-    COLOR_LOGO_BLUE_SHINE = '#00CAF6',
-    COLOR_WHITELIKE_BLUE = '#e2f4fb',
-    COLOR_LIGHT_GREY = '#DADADA'
-}
 
 
 export interface ColorScaleFunctionGenerator {
@@ -39,16 +24,36 @@ export interface ColorScaleFunctionGenerator {
 }
 
 
-const defaultTheme:ColorTheme = {
+const fallbackTheme:ColorTheme = {
 
     themeId: 'default',
     themeLabel: 'Default',
 
+
+    defaultFontFamily: '"Roboto", "Segoe UI", Arial, sans-serif',
+    condensedFontFamily: '"Roboto Condensed", "Segoe UI", sans-serif',
+
+    // app-wide colors
+
+    colorLogoPink: '#E2007A',
+    colorLogoBlue: '#009EE0',
+    colorLogoBlueShining: '#00CAF6',
+    colorWhitelikeBlue: '#eff9fe',
+    colorInvertedSecondaryText: '#dadada',
+    colorLightText: '#888888',
+    colorSuperlightGrey: '#efefef',
+    colorDefaultText: '#010101',
+
+    tileBorderStyle: 'solid 1px #dadada',
+    tileBorderRadius: '0.25em',
+
     // text color
 
     pageBackgroundColor: '#ffffff',
-
     tileBackgroundColor: '#ffffff',
+
+    cssMediaMediumScreen: '@media screen and (max-width: 480px)',
+    cssMediaSmallScreen: '@media screen and (max-width: 480px)',
 
 
     // charts
@@ -171,31 +176,38 @@ export class Theme {
 
     public readonly lineConfidenceAreaColor2:string;
 
+    public readonly tileBorderStyle:string;
+
+    public readonly tileBorderRadius:string;
+
     constructor(conf?:ColorTheme) {
 
-        const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
+        const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
         this.ident = confSrc.themeId;
 
-        this.defaultFontFamily = confSrc.defaultFontFamily || theme.defaultFontFamily;
-        this.condensedFontFamily = confSrc.condensedFontFamily || theme.condensedFontFamily;
+        this.defaultFontFamily = confSrc.defaultFontFamily || fallbackTheme.defaultFontFamily;
+        this.condensedFontFamily = confSrc.condensedFontFamily || fallbackTheme.condensedFontFamily;
         this.defaultFontSize = confSrc.defaultFontSize || '1em';
         this.backgroundImage = confSrc.backgroundImage || undefined;
-        this.pageBackgroundColor = confSrc.pageBackgroundColor || defaultTheme.pageBackgroundColor;
-        this.tileBackgroundColor = confSrc.tileBackgroundColor || defaultTheme.tileBackgroundColor;
-        this.colorLogoBlue = confSrc.colorLogoBlue || theme.colorLogoBlue;
-        this.colorWhitelikeBlue = confSrc.colorWhitelikeBlue || theme.colorWhitelikeBlue;
-        this.colorLightText = confSrc.colorLightText || theme.colorLightText;
-        this.colorDefaultText = confSrc.colorDefaultText || theme.colorDefaultText;
-        this.colorInvertText = confSrc.colorInvertText || theme.colorInvertedSecondary;
-        this.colorSecondaryText = confSrc.colorSecondaryText || theme.colorInvertedSecondary;
-        this.colorLogoPink = confSrc.colorLogoPink || theme.colorLogoPink;
-        this.colorSuperlightGrey = confSrc.colorSuperlightGrey || theme.colorSuperlightGrey;
-        this.colorLogoBlueShining = confSrc.colorLogoBlueShining || theme.colorLogoBlueShining;
-        this.colorInvertedSecondaryText = confSrc.colorInvertedSecondaryText || theme.colorInvertedSecondary;
+        this.pageBackgroundColor = confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
+        this.tileBackgroundColor = confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
+        this.colorLogoBlue = confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
+        this.colorWhitelikeBlue = confSrc.colorWhitelikeBlue || fallbackTheme.colorWhitelikeBlue;
+        this.colorLightText = confSrc.colorLightText || fallbackTheme.colorLightText;
+        this.colorDefaultText = confSrc.colorDefaultText || fallbackTheme.colorDefaultText;
+        this.colorInvertText = confSrc.colorInvertText || fallbackTheme.colorInvertedSecondaryText;
+        this.colorSecondaryText = confSrc.colorSecondaryText || fallbackTheme.colorInvertedSecondaryText;
+        this.colorLogoPink = confSrc.colorLogoPink || fallbackTheme.colorLogoPink;
+        this.colorSuperlightGrey = confSrc.colorSuperlightGrey || fallbackTheme.colorSuperlightGrey;
+        this.colorLogoBlueShining = confSrc.colorLogoBlueShining || fallbackTheme.colorLogoBlueShining;
+        this.colorInvertedSecondaryText = confSrc.colorInvertedSecondaryText || fallbackTheme.colorInvertedSecondaryText;
 
-        this.cssMediaMediumSize = confSrc.cssMediaMediumSize || theme.media.medium;
-        this.cssMediaSmallSize = confSrc.cssMediaSmallSize || theme.media.small;
+        this.cssMediaMediumSize = confSrc.cssMediaMediumScreen || fallbackTheme.cssMediaMediumScreen;
+        this.cssMediaSmallSize = confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
         this.svgIconsFilter = confSrc.svgIconsFilter;
+
+        this.tileBorderStyle = confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
+        this.tileBorderRadius = confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
 
 
         this.catColors = confSrc.category || [];
