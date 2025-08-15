@@ -26,7 +26,7 @@
                 "enum": [
                     "mixed",
                     "modifiers-of",
-                    "noun-modified-by",
+                    "nouns-modified-by",
                     "verbs-object",
                     "verbs-subject"
                 ],

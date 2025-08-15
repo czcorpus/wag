@@ -86,8 +86,8 @@ export class SyntacticCollsTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
-                data: {},
-                displayTypes: conf.displayTypes,
+                data: null,
+                displayType: conf.displayTypes[0], // TODO !
                 examplesCache: {},
                 exampleWindowData: undefined,
                 deprelValues,

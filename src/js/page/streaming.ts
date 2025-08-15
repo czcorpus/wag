@@ -446,7 +446,7 @@ export class DataStreamingPreview implements IDataStreaming {
                 } else {
                     observer.error(new Error(`No preview data for tile ${tileId} and query index ${entry.queryIdx}`));
                 }
-                observer.complete();           
+                observer.complete();
             });
         });
     }

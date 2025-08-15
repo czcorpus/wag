@@ -26,8 +26,7 @@ export interface FreqRowResponse {
     freq:number;
     base:number;
     ipm:number;
-    collWeight:number;
-    coOccScore:number;
+    collScore:number;
 }
 
 function escapeDQuotes(v:string):string {
