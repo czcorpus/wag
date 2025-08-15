@@ -62,8 +62,8 @@ export interface SyntacticCollsModelState {
     widthFract:number;
     corpname:string;
     queryMatch:QueryMatch;
-    data:{[key in SCollsQueryType]?:SCollsData};
-    displayTypes:Array<SCollsQueryType>;
+    data:SCollsData;
+    displayType:SCollsQueryType;
     examplesCache:{[key:string]:SCollsExamples};
     exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
@@ -136,11 +136,8 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     this.appServices.showMessage(SystemMessageType.ERROR, state.error);
 
                 } else {
-                    state.data[action.payload.qType] = action.payload.data;
-                    state.data[action.payload.qType].rows = state.data[action.payload.qType].rows.slice(0, this.maxItems);
-                    if (List.every(qType => !!state.data[qType], state.displayTypes)) {
-                        state.isBusy = false;
-                    }
+                    state.data = action.payload.data;
+                    state.isBusy = false;
                 }
             }
         );
@@ -152,7 +149,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.isBusy = true;
             },
             (state, action, dispatch) => {
-                const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
+                const q = state.data.examplesQueryTpl.replace('%s', action.payload.word);
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
                     this.eApi.call(
@@ -253,15 +250,13 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
     }
 
     private reloadData(streaming:IDataStreaming, state:SyntacticCollsModelState, seDispatch:SEDispatcher) {
-        merge(...List.map(qType =>
-            this.api.call(
-                streaming,
-                this.tileId,
-                0,
-                this.stateToArgs(state, qType)
-            ),
-            state.displayTypes,
-        )).subscribe({
+        this.api.call(
+            streaming,
+            this.tileId,
+            0,
+            this.stateToArgs(state)
+
+        ).subscribe({
             next: ([qType, data]) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
@@ -269,7 +264,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                         tileId: this.tileId,
                         isEmpty: false,
                         data,
-                        qType,
                     }
                 })
             },
@@ -280,7 +274,6 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                         tileId: this.tileId,
                         isEmpty: true,
                         data: undefined,
-                        qType: undefined,
                     },
                     error,
                 })
@@ -289,7 +282,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
     }
 
 
-    private stateToArgs(state:SyntacticCollsModelState, queryType:SCollsQueryType):SCollsRequest {
+    private stateToArgs(state:SyntacticCollsModelState):SCollsRequest {
         const args = {
             w: state.queryMatch.lemma ? state.queryMatch.lemma : state.queryMatch.word,
         };
@@ -300,7 +293,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         return {
             params: {
                 corpname: state.corpname,
-                queryType: queryType,
+                queryType: state.displayType,
             },
             args
         };

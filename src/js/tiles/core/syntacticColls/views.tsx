@@ -34,7 +34,7 @@ import { QueryMatch } from '../../../query/index.js';
 
 
 
-const isEmpty = (data:{[key in SCollsQueryType]?:SCollsData}, qType:SCollsQueryType) => data[qType].rows.length === 0;
+const isEmpty = (data:SCollsData) => !data || data.rows.length === 0;
 
 
 export function init(
@@ -149,66 +149,58 @@ export function init(
     // ---------------------- <ScollexTable /> ---------------------------
 
     const ScollexTable:React.FC<{
-        data:{[key in SCollsQueryType]?:SCollsData};
-        qType:SCollsQueryType;
+        data:SCollsData;
+        queryType:SCollsQueryType;
         isMobile:boolean;
         widthFract:number;
         tileId:number;
 
     }> = (props) => {
 
-        const handleWordClick = (word:string, qType:SCollsQueryType) => () => {
+        const handleWordClick = (word:string) => () => {
             dispatcher.dispatch(
                 Actions.ClickForExample,
                 {
                     tileId: props.tileId,
-                    word,
-                    qType
+                    word
                 }
             )
         };
 
         return (
-            <S.SCollsTable key={`table:${props.qType}`}>
-                {Object.values(props.data).filter(v => !!v).length > 1 ?
-                    <h2>{ut.translate(`syntactic_colls__heading_${props.qType}`)}</h2> :
-                    null
+            <S.SCollsTable>
+                <h2>{ut.translate(`syntactic_colls__heading_${props.queryType}`)}</h2> :
+                {isEmpty(props.data) ?
+                    <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                            widthFract={props.widthFract} render={(width:number, height:number) => (
+                        <table className='data'>
+                            <thead>
+                                <tr>
+                                    <th key="word">{ut.translate('syntactic_colls__tab_hd_word')}</th>
+                                    <th key="freq">{ut.translate('syntactic_colls__tab_hd_freq')}</th>
+                                    <th key="ipm">{ut.translate('syntactic_colls__tab_hd_ipm')}</th>
+                                    <th key="score">{ut.translate('syntactic_colls__tab_hd_score')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {List.map(
+                                    (row, i) => (
+                                        <tr key={i}>
+                                            <td key="word" className="word">
+                                                <a onClick={handleWordClick(row.value)}>{row.value}</a>
+                                            </td>
+                                            <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
+                                            <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
+                                            <td key="score" className="num">{ut.formatNumber(row.collWeight, 4)}</td>
+                                        </tr>
+                                    ),
+                                    props.data.rows
+                                )}
+                            </tbody>
+                        </table>
+                    )}/>
                 }
-                {props.data[props.qType] ?
-                    isEmpty(props.data, props.qType) ?
-                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
-                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                                key={props.qType} widthFract={props.widthFract} render={(width:number, height:number) => (
-                            <table className='data'>
-                                <thead>
-                                    <tr>
-                                        <th key="word">{ut.translate('syntactic_colls__tab_hd_word')}</th>
-                                        <th key="freq">{ut.translate('syntactic_colls__tab_hd_freq')}</th>
-                                        <th key="ipm">{ut.translate('syntactic_colls__tab_hd_ipm')}</th>
-                                        <th key="score">{ut.translate('syntactic_colls__tab_hd_score')}</th>
-                                        <th key="cooc-score">{ut.translate('syntactic_colls__tab_hd_cooc_score')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {List.map(
-                                        (row, i) => (
-                                            <tr key={i}>
-                                                <td key="word" className="word">
-                                                    <a onClick={handleWordClick(row.value, props.qType)}>{row.value}</a>
-                                                </td>
-                                                <td key="freq" className="num">{ut.formatNumber(row.freq)}</td>
-                                                <td key="ipm" className="num">{ut.formatNumber(row.ipm, 2)}</td>
-                                                <td key="score" className="num">{ut.formatNumber(row.collWeight, 4)}</td>
-                                                <td key="cooc-score" className="num">{ut.formatNumber(row.coOccScore, 4)}</td>
-                                            </tr>
-                                        ),
-                                        props.data[props.qType].rows
-                                    )}
-                                </tbody>
-                            </table>
-                        )}/> :
-                    null
-                    }
             </S.SCollsTable>
         );
     };
@@ -217,41 +209,37 @@ export function init(
     // ---------------------- <WSSTable /> ---------------------------
 
     const WSSTable:React.FC<{
-        data:{[key in SCollsQueryType]?:SCollsData};
-        qType:SCollsQueryType;
+        data:SCollsData;
         isMobile:boolean;
         widthFract:number;
+        queryType:SCollsQueryType;
         tileId:number;
 
     }> = (props) => {
 
-        const handleWordClick = (word:string, qType:SCollsQueryType) => () => {
+        const handleWordClick = (word:string) => () => {
             dispatcher.dispatch(
                 Actions.ClickForExample,
                 {
                     tileId: props.tileId,
-                    word,
-                    qType
+                    word
                 }
             )
         };
 
         return (
-            <S.SCollsTable key={`table:${props.qType}`}>
-                {Object.values(props.data).filter(v => !!v).length > 1 ?
-                    <h2>{ut.translate(`syntactic_colls__heading_${props.qType}`)}</h2> :
-                    null
-                }
-                {props.data[props.qType] ?
-                    isEmpty(props.data, props.qType) ?
-                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
-                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                                widthFract={props.widthFract} render={(width:number, height:number) => (
+            <S.SCollsTable>
+                <h2>{ut.translate(`syntactic_colls__heading_${props.queryType}`)}</h2>
+                {isEmpty(props.data) ?
+                    <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                            widthFract={props.widthFract}
+                            render={(width:number, height:number) => (
                             <table className="data">
                                 <thead>
                                     <tr>
                                         <th>{ut.translate('syntactic_colls__tab_hd_word')}</th>
-                                        <th>{ut.translate('syntactic_colls__tab_hd_score')}</th>
+                                        <th>{ut.translate('syntactic_colls__tab_hd_score')} (RRF)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -261,8 +249,8 @@ export function init(
                                                 <td className="word">
                                                     {row.mutualDist < 0 ?
                                                         <>
-                                                            <a onClick={handleWordClick(row.value, props.qType)}>{row.value}</a>
-                                                            <span className="fn">({row.valueSyntFn})</span>
+                                                            <a onClick={handleWordClick(row.value)}>{row.value}</a>
+                                                            <span className="fn">({row.deprel})</span>
                                                             {row.mutualDist < -1 ?
                                                                 <>
                                                                     <span className="arrows">{'\u2192'}</span>
@@ -272,34 +260,32 @@ export function init(
                                                             }
                                                             <span className="arrows">{'\u2192'}</span>
                                                             <span>{'\u2B24'}</span>
-                                                            <span className="fn">({row.searchMatchSyntFn})</span>
 
                                                         </> :
                                                         <>
                                                             {'\u2B24'}
-                                                            <span className="fn">({row.searchMatchSyntFn})</span>
-                                                            <span className="arrows">{'\u2192'}</span>
+                                                            <span className="arrows">{'\u2190'}</span>
                                                             {row.mutualDist > 1 ?
                                                                 <>
                                                                     {'\u25EF'}
-                                                                    <span className="arrows">{'\u2192'}</span>
+                                                                    <span className="arrows">{'\u2190'}</span>
                                                                 </> :
                                                                 null
                                                             }
-                                                            <a onClick={handleWordClick(row.value, props.qType)}>{row.value}</a>
-                                                            <span className="fn">({row.valueSyntFn})</span>
+                                                                <span className="fn">({row.deprel})</span>
+                                                            <a onClick={handleWordClick(row.value)}>{row.value}</a>
                                                         </>
                                                     }
                                                 </td>
                                                 <td className="num">{ut.formatNumber(row.collWeight, 4)}</td>
                                             </tr>
                                         ),
-                                        props.data[props.qType].rows
+                                        props.data.rows
                                     )}
                                 </tbody>
                             </table>
-                        )}/> :
-                    null
+                            )}
+                        />
                     }
             </S.SCollsTable>
         );
@@ -311,26 +297,25 @@ export function init(
 
         const state = useModel(model);
 
-        const renderWordCloud = (qType:SCollsQueryType) => {
-            return <S.SCollsWordCloud key={`wordcloud:${qType}`}>
-                {Object.values(state.data).filter(v => !!v).length > 1 ?
-                    <h2>{ut.translate(`syntactic_colls__heading_${qType}`)}</h2> :
-                    null
-                }
-                {state.data[qType] ?
-                    isEmpty(state.data, qType) ?
-                        <p>{ut.translate('syntactic_colls__no_data')}</p> :
-                        <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                                key={qType} widthFract={props.widthFract} render={(width:number, height:number) => (
-                            <WordCloud width={width} height={height} isMobile={props.isMobile}
-                                data={state.data[qType].rows}
-                                font={theme.infoGraphicsFont}
-                                dataTransform={dataTransform}
-                            />
-                        )}/> :
-                    null
-                }
-            </S.SCollsWordCloud>
+        const renderWordCloud = () => {
+            return (
+                <S.SCollsWordCloud>
+                    <h2>{ut.translate(`syntactic_colls__heading_${state.displayType}`)}</h2> :
+                    {state.data ?
+                        isEmpty(state.data) ?
+                            <p>{ut.translate('syntactic_colls__no_data')}</p> :
+                            <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                    widthFract={props.widthFract} render={(width:number, height:number) => (
+                                <WordCloud width={width} height={height} isMobile={props.isMobile}
+                                    data={state.data.rows}
+                                    font={theme.infoGraphicsFont}
+                                    dataTransform={dataTransform}
+                                />
+                            )}/> :
+                        null
+                    }
+                </S.SCollsWordCloud>
+            )
         };
 
         const handleExamplesClick = () => {
@@ -361,7 +346,7 @@ export function init(
                                 if (state.isAltViewMode) {
                                     return (
                                         <div className="tables">
-                                            {List.map(qType => renderWordCloud(qType), state.displayTypes)}
+                                            {renderWordCloud()}
                                         </div>
                                     );
 
@@ -371,15 +356,20 @@ export function init(
                                 } else {
                                     return (
                                         <div className="tables">
-                                            {List.map(
-                                                (qType, i) => state.apiType === 'default' ?
-                                                    <ScollexTable key={`scollex:${qType}:${i}`}
-                                                        tileId={props.tileId} qType={qType} data={state.data}
-                                                        isMobile={props.isMobile} widthFract={props.widthFract} /> :
-                                                    <WSSTable  key={`wss:${qType}:${i}`} tileId={props.tileId} qType={qType} data={state.data}
-                                                        isMobile={props.isMobile} widthFract={props.widthFract} />,
-                                                state.displayTypes
-                                            )}
+                                            {state.apiType === 'default' ?
+                                                <ScollexTable
+                                                    tileId={props.tileId}
+                                                    data={state.data}
+                                                    queryType={state.displayType}
+                                                    isMobile={props.isMobile}
+                                                    widthFract={props.widthFract} /> :
+                                                <WSSTable
+                                                    tileId={props.tileId}
+                                                    data={state.data}
+                                                    queryType={state.displayType}
+                                                    isMobile={props.isMobile}
+                                                    widthFract={props.widthFract} />
+                                            }
                                         </div>
                                     );
                                 }

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import urlJoin from 'url-join';
 
 import { ajax$ } from '../../../../page/ajax.js';
@@ -30,14 +30,16 @@ import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 
 
 export interface SCollsDataRow {
-    searchMatchSyntFn?:string;
     value:string;
-    valueSyntFn?:string;
+    deprel?:string;
     freq:number;
     base:number;
     ipm:number;
     collWeight:number;
-    coOccScore:number;
+    logDice?:number;
+    tscore?:number;
+    lmi?:number;
+    rrf?:number;
     mutualDist?:number;
 }
 
@@ -95,7 +97,7 @@ export interface SCollsRequest {
 
 
 // query types are mquery endpoint values
-export type SCollsQueryType = 'noun-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed';
+export type SCollsQueryType = 'nouns-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed';
 
 
 
@@ -165,8 +167,7 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
                                 freq: row.freq,
                                 base: row.base,
                                 ipm: row.ipm,
-                                collWeight: row.collWeight,
-                                coOccScore: row.coOccScore
+                                collWeight: row.collScore,
                             }),
                             data.freqs
                         ),

@@ -23,7 +23,6 @@ import { SCollsData, SCollsExamples, SCollsQueryType } from './api/scollex.js';
 export class Actions {
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {
-        qType:SCollsQueryType;
         data:SCollsData;
     }> = {
         name: GlobalActions.TileDataLoaded.name
@@ -45,7 +44,6 @@ export class Actions {
 
     static ClickForExample:Action<{
         tileId:number;
-        qType:SCollsQueryType;
         word:string;
     }> = {
         name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'

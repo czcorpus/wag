@@ -22,7 +22,7 @@ import { DataApi, ResourceApi } from '../../../../types.js';
 import { SCollsApiResponse, SCollsData, SCollsQueryType, SCollsRequest } from './scollex.js';
 import { BacklinkConf } from '../../../../page/tile.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import urlJoin from 'url-join';
 import { Dict, HTTP, List, tuple, pipe } from 'cnc-tskit';
 import { ajax$ } from '../../../../page/ajax.js';
@@ -30,15 +30,18 @@ import { ajax$ } from '../../../../page/ajax.js';
 
 interface wordInfo {
     value:string;
-    syntacticFunc:string;
+    pos:string;
 }
 
 
 interface WSServerResponseEntry {
     searchMatch:wordInfo;
     collocate:wordInfo;
+    deprel:string;
     logDice:number;
     tscore:number;
+    lmi:number;
+    rrf:number;
     mutualDist:number;
 }
 
@@ -68,6 +71,47 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
+    private mkUrl(request:SCollsRequest):string {
+        if (request.params.queryType === 'mixed') {
+            return request.args.deprel ?
+                urlJoin(
+                    this.apiURL,
+                    'dataset',
+                    request.params.corpname,
+                    'collocations',
+                    encodeURIComponent(request.args.w),
+                    request.args.deprel
+                ) :
+                urlJoin(
+                    this.apiURL,
+                    'dataset',
+                    request.params.corpname,
+                    'collocations',
+                    encodeURIComponent(request.args.w)
+                );
+
+        } else {
+            return request.args.deprel ?
+                urlJoin(
+                    this.apiURL,
+                    'dataset',
+                    request.params.corpname,
+                    'collocationsOfType',
+                    request.params.queryType,
+                    encodeURIComponent(request.args.w),
+                    request.args.deprel
+                ) :
+                urlJoin(
+                    this.apiURL,
+                    'dataset',
+                    request.params.corpname,
+                    'collocationsOfType',
+                    request.params.queryType,
+                    encodeURIComponent(request.args.w)
+                );
+        }
+    }
+
 
     call(
         dataStreaming:IDataStreaming|null,
@@ -75,23 +119,7 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
         queryIdx:number,
         request:SCollsRequest
     ):Observable<[SCollsQueryType, SCollsData]> {
-        const url = request.args.deprel ?
-            urlJoin(
-                this.apiURL,
-                'dataset',
-                request.params.corpname,
-                'collocations',
-                encodeURIComponent(request.args.w),
-                request.args.deprel
-            ) :
-            urlJoin(
-                this.apiURL,
-                'dataset',
-                request.params.corpname,
-                'collocations',
-                encodeURIComponent(request.args.w)
-            );
-
+        const url = this.mkUrl(request);
         return (
             dataStreaming ?
                 dataStreaming.registerTileRequest<WSServerResponse>(
@@ -120,14 +148,16 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
                     {
                         rows: List.map(
                             row => ({
-                                searchMatchSyntFn: row.searchMatch.syntacticFunc,
                                 value: row.collocate.value,
-                                valueSyntFn: row.collocate.syntacticFunc,
+                                deprel: row.deprel,
                                 freq: -1,
                                 base: -1,
                                 ipm: -1,
-                                collWeight: row.tscore,
-                                coOccScore: -1,
+                                collWeight: row.rrf,
+                                tscore: row.tscore,
+                                logDice: row.logDice,
+                                lmi: row.lmi,
+                                rrf: row.rrf,
                                 mutualDist: row.mutualDist
                             }),
                             data
