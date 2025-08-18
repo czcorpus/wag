@@ -4,27 +4,11 @@
         "apiURL": {
             "type": "string"
         },
-        "apiType": {
-            "enum": [
-                "default",
-                "wss"
-            ],
-            "type": "string"
-        },
-        "eApiURL": {
-            "type": "string"
-        },
         "corpname": {
             "type": "string"
         },
         "maxItems": {
             "type": "number"
-        },
-        "displayTypes": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/DisplayTypeConf"
-            }
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -88,53 +72,10 @@
     "required": [
         "apiURL",
         "corpname",
-        "displayTypes",
-        "eApiURL",
         "maxItems",
         "tileType"
     ],
     "definitions": {
-        "DisplayTypeConf": {
-            "type": "object",
-            "properties": {
-                "displayType": {
-                    "$ref": "#/definitions/SCollsQueryType"
-                },
-                "supportedPos": {
-                    "anyOf": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        {
-                            "enum": [
-                                "any"
-                            ],
-                            "type": "string"
-                        }
-                    ]
-                },
-                "label": {}
-            },
-            "required": [
-                "displayType",
-                "label",
-                "supportedPos"
-            ]
-        },
-        "SCollsQueryType": {
-            "enum": [
-                "mixed",
-                "modifiers-of",
-                "none",
-                "nouns-modified-by",
-                "verbs-object",
-                "verbs-subject"
-            ],
-            "type": "string"
-        },
         "BacklinkConf<any>": {
             "type": "object",
             "properties": {

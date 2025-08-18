@@ -90,6 +90,7 @@ export interface SCollsRequest {
     },
     args:{
         w:string;
+        textType?:string;
         deprel?:string;
         pos?:string;
     }
@@ -97,11 +98,11 @@ export interface SCollsRequest {
 
 
 // query types are mquery endpoint values
-export type SCollsQueryType = 'nouns-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed';
+export type SCollsQueryType = 'nouns-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed'|'none';
 
 
 
-export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCollsQueryType, SCollsData]> {
+export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCollsData> {
 
     private readonly apiURL:string;
 
@@ -130,7 +131,7 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
         return null;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, request:SCollsRequest):Observable<[SCollsQueryType, SCollsData]> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, request:SCollsRequest):Observable<SCollsData> {
         const url = urlJoin(this.apiURL, 'query', request.params.corpname, request.params.queryType);
         let data:Observable<SCollsApiResponse>;
         if (this.useDataStream) {
@@ -158,22 +159,19 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, [SCo
 
         return data.pipe(
             map(data => (
-                tuple(
-                    request.params.queryType,
-                    {
-                        rows: List.map(
-                            row => ({
-                                value: row.word,
-                                freq: row.freq,
-                                base: row.base,
-                                ipm: row.ipm,
-                                collWeight: row.collScore,
-                            }),
-                            data.freqs
-                        ),
-                        examplesQueryTpl: data.examplesQueryTpl
-                    }
-                )
+                {
+                    rows: List.map(
+                        row => ({
+                            value: row.word,
+                            freq: row.freq,
+                            base: row.base,
+                            ipm: row.ipm,
+                            collWeight: row.collScore,
+                        }),
+                        data.freqs
+                    ),
+                    examplesQueryTpl: data.examplesQueryTpl
+                }
             )),
         );
     }

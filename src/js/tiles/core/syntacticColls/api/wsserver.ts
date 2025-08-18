@@ -45,13 +45,16 @@ interface WSServerResponseEntry {
     mutualDist:number;
 }
 
-type WSServerResponse = Array<WSServerResponseEntry>;
+interface WSServerResponse {
+    items:Array<WSServerResponseEntry>;
+    error:string;
+}
 
 
 /**
  *
  */
-export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SCollsQueryType, SCollsData]> {
+export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, SCollsData> {
 
     private readonly apiURL:string;
 
@@ -112,21 +115,31 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
         }
     }
 
+    private prepareArgs(queryArgs:{[key:string]:string|number}):string {
+        return pipe(
+            queryArgs,
+            Dict.toEntries(),
+            List.filter(([_, v]) => v !== null),
+            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
+            x => x.join('&'),
+        )
+    }
 
     call(
         dataStreaming:IDataStreaming|null,
         tileId:number,
         queryIdx:number,
-        request:SCollsRequest
-    ):Observable<[SCollsQueryType, SCollsData]> {
-        const url = this.mkUrl(request);
+        request:SCollsRequest|null
+    ):Observable<SCollsData> {
+        const url = request ? this.mkUrl(request) : null;
+        const argsStr = request ? this.prepareArgs({...request.args, limit: 20}) : '';
         return (
             dataStreaming ?
                 dataStreaming.registerTileRequest<WSServerResponse>(
                     {
                         tileId,
                         method: HTTP.Method.GET,
-                        url: `${url}?limit=20`,
+                        url: request ? `${url}?${argsStr}` : null,
                         body: {},
                         contentType: 'application/json',
                     }
@@ -143,8 +156,7 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
 
         ).pipe(
             map(data => (
-                tuple(
-                    'mixed',
+                data ?
                     {
                         rows: List.map(
                             row => ({
@@ -160,11 +172,14 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, [SColls
                                 rrf: row.rrf,
                                 mutualDist: row.mutualDist
                             }),
-                            data
+                            data.items
                         ),
                         examplesQueryTpl: undefined
+                    } :
+                    {
+                        rows: [],
+                        examplesQueryTpl: undefined
                     }
-                )
             )),
         );
     }

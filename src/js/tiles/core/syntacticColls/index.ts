@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2025 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2023 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -17,13 +18,23 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryMatch, QueryType } from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { deprelValues } from './deprel.js';
+import { LocalizedConfMsg } from 'src/js/types.js';
+import { PosItem } from 'src/js/postag.js';
+import { List, pipe } from 'cnc-tskit';
+
+
+export interface DisplayTypeConf {
+    displayType:SCollsQueryType;
+    supportedPos:'any'|Array<string>;
+    label:LocalizedConfMsg;
+}
 
 
 export interface SyntacticCollsTileConf extends TileConf {
@@ -32,7 +43,57 @@ export interface SyntacticCollsTileConf extends TileConf {
     eApiURL:string;
     corpname:string;
     maxItems:number;
-    displayTypes:Array<SCollsQueryType>; // TODO is this right type?
+    displayTypes:Array<DisplayTypeConf>;
+}
+
+
+function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):DisplayTypeConf|null {
+    const posMatches = (v:string, pos:Array<PosItem>) => {
+        console.log('pos.join(\' \').toLowerCase(): ', pos.map(x => x.value).join(' ').toLowerCase(), ', v = ', v.toLowerCase());
+        return pipe(pos, List.map(x => x.value), x => x.join(' ')).toLowerCase() === v.toLowerCase();
+
+    }
+
+    console.log(pipe(
+        configs,
+        List.sorted(
+            (v1, v2) => {
+                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos) ||
+                        !Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
+                    return 1;
+                }
+                return -1;
+            }
+        )));
+
+
+    const matchingHandlers = pipe(
+        configs,
+        List.sorted(
+            (v1, v2) => {
+                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos) ||
+                        !Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
+                    return 1;
+                }
+                return -1;
+            }
+        ),
+        List.filter(
+            v => {
+                if (Array.isArray(v.supportedPos)) {
+                    return !!List.find(item => posMatches(item, qm.pos), v.supportedPos);
+
+                } else if (v.supportedPos === 'any') {
+                    return true;
+                }
+                return false;
+            }
+        ),
+    );
+    if (!List.empty(matchingHandlers)) {
+        return List.head(matchingHandlers);
+    }
+    return null;
 }
 
 /**
@@ -65,6 +126,11 @@ export class SyntacticCollsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.apiType = conf.apiType;
+
+        const currQueryMatch = findCurrQueryMatch(queryMatches[0]);
+        const qhandler = findQueryHandler(conf.displayTypes, currQueryMatch);
+        console.log('match: ', currQueryMatch, ', handler: ', qhandler)
+
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -87,7 +153,8 @@ export class SyntacticCollsTile implements ITileProvider {
                 corpname: conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
-                displayType: conf.displayTypes[0], // TODO !
+                displayType: qhandler ? qhandler.displayType : 'none',
+                label: qhandler ? appServices.importExternalMessage(qhandler.label) : null,
                 examplesCache: {},
                 exampleWindowData: undefined,
                 deprelValues,

@@ -66,7 +66,15 @@ export const SCollsTable = styled.div<{theme:Theme}>`
         .fn {
             color: ${props => props.theme.colorLightText};
         }
+    }
 
+    .no-analysis-avail {
+        border-radius: ${props => props.theme.tileBorderRadius};
+        background-color: ${props => props.theme.colorLightText};
+        color: ${props => props.theme.colorInvertText};
+        font-size: 1.5em;
+        padding: 1em;
+        text-align: center;
     }
 `;
 
