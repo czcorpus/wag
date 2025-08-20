@@ -12,7 +12,8 @@
         "syntactic_colls__tab_hd_ipm": "Instances per mil.",
         "syntactic_colls__tab_hd_score": "Collocation score",
         "syntactic_colls__tab_hd_cooc_score": "Cooccurrence score",
-        "syntactic_colls__no_data": "No data"
+        "syntactic_colls__no_data": "No data",
+        "syntactic_colls__not_applicable_for_pos": "No collocation analysis available for the current Part of Speech"
     },
     "cs-CZ": {
         "syntactic_colls__main_label": "Syntaktické kolokace",
@@ -27,6 +28,7 @@
         "syntactic_colls__tab_hd_ipm": "Výskytů na milion",
         "syntactic_colls__tab_hd_score": "Kolokační skóre",
         "syntactic_colls__tab_hd_cooc_score": "Skóre souvýskytu",
-        "syntactic_colls__no_data": "Žádná data"
+        "syntactic_colls__no_data": "Žádná data",
+        "syntactic_colls__not_applicable_for_pos": "Pro daný slovní druh není k dispozici žádná další kolokační analýza"
     }
 }

@@ -64,6 +64,7 @@ export interface SyntacticCollsModelState {
     queryMatch:QueryMatch;
     data:SCollsData;
     displayType:SCollsQueryType;
+    label:string;
     examplesCache:{[key:string]:SCollsExamples};
     exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
@@ -257,7 +258,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             this.stateToArgs(state)
 
         ).subscribe({
-            next: ([qType, data]) => {
+            next: (data) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -283,6 +284,9 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
 
     private stateToArgs(state:SyntacticCollsModelState):SCollsRequest {
+        if (state.displayType === 'none') {
+            return null;
+        }
         const args = {
             w: state.queryMatch.lemma ? state.queryMatch.lemma : state.queryMatch.word,
         };

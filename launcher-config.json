@@ -101,6 +101,10 @@
         "conf_name": "SyntacticCollsTileConf"
       },
       {
+        "path": "core/syntacticCollsVsTextTypes",
+        "conf_name": "SyntacticCollsVsTextTypesTileConf"
+      },
+      {
         "path": "core/timeDistrib",
         "conf_name": "TimeDistTileConf"
       },
