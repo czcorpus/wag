@@ -266,6 +266,10 @@ export class Theme {
         return this.catColors[idx % this.catColors.length];
     }
 
+    numCategoryColors():number {
+        return Array.isArray(this.catColors) ? this.catColors.length : 0;
+    }
+
     categoryColorHighlighted(idx:number):string {
         return this.catColorsHighlighted[idx % this.catColors.length];
     }

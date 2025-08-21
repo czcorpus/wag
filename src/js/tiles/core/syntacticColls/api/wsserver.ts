@@ -41,6 +41,7 @@ interface WSServerResponseEntry {
     logDice:number;
     tscore:number;
     lmi:number;
+    ll:number;
     rrf:number;
     mutualDist:number;
 }
@@ -119,7 +120,7 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, SCollsD
         return pipe(
             queryArgs,
             Dict.toEntries(),
-            List.filter(([_, v]) => v !== null),
+            List.filter(([_, v]) => v !== null && v !== undefined),
             List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
             x => x.join('&'),
         )
@@ -169,6 +170,7 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, SCollsD
                                 tscore: row.tscore,
                                 logDice: row.logDice,
                                 lmi: row.lmi,
+                                ll: row.ll,
                                 rrf: row.rrf,
                                 mutualDist: row.mutualDist
                             }),

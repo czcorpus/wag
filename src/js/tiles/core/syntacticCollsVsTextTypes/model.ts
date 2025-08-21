@@ -17,16 +17,16 @@
  */
 
 import { IActionQueue, SEDispatcher, StatelessModel } from 'kombo';
-import { of as rxOf } from 'rxjs';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { IAppServices } from '../../../appServices.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
-import { SCollsData, SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
+import { SCollsData, SCollsQueryType } from '../syntacticColls/api/scollex.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions } from './common.js';
-import { List } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { SCollsTTRequest, WSServerSyntacticCollsTTAPI } from './api.js';
+import { Theme } from '../../../page/theme.js';
 
 
 export interface TTData {
@@ -54,6 +54,7 @@ interface SyntacticCollsModelArgs {
     queryType:QueryType;
     api:WSServerSyntacticCollsTTAPI;
     maxItems:number;
+    theme:Theme;
 }
 
 
@@ -67,6 +68,8 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
 
     private readonly api:WSServerSyntacticCollsTTAPI;
 
+    private readonly theme:Theme;
+
 
     constructor({
         dispatcher,
@@ -75,18 +78,54 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         initState,
         queryType,
         api,
-        maxItems
+        maxItems,
+        theme
     }:SyntacticCollsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.api = api;
+        this.theme = theme;
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-
+                const colors = pipe(
+                    state.data,
+                    List.flatMap(
+                        v => v.data.rows
+                    ),
+                    List.foldl(
+                        (acc, curr) => {
+                            acc[curr.value] = acc[curr.value] === undefined ? 1 : acc[curr.value] + 1;
+                            return acc;
+                        },
+                        {} as {[id:string]:number}
+                    ),
+                    Dict.toEntries(),
+                    List.sortedBy(([, v]) => v),
+                    List.reversed(),
+                    List.map(
+                        ([v, num], i) => i < theme.numCategoryColors() ?
+                            tuple(v, theme.categoryColor(i)) :
+                            tuple(v, undefined)
+                    ),
+                    Dict.fromEntries()
+                );
+                state.data = List.map(
+                    block => ({
+                        ...block,
+                        data: {
+                            ...block.data,
+                            rows: List.map(
+                                v => ({...v, color: colors[v.value]}),
+                                block.data.rows
+                            )
+                        }
+                    }),
+                    state.data
+                )
             }
         );
 

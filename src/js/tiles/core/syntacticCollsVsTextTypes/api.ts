@@ -41,6 +41,7 @@ interface WSServerResponseEntry {
     logDice:number;
     tscore:number;
     lmi:number;
+    ll:number;
     rrf:number;
     mutualDist:number;
 }
@@ -105,7 +106,7 @@ export class WSServerSyntacticCollsTTAPI implements DataApi<SCollsRequest, SColl
         request:SCollsTTRequest|null
     ):Observable<SCollsPartsData> {
         const url = request ? urlJoin(this.apiURL, 'collocations-tt') : null;
-        console.log('dataStreaming: >>>>>>>>>>>>> ', dataStreaming)
+
         return (
             dataStreaming ?
                 dataStreaming.registerTileRequest<WSServerResponse>(
@@ -157,6 +158,7 @@ export class WSServerSyntacticCollsTTAPI implements DataApi<SCollsRequest, SColl
                                             logDice: item.logDice,
                                             lmi: item.lmi,
                                             rrf: item.rrf,
+                                            ll: item.ll,
                                             mutualDist: item.mutualDist
                                         }),
                                         row.items
