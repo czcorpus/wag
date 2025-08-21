@@ -19,20 +19,64 @@
 import { styled } from 'styled-components';
 import { Theme } from '../../../page/theme.js';
 
-export const SyntacticCollsTT = styled.div`
 
-    .boxes {
-        display: flex;
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
+// ---------------- <View /> -------------------------------------
+
+export const View = styled.div`
+
 `;
 
-export const SingleTTTable = styled.div<{theme:Theme}>`
-    border: 1px solid ${props => props.theme.colorLightText};
-    margin: 1em;
+
+// ---------------- <SyntacticCollsTT /> --------------------------
+
+export const TableRow = styled.tr<{theme:Theme}>`
+
+    &:hover {
+        background-color: ${props => props.theme.colorWhitelikeBlue};
+    }
 
     td, th {
-        padding: 0.2em;
+        padding: 0.3em 0.6em;
     }
+
+    td, th {
+        border-width: 0 1px 0 0;
+        border-style: solid;
+        border-color: ${props => props.theme.colorLightText};
+
+        strong {
+            display: inline-block;
+            padding: 0.4em;
+        }
+    }
+
+    td.last-cell {
+        border: none;
+    }
+
+`;
+
+// ---------------- <SingleTTTable /> ----------------------------
+
+export const SingleTTTable = styled.table<{theme:Theme}>`
+
+    border: none;
+    border-collapse: collapse;
+
+    .head-row th {
+        font-size: 1.3em;
+        padding-bottom: 1em;
+    }
+
+    thead th {
+        padding: 0.3em 0.5em;
+        border-width: 0 1px 1px 0;
+        border-style: solid;
+        border-color: ${props => props.theme.colorLightText};
+    }
+
+    thead th.last-cell {
+        border-width: 0 0 1px 0;
+    }
+
 `;

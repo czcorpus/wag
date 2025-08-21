@@ -39,8 +39,10 @@ export interface SCollsDataRow {
     logDice?:number;
     tscore?:number;
     lmi?:number;
+    ll?:number;
     rrf?:number;
     mutualDist?:number;
+    color?:string;
 }
 
 export interface SCollsData {

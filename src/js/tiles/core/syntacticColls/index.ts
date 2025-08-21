@@ -25,8 +25,8 @@ import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, I
 import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { deprelValues } from './deprel.js';
-import { LocalizedConfMsg } from 'src/js/types.js';
-import { PosItem } from 'src/js/postag.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { PosItem } from '../../../postag.js';
 import { List, pipe } from 'cnc-tskit';
 
 
@@ -48,24 +48,10 @@ export interface SyntacticCollsTileConf extends TileConf {
 
 
 function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):DisplayTypeConf|null {
+
     const posMatches = (v:string, pos:Array<PosItem>) => {
-        console.log('pos.join(\' \').toLowerCase(): ', pos.map(x => x.value).join(' ').toLowerCase(), ', v = ', v.toLowerCase());
         return pipe(pos, List.map(x => x.value), x => x.join(' ')).toLowerCase() === v.toLowerCase();
-
     }
-
-    console.log(pipe(
-        configs,
-        List.sorted(
-            (v1, v2) => {
-                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos) ||
-                        !Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
-                    return 1;
-                }
-                return -1;
-            }
-        )));
-
 
     const matchingHandlers = pipe(
         configs,

@@ -21,13 +21,32 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { SyntacticCollsVsTTModel } from './model.js';
+import { SyntacticCollsVsTTModel, TTData } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
-import { Dict, List, pipe } from 'cnc-tskit';
+import { Color, Dict, List, pipe } from 'cnc-tskit';
 import { QueryMatch } from '../../../query/index.js';
-import { SCollsData } from '../syntacticColls/api/scollex.js';
+import { SCollsData, SCollsDataRow } from '../syntacticColls/api/scollex.js';
+
+
+function transpose(data:Array<TTData>):Array<Array<SCollsDataRow>> {
+    const maxLen = List.foldl(
+        (acc, curr) => List.size(curr.data.rows) > acc ? List.size(curr.data.rows) : acc,
+        0,
+        data
+    );
+    const table:Array<Array<SCollsDataRow>> = [];
+    for (let i = 0; i < maxLen; i++) {
+        if (table[i] === undefined) {
+            table[i] = [];
+        }
+        for (let j = 0; j < List.size(data); j++) {
+            table[i][j] = data[j].data.rows[i];
+        }
+    }
+    return table;
+}
 
 
 
@@ -41,32 +60,33 @@ export function init(
 
     const globalCompontents = ut.getComponents();
 
-    // --------------------- <SingleTTTable /> --------------------
+    // --------------------- <TableRow /> --------------------
 
-    const SingleTTTable:React.FC<{
-        label:string;
-        data:SCollsData;
+    const TableRow:React.FC<{
+        num:number;
+        row:Array<SCollsDataRow>;
     }> = (props) => {
 
         return (
-            <S.SingleTTTable>
-                <table>
-                    <thead>
-                        <tr><th colSpan={2}>{props.label}</th></tr>
-                    </thead>
-                    <tbody>
-                        {List.map(
-                            (v, i) => (
-                                <tr key={`${v.value}:${i}`}>
-                                    <th>{i+1})</th>
-                                    <td>{v.value}</td>
-                                </tr>
-                            ),
-                            props.data.rows
-                        )}
-                    </tbody>
-                </table>
-            </S.SingleTTTable>
+            <S.TableRow>
+                <th className="num">{props.num}</th>
+                {List.map(
+                    (v, i) => {
+                        const textCSS = {
+                            fontWeight: v && v.color ? 'bold' : 'normal',
+                        };
+                        const cellClass = List.size(props.row)-1 === i ? 'last-cell' : null;
+                        const title = v ? `log-dice: ${v.logDice}, LMI: ${v.lmi}, T-Score: ${v.tscore}, LL: ${v.ll}` : null;
+                        return v ?
+                            <td key={`${i}:${v.value}`} className={cellClass} title={title}>
+                                <strong style={textCSS}>{v.value}</strong>
+                                {v.color ? <span style={{color: v.color, fontSize: '1.2em'}}>{'\u2605'}</span> : null}
+                            </td> :
+                            <td key={`${i}:missing`} className={cellClass}>-</td>
+                    },
+                    props.row
+                )}
+            </S.TableRow>
         )
     };
 
@@ -76,22 +96,33 @@ export function init(
 
         const state = useModel(model);
 
+        const nonEmptyData = List.filter(v => !List.empty(v.data.rows), state.data);
+        const transposedData = transpose(nonEmptyData);
+
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
                     hasData={true} sourceIdent={{corp: state.corpname}}
                     backlink={[]} supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <S.SyntacticCollsTT>
-                    <div className="boxes">
-                        {pipe(
-                            state.data,
-                            List.filter(v => !List.empty(v.data.rows)),
-                            List.map(
-                                v => <SingleTTTable key={v.id} label={v.label} data={v.data} />,
-                            )
-                        )}
-                    </div>
-                </S.SyntacticCollsTT>
+                <S.View>
+                    <S.SingleTTTable>
+                        <thead>
+                            <tr className="head-row">
+                                <th></th>
+                                {List.map(
+                                    (v, i) => <th key={`label:${v.label}`} className={i === List.size(nonEmptyData)-1 ? 'last-cell' : null}>{v.label}</th>,
+                                    nonEmptyData
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {pipe(
+                                transposedData,
+                                List.map((v, i) => <TableRow num={i+1} key={`row:${i}d`} row={v} />)
+                            )}
+                        </tbody>
+                    </S.SingleTTTable>
+                </S.View>
             </globalCompontents.TileWrapper>
         );
     }

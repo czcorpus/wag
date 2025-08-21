@@ -74,6 +74,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
             appServices: appServices,
             queryType: queryType,
             maxItems: conf.maxItems,
+            theme,
             api: new WSServerSyntacticCollsTTAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
             initState: {
                 corpname: conf.corpname,
@@ -136,7 +137,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return true;
+        return false;
     }
 
     supportsSVGFigureSave():boolean {
