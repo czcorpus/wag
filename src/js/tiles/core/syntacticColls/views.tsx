@@ -236,7 +236,10 @@ export function init(
                                                         </> :
                                                         null
                                                     }
-                                                        <span className="fn">({row.deprel})</span>
+                                                    {row.deprel ?
+                                                        <span className="fn">({row.deprel})</span> :
+                                                        null
+                                                    }
                                                     <a onClick={handleWordClick(row.value)}>{row.value}</a>
                                                 </>
                                             }
