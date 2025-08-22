@@ -49,9 +49,16 @@ export interface SyntacticCollsTileConf extends TileConf {
 
 function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):DisplayTypeConf|null {
 
-    const posMatches = (v:string, pos:Array<PosItem>) => {
-        return pipe(pos, List.map(x => x.value), x => x.join(' ')).toLowerCase() === v.toLowerCase();
-    }
+    const posMatches = (v:string, queryMatch:QueryMatch) => {
+        const pos = pipe(
+            queryMatch.pos || [],
+            List.concat(queryMatch.upos || []),
+            List.filter(v => !!v.value),
+            List.map(x => x.value),
+            x => x.join(' ')
+        ).toLowerCase();
+        return pos === v.toLowerCase();
+    };
 
     const matchingHandlers = pipe(
         configs,
@@ -69,7 +76,7 @@ function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):Display
         List.filter(
             v => {
                 if (Array.isArray(v.supportedPos)) {
-                    return !!List.find(item => posMatches(item, qm.pos), v.supportedPos);
+                    return !!List.find(item => posMatches(item, qm), v.supportedPos);
 
                 } else if (v.supportedPos === 'any') {
                     return true;
