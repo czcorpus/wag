@@ -57,11 +57,13 @@ function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):Display
         configs,
         List.sorted(
             (v1, v2) => {
-                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos) ||
-                        !Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
+                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos)) {
+                    return -1;
+                }
+                if (!Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
                     return 1;
                 }
-                return -1;
+                return 0;
             }
         ),
         List.filter(
@@ -115,7 +117,6 @@ export class SyntacticCollsTile implements ITileProvider {
 
         const currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         const qhandler = findQueryHandler(conf.displayTypes, currQueryMatch);
-        console.log('match: ', currQueryMatch, ', handler: ', qhandler)
 
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
