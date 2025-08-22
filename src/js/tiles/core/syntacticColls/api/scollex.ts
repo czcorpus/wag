@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import urlJoin from 'url-join';
 
 import { ajax$ } from '../../../../page/ajax.js';
 import { DataApi, ResourceApi, SourceDetails } from '../../../../types.js';
 import { IApiServices } from '../../../../appServices.js';
-import { Dict, HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
+import { Dict, HTTP, Ident, List, pipe } from 'cnc-tskit';
 import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { IDataStreaming } from '../../../../page/streaming.js';

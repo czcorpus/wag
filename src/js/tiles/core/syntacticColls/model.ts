@@ -21,7 +21,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
-import { merge, of as rxOf } from 'rxjs';
+import { of as rxOf } from 'rxjs';
 import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types.js';
 import {
@@ -263,7 +263,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: false,
+                        isEmpty: List.empty(data.rows),
                         data,
                     }
                 })
@@ -273,7 +273,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
+                        isEmpty: false,
                         data: undefined,
                     },
                     error,

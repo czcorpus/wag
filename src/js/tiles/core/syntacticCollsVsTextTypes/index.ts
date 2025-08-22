@@ -19,10 +19,9 @@
 import { IActionDispatcher } from 'kombo';
 import { AltViewIconProps, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
-import { SyntacticCollsVsTTModel, TTData } from './model.js';
+import { SyntacticCollsVsTTModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
-import { WSServerSyntacticCollsAPI } from '../syntacticColls/api/wsserver.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
 import { WSServerSyntacticCollsTTAPI } from './api.js';
@@ -167,6 +166,10 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
 
     getReadDataFrom():number|null {
         return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

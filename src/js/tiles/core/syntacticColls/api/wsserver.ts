@@ -18,13 +18,13 @@
 
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { IApiServices } from '../../../../appServices.js';
-import { DataApi, ResourceApi } from '../../../../types.js';
-import { SCollsApiResponse, SCollsData, SCollsQueryType, SCollsRequest } from './scollex.js';
+import { DataApi } from '../../../../types.js';
+import { SCollsData, SCollsRequest } from './scollex.js';
 import { BacklinkConf } from '../../../../page/tile.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
-import { Dict, HTTP, List, tuple, pipe } from 'cnc-tskit';
+import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import { ajax$ } from '../../../../page/ajax.js';
 
 

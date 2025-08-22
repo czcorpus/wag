@@ -183,6 +183,10 @@ export class FreqBarTile implements ITileProvider {
     getReadDataFrom():number|null {
         return this.readDataFromTile;
     }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<FreqBarTileConf>  = {

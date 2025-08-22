@@ -162,6 +162,10 @@ export class TreqSubsetsTile implements ITileProvider {
     getReadDataFrom():number|null {
         return this.readDataFromTile;
     }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<TreqSubsetsTileConf> = {

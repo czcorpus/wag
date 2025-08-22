@@ -26,7 +26,6 @@ import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQuery
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { deprelValues } from './deprel.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { PosItem } from '../../../postag.js';
 import { List, pipe } from 'cnc-tskit';
 
 
@@ -43,6 +42,7 @@ export interface SyntacticCollsTileConf extends TileConf {
     eApiURL:string;
     corpname:string;
     maxItems:number;
+    hideOnNoData?:boolean;
     displayTypes:Array<DisplayTypeConf>;
 }
 
@@ -110,6 +110,10 @@ export class SyntacticCollsTile implements ITileProvider {
 
     private readonly apiType:'default'|'wss';
 
+    private readonly displayType:DisplayTypeConf;
+
+    private readonly _hideOnNoData:boolean;
+
     private view:TileComponent;
 
     constructor({
@@ -121,9 +125,10 @@ export class SyntacticCollsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.apiType = conf.apiType;
+        this._hideOnNoData = conf.hideOnNoData !== undefined ? !!conf.hideOnNoData : true;
 
         const currQueryMatch = findCurrQueryMatch(queryMatches[0]);
-        const qhandler = findQueryHandler(conf.displayTypes, currQueryMatch);
+        this.displayType = findQueryHandler(conf.displayTypes, currQueryMatch);
 
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
@@ -147,8 +152,8 @@ export class SyntacticCollsTile implements ITileProvider {
                 corpname: conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
-                displayType: qhandler ? qhandler.displayType : 'none',
-                label: qhandler ? appServices.importExternalMessage(qhandler.label) : null,
+                displayType: this.displayType ? this.displayType.displayType : 'none',
+                label: this.displayType ? appServices.importExternalMessage(this.displayType.label) : null,
                 examplesCache: {},
                 exampleWindowData: undefined,
                 deprelValues,
@@ -227,6 +232,10 @@ export class SyntacticCollsTile implements ITileProvider {
 
     getReadDataFrom():number|null {
         return null;
+    }
+
+    hideOnNoData():boolean {
+        return this._hideOnNoData;
     }
 }
 

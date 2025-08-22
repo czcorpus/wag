@@ -321,6 +321,9 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
         box-shadow: .09em .09em .15em .09em rgba(226, 0, 122, 0.7);
     }
 
+    .cnc-tile.hidden-no-data {
+        display: none;
+    }
 
     .cnc-tile-body {
         font-size: .9em;

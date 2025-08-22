@@ -22,12 +22,10 @@ import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { SyntacticCollsVsTTModel, TTData } from './model.js';
-import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
-import { Color, Dict, List, pipe } from 'cnc-tskit';
-import { QueryMatch } from '../../../query/index.js';
-import { SCollsData, SCollsDataRow } from '../syntacticColls/api/scollex.js';
+import { List, pipe } from 'cnc-tskit';
+import { SCollsDataRow } from '../syntacticColls/api/scollex.js';
 
 
 function transpose(data:Array<TTData>):Array<Array<SCollsDataRow>> {

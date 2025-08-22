@@ -155,6 +155,8 @@ export interface TileFrameProps {
 
     supportsAltView:boolean;
 
+    hideOnNoData:boolean;
+
     supportsSVGFigureSave:boolean;
 
     helpURL?:string;
@@ -275,6 +277,18 @@ export interface ITileProvider {
      * on the "primary" tile.
      */
     getReadDataFrom():number|null;
+
+    /**
+     * Method specifies whether WaG should hide the
+     * tile (via CSS) in case there are no data avaible.
+     *
+     * This can be useful e.g. if there are multiple tiles
+     * which may quite often end up with no result
+     * (e.g. they're dependent on a specific Part of Speech).
+     * Removing them during such situations can improve
+     * user experience.
+     */
+    hideOnNoData():boolean;
 }
 
 /**

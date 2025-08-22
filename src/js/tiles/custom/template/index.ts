@@ -139,6 +139,10 @@ export class __Template__Tile implements ITileProvider {
     getReadDataFrom():number|null {
         return null;
     }
+
+    hideOnNoData(): boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<__Template__TileConf> = {
