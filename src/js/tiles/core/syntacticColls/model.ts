@@ -37,6 +37,9 @@ import { DeprelValue } from './deprel.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 
+export type CollMeasure = 'LMI' | 'LL' | 'LogDice' | 'T-Score';
+
+
 export interface SyntacticCollsModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
@@ -65,6 +68,7 @@ export interface SyntacticCollsModelState {
     data:SCollsData;
     displayType:SCollsQueryType;
     label:string;
+    visibleMeasures:[CollMeasure, CollMeasure];
     examplesCache:{[key:string]:SCollsExamples};
     exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }

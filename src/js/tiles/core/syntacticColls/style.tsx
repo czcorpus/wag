@@ -19,7 +19,7 @@
 import { styled } from 'styled-components';
 import { Theme } from '../../../page/theme.js';
 
-export const SyntacticColls = styled.div`
+export const SyntacticColls = styled.div<{theme:Theme}>`
 
     position:relative;
 
@@ -31,6 +31,10 @@ export const SyntacticColls = styled.div`
 
     td.word a {
         cursor: pointer;
+    }
+
+    .hint {
+        color: ${props => props.theme.colorLightText};
     }
 
 `;

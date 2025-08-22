@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { SyntacticCollsModel } from './model.js';
+import { CollMeasure, SyntacticCollsModel } from './model.js';
 import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
 
 import * as S from './style.js';
@@ -35,6 +35,22 @@ import { QueryMatch } from '../../../query/index.js';
 
 
 const isEmpty = (data:SCollsData) => !data || data.rows.length === 0;
+
+
+const extractMeasure = (row:SCollsDataRow, msr:CollMeasure):number => {
+    switch (msr) {
+        case 'LL':
+            return row.ll;
+        case 'LMI':
+            return row.lmi;
+        case 'LogDice':
+            return row.logDice;
+        case 'T-Score':
+            return row.tscore;
+        default:
+            return undefined;
+    }
+};
 
 
 export function init(
@@ -154,6 +170,7 @@ export function init(
         widthFract:number;
         queryType:SCollsQueryType;
         label:string;
+        visibleMeasures:[CollMeasure, CollMeasure];
 
     }> = (props) => {
 
@@ -176,8 +193,14 @@ export function init(
                     <table className="data">
                         <thead>
                             <tr>
-                                <th>{ut.translate('syntactic_colls__tab_hd_word')}</th>
-                                <th>{ut.translate('syntactic_colls__tab_hd_score')} (RRF)</th>
+                                <th rowSpan={2}>{ut.translate('syntactic_colls__tab_hd_word')}</th>
+                                <th colSpan={2}>
+                                    {ut.translate('syntactic_colls__tab_hd_score')}
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>{props.visibleMeasures[0]}</th>
+                                <th>{props.visibleMeasures[1]}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,7 +211,10 @@ export function init(
                                             {row.mutualDist < 0 ?
                                                 <>
                                                     <a onClick={handleWordClick(row.value)}>{row.value}</a>
-                                                    <span className="fn">({row.deprel})</span>
+                                                    {row.deprel ?
+                                                        <span className="fn">({row.deprel})</span> :
+                                                        null
+                                                    }
                                                     {Math.round(row.mutualDist) <= -2 ?
                                                         <>
                                                             <span className="arrows">{'\u2192'}</span>
@@ -215,7 +241,12 @@ export function init(
                                                 </>
                                             }
                                         </td>
-                                        <td className="num">{ut.formatNumber(row.collWeight, 4)}</td>
+                                        <td className="num">
+                                            {ut.formatNumber(extractMeasure(row, props.visibleMeasures[0]), 2)}
+                                        </td>
+                                        <td className="num">
+                                            {ut.formatNumber(extractMeasure(row, props.visibleMeasures[1]), 2)}
+                                        </td>
                                     </tr>
                                 ),
                                 props.data.rows
@@ -316,11 +347,15 @@ export function init(
                                                 label={state.label}
                                                 queryType={state.displayType}
                                                 isMobile={props.isMobile}
+                                                visibleMeasures={state.visibleMeasures}
                                                 widthFract={props.widthFract} />
                                         </div>
                                     );
                                 }
                             })()}
+                            <p className="hint">
+                                {ut.translate('syntactic_colls__items_sorted_by_rrf')}
+                            </p>
                         </S.SyntacticColls>
                 }
             </globalCompontents.TileWrapper>

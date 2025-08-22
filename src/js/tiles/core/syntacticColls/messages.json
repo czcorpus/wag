@@ -13,7 +13,8 @@
         "syntactic_colls__tab_hd_score": "Collocation score",
         "syntactic_colls__tab_hd_cooc_score": "Cooccurrence score",
         "syntactic_colls__no_data": "No data",
-        "syntactic_colls__not_applicable_for_pos": "No collocation analysis available for the current Part of Speech"
+        "syntactic_colls__not_applicable_for_pos": "No collocation analysis available for the current Part of Speech",
+        "syntactic_colls__items_sorted_by_rrf": "Items are sorted by combining their rankings from multiple collocation measures (Reciprocal Rank Fusion score)"
     },
     "cs-CZ": {
         "syntactic_colls__main_label": "Syntaktické kolokace",
@@ -29,6 +30,7 @@
         "syntactic_colls__tab_hd_score": "Kolokační skóre",
         "syntactic_colls__tab_hd_cooc_score": "Skóre souvýskytu",
         "syntactic_colls__no_data": "Žádná data",
-        "syntactic_colls__not_applicable_for_pos": "Pro daný slovní druh není k dispozici žádná další kolokační analýza"
+        "syntactic_colls__not_applicable_for_pos": "Pro daný slovní druh není k dispozici žádná další kolokační analýza",
+        "syntactic_colls__items_sorted_by_rrf": "Položky jsou setříděny na základě jejich pořadí podle několika kolokačních měr (Reciprocal Rank Fusion skóre)"
     }
 }
