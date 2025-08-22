@@ -26,7 +26,7 @@ import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQuery
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { deprelValues } from './deprel.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { List, pipe } from 'cnc-tskit';
+import { List, pipe, tuple } from 'cnc-tskit';
 
 
 export interface DisplayTypeConf {
@@ -152,6 +152,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 corpname: conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
+                visibleMeasures: tuple('LL', 'LMI'),
                 displayType: this.displayType ? this.displayType.displayType : 'none',
                 label: this.displayType ? appServices.importExternalMessage(this.displayType.label) : null,
                 examplesCache: {},
