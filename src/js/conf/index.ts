@@ -118,6 +118,8 @@ export interface ColorTheme extends ColorThemeIdent {
     scale:Array<string>;
     geoAreaSpotFillColor:string;
     geoAreaSpotTextColor?:string;
+
+    chartTextColor?:string;
 }
 
 export interface ColorsConf {

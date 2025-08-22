@@ -180,6 +180,8 @@ export class Theme {
 
     public readonly tileBorderRadius:string;
 
+    public readonly chartTextColor:string;
+
     constructor(conf?:ColorTheme) {
 
         const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
@@ -247,6 +249,8 @@ export class Theme {
                 Color.textColorFromBg(),
                 Color.color2str()
             );
+        
+        this.chartTextColor = confSrc.chartTextColor || this.colorDefaultText;
     }
 
     categoryPalette = (values:Array<string|number>):(ident:string|number)=>string => {
