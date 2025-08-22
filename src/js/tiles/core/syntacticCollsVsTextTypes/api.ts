@@ -18,14 +18,14 @@
 
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { IApiServices } from '../../../appServices.js';
-import { DataApi, ResourceApi } from '../../../types.js';
+import { DataApi } from '../../../types.js';
 import { BacklinkConf } from '../../../page/tile.js';
 import { IDataStreaming } from '../../../page/streaming.js';
-import { filter, map, Observable, tap } from 'rxjs';
+import { filter, map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
-import { Dict, HTTP, List, tuple, pipe } from 'cnc-tskit';
+import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import { ajax$ } from '../../../page/ajax.js';
-import { SCollsData, SCollsDataRow, SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
+import { SCollsDataRow, SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
 
 
 interface wordInfo {

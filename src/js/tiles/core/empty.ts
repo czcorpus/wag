@@ -92,4 +92,8 @@ export class EmptyTile implements ITileProvider {
     getReadDataFrom():number|null {
         return null;
     }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }

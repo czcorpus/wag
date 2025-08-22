@@ -803,6 +803,7 @@ export function init(
 
         const getHTMLClass = () => {
             const ans = ['cnc-tile', 'app-output'];
+
             if (props.isTweakMode) {
                 ans.push('expanded');
             }
@@ -811,6 +812,9 @@ export function init(
             }
             if (props.isHighlighted) {
                 ans.push('highlighted');
+            }
+            if (props.tileResultFlag.status === TileResultFlag.EMPTY_RESULT && props.tile.hideOnNoData) {
+                ans.push('hidden-no-data');
             }
             return ans.join(' ');
         };

@@ -149,6 +149,10 @@ export class TranslationsTile implements ITileProvider {
     getReadDataFrom():number|null {
         return null;
     }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<TranslationsTileConf> = {

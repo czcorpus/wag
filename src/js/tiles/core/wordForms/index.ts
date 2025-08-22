@@ -157,6 +157,10 @@ export class WordFormsTile implements ITileProvider {
     getReadDataFrom():number|null {
         return null;
     }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<WordFormsTileConf> = {
