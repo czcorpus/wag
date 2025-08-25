@@ -93,9 +93,9 @@ export function init(
             <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={300} >
                 <BarChart data={props.data} layout="vertical" barCategoryGap={props.barCategoryGap}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" dataKey="ipm" />
-                    <YAxis type="category" dataKey="name" width={maxLabelLength * 6} />
-                    <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
+                    <XAxis type="number" dataKey="ipm" tick={{ fill: theme.chartTextColor }} />
+                    <YAxis type="category" dataKey="name" width={maxLabelLength * 6} tick={{ fill: theme.chartTextColor }} />
+                    <Legend formatter={(value) => <span style={{ color: theme.chartTextColor }}>{value}</span>} />
                     <Tooltip cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip
                         payloadMapper={payload => [
                             {name: ut.translate('freqBar__rel_freq'), value: payload.ipm},

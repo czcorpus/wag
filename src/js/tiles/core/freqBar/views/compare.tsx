@@ -130,10 +130,10 @@ export function init(
                             stackId='a' fill={theme.cmpCategoryColor(index, props.data.length)} shape={<BarShape/>} />,
                         props.data,
                     )};
-                    <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                    <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0}
+                    <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} tick={{ fill: theme.chartTextColor }}/>
+                    <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0} tick={{ fill: theme.chartTextColor }}
                             tickFormatter={value => shouldShortenText ? Strings.shortenText(value, model.CHART_LABEL_MAX_LEN) : value}/>
-                    <Legend formatter={(value) => <span style={{ color: 'black' }}>{value}</span>} />
+                    <Legend formatter={(value) => <span style={{ color: theme.chartTextColor }}>{value}</span>} />
                     <Tooltip cursor={false} isAnimationActive={false}
                         content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={(index)=>theme.cmpCategoryColor(index, props.data.length)}/>}
                         formatter={tooltipFormatter} />

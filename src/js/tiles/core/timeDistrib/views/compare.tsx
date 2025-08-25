@@ -295,8 +295,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         onMouseUp = {this.zoomMouseUp}
                     >
                         <CartesianGrid strokeDasharray="1 1"/>
-                        <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
-                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} />
+                        <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} tick={{ fill: theme.chartTextColor }} />
+                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} tick={{ fill: theme.chartTextColor }} />
                         <Tooltip isAnimationActive={false}
                             formatter={tooltipFormatter}
                             

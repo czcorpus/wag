@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
 
 
@@ -28,8 +29,9 @@ export const TimeDistribTile = styled.div`
     }
 `;
 
-export const ChartLegend = styled.p`
+export const ChartLegend = styled.p<{theme:Theme}>`
     text-align: center;
+    color: ${props => props.theme.chartTextColor};
 
     .item {
 
@@ -120,8 +122,9 @@ export const MultiWordTimeDistribTile = styled.div`
     }
 `;
 
-export const MultiWordChartLegend = styled.div`
+export const MultiWordChartLegend = styled.div<{theme:Theme}>`
     text-align: center;
+    color: ${props => props.theme.chartTextColor};
 
     .caption {
         font-weight: bold;

@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel } from './model.js';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer } from 'recharts';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
@@ -186,7 +186,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const legendFormatter = (value, payload) => {
-            return <span style={{ color: 'black' }}>{value}</span>;
+            return <span style={{ color: theme.chartTextColor }}>{value}</span>;
         };
 
         const CustomizedAxisTick = ({ x, y, stroke, payload }) => {
@@ -195,14 +195,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <g transform={`translate(${x},${y})`}>
                     {data.isClickable && data.freq.length === 1 ?
                         <a onClick={props.onBarClick(payload.index, 0)} style={{ cursor: 'pointer' }}>
-                            <text x={0} y={0} dy={5} dx={-20} textAnchor="end">
+                            <text x={0} y={0} dy={5} dx={-20} textAnchor="end" fill={theme.chartTextColor}>
                             {payload.value}
                             </text>
                             <g transform={`translate(-15, -8) scale(1.5)`}>
                                 <SVGLink />
                             </g>
                         </a> :
-                        <text x={0} y={0} dy={5} textAnchor="end">
+                        <text x={0} y={0} dy={5} textAnchor="end" fill={theme.chartTextColor}>
                         {payload.value}
                         </text>
                     }
@@ -268,7 +268,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     )}
                     <XAxis
                         type="number"
-                        label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
+                        label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}}
+                        tick={{ fill: theme.chartTextColor }} />
                     <YAxis
                         type="category"
                         dataKey="name"
