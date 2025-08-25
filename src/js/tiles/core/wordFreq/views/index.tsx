@@ -27,16 +27,18 @@ import { init as multiWordViewsInit } from './compare.js';
 import { QueryMatch } from '../../../../query/index.js';
 
 import * as S from '../style.js';
+import { Theme } from '../../../../page/theme.js';
 
 
 export function init(
     dispatcher:IActionDispatcher,
     ut:ViewUtils<GlobalComponents>,
-    model:SummaryModel
+    model:SummaryModel,
+    theme:Theme,
 ):TileComponent {
 
     const globalComponents = ut.getComponents();
-    const Chart = chartViewInit(dispatcher, ut);
+    const Chart = chartViewInit(dispatcher, ut, theme);
     const SingleWordProfile = singleWordViewsInit(dispatcher, ut);
     const MultiWordProfile = multiWordViewsInit(dispatcher, ut);
 

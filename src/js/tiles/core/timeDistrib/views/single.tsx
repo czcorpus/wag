@@ -329,8 +329,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         onMouseUp = {this.zoomMouseUp}
                     >
                         <CartesianGrid strokeDasharray="1 1"/>
-                        <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                        <YAxis />
+                        <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" tick={{ fill: theme.chartTextColor }} />
+                        <YAxis tick={{ fill: theme.chartTextColor }} />
                         <Tooltip isAnimationActive={false}
                                 formatter={tooltipFormatter}
                                 content={<globComponents.AlignedRechartsTooltip/>} />
