@@ -25,7 +25,8 @@ import { filter, map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import { ajax$ } from '../../../page/ajax.js';
-import { SCollsDataRow, SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
+import { SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
+import { SCollsDataRow } from '../syntacticColls/api/common.js';
 
 
 interface wordInfo {

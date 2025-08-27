@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ajax, AjaxResponse } from 'rxjs/ajax';
-import { map, concatMap, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { MultiDict } from '../multidict.js';
 import { HTTPHeaders } from '../types.js';

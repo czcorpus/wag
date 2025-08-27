@@ -26,29 +26,8 @@ import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
+import { SCollsData } from './common.js';
 
-
-
-export interface SCollsDataRow {
-    value:string;
-    deprel?:string;
-    freq:number;
-    base:number;
-    ipm:number;
-    collWeight:number;
-    logDice?:number;
-    tscore?:number;
-    lmi?:number;
-    ll?:number;
-    rrf?:number;
-    mutualDist?:number;
-    color?:string;
-}
-
-export interface SCollsData {
-    rows:Array<SCollsDataRow>;
-    examplesQueryTpl:string;
-}
 
 export interface Token {
     word:string;

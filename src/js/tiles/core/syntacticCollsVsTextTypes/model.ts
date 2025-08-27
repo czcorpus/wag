@@ -21,12 +21,13 @@ import { IActionQueue, SEDispatcher, StatelessModel } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { IAppServices } from '../../../appServices.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
-import { SCollsData, SCollsQueryType } from '../syntacticColls/api/scollex.js';
+import { SCollsQueryType } from '../syntacticColls/api/scollex.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions } from './common.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { SCollsTTRequest, WSServerSyntacticCollsTTAPI } from './api.js';
 import { Theme } from '../../../page/theme.js';
+import { SCollsData } from '../syntacticColls/api/common.js';
 
 
 export interface TTData {

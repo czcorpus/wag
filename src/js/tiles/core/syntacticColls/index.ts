@@ -22,17 +22,27 @@ import { findCurrQueryMatch, QueryMatch, QueryType } from '../../../query/index.
 import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { ScollexSyntacticCollsAPI, ScollexSyntacticCollsExamplesAPI, SCollsQueryType } from './api/scollex.js';
+import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { deprelValues } from './deprel.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List, pipe, tuple } from 'cnc-tskit';
+import { SCollsQueryType } from './api/common.js';
+import { SyntacticCollsExamplesAPI } from './eApi/mquery.js';
 
 
 export interface DisplayTypeConf {
     displayType:SCollsQueryType;
     supportedPos:'any'|Array<string>;
     label:LocalizedConfMsg;
+}
+
+export interface AttrNamesConf {
+    posAttr:string;
+    lemmaAttr:string;
+    parPosAttr:string;
+    parLemmaAttr:string;
+    funcAttr:string;
 }
 
 
@@ -44,6 +54,7 @@ export interface SyntacticCollsTileConf extends TileConf {
     maxItems:number;
     hideOnNoData?:boolean;
     displayTypes:Array<DisplayTypeConf>;
+    attrNames:AttrNamesConf;
 }
 
 
@@ -139,7 +150,7 @@ export class SyntacticCollsTile implements ITileProvider {
             api: conf.apiType === 'wss' ?
                 new WSServerSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink) :
                 new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
-            eApi: new ScollexSyntacticCollsExamplesAPI(conf.eApiURL, appServices),
+            eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),

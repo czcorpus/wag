@@ -25,7 +25,7 @@ import { SyntacticCollsVsTTModel, TTData } from './model.js';
 
 import * as S from './style.js';
 import { List, pipe } from 'cnc-tskit';
-import { SCollsDataRow } from '../syntacticColls/api/scollex.js';
+import { SCollsDataRow } from '../syntacticColls/api/common.js';
 
 
 function transpose(data:Array<TTData>):Array<Array<SCollsDataRow>> {
