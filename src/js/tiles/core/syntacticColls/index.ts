@@ -28,21 +28,13 @@ import { deprelValues } from './deprel.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List, pipe, tuple } from 'cnc-tskit';
 import { SCollsQueryType } from './api/common.js';
-import { SyntacticCollsExamplesAPI } from './eApi/mquery.js';
+import { AttrNamesConf, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
 
 
 export interface DisplayTypeConf {
     displayType:SCollsQueryType;
     supportedPos:'any'|Array<string>;
     label:LocalizedConfMsg;
-}
-
-export interface AttrNamesConf {
-    posAttr:string;
-    lemmaAttr:string;
-    parPosAttr:string;
-    parLemmaAttr:string;
-    funcAttr:string;
 }
 
 

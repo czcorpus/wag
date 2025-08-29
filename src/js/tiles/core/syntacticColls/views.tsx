@@ -290,7 +290,7 @@ export function init(
             )
         };
 
-        const handleExamplesClick = () => {
+        const handleCloseExamplesClick = () => {
             dispatcher.dispatch(
                 Actions.HideExampleWindow,
                 {
@@ -340,7 +340,7 @@ export function init(
                                     );
 
                                 } else if (state.exampleWindowData) {
-                                    return <Examples data={state.exampleWindowData} onClose={handleExamplesClick} />;
+                                    return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
 
                                 } else {
                                     return (

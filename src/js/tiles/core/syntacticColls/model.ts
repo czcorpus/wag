@@ -150,10 +150,8 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             },
             (state, action, dispatch) => {
                 let q:string;
-                console.log(state.queryMatch);
-                
+                const row = state.data.rows[action.payload.rowId];
                 if (!state.data.examplesQueryTpl) {
-                    const row = state.data.rows[action.payload.rowId];
                     q = this.eApi.makeQuery(
                         state.queryMatch.lemma,
                         row.value,
@@ -164,7 +162,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     );
 
                 } else {
-                    q = state.data.examplesQueryTpl.replace('%s', state.data.rows[action.payload.rowId].value);
+                    q = state.data.examplesQueryTpl.replace('%s', row.value);
                 }
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
@@ -179,7 +177,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                             data => ({
                                 ...data,
                                 word1: state.queryMatch.word,
-                                word2: state.data.rows[action.payload.rowId].value
+                                word2: row.value
                             })
                         )
                     )

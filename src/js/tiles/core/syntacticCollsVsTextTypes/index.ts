@@ -25,6 +25,7 @@ import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
 import { WSServerSyntacticCollsTTAPI } from './api.js';
+import { AttrNamesConf, SyntacticCollsExamplesAPI } from '../syntacticColls/eApi/mquery.js';
 
 
 interface TTConf {
@@ -35,9 +36,11 @@ interface TTConf {
 
 export interface SyntacticCollsVsTextTypesTileConf extends TileConf {
     apiURL:string;
+    eApiURL:string;
     textTypes:Array<TTConf>;
     corpname:string;
     maxItems:number;
+    attrNames:AttrNamesConf;
 }
 
 
@@ -75,6 +78,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
             maxItems: conf.maxItems,
             theme,
             api: new WSServerSyntacticCollsTTAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
                 corpname: conf.corpname,
                 scollType: 'mixed', // TODO
@@ -90,6 +94,8 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
                     }),
                     conf.textTypes
                 ),
+                examplesCache: {},
+                exampleWindowData: undefined,
                 isBusy: false,
                 error: undefined
             }

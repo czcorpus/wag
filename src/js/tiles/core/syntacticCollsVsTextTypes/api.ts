@@ -150,6 +150,7 @@ export class WSServerSyntacticCollsTTAPI implements DataApi<SCollsRequest, SColl
                                     rows: List.map(
                                         item => ({
                                             value: item.collocate.value,
+                                            pos: item.collocate.pos,
                                             deprel: item.deprel,
                                             freq: -1,
                                             base: -1,

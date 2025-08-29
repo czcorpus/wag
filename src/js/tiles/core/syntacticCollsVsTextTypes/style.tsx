@@ -37,9 +37,6 @@ export const TableRow = styled.tr<{theme:Theme}>`
 
     td, th {
         padding: 0.3em 0.6em;
-    }
-
-    td, th {
         border-width: 0 1px 0 0;
         border-style: solid;
         border-color: ${props => props.theme.colorLightText};
@@ -47,6 +44,10 @@ export const TableRow = styled.tr<{theme:Theme}>`
         strong {
             display: inline-block;
             padding: 0.4em;
+
+            a {
+                cursor: pointer;
+            }
         }
     }
 
@@ -79,4 +80,72 @@ export const SingleTTTable = styled.table<{theme:Theme}>`
         border-width: 0 0 1px 0;
     }
 
+`;
+
+
+export const Examples = styled.div<{theme:Theme}>`
+    background-color: #fefefe;
+    border: ${props => props.theme.defaultBorderStyle};
+    border-radius: ${props => props.theme.defaultBorderRadius};
+    box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
+    padding: 0.5em;
+
+    > div.texts {
+        display: flex;
+        flex-direction: column;
+        max-height: 30em;
+        overflow-y: scroll;
+
+        > p {
+            margin: 0;
+            padding: 0.5em 1em 0.5em 1em;
+
+            strong {
+                color: ${props => props.theme.colorLogoPink};
+            }
+        }
+
+        > p:not(:first-child) {
+            border-top: 1px solid #cfcfcf;
+        }
+    }
+
+    .toolbar {
+
+        display: flex;
+        align-items: center;
+        margin-bottom: 1em;
+
+        h3 {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding-left: 1em;
+
+            span.words {
+                color: ${props => props.theme.colorLogoPink};
+                font-weight: normal;
+
+                span.plus {
+                    color: ${props => props.theme.colorDefaultText};
+                }
+            }
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-grow: 1;
+
+            a.close {
+
+                cursor: pointer;
+
+                img {
+                    width: 1.5em;
+                }
+            }
+        }
+    }
 `;
