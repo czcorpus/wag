@@ -24,17 +24,12 @@ import { map } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types.js';
-import {
-    SCERequestArgs,
-    ScollexSyntacticCollsAPI,
-    ScollexSyntacticCollsExamplesAPI,
-    SCollsData,
-    SCollsExamples,
-    SCollsQueryType,
-    SCollsRequest } from './api/scollex.js';
+import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { DeprelValue } from './deprel.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { SCERequestArgs, SCollsExamples, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
+import { SCollsData, SCollsQueryType, SCollsRequest } from './api/common.js';
 
 
 export type CollMeasure = 'LMI' | 'LL' | 'LogDice' | 'T-Score';
@@ -47,7 +42,7 @@ export interface SyntacticCollsModelArgs {
     initState:SyntacticCollsModelState;
     queryType:QueryType;
     api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
-    eApi:ScollexSyntacticCollsExamplesAPI;
+    eApi:SyntacticCollsExamplesAPI;
     maxItems:number;
 }
 
@@ -84,7 +79,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
 
-    private readonly eApi:ScollexSyntacticCollsExamplesAPI;
+    private readonly eApi:SyntacticCollsExamplesAPI;
 
     private readonly maxItems:number;
 
@@ -154,7 +149,21 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.isBusy = true;
             },
             (state, action, dispatch) => {
-                const q = state.data.examplesQueryTpl.replace('%s', action.payload.word);
+                let q:string;
+                const row = state.data.rows[action.payload.rowId];
+                if (!state.data.examplesQueryTpl) {
+                    q = this.eApi.makeQuery(
+                        state.queryMatch.lemma,
+                        row.value,
+                        (state.queryMatch.upos[0] || state.queryMatch.pos[0]).value,
+                        row.pos,
+                        row.deprel,
+                        row.mutualDist,
+                    );
+
+                } else {
+                    q = state.data.examplesQueryTpl.replace('%s', row.value);
+                }
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
                     this.eApi.call(
@@ -168,7 +177,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                             data => ({
                                 ...data,
                                 word1: state.queryMatch.word,
-                                word2: action.payload.word
+                                word2: row.value
                             })
                         )
                     )

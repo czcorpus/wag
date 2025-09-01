@@ -25,7 +25,8 @@ import { filter, map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import { ajax$ } from '../../../page/ajax.js';
-import { SCollsDataRow, SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
+import { SCollsQueryType, SCollsRequest } from '../syntacticColls/api/scollex.js';
+import { SCollsDataRow } from '../syntacticColls/api/common.js';
 
 
 interface wordInfo {
@@ -149,6 +150,7 @@ export class WSServerSyntacticCollsTTAPI implements DataApi<SCollsRequest, SColl
                                     rows: List.map(
                                         item => ({
                                             value: item.collocate.value,
+                                            pos: item.collocate.pos,
                                             deprel: item.deprel,
                                             freq: -1,
                                             base: -1,

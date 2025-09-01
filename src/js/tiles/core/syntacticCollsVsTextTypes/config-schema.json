@@ -4,11 +4,23 @@
         "apiURL": {
             "type": "string"
         },
+        "eApiURL": {
+            "type": "string"
+        },
+        "textTypes": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/TTConf"
+            }
+        },
         "corpname": {
             "type": "string"
         },
         "maxItems": {
             "type": "number"
+        },
+        "attrNames": {
+            "$ref": "#/definitions/AttrNamesConf"
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -71,11 +83,76 @@
     },
     "required": [
         "apiURL",
+        "attrNames",
         "corpname",
+        "eApiURL",
         "maxItems",
+        "textTypes",
         "tileType"
     ],
     "definitions": {
+        "TTConf": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "label"
+            ]
+        },
+        "AttrNamesConf": {
+            "type": "object",
+            "properties": {
+                "posAttr": {
+                    "type": "string"
+                },
+                "lemmaAttr": {
+                    "type": "string"
+                },
+                "parPosAttr": {
+                    "type": "string"
+                },
+                "parLemmaAttr": {
+                    "type": "string"
+                },
+                "funcAttr": {
+                    "type": "string"
+                },
+                "sentenceStruct": {
+                    "type": "string"
+                },
+                "textStruct": {
+                    "type": "string"
+                },
+                "textStructAttr": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "funcAttr",
+                "lemmaAttr",
+                "parLemmaAttr",
+                "parPosAttr",
+                "posAttr",
+                "sentenceStruct"
+            ]
+        },
         "BacklinkConf<any>": {
             "type": "object",
             "properties": {

@@ -28,9 +28,10 @@ import * as S from './style.js';
 import { Dict, List, pipe } from 'cnc-tskit';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
-import { mkScollExampleLineHash, SCollsData, SCollsDataRow, SCollsExamples, SCollsQueryType } from './api/scollex.js';
 import { DeprelValue } from './deprel.js';
 import { QueryMatch } from '../../../query/index.js';
+import { SCollsData, SCollsDataRow, SCollsQueryType } from './api/common.js';
+import { mkScollExampleLineHash, SCollsExamples } from './eApi/mquery.js';
 
 
 
@@ -174,12 +175,12 @@ export function init(
 
     }> = (props) => {
 
-        const handleWordClick = (word:string) => () => {
+        const handleWordClick = (rowId:number) => () => {
             dispatcher.dispatch(
                 Actions.ClickForExample,
                 {
                     tileId: props.tileId,
-                    word
+                    rowId
                 }
             )
         };
@@ -210,7 +211,7 @@ export function init(
                                         <td className="word">
                                             {row.mutualDist < 0 ?
                                                 <>
-                                                    <a onClick={handleWordClick(row.value)}>{row.value}</a>
+                                                    <a onClick={handleWordClick(i)}>{row.value}</a>
                                                     {row.deprel ?
                                                         <span className="fn">({row.deprel})</span> :
                                                         null
@@ -240,7 +241,7 @@ export function init(
                                                         <span className="fn">({row.deprel})</span> :
                                                         null
                                                     }
-                                                    <a onClick={handleWordClick(row.value)}>{row.value}</a>
+                                                    <a onClick={handleWordClick(i)}>{row.value}</a>
                                                 </>
                                             }
                                         </td>
@@ -289,7 +290,7 @@ export function init(
             )
         };
 
-        const handleExamplesClick = () => {
+        const handleCloseExamplesClick = () => {
             dispatcher.dispatch(
                 Actions.HideExampleWindow,
                 {
@@ -339,7 +340,7 @@ export function init(
                                     );
 
                                 } else if (state.exampleWindowData) {
-                                    return <Examples data={state.exampleWindowData} onClose={handleExamplesClick} />;
+                                    return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
 
                                 } else {
                                     return (

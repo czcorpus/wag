@@ -21,12 +21,16 @@ import { IActionQueue, SEDispatcher, StatelessModel } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { IAppServices } from '../../../appServices.js';
 import { QueryMatch, QueryType } from '../../../query/index.js';
-import { SCollsData, SCollsQueryType } from '../syntacticColls/api/scollex.js';
+import { SCollsQueryType } from '../syntacticColls/api/scollex.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions } from './common.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { SCollsTTRequest, WSServerSyntacticCollsTTAPI } from './api.js';
 import { Theme } from '../../../page/theme.js';
+import { SCollsData } from '../syntacticColls/api/common.js';
+import { SCERequestArgs, SCollsExamples, SyntacticCollsExamplesAPI } from '../syntacticColls/eApi/mquery.js';
+import { SystemMessageType } from '../../../types.js';
+import { map, of as rxOf } from 'rxjs';
 
 
 export interface TTData {
@@ -43,6 +47,8 @@ export interface SyntacticCollsVsTTModelState {
     scollType:SCollsQueryType;
     data:Array<TTData>;
     isBusy:boolean;
+    examplesCache:{[key:string]:SCollsExamples};
+    exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
 
 
@@ -53,6 +59,7 @@ interface SyntacticCollsModelArgs {
     initState:SyntacticCollsVsTTModelState;
     queryType:QueryType;
     api:WSServerSyntacticCollsTTAPI;
+    eApi:SyntacticCollsExamplesAPI;
     maxItems:number;
     theme:Theme;
 }
@@ -68,6 +75,8 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
 
     private readonly api:WSServerSyntacticCollsTTAPI;
 
+    private readonly eApi:SyntacticCollsExamplesAPI;
+
     private readonly theme:Theme;
 
 
@@ -78,6 +87,7 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         initState,
         queryType,
         api,
+        eApi,
         maxItems,
         theme
     }:SyntacticCollsModelArgs) {
@@ -85,6 +95,7 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         this.tileId = tileId;
         this.appServices = appServices;
         this.api = api;
+        this.eApi = eApi;
         this.theme = theme;
 
         this.addActionSubtypeHandler(
@@ -173,6 +184,96 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
                 }
             }
         );
+
+        this.addActionSubtypeHandler(
+            Actions.ClickForExample,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.isBusy = true;
+            },
+            (state, action, dispatch) => {
+                let q:string;
+                const ttData = List.find(v => v.id === action.payload.ttDataId, state.data);
+                const row = ttData.data.rows[action.payload.dataId];
+                if (!ttData.data.examplesQueryTpl) {
+                    q = this.eApi.makeQuery(
+                        state.queryMatch.lemma,
+                        row.value,
+                        (state.queryMatch.upos[0] || state.queryMatch.pos[0]).value,
+                        row.pos,
+                        row.deprel,
+                        row.mutualDist,
+                        action.payload.ttDataId,
+                    );
+
+                } else {
+                    q = ttData.data.examplesQueryTpl.replace('%s', row.value);
+                }
+
+                (Dict.hasKey(q, state.examplesCache) ?
+                    rxOf(state.examplesCache[q]) :
+                    this.eApi.call(
+                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        0,
+                        this.stateToEapiArgs(state, q)
+
+                    ).pipe(
+                        map(
+                            data => ({
+                                ...data,
+                                word1: state.queryMatch.word,
+                                word2: row.value
+                            })
+                        )
+                    )
+                ).subscribe({
+                    next: (data) => {
+                        console.log(data);
+                        dispatch(
+                            Actions.ShowExampleWindow,
+                            {
+                                tileId: this.tileId,
+                                data,
+                                query: q
+                            }
+                        );
+                    },
+                    error: (error) => {
+                        dispatch({
+                            name: Actions.ShowExampleWindow.name,
+                            payload: { tileId: this.tileId, query: q },
+                            error
+                        });
+                    }
+                })
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ShowExampleWindow,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.isBusy = false;
+                state.exampleWindowData = action.payload.data;
+                if (!Dict.hasKey(action.payload.query, state.examplesCache)) {
+                    state.examplesCache[action.payload.query] = action.payload.data;
+                }
+            },
+            (state, action, dispatch) => {
+                if (action.error) {
+                    this.appServices.showMessage(SystemMessageType.ERROR, action.error);
+                }
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.HideExampleWindow,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.exampleWindowData = undefined;
+            }
+        );
     }
 
 
@@ -239,6 +340,14 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         });
     }
 
-
-
+    private stateToEapiArgs(state:SyntacticCollsVsTTModelState, q:string):SCERequestArgs {
+        return {
+            params: {
+                corpname: state.corpname,
+            },
+            args: {
+                q
+            }
+        };
+    }
 }

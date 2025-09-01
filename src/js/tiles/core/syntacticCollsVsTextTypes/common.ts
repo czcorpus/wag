@@ -18,6 +18,7 @@
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SCollsPartsData } from './api.js';
+import { SCollsExamples } from '../syntacticColls/eApi/mquery.js';
 
 
 export interface DataLoadedPayload {
@@ -34,6 +35,28 @@ export class Actions {
 
     static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
         name: GlobalActions.TilePartialDataLoaded.name
+    };
+
+    static ClickForExample:Action<{
+        tileId:number;
+        ttDataId:string;
+        dataId:number;
+    }> = {
+        name: 'SYNTACTIC_COLLS_VS_TT_CLICK_FOR_EXAMPLE'
+    }
+
+    static ShowExampleWindow:Action<{
+        tileId:number;
+        query:string;
+        data:SCollsExamples;
+    }> = {
+        name: 'SYNTACTIC_COLLS_SHOW_EXAMPLE_WINDOW'
+    };
+
+    static HideExampleWindow:Action<{
+        tileId:number;
+    }> = {
+        name: 'SYNTACTIC_COLLS_HIDE_EXAMPLE_WINDOW'
     };
 
 }

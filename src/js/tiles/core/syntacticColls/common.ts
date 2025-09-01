@@ -17,7 +17,8 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SCollsData, SCollsExamples } from './api/scollex.js';
+import { SCollsData } from './api/common.js';
+import { SCollsExamples } from './eApi/mquery.js';
 
 
 export class Actions {
@@ -44,7 +45,7 @@ export class Actions {
 
     static ClickForExample:Action<{
         tileId:number;
-        word:string;
+        rowId:number;
     }> = {
         name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'
     }
