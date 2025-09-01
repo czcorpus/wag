@@ -26,7 +26,6 @@ import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types.js';
 import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
-import { DeprelValue } from './deprel.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { SCERequestArgs, SCollsExamples, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
 import { SCollsData, SCollsQueryType, SCollsRequest } from './api/common.js';
@@ -54,8 +53,6 @@ export interface SyntacticCollsModelState {
     isAltViewMode:boolean;
     isTweakMode:boolean;
     apiType:'default'|'wss';
-    deprelValues:Array<DeprelValue>;
-    srchWordDeprelFilter:string;
     error:string|null;
     widthFract:number;
     corpname:string;
@@ -63,7 +60,8 @@ export interface SyntacticCollsModelState {
     data:SCollsData;
     displayType:SCollsQueryType;
     label:string;
-    visibleMeasures:[CollMeasure, CollMeasure];
+    availableMeasures:Array<CollMeasure>;
+    visibleMeasures:Array<CollMeasure>;
     examplesCache:{[key:string]:SCollsExamples};
     exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
@@ -235,15 +233,11 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         );
 
         this.addActionSubtypeHandler(
-            Actions.SetSrchWordDeprelFilter,
+            Actions.SetDisplayScore,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.srchWordDeprelFilter = action.payload.value || null;
-                state.isTweakMode = false;
+                state.visibleMeasures = [action.payload.value];
             },
-            (state, action, seDispatch) => {
-                this.reloadData(appServices.dataStreaming().startNewSubgroup(this.tileId), state, seDispatch);
-            }
         );
 
         this.addActionSubtypeHandler(
@@ -305,7 +299,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         };
         if (state.queryMatch.upos.length > 0) {
             args['pos'] = state.queryMatch.upos[0].value;
-            args['deprel'] = state.srchWordDeprelFilter || undefined;
+            args['deprel'] = undefined;
         }
         return {
             params: {
