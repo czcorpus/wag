@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-import { map, tap } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { ResourceApi, CorpusDetails } from '../../../types.js';
 import { Observable } from 'rxjs';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
@@ -56,6 +56,13 @@ export interface HTTPResponse {
     error?:string;
 };
 
+
+function isEmptyObject(obj:any):boolean {
+  return obj &&
+         typeof obj === 'object' &&
+         !Array.isArray(obj) &&
+         Object.keys(obj).length === 0;
+}
 
 
 export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<SingleFreqResult>> {
@@ -105,8 +112,8 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         return List.some(x => !x, args);
     }
 
-    private mkRequest(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
-        if (this.useDataStream) {
+    private mkRequest(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
+        if (dataStreaming) {
             return dataStreaming.registerTileRequest<HTTPResponse>(
                 {
                     tileId,
@@ -124,6 +131,9 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
                     queryIdx,
                 }
             ).pipe(
+                filter(
+                    v => !isEmptyObject(v)
+                ),
                 map(
                     resp => resp ?
                         resp :
