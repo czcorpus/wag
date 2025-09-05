@@ -28,8 +28,6 @@ import * as S from './style.js';
 import { Dict, List, pipe } from 'cnc-tskit';
 import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
 import { Actions } from './common.js';
-import { DeprelValue } from './deprel.js';
-import { QueryMatch } from '../../../query/index.js';
 import { SCollsData, SCollsDataRow, SCollsQueryType } from './api/common.js';
 import { mkScollExampleLineHash, SCollsExamples } from './eApi/mquery.js';
 
@@ -125,15 +123,14 @@ export function init(
 
     const Controls:React.FC<{
         tileId:number;
-        deprelValues:Array<DeprelValue>;
-        value:string;
-        queryMatch:QueryMatch;
+        visibleMeasure:CollMeasure;
+        availableMeasures:Array<CollMeasure>;
 
     }> = (props) => {
 
         const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
             dispatcher.dispatch(
-                Actions.SetSrchWordDeprelFilter,
+                Actions.SetDisplayScore,
                 {
                     value: evt.target.value,
                     tileId: props.tileId
@@ -143,16 +140,14 @@ export function init(
 
         return (
             <div>
-                <h3>Options</h3>
                 <form className="Controls cnc-form tile-tweak">
                     <fieldset>
                         <label>
-                            syntactic function of the word <strong>&quot;{props.queryMatch.word}&quot;</strong>:{'\u00a0'}
-                            <select value={props.value} onChange={handleChange}>
-                                <option value="">---</option>
+                            {ut.translate('syntactic_colls__collocation_score_select')}:{'\u00a0'}
+                            <select value={props.visibleMeasure} onChange={handleChange}>
                                 {List.map(
-                                    ([id, label,]) => <option value={id}>{id}</option>,
-                                    props.deprelValues
+                                    v => <option value={v}>{v}</option>,
+                                    props.availableMeasures
                                 )}
                             </select>
                         </label>
@@ -171,7 +166,7 @@ export function init(
         widthFract:number;
         queryType:SCollsQueryType;
         label:string;
-        visibleMeasures:[CollMeasure, CollMeasure];
+        visibleMeasures:Array<CollMeasure>;
 
     }> = (props) => {
 
@@ -195,14 +190,18 @@ export function init(
                         <thead>
                             <tr>
                                 <th rowSpan={2}>{ut.translate('syntactic_colls__tab_hd_word')}</th>
-                                <th colSpan={2}>
+                                <th colSpan={props.visibleMeasures.length}>
                                     {ut.translate('syntactic_colls__tab_hd_score')}
                                 </th>
                             </tr>
-                            <tr>
-                                <th>{props.visibleMeasures[0]}</th>
-                                <th>{props.visibleMeasures[1]}</th>
-                            </tr>
+                            <tr>{
+                                List.map(
+                                    v => (
+                                        <th key={`measure:${v}`}>{v}</th>
+                                    ),
+                                    props.visibleMeasures
+                                )
+                            }</tr>
                         </thead>
                         <tbody>
                             {List.map(
@@ -245,12 +244,16 @@ export function init(
                                                 </>
                                             }
                                         </td>
-                                        <td className="num">
-                                            {ut.formatNumber(extractMeasure(row, props.visibleMeasures[0]), 2)}
-                                        </td>
-                                        <td className="num">
-                                            {ut.formatNumber(extractMeasure(row, props.visibleMeasures[1]), 2)}
-                                        </td>
+                                        {
+                                            List.map(
+                                                v => (
+                                                    <td key={`measure:${v}`} className="num">
+                                                        {ut.formatNumber(extractMeasure(row, v), 2)}
+                                                    </td>
+                                                ),
+                                                props.visibleMeasures
+                                            )
+                                        }
                                     </tr>
                                 ),
                                 props.data.rows
@@ -323,45 +326,45 @@ export function init(
                         <div className="tweak-box">
                             <Controls
                                 tileId={props.tileId}
-                                deprelValues={state.deprelValues}
-                                value={state.srchWordDeprelFilter}
-                                queryMatch={state.queryMatch} />
+                                visibleMeasure={state.visibleMeasures[0]}
+                                availableMeasures={state.availableMeasures} />
                         </div> :
-                        <S.SyntacticColls>
-                            {(() => {
-                                if (isEmpty(state.data)) {
-                                    renderEmptyOrNA();
-
-                                } else if (state.isAltViewMode) {
-                                    return (
-                                        <div className="tables">
-                                            {renderWordCloud()}
-                                        </div>
-                                    );
-
-                                } else if (state.exampleWindowData) {
-                                    return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
-
-                                } else {
-                                    return (
-                                        <div className="tables">
-                                            <WSSTable
-                                                tileId={props.tileId}
-                                                data={state.data}
-                                                label={state.label}
-                                                queryType={state.displayType}
-                                                isMobile={props.isMobile}
-                                                visibleMeasures={state.visibleMeasures}
-                                                widthFract={props.widthFract} />
-                                        </div>
-                                    );
-                                }
-                            })()}
-                            <p className="hint">
-                                {ut.translate('syntactic_colls__items_sorted_by_rrf')}
-                            </p>
-                        </S.SyntacticColls>
+                        null
                 }
+                <S.SyntacticColls>
+                    {(() => {
+                        if (isEmpty(state.data)) {
+                            renderEmptyOrNA();
+
+                        } else if (state.isAltViewMode) {
+                            return (
+                                <div className="tables">
+                                    {renderWordCloud()}
+                                </div>
+                            );
+
+                        } else if (state.exampleWindowData) {
+                            return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
+
+                        } else {
+                            return (
+                                <div className="tables">
+                                    <WSSTable
+                                        tileId={props.tileId}
+                                        data={state.data}
+                                        label={state.label}
+                                        queryType={state.displayType}
+                                        isMobile={props.isMobile}
+                                        visibleMeasures={state.visibleMeasures}
+                                        widthFract={props.widthFract} />
+                                </div>
+                            );
+                        }
+                    })()}
+                    <p className="hint">
+                        {ut.translate('syntactic_colls__items_sorted_by_rrf')}
+                    </p>
+                </S.SyntacticColls>
             </globalCompontents.TileWrapper>
         );
     }

@@ -19,6 +19,7 @@ import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SCollsData } from './api/common.js';
 import { SCollsExamples } from './eApi/mquery.js';
+import { CollMeasure } from './model.js';
 
 
 export class Actions {
@@ -50,11 +51,11 @@ export class Actions {
         name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'
     }
 
-    static SetSrchWordDeprelFilter:Action<{
+    static SetDisplayScore:Action<{
         tileId:number;
-        value:string;
+        value:CollMeasure;
     }> = {
-        name: 'SYNTACTIC_COLLS_SET_SRCH_WORD_DEPREL_FILTER'
+        name: 'SYNTACTIC_COLLS_SET_DISPLAY_SCORE'
     }
 
 }

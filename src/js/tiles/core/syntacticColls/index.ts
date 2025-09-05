@@ -24,9 +24,8 @@ import { init as viewInit } from './views.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
-import { deprelValues } from './deprel.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { List, pipe, tuple } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 import { SCollsQueryType } from './api/common.js';
 import { AttrNamesConf, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
 
@@ -155,13 +154,12 @@ export class SyntacticCollsTile implements ITileProvider {
                 corpname: conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
-                visibleMeasures: tuple('LL', 'LMI'),
+                availableMeasures: ['LL', 'LMI', 'LogDice', 'T-Score'],
+                visibleMeasures: widthFract === 1 ? ['LL'] : ['LL', 'LMI', 'LogDice', 'T-Score'],
                 displayType: this.displayType ? this.displayType.displayType : 'none',
                 label: this.displayType ? appServices.importExternalMessage(this.displayType.label) : null,
                 examplesCache: {},
-                exampleWindowData: undefined,
-                deprelValues,
-                srchWordDeprelFilter: ''
+                exampleWindowData: undefined
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
@@ -202,7 +200,7 @@ export class SyntacticCollsTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return this.apiType === 'wss';
+        return this.widthFract === 1;
     }
 
     supportsAltView():boolean {
