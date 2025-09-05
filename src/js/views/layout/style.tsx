@@ -126,7 +126,7 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
         }
 
         td:not(:last-child), th:not(:last-child) {
-            border-color: white;
+            border-color: ${confTheme.colorWhitelikeBlue};
             border-width: 0 2px 0 0;
             border-style: solid;
         }
@@ -222,6 +222,11 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
             margin: 0 0.1em;
             padding: 0;
             font-size: 1em;
+            color: ${confTheme.colorDefaultText};
+        }
+
+        button:hover {
+            text-decoration: underline;
         }
 
         button.current {

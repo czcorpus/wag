@@ -55,7 +55,7 @@
             "colorLogoBlue": "#DD6644",
             "colorDefaultText": "#ddddee",
             "colorInvertedSecondaryText": "#333333",
-            "defaultFontFamily": "Monospace",
+            "colorWhitelikeBlue": "#31313f",
             "pageBackgroundColor": "#333355",
             "tileBackgroundColor": "RGB(30, 30, 30, 0.7)",
             "svgIconsFilter": "filter: hue-rotate(-172deg) brightness(103%) contrast(101%)",

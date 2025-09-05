@@ -116,7 +116,7 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
     .LemmaSelector {
         font-size: 80%;
         padding: 0.8em 0 0 0;
-        color: #454545;
+        color: ${props => props.theme.colorLightText};
 
         .curr {
             font-size: 125%;
