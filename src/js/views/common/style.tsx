@@ -296,7 +296,7 @@ export const ModalOverlay = styled.div`
 // ---------------- <WdgTooltip /> --------------------------------------
 
 export const WdgTooltip = styled.div<{$multiword?:boolean, theme:Theme}>`
-    background-color: #FFFFFF;
+    background-color: ${(props:{theme:Theme}) => props.theme.tileBackgroundColor};
     z-index: 10000;
     padding: ${props => props.$multiword ? '0.3em 1em 1.3em 1em' : '1em'};
     border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
