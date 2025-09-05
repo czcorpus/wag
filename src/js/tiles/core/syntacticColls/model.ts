@@ -236,7 +236,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             Actions.SetDisplayScore,
             action => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.visibleMeasures = [action.payload.value];
+                state.visibleMeasures[action.payload.position] = action.payload.value;
             },
         );
 

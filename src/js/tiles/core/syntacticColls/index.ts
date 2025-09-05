@@ -155,7 +155,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
                 availableMeasures: ['LL', 'LMI', 'LogDice', 'T-Score'],
-                visibleMeasures: widthFract === 1 ? ['LL'] : ['LL', 'LMI', 'LogDice', 'T-Score'],
+                visibleMeasures: widthFract === 1 ? ['LL', 'T-Score'] : ['LL', 'LMI', 'LogDice', 'T-Score'],
                 displayType: this.displayType ? this.displayType.displayType : 'none',
                 label: this.displayType ? appServices.importExternalMessage(this.displayType.label) : null,
                 examplesCache: {},

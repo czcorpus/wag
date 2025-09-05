@@ -123,37 +123,65 @@ export function init(
 
     const Controls:React.FC<{
         tileId:number;
-        visibleMeasure:CollMeasure;
+        visibleMeasures:Array<CollMeasure>;
         availableMeasures:Array<CollMeasure>;
 
     }> = (props) => {
 
-        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+        const handleChange = (col:number) => (evt:React.ChangeEvent<HTMLInputElement>) => {
             dispatcher.dispatch(
                 Actions.SetDisplayScore,
                 {
                     value: evt.target.value,
-                    tileId: props.tileId
+                    tileId: props.tileId,
+                    position: col
                 }
             )
         };
 
         return (
-            <div>
+            <S.Controls>
                 <form className="Controls cnc-form tile-tweak">
                     <fieldset>
                         <label>
-                            {ut.translate('syntactic_colls__collocation_score_select')}:{'\u00a0'}
-                            <select value={props.visibleMeasure} onChange={handleChange}>
-                                {List.map(
-                                    v => <option value={v}>{v}</option>,
+                            <h2>{ut.translate('syntactic_colls__collocation_score_select')}</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>1.</th>
+                                        <th>2.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {List.map(
+                                    v => (
+                                        <tr key={`row:${v}`}>
+                                            <td>
+                                                <label>
+                                                    <input type="radio" value={v} name="col1sel"
+                                                            checked={props.visibleMeasures[0] === v}
+                                                            onChange={handleChange(0)} />
+                                                    {v}
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input type="radio" value={v} name="col2sel"
+                                                            checked={props.visibleMeasures[1] === v}
+                                                            onChange={handleChange(1)} />
+                                                    {v}
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    ),
                                     props.availableMeasures
-                                )}
-                            </select>
+                                    )}
+                                </tbody>
+                            </table>
                         </label>
                     </fieldset>
                 </form>
-            </div>
+            </S.Controls>
         );
     };
 
@@ -326,45 +354,44 @@ export function init(
                         <div className="tweak-box">
                             <Controls
                                 tileId={props.tileId}
-                                visibleMeasure={state.visibleMeasures[0]}
+                                visibleMeasures={state.visibleMeasures}
                                 availableMeasures={state.availableMeasures} />
                         </div> :
-                        null
+                    <S.SyntacticColls>
+                        {(() => {
+                            if (isEmpty(state.data)) {
+                                renderEmptyOrNA();
+
+                            } else if (state.isAltViewMode) {
+                                return (
+                                    <div className="tables">
+                                        {renderWordCloud()}
+                                    </div>
+                                );
+
+                            } else if (state.exampleWindowData) {
+                                return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
+
+                            } else {
+                                return (
+                                    <div className="tables">
+                                        <WSSTable
+                                            tileId={props.tileId}
+                                            data={state.data}
+                                            label={state.label}
+                                            queryType={state.displayType}
+                                            isMobile={props.isMobile}
+                                            visibleMeasures={state.visibleMeasures}
+                                            widthFract={props.widthFract} />
+                                    </div>
+                                );
+                            }
+                        })()}
+                        <p className="hint">
+                            {ut.translate('syntactic_colls__items_sorted_by_rrf')}
+                        </p>
+                    </S.SyntacticColls>
                 }
-                <S.SyntacticColls>
-                    {(() => {
-                        if (isEmpty(state.data)) {
-                            renderEmptyOrNA();
-
-                        } else if (state.isAltViewMode) {
-                            return (
-                                <div className="tables">
-                                    {renderWordCloud()}
-                                </div>
-                            );
-
-                        } else if (state.exampleWindowData) {
-                            return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
-
-                        } else {
-                            return (
-                                <div className="tables">
-                                    <WSSTable
-                                        tileId={props.tileId}
-                                        data={state.data}
-                                        label={state.label}
-                                        queryType={state.displayType}
-                                        isMobile={props.isMobile}
-                                        visibleMeasures={state.visibleMeasures}
-                                        widthFract={props.widthFract} />
-                                </div>
-                            );
-                        }
-                    })()}
-                    <p className="hint">
-                        {ut.translate('syntactic_colls__items_sorted_by_rrf')}
-                    </p>
-                </S.SyntacticColls>
             </globalCompontents.TileWrapper>
         );
     }

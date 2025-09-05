@@ -54,6 +54,7 @@ export class Actions {
     static SetDisplayScore:Action<{
         tileId:number;
         value:CollMeasure;
+        position:number;
     }> = {
         name: 'SYNTACTIC_COLLS_SET_DISPLAY_SCORE'
     }

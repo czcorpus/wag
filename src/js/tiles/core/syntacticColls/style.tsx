@@ -149,3 +149,18 @@ export const Examples = styled.div<{theme:Theme}>`
         }
     }
 `;
+
+
+export const Controls = styled.div`
+
+    table {
+
+        border-collapse: collapse;
+
+        td {
+            padding: 0.3em 0.6em;
+            border-width: 1px;
+            border-style: solid;
+            border-color: ${props => props.theme.colorLightText};
+        }
+`;
