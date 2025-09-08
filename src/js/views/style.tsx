@@ -110,97 +110,22 @@ export const SystemMessage = styled.li<{theme:Theme}>`
 // ---------------- <WdglanceControls /> --------------------------------------
 
 export const WdglanceControls = styled.div<{theme:Theme}>`
-    text-align: center;
+
+    display: flex;
+    width: 100%;
+    justify-content: center;
     padding: 1em;
 
-    .LemmaSelector {
-        font-size: 80%;
-        padding: 0.8em 0 0 0;
-        color: ${props => props.theme.colorLightText};
-
-        .curr {
-            font-size: 125%;
-            color: ${props => props.theme.colorLogoPink};
-        }
-
-        .variants > ul {
-            display: inline;
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-
-            li {
-                margin: 0;
-                padding: 0;
-                display: inline-block;
-
-                a {
-                    color: ${props => props.theme.colorLogoBlue};
-                    cursor: pointer;
-                }
-
-                a:hover {
-                    text-decoration: underline;
-                }
-            }
-        }
-
-        a.modal-box-trigger {
-            cursor: pointer;
-            color: ${props => props.theme.colorLogoPink};
-        }
-    }
-
-    .LemmaSelector.multiple-queries  {
-        font-size: 1.25em;
-        text-align: left;
-        padding-top: 0;
-
-        .variants {
-
-            h2.query-num {
-                font-size: 1.1em;
-                margin: 1.1em 0 0.2em 0;
-                text-align: center;
-                letter-spacing: 0.1em;
-            }
-
-            ul {
-                display: block;
-                list-style-type: none;
-                text-align: left;
-            }
-
-            li {
-                margin: 0;
-                padding: 0.1em 0;
-                display: block;
-
-                em {
-                    font-style: normal;
-                    color: ${props => props.theme.colorLogoPink};
-                }
-
-                input[type="radio"] {
-                    display: inline-block;
-                    padding: 0;
-                    vertical-align: middle;
-                    margin: 0 0.3em 0 0;
-                }
-            }
-        }
-
-        h2.query-num:first-child h2.query-num {
-            margin-top: 0;
-        }
-
-        .buttons {
-            text-align: center;
-        }
+    .tabs {
+        display: flex;
+        margin-top: 2em;
+        border-width: 0 0 1px 0;
+        border-style: solid;
+        border-color: ${props => props.theme.colorLightText};
     }
 
     &.result-page-mode .main {
-        margin-top: 1em;
+        margin-top: 1.5em;
         margin-bottom: 1em;
     }
 
@@ -309,18 +234,140 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
     }
 `;
 
+// -------------- <LemmaSelector /> ------------------------------------------
+
+export const LemmaSelector = styled.div`
+    font-size: 80%;
+    padding: 0.8em 0 0 0;
+    color: ${props => props.theme.colorLightText};
+
+    .curr {
+        font-size: 125%;
+        color: ${props => props.theme.colorLogoPink};
+    }
+
+    .variants > ul {
+        display: inline;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+
+        li {
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+
+            a {
+                color: ${props => props.theme.colorLogoBlue};
+                cursor: pointer;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    a.modal-box-trigger {
+        cursor: pointer;
+        color: ${props => props.theme.colorLogoPink};
+    }
+
+    &.multiple-queries  {
+        font-size: 1.25em;
+        text-align: left;
+        padding-top: 0;
+
+        .variants {
+
+            h2.query-num {
+                font-size: 1.1em;
+                margin: 1.1em 0 0.2em 0;
+                text-align: center;
+                letter-spacing: 0.1em;
+            }
+
+            ul {
+                display: block;
+                list-style-type: none;
+                text-align: left;
+            }
+
+            li {
+                margin: 0;
+                padding: 0.1em 0;
+                display: block;
+
+                em {
+                    font-style: normal;
+                    color: ${props => props.theme.colorLogoPink};
+                }
+
+                input[type="radio"] {
+                    display: inline-block;
+                    padding: 0;
+                    vertical-align: middle;
+                    margin: 0 0.3em 0 0;
+                }
+            }
+        }
+
+        h2.query-num:first-child h2.query-num {
+            margin-top: 0;
+        }
+
+        .buttons {
+            text-align: center;
+        }
+    }
+`;
+
+// -------------- <SubmenuTile /> --------------------------------------------
+
+export const SubmenuTile = styled.section`
+
+    display: flex;
+    justify-content: center;
+    padding: 0;
+
+`;
+
+// --------------- <OtherVariantsMenu /> --------------------------------------
+
+export const OtherVariantsMenu = styled.div<{theme:Theme}>`
+
+    display: flex;
+    align-items: center;
+
+    a {
+        color: ${props => props.theme.colorDefaultText};
+        padding: 0.2em 0.8em;
+        display: inline-block;
+        padding-top: 0.4em;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: ${props => props.theme.colorLogoBlue};
+    }
+
+    .separ {
+        color: ${props => props.theme.colorDefaultText};
+        font-size: 1.5em;
+    }
+`;
+
 // -------------- <QueryTypeSelector /> --------------------------------------
 
 
 export const QueryTypeSelector = styled.div<{theme:Theme}>`
 
-    margin-top: 0.1em;
-    margin-bottom: 1.5em;
+    flex-grow: 1;
 
     nav {
 
         display: flex;
-        justify-content: center;
         align-items: center;
         color: ${props => props.theme.colorDefaultText};
 
@@ -330,7 +377,8 @@ export const QueryTypeSelector = styled.div<{theme:Theme}>`
             padding: 0.2em 0.8em;
 
             a {
-                display: inline;
+                display: inline-block;
+                padding-top: 0.4em;
                 cursor: pointer;
                 text-decoration: none;
                 color: ${props => props.theme.colorDefaultText};
@@ -349,7 +397,7 @@ export const QueryTypeSelector = styled.div<{theme:Theme}>`
         .item.current a {
             border-style: solid;
             border-color: ${props => props.theme.colorLogoBlue};
-            border-width: 0 0 2px 0;
+            border-width: 2px 0 0 0;
         }
 
 

@@ -376,6 +376,10 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
         border-bottom: .1em solid rgba(0,0,0, 0.1);
     }
 
+    .cnc-form {
+        width: 100%;
+    }
+
     /*
     * cnc-form
     * cnc-button
