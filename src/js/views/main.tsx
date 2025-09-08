@@ -432,7 +432,7 @@ export function init(
                 const curr = List.find(v => v.isCurrent == true, props.matches[0]);
                 if (curr) {
                     return (
-                        <div className="LemmaSelector">
+                        <S.LemmaSelector>
                             {ut.translate('global__searching_by_pos')}:{'\u00a0'}
                             <span className="curr">{curr.lemma ? curr.lemma : curr.word} ({mkAltLabel(curr)})</span>
                             <br />
@@ -454,10 +454,10 @@ export function init(
                                 </div>
                                 : null
                             }
-                        </div>
+                        </S.LemmaSelector>
                     );
                 }
-                return <div className="LemmaSelector"></div>;
+                return <S.LemmaSelector></S.LemmaSelector>;
             }
 
         } else {
@@ -501,7 +501,7 @@ export function init(
             } else {
                 const numAmbig = props.matches.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0);
                 return (
-                    <div className="LemmaSelector">
+                    <S.LemmaSelector>
                         {numAmbig > 0 ?
                             <a className="modal-box-trigger" onClick={handleShowModal}>
                                 {ut.translate('global__some_results_ambiguous_msg_{num}',
@@ -509,7 +509,7 @@ export function init(
                             </a> :
                             null
                         }
-                    </div>
+                    </S.LemmaSelector>
                 );
             }
         }
@@ -537,8 +537,11 @@ export function init(
         return (
             <S.WdglanceControls className={props.isAnswerMode ? 'result-page-mode' : null}>
                 <form className="cnc-form">
-                    <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
-                            qeryTypes={state.queryTypesMenuItems} value={state.queryType} />
+                   <div className="tabs">
+                        <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
+                                qeryTypes={state.queryTypesMenuItems} value={state.queryType} />
+                        <OtherVariantsMenu />
+                    </div>
                     <div className="main">
                         <QueryFields
                                 wantsFocus={!props.isAnswerMode || state.initialQueryType !== state.queryType}
@@ -551,16 +554,23 @@ export function init(
                         <SubmitButton onClick={handleSubmit} />
                     </div>
                 </form>
-                {props.isAnswerMode ?
-                    <LemmaSelector matches={state.queryMatches} queries={state.queries.map(v => v.value)}
-                            lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
-                            modalSelections={state.modalSelections} mainPosAttr={state.mainPosAttr} /> :
-                    null
-                }
             </S.WdglanceControls>
         );
     }
 
+    // ------------- <OtherVariantsMenu /> -------------------------------
+
+    const OtherVariantsMenu = (props) => {
+        return (
+            <S.OtherVariantsMenu>
+                <a href="https://www.korpus.cz/wag-beta/poezie/search/">hledat v poezii</a>
+                <span className="separ">|</span>
+                <a href="https://www.korpus.cz/wag-beta/internet/search/">hledat v internetových textech</a>
+                <span className="separ">|</span>
+                <a href="https://www.korpus.cz/wag-beta/scoll/search/">hledat podle syntaktických vazeb</a>
+            </S.OtherVariantsMenu>
+        )
+    };
 
     // ------------- <HelpButton /> --------------------------------------
 
@@ -1337,12 +1347,28 @@ export function init(
             <S.TilesSections>
                 {state.isAnswerMode ?
                     <globalComponents.TileMinHeightContext value={height}>
+                        <SubmenuTile />
                         {renderContents()}
                     </globalComponents.TileMinHeightContext> :
                     <S.Tiles><InitialHelp sections={props.homepageSections} /></S.Tiles>
                 }
                 {renderModal()}
             </S.TilesSections>
+        );
+    }
+
+    // ------------------ <SubmenuTile /> -------------------------------
+
+    const SubmenuTile = () => {
+
+        const state = useModel(formModel);
+
+        return (
+            <S.SubmenuTile>
+                <LemmaSelector matches={state.queryMatches} queries={state.queries.map(v => v.value)}
+                    lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
+                    modalSelections={state.modalSelections} mainPosAttr={state.mainPosAttr} />
+            </S.SubmenuTile>
         );
     }
 
