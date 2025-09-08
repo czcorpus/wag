@@ -36,7 +36,7 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
         }
 
         .logo-wrapper img.logo-filtered {
-            ${confTheme.svgIconsFilter};
+            ${confTheme.svgLogoFilter};
         }
 
         > header.wdg-header {
@@ -420,7 +420,9 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     .cnc-form input[type=email],
     .cnc-form textarea,
     .cnc-form select {
-        background-color: white;
+        background-color: ${confTheme.pageBackgroundColor};
+        color: ${confTheme.colorDefaultText};
+        border-color: ${confTheme.colorLogoBlue};
     }
 
     .cnc-form.cnc-form-spaced input[type=text],
@@ -451,14 +453,19 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     }
 
     .cnc-button.cnc-button:active,
-    .cnc-button.cnc-button:focus,
+    .cnc-button.cnc-button:focus {
+
+    }
+
     .cnc-form input[type=text]:focus,
     .cnc-form input[type=password]:focus,
     .cnc-form input[type=number]:focus,
     .cnc-form input[type=email]:focus,
     .cnc-form textarea:focus,
     .cnc-form select:focus {
-        background-color: ${confTheme.colorLogoBlue};
+        background-color: ${confTheme.pageBackgroundColor};
+        color: ${confTheme.colorDefaultText};
+        border-color: ${confTheme.colorLogoBlue};
     }
 
     a.cnc-button.cnc-button {

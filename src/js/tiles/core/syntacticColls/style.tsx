@@ -67,6 +67,10 @@ export const SCollsTable = styled.div<{theme:Theme}>`
             color: ${props => props.theme.colorLogoPink};
         }
 
+        .syntax-node {
+            color: ${props => props.theme.colorLogoBlue};
+        }
+
         .fn {
             color: ${props => props.theme.colorLightText};
         }
@@ -152,6 +156,15 @@ export const Examples = styled.div<{theme:Theme}>`
 
 
 export const Controls = styled.div`
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+    h2 {
+        font-size: 1.3em;
+    }
 
     table {
 

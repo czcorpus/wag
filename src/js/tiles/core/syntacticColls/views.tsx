@@ -141,10 +141,10 @@ export function init(
 
         return (
             <S.Controls>
+                <h2>{ut.translate('syntactic_colls__collocation_score_select')}</h2>
                 <form className="Controls cnc-form tile-tweak">
                     <fieldset>
                         <label>
-                            <h2>{ut.translate('syntactic_colls__collocation_score_select')}</h2>
                             <table>
                                 <thead>
                                     <tr>
@@ -194,6 +194,7 @@ export function init(
         widthFract:number;
         queryType:SCollsQueryType;
         label:string;
+        word:string;
         visibleMeasures:Array<CollMeasure>;
 
     }> = (props) => {
@@ -246,16 +247,16 @@ export function init(
                                                     {Math.round(row.mutualDist) <= -2 ?
                                                         <>
                                                             <span className="arrows">{'\u2192'}</span>
-                                                            {'\u25EF'}
+                                                            <span className="syntax-node">{'\u25EF'}</span>
                                                         </> :
                                                         null
                                                     }
                                                     <span className="arrows">{'\u2192'}</span>
-                                                    <span>{'\u2B24'}</span>
+                                                    <span className="syntax-node" title={props.word}>{'\u2B24'}</span>
 
                                                 </> :
                                                 <>
-                                                    {'\u2B24'}
+                                                    <span className="syntax-node" title={props.word}>{'\u2B24'}</span>
                                                     <span className="arrows">{'\u2190'}</span>
                                                     {Math.round(row.mutualDist) >= 2 ?
                                                         <>
@@ -303,20 +304,14 @@ export function init(
         const renderWordCloud = () => {
             return (
                 <S.SCollsWordCloud>
-                    <h2>{ut.translate(`syntactic_colls__heading_${state.displayType}`)}</h2> :
-                    {state.data ?
-                        isEmpty(state.data) ?
-                            <p>{ut.translate('syntactic_colls__no_data')}</p> :
-                            <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
-                                    widthFract={props.widthFract} render={(width:number, height:number) => (
-                                <WordCloud width={width} height={height} isMobile={props.isMobile}
-                                    data={state.data.rows}
-                                    font={theme.infoGraphicsFont}
-                                    dataTransform={dataTransform}
-                                />
-                            )}/> :
-                        null
-                    }
+                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                            widthFract={props.widthFract} render={(width:number, height:number) => (
+                        <WordCloud width={width} height={height} isMobile={props.isMobile}
+                            data={state.data.rows}
+                            font={theme.infoGraphicsFont}
+                            dataTransform={dataTransform}
+                        />
+                    )}/>
                 </S.SCollsWordCloud>
             )
         };
@@ -377,6 +372,7 @@ export function init(
                                     <div className="tables">
                                         <WSSTable
                                             tileId={props.tileId}
+                                            word={state.queryMatch.word}
                                             data={state.data}
                                             label={state.label}
                                             queryType={state.displayType}

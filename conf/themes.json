@@ -6,6 +6,7 @@
             "themeLabel": "CNC default",
             "colorLightText": "#9a9a9a",
             "colorSecondaryText": "#444444",
+            "colorInvertText": "#efefef",
             "colorInvertedSecondaryText": "#565656",
             "lineChartColor1": "#009ee0",
             "lineConfidenceAreaColor1": "#ddedf3",
@@ -59,6 +60,7 @@
             "pageBackgroundColor": "#333355",
             "tileBackgroundColor": "RGB(30, 30, 30, 0.7)",
             "svgIconsFilter": "filter: hue-rotate(-172deg) brightness(103%) contrast(101%)",
+            "svgLogoFilter": "",
 
 
             "lineChartColor1": "#009ee0",
