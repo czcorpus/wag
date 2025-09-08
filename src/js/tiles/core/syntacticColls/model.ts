@@ -266,6 +266,13 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         ).subscribe({
             next: (data) => {
+                seDispatch<typeof GlobalActions.OverwriteTileLabel>({
+                    name: GlobalActions.OverwriteTileLabel.name,
+                    payload: {
+                        tileId: this.tileId,
+                        value: state.label
+                    }
+                });
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
