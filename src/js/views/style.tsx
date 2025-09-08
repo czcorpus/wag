@@ -199,6 +199,11 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         }
     }
 
+    &.result-page-mode .main {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
     .main {
         margin-top: 3em;
         margin-bottom: 3em;

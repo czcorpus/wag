@@ -53,12 +53,12 @@
         {
             "themeId": "cnc-dark",
             "themeLabel": "CNC dark",
-            "colorLogoBlue": "#DD6644",
+            "colorLogoBlue": "#ce744a",
             "colorDefaultText": "#ddddee",
             "colorInvertedSecondaryText": "#333333",
             "colorWhitelikeBlue": "#31313f",
             "pageBackgroundColor": "#333355",
-            "tileBackgroundColor": "RGB(30, 30, 30, 0.7)",
+            "tileBackgroundColor": "#24242e",
             "svgIconsFilter": "filter: hue-rotate(-172deg) brightness(103%) contrast(101%)",
             "svgLogoFilter": "",
 

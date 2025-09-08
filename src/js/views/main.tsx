@@ -294,7 +294,6 @@ export function init(
     const QueryFields:React.FC<{
         queries:Array<Input>;
         currQueryType:QueryType;
-
         wantsFocus:boolean;
         translatLang:string;
         translatLanguages:Array<TranslatLanguage>;
@@ -518,7 +517,7 @@ export function init(
 
     // ------------------ <WdglanceControls /> ------------------------------
 
-    const WdglanceControls:React.FC<QueryFormModelState & {isMobile:boolean; isAnswerMode:boolean}> = (props) => {
+    const WdglanceControls:React.FC<{isMobile:boolean; isAnswerMode:boolean}> = (props) => {
 
         const handleSubmit = () => {
             dispatcher.dispatch<typeof Actions.SubmitQuery>({
@@ -533,34 +532,34 @@ export function init(
             );
         };
 
+        const state = useModel(formModel);
+
         return (
-            <S.WdglanceControls>
+            <S.WdglanceControls className={props.isAnswerMode ? 'result-page-mode' : null}>
                 <form className="cnc-form">
                     <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
-                            qeryTypes={props.queryTypesMenuItems} value={props.queryType} />
+                            qeryTypes={state.queryTypesMenuItems} value={state.queryType} />
                     <div className="main">
                         <QueryFields
-                                wantsFocus={!props.isAnswerMode || props.initialQueryType !== props.queryType}
-                                queries={props.queries}
-                                currQueryType={props.queryType}
-                                translatLang={props.currTranslatLanguage}
-                                translatLanguages={props.translatLanguages}
+                                wantsFocus={!props.isAnswerMode || state.initialQueryType !== state.queryType}
+                                queries={state.queries}
+                                currQueryType={state.queryType}
+                                translatLang={state.currTranslatLanguage}
+                                translatLanguages={state.translatLanguages}
                                 onEnterKey={handleSubmit}
-                                maxCmpQueries={props.maxCmpQueries} />
+                                maxCmpQueries={state.maxCmpQueries} />
                         <SubmitButton onClick={handleSubmit} />
                     </div>
                 </form>
                 {props.isAnswerMode ?
-                    <LemmaSelector matches={props.queryMatches} queries={props.queries.map(v => v.value)}
-                            lemmaSelectorModalVisible={props.lemmaSelectorModalVisible}
-                            modalSelections={props.modalSelections} mainPosAttr={props.mainPosAttr} /> :
+                    <LemmaSelector matches={state.queryMatches} queries={state.queries.map(v => v.value)}
+                            lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
+                            modalSelections={state.modalSelections} mainPosAttr={state.mainPosAttr} /> :
                     null
                 }
             </S.WdglanceControls>
         );
     }
-
-    const WdglanceControlsBound = BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, QueryFormModelState>(WdglanceControls, formModel);
 
 
     // ------------- <HelpButton /> --------------------------------------
@@ -1362,7 +1361,7 @@ export function init(
             <S.WdglanceMain>
                 <GlobalStyleWithDynamicTheme createStaticUrl={ut.createStaticUrl} />
                 <ThemeProvider theme={dynamicTheme}>
-                    <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
+                    <WdglanceControls isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                     <BoundMessagesBox />
                     <TilesSections layout={props.layout} homepageSections={props.homepageSections} />
                 </ThemeProvider>

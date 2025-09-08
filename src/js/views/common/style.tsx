@@ -168,7 +168,8 @@ export const ResponsiveWrapper = styled.div<{$minWidth:number}>`
 
 // ---------------- <ModalOverlay /> --------------------------------------
 
-export const ModalOverlay = styled.div`
+export const ModalOverlay = styled.div<{theme:Theme}>`
+
     position: fixed;
     z-index: 10000;
     left: 0;
@@ -183,6 +184,7 @@ export const ModalOverlay = styled.div`
         left: 50%;
         transform: translate(-50%,-30%);
         max-height: 100%;
+        border: ${props => props.theme.tileBorderStyle};
 
         header span:first-letter {
             text-transform: uppercase;
