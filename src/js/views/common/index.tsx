@@ -148,7 +148,7 @@ export function init(
     // --------------- <AjaxLoader /> -------------------------------------------
 
     const AjaxLoader:GlobalComponents['AjaxLoader'] = (props) => {
-        return <S.AjaxLoader src={ut.createStaticUrl('ajax-loader.gif')}
+        return <S.AjaxLoader src={ut.createStaticUrl('ajax-loader.svg')}
                     alt={ut.translate('global__alt_loading')}
                     className={props.htmlClass} />;
     }

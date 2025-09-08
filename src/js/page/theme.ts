@@ -144,6 +144,13 @@ export class Theme {
 
     public readonly svgIconsFilter:string|undefined;
 
+    /**
+     * note: if you want to define "no filter", please use
+     * an empty string as `undefined` means - use default
+     * (which is the same filter as for the icons)
+     */
+    public readonly svgLogoFilter:string|undefined;
+
 
 
     private readonly catColors:Array<string>;
@@ -207,6 +214,7 @@ export class Theme {
         this.cssMediaMediumSize = confSrc.cssMediaMediumScreen || fallbackTheme.cssMediaMediumScreen;
         this.cssMediaSmallSize = confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
         this.svgIconsFilter = confSrc.svgIconsFilter;
+        this.svgLogoFilter = typeof confSrc.svgLogoFilter === 'string' ? confSrc.svgLogoFilter : confSrc.svgIconsFilter;
 
         this.tileBorderStyle = confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
         this.tileBorderRadius = confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
@@ -249,7 +257,7 @@ export class Theme {
                 Color.textColorFromBg(),
                 Color.color2str()
             );
-        
+
         this.chartTextColor = confSrc.chartTextColor || this.colorDefaultText;
     }
 
