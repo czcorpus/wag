@@ -193,7 +193,6 @@ export function init(
         isMobile:boolean;
         widthFract:number;
         queryType:SCollsQueryType;
-        label:string;
         word:string;
         visibleMeasures:Array<CollMeasure>;
 
@@ -211,7 +210,6 @@ export function init(
 
         return (
             <S.SCollsTable>
-                <h2>{props.label}</h2>
                 <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                         widthFract={props.widthFract}
                         render={(width:number, height:number) => (
@@ -374,7 +372,6 @@ export function init(
                                             tileId={props.tileId}
                                             word={state.queryMatch.word}
                                             data={state.data}
-                                            label={state.label}
                                             queryType={state.displayType}
                                             isMobile={props.isMobile}
                                             visibleMeasures={state.visibleMeasures}

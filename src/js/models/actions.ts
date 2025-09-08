@@ -156,6 +156,13 @@ export class Actions {
         name: 'MAIN_DISABLE_TILE_TWEAK_MODE'
     }
 
+    static OverwriteTileLabel:Action<{
+        tileId:number;
+        value:string;
+    }> = {
+        name: 'MAIN_OVERWRITE_TILE_LABEL'
+    }
+
     static GetSourceInfo:Action<{
         tileId:number;
         corpusId:string;

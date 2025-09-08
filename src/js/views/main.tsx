@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
+import { Bound, BoundWithProps, IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 import { debounceTime, map, tap } from 'rxjs/operators';
@@ -216,7 +216,7 @@ export function init(
         onChange:(v:string)=>void;
 
     }> = (props) => (
-        <div className="DomainSelector">
+        <S.QueryTypeSelector>
             {pipe(props.qeryTypes, List.filter(x => x.isEnabled), List.size()) < 2 ?
                 <span></span> :
                 <nav>
@@ -239,7 +239,7 @@ export function init(
                 )}
                 </nav>
             }
-        </div>
+        </S.QueryTypeSelector>
     );
 
     // ------------------ <AddCmpQueryField /> ------------------------------
@@ -794,6 +794,7 @@ export function init(
         isAltViewMode:boolean;
         helpURL:string;
         tile:TileFrameProps;
+        overwriteLabel:string;
         supportsCurrQuery:boolean;
         tileResultFlag:TileResultFlagRec;
         isHighlighted:boolean;
@@ -823,7 +824,7 @@ export function init(
             <section id={mkTileSectionId(props.tile.tileId)} key={`tile-ident-${props.tile.tileId}`}
                     className={getHTMLClass()}>
                 <header className="cnc-tile-header panel">
-                    <h2>{props.tile.label}</h2>
+                    <h2>{props.overwriteLabel ? props.overwriteLabel : props.tile.label}</h2>
                     <div className="window-buttons">
                     {props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult ?
                         <AmbiguousResultWarning /> :
@@ -975,6 +976,7 @@ export function init(
 
     const TileGroupSection:React.FC<{
         data:TileGroup;
+        labelsOverwrites:{[tileId:number]:string};
         idx:number;
         isHidden:boolean;
         hasData:boolean;
@@ -1042,6 +1044,7 @@ export function init(
                                             tile={tile}
                                             isMobile={props.isMobile}
                                             helpURL={tile.helpURL}
+                                            overwriteLabel={props.labelsOverwrites[tile.tileId]}
                                             isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}
                                             isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
@@ -1197,7 +1200,9 @@ export function init(
     const TilesSections:React.FC<{
         layout:Array<TileGroup>;
         homepageSections:Array<{label:string; html:string}>;
-    } & WdglanceTilesState> = (props) => {
+    }> = (props) => {
+
+        const state = useModel(tilesModel);
 
         const handleCloseSourceInfo = () => {
             dispatcher.dispatch<typeof Actions.CloseSourceInfo>({
@@ -1224,36 +1229,36 @@ export function init(
         };
 
         const renderModal = () => {
-            if (props.activeSourceInfo !== null) {
+            if (state.activeSourceInfo !== null) {
                 return (
                     <globalComponents.ModalBox onCloseClick={handleCloseSourceInfo}
                             title={ut.translate('global__source_detail')}>
                         <globalComponents.ErrorBoundary>
-                            {props.isBusy ?
+                            {state.isBusy ?
                                 <WithinModalAjaxLoader /> :
-                                <SourceInfo tileProps={props.tileProps} data={props.activeSourceInfo} />
+                                <SourceInfo tileProps={state.tileProps} data={state.activeSourceInfo} />
                             }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
                 );
 
-            } else if (props.activeGroupHelp !== null) {
-                const group = props.layout[props.activeGroupHelp.idx];
+            } else if (state.activeGroupHelp !== null) {
+                const group = props.layout[state.activeGroupHelp.idx];
                 return <ModalHelpContent onClose={handleCloseGroupHelp} title={group.groupLabel}
-                            html={props.activeGroupHelp.html}
-                            isBusy={props.isBusy} />;
+                            html={state.activeGroupHelp.html}
+                            isBusy={state.isBusy} />;
 
-            } else if (props.activeTileHelp !== null) {
+            } else if (state.activeTileHelp !== null) {
                 return <ModalHelpContent onClose={handleCloseTileHelp}
-                            title={props.tileProps[props.activeTileHelp.ident].label}
-                            html={props.activeTileHelp.html}
-                            isBusy={props.isBusy} />;
+                            title={state.tileProps[state.activeTileHelp.ident].label}
+                            html={state.activeTileHelp.html}
+                            isBusy={state.isBusy} />;
 
-            } else if (props.showAmbiguousResultHelp) {
+            } else if (state.showAmbiguousResultHelp) {
                 return <ModalHelpContent onClose={handleAmbiguousResultHelp}
                             title={ut.translate('global__not_using_lemmatized_query_title')}
                             html={'<p>' + ut.translate('global__not_using_lemmatized_query_msg') + '</p>'}
-                            isBusy={props.isBusy} />;
+                            isBusy={state.isBusy} />;
 
             } else {
                 return null;
@@ -1261,10 +1266,10 @@ export function init(
         };
 
         const renderContents = () => {
-            if (props.numTileErrors > props.maxTileErrors) {
-                return <TooManyErrorsBox reportHref={props.issueReportingUrl} />;
+            if (state.numTileErrors > state.maxTileErrors) {
+                return <TooManyErrorsBox reportHref={state.issueReportingUrl} />;
 
-            } else if (props.datalessGroups.length >= props.layout.length) {
+            } else if (state.datalessGroups.length >= props.layout.length) {
                 return <NothingFoundBox />;
 
             } else {
@@ -1273,15 +1278,16 @@ export function init(
                         <TileGroupSection
                             key={`${group.groupLabel}:${groupIdx}`}
                             data={group}
+                            labelsOverwrites={state.labelsOverwrites}
                             idx={groupIdx}
-                            isHidden={List.some(v => v === groupIdx, props.hiddenGroups)}
-                            hasData={!List.some(v => v === groupIdx, props.datalessGroups)}
-                            isMobile={props.isMobile}
-                            tileFrameProps={props.tileProps}
-                            tweakActiveTiles={props.tweakActiveTiles}
-                            altViewActiveTiles={props.altViewActiveTiles}
-                            tileResultFlags={props.tileResultFlags}
-                            highlightedTileId={props.highlightedTileId} />
+                            isHidden={List.some(v => v === groupIdx, state.hiddenGroups)}
+                            hasData={!List.some(v => v === groupIdx, state.datalessGroups)}
+                            isMobile={state.isMobile}
+                            tileFrameProps={state.tileProps}
+                            tweakActiveTiles={state.tweakActiveTiles}
+                            altViewActiveTiles={state.altViewActiveTiles}
+                            tileResultFlags={state.tileResultFlags}
+                            highlightedTileId={state.highlightedTileId} />
 
                     ),
                     props.layout
@@ -1310,14 +1316,14 @@ export function init(
         );
 
         React.useEffect(() => {
-            if (props.allTilesLoaded && props.scrollToTileId > -1) {
+            if (state.allTilesLoaded && state.scrollToTileId > -1) {
                 blinkAndDehighlight(
-                    props.scrollToTileId,
+                    state.scrollToTileId,
                     dispatcher,
                     timer(0).pipe(
                         tap(
                             () => {
-                                const elm = window.document.getElementById(mkTileSectionId(props.highlightedTileId));
+                                const elm = window.document.getElementById(mkTileSectionId(state.highlightedTileId));
                                 if (elm) {
                                     elm.scrollIntoView();
                                 }
@@ -1330,7 +1336,7 @@ export function init(
 
         return (
             <S.TilesSections>
-                {props.isAnswerMode ?
+                {state.isAnswerMode ?
                     <globalComponents.TileMinHeightContext value={height}>
                         {renderContents()}
                     </globalComponents.TileMinHeightContext> :
@@ -1340,8 +1346,6 @@ export function init(
             </S.TilesSections>
         );
     }
-
-    const BoundTilesSections = BoundWithProps<any, any>(TilesSections, tilesModel);
 
     // ------------------ <WdglanceMain /> ------------------------------
 
@@ -1360,7 +1364,7 @@ export function init(
                 <ThemeProvider theme={dynamicTheme}>
                     <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                     <BoundMessagesBox />
-                    <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />
+                    <TilesSections layout={props.layout} homepageSections={props.homepageSections} />
                 </ThemeProvider>
             </S.WdglanceMain>
         );

@@ -47,6 +47,7 @@ export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
     isMobile:boolean;
+    labelsOverwrites:{[tileId:number]:string};
     altViewActiveTiles:Array<number>;
     tweakActiveTiles:Array<number>;
     hiddenGroups:Array<number>;
@@ -117,6 +118,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
     constructor(dispatcher:IActionDispatcher, initialState:WdglanceTilesState, appServices:IAppServices) {
         super(dispatcher, initialState);
         this.appServices = appServices;
+
         this.addActionHandler<typeof Actions.SetScreenMode>(
             Actions.SetScreenMode.name,
             (state, action) => {
@@ -145,10 +147,17 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.DisableTileTweakMode>(
-            Actions.DisableTileTweakMode.name,
+        this.addActionHandler(
+            Actions.DisableTileTweakMode,
             (state, action) => {
                 state.tweakActiveTiles = List.removeValue(action.payload.ident, state.tweakActiveTiles);
+            }
+        );
+
+        this.addActionHandler(
+            Actions.OverwriteTileLabel,
+            (state, action) => {
+                state.labelsOverwrites[action.payload.tileId] = action.payload.value;
             }
         );
 

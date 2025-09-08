@@ -200,40 +200,12 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
     }
 
     .main {
-        margin-top: 1em;
+        margin-top: 3em;
+        margin-bottom: 3em;
         display: flex;
         align-items: center;
         justify-content: center;
 
-    }
-
-    .DomainSelector {
-
-        margin-top: 0.1em;
-        margin-bottom: 1.5em;
-
-        .item {
-
-            display: inline-block;
-
-            a {
-                padding: 0.2em;
-                cursor: pointer;
-                display: block;
-                text-decoration: none;
-            }
-
-            a:hover {
-                color: ${props => props.theme.colorLogoBlue};
-            }
-
-        }
-
-        .item.current {
-            border-style: solid;
-            border-color: ${props => props.theme.colorLogoBlue};
-            border-width: 0 0 2px 0;
-        }
     }
 
     .translat-lang-selector {
@@ -322,23 +294,61 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         }
     }
 
-    ${props => props.theme.cssMediaMediumSize} {
-        .main {
-            flex-wrap: wrap;
+    ${props => props.theme.cssMediaSmallSize} {
+        padding: 0;
+        margin-bottom: 2em;
 
-            > * {
-                margin-top: 0.3em;
-                margin-bottom: 0.3em;
+        .main .SubmitButton button {
+            padding: 0.5em 1.5em 0.5em 1.5em;
+        }
+    }
+`;
+
+// -------------- <QueryTypeSelector /> --------------------------------------
+
+
+export const QueryTypeSelector = styled.div<{theme:Theme}>`
+
+    margin-top: 0.1em;
+    margin-bottom: 1.5em;
+
+    nav {
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: ${props => props.theme.colorDefaultText};
+
+        .item {
+
+            display: block;
+            padding: 0.2em 0.8em;
+
+            a {
+                display: inline;
+                cursor: pointer;
+                text-decoration: none;
+                color: ${props => props.theme.colorDefaultText};
+            }
+
+            a:hover {
+                color: ${props => props.theme.colorLogoBlue};
             }
         }
 
-        .translat-lang-selector {
-            margin-left: 0;
+        .separ {
+            display: block;
+            font-size: 1.5em;
+        }
+
+        .item.current a {
+            border-style: solid;
+            border-color: ${props => props.theme.colorLogoBlue};
+            border-width: 0 0 2px 0;
         }
 
 
-        .DomainSelector {
-
+        ${props => props.theme.cssMediaMediumSize} {
             margin-bottom: 0.7em;
 
             span.item {
@@ -369,19 +379,11 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
                 display: none;
             }
         }
-    }
 
-    ${props => props.theme.cssMediaSmallSize} {
-        padding: 0;
-        margin-bottom: 2em;
-
-        .main .SubmitButton button {
-            padding: 0.5em 1.5em 0.5em 1.5em;
-        }
-
-        .DomainSelector {
+        ${props => props.theme.cssMediaSmallSize} {
             margin-top: 0.2em;
         }
+
     }
 `;
 

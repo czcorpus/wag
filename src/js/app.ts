@@ -221,6 +221,7 @@ export function createRootComponent({
                     canBeAmbiguousResult: false
                 }))
             ),
+            labelsOverwrites: {},
             tileProps: tiles,
             activeSourceInfo: null,
             activeGroupHelp: null,
