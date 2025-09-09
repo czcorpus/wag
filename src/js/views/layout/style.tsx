@@ -42,6 +42,7 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
         > header.wdg-header {
 
             display:flex;
+            justify-content: center;
 
             margin-top: 1.2em;
 
@@ -55,27 +56,6 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
                 }
             }
 
-            .parent-link-wrapper {
-
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                flex: 0 0 15em;
-
-                .parent-wag-link {
-                    display: flex;
-                    align-items: center;
-                    color: ${confTheme.colorLogoBlue};
-                    text-decoration: underline;
-                    cursor: pointer;
-
-                    img {
-                        width: 1em;
-                        margin-right: 0.4em;
-                    }
-                }
-            }
-
             .parent-wag-link:hover {
                 text-decoration: none;
             }
@@ -85,10 +65,6 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
                 flex: 1 1 auto;
                 justify-content: center;
                 align-items: center;
-            }
-
-            .right-ballast {
-                flex: 0 0 15em;
             }
         }
 

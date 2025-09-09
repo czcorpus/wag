@@ -195,7 +195,6 @@ interface RenderResultArgs {
     queryMatches:RecognizedQueries;
     userConfig:UserConf;
     clientConfig:ClientConf;
-    currentParentWagPageUrl:string;
     returnUrl:string;
     themes:Array<ColorThemeIdent>;
     currTheme:string;
@@ -218,7 +217,6 @@ export function renderResult({
         queryMatches,
         userConfig,
         clientConfig,
-        currentParentWagPageUrl,
         returnUrl,
         currTheme,
         themes,
@@ -265,8 +263,7 @@ export function renderResult({
                         repositoryUrl,
                         error,
                         scriptNonce: services.scriptNonce,
-                        issueReportingUrl: clientConfig.issueReportingUrl,
-                        currentParentWagPageUrl
+                        issueReportingUrl: clientConfig.issueReportingUrl
                     }
                 )
             )

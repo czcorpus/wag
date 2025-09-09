@@ -61,32 +61,6 @@ interface MkRuntimeClientConfArgs {
     queryType:QueryType;
 }
 
-export function createParentWagLink(
-    baseUrl:string,
-    queryType:QueryType,
-    queries:Array<UserQuery>,
-    answerMode:boolean
-):string|undefined {
-    if (!baseUrl) {
-        return undefined;
-    }
-    const action = queryTypeToAction(queryType) || '';
-    if (answerMode) {
-        return urlJoin(
-            baseUrl,
-            action,
-            List.map(
-                v => v.word,
-                queries
-            ).join('--')
-        );
-
-    } else {
-        return urlJoin(baseUrl, action);
-    }
-}
-
-
 
 /**
  * Out of all the configured tiles for all the query types, filter out everything
@@ -164,7 +138,6 @@ export function mkRuntimeClientConf({
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
                 runtimeAssetsUrl: conf.runtimeAssetsUrl,
-                parentWagUrl: conf.parentWagUrl,
                 favicon: conf.favicon,
                 logo: {
                     url: appServices.importExternalMessage(conf.logo?.url),
@@ -178,6 +151,13 @@ export function mkRuntimeClientConf({
                         } :
                         undefined
                 },
+                instanceSwitchMenu: List.map(
+                    item => ({
+                        url: item.url,
+                        label: appServices.importExternalMessage(item.label)
+                    }),
+                    conf.instanceSwitchMenu || []
+                ),
                 corpInfoApiUrl: conf.corpInfoApiUrl,
                 apiHeaders: conf.apiHeaders,
                 onLoadInit: conf.onLoadInit,
@@ -517,13 +497,6 @@ export function queryAction({
                 qMatchesEachQuery
             );
 
-            const parentWagUrl = createParentWagLink(
-                runtimeConf.parentWagUrl,
-                queryType,
-                userConf.queries,
-                answerMode
-            );
-
             const {component, tileGroups,} = createRootComponent({
                 config: runtimeConf,
                 userSession: userConf,
@@ -561,7 +534,6 @@ export function queryAction({
                 themes: runtimeConf.colorThemes,
                 currTheme: runtimeConf.colors.themeId,
                 userConfig: userConf,
-                currentParentWagPageUrl: parentWagUrl,
                 clientConfig: runtimeConf,
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
                 rootView: component,
@@ -594,7 +566,6 @@ export function queryAction({
                 themes: [],
                 currTheme: currTheme.ident,
                 userConfig: userConf,
-                currentParentWagPageUrl: undefined,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
