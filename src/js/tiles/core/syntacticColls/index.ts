@@ -41,6 +41,7 @@ export interface SyntacticCollsTileConf extends TileConf {
     apiURL:string;
     apiType?:'default'|'wss';
     eApiURL:string;
+    datasetName?:string;
     corpname:string;
     maxItems:number;
     hideOnNoData?:boolean;
@@ -152,6 +153,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
+                datasetName: conf.datasetName ? conf.datasetName : conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
                 availableMeasures: ['LL', 'LMI', 'LogDice', 'T-Score'],
