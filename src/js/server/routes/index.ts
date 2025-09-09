@@ -522,7 +522,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             hasMatch: null
         }).subscribe();
 
-        res.cookie(THEME_COOKIE_NAME, req.body.themeId, {expires: new Date(Date.now() + 3600 * 24 * 365)});
+        res.cookie(THEME_COOKIE_NAME, req.body.themeId, {expires: new Date(Date.now() + 5 * 365 * 24 * 3600 * 1000)});
         res.redirect(req.body.returnUrl);
     });
 
