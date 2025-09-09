@@ -36,6 +36,7 @@ export interface QueryFormModelState {
     queries:Array<Input>;
     initialQueryType:QueryType;
     multiWordQuerySupport:number;
+    instanceSwitchMenu:Array<{label:string; url:string}>;
     queryType:QueryType;
     availQueryTypes:Array<QueryType>;
     currTranslatLanguage:string;
@@ -298,6 +299,7 @@ export interface DefaultFactoryArgs {
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
+    instanceSwitchMenu:Array<{label:string; url:string}>;
     layout:LayoutManager;
     maxCmpQueries:number;
     maxQueryWords:number;
@@ -312,6 +314,7 @@ export const defaultFactory = ({
     queryMatches,
     isAnswerMode,
     uiLanguages,
+    instanceSwitchMenu,
     layout,
     maxCmpQueries,
     maxQueryWords
@@ -335,6 +338,7 @@ export const defaultFactory = ({
             queryMatches,
             isAnswerMode,
             uiLanguages,
+            instanceSwitchMenu,
             multiWordQuerySupport: maxQueryWords,
             maxCmpQueries,
             lemmaSelectorModalVisible: false,

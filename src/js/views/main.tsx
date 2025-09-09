@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Bound, BoundWithProps, IActionDispatcher, useModel, ViewUtils } from 'kombo';
+import { Bound, IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 import { debounceTime, map, tap } from 'rxjs/operators';
@@ -27,8 +27,8 @@ import { AltViewIconProps, TileFrameProps } from '../page/tile.js';
 import { TileGroup } from '../page/layout.js';
 import { Actions } from '../models/actions.js';
 import { MessagesModel, MessagesState } from '../models/messages.js';
-import { QueryFormModel, QueryFormModelState } from '../models/query.js';
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight, TileResultFlag } from '../models/tiles.js';
+import { QueryFormModel } from '../models/query.js';
+import { WdglanceTilesModel, blinkAndDehighlight, TileResultFlag, TileResultFlagRec } from '../models/tiles.js';
 import { init as corpusInfoViewInit } from './common/corpusInfo.js';
 import { GlobalComponents } from './common/index.js';
 import { fromEvent, timer } from 'rxjs';
@@ -45,7 +45,6 @@ export interface WdglanceMainProps {
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
     queries:Array<UserQuery>;
-    parentWagUrl:string|undefined;
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;
@@ -540,7 +539,7 @@ export function init(
                    <div className="tabs">
                         <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
                                 qeryTypes={state.queryTypesMenuItems} value={state.queryType} />
-                        <OtherVariantsMenu />
+                        <OtherVariantsMenu instanceSwitchMenu={state.instanceSwitchMenu} />
                     </div>
                     <div className="main">
                         <QueryFields
@@ -560,14 +559,18 @@ export function init(
 
     // ------------- <OtherVariantsMenu /> -------------------------------
 
-    const OtherVariantsMenu = (props) => {
+    const OtherVariantsMenu:React.FC<{instanceSwitchMenu:Array<{label:string; url:string}>}> = (props) => {
         return (
             <S.OtherVariantsMenu>
-                <a href="https://www.korpus.cz/wag-beta/poezie/search/">hledat v poezii</a>
-                <span className="separ">|</span>
-                <a href="https://www.korpus.cz/wag-beta/internet/search/">hledat v internetových textech</a>
-                <span className="separ">|</span>
-                <a href="https://www.korpus.cz/wag-beta/scoll/search/">hledat podle syntaktických vazeb</a>
+                {List.map(
+                    (item, i) => (
+                        <React.Fragment key={item.label}>
+                            {i > 0 ? <span className="separ">|</span> : null}
+                            <a href={item.url}>{item.label}</a>
+                        </React.Fragment>
+                    ),
+                    props.instanceSwitchMenu
+                )}
             </S.OtherVariantsMenu>
         )
     };

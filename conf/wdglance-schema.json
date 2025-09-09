@@ -35,6 +35,9 @@
         "ColorTheme": {
             "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
             "properties": {
+                "backgroundImage": {
+                    "type": "string"
+                },
                 "category": {
                     "items": {
                         "type": "string"
@@ -44,11 +47,59 @@
                 "categoryOther": {
                     "type": "string"
                 },
+                "chartTextColor": {
+                    "type": "string"
+                },
                 "cmpCategory": {
                     "items": {
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "colorDefaultText": {
+                    "type": "string"
+                },
+                "colorInvertText": {
+                    "type": "string"
+                },
+                "colorInvertedSecondaryText": {
+                    "type": "string"
+                },
+                "colorLightText": {
+                    "type": "string"
+                },
+                "colorLogoBlue": {
+                    "type": "string"
+                },
+                "colorLogoBlueShining": {
+                    "type": "string"
+                },
+                "colorLogoPink": {
+                    "type": "string"
+                },
+                "colorSecondaryText": {
+                    "type": "string"
+                },
+                "colorSuperlightGrey": {
+                    "type": "string"
+                },
+                "colorWhitelikeBlue": {
+                    "type": "string"
+                },
+                "condensedFontFamily": {
+                    "type": "string"
+                },
+                "cssMediaMediumScreen": {
+                    "type": "string"
+                },
+                "cssMediaSmallScreen": {
+                    "type": "string"
+                },
+                "defaultFontFamily": {
+                    "type": "string"
+                },
+                "defaultFontSize": {
+                    "type": "string"
                 },
                 "description": {
                     "anyOf": [
@@ -81,11 +132,20 @@
                 "lineConfidenceAreaColor2": {
                     "type": "string"
                 },
+                "pageBackgroundColor": {
+                    "type": "string"
+                },
                 "scale": {
                     "items": {
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "svgIconsFilter": {
+                    "type": "string"
+                },
+                "svgLogoFilter": {
+                    "type": "string"
                 },
                 "themeId": {
                     "type": "string"
@@ -102,6 +162,15 @@
                             "type": "string"
                         }
                     ]
+                },
+                "tileBackgroundColor": {
+                    "type": "string"
+                },
+                "tileBorderRadius": {
+                    "type": "string"
+                },
+                "tileBorderStyle": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -309,6 +378,31 @@
             },
             "required": [
                 "tiles"
+            ],
+            "type": "object"
+        },
+        "InstanceLink": {
+            "properties": {
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "label",
+                "url"
             ],
             "type": "object"
         },
@@ -30475,6 +30569,12 @@
         "import": {
             "type": "string"
         },
+        "instanceSwitchMenu": {
+            "items": {
+                "$ref": "#/definitions/InstanceLink"
+            },
+            "type": "array"
+        },
         "issueReportingUrl": {
             "type": "string"
         },
@@ -30499,9 +30599,6 @@
                 "type": "string"
             },
             "type": "array"
-        },
-        "parentWagUrl": {
-            "type": "string"
         },
         "rootUrl": {
             "type": "string"

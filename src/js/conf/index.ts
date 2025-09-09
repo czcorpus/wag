@@ -196,6 +196,11 @@ export interface FaviconConf {
     url:string;
 }
 
+export interface InstanceLink {
+    label:LocalizedConfMsg;
+    url:string;
+}
+
 export interface LogoStaticConf {
     url:LocalizedConfMsg;
     inlineStyle?:CSSProperties;
@@ -257,9 +262,9 @@ export interface ClientStaticConf {
     rootUrl:string;
     hostUrl:string;
     runtimeAssetsUrl:string;
-    parentWagUrl?:string;
     favicon?:FaviconConf;
     logo?:LogoStaticConf;
+    instanceSwitchMenu?:Array<InstanceLink>;
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping|string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
@@ -328,10 +333,10 @@ export interface ClientConf {
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping;
     logo?:LogoRuntimeConf;
+    instanceSwitchMenu?:Array<{label:string; url:string}>;
     colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
     onLoadInit?:Array<string>;
-    parentWagUrl?:string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
     homepage:{

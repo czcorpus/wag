@@ -151,7 +151,14 @@ export function createRootComponent({
         ),
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
-        uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
+        uiLanguages: pipe(
+            userSession.uiLanguages,
+            Dict.toEntries(),
+            List.map(
+                ([code, label]) => ({code, label})
+            )
+        ),
+        instanceSwitchMenu: config.instanceSwitchMenu,
         layout: layoutManager,
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords

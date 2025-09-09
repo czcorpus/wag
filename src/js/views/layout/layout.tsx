@@ -45,7 +45,6 @@ export interface HtmlBodyProps {
     currTheme:string;
     RootComponent:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
     layout:Array<TileGroup>;
-    currentParentWagPageUrl:string|undefined;
     homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
@@ -239,17 +238,8 @@ export function init(
             <body>
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
-                    <div className="parent-link-wrapper">
-                        {props.currentParentWagPageUrl ?
-                            <a className="parent-wag-link" href={props.currentParentWagPageUrl}>
-                                <img  className="filtered" src={ut.createStaticUrl('triangle_left.svg')} />
-                                {ut.translate('global__back_to_main_overview')}
-                            </a> :
-                            null
-                        }
-                    </div>
                     <div className="logo-wrapper">
-                        <a href={props.config.parentWagUrl ?  props.config.parentWagUrl : props.config.hostUrl} title={createLabel()}>
+                        <a href={props.config.hostUrl} title={createLabel()}>
                             {props.config.logo?.url ?
                                 <img className="logo-filtered" src={props.config.logo.url} alt="logo" style={props.config.logo?.inlineStyle} /> :
                                 <img className="logo-filtered" src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
@@ -263,7 +253,6 @@ export function init(
                                 null
                         }
                     </div>
-                    <div className="right-ballast"> </div>
                 </header>
                 <section className="wdglance-mount">
                     <props.RootComponent
@@ -273,7 +262,6 @@ export function init(
                         isAnswerMode={props.isAnswerMode}
                         queries={props.userConfig.queries}
                         error={props.error}
-                        parentWagUrl={props.currentParentWagPageUrl}
                         onMount={()=>undefined}
                             />
                 </section>
