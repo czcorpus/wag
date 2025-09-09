@@ -1,7 +1,7 @@
 {
   "name": "wag",
   "type": "module",
-  "version": "0.10.0-beta",
+  "version": "2.0.0-alpha",
   "description": "Word At a Glance",
   "main": "index.js",
   "scripts": {
