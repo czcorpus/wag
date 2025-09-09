@@ -29,18 +29,17 @@ export const WdglanceMain = styled.div``;
 
 export const MessagesBox = styled.div`
     position: fixed;
-    left: 50%;
+    right: 20px;
     z-index: 10000;
-    top: 20%;
+    top: 20px;
 `;
 
 // ---------------- <Messages /> --------------------------------------
 
 export const Messages = styled.ul`
-    min-width: 20em;
+    max-width: 30em;
     list-style-type: none;
     position: relative;
-    left: -50%;
     margin: 0;
     padding: 0;
 `;
@@ -48,10 +47,10 @@ export const Messages = styled.ul`
 // ---------------- <SystemMessage /> --------------------------------------
 
 export const SystemMessage = styled.li<{theme:Theme}>`
-    background-color: #444444;
-    border-radius: .25em;
+    background-color: ${props => props.theme.tileBackgroundColor};
+    border-style: ${props => props.theme.tileBorderStyle};
     box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0,0,0, 0.2);
-    color: #FFFFFF;
+    color: ${props => props.theme.colorInvertText};
     margin: 0;
     padding: 0;
 

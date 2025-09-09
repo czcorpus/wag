@@ -167,7 +167,7 @@ export function init(
                         </a>
                 </span>
                 {props.config.logo ?
-                    <span><img className="filtered logo" src={ut.createStaticUrl('logo-small.svg')} alt="WaG installation logo" /></span> :
+                    <span><img className="logo-filtered logo" src={ut.createStaticUrl('logo-small.svg')} alt="WaG installation logo" /></span> :
                     null
                 }
                 <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
