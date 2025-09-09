@@ -55,6 +55,7 @@ export interface SyntacticCollsModelState {
     apiType:'default'|'wss';
     error:string|null;
     widthFract:number;
+    datasetName:string;
     corpname:string;
     queryMatch:QueryMatch;
     data:SCollsData;
@@ -310,7 +311,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         }
         return {
             params: {
-                corpname: state.corpname,
+                corpname: state.datasetName,
                 queryType: state.displayType,
             },
             args
