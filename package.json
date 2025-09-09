@@ -81,5 +81,10 @@
     "stream-browserify": "^3.0.0",
     "styled-components": "^6.1.15",
     "url-join": "^5.0.0"
+  },
+  "overrides": {
+    "ajv-cli": {
+      "fast-json-patch": "^3.1.1"
+    }
   }
 }
