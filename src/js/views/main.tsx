@@ -1390,8 +1390,8 @@ export function init(
             <S.WdglanceMain>
                 <GlobalStyleWithDynamicTheme createStaticUrl={ut.createStaticUrl} />
                 <ThemeProvider theme={dynamicTheme}>
-                    <WdglanceControls isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                     <BoundMessagesBox />
+                    <WdglanceControls isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                     <TilesSections layout={props.layout} homepageSections={props.homepageSections} />
                 </ThemeProvider>
             </S.WdglanceMain>

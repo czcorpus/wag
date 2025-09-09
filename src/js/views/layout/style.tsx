@@ -181,7 +181,8 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
 
             img.logo {
                 width: 3.1em;
-                margin-right: 0.7em;
+                margin-right: 0.4em;
+                margin-left: 0.4em;
             }
         }
     }
