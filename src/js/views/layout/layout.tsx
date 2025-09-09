@@ -90,21 +90,25 @@ export function init(
         return (
             <form className="ThemeSelection" method="post" action={ut.createActionUrl('set-theme')}>
                 <input type="hidden" name="returnUrl" value={props.returnUrl} />
-                <span>{ut.translate('global__color_themes')}:{'\u00a0'}
+                <h3>{ut.translate('global__color_themes')}</h3>:{'\u00a0'}
+                <ul>
                 {List.map((v, i) => (
-                    <React.Fragment key={`theme:${v.themeId}`}>
-                        {i > 0 ? ', ' : ''}
+                    <li key={`theme:${v.themeId}`}>
+                        {i > 0 ? <span className="separ">, </span> : null}
                         <button type="submit"  name="themeId" value={v.themeId}
-                                disabled={v.themeId === props.currTheme}
-                                className={v.themeId === props.currTheme ? 'current' : null}>
+                                disabled={v.themeId === props.currTheme}>
+                            {v.themeId === props.currTheme ?
+                                <img src={ut.createStaticUrl('star.svg')} /> :
+                                null
+                            }
                             {typeof v.themeLabel === 'string' ?
                                 v.themeLabel :
                                 v.themeLabel['en-US']
                             }
                         </button>
-                    </React.Fragment>
+                    </li>
                 ), props.themes)}
-                </span>
+                </ul>
             </form>
         );
     }

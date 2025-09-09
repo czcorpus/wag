@@ -188,27 +188,61 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     }
 
     .ThemeSelection {
-        display: block;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         color: ${confTheme.colorLightText};
 
-        button {
-            display: inline-block;
-            border: none;
-            background: none;
-            cursor: pointer;
-            margin: 0 0.1em;
+        h3 {
+            font-weight: normal;
+            margin: 0;
             padding: 0;
             font-size: 1em;
-            color: ${confTheme.colorDefaultText};
         }
 
-        button:hover {
-            text-decoration: underline;
-        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
 
-        button.current {
-            color: ${confTheme.colorLogoBlue};
-            cursor: default;
+            li {
+
+                display: flex;
+
+                button {
+                    display: flex;
+                    align-items: center;
+                    border: none;
+                    background: none;
+                    cursor: pointer;
+                    margin: 0 0.1em;
+                    padding: 0;
+                    font-size: 1em;
+                    color: ${confTheme.colorDefaultText};
+
+                    img {
+                        width: 0.9em;
+                        display: block;
+                        padding: 0.2em 0.3em 0.2em 0.2em;
+                    }
+                }
+
+                button:hover {
+                    text-decoration: underline;
+                }
+
+                button.current {
+                    color: ${confTheme.colorLogoBlue};
+                    cursor: default;
+                }
+
+                .separ {
+                    font-size: 1.3em;
+                    font-weight: bold;
+                }
+            }
         }
     }
 
