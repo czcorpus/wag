@@ -423,10 +423,8 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     .cnc-form textarea,
     .cnc-form select {
         padding: .4em .5em;
-        border: .07em solid rgba(0,0,0, .2);
         border-radius: .3em;
         font-size: 1em;
-        box-sizing: border-box;
     }
 
     .cnc-form input[type=text],
@@ -435,9 +433,9 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     .cnc-form input[type=email],
     .cnc-form textarea,
     .cnc-form select {
-        background-color: ${confTheme.pageBackgroundColor};
+        background-color: ${confTheme.textInputBackgroundColor};
         color: ${confTheme.colorDefaultText};
-        border-color: ${confTheme.colorLogoBlue};
+        border: ${confTheme.tileBorderStyle};
     }
 
     .cnc-form.cnc-form-spaced input[type=text],
@@ -478,7 +476,7 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     .cnc-form input[type=email]:focus,
     .cnc-form textarea:focus,
     .cnc-form select:focus {
-        background-color: ${confTheme.pageBackgroundColor};
+        background-color: ${confTheme.textInputBackgroundColor};
         color: ${confTheme.colorDefaultText};
         border-color: ${confTheme.colorLogoBlue};
     }

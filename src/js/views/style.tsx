@@ -50,7 +50,7 @@ export const SystemMessage = styled.li<{theme:Theme}>`
     background-color: ${props => props.theme.tileBackgroundColor};
     border-style: ${props => props.theme.tileBorderStyle};
     box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0,0,0, 0.2);
-    color: ${props => props.theme.colorInvertText};
+    color: ${props => props.theme.colorDefaultText};
     margin: 0;
     padding: 0;
 
