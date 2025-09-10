@@ -89,6 +89,7 @@ export interface ColorTheme extends ColorThemeIdent {
     backgroundImage?:string;
     pageBackgroundColor?:string;
     tileBackgroundColor?:string;
+    textInputBackgroundColor?:string;
     colorLogoBlue?:string;
     colorLogoBlueShining?:string;
     colorWhitelikeBlue?:string;

@@ -140,8 +140,6 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly tilesReadyTimeoutSecs:number;
 
-    private readonly userSession:UserConf|null;
-
     private readonly tilesDataStreams:{[streamId:string]:DataStreaming};
 
     private readonly id:string;
@@ -159,10 +157,9 @@ export class DataStreaming implements IDataStreaming {
         this.rootUrl = rootUrl;
         this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
         this.reqTag = userSession ? this.mkQueryTag(userSession) : undefined;
-        this.userSession = userSession;
         this.tilesDataStreams = {};
         this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
-        this.responseStream = this.rootUrl ?
+        this.responseStream = this.rootUrl && userSession && userSession.answerMode ?
             this.requestSubject.pipe(
                 scan(
                     (acc, value) => {

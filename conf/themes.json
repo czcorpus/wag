@@ -57,6 +57,7 @@
             "colorLogoBlue": "#ce744a",
             "colorDefaultText": "#ddddee",
             "colorInvertedSecondaryText": "#333333",
+            "textInputBackgroundColor": "#333355",
             "colorWhitelikeBlue": "#31313f",
             "pageBackgroundColor": "#333355",
             "tileBackgroundColor": "#24242e",
