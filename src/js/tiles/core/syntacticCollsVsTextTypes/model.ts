@@ -43,6 +43,7 @@ export interface TTData {
 export interface SyntacticCollsVsTTModelState {
     error:string|undefined;
     corpname:string;
+    datasetName:string;
     queryMatch:QueryMatch;
     scollType:SCollsQueryType;
     data:Array<TTData>;
@@ -293,7 +294,7 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         }
         return {
             params: {
-                corpname: state.corpname,
+                corpname: state.datasetName,
                 queryType: state.scollType,
             },
             args
