@@ -39,6 +39,7 @@ export interface SyntacticCollsVsTextTypesTileConf extends TileConf {
     eApiURL:string;
     textTypes:Array<TTConf>;
     corpname:string;
+    datasetName?:string;
     maxItems:number;
     attrNames:AttrNamesConf;
 }
@@ -81,6 +82,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
             eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
                 corpname: conf.corpname,
+                datasetName: conf.datasetName ? conf.datasetName : conf.corpname,
                 scollType: 'mixed', // TODO
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: List.map(

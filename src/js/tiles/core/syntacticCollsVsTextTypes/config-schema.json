@@ -16,6 +16,9 @@
         "corpname": {
             "type": "string"
         },
+        "datasetName": {
+            "type": "string"
+        },
         "maxItems": {
             "type": "number"
         },
