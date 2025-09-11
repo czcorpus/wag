@@ -88,7 +88,7 @@ export const SCollsTable = styled.div<{theme:Theme}>`
 
 
 export const Examples = styled.div<{theme:Theme}>`
-    background-color: #fefefe;
+    background-color: ${props => props.theme.tileBackgroundColor};
     border: ${props => props.theme.defaultBorderStyle};
     border-radius: ${props => props.theme.defaultBorderRadius};
     box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
@@ -111,6 +111,7 @@ export const Examples = styled.div<{theme:Theme}>`
 
         > p:not(:first-child) {
             border-top: 1px solid #cfcfcf;
+            border-top: 1px solid ${props => props.theme.colorWhitelikeBlue};
         }
     }
 
