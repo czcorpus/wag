@@ -83,12 +83,6 @@ interface EventItem<T = unknown> {
     error?:string;
 }
 
-interface RequestTag {
-    applicationId:string;
-    queries:Array<UserQuery>;
-    queryType:QueryType;
-    translatLang?:string;
-}
 
 export interface IDataStreaming {
     registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T>;
@@ -136,13 +130,13 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly rootUrl:string|null;
 
-    private readonly reqTag:RequestTag|null;
-
     private readonly tilesReadyTimeoutSecs:number;
 
     private readonly tilesDataStreams:{[streamId:string]:DataStreaming};
 
     private readonly id:string;
+
+    private readonly userSession:UserConf;
 
     static readonly ID_GLOBAL = '__global__';
 
@@ -151,12 +145,12 @@ export class DataStreaming implements IDataStreaming {
         tileIds:Array<string|number>,
         rootUrl:string|null,
         tilesReadyTimeoutSecs:number,
-        userSession:UserConf|null
+        userSession:UserConf
     ) {
         this.id = id ? id : DataStreaming.ID_GLOBAL;
+        this.userSession = userSession;
         this.rootUrl = rootUrl;
         this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
-        this.reqTag = userSession ? this.mkQueryTag(userSession) : undefined;
         this.tilesDataStreams = {};
         this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
         this.responseStream = this.rootUrl && userSession && userSession.answerMode ?
@@ -213,8 +207,7 @@ export class DataStreaming implements IDataStreaming {
                                 List.map(
                                     ([k, tileReq]) => tileReq
                                 )
-                            ),
-                            tag: this.reqTag
+                            )
                         },
                         {
                             contentType: 'application/json'
@@ -309,9 +302,6 @@ export class DataStreaming implements IDataStreaming {
      * 2) updating independent tile's parameters (single tile stream)
      * 3) updating dependent tiles (typically - two tile stream)
      *
-     * The new instance does not produce caching tag which
-     * means the corresponding responses are not cached!
-     *
      * The stream, once created, starts to measure time
      * and handle possible timeout so it is important
      * not to call this too early (like during a model
@@ -332,7 +322,7 @@ export class DataStreaming implements IDataStreaming {
             [mainTileId,...dependentTiles],
             this.rootUrl,
             this.tilesReadyTimeoutSecs,
-            null
+            this.userSession
         );
         return this.tilesDataStreams[groupId];
     }
@@ -352,21 +342,6 @@ export class DataStreaming implements IDataStreaming {
             throw new Error(`DataStreaming subgroup ${subgroupId} does not exist.`);
         }
         return curr;
-    }
-
-    /**
-     * This method produces a simple tag based on user query,
-     * query type etc., which is used for easier
-     * navigation in the persistent cache. I.e. it has no direct
-     * use for WaG itself.
-     */
-    private mkQueryTag(userSession:UserConf):RequestTag {
-        return {
-            applicationId: userSession.applicationId,
-            queries: userSession.queries,
-            queryType: userSession.queryType,
-            translatLang: userSession.translatLanguage
-        };
     }
 
     private prepareTileRequest(entry:TileRequest):TileRequest {
