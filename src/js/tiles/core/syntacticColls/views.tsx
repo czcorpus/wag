@@ -367,22 +367,24 @@ export function init(
 
                             } else {
                                 return (
-                                    <div className="tables">
-                                        <WSSTable
-                                            tileId={props.tileId}
-                                            word={state.queryMatch.word}
-                                            data={state.data}
-                                            queryType={state.displayType}
-                                            isMobile={props.isMobile}
-                                            visibleMeasures={state.visibleMeasures}
-                                            widthFract={props.widthFract} />
-                                    </div>
+                                    <>
+                                        <div className="tables">
+                                            <WSSTable
+                                                tileId={props.tileId}
+                                                word={state.queryMatch.word}
+                                                data={state.data}
+                                                queryType={state.displayType}
+                                                isMobile={props.isMobile}
+                                                visibleMeasures={state.visibleMeasures}
+                                                widthFract={props.widthFract} />
+                                        </div>
+                                        <p className="hint">
+                                            {ut.translate('syntactic_colls__items_sorted_by_rrf')}
+                                        </p>
+                                    </>
                                 );
                             }
                         })()}
-                        <p className="hint">
-                            {ut.translate('syntactic_colls__items_sorted_by_rrf')}
-                        </p>
                     </S.SyntacticColls>
                 }
             </globalCompontents.TileWrapper>
