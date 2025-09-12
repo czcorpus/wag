@@ -229,8 +229,34 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionHandler(
             GlobalActions.GetSourceInfo,
-            (state, action) => {},
-            (state, action, seDispatch) => {},
+            (state, action) => {
+            },
+            (state, action, seDispatch) => {
+                this.eApi.getSourceDescription(
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    state.corpname
+
+                ).subscribe({
+                    next: (data) => {
+                        seDispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                data: data
+                            }
+                        });
+                    },
+                    error: (err) => {
+                        console.error(err);
+                        seDispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error: err
+
+                        });
+                    }
+                });
+            },
         );
 
         this.addActionSubtypeHandler(

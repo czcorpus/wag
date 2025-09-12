@@ -67,6 +67,7 @@ export const WordFreqTileView = styled.div<{theme:Theme}>`
         }
 
         dd.word-list {
+            line-height: 1.5em;
             font-size: 1.3em;
             a {
                 color: ${props => props.theme.colorDefaultText};

@@ -67,10 +67,11 @@ export interface GlobalComponents {
 
     ErrorBoundary:React.ComponentClass;
 
-    ModalBox:React.ComponentClass<{
+    ModalBox:React.FC<{
         onCloseClick?:()=>void;
         title:string;
         tileClass?:string;
+        scrollableContents?:boolean;
         children?:React.ReactNode;
     }>;
 
@@ -553,57 +554,45 @@ export function init(
 
     // --------------- <ModalBox /> -------------------------------------------
 
-    class ModalBox extends React.PureComponent<{
-        onCloseClick:()=>void;
-        title:string;
-        tileClass?:string;
-        children:React.ReactNode;
-    }> {
+    const ModalBox:GlobalComponents['ModalBox'] = (props) => {
 
-        private ref:React.RefObject<HTMLButtonElement>;
+        const ref:React.RefObject<HTMLButtonElement> = React.createRef();
 
-        constructor(props) {
-            super(props);
-            this.ref = React.createRef();
-            this.handleKey = this.handleKey.bind(this);
-        }
+        React.useEffect(
+            () => {
+                if (ref.current) {
+                    ref.current.focus();
+                }
+            },
+            []
+        );
 
-        componentDidMount() {
-            if (this.ref.current) {
-                this.ref.current.focus();
-            }
-        }
-
-        private handleKey(evt:React.KeyboardEvent) {
+        const handleKey = (evt:React.KeyboardEvent) => {
             if (evt.key === Keyboard.Value.ESC) {
-                this.props.onCloseClick();
+                props.onCloseClick();
             }
-        }
+        };
 
-        render() {
-            const tileClasses = `content cnc-tile-body${this.props.tileClass ? ' ' + this.props.tileClass : ''}`;
-
-            return (
-                <S.ModalOverlay id="modal-overlay">
-                    <div className="box cnc-tile">
-                        <header className="cnc-tile-header">
-                            <span>{this.props.title}</span>
-                            <button className="close"
-                                    ref={this.ref}
-                                    onClick={this.props.onCloseClick}
-                                    onKeyDown={this.handleKey}
-                                    title={ut.translate('global__close_modal')}>
-                                <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
-                            </button>
-                        </header>
-                        <div className={tileClasses}>
-                            {this.props.children}
-                        </div>
-                        <footer><div className="fcontent" /></footer>
+        return (
+            <S.ModalOverlay id="modal-overlay">
+                <div className="box">
+                    <header className="cnc-tile-header">
+                        <span>{props.title}</span>
+                        <button className="close"
+                                ref={ref}
+                                onClick={props.onCloseClick}
+                                onKeyDown={handleKey}
+                                title={ut.translate('global__close_modal')}>
+                            <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                        </button>
+                    </header>
+                    <div className={props.tileClass || null} style={props.scrollableContents ? {paddingRight: 0, paddingBottom: 0} : null}>
+                        {props.children}
                     </div>
-                </S.ModalOverlay>
-            );
-        }
+                    <footer><div className="fcontent" /></footer>
+                </div>
+            </S.ModalOverlay>
+        );
     }
 
     // ------- <HorizontalBlockSwitch /> ---------------------------------------------------

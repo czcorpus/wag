@@ -832,11 +832,13 @@ export function init(
             return ans.join(' ');
         };
 
+        const currLabel = props.overwriteLabel ? props.overwriteLabel : props.tile.label;
+
         return (
             <section id={mkTileSectionId(props.tile.tileId)} key={`tile-ident-${props.tile.tileId}`}
                     className={getHTMLClass()}>
                 <header className="cnc-tile-header panel">
-                    <h2>{props.overwriteLabel ? props.overwriteLabel : props.tile.label}</h2>
+                    <h2>{currLabel}</h2>
                     <div className="window-buttons">
                     {props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult ?
                         <AmbiguousResultWarning /> :
@@ -872,6 +874,7 @@ export function init(
                                 <props.tile.Component
                                         tileId={props.tile.tileId}
                                         tileName={props.tile.tileName}
+                                        tileLabel={currLabel}
                                         isMobile={props.isMobile}
                                         widthFract={props.tile.widthFract}
                                         supportsReloadOnError={props.tile.supportsReloadOnError}
@@ -1246,10 +1249,12 @@ export function init(
                     <globalComponents.ModalBox onCloseClick={handleCloseSourceInfo}
                             title={ut.translate('global__source_detail')}>
                         <globalComponents.ErrorBoundary>
+                            <div className="content">
                             {state.isBusy ?
                                 <WithinModalAjaxLoader /> :
                                 <SourceInfo tileProps={state.tileProps} data={state.activeSourceInfo} />
                             }
+                            </div>
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
                 );

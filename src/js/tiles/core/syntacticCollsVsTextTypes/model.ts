@@ -86,10 +86,8 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         tileId,
         appServices,
         initState,
-        queryType,
         api,
         eApi,
-        maxItems,
         theme
     }:SyntacticCollsModelArgs) {
         super(dispatcher, initState);

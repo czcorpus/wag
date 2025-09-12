@@ -113,7 +113,7 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
     display: flex;
     width: 100%;
     justify-content: center;
-    padding: 1em;
+    padding: 0.5em 0 1em 0;
 
     .tabs {
         display: flex;
@@ -123,9 +123,13 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         border-color: ${props => props.theme.colorLightText};
     }
 
-    &.result-page-mode .main {
-        margin-top: 1.5em;
-        margin-bottom: 1em;
+    &.result-page-mode {
+        padding-bottom: 0;
+
+        .main {
+            margin-top: 1.5em;
+            margin-bottom: 1em;
+        }
     }
 
     .main {

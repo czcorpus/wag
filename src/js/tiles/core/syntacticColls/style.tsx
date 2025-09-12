@@ -86,8 +86,10 @@ export const SCollsTable = styled.div<{theme:Theme}>`
     }
 `;
 
+// ------------------------ <Examples /> --------------------------
 
 export const Examples = styled.div<{theme:Theme}>`
+
     background-color: ${props => props.theme.tileBackgroundColor};
     border: ${props => props.theme.defaultBorderStyle};
     border-radius: ${props => props.theme.defaultBorderRadius};
@@ -115,41 +117,17 @@ export const Examples = styled.div<{theme:Theme}>`
         }
     }
 
-    .toolbar {
+    h3 {
+        text-align: center;
+        margin: 0 0 1em 0;
+        font-size: 1.6em;
 
-        display: flex;
-        align-items: center;
-        margin-bottom: 1em;
+        span.words {
+            color: ${props => props.theme.colorLogoPink};
+            font-weight: normal;
 
-        h3 {
-            display: flex;
-            align-items: center;
-            margin: 0;
-            padding-left: 1em;
-
-            span.words {
-                color: ${props => props.theme.colorLogoPink};
-                font-weight: normal;
-
-                span.plus {
-                    color: ${props => props.theme.colorDefaultText};
-                }
-            }
-        }
-
-        .controls {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-grow: 1;
-
-            a.close {
-
-                cursor: pointer;
-
-                img {
-                    width: 1.5em;
-                }
+            span.plus {
+                color: ${props => props.theme.colorDefaultText};
             }
         }
     }

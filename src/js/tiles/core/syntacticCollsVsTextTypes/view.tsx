@@ -24,9 +24,9 @@ import { GlobalComponents } from '../../../views/common/index.js';
 import { SyntacticCollsVsTTModel, TTData } from './model.js';
 
 import * as S from './style.js';
-import { Dict, List, pipe } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 import { SCollsDataRow } from '../syntacticColls/api/common.js';
-import { mkScollExampleLineHash, SCollsExamples } from '../syntacticColls/eApi/mquery.js';
+import { Examples } from '../syntacticColls/views/examples.js';
 import { Actions } from './common.js';
 
 
@@ -57,57 +57,7 @@ export function init(
     model:SyntacticCollsVsTTModel
 ):TileComponent {
 
-
-    const globalCompontents = ut.getComponents();
-
-    // ------------------- <Examples /> ------------------------
-    
-    const attrsToStr = (v:{[key:string]:string}):string => pipe(
-        v,
-        Dict.toEntries(),
-        List.map(([k, v]) => `${k}: ${v}`),
-        x => x.join(', ')
-    );
-
-    const Examples:React.FC<{
-        data:SCollsExamples;
-        onClose:()=>void;
-    }> = ({data, onClose}) => (
-        <S.Examples>
-            <div className="toolbar">
-                <h3>
-                    {ut.translate('syntactic_colls__conc_examples')}{':\u00a0'}
-                    <span className="words">{data.word1} <span className="plus">+</span> {data.word2}</span>
-                </h3>
-                <div className="controls">
-                    <a onClick={onClose} className="close">
-                        <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
-                    </a>
-                </div>
-            </div>
-            <div className="texts">
-            {List.map(
-                (line, i) => (
-                    <p key={`${i}:${mkScollExampleLineHash(line)}`}>
-                        {List.map(
-                            (token, j) => (
-                                <React.Fragment key={`t:${i}:${j}`}>
-                                    {j > 0 ? <span> </span> : ''}
-                                    {token.strong ?
-                                        <strong title={attrsToStr(token.attrs)}>{token.word}</strong> :
-                                        <span title={attrsToStr(token.attrs)}>{token.word}</span>
-                                    }
-                                </React.Fragment>
-                            ),
-                            line.text
-                        )}
-                    </p>
-                ),
-                data.lines
-            )}
-            </div>
-        </S.Examples>
-    );
+    const globalComponents = ut.getComponents();
 
     // --------------------- <TableRow /> --------------------
 
@@ -117,7 +67,7 @@ export function init(
         row:Array<SCollsDataRow & { ttDataId:string; }>;
     }> = (props) => {
 
-        const handleWordClick = (ttDataId:string) => () => {            
+        const handleWordClick = (ttDataId:string) => () => {
             dispatcher.dispatch(
                 Actions.ClickForExample,
                 {
@@ -170,37 +120,38 @@ export function init(
         };
 
         return (
-            <globalCompontents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
+            <globalComponents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
                     hasData={true} sourceIdent={{corp: state.corpname}}
                     backlink={[]} supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <S.View>
-                    {(() => {
-                        if (state.exampleWindowData) {
-                            return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
-
-                        } else {
-                            return <S.SingleTTTable>
-                                <thead>
-                                    <tr className="head-row">
-                                        <th></th>
-                                        {List.map(
-                                            (v, i) => <th key={`label:${v.label}`} className={i === List.size(nonEmptyData)-1 ? 'last-cell' : null}>{v.label}</th>,
-                                            nonEmptyData
-                                        )}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {pipe(
-                                        transposedData,
-                                        List.map((v, i) => <TableRow tileId={props.tileId} dataId={i} key={`row:${i}d`} row={v} />)
-                                    )}
-                                </tbody>
-                            </S.SingleTTTable>;
-                        }
-                    })()}
+                    {state.exampleWindowData ?
+                        <globalComponents.ModalBox onCloseClick={handleCloseExamplesClick}
+                                scrollableContents={true}
+                                title={`${props.tileLabel} - ${ut.translate('syntactic_colls__conc_examples')} `} tileClass="text">
+                            <Examples data={state.exampleWindowData} />
+                        </globalComponents.ModalBox> :
+                        null
+                    }
+                    <S.SingleTTTable>
+                        <thead>
+                            <tr className="head-row">
+                                <th></th>
+                                {List.map(
+                                    (v, i) => <th key={`label:${v.label}`} className={i === List.size(nonEmptyData)-1 ? 'last-cell' : null}>{v.label}</th>,
+                                    nonEmptyData
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {pipe(
+                                transposedData,
+                                List.map((v, i) => <TableRow tileId={props.tileId} dataId={i} key={`row:${i}d`} row={v} />)
+                            )}
+                        </tbody>
+                    </S.SingleTTTable>
                 </S.View>
-            </globalCompontents.TileWrapper>
+            </globalComponents.TileWrapper>
         );
     }
 

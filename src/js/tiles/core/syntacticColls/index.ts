@@ -20,7 +20,7 @@ import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { findCurrQueryMatch, QueryMatch, QueryType } from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
-import { init as viewInit } from './views.js';
+import { init as viewInit } from './views/index.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
@@ -140,7 +140,7 @@ export class SyntacticCollsTile implements ITileProvider {
             queryType: queryType,
             maxItems: conf.maxItems,
             api: conf.apiType === 'wss' ?
-                new WSServerSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink) :
+                new WSServerSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices) :
                 new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
             eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
