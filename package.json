@@ -56,7 +56,7 @@
     "@types/sqlite3": "^3.1.8",
     "@types/styled-components": "^5.1.34",
     "ajv": "^8.17.1",
-    "axios": "^1.8.2",
+    "axios": "^1.12.0",
     "buffer": "^6.0.3",
     "cnc-tskit": "~1.10.0",
     "cookie-parser": "^1.4.6",
