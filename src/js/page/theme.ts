@@ -109,6 +109,8 @@ export class Theme {
 
     public readonly tileBackgroundColor:string|undefined;
 
+    public readonly tileHeadingSeparColor:string;
+
     public readonly textInputBackgroundColor:string;
 
     public readonly defaultFontFamily:string;
@@ -202,6 +204,7 @@ export class Theme {
         this.backgroundImage = confSrc.backgroundImage || undefined;
         this.pageBackgroundColor = confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
         this.tileBackgroundColor = confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
+        this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
         this.textInputBackgroundColor = confSrc.textInputBackgroundColor || this.tileBackgroundColor;
         this.colorLogoBlue = confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
         this.colorWhitelikeBlue = confSrc.colorWhitelikeBlue || fallbackTheme.colorWhitelikeBlue;

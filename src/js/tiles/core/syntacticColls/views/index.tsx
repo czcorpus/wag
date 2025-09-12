@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2025 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2023 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -15,21 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../page/theme.js';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
-import { GlobalComponents } from '../../../views/common/index.js';
-import { CollMeasure, SyntacticCollsModel } from './model.js';
-import { init as wordCloudViewInit } from '../../../views/wordCloud/index.js';
+import { Theme } from '../../../../page/theme.js';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { CollMeasure, SyntacticCollsModel } from '../model.js';
+import { init as wordCloudViewInit } from '../../../../views/wordCloud/index.js';
 
-import * as S from './style.js';
-import { Dict, List, pipe } from 'cnc-tskit';
-import { WordCloudItemCalc } from '../../../views/wordCloud/calc.js';
-import { Actions } from './common.js';
-import { SCollsData, SCollsDataRow, SCollsQueryType } from './api/common.js';
-import { mkScollExampleLineHash, SCollsExamples } from './eApi/mquery.js';
+import * as S from '../style.js';
+import { List } from 'cnc-tskit';
+import { WordCloudItemCalc } from '../../../../views/wordCloud/calc.js';
+import { Actions } from '../common.js';
+import { SCollsData, SCollsDataRow, SCollsQueryType } from '../api/common.js';
+import { Examples } from './examples.js';
 
 
 
@@ -59,7 +61,7 @@ export function init(
     model:SyntacticCollsModel
 ):TileComponent {
 
-    const globalCompontents = ut.getComponents();
+    const globalComponents = ut.getComponents();
     const WordCloud = wordCloudViewInit<SCollsDataRow>(dispatcher, ut, theme);
 
     const dataTransform = (v:SCollsDataRow):WordCloudItemCalc => ({
@@ -68,56 +70,6 @@ export function init(
         tooltip: [{label: ut.translate('syntactic_colls__tooltip_score'), value: ut.formatNumber(v.collWeight, 5)}],
         interactionId: v.value,
     });
-
-    // ------------------- <Examples /> ------------------------
-
-    const attrsToStr = (v:{[key:string]:string}):string => pipe(
-        v,
-        Dict.toEntries(),
-        List.map(([k, v]) => `${k}: ${v}`),
-        x => x.join(', ')
-    );
-
-    const Examples:React.FC<{
-        data:SCollsExamples;
-        onClose:()=>void;
-    }> = ({data, onClose}) => (
-        <S.Examples>
-            <div className="toolbar">
-                <h3>
-                    {ut.translate('syntactic_colls__conc_examples')}{':\u00a0'}
-                    <span className="words">{data.word1} <span className="plus">+</span> {data.word2}</span>
-                </h3>
-                <div className="controls">
-                    <a onClick={onClose} className="close">
-                        <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
-                    </a>
-                </div>
-            </div>
-            <div className="texts">
-            {List.map(
-                (line, i) => (
-                    <p key={`${i}:${mkScollExampleLineHash(line)}`}>
-                        {List.map(
-                            (token, j) => (
-                                <React.Fragment key={`t:${i}:${j}`}>
-                                    {j > 0 ? <span> </span> : ''}
-                                    {token.strong ?
-                                        <strong title={attrsToStr(token.attrs)}>{token.word}</strong> :
-                                        <span title={attrsToStr(token.attrs)}>{token.word}</span>
-                                    }
-                                </React.Fragment>
-                            ),
-                            line.text
-                        )}
-                    </p>
-                ),
-                data.lines
-            )}
-            </div>
-        </S.Examples>
-    );
-
 
     // ---------------------- <Controls /> --------------------------------
 
@@ -210,7 +162,7 @@ export function init(
 
         return (
             <S.SCollsTable>
-                <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                <globalComponents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                         widthFract={props.widthFract}
                         render={(width:number, height:number) => (
                     <table className="data">
@@ -302,7 +254,7 @@ export function init(
         const renderWordCloud = () => {
             return (
                 <S.SCollsWordCloud>
-                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                    <globalComponents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                             widthFract={props.widthFract} render={(width:number, height:number) => (
                         <WordCloud width={width} height={height} isMobile={props.isMobile}
                             data={state.data.rows}
@@ -338,7 +290,7 @@ export function init(
         }
 
         return (
-            <globalCompontents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
+            <globalComponents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
                     hasData={true} sourceIdent={{corp: state.corpname}}
                     backlink={[]} supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
@@ -351,6 +303,14 @@ export function init(
                                 availableMeasures={state.availableMeasures} />
                         </div> :
                     <S.SyntacticColls>
+                        {state.exampleWindowData ?
+                            <globalComponents.ModalBox onCloseClick={handleCloseExamplesClick}
+                                    scrollableContents={true}
+                                    title={`${props.tileLabel} - ${ut.translate('syntactic_colls__conc_examples')} `} tileClass="text">
+                                <Examples data={state.exampleWindowData} />
+                            </globalComponents.ModalBox> :
+                            null
+                        }
                         {(() => {
                             if (isEmpty(state.data)) {
                                 renderEmptyOrNA();
@@ -361,9 +321,6 @@ export function init(
                                         {renderWordCloud()}
                                     </div>
                                 );
-
-                            } else if (state.exampleWindowData) {
-                                return <Examples data={state.exampleWindowData} onClose={handleCloseExamplesClick} />;
 
                             } else {
                                 return (
@@ -387,7 +344,7 @@ export function init(
                         })()}
                     </S.SyntacticColls>
                 }
-            </globalCompontents.TileWrapper>
+            </globalComponents.TileWrapper>
         );
     }
 

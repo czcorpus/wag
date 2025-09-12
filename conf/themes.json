@@ -5,6 +5,7 @@
             "themeId": "cnc-default",
             "themeLabel": "CNC default",
             "pageBackgroundColor": "#eeebe6",
+            "tileHeadingSeparColor": "rgba(0, 0, 0, 0.1)",
             "colorLightText": "#9a9a9a",
             "colorSecondaryText": "#444444",
             "colorInvertText": "#efefef",
@@ -61,6 +62,7 @@
             "colorWhitelikeBlue": "#31313f",
             "pageBackgroundColor": "#333355",
             "tileBackgroundColor": "#24242e",
+            "tileHeadingSeparColor": "#56568f",
             "svgIconsFilter": "filter: hue-rotate(-172deg) brightness(103%) contrast(101%)",
             "svgLogoFilter": "",
 

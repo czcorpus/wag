@@ -342,7 +342,6 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     }
 
     .cnc-tile-body {
-        font-size: .9em;
         padding: 1.25em;
         height: 100%;
     }
@@ -353,7 +352,6 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
     }
 
     .cnc-tile-body a:hover {
-        /*color: #007db1;*/
         text-decoration: underline;
     }
 
@@ -384,7 +382,7 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
 
     .cnc-tile-header {
         padding: .625em 1.25em;
-        border-bottom: .1em solid rgba(0,0,0, 0.1);
+        border-bottom: .1em solid ${confTheme.tileHeadingSeparColor};
     }
 
     .cnc-form {

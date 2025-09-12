@@ -44,7 +44,6 @@ export const TileWrapper = styled.div`
     }
 
     .content {
-        font-size: .9em;
         padding: 1.25em;
 
         .tweak-box {
@@ -176,7 +175,7 @@ export const ModalOverlay = styled.div<{theme:Theme}>`
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: hsla(0,0%,8%,.7);
+    background-color: hsla(0, 0%, 8%, .7);
 
     .box {
         position: absolute;
@@ -184,7 +183,11 @@ export const ModalOverlay = styled.div<{theme:Theme}>`
         left: 50%;
         transform: translate(-50%,-30%);
         max-height: 100%;
+        box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
+        background-color: ${props => props.theme.tileBackgroundColor};
+        color: ${props => props.theme.colorSecondaryText};
         border: ${props => props.theme.tileBorderStyle};
+        border-color: ${props => props.theme.tileHeadingSeparColor};
 
         header span:first-letter {
             text-transform: uppercase;
@@ -218,11 +221,12 @@ export const ModalOverlay = styled.div<{theme:Theme}>`
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        font-size: 1.2em;
+        font-size: 1.2rem;
     }
 
     .content {
         padding: 1.25em;
+        font-size: 1rem;
     }
 
 

@@ -17,12 +17,14 @@
  */
 
 import { IApiServices } from '../../../../appServices.js';
-import { DataApi } from '../../../../types.js';
+import { CorpusDetails, DataApi } from '../../../../types.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
 import { Observable } from 'rxjs';
 import urlJoin from 'url-join';
 import { Dict, HTTP, Ident, List, pipe } from 'cnc-tskit';
 import { ajax$ } from '../../../../page/ajax.js';
+import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
+import { Backlink } from '../../../../page/tile.js';
 
 export interface Token {
     word:string;
@@ -78,6 +80,8 @@ export class SyntacticCollsExamplesAPI implements DataApi<SCERequestArgs, SColls
 
     private readonly attrNames:AttrNamesConf;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(
         apiURL:string,
         apiServices:IApiServices,
@@ -86,6 +90,7 @@ export class SyntacticCollsExamplesAPI implements DataApi<SCERequestArgs, SColls
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.attrNames = attrNames;
+            this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     makeQuery(
@@ -185,5 +190,14 @@ export class SyntacticCollsExamplesAPI implements DataApi<SCERequestArgs, SColls
             List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
             (x) => x.join('&')
         );
+    }
+
+
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
+    }
+
+    getBacklink(queryId:number):Backlink|null {
+        return null;
     }
 }

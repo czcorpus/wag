@@ -18,9 +18,9 @@
 
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
 import { IApiServices } from '../../../../appServices.js';
-import { DataApi } from '../../../../types.js';
+import { CorpusDetails, DataApi, ResourceApi } from '../../../../types.js';
 import { SCollsRequest } from './scollex.js';
-import { BacklinkConf } from '../../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
 import { map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
@@ -64,16 +64,10 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, SCollsD
 
     private readonly apiServices:IApiServices;
 
-    private readonly srcInfoService:CorpusInfoAPI;
-
-    private readonly backlinkConf:BacklinkConf;
-
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.useDataStream = useDataStream;
-        this.backlinkConf = backlinkConf;
-        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
     private mkUrl(request:SCollsRequest):string {

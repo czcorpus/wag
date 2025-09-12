@@ -186,6 +186,7 @@ export interface CoreTileComponentProps {
     widthFract:number;
     supportsReloadOnError:boolean;
     issueReportingUrl:string;
+    tileLabel:string;
 }
 
 /**
