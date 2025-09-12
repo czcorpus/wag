@@ -19,21 +19,31 @@
  */
 
 import { createGlobalStyle } from 'styled-components';
-import * as theme from '../common/theme.js';
-import grooveBg from '../../../../assets/groovepaper2.jpg';
+import { Theme } from '../../page/theme.js';
 
 // ---------------- <GlobalStyle /> --------------------------------------
 
-export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) => string}>`
+export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticUrl: (file: string) => string}>`
 
     body {
-        font-family: ${theme.defaultFontFamily};
-        font-size: 1em;
-        background-image: url(${grooveBg});
+        font-family: ${confTheme.defaultFontFamily};
+        font-size: ${confTheme.defaultFontSize};
+        background-image: ${confTheme.backgroundImage};
+        background-color: ${confTheme.pageBackgroundColor};
+
+        img.filtered {
+            ${confTheme.svgIconsFilter};
+        }
+
+        .logo-wrapper img.logo-filtered {
+            ${confTheme.svgLogoFilter};
+        }
 
         > header.wdg-header {
 
-            text-align: center;
+            display:flex;
+            justify-content: center;
+
             margin-top: 1.2em;
 
             a {
@@ -44,6 +54,17 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                 img {
                     width: 25em;
                 }
+            }
+
+            .parent-wag-link:hover {
+                text-decoration: none;
+            }
+
+            .logo-wrapper {
+                display: flex;
+                flex: 1 1 auto;
+                justify-content: center;
+                align-items: center;
             }
         }
 
@@ -63,7 +84,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         border-collapse: collapse;
 
         tbody tr:nth-child(odd):not(.heading) {
-            background-color: ${theme.colorWhitelikeBlue};
+            background-color: ${confTheme.colorWhitelikeBlue};
         }
 
         tr.top-grouped th {
@@ -81,7 +102,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         }
 
         td:not(:last-child), th:not(:last-child) {
-            border-color: white;
+            border-color: ${confTheme.colorWhitelikeBlue};
             border-width: 0 2px 0 0;
             border-style: solid;
         }
@@ -102,19 +123,19 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
     .note {
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
     }
 
     footer {
         font-size: 0.9em;
         text-align: center;
         margin-top: 1.5em;
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
 
         section {
             > span {
                 border-style: solid;
-                border-color: ${theme.colorLightText};
+                border-color: ${confTheme.colorLightText};
                 border-width: 0 0 0 0.15em;
                 padding-left: 0.4em;
                 padding-right: 0.4em;
@@ -131,17 +152,17 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
 
         section.links > span:first-child {
             border-style: solid;
-            border-color: ${theme.colorLightText};
+            border-color: ${confTheme.colorLightText};
             border-width: 0 0 0 0.15em;
         }
 
         a {
-            color: ${theme.colorLightText};
+            color: ${confTheme.colorLightText};
             text-decoration: none;
         }
 
         .action a {
-            color: ${theme.colorDefaultText};
+            color: ${confTheme.colorDefaultText};
         }
 
         a:hover {
@@ -160,33 +181,73 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
 
             img.logo {
                 width: 3.1em;
-                margin-right: 0.7em;
+                margin-right: 0.4em;
+                margin-left: 0.4em;
             }
         }
     }
 
     .ThemeSelection {
-        display: block;
-        color: ${theme.colorLightText};
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: ${confTheme.colorLightText};
 
-        button {
-            display: inline-block;
-            border: none;
-            background: none;
-            cursor: pointer;
-            margin: 0 0.1em;
+        h3 {
+            font-weight: normal;
+            margin: 0;
             padding: 0;
             font-size: 1em;
         }
 
-        button.current {
-            color: ${theme.colorLogoBlue};
-            cursor: default;
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+
+            li {
+
+                display: flex;
+
+                button {
+                    display: flex;
+                    align-items: center;
+                    border: none;
+                    background: none;
+                    cursor: pointer;
+                    margin: 0 0.1em;
+                    padding: 0;
+                    font-size: 1em;
+                    color: ${confTheme.colorDefaultText};
+
+                    img {
+                        width: 0.9em;
+                        display: block;
+                        padding: 0.2em 0.3em 0.2em 0.2em;
+                    }
+                }
+
+                button:hover {
+                    text-decoration: underline;
+                }
+
+                button.current {
+                    color: ${confTheme.colorLogoBlue};
+                    cursor: default;
+                }
+
+                .separ {
+                    font-size: 1.3em;
+                    font-weight: bold;
+                }
+            }
         }
     }
 
     .LangSwitchToolbar {
-        color: ${theme.colorLightText};
+        color: ${confTheme.colorLightText};
         text-align: right;
         font-size: 0.9em;
 
@@ -203,19 +264,19 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                     border: none;
                     background-color: transparent;
                     cursor: pointer;
-                    color: ${theme.colorLightText};
+                    color: ${confTheme.colorLightText};
                     padding: 0 0.2em;
                 }
 
                 button:hover {
-                    color: ${theme.colorLogoBlue};
+                    color: ${confTheme.colorLogoBlue};
                 }
 
                 button.current {
                     text-decoration: none;
                     border-style: solid;
                     border-width: 0 0 1px 0;
-                    border-color: ${theme.colorLogoBlue};
+                    border-color: ${confTheme.colorLogoBlue};
                 }
             }
 
@@ -237,11 +298,11 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         .raw-html {
 
             em {
-                color: ${theme.colorLogoPink};
+                color: ${confTheme.colorLogoPink};
             }
 
             a {
-                color: ${theme.colorLogoBlue};
+                color: ${confTheme.colorLogoBlue};
             }
 
             a:hover {
@@ -267,29 +328,30 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     .cnc-tile {
         border-radius: .25em;
         box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
-        background-color: white;
+        background-color: ${confTheme.tileBackgroundColor};
         font-size: .92em;
-        color: #333;
+        color: ${confTheme.colorSecondaryText};
     }
 
     .cnc-tile.highlighted {
         box-shadow: .09em .09em .15em .09em rgba(226, 0, 122, 0.7);
     }
 
+    .cnc-tile.hidden-no-data {
+        display: none;
+    }
 
     .cnc-tile-body {
-        font-size: .9em;
         padding: 1.25em;
         height: 100%;
     }
 
     .cnc-tile-body a {
-        color: #009ee0;
+        color: ${confTheme.colorLogoBlue};
         text-decoration: none;
     }
 
     .cnc-tile-body a:hover {
-        /*color: #007db1;*/
         text-decoration: underline;
     }
 
@@ -320,7 +382,11 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
 
     .cnc-tile-header {
         padding: .625em 1.25em;
-        border-bottom: .1em solid rgba(0,0,0, 0.1);
+        border-bottom: .1em solid ${confTheme.tileHeadingSeparColor};
+    }
+
+    .cnc-form {
+        width: 100%;
     }
 
     /*
@@ -355,10 +421,8 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     .cnc-form textarea,
     .cnc-form select {
         padding: .4em .5em;
-        border: .07em solid rgba(0,0,0, .2);
         border-radius: .3em;
         font-size: 1em;
-        box-sizing: border-box;
     }
 
     .cnc-form input[type=text],
@@ -367,7 +431,9 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     .cnc-form input[type=email],
     .cnc-form textarea,
     .cnc-form select {
-        background-color: white;
+        background-color: ${confTheme.textInputBackgroundColor};
+        color: ${confTheme.colorDefaultText};
+        border: ${confTheme.tileBorderStyle};
     }
 
     .cnc-form.cnc-form-spaced input[type=text],
@@ -398,14 +464,19 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
     .cnc-button.cnc-button:active,
-    .cnc-button.cnc-button:focus,
+    .cnc-button.cnc-button:focus {
+
+    }
+
     .cnc-form input[type=text]:focus,
     .cnc-form input[type=password]:focus,
     .cnc-form input[type=number]:focus,
     .cnc-form input[type=email]:focus,
     .cnc-form textarea:focus,
     .cnc-form select:focus {
-        border-color: #009ee0;
+        background-color: ${confTheme.textInputBackgroundColor};
+        color: ${confTheme.colorDefaultText};
+        border-color: ${confTheme.colorLogoBlue};
     }
 
     a.cnc-button.cnc-button {
@@ -418,8 +489,8 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
     .cnc-button.cnc-button-primary {
-        background-color: #009ee0;
-        color: white;
+        background-color: ${confTheme.colorLogoBlue};
+        color: ${confTheme.colorInvertText};
     }
 
     .cnc-button.cnc-button-primary:hover {
@@ -440,7 +511,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     }
 
 
-    ${theme.media.medium} {
+    ${confTheme.cssMediaMediumSize} {
 
         body {
             > header.wdg-header {
@@ -467,7 +538,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         }
     }
 
-    ${theme.media.small} {
+    ${confTheme.cssMediaSmallSize} {
 
         body > header.wdg-header a img {
             width: 15em;

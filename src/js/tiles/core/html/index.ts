@@ -21,10 +21,18 @@ import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
 import { HtmlModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import {
+    TileConf,
+    ITileProvider,
+    TileComponent,
+    TileFactory,
+    TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileReloader,
+    AltViewIconProps
+} from '../../../page/tile.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { createApiInstance } from '../../../api/factory/html.js';
-import { IGeneralHtmlAPI } from '../../../api/abstract/html.js';
+import { RawHtmlAPI } from './api.js';
 
 
 export interface HtmlTileConf extends TileConf {
@@ -54,7 +62,7 @@ export class HtmlTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly api:IGeneralHtmlAPI<{}>;
+    private readonly api:RawHtmlAPI;
 
     private view:TileComponent;
 
@@ -67,7 +75,7 @@ export class HtmlTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.api = createApiInstance(conf.apiType, conf.apiURL, appServices);
+        this.api = new RawHtmlAPI(conf.apiURL, appServices, conf.backlink);
         this.model = new HtmlModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -84,8 +92,7 @@ export class HtmlTile implements ITileProvider {
                 lemmaArg: conf.lemmaArg,
                 sanitizeHTML: !!conf.sanitizeHTML,
                 backlink: null,
-            },
-            backlink: conf.backlink || null,
+            }
         });
         this.label = appServices.importExternalMessage(conf.label || 'html__main_label');
         this.view = viewInit(
@@ -112,7 +119,7 @@ export class HtmlTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
@@ -145,16 +152,20 @@ export class HtmlTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

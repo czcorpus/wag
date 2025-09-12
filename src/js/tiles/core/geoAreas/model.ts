@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -15,20 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionQueue } from 'kombo';
-import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
+import { Observable, zip } from 'rxjs';
+import { reduce, share, mergeMap } from 'rxjs/operators';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { Actions as ConcActions } from '../concordance/actions.js';
-import { DataApi, isWebDelegateApi } from '../../../types.js';
+import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
-import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs.js';
-import { List } from 'cnc-tskit';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { findCurrQueryMatch, QueryMatch, QueryType, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
+import { Backlink } from '../../../page/tile.js';
+import { APIResponse, DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 
 /*
 oral2013:
@@ -68,239 +69,315 @@ ORAL_V1:
 "neznámé": "naUNK"
 */
 
-export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<DataRow> {
+export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<Array<DataRow>> {
+    currQueryMatches:Array<QueryMatch>;
     areaCodeMapping:{[key:string]:string};
-    tooltipArea:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
+    tooltipArea:{tooltipX:number; tooltipY:number, caption:string, data:TooltipValues, multiWordMode:boolean}|null;
     mapSVG:string;
     isAltViewMode:boolean;
+    posQueryGenerator:[string, string];
     frequencyDisplayLimit:number;
-    backlink:BacklinkWithArgs<Backlink>;
+    backlinks:Array<Backlink>;
 }
 
-export interface GeoAreasModelArgs {
+interface GeoAreasModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    api:IFreqDistribAPI<{}>;
+    queryMatches:RecognizedQueries;
+    freqApi:MQueryFreqDistribAPI;
     mapLoader:DataApi<string, string>;
     initState:GeoAreasModelState;
-    backlink:Backlink;
+    queryType:QueryType;
 }
-
 
 export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly tileId:number;
 
-    private readonly waitForTile:number;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly appServices:IAppServices;
 
-    private readonly api:IFreqDistribAPI<{}>;
+    private readonly freqApi:MQueryFreqDistribAPI;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    private readonly backlink:Backlink;
+    private readonly queryMatches:Array<Array<QueryMatch>>;
 
-    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices,
-            api, mapLoader, initState, backlink}:GeoAreasModelArgs) {
+    private readonly queryType:QueryType;
+
+    constructor({dispatcher, tileId, appServices, queryMatches,
+                freqApi, mapLoader, initState, queryType}:GeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.api = api;
+        this.queryMatches = queryMatches;
+        this.freqApi = freqApi;
         this.mapLoader = mapLoader;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
+        this.queryType = queryType;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
+                state.backlinks = List.map(_ => null, this.queryMatches);
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (this.waitForTile > -1) {
-                    this.waitForActionWithTimeout(
-                        this.waitForTilesTimeoutSecs * 1000,
-                        {},
-                        (action, syncStatus) => {
-                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
-                                forkJoin([
-                                    new Observable((observer:Observer<{}>) => {
-                                        if (action.error) {
-                                            observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+                const dataStream = new Observable<[MQueryFreqArgs|null, number]>((observer) => {
+                    try {
+                        pipe(
+                            this.queryMatches,
+                            List.map(
+                                (queryMatch, queryIdx) => {
+                                    const match = findCurrQueryMatch(queryMatch);
+                                    return tuple(
+                                        testIsDictMatch(match) ?
+                                            this.stateToArgs(state, match) : null,
+                                        queryIdx
+                                    )
+                                }
+                            ),
+                            List.forEach(args => observer.next(args)),
+                        );
+                        observer.complete();
 
-                                        } else {
-                                            observer.next({});
-                                            observer.complete();
-                                        }
-                                    }).pipe(
-                                        concatMap(args => this.api.call(
-                                            this.tileId,
-                                            true,
-                                            this.api.stateToArgs(state, List.head(action.payload.concPersistenceIDs))
-                                        ))
-                                    ),
-                                    state.mapSVG ?
-                                        rxOf(null) :
-                                        this.mapLoader.call(this.tileId, true, 'mapCzech.inline.svg')
+                    } catch (e) {
+                        observer.error(e);
+                    }
 
-                                ]).subscribe({
-                                    next: resp => {
-                                        dispatch<typeof Actions.TileDataLoaded>({
-                                            name: Actions.TileDataLoaded.name,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: resp[0].data.length === 0,
-                                                data: resp[0].data,
-                                                mapSVG: resp[1],
-                                                concId: resp[0].concId
-                                            }
-                                        });
-                                    },
-                                    error: error => {
-                                        dispatch<typeof Actions.TileDataLoaded>({
-                                            name: Actions.TileDataLoaded.name,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: true,
-                                                data: null,
-                                                mapSVG: null,
-                                                concId: null
-                                            },
-                                            error: error
-                                        });
-                                    }
-                                });
-                                return null;
-                            }
-                            return syncStatus;
-                        }
-                    );
+                }).pipe(
+                    mergeMap(([args, queryIdx]) =>
+                        zip(
+                            this.mapLoader.call(this.appServices.dataStreaming(), this.tileId, queryIdx, 'mapCzech.inline.svg'),
+                            this.freqApi.call(
+                                this.appServices.dataStreaming(),
+                                this.tileId,
+                                queryIdx,
+                                args,
+                            ),
+                        )
+                    ),
+                    share(),
+                )
+                this.handleLoad(dataStream, state, dispatch);
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.PartialTileDataLoaded,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                if (action.error) {
+                    state.data = state.currQueryMatches.map(_ => []);
+                    state.backlinks = List.map(_ => null, this.queryMatches);
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
+
+                } else if (action.payload.data.length === 0) {
+                    state.data[action.payload.queryId] = [];
 
                 } else {
-                    dispatch<typeof Actions.TileDataLoaded>({
-                        name: Actions.TileDataLoaded.name,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: true,
-                            data: null,
-                            mapSVG: null,
-                            concId: null
-                        },
-                        error: new Error('GeoAreasModel cannot load its own concordance')
-                    });
+                    state.data[action.payload.queryId] = action.payload.data;
+                    state.backlinks[action.payload.queryId] = this.freqApi.getBacklink(action.payload.queryId);
                 }
+                state.mapSVG = action.payload.mapSVG;
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        state.data = [];
-                        state.backlink = null;
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
-
-                    } else if (action.payload.data.length === 0) {
-                        state.data = [];
-                        state.backlink = null;
-                        if (action.payload.mapSVG) {
-                            state.mapSVG = action.payload.mapSVG;
-                        }
-
-                    } else {
-                        state.data = action.payload.data;
-                        state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(state, this.backlink, action.payload.concId)
-                        if (action.payload.mapSVG) {
-                            state.mapSVG = action.payload.mapSVG;
-                        }
-                    }
-                }
+                state.isBusy = false;
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
-            GlobalActions.EnableAltViewMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableAltViewMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = true;
-                }
+                state.isAltViewMode = true;
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
-            GlobalActions.DisableAltViewMode.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableAltViewMode,
+            action => action.payload.ident === this.tileId,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = false;
-                }
+                state.isAltViewMode = false;
             }
         );
 
-        this.addActionHandler<typeof Actions.ShowAreaTooltip>(
-            Actions.ShowAreaTooltip.name,
+        this.addActionSubtypeHandler(
+            Actions.ShowAreaTooltip,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    const data = action.payload.dataIdx === -1 ? undefined : state.data[action.payload.dataIdx];
-                    state.tooltipArea = {
-                        tooltipX: action.payload.tooltipX,
-                        tooltipY: action.payload.tooltipY,
-                        caption: action.payload.areaName,
-                        data : data === undefined || data.freq < state.frequencyDisplayLimit ? {
-                            [this.appServices.translate('geolocations__tooltip_rel_freq')]: [{value: this.appServices.translate('geolocations__not_enough_data')}],
-                            [this.appServices.translate('geolocations__tooltip_abs_freq')]: [{value: data ? data.freq : this.appServices.translate('geolocations__not_enough_data')}]
+                let tooltipData, tooltipCaption;
+                if (this.queryType === QueryType.SINGLE_QUERY) {
+                    const data = action.payload.areaData[0];
+                    tooltipCaption = action.payload.areaName;
+                    tooltipData = action.payload.areaData === null || data.freq < state.frequencyDisplayLimit ? {
+                            [this.appServices.translate('geolocations__single_tooltip_rel_freq')]: [{value: this.appServices.translate('geolocations__not_enough_data')}],
+                            [this.appServices.translate('geolocations__single_tooltip_abs_freq')]: [{value: data ? data.freq : this.appServices.translate('geolocations__not_enough_data')}]
                         } : {
-                            [this.appServices.translate('geolocations__tooltip_rel_freq')]: [{value: data.ipm}],
-                            [this.appServices.translate('geolocations__tooltip_abs_freq')]: [{value: data.freq}]
+                            [this.appServices.translate('geolocations__single_tooltip_rel_freq')]: [{value: data.ipm}],
+                            [this.appServices.translate('geolocations__single_tooltip_abs_freq')]: [{value: data.freq}]
                         }
-                    };
+
+                } else {
+                    tooltipCaption = action.payload.areaName + (action.payload.areaData === null ? '' : ` (${this.appServices.formatNumber(action.payload.areaIpmNorm, 1)} ipm)`);
+                    tooltipData = action.payload.areaData === null ?
+                        {[appServices.translate('geolocations__not_enough_data')]: [{value: ''}]} :
+                        Dict.fromEntries(
+                            List.map((lemma, index) => {
+                                const areaData = action.payload.areaData.find(item => item.target === index);
+                                return [
+                                    lemma.word,
+                                    areaData ?
+                                        [
+                                            {value: 100 * areaData.ipm / action.payload.areaIpmNorm, unit: '%'},
+                                            {value: areaData.ipm, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                            {value: areaData.freq}
+                                        ] :
+                                        [
+                                            {value: 0, unit: '%'},
+                                            {value: 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                            {value: 0}
+                                        ]
+                                ]
+                            }, state.currQueryMatches)
+                        )
+                }
+
+                state.tooltipArea = {
+                    tooltipX: action.payload.tooltipX,
+                    tooltipY: action.payload.tooltipY,
+                    caption: tooltipCaption,
+                    data: tooltipData,
+                    multiWordMode: this.queryType === QueryType.CMP_QUERY && action.payload.areaData !== null,
                 }
             }
         );
 
-        this.addActionHandler<typeof Actions.HideAreaTooltip>(
-            Actions.HideAreaTooltip.name,
+        this.addActionSubtypeHandler(
+            Actions.HideAreaTooltip,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.tooltipArea = null;
-                }
+                state.tooltipArea = null;
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {},
+            (state, action, dispatch) => {
+                this.freqApi.getSourceDescription(
+                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    state.corpname
+
+                ).subscribe({
+                    next: data => {
+                        dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                data
+                            }
+                        });
+                    },
+                    error: error => {
+                        console.error(error);
+                        dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error
+                        });
+                    }
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe({
-                        next: data => {
-                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    data
-                                }
-                            });
-                        },
-                        error: error => {
-                            console.error(error);
-                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error
-                            });
-                        }
-                    });
-                }
+                const args = this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]));
+                this.freqApi.requestBacklink(args).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
+                });
             }
         );
     }
 
+    private handleLoad(
+        dataStream:Observable<[string, APIResponse]>,
+        state:GeoAreasModelState,
+        dispatch:SEDispatcher
+    ):void {
+        dataStream.subscribe({
+            next: ([mapSVG, resp]) => {
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        mapSVG,
+                        data: resp.data,
+                        queryId: resp.queryIdx,
+                    }
+                });
+            },
+            error: error => {
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        mapSVG: null,
+                        data: null,
+                        queryId: null,
+                    },
+                    error: error
+                });
+            }
+        });
+
+        dataStream.pipe(
+            reduce<[string, APIResponse], {hasData:boolean}>(
+                (acc, [_, resp]) => {
+                    acc.hasData = acc.hasData || (resp.data && resp.data.length > 0);
+                    return acc
+                },
+                {hasData: false}
+            )
+        )
+        .subscribe(acc =>
+            dispatch<typeof Actions.TileDataLoaded>({
+                name: Actions.TileDataLoaded.name,
+                payload: {
+                    tileId: this.tileId,
+                    isEmpty: !acc.hasData,
+                    corpusName: state.corpname,
+                }
+            })
+        );
+    }
+
+    private stateToArgs(state:GeoAreasModelState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
+        return {
+            corpname: state.corpname,
+            path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
+            queryArgs: {
+                subcorpus: subcname ? subcname : state.subcname,
+                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                flimit: state.flimit,
+                matchCase: '0',
+                attr: state.fcrit,
+            }
+        };
+    }
 }

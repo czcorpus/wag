@@ -23,6 +23,7 @@ import { GlobalComponents } from '../../../../views/common/index.js';
 import { SimilarFreqWord } from '../../../../api/abstract/similarFreq.js';
 import { PosItem } from '../../../../postag.js';
 import { List, pipe, Maths } from 'cnc-tskit';
+import { Theme } from '../../../../page/theme.js';
 
 
 interface ChartFreqDistItem {
@@ -33,7 +34,7 @@ interface ChartFreqDistItem {
     color:string;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.FC<{
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.FC<{
     tileName:string;
     queryMatches:Array<SimilarFreqWord>;
     activeIdent:number;
@@ -126,10 +127,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <LineChart id={`word-freq-chart-${props.tileName}`} data={data} width={width} height={height}>
                         <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
                         <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}
-                                tickFormatter={tickFmt}>
+                                tickFormatter={tickFmt} tick={{ fill: theme.chartTextColor }}>
                             <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
                         </XAxis>
-                        <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, fBands)}>
+                        <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, fBands)} tick={{ fill: theme.chartTextColor }}>
                             <Label value={ut.translate('wordfreq__ipm')} offset={5} angle={-90} position="insideBottomLeft" />
                         </YAxis>
                         <Tooltip isAnimationActive={false} />

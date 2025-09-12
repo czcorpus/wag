@@ -17,13 +17,12 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { List } from 'cnc-tskit';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents, TooltipValues } from '../../../views/common/index.js';
-import { TreqSubsetModel, flipRowColMapper } from './model.js';
+import { TranslationSubset, TranslationsSubsetsModelState, TreqSubsetModel, flipRowColMapper } from './model.js';
 import { Theme } from '../../../page/theme.js';
-import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations.js';
-import { List } from 'cnc-tskit';
 
 import * as S from './style.js';
 
@@ -248,6 +247,7 @@ export function init(
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={List.flatMap(v => v.translations, this.props.subsets).length > 0}
+                        backlink={this.props.backlinks}
                         sourceIdent={{corp: 'InterCorp'}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>

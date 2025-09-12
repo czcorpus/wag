@@ -10,14 +10,15 @@
     "schemata:make-conf": [
       "typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks",
-      "typescript-json-schema src/js/conf/index.ts DomainLayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks",
-      "typescript-json-schema src/js/conf/index.ts DomainAnyTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks",
+      "typescript-json-schema src/js/conf/index.ts LayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks",
+      "typescript-json-schema src/js/conf/index.ts MultiSourceTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts DataReadabilityMapping --ignoreErrors --out conf/dataReadability-schema.json --required --strictNullChecks"
     ],
     "schemata:check-conf": [
+      "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
       "_CONFIG_PATH=\"$(node -pe '\"$CONFIG_PATH\" || \"./conf\"')\"",
-      "ajv --allow-union-types --all-errors -s \"${_CONFIG_PATH}/server-schema.json\" -d ./conf/server.json",
+      "ajv --allow-union-types --all-errors -s \"${_CONFIG_PATH}/server-schema.json\" -d ${SERVER_CONF}",
       "ajv -s \"${_CONFIG_PATH}/wdglance-schema.json\" -d ./conf/wdglance.json",
       "LAYOUTS_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(process.env.CONFIG_PATH || \"./conf\" + \"/wdglance.json\", \"utf8\")).layouts')\"",
       "if test -f $LAYOUTS_PATH 2> /dev/null; then ajv -s ./conf/layouts-schema.json -d $LAYOUTS_PATH ; else echo \"layouts config file not found\"; fi",
@@ -60,7 +61,7 @@
     "create:tile-conf": "tsx ./scripts/create-tile-conf.ts $1",
     "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
     "server": [
-      "ajv -s ./conf/server-schema.json -d ./conf/server.json",
+      "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
       "node dist-server/service.js"
     ],
     "test": "npm test"
@@ -72,28 +73,12 @@
         "conf_name": "CollocationsTileConf"
       },
       {
-        "path": "core/concFilter",
-        "conf_name": "ConcFilterTileConf"
-      },
-      {
         "path": "core/concordance",
         "conf_name": "ConcordanceTileConf"
       },
       {
         "path": "core/freqBar",
         "conf_name": "FreqBarTileConf"
-      },
-      {
-        "path": "core/freqComparison",
-        "conf_name": "FreqComparisonTileConf"
-      },
-      {
-        "path": "core/freqPie",
-        "conf_name": "FreqPieTileConf"
-      },
-      {
-        "path": "core/freqTree",
-        "conf_name": "FreqTreeTileConf"
       },
       {
         "path": "core/geoAreas",
@@ -104,28 +89,20 @@
         "conf_name": "HtmlTileConf"
       },
       {
-        "path": "core/matchingDocs",
-        "conf_name": "MatchingDocsTileConf"
-      },
-      {
         "path": "core/mergeCorpFreq",
         "conf_name": "MergeCorpFreqTileConf"
-      },
-      {
-        "path": "core/multiWordGeoAreas",
-        "conf_name": "MultiWordGeoAreasTileConf"
-      },
-      {
-        "path": "core/multiWordTimeDistrib",
-        "conf_name": "TimeDistTileConf"
       },
       {
         "path": "core/speeches",
         "conf_name": "SpeechesTileConf"
       },
       {
-        "path": "core/syD",
-        "conf_name": "SyDTileConf"
+        "path": "core/syntacticColls",
+        "conf_name": "SyntacticCollsTileConf"
+      },
+      {
+        "path": "core/syntacticCollsVsTextTypes",
+        "conf_name": "SyntacticCollsVsTextTypesTileConf"
       },
       {
         "path": "core/timeDistrib",
@@ -150,10 +127,6 @@
       {
         "path": "core/wordSim",
         "conf_name": "WordSimTileConf"
-      },
-      {
-        "path": "core/syntacticColls",
-        "conf_name": "SyntacticCollsTileConf"
       }
     ]
   }

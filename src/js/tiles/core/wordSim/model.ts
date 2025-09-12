@@ -16,27 +16,49 @@
  * limitations under the License.
  */
 
-import { Observable, Observer, of as rxOf } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/operators';
+import { Observable, Observer } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { List, tuple } from 'cnc-tskit';
 
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim.js';
-import { WordSimModelState } from '../../../models/tiles/wordSim.js';
-import { QueryMatch } from '../../../query/index.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
+import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimEntry } from './api/standard.js';
+import { IDataStreaming } from '../../../page/streaming.js';
+import { CNCWSServerApi } from './api/wss.js';
 
 
 export interface WordSimModelArgs {
     dispatcher:IActionDispatcher;
     initState:WordSimModelState;
     tileId:number;
-    api:IWordSimApi<{}>;
-    queryDomain:string;
+    api:CNCWord2VecSimApi|CNCWSServerApi;
     appServices:IAppServices;
+}
+
+
+/**
+ * WordSimModelState is a state for 'word similarity' core tile (and
+ * derived tiles).
+ */
+export interface WordSimModelState {
+    isBusy:boolean;
+    isTweakMode:boolean;
+    isMobile:boolean;
+    isAltViewMode:boolean;
+    error:string;
+    maxResultItems:number;
+    minScore:number;
+    minMatchFreq:number;
+    data:Array<Array<WordSimEntry>>;
+    operationMode:OperationMode;
+    corpus:string;
+    model:string;
+    queryMatches:Array<QueryMatch>;
+    selectedText:string;
 }
 
 
@@ -44,15 +66,12 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:IWordSimApi<{}>;
+    private readonly api:CNCWord2VecSimApi|CNCWSServerApi;
 
-    private readonly queryDomain:string;
-
-    constructor({dispatcher, initState, tileId, api, queryDomain, appServices}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api, appServices}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.queryDomain = queryDomain;
 
         this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
             GlobalActions.SubqItemHighlighted.name,
@@ -105,7 +124,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.getData(state, true, seDispatch);
+                this.getData(state, appServices.dataStreaming(), seDispatch);
             }
         );
         this.addActionHandler<typeof Actions.TileDataLoaded>(
@@ -118,7 +137,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         state.error = appServices.normalizeHttpApiError(action.error);
 
                     } else {
-                        state.data[action.payload.queryId] = action.payload.words;
+                        state.data[action.payload.queryIdx] = action.payload.words;
 
                     }
                 }
@@ -134,7 +153,11 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             },
             (state, action, seDispatch) => {
-                this.getData(state, false, seDispatch);
+                this.getData(
+                    state,
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    seDispatch
+                );
             }
         );
         this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
@@ -142,8 +165,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.queryDomain, state.corpus).subscribe(
-                        (data) => {
+                    this.api.getSourceDescription(
+                        appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        appServices.getISO639UILang(),
+                        state.corpus
+                    ).subscribe({
+                        next:(data) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -152,7 +180,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: (err) => {
                             seDispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -162,13 +190,24 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                                 error: err
                             });
                         }
-                    );
+                    });
                 }
             }
         );
     }
 
-    getData(state:WordSimModelState, multicastRequest:boolean, seDispatch:SEDispatcher):void {
+    private stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
+        return {
+            corpus: state.corpus,
+            model: state.model,
+            word: queryMatch.lemma,
+            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0]: '', // TODO is the first zero OK? (i.e. we ignore other variants)
+            limit: state.maxResultItems,
+            minScore: state.minScore
+        };
+    }
+
+    getData(state:WordSimModelState, dataStreaming:IDataStreaming, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<[number, QueryMatch]>) => {
             state.queryMatches.forEach((queryMatch, queryId) => {
                 observer.next(tuple(queryId, queryMatch));
@@ -176,15 +215,17 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             observer.complete();
 
         }).pipe(
-            mergeMap(([queryId, queryMatch]) => queryMatch.abs >= state.minMatchFreq ?
+            mergeMap(([queryId, queryMatch]) =>
                 callWithExtraVal(
+                    dataStreaming,
                     this.api,
                     this.tileId,
-                    multicastRequest,
-                    this.api.stateToArgs(state, queryMatch),
+                    queryId,
+                    testIsDictMatch(queryMatch) ?
+                        this.stateToArgs(state, queryMatch) :
+                        null,
                     queryId
-                ) :
-                rxOf(tuple({words: [] as Array<WordSimWord>}, queryId))
+                )
             )
         ).subscribe({
             next: ([data, queryId]) => {
@@ -192,20 +233,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        queryId: queryId,
+                        queryIdx: queryId,
                         words: data.words,
-                        subqueries: List.map(
-                            v => ({
-                                value: {
-                                    value: v.word,
-                                    context: [-5, 5] // TODO
-                                },
-                                interactionId: v.interactionId
-                            }),
-                            data.words
-                        ),
-                        domain1: null,
-                        domain2: null,
                         isEmpty: data.words.length === 0
                     }
                 });
@@ -216,11 +245,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        queryId: null,
+                        queryIdx: null,
                         words: [],
-                        subqueries: [],
-                        domain1: null,
-                        domain2: null,
                         isEmpty: true
                     },
                     error

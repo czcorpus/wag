@@ -17,17 +17,19 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { catchError, concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
-import { Dict, pipe, HTTP, List, Rx, tuple } from 'cnc-tskit';
+import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
+import { pipe, HTTP, List, Rx, tuple, Dict } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices.js';
-import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index.js';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches, queryTypeToAction } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
-import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
-         errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf, GroupedAuth,
-         mergeToEmptyLayoutConf,
-         MainPosAttrValues
+import {
+    UserConf, ClientStaticConf, ClientConf, emptyClientConf, errorUserConf, isTileDBConf,
+    THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf,
+    mergeToEmptyLayoutConf, MainPosAttrValues, LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
+    LayoutsConfig,
+    HomepageTileConf,
+    GroupLayoutConfig
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -40,28 +42,76 @@ import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, 
     clientIsLikelyMobile } from './common.js';
 import { maxQueryWordsForQueryType } from '../../conf/validation.js';
 import { Actions } from '../../models/actions.js';
-import { HTTPAction } from './actions.js';
+import { HTTPAction } from '../../page/actions.js';
 import { logAction } from '../actionLog/common.js';
-import { fullServerHttpRequest, serverHttpRequest } from '../request.js';
 import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
+import { createInstance, FreqDBType } from '../freqdb/factory.js';
+import urlJoin from 'url-join';
+import { TileConf } from '../../page/tile.js';
+import { queriesConf, previewLayoutConf } from '../../conf/preview.js';
+import { Theme } from '../../page/theme.js';
 
 
 interface MkRuntimeClientConfArgs {
     conf:ClientStaticConf;
     serverConf:ServerConf;
-    domain:string;
     themeId:string;
     appServices:IAppServices;
+    queryType:QueryType;
 }
 
-function mkRuntimeClientConf({
+
+/**
+ * Out of all the configured tiles for all the query types, filter out everything
+ * except for the provided query type.
+ */
+function filterTilesByQueryType(
+    layouts:LayoutsConfig,
+    tiles:{[ident:string]:TileConf},
+    qType:QueryType
+):{[tileId:string]:TileConf} {
+    return pipe(
+        Object.entries(layouts),
+        List.filter(([qt, ]) => qt === qType),
+        List.flatMap(([, layout]) => layout.groups as Array<GroupLayoutConfig>),
+        List.flatMap(x => typeof x !== 'string' ? x.tiles : []),
+        List.map(x => tuple(x.tile, tiles[x.tile])),
+        Dict.fromEntries()
+    );
+}
+
+
+/**
+ * Based on the static configuration, current query and other runtime
+ * information, generate request-specific configuration for the client.
+ */
+export function mkRuntimeClientConf({
     conf,
     serverConf,
-    domain,
     themeId,
-    appServices
+    appServices,
+    queryType
 }:MkRuntimeClientConfArgs):Observable<ClientConf> {
+
+    const layouts:LayoutsConfig = {
+            ...mergeToEmptyLayoutConf(typeof conf.layouts !== 'string' ? conf.layouts : {}),
+            preview: {
+                groups: previewLayoutConf,
+                mainPosAttr: 'pos',
+                targetLanguages: [
+                    { code: "en", label: "English" }
+                ]
+            }
+    };
+
+    const tiles = filterTilesByQueryType(
+        layouts,
+        typeof conf.tiles !== 'string' && !isTileDBConf(conf.tiles) ? conf.tiles : {},
+        queryType
+
+    );
+
     return forkJoin([
         forkJoin(
             List.map(
@@ -78,30 +128,38 @@ function mkRuntimeClientConf({
                 conf.homepage.tiles
             )
         ).pipe(
-            defaultIfEmpty([])
+            defaultIfEmpty<Array<HomepageTileConf>, Array<HomepageTileConf>>([])
         ),
         conf.homepage.footer ?
             appServices.importExternalText(conf.homepage.footer, loadFile) : rxOf(undefined)
     ]).pipe(
-        map(([tiles, footer]) => {
-            let maxQueryWords = {};
-            for (let queryType in QueryType) {
-                const qt = QueryType[queryType]
-                maxQueryWords[qt] = serverConf.freqDB[qt] ? serverConf.freqDB[qt].maxQueryWords : 1;
-            }
-            if (!conf.layouts[domain]) {
-                const avail = Object.keys(conf.layouts || {})
-                throw new Error(`Missing layouts configuration for domain "${domain}" (available: ${avail.map(x => `"${x}"`).join(', ')})`);
-            }
+        map(([hpTiles, footer]) => {
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
                 runtimeAssetsUrl: conf.runtimeAssetsUrl,
                 favicon: conf.favicon,
-                logo: conf.logo,
+                logo: {
+                    url: appServices.importExternalMessage(conf.logo?.url),
+                    inlineStyle: conf.logo?.inlineStyle || {},
+                    label: appServices.importExternalMessage(conf.logo?.label),
+                    subWag: conf.logo?.subWag ?
+                        {
+                            url: appServices.importExternalMessage(conf.logo.subWag.url),
+                            inlineStyle: conf.logo.subWag?.inlineStyle || {},
+                            label: appServices.importExternalMessage(conf.logo.subWag.label)
+                        } :
+                        undefined
+                },
+                instanceSwitchMenu: List.map(
+                    item => ({
+                        url: item.url,
+                        label: appServices.importExternalMessage(item.label)
+                    }),
+                    conf.instanceSwitchMenu || []
+                ),
                 corpInfoApiUrl: conf.corpInfoApiUrl,
                 apiHeaders: conf.apiHeaders,
-                reqCacheTTL: conf.reqCacheTTL,
                 onLoadInit: conf.onLoadInit,
                 dataReadability: typeof conf.dataReadability === 'string' ?
                     {metadataMapping: {}, commonStructures: {}} :
@@ -116,31 +174,26 @@ function mkRuntimeClientConf({
                     getThemeList(conf)
                 ),
                 dataStreamingUrl: conf.dataStreamingUrl,
-                tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
-                    {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
+                tiles,
+                layouts,
+                queryTypes: typeof conf.layouts !== 'string' ?
                     pipe(
-                        conf.tiles[domain],
-                        Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
-                    ),
-                layouts: mergeToEmptyLayoutConf(conf.layouts[domain]),
-                searchDomains: pipe(
-                    conf.searchDomains,
-                    Dict.keys(),
-                    List.map(k => ({
-                        code: k,
-                        label: conf.searchDomains[k],
-                        queryTypes: getSupportedQueryTypes(conf, k)
-                    }))
-                ),
+                        [
+                            tuple(conf.layouts.cmp, QueryType.CMP_QUERY),
+                            tuple(conf.layouts.single, QueryType.SINGLE_QUERY),
+                            tuple(conf.layouts.translat, QueryType.TRANSLAT_QUERY)
+                        ],
+                        List.filter(([tst,]) => !!tst),
+                        List.map(([,v]) => v)
+                    ) : [QueryType.SINGLE_QUERY],
                 externalStyles: conf.externalStyles || [],
                 issueReportingUrl: conf.issueReportingUrl,
                 homepage: {
-                    tiles,
+                    tiles: hpTiles,
                     footer
                 },
-                telemetry: conf.telemetry,
                 maxTileErrors: conf.maxTileErrors,
-                maxQueryWords: maxQueryWords
+                maxQueryWords: serverConf.freqDB.maxQueryWords
             }
         })
     );
@@ -163,6 +216,29 @@ interface ImportQueryReqArgs {
     answerMode:boolean;
 }
 
+function determineTranslatLang(req:Request, queryType:QueryType, layoutsConf:LayoutsConfig):string|undefined {
+    if (queryType === QueryType.CMP_QUERY || queryType === QueryType.SINGLE_QUERY) {
+        return undefined;
+    }
+    console.log('>>>>>> layoutsConf.preview: ', layoutsConf.preview)
+    if (queryType === QueryType.PREVIEW) {
+        // the preview mode has target languages hardcoded,
+        // so we can be pretty sure about len > 0
+        return layoutsConf.preview.targetLanguages[0].code;
+    }
+    if (req.params['lang']) {
+        return req.params['lang'];
+    }
+    if (req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME]) {
+        return req.cookies[LAST_USED_TRANSLAT_LANG_COOKIE_NAME];
+    }
+    if (Array.isArray(layoutsConf.translat.targetLanguages) &&
+        layoutsConf.translat.targetLanguages.length > 0) {
+            return layoutsConf.translat.targetLanguages[0].code;
+    }
+    return undefined;
+}
+
 export function importQueryRequest({
     services,
     appServices,
@@ -174,10 +250,24 @@ export function importQueryRequest({
     const validator = new QueryValidator(appServices);
     return new Observable<UserConf>(observer => {
         try {
-            const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
-            const queryDomain = fetchUrlParamArray(req, 'domain', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
+            const queries = answerMode ?
+                fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1) :
+                pipe(
+                    Array.isArray(req.query.q) ? req.query.q : [req.query.q],
+                    List.map(
+                        v => {
+                            if (typeof v === 'string') {
+                                return v;
+                            }
+                            return '';
+                        }
+                    ),
+                    items => queryType === QueryType.CMP_QUERY ?
+                        List.concat(List.repeat(_ => '', 2 - items.length), items) :
+                        items
+                );
             const layouts = services.clientConf.layouts;
-            if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
+            if (queryType !== QueryType.PREVIEW && answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
                 const maxQueryWords = maxQueryWordsForQueryType(services.serverConf, queryType);
                 List.forEach(
                     query => {
@@ -189,23 +279,22 @@ export function importQueryRequest({
                     queries
                 )
             }
-            const domains = Dict.keys(services.clientConf.searchDomains);
-            const dfltDomain = List.head(domains);
-            const dfltDomain2 = domains.length > 1 ? domains[1] : '';
             const userConfNorm:UserConf = {
+                applicationId: services.clientConf.applicationId,
                 uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Domain: queryDomain[0] ? queryDomain[0] : dfltDomain, // TODO this is not queryType sensitive
-                query2Domain: queryDomain[1] ? queryDomain[1] : dfltDomain2,
+                translatLanguage: undefined, // here we cannot determine the language yet!
                 queryType,
-                queries: compileQueries(
-                    queries,
-                    List.map(
-                        v => List.filter(v => !!v, v.split(' ')),
-                        fetchReqArgArray(req, 'pos', queries.length)
+                queries: queryType === QueryType.PREVIEW ?
+                    queriesConf :
+                    compileQueries(
+                        queries,
+                        List.map(
+                            v => List.filter(v => !!v, v.split(' ')),
+                            fetchReqArgArray(req, 'pos', queries.length)
+                        ),
+                        fetchReqArgArray(req, 'lemma', queries.length)
                     ),
-                    fetchReqArgArray(req, 'lemma', queries.length)
-                ),
                 answerMode: answerMode
             };
 
@@ -218,63 +307,11 @@ export function importQueryRequest({
     })
 }
 
-function testGroupedAuth(
-    currResp:Response,
-    req:Request,
-    items:Array<GroupedAuth>
-):Observable<any> {
-    return rxOf(...items).pipe(
-        concatMap(
-            item => serverHttpRequest<any>({
-                url: item.preflightUrl,
-                method: HTTP.Method.GET,
-                cookies: req.cookies
-            }).pipe(
-                map(
-                    resp => ({authorized: true, conf: item})
-                ),
-                catchError(
-                    err => {
-                        return rxOf({authorized: false, conf: item})
-                    }
-                )
-            )
-        ),
-        concatMap(
-            ({authorized, conf}) => {
-                return authorized ?
-                    rxOf(true) :
-                     fullServerHttpRequest<any>({
-                        url: conf.authenticateUrl,
-                        method: HTTP.Method.POST,
-                        data: {
-                            personal_access_token:  conf.token
-                        },
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded'
-                        }
-                    }).pipe(
-                        map(
-                            resp => {
-                                const cookies = resp.headers['set-cookie'];
-                                if (cookies) {
-                                    currResp.header('set-cookie', cookies);
-                                }
-                                return true;
-                            }
-                        )
-                    );
-            }
-        ),
-        defaultIfEmpty(true) // = no grouped authentication required => user has implicit grouped authentication
-    );
-}
-
 
 /**
  * note: functions expects availMatches sorted from highest ipm to lowest
  */
-function markMatch(userQuery:UserQuery, posAttr:MainPosAttrValues, availMatches:Array<QueryMatch>):Array<QueryMatch> {
+export function markMatch(userQuery:UserQuery, posAttr:MainPosAttrValues, availMatches:Array<QueryMatch>):Array<QueryMatch> {
     if (List.size(availMatches) === 0) {
         return availMatches;
     }
@@ -324,9 +361,15 @@ export function queryAction({
     res,
     next
 }:QueryActionArgs) {
-
     const dispatcher = new ServerSideActionDispatcher();
-    const [viewUtils, appServices] = createHelperServices(services, uiLang);
+    const [viewUtils, appServices] = createHelperServices(services, uiLang, queryType);
+    const freqDb = createInstance(
+        services.serverConf.freqDB.database.dbType as FreqDBType,
+        services.serverConf.freqDB.database.path,
+        services.serverConf.freqDB.database.corpusSize,
+        appServices,
+        services.serverConf.freqDB.database.options || {}
+    );
     // until now there should be no exceptions throw
     importQueryRequest({
         services, appServices, req, queryType, uiLang, answerMode
@@ -337,18 +380,37 @@ export function queryAction({
                 mkRuntimeClientConf({
                     conf: services.clientConf,
                     serverConf: services.serverConf,
-                    domain: userConf.query1Domain,
                     themeId: req.cookies[THEME_COOKIE_NAME] || '',
-                    appServices
+                    appServices,
+                    queryType
                 })
             )
         ),
         map(
-            ([runtimeConf, userConf]) => tuple(
-                runtimeConf,
-                userConf,
-                new LayoutManager(runtimeConf.layouts, attachNumericTileIdents(runtimeConf.tiles), appServices)
-            )
+            ([runtimeConf, userConf]) => {
+                userConf.translatLanguage = determineTranslatLang(
+                    req,
+                    queryType,
+                    runtimeConf.layouts
+                );
+                const lm = new LayoutManager(
+                    runtimeConf.layouts,
+                    attachNumericTileIdents(runtimeConf.tiles),
+                    appServices,
+                    queryType
+                );
+                if (lm.isEmpty()) {
+                    const firstAvailQt = List.find(x => x.isEnabled, lm.getQueryTypesMenuItems());
+                    runtimeConf.redirect = tuple(
+                        303, appServices.createActionUrl(queryTypeToAction(firstAvailQt.type))
+                    )
+                }
+                return tuple(
+                    runtimeConf,
+                    userConf,
+                    lm
+                );
+            }
         ),
         concatMap(
             ([runtimeConf, userConf, layoutManager]) => forkJoin({
@@ -357,9 +419,6 @@ export function queryAction({
             viewUtils: rxOf(viewUtils),
             userConf: new Observable<UserConf>(
                 (observer) => {
-                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Domain === userConf.query2Domain) {
-                        userConf.error = [400, appServices.translate('global__src_and_dst_domains_must_be_different')];
-                    }
                     observer.next(userConf);
                     observer.complete();
                 }
@@ -367,20 +426,14 @@ export function queryAction({
             hostPageEnv: services.toolbar.get(userConf.uiLang, mkPageReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
             runtimeConf: rxOf(runtimeConf),
             layoutManager: rxOf(layoutManager),
-            groupedAuth: testGroupedAuth(
-                res,
-                req,
-                services.serverConf.groupedAuth || []),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
-                        services.db
-                            .getDatabase(userConf.queryType, userConf.query1Domain)
-                            .findQueryMatches(
-                                appServices,
-                                query.word,
-                                layoutManager.getLayoutMainPosAttr(userConf.queryType),
-                                getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
-                            ) :
+                        freqDb.findQueryMatches(
+                            appServices,
+                            query.word,
+                            layoutManager.getLayoutMainPosAttr(),
+                            services.serverConf.freqDB.minLemmaFreq,
+                        ) :
                         rxOf<Array<QueryMatch>>([]),
                     userConf.queries
 
@@ -429,13 +482,12 @@ export function queryAction({
                             ipm: 0,
                             arf: 0,
                             flevel: null,
-                            isCurrent: true,
-                            isNonDict: true
+                            isCurrent: true
                         }];
                     }
                     return markMatch(
                         userConf.queries[queryIdx],
-                        layoutManager.getLayoutMainPosAttr(userConf.queryType),
+                        layoutManager.getLayoutMainPosAttr(),
                         List.sorted(
                             (v1, v2) => v2.ipm - v1.ipm,
                             addWildcardMatches([...queryMatches])
@@ -444,6 +496,7 @@ export function queryAction({
                 },
                 qMatchesEachQuery
             );
+
             const {component, tileGroups,} = createRootComponent({
                 config: runtimeConf,
                 userSession: userConf,
@@ -455,7 +508,9 @@ export function queryAction({
                 layoutManager
             });
 
-            const {HtmlHead, HtmlBody} = viewInit(viewUtils);
+            const currTheme = new Theme(getAppliedThemeConf(services.clientConf));
+
+            const {HtmlHead, HtmlBody} = viewInit(viewUtils, currTheme);
             // Here we're going to use the fact that (the current)
             // server-side action dispatcher does not trigger side effects
             // so our models just set 'busy' state and nothing else happens.
@@ -464,6 +519,11 @@ export function queryAction({
             dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
                 name: Actions.RequestQueryResponse.name
             });
+
+            if (runtimeConf.redirect) {
+                res.redirect(runtimeConf.redirect[0], runtimeConf.redirect[1]);
+                return;
+            }
 
             res.send(renderResult({
                 HtmlBody,
@@ -492,10 +552,11 @@ export function queryAction({
                 err
             });
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
-            const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
-            const { HtmlHead, HtmlBody } = viewInit(viewUtils);
+            const userConf = errorUserConf(
+                services.clientConf.applicationId, services.serverConf.languages, error, uiLang);
+            const currTheme = new Theme(getAppliedThemeConf(services.clientConf));
+            const { HtmlHead, HtmlBody } = viewInit(viewUtils, currTheme);
             const errView = errPageInit(viewUtils);
-            const currTheme = getAppliedThemeConf(services.clientConf);
             res.send(renderResult({
                 HtmlBody,
                 HtmlHead,
@@ -503,7 +564,7 @@ export function queryAction({
                 toolbarData: emptyValue(),
                 queryMatches: [],
                 themes: [],
-                currTheme: currTheme.themeId,
+                currTheme: currTheme.ident,
                 userConfig: userConf,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),

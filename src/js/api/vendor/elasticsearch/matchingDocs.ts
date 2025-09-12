@@ -21,6 +21,8 @@ import { Observable } from 'rxjs';
 import { SourceDetails } from '../../../types.js';
 import { map } from 'rxjs/operators';
 import { IApiServices } from '../../../appServices.js';
+import { Backlink } from '../../../page/tile.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface HTTPResponse {
@@ -64,7 +66,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         this.apiServices = apiServices;
     }
 
-    stateToBacklink(state:MatchingDocsModelState, query:string):null {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 
@@ -79,11 +81,11 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         }
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return null;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:ElasticsearchQueryArgs):Observable<APIResponse> {
+    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:ElasticsearchQueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,

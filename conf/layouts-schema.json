@@ -1,8 +1,5 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "additionalProperties": {
-        "$ref": "#/definitions/LayoutsConfig"
-    },
     "definitions": {
         "GroupLayoutConfig": {
             "properties": {
@@ -35,25 +32,7 @@
                 "groupTemplate": {},
                 "tiles": {
                     "items": {
-                        "allOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "properties": {
-                                    "ref": {
-                                        "type": "string"
-                                    },
-                                    "width": {
-                                        "type": "number"
-                                    }
-                                },
-                                "required": [
-                                    "width"
-                                ],
-                                "type": "object"
-                            }
-                        ]
+                        "$ref": "#/definitions/LayoutVisibleTile"
                     },
                     "type": "array"
                 }
@@ -67,17 +46,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -134,21 +103,79 @@
             ],
             "type": "object"
         },
+        "LayoutConfigPreviewQuery": {
+            "properties": {
+                "groups": {
+                    "items": {
+                        "$ref": "#/definitions/GroupLayoutConfig"
+                    },
+                    "type": "array"
+                },
+                "insertAfter": {
+                    "additionalProperties": {
+                        "items": {
+                            "properties": {
+                                "tile": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "tile",
+                                "width"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "mainPosAttr": {
+                    "$ref": "#/definitions/MainPosAttrValues"
+                },
+                "replace": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "targetLanguages": {
+                    "items": {
+                        "$ref": "#/definitions/TranslatLanguage"
+                    },
+                    "type": "array"
+                },
+                "useLayout": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "groups",
+                "mainPosAttr",
+                "targetLanguages"
+            ],
+            "type": "object"
+        },
         "LayoutConfigSingleQuery": {
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -209,17 +236,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -266,9 +283,9 @@
                     },
                     "type": "object"
                 },
-                "targetDomains": {
+                "targetLanguages": {
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/TranslatLanguage"
                     },
                     "type": "array"
                 },
@@ -279,22 +296,29 @@
             "required": [
                 "groups",
                 "mainPosAttr",
-                "targetDomains"
+                "targetLanguages"
             ],
             "type": "object"
         },
-        "LayoutsConfig": {
+        "LayoutVisibleTile": {
             "properties": {
-                "cmp": {
-                    "$ref": "#/definitions/LayoutConfigCmpQuery"
+                "readDataFrom": {
+                    "type": "string"
                 },
-                "single": {
-                    "$ref": "#/definitions/LayoutConfigSingleQuery"
+                "ref": {
+                    "type": "string"
                 },
-                "translat": {
-                    "$ref": "#/definitions/LayoutConfigTranslatQuery"
+                "tile": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
                 }
             },
+            "required": [
+                "tile",
+                "width"
+            ],
             "type": "object"
         },
         "MainPosAttrValues": {
@@ -304,48 +328,36 @@
             ],
             "type": "string"
         },
-        "ServiceTile": {
-            "description": "ServiceTile is a tile which is a functional part of a layout but not\nnecessarily in a visual way.",
+        "TranslatLanguage": {
             "properties": {
-                "readSubqFrom": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
-                },
-                "tile": {
+                "code": {
                     "type": "string"
                 },
-                "waitFor": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                "label": {
+                    "type": "string"
                 }
             },
             "required": [
-                "tile"
+                "code",
+                "label"
             ],
             "type": "object"
         }
     },
-    "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
+    "properties": {
+        "cmp": {
+            "$ref": "#/definitions/LayoutConfigCmpQuery"
+        },
+        "preview": {
+            "$ref": "#/definitions/LayoutConfigPreviewQuery"
+        },
+        "single": {
+            "$ref": "#/definitions/LayoutConfigSingleQuery"
+        },
+        "translat": {
+            "$ref": "#/definitions/LayoutConfigTranslatQuery"
+        }
+    },
     "type": "object"
 }
 

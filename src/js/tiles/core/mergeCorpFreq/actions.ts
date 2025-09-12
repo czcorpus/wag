@@ -18,22 +18,21 @@
 
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
+import { SourceMappedDataRow } from './common.js';
 
 
 
 export interface DataLoadedPayload {
     data:Array<SourceMappedDataRow>;
-    valuePlaceholder:string;
     queryId:number;
-    concId:string;
-    sourceId:string;
+    sourceIdx:number;
 }
 
 export class Actions {
 
     static ShowTooltip:Action<{
         tileId:number;
+        barIdx:number;
         dataName:string;
         tooltipX:number;
         tooltipY:number;
@@ -47,6 +46,14 @@ export class Actions {
 
     }> = {
         name: 'MERGECORP_HIDE_TOOLTIP'
+    };
+
+    static ViewInOtherWag:Action<{
+        tileId:number;
+        barIdx:number;
+        queryIdx:number;
+    }> = {
+        name: 'MERGECORP_VIEW_IN_OTHER_WAG'
     };
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {

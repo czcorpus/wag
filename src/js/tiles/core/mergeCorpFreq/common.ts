@@ -16,14 +16,36 @@
  * limitations under the License.
  */
 
+import { QueryMatch } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
+import { TooltipValues } from '../../../views/common/index.js';
+import { DataRow } from './api.js';
 
-export interface ModelSourceArgs extends MinSingleCritFreqState {
+export interface ModelSourceArgs {
+
+    corpname:string;
 
     subcname:string|null;
 
+    fcrit:string;
+
+    freqType:'tokens'|'text-types';
+
+    flimit:number;
+
+    freqSort:string;
+
+    fpage:number;
+
+    posQueryGenerator:[string, string];
+
+    fttIncludeEmpty?:boolean;
+
+    fmaxitems?:number;
+
     corpusSize:number;
+
+    viewInOtherWagUrl:string|null;
 
     /**
      * In case 'fcrit' describes a positional
@@ -35,12 +57,41 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
      */
     valuePlaceholder:string|null;
 
-    backlinkTpl:Backlink;
-
-    uuid:string;
-
     isSingleCategory:boolean;
 
     uniqueColor:boolean;
 }
 
+export interface SourceMappedDataRow extends DataRow {
+    sourceIdx:number;
+    name:string;
+    uniqueColor:boolean;
+    viewInOtherWagUrl:string|null;
+}
+
+
+
+export interface MergeCorpFreqModelState {
+    isBusy:boolean;
+    isAltViewMode:boolean;
+    error:string;
+
+    /**
+     * Frequency data.
+     * The outer array separates queries in the "cmp" mode;
+     * in the "single" mode, it has a size of 1.
+     * The inner array represents multiple configured freq. resources.
+     */
+    data:Array<Array<SourceMappedDataRow>>;
+    sources:Array<ModelSourceArgs>;
+    pixelsPerCategory:number;
+    tooltipData:{
+        tooltipX:number;
+        tooltipY:number;
+        data:TooltipValues;
+        caption:string;
+        showClickTip:boolean;
+    }|null;
+    backlinks:Array<Array<Backlink>>;
+    queryMatches:Array<QueryMatch>;
+}

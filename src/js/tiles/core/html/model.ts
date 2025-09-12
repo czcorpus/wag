@@ -21,23 +21,19 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
 import { HtmlModelState } from './common.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { RecognizedQueries } from '../../../query/index.js';
-import { IGeneralHtmlAPI } from '../../../api/abstract/html.js';
-import { Backlink, createAppBacklink } from '../../../page/tile.js';
-import { isWebDelegateApi } from '../../../types.js';
+import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { RawHtmlAPI } from './api.js';
 
 
 export interface HtmlModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
-    service:IGeneralHtmlAPI<{}>;
+    service:RawHtmlAPI;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
-    backlink:Backlink;
 }
 
 
@@ -45,21 +41,18 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly service:IGeneralHtmlAPI<{}>;
+    private readonly service:RawHtmlAPI;
 
     private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 
-    private readonly backlink:Backlink;
-
-    constructor({dispatcher, tileId, appServices, service, initState, queryMatches, backlink}:HtmlModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, initState, queryMatches}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
         this.queryMatches = queryMatches;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.service) ? this.service.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -83,16 +76,26 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
                     } else {
                         state.data = action.payload.data;
-                        state.backlink = createAppBacklink(this.backlink);
+                        state.backlink = this.service.getBacklink(0);
                     }
                 }
             }
-        )
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                const variant = findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]);
+                const url = this.service.requestBacklink(this.service.stateToArgs(state, variant.lemma));
+                window.open(url.toString(),'_blank');
+            }
+        );
     }
 
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
         (variant ?
-            this.service.call(this.tileId, true, this.service.stateToArgs(state, variant)) :
+            this.service.call(this.appServices.dataStreaming(), this.tileId, 0, this.service.stateToArgs(state, variant)) :
             rxOf(null)
 
         ).pipe(

@@ -16,20 +16,18 @@
  * limitations under the License.
  */
 
-import { ExpandArgs, Expand, Segment, ConcDetailText } from './modelDomain.js';
 import { Action } from 'kombo';
+import { Segment } from './common.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { MarkupToken, SpeechToken } from './api.js';
 
 
 export interface SpeechDataPayload {
     tileId:number;
     isEmpty:boolean;
-    availableTokens:Array<number>;
-    concId:string|null;
     kwicNumTokens:number;
-    data:ConcDetailText|null;
-    expandRightArgs:ExpandArgs|null;
-    expandLeftArgs:ExpandArgs|null;
+    kwicTokenIdx:number;
+    data:Array<SpeechToken|MarkupToken>;
 }
 
 
@@ -37,7 +35,8 @@ export class Actions {
 
     static ExpandSpeech:Action<{
         tileId:number;
-        position:Expand;
+        leftChange:number;
+        rightChange:number;
     }> = {
         name: 'SPEECH_EXPAND_SPEECH'
     };

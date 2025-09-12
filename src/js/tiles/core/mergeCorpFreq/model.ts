@@ -17,56 +17,31 @@
  */
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
-import { mergeMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import * as domtoimage from 'dom-to-image-more';
+import { concatMap, map, mergeMap, tap } from 'rxjs/operators';
+import { Observable, of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices.js';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
-import { callWithExtraVal } from '../../../api/util.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { QueryMatch } from '../../../query/index.js';
-import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance.js';
-import { ModelSourceArgs } from './common.js';
-import { createInitialLinesData } from '../../../models/tiles/concordance/index.js';
-import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
-import { TooltipValues } from '../../../views/common/index.js';
-import { Actions as ConcActions } from '../concordance/actions.js';
-import { isWebDelegateApi } from '../../../types.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
-
-
-export interface MergeCorpFreqModelState {
-    isBusy:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    data:Array<Array<SourceMappedDataRow>>;
-    sources:Array<ModelSourceArgs>;
-    pixelsPerCategory:number;
-    queryMatches:Array<QueryMatch>;
-    tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
-    appBacklink:BacklinkWithArgs<{}>;
-}
-
-interface SourceQueryProps {
-    sourceArgs:ModelSourceArgs;
-    queryId:number;
-    concId:string;
-}
+import { DataRow, MergeFreqsApi } from './api.js';
+import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { SystemMessageType } from '../../../types.js';
+import { IDataStreaming } from '../../../page/streaming.js';
+import urlJoin from 'url-join';
+import { callWithExtraVal } from '../../../api/util.js';
 
 
 export interface MergeCorpFreqModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTiles:Array<number>;
-    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    concApi:IConcordanceApi<{}>;
-    freqApi:IFreqDistribAPI<{}>;
+    freqApi:MergeFreqsApi;
     initState:MergeCorpFreqModelState;
-    backlink:Backlink;
     downloadLabel:string;
 }
 
@@ -76,28 +51,17 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly tileId:number;
 
-    private readonly concApi:IConcordanceApi<{}>;
-
-    private readonly freqApi:IFreqDistribAPI<{}>;
-
-    private readonly waitForTiles:Array<number>;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
-    private readonly backlink:Backlink;
+    private readonly freqApi:MergeFreqsApi;
 
     private readonly downloadLabel:string;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices,
-                concApi, freqApi, initState, backlink, downloadLabel}:MergeCorpFreqModelArgs) {
+    constructor({
+        dispatcher, tileId, appServices, freqApi, initState, downloadLabel
+    }:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
-        this.waitForTiles = waitForTiles;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
-        this.concApi = concApi;
         this.freqApi = freqApi;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
@@ -125,85 +89,19 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const conc$ = this.waitForTiles.length > 0 ?
-                    this.waitForActionWithTimeout(
-                        this.waitForTilesTimeoutSecs * 1000,
-                        pipe(
-                            this.waitForTiles,
-                            List.map<number, [string, number]>(v => [v.toFixed(), 0]),
-                            Dict.fromEntries()
-                        ),
-                        (action, syncData) => {
-                            if (ConcActions.isPartialTileDataLoaded(action) && this.waitForTiles.indexOf(action.payload.tileId) > -1) {
-                                const ans = {...syncData};
-                                ans[action.payload['tileId'].toFixed()] += 1;
-                                return Dict.find(v => v < state.queryMatches.length, ans) ? ans : null;
-                            }
-                            return syncData;
-
-                        }
-                    ).pipe(
-                        map(action => {
-                            if (ConcActions.isPartialTileDataLoaded(action)) {
-                                const src = List.find(
-                                    v => v.corpname === action.payload.data.corpName &&
-                                            (!v.subcname || v.subcname === action.payload.data.subcorpName),
-                                    state.sources
-                                );
-                                return tuple(action.payload.queryId, src, action.payload.data.concPersistenceID)
-
-                            } else {
-                                throw new Error(`Invalid action: ${action.name}`);
-                            }
-                        })
-                    ) :
-                    this.concApi === null ?
-                        rxOf(...state.sources).pipe(
-                            mergeMap(source => rxOf(
-                                ...List.map(
-                                    (v, i) => [i, source, v.lemma] as [number, ModelSourceArgs, string],
-                                    state.queryMatches
-                                ),
-                            )),
-                        ) :
-                        this.loadConcordances(state, true);
-                this.loadFreqs(conc$, true, dispatch);
+                this.loadFreqs(state, appServices.dataStreaming(), dispatch);
             }
         );
 
-        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
-            Actions.PartialTileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.PartialTileDataLoaded,
+            action => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    if (this.backlink !== null && this.backlink.isAppUrl && state.appBacklink === null) {
-                        state.appBacklink = createAppBacklink(this.backlink);
-                    }
-
-                    if (state.data[action.payload.queryId] === undefined) {
-                        state.data[action.payload.queryId] = [];
-                    }
-
-                    state.data[action.payload.queryId] = pipe(
-                        state.data[action.payload.queryId],
-                        List.concat(action.payload.data.length > 0 ?
-                            action.payload.data :
-                            [{
-                                sourceId: action.payload.sourceId,
-                                name: action.payload.valuePlaceholder,
-                                freq: 0,
-                                ipm: 0,
-                                norm: 0,
-                                backlink: null,
-                                uniqueColor: false
-                            }]
-                        ),
-                        List.filter(v => !!v.name),
-                        List.sortAlphaBy(v => {
-                            const idx = List.findIndex(s => s.uuid === v.sourceId, state.sources);
-                            return `${idx}${v.name}`;
-                        })
-                    );
+                state.backlinks[action.payload.queryId][action.payload.sourceIdx] = this.freqApi.getBacklink(action.payload.queryId, action.payload.sourceIdx);
+                if (state.data[action.payload.queryId] === undefined) {
+                    state.data[action.payload.queryId] = [];
                 }
+                state.data[action.payload.queryId] = state.data[action.payload.queryId].concat(action.payload.data)
             }
         );
 
@@ -225,10 +123,13 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.freqApi.getSourceDescription(this.tileId,
-                        false,
-                        this.appServices.getISO639UILang(), action.payload.corpusId)
-                    .subscribe({
+                    this.freqApi.getSourceDescription(
+                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        action.payload.corpusId
+
+                    ).subscribe({
                         next: data => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -261,14 +162,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     tooltipX: action.payload.tooltipX,
                     tooltipY: action.payload.tooltipY,
                     caption: state.data.length > 0 ? action.payload.dataName : '-',
+                    showClickTip: !!state.sources[action.payload.barIdx].viewInOtherWagUrl,
                     data: state.queryMatches.length > 1 ?
                         Dict.fromEntries(
                             List.map((v, i) => {
                                     const index = List.findIndex(v => v.name === action.payload.dataName, state.data[i]);
-                                    return ([v.word, [
-                                        {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
-                                        {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].freq : 0}
-                                    ]])
+                                    return [
+                                        v.word,
+                                        [
+                                            {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                            {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].freq : 0}
+                                        ]
+                                    ]
                                 },
                                 state.queryMatches
                             )
@@ -311,171 +216,189 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 });
             }
         );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const args = this.stateToArgs(
+                    state.sources[action.payload.backlink.subqueryId],
+                    state.queryMatches[action.payload.backlink.queryId],
+                );
+                this.freqApi.requestBacklink(args).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ViewInOtherWag,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const currMatch = state.queryMatches[action.payload.queryIdx];
+                const target = urlJoin(state.sources[action.payload.barIdx].viewInOtherWagUrl, 'search', currMatch.word) +
+                    `?pos=${List.map(v => v.value, currMatch.pos).join(' ')}&lemma=${currMatch.lemma}`;
+                window.location.href = target;
+            }
+        )
     }
 
-    private loadConcordances(state:MergeCorpFreqModelState, multicastRequest:boolean):Observable<[number, ModelSourceArgs, string]> {
-        return rxOf(...state.sources).pipe(
-            mergeMap(source => rxOf(...List.map(
-                (v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch],
-                state.queryMatches))),
-            concatMap(([queryId, args, lemma]) =>
-                callWithExtraVal(
-                    this.concApi,
-                    this.tileId,
-                    multicastRequest,
-                    this.concApi.stateToArgs(
-                        {
-                            corpname: args.corpname,
-                            otherCorpname: undefined,
-                            subcname: args.subcname,
-                            subcDesc: null,
-                            kwicLeftCtx: -1,
-                            kwicRightCtx: 1,
-                            pageSize: 10,
-                            shuffle: false,
-                            attr_vmode: 'mouseover',
-                            viewMode: ViewMode.KWIC,
-                            tileId: this.tileId,
-                            attrs: [],
-                            metadataAttrs: [],
-                            queries: [],
-                            concordances: createInitialLinesData(state.queryMatches.length),
-                            posQueryGenerator: ['tag', 'ppTagset'] // TODO configuration
-                        },
-                        lemma,
-                        queryId,
-                        null
-                    ),
-                    [args, queryId] as [ModelSourceArgs, number]
-                )
-            ),
-            map(
-                ([resp, [args, queryId]]) => [queryId, args, resp.concPersistenceID]
-            )
+    private allSourcesToArgs(state:MergeCorpFreqModelState, queryMatch:QueryMatch):Array<MQueryFreqArgs|null> {
+        return List.map(
+            src => testIsDictMatch(queryMatch) ? this.stateToArgs(src, queryMatch) : null,
+            state.sources
         );
     }
 
-    private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, multicastRequest:boolean, dispatch:SEDispatcher):void {
-        conc$.pipe(
-            mergeMap(([queryId, sourceArgs, concId]) => {
-                const auxArgs:SourceQueryProps = {
-                    sourceArgs: sourceArgs,
-                    queryId: queryId,
-                    concId: concId
-                };
-                return callWithExtraVal(
+    private stateToArgs(state:ModelSourceArgs, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
+        return {
+            corpname: state.corpname,
+            path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
+            queryArgs: {
+                subcorpus: subcname ? subcname : state.subcname,
+                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                flimit: state.flimit,
+                matchCase: '0',
+                attr: state.fcrit,
+            }
+        };
+    }
+
+    private loadFreqs(
+        state:MergeCorpFreqModelState,
+        dataStreaming:IDataStreaming,
+        seDispatch:SEDispatcher
+    ):void {
+        new Observable<[Array<MQueryFreqArgs>, {queryIdx:number}]>((observer) => {
+            try {
+                pipe(
+                    state.queryMatches,
+                    List.map(
+                        (currMatch, queryIdx) => tuple(
+                            this.allSourcesToArgs(state, currMatch),
+                            { queryIdx },
+                        )
+                    ),
+                    List.forEach(
+                        args => {
+                            observer.next(args);
+                        }
+                    ),
+                );
+                observer.complete();
+
+            } catch (e) {
+                observer.error(e);
+            }
+
+        }).pipe(
+            mergeMap(([args, {queryIdx}]) =>
+                callWithExtraVal(
+                    dataStreaming,
                     this.freqApi,
                     this.tileId,
-                    multicastRequest,
-                    this.freqApi.stateToArgs(sourceArgs, concId),
-                    auxArgs
-                );
-            }),
+                    queryIdx,
+                    args,
+                    {queryIdx},
+                )
+            ),
+            concatMap(
+                ([resp, pass]) => rxOf(...List.map((item, sourceIdx) => tuple(sourceIdx, item, pass), resp))
+            ),
             map(
-                ([resp, args]) => {
-                    const dataNorm:Array<DataRow> =
-                        args.sourceArgs.isSingleCategory ?
-                            [resp.data.reduce<DataRow>(
-                                (acc, curr) => ({
-                                    name: '',
-                                    freq: acc.freq + curr.freq,
-                                    ipm: undefined,
-                                    norm: undefined,
-                                    order: undefined,
-                                    backlink: undefined,
-                                    barColor: undefined
+                ([sourceIdx, resp, pass]) => tuple(
+                    sourceIdx,
+                    {
+                        ...resp,
+                        freqs: pipe(
+                            resp.freqs,
+                            state.sources[sourceIdx].isSingleCategory ?
+                                List.foldl<DataRow, Array<DataRow>>(
+                                    (acc, curr) => {
+                                        const freq =  acc[0].freq + curr.freq;
+                                        const base = acc[0].base + curr.base;
+                                        return [{
+                                            word: curr.word, // here we assume, it will be replaced by a placeholder
+                                            freq,
+                                            base,
+                                            ipm: freq / base * 1000000
+                                        }]
+                                    },
+                                    [{
+                                        word: '',
+                                        freq: 0,
+                                        base: 0,
+                                        ipm: 0
+                                    }]
+                                ) :
+                                x => x,
+                            List.map(
+                                (v, i) => ({
+                                    ...v,
+                                    sourceIdx,
+                                    name: state.sources[sourceIdx].valuePlaceholder ?
+                                        this.appServices.importExternalMessage(
+                                            state.sources[sourceIdx].valuePlaceholder
+                                        ) :
+                                        `${v.word}`, // here we assume, that `.word` is unique
+                                    backlink: null,
+                                    uniqueColor: true // TODO
+                                })
+                            ),
 
-                                }),
-                                {
-                                    name: '',
-                                    freq: 0,
-                                    ipm: undefined,
-                                    norm: undefined,
-                                    order: undefined
-                                }
-                            )] :
-                            resp.data;
-                    const ans:[Array<DataRow>, SourceQueryProps] = [dataNorm, args];
-                    return ans;
-                }
-            ),
-            map(
-                ([data, props]) => {
-                    const ans:[Array<SourceMappedDataRow>, SourceQueryProps] = [
-                        List.map(
-                            row => {
-                                const name = props.sourceArgs.valuePlaceholder ?
-                                    props.sourceArgs.valuePlaceholder :
-                                    this.appServices.translateResourceMetadata(props.sourceArgs.corpname, row.name);
-                                return row.ipm ?
-                                    {
-                                        sourceId: props.sourceArgs.uuid,
-                                        queryId: props.queryId,
-                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl ? props.sourceArgs.backlinkTpl : this.backlink, props.concId),
-                                        freq: row.freq,
-                                        ipm: row.ipm,
-                                        norm: row.norm,
-                                        name,
-                                        uniqueColor: props.sourceArgs.uniqueColor
-                                    } :
-                                    {
-                                        sourceId: props.sourceArgs.uuid,
-                                        queryId: props.queryId,
-                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl ? props.sourceArgs.backlinkTpl : this.backlink, props.concId),
-                                        freq: row.freq,
-                                        ipm: Math.round(row.freq / props.sourceArgs.corpusSize * 1e8) / 100,
-                                        norm: row.norm,
-                                        name,
-                                        uniqueColor: props.sourceArgs.uniqueColor
-                                    };
-                            },
-                            data
-                        ),
-                        props
-                    ];
-                    return ans;
-                }
-            ),
-            tap(
-                ([data, srcProps]) => {
-                    dispatch<typeof Actions.PartialTileDataLoaded>({
+                        )
+                    },
+                    pass,
+                )
+             ),
+             tap(
+                ([sourceIdx, resp, pass]) => {
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
                         name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
-                            queryId: srcProps.queryId,
-                            concId: srcProps.concId,
-                            sourceId: srcProps.sourceArgs.uuid,
-                            data: data,
-                            valuePlaceholder: srcProps.sourceArgs.valuePlaceholder
+                            data: List.map(
+                                v => ({
+                                    ...v,
+                                    viewInOtherWagUrl: state.sources[sourceIdx].viewInOtherWagUrl
+                                }),
+                                resp.freqs,
+                            ),
+                            queryId: pass.queryIdx,
+                            sourceIdx
                         }
                     });
                 }
             ),
-            reduce(
-                (acc, [data,]) => acc && pipe(
-                    data,
-                    List.every(v => v && v.freq === 0)
-                ),
-                true
-            )
+
         ).subscribe({
-            next: (isEmpty) => dispatch<typeof Actions.TileDataLoaded>({
-                name: Actions.TileDataLoaded.name,
-                payload: {
-                    tileId: this.tileId,
-                    isEmpty: isEmpty
-                }
-            }),
-            error: err => {
-                dispatch<typeof Actions.TileDataLoaded>({
-                    name: GlobalActions.TileDataLoaded.name,
-                    error: err,
+            next: ([, resp]) => {
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload:{
+                        tileId: this.tileId,
+                        isEmpty: List.empty(resp.freqs)
+                    }
+                });
+            },
+            error: error => {
+                console.error(error);
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true
-                    }
+                    },
+                    error
                 });
             }
-        });
+        })
     }
 }

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import * as tileConf from './create-tile-conf.js';
 import { fileURLToPath } from 'url';
+import readline from 'readline';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +34,7 @@ function createTile(tileArg:string) {
             data.replace(/__Template__/g, tileName),
             'utf8'
         );
-        
+
         if (index === templateFiles.length - 1) {
             console.log(`Tile "${tileName}" created!`);
             console.log('Empty JSON config: ');
@@ -47,7 +48,6 @@ if (process.argv.length === 3) {
     createTile(process.argv[2]);
 
 } else if (process.argv.length === 2) {
-    const readline = require('readline');
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout

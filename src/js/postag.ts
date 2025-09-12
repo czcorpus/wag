@@ -310,14 +310,14 @@ export function posQueryFactory(fnName:string):PosQueryExport {
  * values. In normal case the returned value is equal
  * to the entered one.
  */
-export function importQueryPos(s:string, posAttr:MainPosAttrValues):string {
+export function importQueryPos(s:string, posAttr:MainPosAttrValues):string|undefined {
     const usedValues = posAttr === 'pos' ? PoSValues : UPoSValues;
     return List.map(
         v => {
             if (Object.values<string>(usedValues).indexOf(v.toUpperCase()) > -1) {
                 return v.toUpperCase();
             }
-            throw new Error(`Invalid PoS value [${v}]`);
+            return undefined;
         },
         s.split(' ')
     ).join(' ');
@@ -346,7 +346,10 @@ export function importQueryPosWithLabel(s:string, posAttr:MainPosAttrValues, app
                             label: appServices.importExternalMessage(labels[ident])
                         };
                     }
-                    throw new Error(`Invalid PoS value [${v}]`);
+                    return {
+                        value: null,
+                        label: ''
+                    };
                 }
             ),
             List.foldl(

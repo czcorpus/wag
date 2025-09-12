@@ -35,9 +35,9 @@ export default (env) => ({
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
         fallback: {
-            'buffer': import.meta.resolve('buffer/'),
-            'path': import.meta.resolve('path-browserify/'),
-            'stream': import.meta.resolve('stream-browserify/')
+            'buffer': false,
+            'path': false,
+            'stream': false
         },
         symlinks: false,
         extensionAlias: {
@@ -48,7 +48,13 @@ export default (env) => ({
         rules: [
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                type: 'asset/resource'
+                type: 'asset/resource',
+                resourceQuery: /^(?!.*inline).*$/
+            },
+            {
+                test: /\.svg$/,
+                resourceQuery: /inline/,
+                use: ['@svgr/webpack'],
             },
             {
                 test: /\.tsx?$/,
@@ -90,7 +96,7 @@ export default (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: (chunk) => chunk.name !== 'sanitize-html',
+            chunks: (chunk) => chunk.name !== 'sanitize-html' && chunk.name !== 'previewData',
             name: 'common'
         },
         minimizer: [

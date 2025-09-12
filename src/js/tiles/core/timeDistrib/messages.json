@@ -1,5 +1,10 @@
 {
     "en-US": {
+        "multiWordTimeDistrib__main_label": "Compared frequencies of the words over time",
+        "multiWordTimeDistrib__occurence_human": "normalized relative occurrences",
+        "multiWordTimeDistrib__estimated_trend_for": "estimated trend for",
+        "multiWordTimeDistrib__sliding_window_average": "Sliding average",
+        "multiWordTimeDistrib__units": "Units",
         "timeDistrib__main_label": "Frequency of the word over time",
         "timeDistrib__ipm_human": "occurrences per million words, ipm",
         "timeDistrib__abs_human": "absolute frequency",
@@ -16,6 +21,11 @@
         "timeDistrib__no_data_found_for_{word}": "No data found"
     },
     "cs-CZ": {
+        "multiWordTimeDistrib__main_label": "Porovnání frekvencí výskytu slov v čase",
+        "multiWordTimeDistrib__occurence_human": "normalizovaný relativní výskyt",
+        "multiWordTimeDistrib__estimated_trend_for": "odhadnutý trend pro",
+        "multiWordTimeDistrib__sliding_window_average": "Klouzavý průměr",
+        "multiWordTimeDistrib__units": "Jednotky",
         "timeDistrib__main_label": "Frekvence výskytu slova v čase",
         "timeDistrib__ipm_human": "výskyty na milion slov, ipm",
         "timeDistrib__abs_human": "absolutní frekvence",

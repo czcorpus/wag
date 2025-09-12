@@ -19,10 +19,12 @@
  */
 
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
+import { Theme } from '../../../page/theme.js';
 
 
-export const WordFreqTileView = styled.div`
+// ------------- <WordFreqTileView /> -----------------------------
+
+export const WordFreqTileView = styled.div<{theme:Theme}>`
     display: flex;
     align-items: stretch;
     justify-content: space-between;
@@ -47,8 +49,8 @@ export const WordFreqTileView = styled.div`
 
         dt {
             margin-bottom: 0.4em;
-            color: ${theme.colorLightText};
-            font-family: ${theme.condensedFontFamily};
+            color: ${props => props.theme.colorLightText};
+            font-family: ${props => props.theme.condensedFontFamily};
         }
 
         dd {
@@ -56,7 +58,7 @@ export const WordFreqTileView = styled.div`
             margin-left: 1em;
 
             span.squareb {
-                color: ${theme.colorLightText};
+                color: ${props => props.theme.colorLightText};
             }
         }
 
@@ -65,21 +67,22 @@ export const WordFreqTileView = styled.div`
         }
 
         dd.word-list {
+            line-height: 1.5em;
             font-size: 1.3em;
             a {
-                color: ${theme.colorDefaultText};
+                color: ${props => props.theme.colorDefaultText};
                 cursor: pointer;
                 text-decoration: none;
             }
 
             a:hover {
-                color: ${theme.colorLogoBlue};
+                color: ${props => props.theme.colorLogoBlue};
                 text-decoration: underline;
             }
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         flex-direction: column;
 
         & > div.cell h3 {
@@ -88,7 +91,10 @@ export const WordFreqTileView = styled.div`
     }
 `;
 
-export const Stars = styled.span`
+
+// ------------- <Stars /> -----------------------------
+
+export const Stars = styled.span<{theme:Theme}>`
     display: block;
     white-space: nowrap;
 
@@ -97,13 +103,15 @@ export const Stars = styled.span`
     }
 `;
 
-export const MultiWordProfile = styled.div`
+// ------------- <MultiWordProfile /> -----------------------------
+
+export const MultiWordProfile = styled.div<{theme:Theme}>`
     & > table {
 
         border-spacing: 2px 4px;
 
         thead th {
-            color: ${theme.colorLightText};
+            color: ${props => props.theme.colorLightText};
             text-align: right;
         }
 
@@ -113,8 +121,8 @@ export const MultiWordProfile = styled.div`
         }
 
         th.query-num {
-            background-color: ${theme.colorLightGrey};
-            color: ${theme.colorDefaultText};
+            background-color: ${props => props.theme.colorInvertedSecondaryText};
+            color: ${props => props.theme.colorDefaultText};
             border-radius: 0.3em;
         }
 

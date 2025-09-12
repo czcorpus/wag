@@ -17,9 +17,9 @@
  */
 
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
+import { Theme } from '../../../page/theme.js';
 
-export const SyntacticColls = styled.div`
+export const SyntacticColls = styled.div<{theme:Theme}>`
 
     position:relative;
 
@@ -33,89 +33,126 @@ export const SyntacticColls = styled.div`
         cursor: pointer;
     }
 
+    .hint {
+        color: ${props => props.theme.colorLightText};
+    }
+
 `;
+
+// -------------------- <SCollsWordCloud /> ----------------------
 
 export const SCollsWordCloud = styled.div`
     flex-grow: 1;
 `;
 
-export const SCollsTable = styled.div`
+// ------------------- <SCollsTable /> ------------------------
+
+export const SCollsTable = styled.div<{theme:Theme}>`
     flex-grow: 1;
 
     h2 {
         text-align: center;
         font-size: 1.3em;
     }
+
+
+    table.data td {
+
+        span {
+            padding-left: 0.4em;
+            padding-right: 0.4em;
+        }
+
+        .arrows {
+            color: ${props => props.theme.colorLogoPink};
+        }
+
+        .syntax-node {
+            color: ${props => props.theme.colorLogoBlue};
+        }
+
+        .fn {
+            color: ${props => props.theme.colorLightText};
+        }
+    }
+
+    .no-analysis-avail {
+        border-radius: ${props => props.theme.tileBorderRadius};
+        background-color: ${props => props.theme.colorLightText};
+        color: ${props => props.theme.colorInvertText};
+        font-size: 1.5em;
+        padding: 1em;
+        text-align: center;
+    }
 `;
 
+// ------------------------ <Examples /> --------------------------
 
-export const Examples = styled.div`
+export const Examples = styled.div<{theme:Theme}>`
 
-    position: absolute;
-    top: 4em;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #fefefe;
-    border: ${theme.defaultBorderStyle};
-    border-radius: ${theme.defaultBorderRadius};
+    background-color: ${props => props.theme.tileBackgroundColor};
+    border: ${props => props.theme.defaultBorderStyle};
+    border-radius: ${props => props.theme.defaultBorderRadius};
     box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
-    padding: 0.7em;
-    width: 90%;
+    padding: 0.5em;
 
     > div.texts {
         display: flex;
         flex-direction: column;
+        max-height: 30em;
+        overflow-y: scroll;
 
         > p {
             margin: 0;
             padding: 0.5em 1em 0.5em 1em;
 
             strong {
-                color: ${theme.colorLogoPink};
+                color: ${props => props.theme.colorLogoPink};
             }
         }
 
         > p:not(:first-child) {
             border-top: 1px solid #cfcfcf;
+            border-top: 1px solid ${props => props.theme.colorWhitelikeBlue};
         }
     }
 
-    .toolbar {
+    h3 {
+        text-align: center;
+        margin: 0 0 1em 0;
+        font-size: 1.6em;
 
-        display: flex;
-        align-items: center;
-        margin-bottom: 1em;
+        span.words {
+            color: ${props => props.theme.colorLogoPink};
+            font-weight: normal;
 
-        h3 {
-            display: flex;
-            align-items: center;
-            margin: 0;
-            padding-left: 1em;
-
-            span.words {
-                color: ${theme.colorLogoPink};
-                font-weight: normal;
-
-                span.plus {
-                    color: ${theme.colorDefaultText};
-                }
-            }
-        }
-
-        .controls {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-grow: 1;
-
-            a.close {
-
-                cursor: pointer;
-
-                img {
-                    width: 1.5em;
-                }
+            span.plus {
+                color: ${props => props.theme.colorDefaultText};
             }
         }
     }
+`;
+
+
+export const Controls = styled.div`
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+    h2 {
+        font-size: 1.3em;
+    }
+
+    table {
+
+        border-collapse: collapse;
+
+        td {
+            padding: 0.3em 0.6em;
+            border-width: 1px;
+            border-style: solid;
+            border-color: ${props => props.theme.colorLightText};
+        }
 `;

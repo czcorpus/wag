@@ -17,12 +17,15 @@
  */
 
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileConf, TileFactory, TileFactoryArgs
+} from '../../../page/tile.js';
 import { TreqSubsetModel } from './model.js';
-import { TreqSubsetsAPI } from '../../../api/vendor/treq/index.js';
 import {init as viewInit} from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
+import { TreqSubsetsAPI } from './api.js';
 
 
 export interface PackageGroup {
@@ -33,6 +36,7 @@ export interface PackageGroup {
 
 export interface TreqSubsetsTileConf extends TileConf {
     srchPackages:{[lang:string]:Array<PackageGroup>};
+    primaryPackage:string;
     apiURL:string;
     minItemFreq?:number;
 }
@@ -50,25 +54,23 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
+    private readonly readDataFromTile:number;
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
-        tileId, dispatcher, appServices, theme, ut, domain1, domain2, widthFract, waitForTiles,
-        queryMatches, conf, isBusy
+        tileId, dispatcher, appServices, theme, ut, widthFract, readDataFromTile,
+        queryMatches, conf, isBusy, translatLanguage
     }:TileFactoryArgs<TreqSubsetsTileConf>) {
-
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
-        const apiOptions = {authenticateURL: appServices.createActionUrl("/TreqSubsetsTile/authenticate")};
+        this.readDataFromTile = readDataFromTile;
         this.model = new TreqSubsetModel({
             dispatcher,
             appServices,
             initialState: {
-                domain1: domain1,
-                domain2: domain2,
+                lang1: conf.primaryPackage,
+                lang2: translatLanguage,
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -80,17 +82,19 @@ export class TreqSubsetsTile implements ITileProvider {
                         packages: [...v.packages],
                         isPending: false
                     }),
-                    conf.srchPackages[domain2] || []
+                    conf.srchPackages[translatLanguage] || []
                 ),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
                 colorMap: {},
-                minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
+                minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ,
+                backlinkConf: conf.backlink,
+                backlinks: List.map(_ => null, conf.srchPackages[translatLanguage] || []),
             },
             tileId,
-            api: new TreqSubsetsAPI(conf.apiURL, appServices),
+            api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
-            waitForColorsTile: waitForTiles[0]
+            getColorsFromTile: readDataFromTile
         });
         this.label = appServices.importExternalMessage(conf.label || 'treqsubsets__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);
@@ -114,7 +118,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLanguage?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 
@@ -147,16 +151,20 @@ export class TreqSubsetsTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return this.readDataFromTile;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

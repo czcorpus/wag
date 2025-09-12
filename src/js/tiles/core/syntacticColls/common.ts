@@ -17,14 +17,14 @@
  */
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SCollsQueryType, SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
-import { SCollsData, SCollsExamples } from '../../../models/tiles/syntacticColls.js';
+import { SCollsData } from './api/common.js';
+import { SCollsExamples } from './eApi/mquery.js';
+import { CollMeasure } from './model.js';
 
 
 export class Actions {
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {
-        qType:SCollsQueryType;
         data:SCollsData;
     }> = {
         name: GlobalActions.TileDataLoaded.name
@@ -46,10 +46,17 @@ export class Actions {
 
     static ClickForExample:Action<{
         tileId:number;
-        qType:SCollsQueryTypeValue;
-        word:string;
+        rowId:number;
     }> = {
         name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'
+    }
+
+    static SetDisplayScore:Action<{
+        tileId:number;
+        value:CollMeasure;
+        position:number;
+    }> = {
+        name: 'SYNTACTIC_COLLS_SET_DISPLAY_SCORE'
     }
 
 }

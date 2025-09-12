@@ -95,7 +95,7 @@ export class __Template__Tile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
@@ -128,16 +128,20 @@ export class __Template__Tile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData(): boolean {
+        return false;
     }
 }
 

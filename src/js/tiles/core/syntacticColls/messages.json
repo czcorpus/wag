@@ -6,13 +6,16 @@
         "syntactic_colls__heading_verbs-subject": "Verbs subject",
         "syntactic_colls__heading_verbs-object": "Verbs object",
         "syntactic_colls__tooltip_score": "score",
-        "syntactic_colls__conc_examples": "Examples",
+        "syntactic_colls__conc_examples": "Concordance examples",
         "syntactic_colls__tab_hd_word": "Word",
         "syntactic_colls__tab_hd_freq": "Abs. frequency",
         "syntactic_colls__tab_hd_ipm": "Instances per mil.",
         "syntactic_colls__tab_hd_score": "Collocation score",
         "syntactic_colls__tab_hd_cooc_score": "Cooccurrence score",
-        "syntactic_colls__no_data": "No data"
+        "syntactic_colls__no_data": "No data",
+        "syntactic_colls__not_applicable_for_pos": "No collocation analysis available for the current Part of Speech",
+        "syntactic_colls__items_sorted_by_rrf": "Items are sorted by combining their rankings from multiple collocation measures (Reciprocal Rank Fusion score)",
+        "syntactic_colls__collocation_score_select": "showed collocation scores"
     },
     "cs-CZ": {
         "syntactic_colls__main_label": "Syntaktické kolokace",
@@ -21,12 +24,15 @@
         "syntactic_colls__heading_verbs-subject": "Verbs subject",
         "syntactic_colls__heading_verbs-object": "Verbs object",
         "syntactic_colls__tooltip_score": "hodnota",
-        "syntactic_colls__conc_examples": "Příklady",
+        "syntactic_colls__conc_examples": "Příklady konkordancí",
         "syntactic_colls__tab_hd_word": "Slovo",
         "syntactic_colls__tab_hd_freq": "Abs. frekvence",
         "syntactic_colls__tab_hd_ipm": "Výskytů na milion",
         "syntactic_colls__tab_hd_score": "Kolokační skóre",
         "syntactic_colls__tab_hd_cooc_score": "Skóre souvýskytu",
-        "syntactic_colls__no_data": "Žádná data"
+        "syntactic_colls__no_data": "Žádná data",
+        "syntactic_colls__not_applicable_for_pos": "Pro daný slovní druh není k dispozici žádná další kolokační analýza",
+        "syntactic_colls__items_sorted_by_rrf": "Položky jsou setříděny na základě jejich pořadí podle několika kolokačních měr (Reciprocal Rank Fusion skóre)",
+        "syntactic_colls__collocation_score_select": "zobrazené kolokační míry"
     }
 }

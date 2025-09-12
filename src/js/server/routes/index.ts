@@ -17,23 +17,22 @@
  */
 import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, reduce, tap } from 'rxjs/operators';
-import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
+import { Observable } from 'rxjs';
+import { concatMap, tap } from 'rxjs/operators';
+import { HTTP, List, Dict } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices.js';
 import { encodeArgs } from '../../page/ajax.js';
-import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index.js';
+import { QueryType } from '../../query/index.js';
 import { GlobalComponents } from '../../views/common/index.js';
 import { IFreqDB } from '../freqdb/freqdb.js';
 
-import { getLangFromCookie, fetchReqArgArray, createHelperServices,
+import { getLangFromCookie, createHelperServices,
     mkPageReturnUrl, renderResult, getQueryValue, clientIsLikelyMobile } from './common.js';
 import { queryAction, importQueryRequest } from './main.js';
 import { Services } from '../actionServices.js';
-import { HTTPAction } from './actions.js';
-import { TelemetryAction } from '../../types.js';
-import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues } from '../../conf/index.js';
+import { HTTPAction } from '../../page/actions.js';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, MainPosAttrValues, LAST_USED_TRANSLAT_LANG_COOKIE_NAME } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
 import { emptyValue } from '../toolbar/empty.js';
@@ -41,6 +40,10 @@ import { importQueryPos } from '../../postag.js';
 import { ServerHTTPRequestError } from '../request.js';
 import { logAction } from '../actionLog/common.js';
 import { DataStreaming } from '../../page/streaming.js';
+import { createInstance, FreqDBType } from '../freqdb/factory.js';
+import urlJoin from 'url-join';
+import { ServerNotifications } from '../../page/notifications.js';
+import { Theme } from '../../page/theme.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -54,10 +57,15 @@ interface ErrorPageArgs {
 }
 
 export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPageArgs):void {
-    const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
+    const userConf = errorUserConf(
+        services.clientConf.applicationId,
+        services.serverConf.languages,
+        error,
+        uiLang
+    );
     const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
     clientConfig.colorThemes = [];
-    const {HtmlBody, HtmlHead} = viewInit(viewUtils);
+    const {HtmlBody, HtmlHead} = viewInit(viewUtils, new Theme());
     const errView = errPageInit(viewUtils);
     res
         .status(HTTP.Status.NotFound)
@@ -126,86 +134,9 @@ function langSwitchError({req, res, services, messageKey, messageArgs}:LangSwitc
 
 export const wdgRouter = (services:Services) => (app:Express) => {
 
-    // endpoint to receive client telemetry
-    app.post(HTTPAction.TELEMETRY, (req, res, next) => {
-        const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
-        const t1 = new Date().getTime();
-
-        if (!services.telemetryDB) {
-            res.send({saved: false, procTimePerItem: 0});
-            return;
-        }
-
-        const statement = services.telemetryDB.prepare(
-            'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery, is_mobile) values (?, ?, ?, ?, ?, ?)'
-        );
-        services.telemetryDB.run('BEGIN TRANSACTION');
-        logAction({
-            actionWriter: services.actionWriter,
-            req,
-            httpAction: HTTPAction.TELEMETRY,
-            datetime: appServices.getISODatetime(),
-            userConf: null,
-            isMobileClient: clientIsLikelyMobile(req),
-            userId: null,
-            hasMatch: null
-        }).subscribe();
-        rxOf(
-            ...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])
-        ).pipe(
-            concatMap(
-                action => new Observable(observer => {
-                    const data = [
-                        req['session'].id,
-                        action.timestamp,
-                        action.actionName,
-                        action.tileName,
-                        action.isSubquery ? 1 : 0,
-                        action.isMobile ? 1 : 0
-                    ];
-                    statement.run(data, (err:Error, res) => {
-                        if (err) {
-                            observer.error(err);
-
-                        } else {
-                            observer.next(res);
-                            observer.complete();
-                        }
-                    });
-                })
-            ),
-            reduce(
-                (acc, curr) => acc + 1,
-                0
-            ),
-            tap(
-                () => services.telemetryDB.run('COMMIT')
-            )
-        ).subscribe({
-            next: total => {
-                const t2 = new Date().getTime() - t1;
-                res.send({saved: true, procTimePerItem: t2 / total});
-            },
-            error: (err:Error) => {
-                services.errorLog.error(err.message, {trace: err.stack});
-                res.status(500).send({saved: false, message: err});
-            }
-        });
-    });
-
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services);
-        queryAction({
-            services,
-            answerMode: false,
-            httpAction: HTTPAction.MAIN,
-            queryType: QueryType.SINGLE_QUERY,
-            uiLang,
-            req,
-            res,
-            next
-        });
+        res.redirect(301, urlJoin(services.clientConf.rootUrl, HTTPAction.SEARCH));
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -220,17 +151,17 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             isMobileClient: clientIsLikelyMobile(req),
             hasMatch: null
         }).subscribe();
-        const queryDomain = getQueryValue(req, 'domain')[0];
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain);
-            if (db === undefined) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
+            const db = createInstance(
+                services.serverConf.freqDB.database.dbType as FreqDBType,
+                services.serverConf.freqDB.database.path,
+                services.serverConf.freqDB.database.corpusSize,
+                appServices,
+                services.serverConf.freqDB.database.options || {}
+            );
+            observer.next(db);
+            observer.complete();
 
-            } else {
-                observer.next(db);
-                observer.complete();
-            }
         }).pipe(
             concatMap(
                 (db) => {
@@ -240,7 +171,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                         getQueryValue(
                             req,
                             'mainPosAttr',
-                            services.clientConf.layouts[queryDomain][QueryType.SINGLE_QUERY].mainPosAttr,
+                            services.clientConf.layouts[QueryType.SINGLE_QUERY].mainPosAttr,
                         )[0] as MainPosAttrValues, // TODO validate
                         1
                     );
@@ -306,7 +237,22 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }
     });
 
-    app.get(`${HTTPAction.SEARCH}:domain/:query`, (req, res, next) => {
+    app.get(HTTPAction.SEARCH, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.SEARCH,
+            queryType: QueryType.SINGLE_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+
+    });
+
+    app.get(`${HTTPAction.SEARCH}:query`, (req, res, next) => {
         let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
 
@@ -360,7 +306,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`${HTTPAction.EMBEDDED_SEARCH}:domain/:query`, (req, res, next) => {
+    //TODO !!! keep legacy links operational
+    app.get(`/cs${HTTPAction.EMBEDDED_SEARCH}:query`, (req, res, next) => {
+
+    });
+
+    app.get(`/${HTTPAction.EMBEDDED_SEARCH}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
@@ -383,7 +334,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             next: (conf) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({
-                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.query1Domain}/${conf.queries[0].word}`),
+                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.queries[0].word}`),
                     error: null
                 }));
             },
@@ -397,7 +348,23 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         })
     });
 
-    app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
+    // -------------------- CMP mode ----------------------------------------
+
+    app.get(HTTPAction.COMPARE, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.COMPARE,
+            queryType: QueryType.CMP_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(`${HTTPAction.COMPARE}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({
             services,
@@ -411,8 +378,29 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    app.get(`${HTTPAction.TRANSLATE}:domain/:query`, (req, res, next) => {
+    // -------------------- TRANSLAT mode ----------------------------------------
+
+    app.get(HTTPAction.TRANSLATE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: false,
+            httpAction: HTTPAction.TRANSLATE,
+            queryType: QueryType.TRANSLAT_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        res.cookie(
+            LAST_USED_TRANSLAT_LANG_COOKIE_NAME,
+            req.params.lang,
+            {expires: new Date(Date.now() + 3600 * 24 * 365)}
+        );
         queryAction({
             services,
             answerMode: true,
@@ -425,111 +413,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
     });
 
-    // Find words with similar frequency
-    app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
-        const posRaw = fetchReqArgArray(req, 'pos', 0)[0];
-        const pos:Array<string> = posRaw !== '' ? posRaw.split(',') :  [];
-        const uiLang = getLangFromCookie(req, services);
-
-        const viewUtils = new ViewUtils<GlobalComponents>({
-            uiLang: uiLang,
-            translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
-            actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
-        });
-        const appServices = new AppServices({
-            notifications: null, // TODO
-            uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
-            ),
-            translator: viewUtils,
-            staticUrlCreator: viewUtils.createStaticUrl,
-            actionUrlCreator: viewUtils.createActionUrl,
-            dataReadability: {metadataMapping: {}, commonStructures: {}},
-            apiHeadersMapping: services.clientConf.apiHeaders || {},
-            dataStreaming: new DataStreaming([], undefined),
-            mobileModeTest: ()=>false
-        });
-        const queryDomain = getQueryValue(req, 'domain')[0];
-
-        logAction({
-            actionWriter: services.actionWriter,
-            req,
-            httpAction: HTTPAction.SIMILAR_FREQ_WORDS,
-            datetime: appServices.getISODatetime(),
-            userId: null,
-            userConf: null,
-            isMobileClient: clientIsLikelyMobile(req),
-            hasMatch: null
-        }).subscribe();
-
-        new Observable<{
-            domain:string;
-            word:string;
-            lemma:string;
-            pos:Array<string>;
-            posAttr:MainPosAttrValues,
-            rng:number;
-        }>((observer) => {
-            if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Invalid range provided, srchRange = ${req.query.srchRange}`));
-
-            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain) === undefined) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
-
-            } else {
-                const posAttr = getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues;
-                observer.next({
-                    domain: getQueryValue(req, 'domain')[0],
-                    word: getQueryValue(req, 'word')[0],
-                    lemma: getQueryValue(req, 'lemma')[0],
-                    pos: List.map(v => importQueryPos(v, posAttr), pos),
-                    posAttr: getQueryValue(req, 'mainPosAttr')[0] as MainPosAttrValues, // TODO validate
-                    rng: Math.min(
-                        parseInt(getQueryValue(req, 'srchRange')[0]),
-                        services.serverConf.freqDB.single ?
-                            services.serverConf.freqDB.single.similarFreqWordsMaxCtx :
-                            0
-                    )
-                });
-                observer.complete();
-            }
-        }).pipe(
-            concatMap(
-                (data) => services.db
-                    .getDatabase(QueryType.SINGLE_QUERY, data.domain)
-                    .getSimilarFreqWords(
-                        appServices,
-                        data.lemma,
-                        data.pos,
-                        data.posAttr,
-                        data.rng
-                    )
-            ),
-            map(
-                (data) => data.sort((v1:QueryMatch, v2:QueryMatch) => {
-                    if (v1.arf !== v2.arf) {
-                        return v1.arf - v2.arf;
-                    }
-                    return v1.lemma.localeCompare(v2.lemma);
-                })
-            )
-        )
-        .subscribe({
-            next: (data) => {
-                res.setHeader('Content-Type', 'application/json');
-                res.send(JSON.stringify({result: data}));
-            },
-            error: (err:Error) => {
-                jsonOutputError(res, err);
-            }
-        });
-    });
+    // ------------------------------------------------------------
 
     app.get(HTTPAction.WORD_FORMS, (req, res) => {
         const uiLang = getLangFromCookie(req, services);
@@ -540,23 +424,36 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({
-            notifications: null, // TODO
+            notifications: new ServerNotifications(),
             uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => [k, services.clientConf.searchDomains[k]])
-            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
-            dataStreaming: new DataStreaming([], undefined),
+            apiCaller: {
+                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                ),
+                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                )
+            },
+            dataStreaming: new DataStreaming(null, [], null, 1000, null),
             mobileModeTest: ()=>false
         });
 
-        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'domain')[0]);
+        const freqDb = createInstance(
+            services.serverConf.freqDB.database.dbType as FreqDBType,
+            services.serverConf.freqDB.database.path,
+            services.serverConf.freqDB.database.corpusSize,
+            appServices,
+            services.serverConf.freqDB.database.options || {}
+        );
 
         logAction({
             actionWriter: services.actionWriter,
@@ -625,7 +522,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             hasMatch: null
         }).subscribe();
 
-        res.cookie(THEME_COOKIE_NAME, req.body.themeId, {expires: new Date(Date.now() + 3600 * 24 * 365)});
+        res.cookie(THEME_COOKIE_NAME, req.body.themeId, {expires: new Date(Date.now() + 5 * 365 * 24 * 3600 * 1000)});
         res.redirect(req.body.returnUrl);
     });
 
@@ -643,19 +540,23 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).subscribe();
 
         const uiLang = getLangFromCookie(req, services).split('-')[0];
-        const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
-        const queryDomain = getQueryValue(req, 'domain')[0];
 
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(queryType, queryDomain);
-            if (db === undefined) {
-                observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
-
-            } else {
+            try {
+                const db = createInstance(
+                    services.serverConf.freqDB.database.dbType as FreqDBType,
+                    services.serverConf.freqDB.database.path,
+                    services.serverConf.freqDB.database.corpusSize,
+                    appServices,
+                    services.serverConf.freqDB.database.options || {}
+                );
                 observer.next(db);
                 observer.complete();
+
+            } catch (err) {
+                observer.error(err);
             }
+
         }).pipe(
             concatMap(
                 (db) => {
@@ -672,6 +573,24 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             }
         });
     })
+
+    // -------------------- preview page ----------------------------------------
+
+    app.get(HTTPAction.PREVIEW, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services);
+        queryAction({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.PREVIEW,
+            queryType: QueryType.PREVIEW,
+            uiLang,
+            req,
+            res,
+            next
+        });
+    });
+
+    // ----------------------------------------------------------------------
 
     app.use(function (req, res, next) {
         const uiLang = getLangFromCookie(req, services);

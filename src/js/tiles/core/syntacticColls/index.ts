@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2025 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2023 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -17,21 +18,80 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryMatch, QueryType } from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
-import { init as viewInit } from './views.js';
+import { init as viewInit } from './views/index.js';
 import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
-import { createInstance } from '../../../api/factory/syntacticColls.js';
-import { SCollsQueryTypeValue } from '../../../api/vendor/mquery/syntacticColls.js';
+import { ScollexSyntacticCollsAPI } from './api/scollex.js';
+import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { List, pipe } from 'cnc-tskit';
+import { SCollsQueryType } from './api/common.js';
+import { AttrNamesConf, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
+
+
+export interface DisplayTypeConf {
+    displayType:SCollsQueryType;
+    supportedPos:'any'|Array<string>;
+    label:LocalizedConfMsg;
+}
 
 
 export interface SyntacticCollsTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
+    apiType?:'default'|'wss';
+    eApiURL:string;
+    datasetName?:string;
     corpname:string;
     maxItems:number;
-    displayTypes:Array<SCollsQueryTypeValue>;
+    hideOnNoData?:boolean;
+    displayTypes:Array<DisplayTypeConf>;
+    attrNames:AttrNamesConf;
+}
+
+
+function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):DisplayTypeConf|null {
+
+    const posMatches = (v:string, queryMatch:QueryMatch) => {
+        const pos = pipe(
+            queryMatch.pos || [],
+            List.concat(queryMatch.upos || []),
+            List.filter(v => !!v.value),
+            List.map(x => x.value),
+            x => x.join(' ')
+        ).toLowerCase();
+        return pos === v.toLowerCase();
+    };
+
+    const matchingHandlers = pipe(
+        configs,
+        List.sorted(
+            (v1, v2) => {
+                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos)) {
+                    return -1;
+                }
+                if (!Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
+                    return 1;
+                }
+                return 0;
+            }
+        ),
+        List.filter(
+            v => {
+                if (Array.isArray(v.supportedPos)) {
+                    return !!List.find(item => posMatches(item, qm), v.supportedPos);
+
+                } else if (v.supportedPos === 'any') {
+                    return true;
+                }
+                return false;
+            }
+        ),
+    );
+    if (!List.empty(matchingHandlers)) {
+        return List.head(matchingHandlers);
+    }
+    return null;
 }
 
 /**
@@ -51,43 +111,55 @@ export class SyntacticCollsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
+    private readonly apiType:'default'|'wss';
+
+    private readonly displayType:DisplayTypeConf;
+
+    private readonly _hideOnNoData:boolean;
 
     private view:TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, waitForTiles,
-        waitForTilesTimeoutSecs, widthFract, conf, isBusy,
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
         queryMatches, queryType
     }:TileFactoryArgs<SyntacticCollsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
-        const [api, eApi] = createInstance(conf.apiType, conf.apiURL, appServices, {});
+        this.apiType = conf.apiType;
+        this._hideOnNoData = conf.hideOnNoData !== undefined ? !!conf.hideOnNoData : true;
+
+        const currQueryMatch = findCurrQueryMatch(queryMatches[0]);
+        this.displayType = findQueryHandler(conf.displayTypes, currQueryMatch);
+
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
             tileId: tileId,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
-            backlink: conf.backlink || null,
             queryType: queryType,
             maxItems: conf.maxItems,
-            api,
-            eApi,
+            api: conf.apiType === 'wss' ?
+                new WSServerSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices) :
+                new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
                 isAltViewMode: false,
+                isTweakMode: false,
                 tileId: tileId,
+                apiType: conf.apiType || 'default',
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
+                datasetName: conf.datasetName ? conf.datasetName : conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
-                data: {},
-                displayTypes: conf.displayTypes,
+                data: null,
+                availableMeasures: ['LL', 'LMI', 'LogDice', 'T-Score'],
+                visibleMeasures: widthFract === 1 ? ['LL', 'T-Score'] : ['LL', 'LMI', 'LogDice', 'T-Score'],
+                displayType: this.displayType ? this.displayType.displayType : 'none',
+                label: this.displayType ? appServices.importExternalMessage(this.displayType.label) : null,
                 examplesCache: {},
                 exampleWindowData: undefined
             }
@@ -117,7 +189,7 @@ export class SyntacticCollsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
@@ -130,7 +202,7 @@ export class SyntacticCollsTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return this.widthFract === 1;
     }
 
     supportsAltView():boolean {
@@ -154,16 +226,20 @@ export class SyntacticCollsTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return false;
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return this._hideOnNoData;
     }
 }
 

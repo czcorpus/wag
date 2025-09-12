@@ -17,48 +17,41 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
-import { HTTP, List, pipe } from 'cnc-tskit'
+import { List, pipe } from 'cnc-tskit'
 
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
 import { Actions } from './actions.js';
 import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
-import { TranslationAPI } from '../../../api/abstract/translations.js';
-import { TranslationsModelState } from '../../../models/tiles/translations.js';
 import { IAppServices } from '../../../appServices.js';
-import { RecognizedQueries } from '../../../query/index.js';
-import { isWebDelegateApi } from '../../../types.js';
-
-
-export type GeneralTranslationsModelState = TranslationsModelState<{}>;
+import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
 
 
 export interface TranslationModelArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
-    initialState:GeneralTranslationsModelState;
+    initialState:TranslationsModelState;
     tileId:number;
-    api:TranslationAPI<{}, {}>;
-    backlink:Backlink;
+    api:TreqAPI;
     queryMatches:RecognizedQueries;
+    useDataStreaming:boolean;
     scaleColorGen:ColorScaleFunctionGenerator;
 }
 
 
-export class TranslationsModel extends StatelessModel<GeneralTranslationsModelState> {
+export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:TranslationAPI<{}, {}>;
+    private readonly api:TreqAPI;
 
     private readonly queryMatches:RecognizedQueries;
-
-    private readonly backlink:Backlink;
 
     private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
     private readonly appServices:IAppServices;
+
+    private readonly useDataStreaming:boolean;
 
     constructor({
         dispatcher,
@@ -66,15 +59,15 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
         initialState,
         tileId,
         api,
-        backlink,
         queryMatches,
+        useDataStreaming,
         scaleColorGen}:TranslationModelArgs) {
 
         super(dispatcher, initialState);
         this.api = api;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
         this.queryMatches = queryMatches;
         this.tileId = tileId;
+        this.useDataStreaming = useDataStreaming;
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
 
@@ -89,89 +82,104 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
+            action => this.tileId === action.payload.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        state.translations = [];
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
+                state.isBusy = false;
+                if (action.error) {
+                    state.translations = [];
+                    state.error = this.appServices.normalizeHttpApiError(action.error);
 
-                    } else {
-                        state.translations = action.payload.data.translations;
-                        state.backLink = this.backlink?.isAppUrl ? createAppBacklink(backlink) : this.makeBacklink(state, action.payload.query);
-                    }
+                } else {
+                    state.translations = action.payload.data.translations;
+                    state.backlink = this.api.getBacklink(0);
                 }
             }
         );
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
+            action => this.tileId === action.payload.ident,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = true;
-                }
+                state.isAltViewMode = true;
             }
         );
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.DisableAltViewMode,
+            action => this.tileId === action.payload.ident,
             (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = false;
-                }
+                state.isAltViewMode = false;
             }
         );
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.GetSourceInfo,
+            action => this.tileId === action.payload.tileId,
             null,
             (state, action, dispatch) => {
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(
-                        this.tileId,
-                        false,
-                        this.appServices.getISO639UILang(),
-                        action.payload['corpusId']
+                this.api.getSourceDescription(
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    appServices.getISO639UILang(),
+                    action.payload.corpusId,
 
-                    ).subscribe({
-                        next: (data) => {
-                            dispatch(
-                                GlobalActions.GetSourceInfoDone,
-                                {
-                                    data
-                                }
-                            );
-                        },
-                        error: (error) => {
-                            console.error(error);
-                            dispatch(
-                                GlobalActions.GetSourceInfoDone,
-                                error
-                            );
-                        }
-                    });
-                }
+                ).subscribe({
+                    next: (data) => {
+                        dispatch(
+                            GlobalActions.GetSourceInfoDone,
+                            {
+                                data
+                            }
+                        );
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        dispatch(
+                            GlobalActions.GetSourceInfoDone,
+                            error
+                        );
+                    }
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                const srchLemma = findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]);
+                const url = this.api.requestBacklink(state, srchLemma.lemma);
+                window.open(url.toString(),'_blank');
             }
         );
     }
 
-    private makeBacklink(state:GeneralTranslationsModelState, query:string):BacklinkWithArgs<{}> {
-        return this.backlink ?
-            {
-                url: this.backlink.url,
-                label: this.backlink.label,
-                method: this.backlink.method || HTTP.Method.GET,
-                args: this.api.stateToPageArgs(state, query)
-            } :
-            null;
+    private stateToArgs(state:TranslationsModelState, query:string):RequestArgs {
+        return {
+            from: state.lang1,
+            to: state.lang2,
+            multiword: query.split(' ').length > 1,
+            regex: false,
+            lemma: true,
+            ci: true,
+            'pkgs[i]': state.searchPackages,
+            query: query,
+            order: 'perc',
+            asc: false,
+        };
     }
 
-    private loadData(state:GeneralTranslationsModelState, dispatch:SEDispatcher):void {
+    private loadData(state:TranslationsModelState, dispatch:SEDispatcher):void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
-        this.api.call(this.tileId, true, this.api.stateToArgs(state, srchLemma.lemma))
-            .pipe(
+        this.api.call(
+            this.appServices.dataStreaming(),
+            this.tileId,
+            0,
+            this.stateToArgs(state, srchLemma.lemma)
+
+        ).pipe(
                 map(item => {
                     const colors = this.scaleColorGen(0)
                     return pipe(
@@ -198,7 +206,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                         name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
-                            queryId: 0,
+                            queryIdx: 0,
                             isEmpty: data.length === 0,
                             query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: List.map(
@@ -212,8 +220,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 }),
                                 data
                             ),
-                            domain1: state.domain1,
-                            domain2: state.domain2,
+                            translatLanguage: state.lang2,
                             data: {translations: data}
                         }
                     });
@@ -223,12 +230,11 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                         name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
-                            queryId: 0,
+                            queryIdx: 0,
                             isEmpty: true,
                             query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: [],
-                            domain1: state.domain1,
-                            domain2: state.domain2,
+                            translatLanguage: state.lang1,
                             data: {translations: []}
                         },
                         error

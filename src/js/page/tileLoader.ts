@@ -17,16 +17,15 @@
  */
 
 import { IFullActionControl, ViewUtils } from 'kombo';
-import { List, Dict, pipe } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 
-import { TileFactory, ITileProvider, TileConf } from './tile.js';
+import { TileFactory, ITileProvider, TileConf, TileFactoryArgs } from './tile.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { IAppServices } from '../appServices.js';
 import { Theme } from './theme.js';
 import { LayoutManager } from './layout.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import { EmptyTile } from '../tiles/core/empty.js';
-import { DataStreaming } from './streaming.js';
 
 declare var require:any;
 
@@ -34,16 +33,6 @@ interface DynamicTileModule {
     init:TileFactory<{}>;
 }
 
-const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
-    return pipe(
-        d,
-        List.filter(v => !!v),
-        List.flatMap(v => typeof v === 'string' ? [v] : v),
-        List.map<string, [string, boolean]>(v => [v, true]),
-        Dict.fromEntries(),
-        Dict.keys()
-    );
-};
 
 type TileFactoryMap = {[tileType:string]:TileFactory<{}>};
 
@@ -80,60 +69,65 @@ export const mkTileFactory = (
     theme:Theme,
     layoutManager:LayoutManager,
     queryType:QueryType,
-    domain1:string,
-    domain2:string) => (
-            confName:string,
-            conf:TileConf):ITileProvider|null => {
-        if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, layoutManager.getTileNumber(confName))) {
-            return new EmptyTile(layoutManager.getTileNumber(confName));
+    translatLanguage:string
 
-        } else {
-            const tileFactory = tileFactories[conf.tileType];
-            if (typeof tileFactory === 'undefined') {
-                throw new Error(`Cannot invoke tile init() for ${confName} - type ${conf.tileType} not found. Check your src/js/tiles/custom directory.`);
+) => {
 
-            } else if (typeof tileFactory.create !== 'function' || typeof tileFactory.sanityCheck !== 'function') {
-                throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`);
+    const factoryObj = {
+
+        createdTiles: {},
+
+        create(confName:string, conf:TileConf):ITileProvider|null  {
+            if (conf.isDisabled || !layoutManager.isInCurrentLayout(layoutManager.getTileNumber(confName))) {
+                return new EmptyTile(layoutManager.getTileNumber(confName));
+
+            } else {
+                const tileFactory = tileFactories[conf.tileType];
+                if (typeof tileFactory === 'undefined') {
+                    throw new Error(`Cannot invoke tile init() for ${confName} - type ${conf.tileType} not found. Check your src/js/tiles/custom directory.`);
+
+                } else if (typeof tileFactory.create !== 'function' || typeof tileFactory.sanityCheck !== 'function') {
+                    throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`);
+                }
+
+                const tileId = layoutManager.getTileNumber(confName);
+                const tileLayoutConf = layoutManager.getLayoutTileConf(tileId);
+
+                // In the 'preview' mode, we need to make sure tiles supporting both 'single' and 'cmp' modes
+                // get both single and cmp queries. For this matter we store information about each tile type
+                // instantiation where for the first instance, we give the tile just a single word search while
+                // for the second (and more) we provide multiple queries. This all applies just for the
+                // preview mode and it is made to align with hardcoded layout of the preview result page.
+                const queryMatchesAppl = queryType === QueryType.PREVIEW && !factoryObj.createdTiles.hasOwnProperty(conf.tileType) ?
+                        [queryMatches[0]] : queryMatches;
+                const args:TileFactoryArgs<{}> = {
+                    tileId,
+                    dispatcher,
+                    ut: viewUtils,
+                    queryMatches: queryMatchesAppl,
+                    appServices,
+                    queryType,
+                    translatLanguage,
+                    readDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),
+                    widthFract: tileLayoutConf.width,
+                    theme,
+                    conf,
+                    isBusy: true,
+                    mainPosAttr: layoutManager.getLayoutMainPosAttr(),
+                    useDataStream: !!conf.useDataStream,
+                    dependentTiles: layoutManager.getDependentTiles(tileId)
+                };
+                const errs = tileFactory.sanityCheck(args);
+                if (!List.empty(errs)) {
+                    throw new Error('Tile sanity check: ' + List.head(errs).message); // TODO maybe we should join the errors?
+                }
+                factoryObj.createdTiles[conf.tileType] = factoryObj.createdTiles[conf.tileType] ?
+                    factoryObj.createdTiles[conf.tileType] + 1 :
+                    1;
+                return tileFactory.create(args);
             }
-            const args = {
-                tileId: layoutManager.getTileNumber(confName),
-                dispatcher,
-                ut: viewUtils,
-                queryMatches,
-                appServices,
-                domain1: domain1,
-                domain2: domain2,
-                queryType,
-                waitForTiles: List.map(
-                    v => layoutManager.getTileNumber(v),
-                    importDependentTilesList(
-                        layoutManager.getTileWaitFor(queryType, layoutManager.getTileNumber(confName)),
-                        layoutManager.getTileReadSubqFrom(queryType, layoutManager.getTileNumber(confName))
-                    )
-                ),
-                waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
-                subqSourceTiles: List.map(
-                    v => {
-                        if (!conf.compatibleSubqProviders || !conf.compatibleSubqProviders.includes(v)) {
-                            console.warn(`Tile '${v}' not officially supported as subquery provider by '${confName}'`);
-                        }
-                        return layoutManager.getTileNumber(v);
-                    },
-                    importDependentTilesList(
-                        layoutManager.getTileReadSubqFrom(queryType, layoutManager.getTileNumber(confName))
-                    )
-                ),
-                widthFract: layoutManager.getTileWidthFract(queryType, layoutManager.getTileNumber(confName)),
-                theme,
-                conf,
-                isBusy: true,
-                mainPosAttr: layoutManager.getLayoutMainPosAttr(queryType),
-                useDataStream: !!conf.useDataStream
-            };
-            const errs = tileFactory.sanityCheck(args);
-            if (!List.empty(errs)) {
-                throw new Error('Tile sanity check: ' + List.head(errs).message); // TODO maybe we should join the errors?
-            }
-            return tileFactory.create(args);
         }
-};
+    }
+
+    return factoryObj;
+}

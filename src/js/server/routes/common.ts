@@ -29,11 +29,13 @@ import { GlobalComponents } from '../../views/common/index.js';
 import { AppServices } from '../../appServices.js';
 import { HtmlBodyProps, HtmlHeadProps} from '../../views/layout/layout.js';
 import { HostPageEnv } from '../../page/hostPage.js';
-import { RecognizedQueries } from '../../query/index.js';
+import { QueryType, RecognizedQueries } from '../../query/index.js';
 import { WdglanceMainProps } from '../../views/main.js';
 import { ErrPageProps } from '../../views/error.js';
 import { TileGroup } from '../../page/layout.js';
-import { DataStreaming } from '../../page/streaming.js';
+import { DataStreaming, DataStreamingPreview } from '../../page/streaming.js';
+import { ServerNotifications } from '../../page/notifications.js';
+import { Observable } from 'rxjs';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -54,7 +56,7 @@ export function getQueryValue(req:Request, name:string, dflt?:string):Array<stri
 }
 
 
-export function getQueryParam(req:Request, name:string, dflt?:string):Array<string> {
+export function getPathParam(req:Request, name:string, dflt?:string):Array<string> {
     // we assume `--` as parameter separator
     const val = req.params[name];
     if (typeof val === 'string') {
@@ -110,7 +112,7 @@ export function fetchUrlParamArray(req:Request, param:string, minLen:number):Arr
         return ans;
     }
 
-    const values = getQueryParam(req, param);
+    const values = getPathParam(req, param);
     if (Array.isArray(values)) {
         return values.concat(mkEmpty(minLen - values.length));
     }
@@ -126,7 +128,7 @@ export function mkPageReturnUrl(req:Request, rootUrl:string):string {
 }
 
 
-export function createHelperServices(services:Services, uiLang:string):[ViewUtils<GlobalComponents>, AppServices] {
+export function createHelperServices(services:Services, uiLang:string, queryType?:QueryType):[ViewUtils<GlobalComponents>, AppServices] {
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang,
         translations: services.translations,
@@ -135,24 +137,34 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
                 (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
                 (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
     });
+    const streaming = queryType === QueryType.PREVIEW ?
+        new DataStreamingPreview() :
+        new DataStreaming(null, [], undefined, 1000, undefined);
 
     return [
         viewUtils,
         new AppServices({
-            notifications: null, // TODO
+            notifications: new ServerNotifications(),
+            apiCaller: {
+                callAPI: (api, streaming, tileId, queryIdx, queryArgs) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                ),
+                callAPIWithExtraVal: (api, streaming, tileId, queryIdx, queryArgs, passThrough) => new Observable(
+                    observer => {
+                        setTimeout(()=> { observer.complete()});
+                    }
+                )
+            },
             uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
-            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: {metadataMapping: {}, commonStructures: {}},
-            dataStreaming: new DataStreaming([], undefined),
+            dataStreaming: streaming,
             apiHeadersMapping: services.clientConf.apiHeaders || {},
-            mobileModeTest: ()=>false
+            mobileModeTest: ()=>false,
         })
     ]
 }

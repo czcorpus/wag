@@ -19,16 +19,15 @@ import { map } from 'rxjs/operators';
 import { List, Maths } from 'cnc-tskit';
 
 import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
-import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { Actions as ConcActions } from '../concordance/actions.js';
 import { Actions } from './actions.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
-import { RecognizedQueries } from '../../../query/index.js';
+import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
-import { isWebDelegateApi } from '../../../types.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
+import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
+import { SystemMessageType } from '../../../types.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 
@@ -42,7 +41,7 @@ export interface WordFormsModelState {
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
     data:Array<WordFormItem>;
-    backlink:BacklinkWithArgs<{}>;
+    backlink:Backlink;
     mainPosAttr:MainPosAttrValues;
 }
 
@@ -79,11 +78,7 @@ export interface WordFormsModelArgs {
     tileId:number;
     api:IWordFormsApi;
     queryMatches:RecognizedQueries;
-    queryDomain:string;
-    waitForTile:number|null;
-    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
-    backlink:Backlink
 }
 
 
@@ -95,27 +90,21 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryDomain:string;
-
-    private readonly waitForTile:number|null;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly appServices:IAppServices;
 
-    private readonly backlink:Backlink;
+    private readonly backlink:BacklinkConf;
 
-    constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
-            waitForTilesTimeoutSecs, appServices, backlink}:WordFormsModelArgs) {
+    private readonly dataStreaming:IDataStreaming;
+
+    constructor({
+        dispatcher, initialState, tileId, api, queryMatches, appServices
+    }:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.queryMatches = queryMatches;
-        this.queryDomain = queryDomain;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
+
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -143,78 +132,32 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 state.data = [];
             },
             (state, action, dispatch) => {
-                if (this.waitForTile >= 0) {
-                    this.waitForActionWithTimeout(
-                        this.waitForTilesTimeoutSecs * 1000,
-                        {},
-                        (action, syncData) => {
-                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
-                                if (action.error) {
-                                    console.error(action.error);
-                                    dispatch<typeof Actions.TileDataLoaded>({
-                                        name: Actions.TileDataLoaded.name,
-                                        error: action.error,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            queryId: 0,
-                                            isEmpty: true,
-                                            data: [],
-                                            subqueries: [],
-                                            domain1: null,
-                                            domain2: null,
-                                            backlink: null,
-                                        }
-                                    });
-
-                                } else {
-                                    this.fetchWordForms(
-                                        {
-                                            corpName: action.payload.corpusName,
-                                            subcorpName: action.payload.subcorpusName,
-                                            concPersistenceID: action.payload.concPersistenceIDs[0]
-                                        },
-                                        dispatch
-                                    );
-                                }
-                                return null;
-                            }
-                            return syncData;
+                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                if (variant.pos.length > 1 && !this.api.supportsMultiWordQueries()) {
+                    const err = Error("Current WordForms API does'nt support multi word queries!");
+                    console.error(err);
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        error: err,
+                        payload: {
+                            tileId: this.tileId,
+                            queryIdx: 0,
+                            isEmpty: true,
+                            data: [],
+                            translatLanguage: null,
                         }
-                    );
-
+                    });
                 } else {
-                    const variant = findCurrQueryMatch(this.queryMatches[0]);
-                    if (variant.pos.length > 1 && !this.api.supportsMultiWordQueries()) {
-                        const err = Error("Current WordForms API does'nt support multi word queries!");
-                        console.error(err);
-                        dispatch<typeof Actions.TileDataLoaded>({
-                            name: Actions.TileDataLoaded.name,
-                            error: err,
-                            payload: {
-                                tileId: this.tileId,
-                                queryId: 0,
-                                isEmpty: true,
-                                data: [],
-                                subqueries: [],
-                                domain1: null,
-                                domain2: null,
-                                backlink: null,
-                            }
-                        });
-                    } else {
-                        this.fetchWordForms(
-                            {
-                                domain: this.queryDomain,
-                                lemma: variant.lemma,
-                                pos: List.map(v => v.value, variant.pos),
-                                corpName: state.corpname,
-                                mainPosAttr: state.mainPosAttr
-                            },
-                            dispatch
-                        );
-                    }
+                    this.fetchWordForms(
+                        {
+                            lemma: variant.lemma,
+                            pos: List.map(v => v.value, variant.pos),
+                            corpName: state.corpname,
+                            mainPosAttr: state.mainPosAttr
+                        },
+                        dispatch
+                    );
                 }
-
             }
         );
 
@@ -229,7 +172,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
                     } else if (action.payload.data.length === 0) {
                         state.data = [];
-                        state.backlink = action.payload.backlink;
+                        state.backlink = null;
 
                     } else {
                         state.data = filterRareVariants(
@@ -237,7 +180,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
-                        state.backlink = action.payload.backlink;
+                        state.backlink = this.api.getBacklink(action.payload.queryIdx);
                     }
                 }
             }
@@ -248,8 +191,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.queryDomain, state.corpname).subscribe(
-                        (data) => {
+                    this.api.getSourceDescription(
+                        appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        appServices.getISO639UILang(),
+                        state.corpname,
+                    ).subscribe({
+                        next: (data) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -257,20 +205,43 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                 }
                             });
                         },
-                        (error) => {
+                        error: (error) => {
                             seDispatch<typeof GlobalActions.GetSourceInfoDone>({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 error
                             });
                         }
-                    );
+                    });
                 }
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            null,
+            (state, action, dispatch) => {
+                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const args = {
+                    lemma: variant.lemma,
+                    pos: List.map(v => v.value, variant.pos),
+                    corpName: state.corpname,
+                    mainPosAttr: state.mainPosAttr
+                };
+                this.api.requestBacklink(args, variant).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
+                });
             }
         );
     }
 
-    private fetchWordForms(args:RequestArgs|RequestConcArgs, dispatch:SEDispatcher):void {
-        this.api.call(this.tileId, true, args).pipe(
+    private fetchWordForms(args:RequestArgs, dispatch:SEDispatcher):void {
+        this.api.call(this.appServices.dataStreaming(), this.tileId, 0, args).pipe(
             map((v => {
                 const updated = Maths.calcPercentRatios(
                     (item) => item.freq,
@@ -293,22 +264,12 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        queryId: 0,
+                        queryIdx: 0,
                         isEmpty: false,
                         data: List.sortBy(
                             x => -x.freq,
                             data.forms
-                        ),
-                        subqueries: List.map(
-                            v => ({
-                                value: v.value,
-                                interactionId: v.interactionId
-                            }),
-                            data.forms
-                        ),
-                        domain1: null,
-                        domain2: null,
-                        backlink: this.backlink?.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(args, this.backlink),
+                        )
                     }
                 });
             },
@@ -319,13 +280,9 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     error: err,
                     payload: {
                         tileId: this.tileId,
-                        queryId: 0,
+                        queryIdx: 0,
                         isEmpty: true,
-                        data: [],
-                        subqueries: [],
-                        domain1: null,
-                        domain2: null,
-                        backlink: null,
+                        data: []
                     }
                 });
             }

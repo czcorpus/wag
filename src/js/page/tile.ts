@@ -16,52 +16,33 @@
  * limitations under the License.
  */
 
-import { AnyInterface, LocalizedConfMsg } from '../types.js';
+import { LocalizedConfMsg } from '../types.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { ViewUtils, StatelessModel, StatefulModel, IFullActionControl } from 'kombo';
 import { GlobalComponents } from '../views/common/index.js';
 import { Theme } from './theme.js';
 import { IAppServices } from '../appServices.js';
-import { HTTP, List } from 'cnc-tskit';
 import { MainPosAttrValues } from '../conf/index.js';
-import { DataStreaming } from './streaming.js';
+import { List } from 'cnc-tskit';
 
+
+export interface BacklinkConf<T = undefined> {
+    url:string;
+    label?:LocalizedConfMsg;
+    args?:T;
+}
 
 export interface Backlink {
-    url?:string;
-    label?:LocalizedConfMsg;
-    method?:HTTP.Method;
-    subcname?:string; // in case a special subc. is needed for backlink
-    isAppUrl?:boolean; // sets backlink as simple link
-}
-
-export interface BacklinkWithArgs<T> {
-    url:string;
+    queryId:number;
+    subqueryId?:number;
     label:LocalizedConfMsg;
-    method:HTTP.Method;
-    args:AnyInterface<T>;
 }
 
-export type AnyBacklink<T> = BacklinkWithArgs<T>|Array<BacklinkWithArgs<T>>;
-
-function isBacklinkWithArgs<T>(bl:AnyBacklink<T>|undefined|null): bl is BacklinkWithArgs<T> {
-    return bl !== null && !Array.isArray(bl) && typeof bl == 'object' && typeof bl['url'] === 'string';
-}
-
-export function backlinkIsValid<T>(backlink:AnyBacklink<T>):boolean {
+export function backlinkIsValid(backlink:Backlink|null|Array<Backlink|null>):boolean {
     if (Array.isArray(backlink)) {
         return List.some(x => !!x, backlink);
     }
-    return !Array.isArray(backlink) && isBacklinkWithArgs(backlink) && !!backlink.url;
-}
-
-export function createAppBacklink(backlink:Backlink):BacklinkWithArgs<{}> {
-    return backlink ? {
-        url: backlink.url || '--UNDEFINED BACKLINK--',
-        label: backlink.label || '--UNDEFINED LABEL--',
-        method: backlink.method || HTTP.Method.GET,
-        args: {}
-    } : null
+    return !Array.isArray(backlink) && !!backlink;
 }
 
 /**
@@ -89,7 +70,7 @@ export interface TileConf {
      * tile logic is able to pass proper arguments to the
      * page.
      */
-    backlink?:Backlink;
+    backlink?:BacklinkConf<any>;
 
     /**
      * Normally, any tile configured in the "tiles" section
@@ -104,8 +85,6 @@ export interface TileConf {
      *
      */
     isDisabled?:boolean;
-
-    waitForTimeoutSecs?:number;
 
     /**
      * A label used in the header of the tile
@@ -176,11 +155,11 @@ export interface TileFrameProps {
 
     supportsAltView:boolean;
 
+    hideOnNoData:boolean;
+
     supportsSVGFigureSave:boolean;
 
     helpURL?:string;
-
-    renderSize:[number, number];
 
     /**
      * standard mode width in CSS grid fr units
@@ -203,11 +182,11 @@ export interface TileFrameProps {
 export interface CoreTileComponentProps {
     tileId:number;
     tileName:string;
-    renderSize:[number, number];
     isMobile:boolean;
     widthFract:number;
     supportsReloadOnError:boolean;
     issueReportingUrl:string;
+    tileLabel:string;
 }
 
 /**
@@ -253,7 +232,7 @@ export interface ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean;
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean;
 
     // TODO ??
     disable():void;
@@ -286,18 +265,31 @@ export interface ITileProvider {
      */
     registerReloadModel(model:ITileReloader):boolean;
 
-    /**
-     * Return a list of tiles this tile depends on
-     */
-    getBlockingTiles():Array<number>;
-
     supportsMultiWordQueries():boolean;
 
     getIssueReportingUrl():string|null;
 
     getAltViewIcon():AltViewIconProps;
 
+    /**
+     * A tile may share a data source with
+     * other tile. In such case, a "dependent"
+     * tile must declare its dependence
+     * on the "primary" tile.
+     */
+    getReadDataFrom():number|null;
 
+    /**
+     * Method specifies whether WaG should hide the
+     * tile (via CSS) in case there are no data avaible.
+     *
+     * This can be useful e.g. if there are multiple tiles
+     * which may quite often end up with no result
+     * (e.g. they're dependent on a specific Part of Speech).
+     * Removing them during such situations can improve
+     * user experience.
+     */
+    hideOnNoData():boolean;
 }
 
 /**
@@ -309,7 +301,7 @@ export interface TileFactoryArgs<T> {
 
     tileId:number;
 
-    dispatcher:IActionDispatcher;
+    dispatcher:IFullActionControl;
 
     ut:ViewUtils<GlobalComponents>;
 
@@ -319,26 +311,17 @@ export interface TileFactoryArgs<T> {
 
     queryMatches:RecognizedQueries;
 
-    domain1?:string;
-
-    domain2?:string;
-
     queryType:QueryType;
 
-    /**
-     * Tiles we need to wait for
-     */
-    waitForTiles?:Array<number>;
-
-    waitForTilesTimeoutSecs:number;
+    translatLanguage:string;
 
     /**
-     * Tiles we want data from (via sub-query).
-     * This may or may not intersect with waitForTiles -
-     * the application ensures that the tile waits for
-     * both 'waitForTiles' and 'subqSourceTiles'.
+     * If specified, then the tile will not need
+     * its own data request but it will be served
+     * using data from a different tile
+     * (e.g. the conc tile from the coll tile)
      */
-    subqSourceTiles?:Array<number>;
+    readDataFromTile?:number;
 
     widthFract:number;
 
@@ -349,6 +332,8 @@ export interface TileFactoryArgs<T> {
     mainPosAttr:MainPosAttrValues;
 
     useDataStream:boolean;
+
+    dependentTiles:Array<number>;
 }
 
 /**
@@ -385,5 +370,5 @@ export const DEFAULT_ALT_VIEW_ICON:AltViewIconProps = {
  * in case the tile fails to load data.
  */
 export interface ITileReloader {
-    registerModel(tile:ITileProvider, model:StatelessModel<{}>):void;
+    registerModel(tile:ITileProvider, model:StatelessModel<{}>|StatefulModel<{}>):void;
 }

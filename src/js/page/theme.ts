@@ -16,20 +16,7 @@
  * limitations under the License.
  */
 import { ColorTheme } from '../conf/index.js';
-import { Dict, Color, pipe } from 'cnc-tskit';
-
-
-export enum SystemColor {
-    COLOR_LOGO_ORANGE = '#F0680B',
-    COLOR_LOGO_GREEN = '#57AB27',
-    COLOR_LOGO_PINK = '#E2007A',
-    COLOR_LOGO_PINK_LIGHT = '#FFC8AD',
-    COLOR_LOGO_BLUE = '#009EE0',
-    COLOR_LOGO_BLUE_OPAQUE = 'RGBA(0, 158, 224, 0.7)',
-    COLOR_LOGO_BLUE_SHINE = '#00CAF6',
-    COLOR_WHITELIKE_BLUE = '#e2f4fb',
-    COLOR_LIGHT_GREY = '#DADADA'
-}
+import { Dict, Color, pipe, List } from 'cnc-tskit';
 
 
 export interface ColorScaleFunctionGenerator {
@@ -37,10 +24,40 @@ export interface ColorScaleFunctionGenerator {
 }
 
 
-const defaultTheme:ColorTheme = {
+const fallbackTheme:ColorTheme = {
 
     themeId: 'default',
     themeLabel: 'Default',
+
+
+    defaultFontFamily: '"Roboto", "Segoe UI", Arial, sans-serif',
+    condensedFontFamily: '"Roboto Condensed", "Segoe UI", sans-serif',
+
+    // app-wide colors
+
+    colorLogoPink: '#E2007A',
+    colorLogoBlue: '#009EE0',
+    colorLogoBlueShining: '#00CAF6',
+    colorWhitelikeBlue: '#eff9fe',
+    colorInvertedSecondaryText: '#dadada',
+    colorLightText: '#888888',
+    colorSuperlightGrey: '#efefef',
+    colorDefaultText: '#010101',
+
+    tileBorderStyle: 'solid 1px #dadada',
+    tileBorderRadius: '0.25em',
+
+    // text color
+
+    pageBackgroundColor: '#ffffff',
+    tileBackgroundColor: '#ffffff',
+
+    cssMediaMediumScreen: '@media screen and (max-width: 480px)',
+    cssMediaSmallScreen: '@media screen and (max-width: 480px)',
+
+
+    // charts
+
     lineChartColor1: "#DD8959",
     lineConfidenceAreaColor1: "#f2d9ca",
     lineChartColor2: "#1334FF",
@@ -84,9 +101,71 @@ const defaultTheme:ColorTheme = {
  */
 export class Theme {
 
+    public readonly ident:string;
+
+    // main styling
+
+    public readonly pageBackgroundColor:string|undefined;
+
+    public readonly tileBackgroundColor:string|undefined;
+
+    public readonly tileHeadingSeparColor:string;
+
+    public readonly textInputBackgroundColor:string;
+
+    public readonly defaultFontFamily:string;
+
+    public readonly condensedFontFamily:string;
+
+    public readonly defaultFontSize:string;
+
+    public readonly backgroundImage:string|undefined;
+
+    public readonly colorLogoBlue:string;
+
+    public readonly colorWhitelikeBlue:string;
+
+    public readonly colorDefaultText:string;
+
+    public readonly colorInvertText:string;
+
+    public readonly colorSecondaryText:string;
+
+    public readonly colorLightText:string;
+
+    public readonly colorLogoPink:string;
+
+    public readonly colorSuperlightGrey:string;
+
+    public readonly colorLogoBlueShining:string;
+
+    public readonly colorInvertedSecondaryText:string;
+
+
+    public readonly cssMediaMediumSize:string;
+
+    public readonly cssMediaSmallSize:string;
+
+    public readonly svgIconsFilter:string|undefined;
+
+    /**
+     * note: if you want to define "no filter", please use
+     * an empty string as `undefined` means - use default
+     * (which is the same filter as for the icons)
+     */
+    public readonly svgLogoFilter:string|undefined;
+
+
+
     private readonly catColors:Array<string>;
 
+    // this is auto-generated
+    private readonly catColorsHighlighted:Array<string>;
+
     private readonly cmpCategoryColors:Array<string>;
+
+    // this is auto-generated
+    private readonly cmpCategoryColorsHighlighted:Array<string>;
 
     public readonly unfinishedChartColor:string;
 
@@ -108,14 +187,69 @@ export class Theme {
 
     public readonly lineConfidenceAreaColor2:string;
 
+    public readonly tileBorderStyle:string;
+
+    public readonly tileBorderRadius:string;
+
+    public readonly chartTextColor:string;
+
     constructor(conf?:ColorTheme) {
-        const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
+
+        const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
+        this.ident = confSrc.themeId;
+
+        this.defaultFontFamily = confSrc.defaultFontFamily || fallbackTheme.defaultFontFamily;
+        this.condensedFontFamily = confSrc.condensedFontFamily || fallbackTheme.condensedFontFamily;
+        this.defaultFontSize = confSrc.defaultFontSize || '1em';
+        this.backgroundImage = confSrc.backgroundImage || undefined;
+        this.pageBackgroundColor = confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
+        this.tileBackgroundColor = confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
+        this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
+        this.textInputBackgroundColor = confSrc.textInputBackgroundColor || this.tileBackgroundColor;
+        this.colorLogoBlue = confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
+        this.colorWhitelikeBlue = confSrc.colorWhitelikeBlue || fallbackTheme.colorWhitelikeBlue;
+        this.colorLightText = confSrc.colorLightText || fallbackTheme.colorLightText;
+        this.colorDefaultText = confSrc.colorDefaultText || fallbackTheme.colorDefaultText;
+        this.colorInvertText = confSrc.colorInvertText || fallbackTheme.colorInvertedSecondaryText;
+        this.colorSecondaryText = confSrc.colorSecondaryText || fallbackTheme.colorInvertedSecondaryText;
+        this.colorLogoPink = confSrc.colorLogoPink || fallbackTheme.colorLogoPink;
+        this.colorSuperlightGrey = confSrc.colorSuperlightGrey || fallbackTheme.colorSuperlightGrey;
+        this.colorLogoBlueShining = confSrc.colorLogoBlueShining || fallbackTheme.colorLogoBlueShining;
+        this.colorInvertedSecondaryText = confSrc.colorInvertedSecondaryText || fallbackTheme.colorInvertedSecondaryText;
+
+        this.cssMediaMediumSize = confSrc.cssMediaMediumScreen || fallbackTheme.cssMediaMediumScreen;
+        this.cssMediaSmallSize = confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
+        this.svgIconsFilter = confSrc.svgIconsFilter;
+        this.svgLogoFilter = typeof confSrc.svgLogoFilter === 'string' ? confSrc.svgLogoFilter : confSrc.svgIconsFilter;
+
+        this.tileBorderStyle = confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
+        this.tileBorderRadius = confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
+
+
         this.catColors = confSrc.category || [];
+        this.catColorsHighlighted = List.map(
+            color => pipe(
+                color,
+                Color.importColor(1),
+                Color.highlight(0.3),
+                Color.color2str(),
+            ),
+            this.catColors
+        );
         this.lineChartColor1 = confSrc.lineChartColor1 || this.catColors[0];
         this.lineConfidenceAreaColor1 = confSrc.lineConfidenceAreaColor1 || this.catColors[0];
         this.lineChartColor2 = confSrc.lineChartColor2 || this.catColors[1];
         this.lineConfidenceAreaColor2 = confSrc.lineConfidenceAreaColor2 || this.catColors[1];
         this.cmpCategoryColors = confSrc.cmpCategory || [];
+        this.cmpCategoryColorsHighlighted = List.map(
+            color => pipe(
+                color,
+                Color.importColor(1),
+                Color.highlight(0.3),
+                Color.color2str(),
+            ),
+            this.cmpCategoryColors
+        );
         this.scaleColors = confSrc.scale || [];
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
@@ -129,6 +263,8 @@ export class Theme {
                 Color.textColorFromBg(),
                 Color.color2str()
             );
+
+        this.chartTextColor = confSrc.chartTextColor || this.colorDefaultText;
     }
 
     categoryPalette = (values:Array<string|number>):(ident:string|number)=>string => {
@@ -148,15 +284,41 @@ export class Theme {
         return this.catColors[idx % this.catColors.length];
     }
 
+    numCategoryColors():number {
+        return Array.isArray(this.catColors) ? this.catColors.length : 0;
+    }
+
+    categoryColorHighlighted(idx:number):string {
+        return this.catColorsHighlighted[idx % this.catColors.length];
+    }
+
     /**
      * Produce a category color for word comparison mode where
      * each word data is expected to be of a specific color
      * (i.e. 1st word => idx = 0, 2nd word => idx 1,...)
+     *
+     * Provide also dynamic size (typically - number of involved categorical
+     * values) in case your themes do not contain predefined colors
+     * for categories.
      */
     cmpCategoryColor(idx:number, dynamicSize?:number):string {
-        if (dynamicSize && this.cmpCategoryColors.length === 1)
+        if (dynamicSize && this.cmpCategoryColors.length === 1) {
             return this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
+        }
         return this.cmpCategoryColors[idx % this.cmpCategoryColors.length];
+    }
+
+    cmpCategoryColorHighlighted(idx:number, dynamicSize?:number):string {
+        if (dynamicSize && this.cmpCategoryColors.length === 1) {
+            const ans = this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
+            return pipe(
+                ans,
+                Color.importColor(1),
+                Color.highlight(0.3),
+                Color.color2str()
+            );
+        }
+        return this.cmpCategoryColorsHighlighted[idx % this.cmpCategoryColors.length];
     }
 
     /**

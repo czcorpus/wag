@@ -15,18 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
-import { List, Strings } from 'cnc-tskit';
+import { Dict, List, pipe, Strings } from 'cnc-tskit';
 
-import { Line, LineElement, ViewMode } from '../../../api/abstract/concordance.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { Actions } from './actions.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { ConcordanceTileModel, ConcordanceTileState } from './model.js';
+import { ConcordanceTileModel } from './model.js';
 
 import * as S from './style.js';
+import { getKwicCtx, getLineLeftCtx, getLineRightCtx, Line, Token, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 
@@ -146,13 +146,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <RowItem /> --------------------------------------------
 
     const RowItem:React.FC<{
-        data:LineElement;
-        isKwic?:boolean;
+        data:Token;
+        isKwic:boolean;
+        isColl:boolean;
 
     }> = (props) => {
+        const classes = [];
+        if (props.isKwic) {
+            classes.push('kwic');
+        }
+        if (props.isColl) {
+            classes.push('coll');
+        }
         return (
-            <span className={props.isKwic ? 'kwic' : null} title={props.data.mouseover ? props.data.mouseover.join(', ') : null}>
-                {props.data.str}
+            <span className={classes.join(' ')}>
+                {props.data.word}
             </span>
         );
     };
@@ -160,7 +168,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <LineMetadata /> --------------------------------------------
 
     const LineMetadata:React.FC<{
-        data:Array<{value:string; label:string}>;
+        data:{[k:string]:string};
 
     }> = (props) => {
 
@@ -171,91 +179,130 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <S.LineMetadata onClick={handleClick}>
                 <dl>
-                    {List.map(
-                        v => (
-                            <React.Fragment key={v.label}>
-                                <dt>{v.label}:</dt>
-                                <dd>
-                                    {/^https?:\/\//.exec(v.value) ?
-                                        <a href={v.value} title={v.value} target="_blank" rel="noopener">{Strings.shortenText(v.value, 30)}</a> :
-                                        v.value
-                                    }
-                                </dd>
-                            </React.Fragment>
-                        ),
-                        props.data
+                    {pipe(
+                        props.data,
+                        Dict.toEntries(),
+                        List.sortAlphaBy(([label, ]) => label),
+                        List.map(
+                            ([label, value]) => (
+                                <React.Fragment key={label}>
+                                    <dt>{label}:</dt>
+                                    <dd>
+                                        {/^https?:\/\//.exec(value) ?
+                                            <a href={value} title={value} target="_blank" rel="noopener">{Strings.shortenText(value, 30)}</a> :
+                                            value
+                                        }
+                                    </dd>
+                                </React.Fragment>
+                            )
+                        )
                     )}
                 </dl>
             </S.LineMetadata>
         )
     }
 
-    // ------------------ <Row /> --------------------------------------------
+    // ------------------ <SentRow /> --------------------------------------------
 
-    const Row:React.FC<{
+    const SentRow:React.FC<{
+        data:Line;
+        isParallel:boolean;
+        isFirstOfLinePair:boolean;
+        hasVisibleMetadata:boolean;
+        handleLineClick:(e:React.MouseEvent)=>void;
+
+    }> = (props) => {
+        const classes = [];
+        if (props.data.highlighted) {
+            classes.push('highlighted');
+        }
+        if (!props.isFirstOfLinePair) {
+            classes.push('separator');
+        }
+        return (
+            <S.SentRow className={classes.join(' ')}>
+                    {props.isParallel ?
+                        null :
+                        <td rowSpan={props.isFirstOfLinePair ? 2 : 1}>
+                            {props.hasVisibleMetadata ? <LineMetadata data={props.data.props} /> : null}
+                        </td>
+                    }
+                    {!props.isParallel && !!props.data.props && !Dict.empty(props.data.props) ?
+                        <td className="meta" rowSpan={props.isFirstOfLinePair ? 2 : 1}>
+                            <a className="info-click" onClick={props.handleLineClick}>
+                                <img className="filtered" src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
+                            </a>
+                        </td> :
+                        null
+                    }
+                <td>
+                    {List.map(
+                        (s, i) => (
+                            <React.Fragment key={`${props.data.ref}:L${i}`} >
+                                {i > 0 ? <span> </span> : null}
+                                <RowItem data={s} isKwic={s.matchType === 'kwic'} isColl={s.matchType === 'coll'} />
+                            </React.Fragment>
+                        ),
+                        props.isParallel ? props.data.alignedText : props.data.text
+                    )}
+                </td>
+            </S.SentRow>
+        );
+    };
+
+    // ------------------ <KWICRow /> --------------------------------------------
+
+    const KWICRow:React.FC<{
         data:Line;
         isParallel:boolean;
         hasVisibleMetadata:boolean;
         handleLineClick:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
+
         return (
             <>
-                <S.Row>
+                <S.Row className={props.data.highlighted ? 'highlighted' : null}>
                     <td>
-                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
+                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.props} /> : null}
                     </td>
-                    {props.data.metadata && props.data.metadata.length > 0 ?
+                    {!!props.data.props && !Dict.empty(props.data.props) ?
                         <td className="meta">
                             <a className="info-click" onClick={props.handleLineClick}>
-                                <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
+                                <img className="filtered" src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
                             </a>
                         </td> :
                         null
                     }
                     <td className="left">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />,
-                            props.data.left
+                            (s, i) => (
+                                <React.Fragment key={`${props.data.ref}:L${i}`} >
+                                    {i > 0 ? <span> </span> : null}
+                                    <RowItem data={s} isKwic={false} isColl={s.matchType === 'coll'} />
+                                </React.Fragment>
+                            ),
+                            getLineLeftCtx(props.data)
                         )}
                     </td>
                     <td className="kwic">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />,
-                            props.data.kwic
+                            (s, i) => <RowItem key={`${props.data.ref}:K${i}`} data={s} isKwic={true} isColl={false} />,
+                            getKwicCtx(props.data)
                         )}
                     </td>
                     <td className="right">
                         {List.map(
-                            (s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />,
-                            props.data.right
+                            (s, i) => (
+                                <React.Fragment key={`${props.data.ref}:R${i}`}>
+                                    {i > 0 ? <span> </span> : null}
+                                    <RowItem data={s} isKwic={false} isColl={s.matchType === 'coll'} />
+                                </React.Fragment>
+                            ),
+                            getLineRightCtx(props.data)
                         )}
                     </td>
                 </S.Row>
-                {props.isParallel ?
-                    <S.Row className="aligned">
-                        <td colSpan={props.data.metadata.length > 0 ? 2 : 1} />
-                        <td className="left">
-                            {List.map(
-                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:L${i}`} data={s} />,
-                                props.data.align[0].left
-                            )}
-                        </td>
-                        <td className="kwic">
-                            {List.map(
-                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:K${i}`} data={s} isKwic={true} />,
-                                props.data.align[0].kwic
-                            )}
-                        </td>
-                        <td className="right">
-                            {List.map(
-                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:R${i}`} data={s} />,
-                                props.data.align[0].right
-                            )}
-                        </td>
-                    </S.Row> :
-                    null
-                }
             </>
         );
     }
@@ -263,30 +310,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <ConcordanceTileView /> --------------------------------------------
 
-    class ConcordanceTileView extends React.PureComponent<ConcordanceTileState & CoreTileComponentProps> {
+    const ConcordanceTileView:React.FC<CoreTileComponentProps> = (props) => {
 
-        constructor(props) {
-            super(props);
-            this.handleQueryVariantClick = this.handleQueryVariantClick.bind(this);
-            this.handleLineClick = this.handleLineClick.bind(this);
-        }
+        const state = useModel(model);
 
-        handleQueryVariantClick() {
+        const handleQueryVariantClick = () => {
             dispatcher.dispatch<typeof GlobalActions.EnableTileTweakMode>({
                 name: GlobalActions.EnableTileTweakMode.name,
                 payload: {
-                    ident: this.props.tileId
+                    ident: props.tileId
                 }
             });
-        }
+        };
 
-        private handleLineClick(idx:number) {
+        const handleLineClick = (idx:number) => {
             return (e:React.MouseEvent) => {
-                if (this.props.visibleMetadataLine === idx) {
+                if (state.visibleMetadataLine === idx) {
                     dispatcher.dispatch<typeof Actions.HideLineMetadata>({
                         name: Actions.HideLineMetadata.name,
                         payload: {
-                            tileId: this.props.tileId
+                            tileId: props.tileId
                         }
                     });
 
@@ -294,7 +337,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     dispatcher.dispatch<typeof Actions.ShowLineMetadata>({
                         name: Actions.ShowLineMetadata.name,
                         payload: {
-                            tileId: this.props.tileId,
+                            tileId: props.tileId,
                             idx: idx
                         }
                     });
@@ -303,81 +346,103 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
-        render() {
+        const tableClasses = ['conc-lines'];
+        if (state.viewMode === ViewMode.SENT || state.viewMode === ViewMode.ALIGN) {
+            tableClasses.push('sent');
+        }
+        if (state.otherCorpname) {
+            tableClasses.push('aligned');
+        }
 
-            const tableClasses = ['conc-lines'];
-            if (this.props.viewMode === ViewMode.SENT || this.props.viewMode === ViewMode.ALIGN) {
-                tableClasses.push('sent');
-            }
-            if (this.props.otherCorpname) {
-                tableClasses.push('aligned');
-            }
+        const conc = state.concordances[state.visibleQueryIdx];
 
-            const conc = this.props.concordances[this.props.visibleQueryIdx];
-
-            return (
-                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.concordances.some(conc => conc.lines.length > 0)}
-                        sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                        backlink={this.props.backlinks}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <S.ConcordanceTileView>
-                        {this.props.isTweakMode ?
-                            <div className="tweak-box">
-                                    <Controls
-                                        currPage={conc.currPage}
-                                        numPages={conc.numPages}
-                                        viewMode={this.props.viewMode}
-                                        tileId={this.props.tileId}
-                                        viewModeEnabled={!this.props.otherCorpname && !this.props.disableViewModes}
-                                        queries={this.props.queries}
-                                        currVisibleQueryIdx={this.props.visibleQueryIdx} />
-                            </div> :
-                            null
-                        }
-                        {
-                            this.props.queries.length > 1 ?
-                            <S.QueryInfo>
-                                {ut.translate('concordance__showing_results_for')}:{'\u00a0'}
-                                <a className="variant" onClick={this.handleQueryVariantClick}>
-                                    {`[${this.props.visibleQueryIdx + 1}] ${this.props.queries[this.props.visibleQueryIdx]}`}
-                                </a>
-                            </S.QueryInfo> :
-                            null
-                        }
+        return (
+            <globalComponents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
+                    hasData={state.concordances.some(conc => conc.lines.length > 0)}
+                    sourceIdent={{corp: state.corpname, subcorp: state.subcDesc}}
+                    backlink={state.backlinks}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <S.ConcordanceTileView>
+                    {state.isTweakMode ?
+                        <div className="tweak-box">
+                                <Controls
+                                    currPage={conc.currPage}
+                                    numPages={conc.numPages}
+                                    viewMode={state.viewMode}
+                                    tileId={props.tileId}
+                                    viewModeEnabled={!state.otherCorpname && !state.disableViewModes}
+                                    queries={state.queries}
+                                    currVisibleQueryIdx={state.visibleQueryIdx} />
+                        </div> :
+                        null
+                    }
+                    {
+                        state.queries.length > 1 ?
+                        <S.QueryInfo>
+                            {ut.translate('concordance__showing_results_for')}:{'\u00a0'}
+                            <a className="variant" onClick={handleQueryVariantClick}>
+                                {`[${state.visibleQueryIdx + 1}] ${state.queries[state.visibleQueryIdx]}`}
+                            </a>
+                        </S.QueryInfo> :
+                        null
+                    }
+                    {state.isExamplesMode ?
+                        null :
                         <S.Summary>
                             <dt>{ut.translate('concordance__num_matching_items')}:</dt>
-                            <dd>{ut.formatNumber(conc.concsize, 0)}</dd>
-                            {conc.resultIPM > -1 ?
+                            <dd>{ut.formatNumber(conc.concSize, 0)}</dd>
+                            {conc.ipm > -1 ?
                                 <>
                                     <dt>{ut.translate('concordance__ipm')}:</dt>
-                                    <dd>{ut.formatNumber(conc.resultIPM, 2)}</dd>
-                                </> :
-                                null
-                            }
-                            {conc.resultARF > -1 ?
-                                <>
-                                    <dt>{ut.translate('concordance__arf')}:</dt>
-                                    <dd>{ut.formatNumber(conc.resultARF, 2)}</dd>
+                                    <dd>{ut.formatNumber(conc.ipm, 2)}</dd>
                                 </> :
                                 null
                             }
                         </S.Summary>
+                    }
+                    <S.ConcLines>
                         <table className={tableClasses.join(' ')}>
                             <tbody>
                                 {List.map(
-                                    (line, i) => <Row key={`${i}:${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname}
-                                        hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)} />,
+                                    (line, i) => (
+                                        state.viewMode === ViewMode.KWIC ?
+                                            <KWICRow
+                                                key={`${i}:${line.ref}`}
+                                                data={line}
+                                                isParallel={!!state.otherCorpname}
+                                                hasVisibleMetadata={state.visibleMetadataLine === i}
+                                                handleLineClick={handleLineClick(i)}
+                                                /> :
+                                            <React.Fragment key={`${i}:${line.ref}`}>
+                                                <SentRow
+                                                    data={line}
+                                                    isFirstOfLinePair={!!state.otherCorpname}
+                                                    isParallel={false}
+                                                    hasVisibleMetadata={state.visibleMetadataLine === i}
+                                                    handleLineClick={handleLineClick(i)}
+                                                    />
+                                                {!!state.otherCorpname ?
+                                                    <SentRow
+                                                        data={line}
+                                                        isFirstOfLinePair={false}
+                                                        isParallel={true}
+                                                        hasVisibleMetadata={state.visibleMetadataLine === i}
+                                                        handleLineClick={handleLineClick(i)}
+                                                    /> :
+                                                    null
+                                                }
+                                            </React.Fragment>
+                                    ),
                                     conc.lines
                                 )}
                             </tbody>
                         </table>
-                    </S.ConcordanceTileView>
-                </globalComponents.TileWrapper>
-            );
-        }
+                    </S.ConcLines>
+                </S.ConcordanceTileView>
+            </globalComponents.TileWrapper>
+        );
     }
 
-    return BoundWithProps<CoreTileComponentProps, ConcordanceTileState>(ConcordanceTileView, model);
+    return ConcordanceTileView;
 }

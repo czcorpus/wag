@@ -17,8 +17,6 @@
  */
 
 import { IFreqDB } from './freqdb.js';
-import { SqliteFreqDB } from './backends/sqlite.js';
-import { KontextFreqDB } from './backends/kontext.js';
 import { FreqDbOptions } from '../../conf/index.js';
 import { CouchFreqDB } from './backends/couchdb/index.js';
 import { KorpusFreqDB } from './backends/korpusdb.js';
@@ -27,8 +25,6 @@ import { FrodoClient } from './backends/frodo.js';
 
 
 export enum FreqDBType {
-    SQLITE = 'sqlite',
-    KONTEXT = 'kontext',
     COUCHDB = 'couchdb',
     KORPUSDB = 'korpusdb',
     FRODO = 'frodo'
@@ -37,10 +33,6 @@ export enum FreqDBType {
 
 export function createInstance(dbType:FreqDBType, connPath:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions):IFreqDB {
     switch (dbType) {
-        case FreqDBType.SQLITE:
-            return new SqliteFreqDB(connPath, corpusSize);
-        case FreqDBType.KONTEXT:
-            return new KontextFreqDB(connPath, corpusSize, apiServices, options);
         case FreqDBType.COUCHDB:
             return new CouchFreqDB(connPath, corpusSize, apiServices, options);
         case FreqDBType.KORPUSDB:

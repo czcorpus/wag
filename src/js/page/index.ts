@@ -16,30 +16,37 @@
  * limitations under the License.
  */
 /// <reference path="../translations.d.ts" />
+
+// Fix webpack public path for dynamic imports when distFilesUrl is not configured
+declare var __webpack_public_path__: string;
+if (typeof __webpack_public_path__ !== 'undefined' && __webpack_public_path__ === '/') {
+    __webpack_public_path__ = '/dist/';
+}
+
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
-import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
-import { isSubqueryPayload, RecognizedQueries } from '../query/index.js';
+import { fromEvent, Observable } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
+import { QueryType, RecognizedQueries } from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
-import { encodeArgs, ajax$, encodeURLParameters } from './ajax.js';
+import { encodeArgs, encodeURLParameters } from './ajax.js';
 import { ScreenProps } from './hostPage.js';
 import { ClientConf, UserConf, HomepageTileConf } from '../conf/index.js';
 import { Actions } from '../models/actions.js';
 import { SystemNotifications } from './notifications.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { createRootComponent } from '../app.js';
-import { TelemetryAction, TileIdentMap } from '../types.js';
-import { HTTPAction } from '../server/routes/actions.js';
 import { MultiDict } from '../multidict.js';
-import { HTTP, Client, tuple, List, pipe, Dict } from 'cnc-tskit';
+import { Client, List, pipe, Dict } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main.js';
 import { LayoutManager, TileGroup } from './layout.js';
 import { TileConf } from './tile.js';
-import { DataStreaming } from './streaming.js';
+import { DataStreaming, IDataStreaming, DataStreamingPreview } from './streaming.js';
+import { callWithExtraVal } from '../api/util.js';
+import { DataApi } from '../types.js';
 
 
 interface MountArgs {
@@ -52,6 +59,9 @@ interface MountArgs {
     homepage:Array<HomepageTileConf>;
     queryMatches:RecognizedQueries;
 }
+
+
+const DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS = 10;
 
 
 function mountReactComponent({
@@ -99,6 +109,7 @@ function mountReactComponent({
                 isMobile: appServices.isMobileMode(),
                 isAnswerMode: userSession.answerMode,
                 error: userSession.error,
+                queries: userSession.queries,
                 onMount
             }
         );
@@ -112,64 +123,6 @@ function mountReactComponent({
 }
 
 
-function initTelemetry(
-    config:ClientConf,
-    appServices:IAppServices,
-    dispatcher:ActionDispatcher,
-    tileMap:TileIdentMap
-) {
-    // telemetry capture
-    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
-        merge(
-            new Observable<TelemetryAction>((observer) => {
-                dispatcher.registerActionListener((action, _) => {
-                    const payload = action.payload || {};
-                    observer.next({
-                        timestamp: Date.now(),
-                        actionName: action.name,
-                        isSubquery: isSubqueryPayload(payload) as boolean,
-                        isMobile: appServices.isMobileMode(),
-                        tileName: (pipe(
-                            tileMap,
-                            Dict.toEntries(),
-                            List.find(([k, v]) => v === payload['tileId'])
-                        ) || [null])[0]
-                    });
-                });
-            }),
-            rxOf(1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0, 6, 10).pipe(
-                concatMap(v => interval(config.telemetry.sendIntervalSecs * v * 1000).pipe(take(1))),
-            )
-        ).pipe(
-            scan<number|TelemetryAction, {toDispatch: Array<TelemetryAction>, buffer:Array<TelemetryAction>}>(
-                (acc, curr) => typeof curr === 'number' ?
-                    {
-                        toDispatch: acc.buffer,
-                        buffer: []
-                    } :
-                    {
-                        toDispatch: [],
-                        buffer: acc.buffer.concat([curr])
-                    },
-                    {toDispatch: [], buffer: []}
-            ),
-            concatMap(
-                (data) => data.toDispatch.length > 0 ?
-                    ajax$(
-                        HTTP.Method.POST,
-                        config.telemetry.url ?
-                            config.telemetry.url :
-                            appServices.createActionUrl(HTTPAction.TELEMETRY),
-                        {telemetry: data.toDispatch},
-                        {contentType: 'application/json'}
-                    ) :
-                    EMPTY
-            )
-        ).subscribe();
-    }
-}
-
-
 export const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((k, i) => {
@@ -177,6 +130,7 @@ export const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[iden
     });
     return ans;
 };
+
 
 
 export function initClient(
@@ -195,31 +149,46 @@ export function initClient(
         actionUrlCreator: (path, args) => {
                 const argsStr = Array.isArray(args) || MultiDict.isMultiDict(args) ?
                         encodeURLParameters(args) : encodeArgs(args);
-                return config.hostUrl + (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
+                return config.hostUrl + (path.substring(0, 1) === '/' ? path.substring(1) : path ) +
                         (argsStr.length > 0 ? '?' + argsStr : '');
         }
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
-    const dataStreaming = new DataStreaming(
-        pipe(
-            config.tiles,
-            Dict.filter(
-                (v, k) => v.useDataStream
+    const dataStreaming = userSession.queryType === QueryType.PREVIEW ?
+        new DataStreamingPreview() :
+        new DataStreaming(
+            null,
+            pipe(
+                config.tiles,
+                Dict.filter(
+                    (v, k) => v.useDataStream
+                ),
+                Dict.keys(),
+                List.map(v => tileIdentMap[v])
             ),
-            Dict.keys(),
-            List.map(v => tileIdentMap[v])
-        ),
-        config.dataStreamingUrl
-    );
+            config.dataStreamingUrl,
+            DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
+            userSession
+        );
     const appServices = new AppServices({
         notifications,
         uiLang: userSession.uiLang,
-        domainNames: List.map(v => tuple(v.code, v.label), config.searchDomains),
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
         dataReadability: config.dataReadability || {metadataMapping: {}, commonStructures: {}},
         apiHeadersMapping: config.apiHeaders,
+        apiCaller: {
+            callAPI: (api, streaming, tileId, queryIdx, queryArgs) => api.call(streaming, tileId, queryIdx, queryArgs),
+            callAPIWithExtraVal: <T, U, V>(
+                api:DataApi<T, U>,
+                streaming:IDataStreaming,
+                tileId:number,
+                queryIdx:number,
+                args:T,
+                passThrough:V
+            ) => callWithExtraVal(streaming, api, tileId, queryIdx, args, passThrough)
+        },
         dataStreaming,
         mobileModeTest: () => Client.isMobileTouchDevice()
     });
@@ -248,7 +217,12 @@ export function initClient(
     );
 
     try {
-        const layoutManager = new LayoutManager(config.layouts, tileIdentMap, appServices);
+        const layoutManager = new LayoutManager(
+            config.layouts,
+            tileIdentMap,
+            appServices,
+            userSession.queryType
+        );
         const {component, tileGroups} = createRootComponent({
             config,
             userSession,
@@ -261,7 +235,6 @@ export function initClient(
         });
         console.info('tile map: ', tileIdentMap); // DEBUG TODO
 
-        initTelemetry(config, appServices, dispatcher, tileIdentMap);
         mountReactComponent({
             userSession,
             component,

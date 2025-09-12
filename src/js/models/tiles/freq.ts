@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LocalizedConfMsg } from '../../types.js';
 
 export interface FreqBarModelStateBase {
     isBusy:boolean;
@@ -25,51 +24,32 @@ export interface FreqBarModelStateBase {
 
 // these represent state parameters required to use freq APIs `stateToArgs` method
 
-export interface MinSingleCritFreqState {
+
+export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase {
+
     corpname:string;
-    subcname?:string;
+
+    subcname:string|null;
+
     fcrit:string;
-    freqType:'tokens'|'text-types';
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty?:boolean;
-    fmaxitems?:number;
-    concId?:string;
-}
 
-export interface MinMultiCritFreqState {
-    corpname:string;
-    subcname:string|undefined;
-    fcrit:Array<string>;
     freqType:'tokens'|'text-types';
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty?:boolean;
-    fmaxitems?:number;
-    concId?:string;
-}
 
-export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase, MinSingleCritFreqState {
+    flimit:number;
+
+    freqSort:string;
+
+    fpage:number;
+
+    posQueryGenerator:[string, string];
+
+    fttIncludeEmpty?:boolean;
+
+    fmaxitems?:number;
+
     data:Array<T>;
 }
 
-export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase, MinSingleCritFreqState {
-    data:Array<Array<T>>;
-}
-
-export interface FreqDataBlock<T> {
-    data:Array<T>;
-    ident:string;
-    label:string;
-    isReady:boolean;
-}
-
-export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateBase, MinMultiCritFreqState {
-    critLabels:Array<LocalizedConfMsg>;
-    blocks:Array<FreqDataBlock<T>>;
-}
 
 /**
  * SubqueryModeConf defines a special part

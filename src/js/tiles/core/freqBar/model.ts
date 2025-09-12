@@ -15,259 +15,262 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, StatelessModel, IActionQueue } from 'kombo';
-import { Observable, Observer } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
-import { Dict, Ident } from 'cnc-tskit';
+import { IFullActionControl, StatefulModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
-import { BacklinkArgs } from '../../../api/vendor/kontext/freqs.js';
-import { GeneralMultiCritFreqBarModelState } from '../../../models/tiles/freq.js';
-import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile.js';
+import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { Actions as ConcActions } from '../concordance/actions.js';
-import { Actions } from './actions.js';
+import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import { SystemMessageType } from '../../../types.js';
+import { mergeMap, Observable } from 'rxjs';
+import { List, pipe, tuple } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util.js';
-import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs.js';
-import { isWebDelegateApi } from '../../../types.js';
 
 
-export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
+export interface FreqDataBlock {
+    word:string;
+    isReady:boolean;
+    rows:Array<DataRow>;
+}
+
+
+export interface FreqBarModelState {
+    corpname:string;
     subcname:string|undefined;
-    maxNumCategories:number;
-    activeBlock:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    fcrit:string;
+    tileBoxSize:[number, number];
+    matchCase:boolean;
+    label:string;
+    freqType:'tokens'|'text-types';
+    posQueryGenerator:[string, string];
+    flimit:number;
+    fpage:number;
+    fmaxitems?:number;
+    concId?:string;
+    freqData:Array<FreqDataBlock>;
+    backlinks:Array<Backlink>;
     subqSyncPalette:boolean;
     isAltViewMode:boolean;
+    isBusy:boolean;
+    error:string;
+    pixelsPerCategory:number;
 }
 
 export interface FreqBarModelArgs {
-    dispatcher:IActionQueue;
+    dispatcher:IFullActionControl;
+    queryMatches:Array<QueryMatch>;
     tileId:number;
-    waitForTiles:Array<number>;
-    waitForTilesTimeoutSecs:number;
-    subqSourceTiles:Array<number>;
+    readDataFromTile:number|null;
     appServices:IAppServices;
-    api:IMultiBlockFreqDistribAPI<{}>;
-    backlink:Backlink|null;
+    api:MQueryFreqDistribAPI;
     initState:FreqBarModelState;
 }
 
 
-export class FreqBarModel extends StatelessModel<FreqBarModelState> {
+export class FreqBarModel extends StatefulModel<FreqBarModelState> {
 
-    protected api:IMultiBlockFreqDistribAPI<{}>;
+    readonly CHART_LABEL_MAX_LEN = 20;
 
-    protected readonly appServices:IAppServices;
+    private readonly api:MQueryFreqDistribAPI;
 
-    protected readonly tileId:number;
+    private readonly appServices:IAppServices;
 
-    protected waitForTiles:{[tileId:string]:boolean};
+    private readonly tileId:number;
 
-    protected waitForTilesTimeoutSecs:number;
+    private readonly queryMatches:Array<QueryMatch>;
 
-    protected subqSourceTiles:{[tileId:string]:boolean};
-
-    private readonly backlink:Backlink|null;
-
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices,
-            api, backlink, initState}:FreqBarModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        appServices,
+        api,
+        queryMatches,
+        initState
+    }:FreqBarModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTiles = Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), false]));
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
-        this.subqSourceTiles = Dict.fromEntries(subqSourceTiles.map(v => [v.toFixed(), true]));
+        this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.api = api;
-        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
-        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
-            GlobalActions.EnableAltViewMode.name,
-            (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = true;
-                }
+        this.addActionHandler(
+            GlobalActions.SetScreenMode,
+            action => {
+                console.log('SET SCREEN MODE: ', action.payload);
             }
         );
-        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
-            GlobalActions.DisableAltViewMode.name,
-            (state, action) => {
-                if (action.payload.ident === this.tileId) {
-                    state.isAltViewMode = false;
-                }
-            }
-        );
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
-            (state, action) => {
-                state.isBusy = true;
-                state.error = null;
-            },
-            (state, action, dispatch) => {
-                this.waitForActionWithTimeout(
-                    this.waitForTilesTimeoutSecs * 1000,
-                    Dict.map(_ => true, this.waitForTiles),
-                    (action:Action, syncData) => {
-                        if (ConcActions.isTileDataLoaded(action) && this.waitForTiles[action.payload.tileId] !== undefined) {
-                            new Observable((observer:Observer<number>) => {
-                                if (action.error) {
-                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                                } else {
-                                    state.fcrit.forEach((_, critIdx) => observer.next(critIdx));
-                                    observer.complete();
-                                }
-                            }).pipe(
-                                concatMap(critIdx => callWithExtraVal(
-                                        this.api,
-                                        this.tileId,
-                                        false,
-                                        this.api.stateToArgs(
-                                            state,
-                                            action.payload.concPersistenceIDs[0],
-                                            critIdx,
-                                            state.subcname
-                                        ),
-                                        critIdx
-                                ))
-                            )
-                            .subscribe({
-                                next:([resp, critIdx]) => {
-                                    dispatch<typeof Actions.TileDataLoaded>({
-                                        name: Actions.TileDataLoaded.name,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: resp.blocks.every(v => v.data.length === 0),
-                                            block: resp.blocks.length > 0 ?
-                                                {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories)} :
-                                                null,
-                                            concId: resp.concId,
-                                            critIdx: critIdx
-                                        }
-                                    });
-                                },
-                                error:error => {
-                                    dispatch<typeof Actions.TileDataLoaded>({
-                                        name: GlobalActions.TileDataLoaded.name,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            block: null,
-                                            concId: null,
-                                            critIdx: null
-                                        },
-                                        error: error
-                                    });
-                                }
-                            });
-
-                            const ans = {...syncData};
-                            ans[action.payload.tileId.toFixed()] = false;
-                            return Dict.hasValue(true, ans) ? ans : null;
-                        }
-                        return syncData;
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableAltViewMode,
+            action => action.payload.ident === this.tileId,
+            action => {
+                this.changeState(
+                    state => {
+                        state.isAltViewMode = true;
                     }
                 );
             }
         );
 
-        this.addActionHandler<typeof Actions.SetActiveBlock>(
-            Actions.SetActiveBlock.name,
-            (state, action) => {
-                state.activeBlock = action.payload.idx;
-            }
-        );
-
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
-            (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    if (action.error) {
-                        state.blocks = state.fcrit.map((_, i) => ({
-                            data: [],
-                            ident: Ident.puid(),
-                            label: this.appServices.importExternalMessage(action.payload.blockLabel ? action.payload.blockLabel : state.critLabels[i]),
-                            isReady: true
-                        }));
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
-                        state.isBusy = false;
-
-                    } else {
-                        state.blocks[action.payload.critIdx] = {
-                            data: action.payload.block ?
-                                action.payload.block.data.map(v => ({
-                                    name: this.appServices.translateResourceMetadata(state.corpname, v.name),
-                                    freq: v.freq,
-                                    ipm: v.ipm,
-                                    norm: v.norm
-                                })) : null,
-                            ident: Ident.puid(),
-                            label: this.appServices.importExternalMessage(
-                                action.payload.blockLabel ?
-                                    action.payload.blockLabel :
-                                    state.critLabels[action.payload.critIdx]
-                            ),
-                            isReady: true
-                        };
-                        state.isBusy = state.blocks.some(v => !v.isReady);
-                        state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(state, this.backlink, action.payload.concId);
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableAltViewMode,
+            action => action.payload.ident === this.tileId,
+            action => {
+                this.changeState(
+                    state => {
+                        state.isAltViewMode = false;
                     }
-                }
+                );
             }
         );
-        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
-            GlobalActions.GetSourceInfo.name,
-            (state, action) => {},
-            (state, action, dispatch) => {
-                if (action.payload.tileId === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, false, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe({
-                        next:(data) => {
-                            dispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    tileId: this.tileId,
-                                    data: data
-                                }
-                            });
-                        },
-                        error:(err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error: err,
-                                paylod: {
-                                    tileId: this.tileId
-                                }
-                            });
-                        }
-                    });
-                }
+
+        this.addActionHandler(
+            GlobalActions.RequestQueryResponse,
+            action => {
+                this.changeState(
+                    state => {
+                        List.forEach(item => {item.isReady = false;}, state.freqData);
+                        state.isBusy = true;
+                        state.error = null;
+                    }
+                );
+
+                new Observable<[MQueryFreqArgs, {queryIdx:number;}]>((observer) => {
+                    try {
+                        pipe(
+                            this.queryMatches,
+                            List.map((currMatch, queryIdx) =>
+                                tuple(
+                                    this.stateToArgs(currMatch),
+                                    {
+                                        queryIdx,
+                                    },
+                                )
+                            ),
+                            List.forEach(args => observer.next(args)),
+                        );
+                        observer.complete();
+
+                    } catch (e) {
+                        observer.error(e);
+                    }
+
+                }).pipe(
+                    mergeMap(([args, pass]) =>
+                        appServices.callAPIWithExtraVal(
+                            this.api,
+                            this.appServices.dataStreaming(),
+                            this.tileId,
+                            pass.queryIdx,
+                            args,
+                            pass,
+                        )
+                    ),
+                ).subscribe({
+                    next: ([data, pass]) => {
+                        this.changeState(
+                            state => {
+                                state.freqData[pass.queryIdx].rows = data.data;
+                                state.freqData[pass.queryIdx].isReady = true;
+                                state.backlinks[pass.queryIdx] = this.api.getBacklink(pass.queryIdx);
+                            }
+                        )
+                    },
+                    complete: () => {
+                        this.changeState(
+                            state => {
+                                state.isBusy = false;
+                            }
+                        )
+                    },
+                    error: error => {
+
+                        this.changeState(
+                            state => {
+                                state.freqData = List.map(
+                                    match => ({word: match.word, isReady: true, rows: []}),
+                                    this.queryMatches
+                                );
+                                state.backlinks = List.map(_ => null, this.queryMatches);
+                                state.error = this.appServices.normalizeHttpApiError(error);
+                                state.isBusy = false;
+                            }
+                        )
+                        this.appServices.showMessage(SystemMessageType.ERROR, error);
+                    }
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            action => action.payload.tileId === this.tileId,
+            action => {
+                this.api.getSourceDescription(
+                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    this.state.corpname
+
+                ).subscribe({
+                    next:(data) => {
+                        this.dispatchSideEffect({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                tileId: this.tileId,
+                                data: data
+                            }
+                        });
+                    },
+                    error:(err) => {
+                        console.error(err);
+                        this.dispatchSideEffect({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error: err,
+                            paylod: {
+                                tileId: this.tileId
+                            }
+                        });
+                    }
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.FollowBacklink,
+            action => action.payload.tileId === this.tileId,
+            action => {
+                const args = this.stateToArgs(this.queryMatches[action.payload.backlink.queryId]);
+                this.api.requestBacklink(args).subscribe({
+                    next: url => {
+                        window.open(url.toString(),'_blank');
+                    },
+                    error: err => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    },
+                });
             }
         );
     };
-}
 
-export const factory = (
-    dispatcher:IActionQueue,
-    tileId:number,
-    waitForTiles:Array<number>,
-    waitForTilesTimeoutSecs:number,
-    subqSourceTiles:Array<number>,
-    appServices:IAppServices,
-    api:IMultiBlockFreqDistribAPI<{}>,
-    backlink:Backlink|null,
-    initState:FreqBarModelState) => {
 
-    return new FreqBarModel({
-        dispatcher,
-        tileId,
-        waitForTiles,
-        waitForTilesTimeoutSecs,
-        subqSourceTiles,
-        appServices,
-        api,
-        backlink,
-        initState
-    });
+    private stateToArgs(queryMatch:QueryMatch):MQueryFreqArgs|null {
+        if (testIsDictMatch(queryMatch)) {
+            return {
+                corpname: this.state.corpname,
+                path: this.state.freqType === 'tokens' ? 'freqs' : 'text-types',
+                queryArgs: {
+                    q: mkLemmaMatchQuery(queryMatch, this.state.posQueryGenerator),
+                    subcorpus: '', // TODO
+                    attr: this.state.fcrit,
+                    matchCase: this.state.matchCase ? '1' : '0',
+                    maxItems: this.state.fmaxitems,
+                    flimit: this.state.flimit
+                }
+            };
+        }
+        return null;
+    }
 }

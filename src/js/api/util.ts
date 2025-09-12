@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { DataApi } from '../types.js';
+import { IDataStreaming } from '../page/streaming.js';
 
 /**
  * callWithExtraVal calls a DataApi<T, U> instance while also passing through
@@ -29,8 +30,15 @@ import { DataApi } from '../types.js';
  * @param args API call arguments
  * @param passThrough
  */
-export const callWithExtraVal = <T, U, V>(api:DataApi<T, U>, tileId:number, multicastRequest:boolean, args:T, passThrough:V):Observable<[U, V]> => {
-    return api.call(tileId, multicastRequest, args).pipe(
+export const callWithExtraVal = <T, U, V>(
+    streaming:IDataStreaming,
+    api:DataApi<T, U>,
+    tileId:number,
+    queryIdx:number,
+    args:T,
+    passThrough:V
+):Observable<[U, V]> => {
+    return api.call(streaming, tileId, queryIdx, args).pipe(
         map(v => [v, passThrough] as [U, V])
     );
 }

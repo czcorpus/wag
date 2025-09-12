@@ -20,13 +20,12 @@ import { map } from 'rxjs/operators';
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
-import { CorpusDetails } from '../../../types.js';
+import { CorpusDetails, ResourceApi } from '../../../types.js';
 import { CorpusInfoAPI } from './corpusInfo.js';
-import { BacklinkWithArgs, Backlink } from '../../../page/tile.js';
-import { APIResponse, IFreqDistribAPI } from '../../abstract/freqs.js';
-import { MinSingleCritFreqState } from '../../../models/tiles/freq.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import urlJoin from 'url-join';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
 export interface HTTPResponse {
@@ -41,10 +40,29 @@ export interface HTTPResponse {
     }>;
     fcrit:string;
     examplesQueryTpl?:string;
-    error?:string
+    error?:string;
 }
 
-interface MQueryFreqArgs {
+export interface DataRow {
+    name:string;
+    freq:number;
+    ipm:number;
+    norm:number;
+    order?:number;
+}
+
+
+export interface APIResponse {
+    queryIdx:number;
+    concId:string;
+    corpname:string;
+    concsize:number;
+    usesubcorp:string|null;
+    data:Array<DataRow>;
+}
+
+
+export interface MQueryFreqArgs {
     corpname:string;
     path:'freqs'|'text-types';
     queryArgs:{
@@ -58,7 +76,7 @@ interface MQueryFreqArgs {
     }
 }
 
-export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
+export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResponse> {
 
     private readonly apiURL:string;
 
@@ -68,33 +86,29 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
 
     private readonly useDataStream:boolean;
 
-    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.useDataStream = useDataStream;
+        this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
-    createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<{}> {
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        if (this.backlinkConf) {
+            return {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'KonText',
+            };
+        }
         return null;
-    }
-
-    stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):MQueryFreqArgs {
-        return {
-            corpname: state.corpname,
-            path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
-            queryArgs: {
-                subcorpus: subcname ? subcname : state.subcname,
-                q: `[lemma="${concId}"]`,
-                flimit: state.flimit,
-                matchCase: '0',
-                attr: state.fcrit,
-            }
-        };
     }
 
     /**
@@ -109,35 +123,50 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(tileId:number, multicastRequest:boolean, args:MQueryFreqArgs):Observable<APIResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryFreqArgs|null):Observable<APIResponse> {
         return (
             this.useDataStream ?
-                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(multicastRequest, {
+                streaming.registerTileRequest<HTTPResponse>({
                     contentType: 'application/json',
                     body: {},
                     method: HTTP.Method.GET,
                     tileId,
-                    url: urlJoin(
-                        this.apiURL,
-                        `/${args.path}/${args.corpname}`
-                    ) + '?' + encodeURLParameters(
-                        List.filter(
-                            item => !!item[1],
-                            [
-                                tuple('attr', args.queryArgs.attr),
-                                tuple('flimit', args.queryArgs.flimit),
-                                tuple('matchCase', args.queryArgs.matchCase),
-                                tuple('maxItems', args.queryArgs.maxItems),
-                                tuple('q', args.queryArgs.q),
-                                tuple('subcorpus', args.queryArgs.subcorpus),
-                                tuple('textProperty', args.queryArgs.textProperty),
-                            ]
-                        )
+                    queryIdx,
+                    url: args ?
+                        urlJoin(
+                            this.apiURL,
+                            args.path,
+                            args.corpname
+                        ) + '?' + encodeURLParameters(
+                            List.filter(
+                                item => !!item[1],
+                                [
+                                    tuple('attr', args.queryArgs.attr),
+                                    tuple('flimit', args.queryArgs.flimit),
+                                    tuple('matchCase', args.queryArgs.matchCase),
+                                    tuple('maxItems', args.queryArgs.maxItems),
+                                    tuple('q', args.queryArgs.q),
+                                    tuple('subcorpus', args.queryArgs.subcorpus),
+                                    tuple('textProperty', args.queryArgs.textProperty),
+                                ]
+                            )
+                        ) :
+                        '',
+                }).pipe(
+                    map(
+                        resp => resp ?
+                            resp :
+                            ({
+                                concSize: 0,
+                                corpusSize: 0,
+                                freqs: [],
+                                fcrit: ''
+                            })
                     )
-                }) :
+                ) :
                 ajax$<HTTPResponse>(
                     'GET',
-                    this.apiURL + `/${args.path}/${args.corpname}`,
+                    urlJoin(this.apiURL, args.path, args.corpname),
                     args.queryArgs,
                     {
                         headers: this.apiServices.getApiHeaders(this.apiURL),
@@ -146,11 +175,12 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
                 )
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
-                corpname: args.corpname,
-                usesubcorp: args.queryArgs.subcorpus,
+                corpname: args?.corpname,
+                usesubcorp: args?.queryArgs.subcorpus,
                 concsize: resp.concSize,
                 concId: '',
-                data: args.path === 'text-types' ?
+                queryIdx,
+                data: args?.path === 'text-types' ?
                     pipe(
                         resp.freqs,
                         List.map(
@@ -187,5 +217,39 @@ export class MQueryFreqDistribAPI implements IFreqDistribAPI<MQueryFreqArgs> {
                 })
             )
         )
+    }
+
+    requestBacklink(args:MQueryFreqArgs):Observable<URL> {
+        const concArgs = {
+            corpname: args.corpname,
+            q: `q${args.queryArgs.q}`,
+            format: 'json',
+        };
+        if (args.queryArgs.subcorpus) {
+            concArgs['subcorpus'] = args.queryArgs.subcorpus;
+        }
+        return ajax$<{conc_persistence_op_id:string}>(
+            'GET',
+            urlJoin(this.backlinkConf.url, 'create_view'),
+            concArgs,
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true,
+            }
+        ).pipe(
+            map(resp => {
+                const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
+                url.searchParams.set('corpname', args.corpname);
+                if (args.queryArgs.subcorpus) {
+                    url.searchParams.set('subcorpus', args.queryArgs.subcorpus);
+                }
+                url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
+                url.searchParams.set('fcrit', args.queryArgs.attr);
+                url.searchParams.set('freq_type', args.path === 'freqs' ? 'tokens' : 'text-types');
+                url.searchParams.set('flimit', args.queryArgs.flimit.toString());
+                url.searchParams.set('freq_sort', 'rel');
+                return url;
+            })
+        );
     }
 }

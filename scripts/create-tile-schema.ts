@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import tjs from 'typescript-json-schema';
 import { fileURLToPath } from 'url';
+import readline from 'readline';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,17 +35,18 @@ if (process.argv.length === 4) {
     console.log(`Config schema ${process.argv[2]} ${process.argv[3]} created!`);
 
 } else if (process.argv.length === 2) {
-    const readline = require('readline');
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     });
 
     rl.question("Enter tile dir (e.g. core/html): ", tileDir => {
-        rl.question("Enter config type name (e.g. HtmlTileConf): ", typeName => {
-            generateSchema(tileDir, typeName);
+        const tileName = tileDir.split('/')[1];
+        const defaultTileConf = tileName[0].toUpperCase() + tileName.slice(1) + 'TileConf';
+        rl.question(`Enter config type name (e.g. HtmlTileConf, default ${defaultTileConf}): `, typeName => {
+            generateSchema(tileDir, typeName || defaultTileConf);
             rl.close();
-            console.log(`Config schema ${tileDir} ${typeName} created!`);
+            console.log(`Config schema ${tileDir} ${typeName || defaultTileConf} created!`);
         });
     });
 

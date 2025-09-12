@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -16,16 +16,15 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-
+import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
-import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
-import { QueryType } from '../../../query/index.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { GeoAreasModel } from './model.js';
-import { init as viewInit } from './views/index.js';
+import { init as compareViewInit } from './views/compare.js';
+import { init as singleViewInit } from './views/single.js';
 import { MapLoader } from './mapLoader.js';
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 
 
 export interface GeoAreasTileConf extends TileConf {
@@ -34,12 +33,16 @@ export interface GeoAreasTileConf extends TileConf {
     corpname:string;
     fcrit:string;
     freqType:'tokens'|'text-types';
-    flimit:number;
-    freqSort:FreqSort;
+    freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
     frequencyDisplayLimit:number;
+
+    /**
+     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     */
+    posQueryGenerator?:[string, string];
 }
 
 
@@ -62,51 +65,49 @@ export class GeoAreasTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
-        widthFract, conf, isBusy
+        tileId, dispatcher, appServices, ut, theme,
+        widthFract, conf, isBusy, queryMatches, queryType,
     }:TileFactoryArgs<GeoAreasTileConf>) {
-
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/GeoAreasTile/authenticate")} :
-            {};
         this.model = new GeoAreasModel({
             dispatcher,
             tileId,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs,
             appServices,
-            api: createFreqApiInstance(conf.apiType, conf.apiURL, conf.useDataStream, appServices, apiOptions),
+            queryMatches,
+            freqApi: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
             mapLoader: new MapLoader(appServices),
+            queryType,
             initState: {
                 isBusy: isBusy,
                 error: null,
                 areaCodeMapping: {...conf.areaCodeMapping},
                 mapSVG: '',
                 tooltipArea: null,
-                data: [],
+                data: List.map(_ => [], queryMatches),
                 corpname: conf.corpname,
-                concId: null,
+                subcname: null, // TODO
                 fcrit: conf.fcrit,
                 freqType: conf.freqType,
-                flimit: conf.flimit,
+                flimit: 1,  // necessary for the freqApi
+                frequencyDisplayLimit: conf.frequencyDisplayLimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 isAltViewMode: false,
-                frequencyDisplayLimit: conf.frequencyDisplayLimit,
-                backlink: null,
+                posQueryGenerator: conf.posQueryGenerator,
+                currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
+                backlinks: List.map(_ => null, queryMatches),
             },
-            backlink: conf.backlink || null,
         });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
-        this.view = viewInit(this.dispatcher, ut, theme, this.model);
+        this.view = queryType === QueryType.CMP_QUERY || queryType === QueryType.PREVIEW && queryMatches.length > 1 ?
+            compareViewInit(this.dispatcher, ut, theme, this.model) :
+            singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getLabel():string {
@@ -127,8 +128,8 @@ export class GeoAreasTile implements ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY;
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
     disable():void {
@@ -171,11 +172,20 @@ export class GeoAreasTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<GeoAreasTileConf> = {
 
-    create: (args) => new GeoAreasTile(args),
+    sanityCheck: (args) => [],
 
-    sanityCheck: (args) => []
+    create: (args) => new GeoAreasTile(args)
 };
+

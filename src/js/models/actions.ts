@@ -19,6 +19,7 @@ import { Action } from 'kombo';
 
 import { SystemMessageType, SourceDetails } from '../types.js';
 import { QueryType } from '../query/index.js';
+import { Backlink } from '../page/tile.js';
 
 
 export class Actions {
@@ -30,13 +31,16 @@ export class Actions {
     }
 
     static RetryTileLoad:Action<{
+        tileId:number;
     }> = {
         name: 'MAIN_RETRY_TILE_LOAD'
     }
 
-    static WakeSuspendedTiles:Action<{
+    static TileSubgroupReady:Action<{
+        mainTileId:number;
+        subgroupId:string;
     }> = {
-        name: 'MAIN_WAKE_SUSPENDED_TILES'
+        name: 'MAIN_TILE_SUBGROUP_READY'
     }
 
     static SetEmptyResult:Action<{
@@ -88,34 +92,16 @@ export class Actions {
         name:'MAIN_CHANGE_CURR_QUERY_MATCH'
     }
 
-    // this action currently reload the page so we need
-    // more arguments than in SPA-mode
-    static ChangeTargetDomain:Action<{
-        domain1:string;
-        domain2:string;
-        queryType:QueryType;
-        queries:Array<string>;
+    static ChangeTranslatLanguage:Action<{
+        lang:string;
     }> = {
-        name: 'MAIN_CHANGE_TARGET_DOMAIN'
+        name: 'MAIN_CHANGE_TRANSLAT_LANGUAGE'
     }
 
-    // this action currently reload the page so we need
-    // more arguments than in SPA-mode
     static ChangeQueryType:Action<{
         queryType:QueryType;
-        domain1:string;
-        domain2:string;
-        queries:Array<string>;
     }> = {
         name: 'MAIN_CHANGE_QUERY_TYPE'
-    }
-
-    static SetTileRenderSize:Action<{
-        size:[number, number];
-        isMobile:boolean;
-        tileId:number;
-    }> = {
-        name: 'MAIN_SET_TILE_RENDER_SIZE'
     }
 
     static SetScreenMode:Action<{
@@ -170,12 +156,26 @@ export class Actions {
         name: 'MAIN_DISABLE_TILE_TWEAK_MODE'
     }
 
+    static OverwriteTileLabel:Action<{
+        tileId:number;
+        value:string;
+    }> = {
+        name: 'MAIN_OVERWRITE_TILE_LABEL'
+    }
+
     static GetSourceInfo:Action<{
         tileId:number;
         corpusId:string;
         subcorpusId?:string;
     }> = {
         name: 'MAIN_GET_SOURCE_INFO'
+    }
+
+    static FollowBacklink:Action<{
+        tileId:number;
+        backlink:Backlink;
+    }> = {
+        name: 'MAIN_FOLLOW_BACKLING'
     }
 
     static CloseSourceInfo:Action<{
@@ -268,13 +268,6 @@ export class Actions {
 
     }> = {
         name: 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED'
-    }
-
-    static SubqChanged:Action<{
-        tileId:number;
-
-    }> = {
-        name: 'MAIN_SUBQ_CHANGED'
     }
 
     static TileAreaClicked:Action<{

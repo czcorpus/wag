@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { HTTPHeaders, LocalizedConfMsg } from '../types.js';
-import { QueryType, SearchDomain } from '../query/index.js';
+import { QueryType } from '../query/index.js';
 import { TileConf } from '../page/tile.js';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
@@ -24,6 +24,8 @@ import { List, pipe } from 'cnc-tskit';
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 
 export const THEME_COOKIE_NAME = 'wag_theme';
+
+export const LAST_USED_TRANSLAT_LANG_COOKIE_NAME = 'wag_last_translat_lang';
 
 export type MainPosAttrValues = 'pos'|'upos';
 
@@ -38,26 +40,33 @@ export interface UserQuery {
  * user specific information/input.
  */
 export interface UserConf {
+    applicationId:string;
     uiLanguages:{[code:string]:string};
     uiLang:string;
     queries:Array<UserQuery>;
     queryType:QueryType;
-	query1Domain:string;
-    query2Domain:string;
+    translatLanguage:string|undefined;
     answerMode:boolean;
+    staticPage?:boolean;
     error?:[number, string]; // server error (e.g. bad request)
 }
 
-export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number, string], uiLang:string):UserConf {
+export function errorUserConf(
+    applicationId:string,
+    uiLanguages:{[code:string]:string},
+    error:[number, string],
+    uiLang:string
+):UserConf {
     return {
-        uiLanguages: uiLanguages,
-        uiLang: uiLang,
+        applicationId,
+        uiLanguages,
+        uiLang,
         queries: [],
         queryType: QueryType.SINGLE_QUERY,
-        query1Domain: '',
-        query2Domain: '',
+        translatLanguage: '',
         answerMode: false, // ??
-        error: error
+        staticPage: false,
+        error
     };
 }
 
@@ -73,6 +82,35 @@ export interface ColorThemeIdent {
  * (mainly chart colors).
  */
 export interface ColorTheme extends ColorThemeIdent {
+
+    defaultFontFamily?:string;
+    condensedFontFamily?:string;
+    defaultFontSize?:string;
+    backgroundImage?:string;
+    pageBackgroundColor?:string;
+    tileBackgroundColor?:string;
+    tileHeadingSeparColor?:string;
+    textInputBackgroundColor?:string;
+    colorLogoBlue?:string;
+    colorLogoBlueShining?:string;
+    colorWhitelikeBlue?:string;
+    colorLightText?:string;
+    colorDefaultText?:string;
+    colorInvertText?:string;
+    colorInvertedSecondaryText?:string;
+    colorSecondaryText?:string;
+    colorLogoPink?:string;
+    colorSuperlightGrey?:string;
+    svgIconsFilter?:string;
+    svgLogoFilter?:string;
+
+    tileBorderStyle?:string;
+    tileBorderRadius?:string;
+
+    cssMediaMediumScreen?:string;
+    cssMediaSmallScreen?:string;
+
+
     lineChartColor1:string;
     lineConfidenceAreaColor1:string;
     lineChartColor2:string;
@@ -83,6 +121,8 @@ export interface ColorTheme extends ColorThemeIdent {
     scale:Array<string>;
     geoAreaSpotFillColor:string;
     geoAreaSpotTextColor?:string;
+
+    chartTextColor?:string;
 }
 
 export interface ColorsConf {
@@ -90,49 +130,17 @@ export interface ColorsConf {
     default:string;
 }
 
-/**
- * ServiceTile is a tile which is a functional part of a layout but not
- * necessarily in a visual way.
- */
-export interface ServiceTile {
+
+export interface LayoutVisibleTile {
+
     tile:string;
 
-    /**
-    * In case a tile supports this (most of them does so) it can
-    * wait for a specific tile to finish its operation. Again,
-    * this is used mainly for 'concordance -> analysis' combinations.
-    */
-    waitFor?:string|Array<string>;
+    width:number;
 
-    /**
-     * In case we depend on multiple tiles and some of them are
-     * just kind of hidden dependencies (i.e. we want to wait them
-     * to complate but we don't need their subquery args) this can
-     * be used to distinguish the two dependency types.
-     *
-     * Please note that this value is not used directly by WdG but
-     * it is rather provided for tile model to provide more information
-     * about inter-tile dependencies. I.e. it is perfectly doable to
-     * define a subquery producing tile as a dependency via 'waitFor'.
-     * But in more complex situations when we need some tiles to just
-     * wait for and some to also provide subqueries the model may not
-     * have enough information to distinguish between the two.
-     */
-    readSubqFrom?:string|Array<string>;
+    readDataFrom?:string;
+
+    ref?:string;
 }
-
-export function isServiceTile(v:any):v is ServiceTile {
-    return typeof v['tile'] === 'string' &&
-        (v['waitFor'] === undefined ||
-            typeof v['waitFor'] === 'string' ||
-            Array.isArray(v['waitFor'])) &&
-        (v['readSubqFrom'] === undefined ||
-            typeof v['readSubqFrom'] === 'string' ||
-            Array.isArray(v['readSubqFrom']));
-}
-
-
-export type LayoutVisibleTile = ServiceTile & {width:number, ref?:string};
 
 
 export interface GroupLayoutConfig {
@@ -142,11 +150,9 @@ export interface GroupLayoutConfig {
     tiles:Array<LayoutVisibleTile>;
 }
 
-export type GroupItemConfig = GroupLayoutConfig|ServiceTile|string;
-
 export interface LayoutConfigCommon {
     mainPosAttr:MainPosAttrValues;
-    groups:Array<GroupItemConfig>;
+    groups:Array<GroupLayoutConfig>;
     label?:LocalizedConfMsg;
     useLayout?:string;
     replace?:{[ref:string]:string};
@@ -157,15 +163,24 @@ export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
 
 export interface LayoutConfigCmpQuery extends LayoutConfigCommon {}
 
+export interface TranslatLanguage {
+    code:string;
+    label:string;
+}
 
 export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
-    targetDomains:Array<string>;
+    targetLanguages:Array<TranslatLanguage>;
+}
+
+export interface LayoutConfigPreviewQuery extends LayoutConfigCommon {
+    targetLanguages:Array<TranslatLanguage>;
 }
 
 export interface LayoutsConfig {
     single?:LayoutConfigSingleQuery;
     cmp?:LayoutConfigCmpQuery;
     translat?:LayoutConfigTranslatQuery;
+    preview?:LayoutConfigPreviewQuery;
 }
 
 export interface HomePageTileConfI18n {
@@ -183,10 +198,47 @@ export interface FaviconConf {
     url:string;
 }
 
-export interface LogoConf {
+export interface InstanceLink {
+    label:LocalizedConfMsg;
     url:string;
+}
+
+export interface LogoStaticConf {
+    url:LocalizedConfMsg;
     inlineStyle?:CSSProperties;
-    label?:string;
+    label?:LocalizedConfMsg;
+
+    /**
+     * For WaG instances displaying specific text type / media / etc.,
+     * an additional logo can be used to display something like e.g.:
+     * [Word at a Glance] [ / Fiction].
+     */
+    subWag?:{
+        url:LocalizedConfMsg; // for different language versions, use object
+        inlineStyle?:CSSProperties;
+        label?:LocalizedConfMsg; // for different language versions, use object
+    }
+}
+
+/**
+ * LogoRuntimeConf represents a runtime version
+ * of the LogoStaticConf (i.e. once we know ui language)
+ */
+export interface LogoRuntimeConf {
+    url:string;
+    inlineStyle:CSSProperties;
+    label:string;
+
+    /**
+     * For WaG instances displaying specific text type / media / etc.,
+     * an additional logo can be used to display something like e.g.:
+     * [Word at a Glance] [ / Fiction].
+     */
+    subWag?:{
+        url:string;
+        inlineStyle:CSSProperties;
+        label:string;
+    }
 }
 
 export interface CommonTextStructures {
@@ -207,22 +259,23 @@ export interface DataReadabilityMapping {
  * configuration file.
  */
 export interface ClientStaticConf {
+    import?:string; // if present, then this is a path to another JSON file
+    applicationId:string;
     rootUrl:string;
     hostUrl:string;
     runtimeAssetsUrl:string;
     favicon?:FaviconConf;
-    logo?:LogoConf;
+    logo?:LogoStaticConf;
+    instanceSwitchMenu?:Array<InstanceLink>;
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping|string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
-    reqCacheTTL:number;
     onLoadInit?:Array<string>;
     issueReportingUrl?:string;
     maxTileErrors:number;
     homepage:HomepageConfI18n;
     htmlTitle?:{[lang:string]:string};
     colors?:ColorsConf|string;
-    searchDomains:{[domain:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
     externalStyles?:Array<string>;
@@ -243,37 +296,26 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-    layouts:DomainLayoutsConfig|string;
-
-    telemetry?:{
-        sendIntervalSecs:number;
-        participationProbability:number;
-        url?:string;
-    };
+    layouts:LayoutsConfig|string;
 }
 
-/**
- * These types are necessary to create config schemata
- * using Makefile for tiles and layouts only
- */
-export interface DomainLayoutsConfig {[domain:string]:LayoutsConfig};
-
-export interface DomainAnyTileConf {[domain:string]:{[ident:string]:TileConf}};
 
 export interface TileDbConf {
     server:string; // e.g. http://foo:5984
-    db:string;
-    prefix:string; // e.g. 'cnc:wag-test'
+    appId:string;
     username:string;
     password:string; // please do not use admin credentials for this
 }
 
-export function isTileDBConf(tiles: TileDbConf|DomainAnyTileConf):tiles is TileDbConf {
+export interface AllQueryTypesTileConf {[qType:string]:TileConf};
+
+
+type MultiSourceTileConf = string|TileDbConf|AllQueryTypesTileConf;
+
+
+export function isTileDBConf(tiles:MultiSourceTileConf):tiles is TileDbConf {
     return (tiles as TileDbConf).server !== undefined;
 }
-
-type MultiSourceTileConf = DomainAnyTileConf|string|TileDbConf;
-
 
 export interface HomepageTileConf {
     label:string;
@@ -292,10 +334,10 @@ export interface ClientConf {
     favicon?:FaviconConf;
 	corpInfoApiUrl:string;
     dataReadability?:DataReadabilityMapping;
-    logo?:LogoConf;
+    logo?:LogoRuntimeConf;
+    instanceSwitchMenu?:Array<{label:string; url:string}>;
     colors?:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
-    reqCacheTTL:number;
     onLoadInit?:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
@@ -304,20 +346,15 @@ export interface ClientConf {
         footer?:string;
     };
     tiles:{[ident:string]:TileConf};
-
     dataStreamingUrl:string;
 
     layouts:LayoutsConfig;
-    searchDomains:Array<SearchDomain>;
+    queryTypes:Array<QueryType>;
     externalStyles:Array<string>;
     maxTileErrors:number;
     error?:Error;
-    telemetry?:{
-        sendIntervalSecs:number;
-        participationProbability:number;
-        url?:string;
-    };
-    maxQueryWords:{[k in QueryType]?:number};
+    redirect?:[number, string];
+    maxQueryWords:number;
 }
 
 export function emptyLayoutConf():LayoutsConfig {
@@ -332,7 +369,7 @@ export function emptyLayoutConf():LayoutsConfig {
         },
         translat: {
             groups: [],
-            targetDomains: [],
+            targetLanguages: [],
             mainPosAttr: 'pos'
         }
     };
@@ -343,7 +380,8 @@ export function mergeToEmptyLayoutConf(other:LayoutsConfig):LayoutsConfig {
     return {
         single: {...layout.single, ...other.single},
         cmp: {...layout.cmp, ...other.cmp},
-        translat: {...layout.translat, ...other.translat}
+        translat: {...layout.translat, ...other.translat},
+        preview: {...layout.preview, ...other.preview}
     };
 }
 
@@ -381,14 +419,17 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         hostUrl: conf.hostUrl,
         runtimeAssetsUrl: conf.runtimeAssetsUrl,
         favicon: conf.favicon,
-        logo: conf.logo,
+        logo: {
+            url: '',
+            inlineStyle: {},
+            label: '',
+        },
         corpInfoApiUrl: conf.corpInfoApiUrl,
         apiHeaders: conf.apiHeaders,
         dataReadability: {
             metadataMapping: {},
             commonStructures: {}
         },
-        reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
         colors: getAppliedThemeConf(conf, themeId),
         colorThemes: getThemeList(conf),
@@ -398,22 +439,18 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         homepage: {
             tiles: []
         },
-        searchDomains: Object.keys(conf.searchDomains).map(k => ({
-            code: k,
-            label: conf.searchDomains[k],
-            queryTypes: []
-        })),
+        queryTypes: [],
         externalStyles: [],
         maxTileErrors: 0,
-        maxQueryWords: {}
+        maxQueryWords: 1
     };
 }
 
-export function getSupportedQueryTypes(conf:ClientStaticConf, domain:string):Array<QueryType> {
+export function getSupportedQueryTypes(conf:ClientStaticConf, translatLang:string):Array<QueryType> {
     if (typeof conf.layouts === 'string') {
         return [];
     }
-    const layout = conf.layouts[domain] || emptyLayoutConf();
+    const layout = conf.layouts[translatLang] || emptyLayoutConf();
     const ans:Array<QueryType> = [];
     if (layout.single && Array.isArray(layout.single.groups) && layout.single.groups.length > 0) {
         ans.push(QueryType.SINGLE_QUERY);
@@ -471,21 +508,12 @@ export interface FreqDbConf {
     options?:FreqDbOptions;
 }
 
-export interface QueryModeWordDb {
+export interface WordDbConf {
     maxQueryWords:number;
     minLemmaFreq:number;
-    databases:{[domain:string]:FreqDbConf};
-};
-
-export interface SingleModeWordDb extends QueryModeWordDb {
+    database:FreqDbConf;
     similarFreqWordsMaxCtx:number;
-}
-
-export interface WordFreqDbConf {
-    single?:SingleModeWordDb;
-    cmp?:QueryModeWordDb;
-    translat?:QueryModeWordDb;
-}
+};
 
 export interface LangCookieSetup {
     name:string;
@@ -505,19 +533,21 @@ export interface GroupedAuth {
  * Server side app configuration.
  */
 export interface ServerConf {
+    import?:string; // if present, then this is a path to another JSON file
     address:string;
     port:number;
     distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
     languages:{[code:string]:string};
     develServer:{
+        host:string;
         port:number;
         urlRootPath:string;
+        webSocketURL?:string;
     };
-    freqDB:WordFreqDbConf;
+    freqDB:WordDbConf;
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:LangCookieSetup;
-    telemetryDB?:string;
     logging:{
         path?:string;
         rotation?:boolean;
@@ -527,19 +557,6 @@ export interface ServerConf {
         ttl?:number;
         secret?:string;
     };
-    groupedAuth?:Array<GroupedAuth>;
     CSPDomains?:Array<string>;
 }
 
-export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
-    switch (queryType) {
-        case QueryType.SINGLE_QUERY:
-            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0, maxQueryWords: 1};
-        case QueryType.CMP_QUERY:
-            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
-        case QueryType.TRANSLAT_QUERY:
-            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
-        default:
-            throw new Error(`Unknown query type ${queryType}`);
-    }
-}

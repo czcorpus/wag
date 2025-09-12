@@ -18,9 +18,8 @@
 
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model.js';
+import { MergeCorpFreqModel } from './model.js';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell, ResponsiveContainer } from 'recharts';
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
@@ -29,6 +28,10 @@ import { List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions.js';
 
 import * as S from './style.js';
+import { MergeCorpFreqModelState, SourceMappedDataRow } from './common.js';
+
+// @ts-ignore
+import SVGLink from '../../../../../assets/external-link.svg?inline';
 
 const CHART_LABEL_MAX_LEN = 20;
 
@@ -39,9 +42,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     function transformData(
         data:Array<Array<SourceMappedDataRow>>,
-        queryMatches: Array<QueryMatch>
-    ):Array<{name:string; ipm:Array<number>; freq:Array<number>; uniqueColor:boolean}> {
-
+        queryMatches: Array<QueryMatch>,
+    ):Array<{
+        name:string;
+        ipm:Array<number>;
+        freq:Array<number>;
+        uniqueColor:boolean;
+        sourceIdx:number;
+        isClickable:boolean;
+    }> {
         return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
@@ -52,7 +61,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         name: row.name,
                         ipm: List.map(_ => 0, queryMatches),
                         freq: List.map(_ => 0, queryMatches),
-                        uniqueColor: row.uniqueColor
+                        uniqueColor: row.uniqueColor,
+                        sourceIdx: row.sourceIdx,
+                        isClickable: !!row.viewInOtherWagUrl
                     };
                     item.ipm[queryIdx] = row.ipm;
                     item.freq[queryIdx] = row.freq;
@@ -115,6 +126,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
+    // ---------------------------- <CustomLabel /> --------------------------------
+
+    const CustomLabel:React.FC<{
+        x:number;
+        y:number;
+        width:number;
+        height:number;
+        payload:unknown;
+        onClick:()=>void;
+    }> = (props) => (
+        typeof props.onClick === 'function' ?
+            <g transform={`translate(${props.x + props.width + 10}, ${props.y + 1}) scale(2)`}>
+                <SVGLink />
+            </g> :
+            null
+    );
+
 
     // -------------------------- <Chart /> --------------------------------------
 
@@ -125,6 +153,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isPartial:boolean;
         isMobile:boolean;
         tileId:number;
+        onBarClick:(barIdx:number, queryIdx:number) => () => void;
     }> = (props) => {
         const queries = props.queryMatches.length;
         const transformedData = transformData(props.data, props.queryMatches);
@@ -137,23 +166,69 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const colorFn = queries > 1 ?
                 (idx:number) => theme.cmpCategoryColor(idx, props.queryMatches.length) :
                 (idx:number) => transformedData[idx].uniqueColor ?
-                    theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
+                    theme.cmpCategoryColor(idx, List.size(transformedData)) :
                     theme.categoryColor(0);
+
+        const colorHgltFn = queries > 1 ?
+        (idx:number) => theme.cmpCategoryColorHighlighted(idx, props.queryMatches.length) :
+        (idx:number) => transformedData[idx].uniqueColor ?
+            theme.cmpCategoryColorHighlighted(idx + 1, List.size(transformedData) + 1) :
+            theme.categoryColorHighlighted(0);
+
+        const [hoveredIndex, setHoveredIndex] = React.useState(null);
+
+        const handleMouseEnter = (data, index) => {
+            setHoveredIndex(index);
+        };
+
+        const handleMouseLeave = () => {
+            setHoveredIndex(null);
+        };
+
+        const legendFormatter = (value, payload) => {
+            return <span style={{ color: theme.chartTextColor }}>{value}</span>;
+        };
+
+        const CustomizedAxisTick = ({ x, y, stroke, payload }) => {
+            const data = transformedData[payload.index];
+            return (
+                <g transform={`translate(${x},${y})`}>
+                    {data.isClickable && data.freq.length === 1 ?
+                        <a onClick={props.onBarClick(payload.index, 0)} style={{ cursor: 'pointer' }}>
+                            <text x={0} y={0} dy={5} dx={-20} textAnchor="end" fill={theme.chartTextColor}>
+                            {payload.value}
+                            </text>
+                            <g transform={`translate(-15, -8) scale(1.5)`}>
+                                <SVGLink />
+                            </g>
+                        </a> :
+                        <text x={0} y={0} dy={5} textAnchor="end" fill={theme.chartTextColor}>
+                        {payload.value}
+                        </text>
+                    }
+                </g>
+            );
+        };
+
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering
             <ResponsiveContainer id={`${props.tileId}-download-figure`} width="100%" height="95%" minHeight={300} >
                 <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
                     onMouseMove={e => {
-                        e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
-                            name: Actions.ShowTooltip.name,
-                            payload: {
-                                dataName: e.activeLabel,
-                                tileId: props.tileId,
-                                tooltipX: e.chartX,
-                                tooltipY: e.chartY
-                            }
-                        }) : null}}
+                        if (e && Array.isArray(e.activePayload)) {
+                            dispatcher.dispatch<typeof Actions.ShowTooltip>({
+                                name: Actions.ShowTooltip.name,
+                                payload: {
+                                    dataName: e.activeLabel,
+                                    tileId: props.tileId,
+                                    tooltipX: e.chartX,
+                                    tooltipY: e.chartY,
+                                    barIdx: e.activePayload[0]['payload']['sourceIdx']
+                                }
+                            })
+                        }
+                    }}
                     onMouseLeave={d =>
                         dispatcher.dispatch<typeof Actions.HideTooltip>({
                             name: Actions.HideTooltip.name,
@@ -163,23 +238,45 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 >
                     <CartesianGrid />
                     {List.map(
-                        (_, index) => (
-                            <Bar key={index}
-                                    dataKey={x => x.ipm[index]}
-                                    fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
-                                    isAnimationActive={false}
-                                    name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
-                                {List.map(
-                                    (entry, i) => <Cell key={`cell-${index}`} />,
-                                transformedData)}
-                            </Bar>
-                        ),
+                        (_, queryIdx) => {
+                            const dfltFill = props.isPartial ? theme.unfinishedChartColor : colorFn(queryIdx);
+                            const hgltFill = props.isPartial ? theme.unfinishedChartColor : colorHgltFn(queryIdx);
+                            return (
+                                <Bar key={queryIdx}
+                                        dataKey={x => x.ipm[queryIdx]}
+                                        fill={dfltFill}
+                                        isAnimationActive={false}
+                                        name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[queryIdx].word}
+                                        onMouseEnter={handleMouseEnter}
+                                        onMouseLeave={handleMouseLeave}
+                                        >
+                                    {List.map(
+                                        (entry, i) => (
+                                            <Cell
+                                                key={`cell-${queryIdx}`}
+                                                cursor={entry.isClickable ? "pointer" : null}
+                                                fill={hoveredIndex === i && entry.isClickable ? hgltFill : dfltFill}
+                                                onClick={entry.isClickable ? props.onBarClick(entry.sourceIdx, queryIdx) : null}
+                                            />
+                                        ),
+                                        transformedData)
+                                    }
+                                </Bar>
+                            );
+                        },
                         props.queryMatches
                     )}
-                    <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
-                            tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
-                    <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={(value) => <span style={{ color: 'black' }}>{value}</span>}/>
+                    <XAxis
+                        type="number"
+                        label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}}
+                        tick={{ fill: theme.chartTextColor }} />
+                    <YAxis
+                        type="category"
+                        dataKey="name"
+                        width={Math.max(60, maxLabelLength * 7)}
+                        tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}
+                        tick={CustomizedAxisTick} />
+                    <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}} formatter={legendFormatter} />
                 </BarChart>
             </ResponsiveContainer>
         );
@@ -187,63 +284,71 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <MergeCorpFreqBarTile /> --------------------------------------
 
-    class MergeCorpFreqBarTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
+    const MergeCorpFreqBarTile:React.FC<MergeCorpFreqModelState & CoreTileComponentProps> = (props) => {
 
-        render() {
-            const backlinks = this.props.appBacklink ?
-                [this.props.appBacklink] :
-                pipe(
-                    this.props.data,
-                    List.filter(x => x !== undefined),
-                    List.flatMap(v => v),
-                    List.groupBy(v => v.sourceId),
-                    List.map(([,v]) => v[0].backlink)
-                );
+        const numCats = Math.max(0, ...props.data.map(v => v ? v.length : 0));
+        const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
+        const minHeight = 70 + numCats * (props.pixelsPerCategory + barCategoryGap);
 
-            const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
-            const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
-            const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
+        const handleBarClick = (barIdx:number, queryIdx:number) => () => {
+            dispatcher.dispatch(
+                Actions.ViewInOtherWag,
+                {
+                    tileId: props.tileId,
+                    barIdx,
+                    queryIdx,
+                }
+            );
+        };
 
-            return (
-                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={List.some(v => v && List.some(f => f.freq > 0, v), this.props.data)}
-                        sourceIdent={pipe(
-                            this.props.sources,
-                            List.groupBy(v => v.corpname),
-                            List.flatMap(([,v]) => v),
-                            List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
-                        }
-                        backlink={(!List.empty(backlinks) && List.some(v => !!v, backlinks)) ? backlinks : null}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <div style={{position: 'relative'}}>
-                        {this.props.tooltipData !== null ?
-                            <globComponents.ElementTooltip
-                                x={this.props.tooltipData.tooltipX}
-                                y={this.props.tooltipData.tooltipY}
-                                visible={true}
-                                caption={this.props.tooltipData.caption}
-                                values={this.props.tooltipData.data}
-                                multiWord={this.props.queryMatches.length > 1}
-                                colors={this.props.queryMatches.length > 1 ?
-                                    idx => theme.cmpCategoryColor(idx, this.props.queryMatches.length) :
-                                    null}
-                            /> : null}
-                    </div>
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={List.some(v => v && List.some(f => f.freq > 0, v), props.data)}
+                    sourceIdent={pipe(
+                        props.sources,
+                        List.groupBy(v => v.corpname),
+                        List.flatMap(([,v]) => v),
+                        List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
+                    }
+                    backlink={List.flatMap(v => v, props.backlinks)}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
+                <div style={{position: 'relative'}}>
+                    {props.tooltipData !== null ?
+                        <globComponents.ElementTooltip
+                            x={props.tooltipData.tooltipX}
+                            y={props.tooltipData.tooltipY}
+                            visible={true}
+                            caption={props.tooltipData.caption}
+                            values={props.tooltipData.data}
+                            multiWord={props.queryMatches.length > 1}
+                            colors={props.queryMatches.length > 1 ?
+                                idx => theme.cmpCategoryColor(idx, props.queryMatches.length) :
+                                null}
+                            customFooter={props.tooltipData.showClickTip ?
+                                         <strong style={{fontSize: '1.2em'}}>
+                                             {ut.translate('mergeCorpFreq__click_to_see_details')}
+                                        </strong> :
+                                        null}
+                        /> : null}
+                </div>
 
-                    <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
-                        return <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
-                            {this.props.isAltViewMode ?
+                <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
+                    return (
+                        <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
+                            {props.isAltViewMode ?
                                 <S.Tables>
-                                    <TableView tileId={this.props.tileId} data={this.props.data} queryMatches={this.props.queryMatches} />
+                                    <TableView tileId={props.tileId} data={props.data} queryMatches={props.queryMatches} />
                                 </S.Tables> :
-                                <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
+                                <Chart tileId={props.tileId} data={props.data} barCategoryGap={barCategoryGap}
+                                        queryMatches={props.queryMatches} isPartial={props.isBusy} isMobile={props.isMobile}
+                                        onBarClick={handleBarClick} />
                             }
                         </S.MergeCorpFreqBarTile>
-                    }} />
-                </globComponents.TileWrapper>
-            );
-        }
+                    );
+                }} />
+            </globComponents.TileWrapper>
+        );
     }
 
     return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(MergeCorpFreqBarTile, model);

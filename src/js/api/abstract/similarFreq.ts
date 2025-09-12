@@ -17,13 +17,12 @@
  */
 
 import { FreqBand } from '../../query/index.js';
-import { DataApi } from '../../types.js';
 import { PosItem } from '../../postag.js';
 import { MainPosAttrValues } from '../../conf/index.js';
 
 
 export interface RequestArgs {
-    domain:string;
+    corpname:string;
     word:string;
     lemma:string;
 
@@ -45,7 +44,4 @@ export interface SimilarFreqWord {
 
 export interface Response {
     result:Array<SimilarFreqWord>;
-}
-
-export interface SimilarFreqDbAPI extends DataApi<RequestArgs, Response> {
 }

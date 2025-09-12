@@ -16,24 +16,23 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf, BacklinkWithArgs } from '../../../page/tile.js';
+import { CorpSrchTileConf } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { CustomArgs } from '../../../api/abstract/timeDistrib.js';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
 
-    apiType:string;
+    apiURL:string;
 
-    apiURL:string|Array<string>;
+    maxItems:number;
 
-    apiPriority?:Array<number>;
+    fcrit:string;
 
-    customApiArgs?:CustomArgs;
+    fromYear?:number;
+
+    toYear?:number;
 
     posQueryGenerator:[string, string];
-
-    subcBacklinkLabel?:{[subc:string]:string};
 
     showMeasuredFreq?:boolean;
 }
@@ -41,13 +40,12 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
 export interface DataLoadedPayload {
     tileId:number;
+    queryId?:number;
     overwritePrevious?:boolean;
     data?:Array<DataItemWithWCI>;
     dataCmp?:Array<DataItemWithWCI>;
     wordMainLabel?:string;
-    concId?:string;
     origQuery?:string;
-    backlink:BacklinkWithArgs<{}>;
 }
 
 export interface DataItemWithWCI {
@@ -127,6 +125,22 @@ export class Actions {
 
     }> = {
         name: 'MULTI_WORD_ZOOM_RESET'
+    }
+
+    static ChangeTimeWindow:Action<{
+        tileId:number;
+        value:number;
+
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
+    }
+
+	static ChangeUnits:Action<{
+        tileId:number;
+        units:string;
+
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
     }
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {

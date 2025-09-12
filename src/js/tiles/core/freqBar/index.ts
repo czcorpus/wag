@@ -15,44 +15,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { Ident, List } from 'cnc-tskit';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
-import { FreqSort } from '../../../api/vendor/kontext/freqs.js';
-import { SubqueryModeConf } from '../../../models/tiles/freq.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { QueryType } from '../../../query/index.js';
-import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { factory as defaultModelFactory, FreqBarModel } from './model.js';
-import { factory as subqModelFactory } from './subqModel.js';
-import { init as viewInit } from './view.js';
-import { createMultiBlockApiInstance } from '../../../api/factory/freqs.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
-import { createKontextConcApiInstance } from '../../../api/factory/concordance.js';
+import { FreqBarModel } from './model.js';
+import { init as singleViewInit } from './views/single.js';
+import { init as compareViewInit } from './views/compare.js';
+import { findCurrentMatches } from '../wordFreq/model.js';
+import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import { List } from 'cnc-tskit';
 
 
 export interface FreqBarTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     subcname?:string;
-    fcrit:string|Array<string>;
+    fcrit:string;
     freqType:'tokens'|'text-types';
-    critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
+    label:LocalizedConfMsg;
     flimit:number;
-    freqSort:FreqSort;
     fpage:number;
-    fttIncludeEmpty:boolean;
-    maxNumCategories:number;
+    matchCase:boolean;
+    pixelsPerCategory?:number;
 
-    // if defined, then we wait for some other
-    // tile which produces payload extended
-    // from SubqueryPayload. This tile will
-    // perform provided subqueries, and
-    // obtains respective freq. distributions.
-    subqueryMode?:SubqueryModeConf;
+    /**
+     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     */
+    posQueryGenerator?:[string, string];
 }
 
 
@@ -76,68 +71,52 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
+    private readonly readDataFromTile:number;
+
     constructor({
-        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles,
-        ut, theme, appServices, widthFract, conf, isBusy
+        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy,
+        useDataStream, readDataFromTile, queryMatches, queryType
     }:TileFactoryArgs<FreqBarTileConf>) {
 
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.appServices = appServices;
-        this.blockingTiles = waitForTiles;
+        this.readDataFromTile = readDataFromTile;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
-        const labels = Array.isArray(conf.critLabels) ?
-            conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
-            [this.appServices.importExternalMessage(conf.critLabels)];
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/FreqBarTile/authenticate")} :
-            {};
-        const modelFact = conf.subqueryMode ?
-                subqModelFactory(
-                    conf.subqueryMode,
-                    createKontextConcApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions)
-                ) :
-                defaultModelFactory;
-        this.model = modelFact(
-            this.dispatcher,
+        this.model = new FreqBarModel({
+            dispatcher,
             tileId,
-            waitForTiles,
-            waitForTilesTimeoutSecs,
-            subqSourceTiles,
             appServices,
-            createMultiBlockApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
-            conf.backlink || null,
-            {
-                isBusy: isBusy,
+            queryMatches: findCurrentMatches(queryMatches),
+            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, useDataStream, conf.backlink),
+            readDataFromTile,
+            initState: {
+                isBusy,
                 error: null,
-                blocks: criteria.map(v => ({
-                    data: [],
-                    ident: Ident.puid(),
-                    isReady: false,
-                    label: ''
-                })),
-                activeBlock: 0,
+                freqData: List.map(match => ({word: findCurrQueryMatch(match).word, isReady: false, rows: []}), queryMatches),
+                tileBoxSize: [100, 100],
                 corpname: conf.corpname,
                 subcname: conf.subcname,
                 concId: null,
-                fcrit: criteria,
+                posQueryGenerator: conf.posQueryGenerator,
+                fcrit: conf.fcrit,
+                matchCase: !!conf.matchCase,
+                label: this.appServices.importExternalMessage(conf.label),
                 freqType: conf.freqType,
-                critLabels: labels,
                 flimit: conf.flimit,
-                freqSort: conf.freqSort,
                 fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty,
-                maxNumCategories: conf.maxNumCategories,
                 fmaxitems: 100,
-                backlink: null,
+                backlinks: List.map(_ => null, queryMatches),
                 subqSyncPalette: false,
-                isAltViewMode: false
+                isAltViewMode: false,
+                pixelsPerCategory: conf.pixelsPerCategory || 30
             }
-        );
+        });
         this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');
-        this.view = viewInit(this.dispatcher, ut, theme, this.model);
+        this.view = queryType === QueryType.CMP_QUERY ?
+            compareViewInit(this.dispatcher, ut, theme, this.model) :
+            singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getIdent():number {
@@ -156,8 +135,8 @@ export class FreqBarTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -174,10 +153,6 @@ export class FreqBarTile implements ITileProvider {
 
     supportsAltView():boolean {
         return true;
-    }
-
-    supportsSVGFigureSave():boolean {
-        return false;
     }
 
     getAltViewIcon():AltViewIconProps {
@@ -200,16 +175,23 @@ export class FreqBarTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    supportsSVGFigureSave():boolean {
+        return false;
+    }
+
+    getReadDataFrom():number|null {
+        return this.readDataFromTile;
+    }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<FreqBarTileConf>  = {
 
-    sanityCheck: (args) => {
-        const ans = [];
-        if (List.empty(args.waitForTiles)) {
-            ans.push(new Error('FreqBarTile needs waitFor configured as it cannot load its own source concordances'));
-        }
-        return ans;
-    },
+    sanityCheck: (args) => [],
+
     create: (args) => new FreqBarTile(args)
 };

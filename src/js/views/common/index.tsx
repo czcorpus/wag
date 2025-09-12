@@ -18,15 +18,16 @@
 import { ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
-import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
+import { List, Keyboard, pipe, Dict, Color, tuple } from 'cnc-tskit';
 
-import { MultiDict } from '../../multidict.js';
 import { SystemMessageType, SourceDetails } from '../../types.js';
 import { ScreenProps } from '../../page/hostPage.js';
-import { AnyBacklink, backlinkIsValid, BacklinkWithArgs } from '../../page/tile.js';
+import { Backlink, backlinkIsValid } from '../../page/tile.js';
 import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
+import { SourceCitation } from '../../api/abstract/sourceInfo.js';
+import { Theme } from '../../page/theme.js';
 
 
 export interface SourceInfo {
@@ -38,6 +39,8 @@ export interface SourceInfo {
 export type TooltipValues = {[key:string]:Array<{value:string|number; unit?:string}>}|null;
 
 export interface GlobalComponents {
+
+    TileMinHeightContext:React.Context<number>;
 
     AjaxLoader:React.FC<{
         htmlClass?:string;
@@ -56,7 +59,7 @@ export interface GlobalComponents {
         sourceIdent?:SourceInfo|Array<SourceInfo>;
         supportsTileReload:boolean;
         issueReportingUrl:string;
-        backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
+        backlink?:Backlink|Array<Backlink>;
         htmlClass?:string;
         error?:string;
         children:React.ReactNode;
@@ -64,10 +67,11 @@ export interface GlobalComponents {
 
     ErrorBoundary:React.ComponentClass;
 
-    ModalBox:React.ComponentClass<{
+    ModalBox:React.FC<{
         onCloseClick?:()=>void;
         title:string;
         tileClass?:string;
+        scrollableContents?:boolean;
         children?:React.ReactNode;
     }>;
 
@@ -103,6 +107,7 @@ export interface GlobalComponents {
         visible:boolean;
         caption?:string;
         values:TooltipValues;
+        customFooter?:React.ReactElement;
 
         multiWord?:boolean;
         colors?:(idx:number) => string;
@@ -132,12 +137,19 @@ export interface GlobalComponents {
     }>;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<{}>,
+    resize$:Observable<ScreenProps>,
+    theme:Theme
+):GlobalComponents {
+
+
 
     // --------------- <AjaxLoader /> -------------------------------------------
 
     const AjaxLoader:GlobalComponents['AjaxLoader'] = (props) => {
-        return <S.AjaxLoader src={ut.createStaticUrl('ajax-loader.gif')}
+        return <S.AjaxLoader src={ut.createStaticUrl('ajax-loader.svg')}
                     alt={ut.translate('global__alt_loading')}
                     className={props.htmlClass} />;
     }
@@ -186,35 +198,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
     };
 
-    // ------------- <BacklinkForm /> ----------------------------------
+    // ------------- <BacklinkButton /> ----------------------------------
 
-    const BacklinkForm:React.FC<{
-        values:BacklinkWithArgs<{}>;
+    const BacklinkButton:React.FC<{
+        backlink:Backlink;
+        backlinkHandler:()=>void;
 
     }> = (props) => {
-        const args = new MultiDict(props.values.args);
-        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank" $createStaticUrl={ut.createStaticUrl}>
-            {pipe(
-                args.items(),
-                List.filter(v => v[1] !== null && v[1] !== undefined),
-                List.map(([k, v], i) =>
-                    <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
-                )
-            )}
-            <button type="submit">
-                {typeof props.values.label === 'string' ?
-                    props.values.label :
-                    props.values.label['en-US']
-                }
-            </button>
-        </S.BacklinkForm>;
+        return <S.BacklinkButton $createStaticUrl={ut.createStaticUrl} type='button' onClick={props.backlinkHandler}>
+            {typeof props.backlink.label === 'string' ?
+                props.backlink.label :
+                props.backlink.label['en-US']
+            }
+        </S.BacklinkButton>;
     }
 
     // --------------- <SourceLink /> ------------------------------------------------
 
     const SourceLink:React.FC<{
         data:SourceInfo;
-        onClick:(corp:string, subcorp:string|undefined)=>void
+        onClick:(corp:string, subcorp?:string)=>void
     }> = (props) => {
 
         if (props.data.url) {
@@ -245,18 +248,28 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const SourceReference:React.FC<{
         tileId:number;
-        data:SourceInfo|Array<SourceInfo>|undefined;
-        backlink:AnyBacklink<{}>|undefined|null;
+        data?:SourceInfo|Array<SourceInfo>;
+        backlink?:Backlink|Array<Backlink>;
 
     }> = (props) => {
 
-        const handleClick = (corp:string, subcorp:string|undefined) => {
+        const handleSourceClick = (corp:string, subcorp:string|undefined) => {
             dispatcher.dispatch<typeof Actions.GetSourceInfo>({
                 name: Actions.GetSourceInfo.name,
                 payload: {
                     tileId: props.tileId,
                     corpusId: corp,
                     subcorpusId: subcorp
+                }
+            });
+        };
+
+        const handleBacklinkClick = (backlink:Backlink) => {
+            dispatcher.dispatch<typeof Actions.FollowBacklink>({
+                name: Actions.FollowBacklink.name,
+                payload: {
+                    tileId: props.tileId,
+                    backlink,
                 }
             });
         };
@@ -269,7 +282,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         (item, i) =>
                             <React.Fragment key={`${item.corp}:${item.subcorp}`}>
                                 {i > 0 ? <span> + </span> : null}
-                                <SourceLink data={item} onClick={handleClick} />
+                                <SourceLink data={item} onClick={handleSourceClick} />
                             </React.Fragment>,
                         Array.isArray(props.data) ? props.data : [props.data]
                     ) :
@@ -286,7 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             List.map((item, i) =>
                                 <React.Fragment key={`${item.label}:${i}`}>
                                     {i > 0 ? <span>, </span> : null}
-                                    <BacklinkForm values={item} />
+                                    <BacklinkButton backlink={item} backlinkHandler={()=>handleBacklinkClick(item)} />
                                 </React.Fragment>
                             )
                         )}
@@ -297,18 +310,96 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         );
     };
 
+    // ------------------- <SourceCitations /> -----------------------------------------
+
+    const SourceCitations:React.FC<{
+        data:SourceCitation;
+
+    }> = (props) => {
+        if (props.data.papers.length > 0 || props.data.main || props.data.otherBibliography) {
+            return (
+                <>
+                    <h2>
+                        {ut.translate('global__corpus_as_resource_{corpus}', {corpus: props.data.sourceName})}:
+                    </h2>
+                    <div className="html" dangerouslySetInnerHTML={{__html: props.data.main}} />
+                    {props.data.papers.length > 0 ?
+                        (<>
+                            <h2>{ut.translate('global__references')}:</h2>
+                            {List.map(
+                                (item, i) => <div key={i} className="html" dangerouslySetInnerHTML={{__html: item }} />,
+                                props.data.papers
+                            )}
+                        </>) :
+                        null
+                    }
+                    {props.data.otherBibliography ?
+                        (<>
+                            <h2>{ut.translate('global__general_references')}:</h2>
+                            <div className="html" dangerouslySetInnerHTML={{__html: props.data.otherBibliography}} />
+                        </>) :
+                        null}
+                </>
+            );
+
+        } else {
+            return <div className="empty-citation-info">{ut.translate('global__no_citation_info')}</div>
+        }
+    };
+
     // ------------------ <SourceInfoBox /> --------------------------------------------
 
     const SourceInfoBox:React.FC<{
         data:SourceDetails;
 
     }> = (props) => {
+
+        const mkStyle = (bgCol:string) => ({
+            color: pipe(
+                bgCol,
+                Color.importColor(1),
+                Color.textColorFromBg(),
+                Color.color2str()
+            ),
+            backgroundColor: pipe(
+                bgCol,
+                Color.importColor(1),
+                ([r, g, b, o]) => {
+                    return tuple(r, g, b, 0.6)
+                },
+                Color.color2str()
+            )
+        });
+
+        const renderKeywords = () => {
+            if (props.data.keywords && props.data.keywords.length > 0) {
+                return props.data.keywords.map(kw =>
+                    <span key={kw.name} className="keyword" style={kw.color ? mkStyle(kw.color) : undefined}>
+                        {kw.name}
+                    </span>
+                );
+            } else {
+                return '-';
+            }
+        };
+
         return (
             <S.SourceInfoBox $createStaticUrl={ut.createStaticUrl}>
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ?
                     <p>{ut.translate('global__more_info')}: <a className="external" href={props.data.href} target="_blank" rel="noopener">{props.data.href}</a></p> :
+                    null
+                }
+                {props.data.keywords && props.data.keywords.length > 0 ?
+                    <>
+                        <h2>{ut.translate('global__keywords')}:</h2>
+                        <p>{renderKeywords()}</p>
+                    </> :
+                    null
+                }
+                {props.data.citationInfo ?
+                        <SourceCitations data={props.data.citationInfo} /> :
                     null
                 }
             </S.SourceInfoBox>
@@ -463,57 +554,45 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <ModalBox /> -------------------------------------------
 
-    class ModalBox extends React.PureComponent<{
-        onCloseClick:()=>void;
-        title:string;
-        tileClass?:string;
-        children:React.ReactNode;
-    }> {
+    const ModalBox:GlobalComponents['ModalBox'] = (props) => {
 
-        private ref:React.RefObject<HTMLButtonElement>;
+        const ref:React.RefObject<HTMLButtonElement> = React.createRef();
 
-        constructor(props) {
-            super(props);
-            this.ref = React.createRef();
-            this.handleKey = this.handleKey.bind(this);
-        }
+        React.useEffect(
+            () => {
+                if (ref.current) {
+                    ref.current.focus();
+                }
+            },
+            []
+        );
 
-        componentDidMount() {
-            if (this.ref.current) {
-                this.ref.current.focus();
-            }
-        }
-
-        private handleKey(evt:React.KeyboardEvent) {
+        const handleKey = (evt:React.KeyboardEvent) => {
             if (evt.key === Keyboard.Value.ESC) {
-                this.props.onCloseClick();
+                props.onCloseClick();
             }
-        }
+        };
 
-        render() {
-            const tileClasses = `content cnc-tile-body${this.props.tileClass ? ' ' + this.props.tileClass : ''}`;
-
-            return (
-                <S.ModalOverlay id="modal-overlay">
-                    <div className="box cnc-tile">
-                        <header className="cnc-tile-header">
-                            <span>{this.props.title}</span>
-                            <button className="close"
-                                    ref={this.ref}
-                                    onClick={this.props.onCloseClick}
-                                    onKeyDown={this.handleKey}
-                                    title={ut.translate('global__close_modal')}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
-                            </button>
-                        </header>
-                        <div className={tileClasses}>
-                            {this.props.children}
-                        </div>
-                        <footer><div className="fcontent" /></footer>
+        return (
+            <S.ModalOverlay id="modal-overlay">
+                <div className="box">
+                    <header className="cnc-tile-header">
+                        <span>{props.title}</span>
+                        <button className="close"
+                                ref={ref}
+                                onClick={props.onCloseClick}
+                                onKeyDown={handleKey}
+                                title={ut.translate('global__close_modal')}>
+                            <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                        </button>
+                    </header>
+                    <div className={props.tileClass || null} style={props.scrollableContents ? {paddingRight: 0, paddingBottom: 0} : null}>
+                        {props.children}
                     </div>
-                </S.ModalOverlay>
-            );
-        }
+                    <footer><div className="fcontent" /></footer>
+                </div>
+            </S.ModalOverlay>
+        );
     }
 
     // ------- <HorizontalBlockSwitch /> ---------------------------------------------------
@@ -582,10 +661,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         private calcAndSetSizes():void {
             if (this.ref.current) {
+                const wrapper = this.ref.current.closest('.cnc-tile-body');
                 const cellWidthFract = this.props.widthFract ?? 1;
                 const maxHeightPortion = cellWidthFract > 2 ? 0.25 : 0.32;
-                const newWidth = this.ref.current.getBoundingClientRect().width;
-                const newHeight = this.ref.current.getBoundingClientRect().height;
+                const newWidth = wrapper.getBoundingClientRect().width;
+                const newHeight = wrapper.getBoundingClientRect().height;
                 this.setState({
                     width: newWidth,
                     height: newHeight < window.innerHeight * maxHeightPortion ? newHeight : window.innerHeight * maxHeightPortion,
@@ -672,6 +752,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         )}
                     </tbody>
                 </table>
+                {props.customFooter ?  <div className="footer">{props.customFooter}</div> : null}
             </S.WdgTooltip>
         );
     }
@@ -765,12 +846,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         return (
             <S.Paginator>
                 <a onClick={props.onPrev} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
+                    <img className="filtered arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
                         alt={ut.translate('global__img_alt_triable_left')} />
                 </a>
                 <input className="page" type="text" readOnly={true} value={props.page} />
                 <a onClick={props.onNext} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
+                    <img className="filtered arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
                         alt={ut.translate('global__img_alt_triable_right')} />
                 </a>
             </S.Paginator>
@@ -780,17 +861,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     // ===================
 
     return {
-        AjaxLoader: AjaxLoader,
-        MessageStatusIcon: MessageStatusIcon,
-        TileWrapper: TileWrapper,
-        ErrorBoundary: ErrorBoundary,
-        ModalBox: ModalBox,
-        HorizontalBlockSwitch: HorizontalBlockSwitch,
-        ImageWithMouseover: ImageWithMouseover,
-        ResponsiveWrapper: ResponsiveWrapper,
-        ElementTooltip: ElementTooltip,
-        SourceInfoBox: SourceInfoBox,
-        AlignedRechartsTooltip: AlignedRechartsTooltip,
-        Paginator: Paginator,
+        AjaxLoader,
+        MessageStatusIcon,
+        TileWrapper,
+        ErrorBoundary,
+        ModalBox,
+        HorizontalBlockSwitch,
+        ImageWithMouseover,
+        ResponsiveWrapper,
+        ElementTooltip,
+        SourceInfoBox,
+        AlignedRechartsTooltip,
+        Paginator,
+        TileMinHeightContext: React.createContext(100),
     };
 }

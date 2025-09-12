@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { share, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../../page/ajax.js';
 import { DataApi, CorpusDetails } from '../../../types.js';
 import { IApiServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 
-interface HTTPResponse {
+export interface HTTPResponse {
     corpus: {
         data: {
             corpname:string;
@@ -68,18 +69,29 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:QueryArgs):Observable<CorpusDetails> {
-        return ajax$<HTTPResponse>(
-            HTTP.Method.GET,
-            this.apiURL + `/info/${args.corpname}`,
-            {lang: args.lang},
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:QueryArgs):Observable<CorpusDetails> {
+        return (
+            streaming ?
+                streaming.registerTileRequest<HTTPResponse>(
+                    {
+                        tileId,
+                        method: HTTP.Method.GET,
+                        url: `${this.apiURL}/info/${args.corpname}`,
+                        body: {},
+                        contentType: 'application/json'
+                    }
+                ) :
+                ajax$<HTTPResponse>(
+                    HTTP.Method.GET,
+                    this.apiURL + `/info/${args.corpname}`,
+                    {lang: args.lang},
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true
+                    }
+                )
 
         ).pipe(
-            share(),
             map<HTTPResponse, CorpusDetails>(
                 (resp) => ({
                     tileId,

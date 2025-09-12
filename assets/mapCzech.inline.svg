@@ -8,7 +8,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   id="Vrstva_1"
+   class="svg-graph-p"
    x="0px"
    y="0px"
    width="720"
@@ -1950,37 +1950,26 @@
 </g>
 <g
    transform="matrix(0.20381699,0,0,0.21544606,81.231824,137.19472)"
-   id="naCPO-g"
-   class="label-mount"
+   class="label-mount naCPO-g"
    inkscape:label="naCPO-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,264.6671,163.04825)"
-   id="naSTR-g"
-   class="label-mount"></g><g
+   class="label-mount naSTR-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,250.39991,288.00697)"
-   id="naJIC-g"
-   class="label-mount"></g><g
+   class="label-mount naJIC-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,566.31622,169.51163)"
-   id="naMPO-g"
-   class="label-mount"></g><g
+   class="label-mount naMPO-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,413.4535,156.58487)"
-   id="naSVC-g"
-   class="label-mount"></g><g
+   class="label-mount naSVC-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,413.4535,249.22667)"
-   id="naCMO-g"
-   class="label-mount"></g><g
+   class="label-mount naCMO-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,668.22472,223.37316)"
-   id="naSLE-g"
-   class="label-mount"></g><g
+   class="label-mount naSLE-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,603.00329,316.01496)"
-   id="naVYM-g"
-   class="label-mount"></g><g
+   class="label-mount naVYM-g"></g><g
    transform="matrix(0.20381699,0,0,0.21544606,464.40775,298.77926)"
-   id="naSTM-g"
-   class="label-mount"></g><g
-   id="naZAC-g"
-   class="label-mount"
+   class="label-mount naSTM-g"></g><g
+   class="label-mount naZAC-g"
    transform="matrix(0.20381699,0,0,0.21544606,151.54868,223.37316)"></g><g
-   id="legend-g"
-   class="label-mount"
+   class="label-mount legend-g"
    transform="matrix(0.20381699,0,0,0.21544606,362.49926,438.81921)"></g>
 </svg>

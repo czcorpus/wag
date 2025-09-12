@@ -19,7 +19,7 @@
  */
 
 import { styled } from 'styled-components';
-import * as theme from './common/theme.js';
+import { Theme } from '../page/theme.js';
 
 // ---------------- <WdglanceMain /> --------------------------------------
 
@@ -29,29 +29,28 @@ export const WdglanceMain = styled.div``;
 
 export const MessagesBox = styled.div`
     position: fixed;
-    left: 50%;
+    right: 20px;
     z-index: 10000;
-    top: 20%;
+    top: 20px;
 `;
 
 // ---------------- <Messages /> --------------------------------------
 
 export const Messages = styled.ul`
-    min-width: 20em;
+    max-width: 30em;
     list-style-type: none;
     position: relative;
-    left: -50%;
     margin: 0;
     padding: 0;
 `;
 
 // ---------------- <SystemMessage /> --------------------------------------
 
-export const SystemMessage = styled.li`
-    background-color: #444444;
-    border-radius: .25em;
+export const SystemMessage = styled.li<{theme:Theme}>`
+    background-color: ${props => props.theme.tileBackgroundColor};
+    border-style: ${props => props.theme.tileBorderStyle};
     box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0,0,0, 0.2);
-    color: #FFFFFF;
+    color: ${props => props.theme.colorDefaultText};
     margin: 0;
     padding: 0;
 
@@ -109,135 +108,41 @@ export const SystemMessage = styled.li`
 
 // ---------------- <WdglanceControls /> --------------------------------------
 
-export const WdglanceControls = styled.div`
-    text-align: center;
-    padding: 1em;
+export const WdglanceControls = styled.div<{theme:Theme}>`
 
-    .LemmaSelector {
-        font-size: 80%;
-        padding: 0.8em 0 0 0;
-        color: #454545;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 0.5em 0 1em 0;
 
-        .curr {
-            font-size: 125%;
-            color: ${theme.colorLogoPink};
-        }
-
-        .variants > ul {
-            display: inline;
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-
-            li {
-                margin: 0;
-                padding: 0;
-                display: inline-block;
-
-                a {
-                    color: ${theme.colorLogoBlue};
-                    cursor: pointer;
-                }
-
-                a:hover {
-                    text-decoration: underline;
-                }
-            }
-        }
-
-        a.modal-box-trigger {
-            cursor: pointer;
-            color: ${theme.colorLogoPink};
-        }
+    .tabs {
+        display: flex;
+        margin-top: 2em;
+        border-width: 0 0 1px 0;
+        border-style: solid;
+        border-color: ${props => props.theme.colorLightText};
     }
 
-    .LemmaSelector.multiple-queries  {
-        font-size: 1.25em;
-        text-align: left;
-        padding-top: 0;
+    &.result-page-mode {
+        padding-bottom: 0;
 
-        .variants {
-
-            h2.query-num {
-                font-size: 1.1em;
-                margin: 1.1em 0 0.2em 0;
-                text-align: center;
-                letter-spacing: 0.1em;
-            }
-
-            ul {
-                display: block;
-                list-style-type: none;
-                text-align: left;
-            }
-
-            li {
-                margin: 0;
-                padding: 0.1em 0;
-                display: block;
-
-                em {
-                    font-style: normal;
-                    color: ${theme.colorLogoPink};
-                }
-
-                input[type="radio"] {
-                    display: inline-block;
-                    padding: 0;
-                    vertical-align: middle;
-                    margin: 0 0.3em 0 0;
-                }
-            }
-        }
-
-        h2.query-num:first-child h2.query-num {
-            margin-top: 0;
-        }
-
-        .buttons {
-            text-align: center;
+        .main {
+            margin-top: 1.5em;
+            margin-bottom: 1em;
         }
     }
 
     .main {
-        margin-top: 1em;
+        margin-top: 3em;
+        margin-bottom: 3em;
         display: flex;
         align-items: center;
         justify-content: center;
 
     }
 
-    .QueryTypeSelector {
-
-        margin-top: 0.1em;
-        margin-bottom: 1.5em;
-
-        .item {
-
-            display: inline-block;
-
-            a {
-                padding: 0.2em;
-                cursor: pointer;
-                display: block;
-                text-decoration: none;
-            }
-
-            a:hover {
-                color: ${theme.colorLogoBlue};
-            }
-
-        }
-
-        .item.current {
-            border-style: solid;
-            border-color: ${theme.colorLogoBlue};
-            border-width: 0 0 2px 0;
-        }
-    }
-
-    .QueryDomainSelector {
-        margin: 0;
+    .translat-lang-selector {
+        margin: 0 1em 0 0;
     }
 
     input.invalid {
@@ -246,12 +151,9 @@ export const WdglanceControls = styled.div`
 
     .arrow {
         margin-right: 0.3em;
-        margin-left: 0.3em;
+        margin-left: 0;
         font-size: 1.5em;
         color: rgba(0, 0, 0, 0.2);
-    }
-
-    .SubmitButton {
     }
 
     .QueryInput {
@@ -260,7 +162,7 @@ export const WdglanceControls = styled.div`
     }
 
     .QueryInput.invalid {
-        border-color: ${theme.colorLogoOrange};
+        border-color: ${props => props.theme.colorLogoOrange};
     }
 
     .input-group .input-row:not(:last-child) {
@@ -325,23 +227,184 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    ${theme.media.medium} {
-        .main {
-            flex-wrap: wrap;
+    ${props => props.theme.cssMediaSmallSize} {
+        padding: 0;
+        margin-bottom: 2em;
 
-            > * {
-                margin-top: 0.3em;
-                margin-bottom: 0.3em;
+        .main .SubmitButton button {
+            padding: 0.5em 1.5em 0.5em 1.5em;
+        }
+    }
+`;
+
+// -------------- <LemmaSelector /> ------------------------------------------
+
+export const LemmaSelector = styled.div`
+    font-size: 80%;
+    padding: 0.8em 0 0 0;
+    color: ${props => props.theme.colorLightText};
+
+    .curr {
+        font-size: 125%;
+        color: ${props => props.theme.colorLogoPink};
+    }
+
+    .variants > ul {
+        display: inline;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+
+        li {
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+
+            a {
+                color: ${props => props.theme.colorLogoBlue};
+                cursor: pointer;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    a.modal-box-trigger {
+        cursor: pointer;
+        color: ${props => props.theme.colorLogoPink};
+    }
+
+    &.multiple-queries  {
+        font-size: 1.25em;
+        text-align: left;
+        padding-top: 0;
+
+        .variants {
+
+            h2.query-num {
+                font-size: 1.1em;
+                margin: 1.1em 0 0.2em 0;
+                text-align: center;
+                letter-spacing: 0.1em;
+            }
+
+            ul {
+                display: block;
+                list-style-type: none;
+                text-align: left;
+            }
+
+            li {
+                margin: 0;
+                padding: 0.1em 0;
+                display: block;
+
+                em {
+                    font-style: normal;
+                    color: ${props => props.theme.colorLogoPink};
+                }
+
+                input[type="radio"] {
+                    display: inline-block;
+                    padding: 0;
+                    vertical-align: middle;
+                    margin: 0 0.3em 0 0;
+                }
             }
         }
 
-        .QueryDomainSelector {
-            margin-left: 0;
+        h2.query-num:first-child h2.query-num {
+            margin-top: 0;
+        }
+
+        .buttons {
+            text-align: center;
+        }
+    }
+`;
+
+// -------------- <SubmenuTile /> --------------------------------------------
+
+export const SubmenuTile = styled.section`
+
+    display: flex;
+    justify-content: center;
+    padding: 0;
+
+`;
+
+// --------------- <OtherVariantsMenu /> --------------------------------------
+
+export const OtherVariantsMenu = styled.div<{theme:Theme}>`
+
+    display: flex;
+    align-items: center;
+
+    a {
+        color: ${props => props.theme.colorDefaultText};
+        padding: 0.2em 0.8em;
+        display: inline-block;
+        padding-top: 0.4em;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: ${props => props.theme.colorLogoBlue};
+    }
+
+    .separ {
+        color: ${props => props.theme.colorDefaultText};
+        font-size: 1.5em;
+    }
+`;
+
+// -------------- <QueryTypeSelector /> --------------------------------------
+
+
+export const QueryTypeSelector = styled.div<{theme:Theme}>`
+
+    flex-grow: 1;
+
+    nav {
+
+        display: flex;
+        align-items: center;
+        color: ${props => props.theme.colorDefaultText};
+
+        .item {
+
+            display: block;
+            padding: 0.2em 0.8em;
+
+            a {
+                display: inline-block;
+                padding-top: 0.4em;
+                cursor: pointer;
+                text-decoration: none;
+                color: ${props => props.theme.colorDefaultText};
+            }
+
+            a:hover {
+                color: ${props => props.theme.colorLogoBlue};
+            }
+        }
+
+        .separ {
+            display: block;
+            font-size: 1.5em;
+        }
+
+        .item.current a {
+            border-style: solid;
+            border-color: ${props => props.theme.colorLogoBlue};
+            border-width: 2px 0 0 0;
         }
 
 
-        .QueryTypeSelector {
-
+        ${props => props.theme.cssMediaMediumSize} {
             margin-bottom: 0.7em;
 
             span.item {
@@ -357,7 +420,7 @@ export const WdglanceControls = styled.div`
 
             .item.current {
                 border: none;
-                color: ${theme.colorLogoBlue};
+                color: ${props => props.theme.colorLogoBlue};
             }
 
             .item.current a:after {
@@ -372,18 +435,21 @@ export const WdglanceControls = styled.div`
                 display: none;
             }
         }
-    }
 
-    ${theme.media.small} {
-        padding: 0;
-        margin-bottom: 2em;
-
-        .main .SubmitButton button {
-            padding: 0.5em 1.5em 0.5em 1.5em;
+        ${props => props.theme.cssMediaSmallSize} {
+            margin-top: 0.2em;
         }
 
-        .QueryTypeSelector {
-            margin-top: 0.2em;
+    }
+`;
+
+// -------------- <SubmitButton /> -------------------------------------------
+
+export const SubmitButton = styled.span<{theme:Theme}>`
+
+    ${props => props.theme.cssMediaSmallSize} {
+        button {
+            padding: 0.5em 1.5em 0.5em 1.5em;
         }
     }
 `;
@@ -410,7 +476,7 @@ export const TooManyErrorsBox = styled(NothingFoundBox)`
 
 // ---------------- <TilesSections /> --------------------------------------
 
-export const TilesSections = styled.section`
+export const TilesSections = styled.section<{theme:Theme}>`
     padding: 0.7em;
 
     & > header .loader {
@@ -418,18 +484,18 @@ export const TilesSections = styled.section`
         left: calc(100% - 100px);
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         padding: 0;
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         padding: 0;
     }
 `;
 
 // ---------------- <Group /> --------------------------------------
 
-export const Group = styled.section`
+export const Group = styled.section<{theme:Theme}>`
 
     & > header {
 
@@ -446,7 +512,7 @@ export const Group = styled.section`
         margin-top: 1.7em;
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         & > header {
             display: block;
 
@@ -456,7 +522,7 @@ export const Group = styled.section`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         & > header {
             display: block;
 
@@ -470,7 +536,7 @@ export const Group = styled.section`
 
 // ---------------- <MinimizedGroup /> --------------------------------------
 
-export const MinimizedGroup = styled.ul`
+export const MinimizedGroup = styled.ul<{theme:Theme}>`
     background-color: #FFFFFF;
     border-radius: 0.25em;
 
@@ -480,7 +546,7 @@ export const MinimizedGroup = styled.ul`
 
     li {
         a {
-            color: ${theme.colorLogoBlue};
+            color: ${props => props.theme.colorLogoBlue};
             cursor: pointer;
         }
     }
@@ -492,7 +558,7 @@ export const MinimizedGroup = styled.ul`
 
 // ---------------- <Tiles /> --------------------------------------
 
-export const Tiles = styled.section`
+export const Tiles = styled.section<{theme:Theme}>`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 1fr 1fr 1fr;
@@ -512,8 +578,8 @@ export const Tiles = styled.section`
     }
 
     .app-output {
-        border-color: ${theme.colorLogoBlue};
-        border-radius: ${theme.defaultBorderRadius};
+        border-color: ${props => props.theme.colorLogoBlue};
+        border-radius: ${props => props.theme.defaultBorderRadius};
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -591,7 +657,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
         display: grid;
         grid-gap: 1em;
         grid-template-columns: 1fr;
@@ -617,7 +683,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
         .app-output .panel h2 {
             font-size: 1.1em;
         }
@@ -626,14 +692,14 @@ export const Tiles = styled.section`
 
 // ---------------- <TileGroupButton /> --------------------------------------
 
-export const TileGroupButton = styled.section`
+export const TileGroupButton = styled.section<{theme:Theme}>`
 
     width: 25em;
 
     &.disabled {
 
         h2 {
-            background-color: ${theme.colorLightText};
+            background-color: ${props => props.theme.colorLightText};
 
             .flex {
 
@@ -653,8 +719,8 @@ export const TileGroupButton = styled.section`
     }
 
     h2 {
-        background-color: ${theme.colorLogoBlue};
-        color: #ffffff;
+        background-color: ${props => props.theme.colorLogoBlue};
+        color: ${props => props.theme.colorInvertText};
         border-radius: 0.25em;
         font-weight: 400;
         font-size: 1.3em;
@@ -685,7 +751,7 @@ export const TileGroupButton = styled.section`
             }
 
             a:hover {
-                color: ${theme.colorLogoBlueShining};
+                color: ${props => props.theme.colorLogoBlueShining};
             }
 
             .triangle {
@@ -720,7 +786,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${theme.media.medium} {
+    ${props => props.theme.cssMediaMediumSize} {
 
         white-space: normal;
 
@@ -749,7 +815,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${theme.media.small} {
+    ${props => props.theme.cssMediaSmallSize} {
 
         width: 100%;
         white-space: normal;
@@ -781,16 +847,16 @@ export const TileGroupButton = styled.section`
 
 // ---------------- <ErrPage /> --------------------------------------
 
-export const ErrPage = styled.div`
+export const ErrPage = styled.div<{theme:Theme}>`
     margin: 2em auto 3em auto;
     margin-bottom: 2em;
     max-width: 20em;
 
     header.err {
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
     }
 
     a {
-        color: ${theme.colorLogoBlue};
+        color: ${props => props.theme.colorLogoBlue};
     }
 `;

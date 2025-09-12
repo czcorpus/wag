@@ -22,9 +22,9 @@ import { GlobalComponents } from '../../../views/common/index.js';
 import { WordFormsModel, WordFormsModelState } from './model.js';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
-import { WordFormItem } from '../../../api/abstract/wordForms.js';
 import { Theme } from '../../../page/theme.js';
 import { List } from 'cnc-tskit';
+import { WordFormItem } from './common.js';
 
 
 export function init(

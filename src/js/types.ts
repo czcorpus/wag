@@ -18,6 +18,7 @@
 import { Observable } from 'rxjs';
 import { SourceCitation } from './api/abstract/sourceInfo.js';
 import { Backlink } from './page/tile.js';
+import { IDataStreaming } from './page/streaming.js';
 
 
 export type AnyInterface<T> = {
@@ -46,7 +47,7 @@ export enum CorePosAttribute {
  */
 export interface DataApi<T, U> {
 
-    call(tileId:number, multicastRequest:boolean, queryArgs:T):Observable<U>;
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U>;
 }
 
 /**
@@ -55,21 +56,10 @@ export interface DataApi<T, U> {
  */
 export interface ResourceApi<T, U> extends DataApi<T, U> {
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null;
 }
-
-/**
- * Api implementing backlink directly
- */
- export interface WebDelegateApi {
-
-    getBackLink(backlink:Backlink):Backlink;
-}
-
-export function isWebDelegateApi(api):api is WebDelegateApi {
-    return typeof api['getBackLink'] === 'function';
-}
-
 
 export type LocalizedConfMsg = string|{[lang:string]:string};
 
@@ -98,14 +88,6 @@ export interface CorpusDetails extends SourceDetails {
 
 export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
     return typeof d['structure'] === 'object' && d['structure'].numTokens !== undefined;
-}
-
-export interface TelemetryAction {
-    timestamp:number;
-    actionName:string;
-    tileName:string;
-    isSubquery:boolean;
-    isMobile:boolean;
 }
 
 export type TileIdentMap = {[ident:string]:number};

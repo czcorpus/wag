@@ -23,6 +23,7 @@ import { HTTP } from 'cnc-tskit';
 import { XMLParser, XMLNode } from '../../../../page/xml.js';
 import { ajax$, ResponseType } from '../../../../page/ajax.js';
 import { IApiServices } from '../../../../appServices.js';
+import { IDataStreaming } from '../../../../page/streaming.js';
 
 
 export interface FCS1ExplainArgs {
@@ -101,7 +102,7 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
         this.parser = new XMLParser();
     }
 
-	call(tileId:number, multicastRequest:boolean, args:FCS1ExplainArgs):Observable<FCS1ExplainResponse> {
+	call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:FCS1ExplainArgs):Observable<FCS1ExplainResponse> {
         return ajax$(
             HTTP.Method.GET,
             this.url,

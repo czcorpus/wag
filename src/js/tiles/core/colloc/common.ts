@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { DataRow, DataHeading, SrchContextType } from '../../../api/abstract/collocations.js';
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index.js';
+import { SubqueryPayload, QueryMatch, QueryType } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { Backlink } from '../../../page/tile.js';
+import { Line } from '../../../api/vendor/mquery/concordance/common.js';
 
 
 export enum CollocMetric {
@@ -32,11 +33,14 @@ export enum CollocMetric {
     REL_FREQ = 'f'
 }
 
-export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
+export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<DataRow>;
+    cmpData:Array<{
+        word:string;
+        score:number;
+        freq:number;
+    }>;
     heading:DataHeading;
-    concId:string;
-    queryId:number;
 }
 
 
@@ -55,11 +59,150 @@ export class Actions {
 
     static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
         return a.name === GlobalActions.TileDataLoaded.name &&
-            a.payload['data'] && a.payload['heading'] && a.payload['concId'] && a.payload['queryId'];
+            a.payload['data'] && a.payload['heading'] && a.payload['queryId'];
     }
 
     static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
         name: GlobalActions.TilePartialDataLoaded.name
     };
-
 }
+
+
+// API related types
+
+export type DataHeading = Array<{
+    label:string;
+    ident:string;
+}>;
+
+
+export interface DataRow {
+    str:string;
+    stats:Array<number>;
+    freq:number;
+    nfilter:[string, string];
+    pfilter:[string, string];
+    interactionId:string;
+    examples?:{
+        text:Array<Line>;
+        interactionId:string;
+        ref:string;
+    }
+}
+
+export interface CollApiResponse {
+    collHeadings:DataHeading;
+    data:Array<DataRow>;
+    cmpData?:Array<{
+        word:string;
+        score:number;
+        freq:number;
+    }>;
+}
+
+export enum SrchContextType {
+    LEFT = 'lft',
+    RIGHT = 'rgt',
+    BOTH = 'both'
+}
+
+
+export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {
+    switch (ctxType) {
+        case SrchContextType.BOTH:
+            return [-1 * range, range];
+        case SrchContextType.LEFT:
+            return [-1 * range, 0];
+        case SrchContextType.RIGHT:
+            return [0, range];
+        default:
+            throw new Error('unknown ctxType ' + ctxType);
+    }
+}
+
+
+export interface CollocModelState {
+    isBusy:boolean;
+    tileId:number;
+    isTweakMode:boolean;
+    isAltViewMode:boolean;
+    error:string|null;
+    widthFract:number;
+    corpname:string;
+
+    /**
+     * If set, then the tile behaves visually in a similar way to the "cmp" mode,
+     * but it compares results from two different corpora for a single query.
+     * (it does not work for the cmp mode, and the tile will always check that
+     * in the sanity check routine).
+     */
+    comparisonCorpname:string|undefined;
+
+    selectedText:string;
+
+    /**
+     * A positional attribute used to analyze the text
+     */
+    tokenAttr:string;
+
+    /**
+     * KWIC search range (-a, +a)
+     */
+    srchRange:number;
+
+    /**
+     * KWIC search range type: (-a, 0), (-a, a), (0, a)
+     */
+    srchRangeType:SrchContextType;
+
+    /**
+     * Min. required absolute freq. of a term
+     * (i.e. not only within searched context)
+     */
+    minAbsFreq:number;
+
+    /**
+     * Min. required absolute freq. of a term
+     * when looking only in the searched context
+     */
+    minLocalAbsFreq:number;
+
+    appliedMetrics:Array<CollocMetric>; // TODO generalize
+
+    sortByMetric:CollocMetric;
+
+    data:Array<Array<DataRow>>;
+
+    heading:DataHeading;
+
+    citemsperpage:number;
+
+    backlinks:Array<Backlink>;
+
+    queryType:QueryType;
+
+    queryMatches:Array<QueryMatch>;
+
+    posQueryGenerator:[string, string];
+}
+
+
+interface CollItem {
+    word:string;
+    freq:number;
+    score:number;
+    examples:Array<Line>;
+}
+
+
+export interface CollWithExamplesResponse {
+    concSize:number;
+    corpusSize:number;
+    subcSize?:number;
+    colls:Array<CollItem>;
+    measure:string;
+    srchRange:[number, number];
+    error?:string;
+    resultType:'collWithExamples';
+}
+

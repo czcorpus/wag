@@ -18,19 +18,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
-import * as theme from '../../../views/common/theme.js';
 
 export const ConcordanceTileView = styled.div`
     overflow: hidden;
 `;
 
-export const QueryInfo = styled.p`
+export const QueryInfo = styled.p<{theme:Theme}>`
     font-size: 1.2em;
 
     a.variant {
         cursor: pointer;
-        color: ${theme.colorDefaultText};
+        color: ${props => props.theme.colorDefaultText};
         font-weight: bold;
         text-decoration: none;
     }
@@ -40,9 +40,9 @@ export const QueryInfo = styled.p`
     }
 `;
 
-export const Summary = styled.dl`
+export const Summary = styled.dl<{theme:Theme}>`
     margin-top: 0.7em;
-    margin-bottom: 1em;
+    margin-bottom: 1.5em;
 
     dt, dd {
         display: inline-block;
@@ -50,14 +50,14 @@ export const Summary = styled.dl`
     }
 
     dt {
-        font-family: ${theme.condensedFontFamily};
-        color: ${theme.colorLightText};
+        font-family: ${props => props.theme.condensedFontFamily};
+        color: ${props => props.theme.colorLightText};
     }
 
     dd {
         font-weight: bold;
         margin-left: 0.3em;
-        color: ${theme.colorLightText};
+        color: ${props => props.theme.colorLightText};
     }
 
     dd:not(:last-child)::after {
@@ -70,13 +70,13 @@ export const Summary = styled.dl`
     }
 `;
 
-export const LineMetadata = styled.div`
+export const LineMetadata = styled.div<{theme:Theme}>`
     max-width: 30em;
     position: absolute;
     padding: 1em;
     background-color: #FFFFFF;
     margin-left: 0em;
-    border: 1px solid ${theme.colorLightGrey};
+    border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
@@ -105,10 +105,12 @@ export const LineMetadata = styled.div`
     }
 `;
 
-export const ConcLines = styled.table`
-    font-family: ${theme.condensedFontFamily};
-    display: inline-block;
+export const ConcLines = styled.div<{theme:Theme}>`
+    font-family: ${props => props.theme.condensedFontFamily};
+    display: flex;
+    justify-content: center;
     border-spacing: 0;
+    border-collapse: collapse;
 
     tr {
         td a.info-click {
@@ -123,28 +125,34 @@ export const ConcLines = styled.table`
                 width: 1em;
             }
         }
+
+        span.kwic {
+            display: inline-block;
+            padding-left: 0.3em;
+            padding-right: 0.3em;
+            color: ${props => props.theme.colorLogoPink};
+        }
+    }
+
+    tr.separator:not(:last-of-type) td {
+        border-width: 0 0 1px 0;
+        border-color: ${props => props.theme.colorInvertedSecondaryText};
+        border-style: solid;
+    }
+
+    tr:not(:last-of-type) td {
+        border: none;
     }
 
     &.sent {
         display: block;
 
         tr:nth-child(odd) {
-            background-color: ${theme.colorWhitelikeBlue};
+            background-color: ${props => props.theme.colorWhitelikeBlue};
         }
 
         tr {
-
-            display: block;
             padding-left: 0.3em;
-
-            td.left,
-            td.right,
-            td.kwic,
-            td.meta {
-                display: inline-block;
-            }
-
-
         }
     }
 
@@ -165,12 +173,12 @@ export const ConcLines = styled.table`
     }
 `;
 
-export const Row = styled.tr`
+export const Row = styled.tr<{theme:Theme}>`
     white-space: nowrap;
 
     td {
-        padding-top: 0.2em;
-        padding-bottom: 0.2em;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
     }
 
     td.left {
@@ -182,14 +190,46 @@ export const Row = styled.tr`
     }
 
     td.kwic {
-        padding-left: 0.7em;
-        padding-right: 0.7em;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
         text-align: center;
-        color: ${theme.colorLogoPink};
+        color: ${props => props.theme.colorLogoPink};
+    }
+
+    td .coll {
+        color: ${props => props.theme.colorLogoPink};
+        font-style: italic;
+        display: inline-block;
+        padding-left: 0.2em;
+        padding-right: 0.2em;
     }
 `;
 
-export const Controls = styled.form`
+
+export const SentRow = styled.tr<{theme:Theme}>`
+
+    &.highlighted {
+        background-color: ${props => props.theme.colorDataHighlightRow};
+    }
+
+    white-space: inherit;
+
+    td {
+        padding-top: 0.2em;
+        padding-bottom: 0.2em;
+    }
+
+    td .coll {
+        color: ${props => props.theme.colorLogoPink};
+        font-style: italic;
+        display: inline-block;
+        padding-left: 0.2em;
+        padding-right: 0.2em;
+    }
+
+`;
+
+export const Controls = styled.form<{theme:Theme}>`
     margin-bottom: 0.7em;
 
     fieldset {

@@ -19,23 +19,23 @@ import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { CorePosAttribute } from '../../../types.js';
-import { QueryType } from '../../../query/index.js';
-import { CollocMetric } from './common.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import { CollocMetric, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
-import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations.js';
-import { createInstance } from '../../../api/factory/collocations.js';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
+import {
+    TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
+} from '../../../page/tile.js';
+import { MQueryCollAPI } from './api/index.js';
 
 
 
 export interface CollocationsTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
+    apiType:'default'|'with-examples';
     corpname:string;
+    comparisonCorpname?:string;
     minFreq:number;
     minLocalFreq:number;
     rangeSize:number;
@@ -43,7 +43,6 @@ export interface CollocationsTileConf extends TileConf {
 
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
-     * In case waitForTile is not filled in then this must be present.
      */
     posQueryGenerator?:[string, string];
 }
@@ -65,49 +64,34 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly blockingTiles:Array<number>;
-
     private view:TileComponent;
 
-    private readonly api:CollocationApi<{}>;
+    private readonly api:MQueryCollAPI;
+
+    private readonly dependentTiles:Array<number>;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, waitForTiles,
-        waitForTilesTimeoutSecs, widthFract, conf, isBusy,
-        queryMatches, queryType, useDataStream
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
+        queryMatches, queryType, useDataStream, dependentTiles, readDataFromTile
     }:TileFactoryArgs<CollocationsTileConf>) {
 
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.blockingTiles = waitForTiles;
-        const apiOptions = (() => {
-            switch (conf.apiType) {
-            case CoreApiGroup.KONTEXT_API:
-                return {
-                    authenticateURL: appServices.createActionUrl("/CollocTile/authenticate")
-                }
-            case CoreApiGroup.MQUERY:
-                return {
-                    useDummyConcApi: true
-                }
-            default:
-                return {};
-            }
-        })();
-        this.api = createInstance(conf.apiType, conf.apiURL, useDataStream, appServices, apiOptions);
+        this.dependentTiles = dependentTiles;
+        this.api = new MQueryCollAPI(
+            conf.apiURL,
+            conf.apiType === 'with-examples',
+            appServices,
+            conf.backlink
+        );
         this.model = new CollocModel({
-            dispatcher: dispatcher,
-            tileId: tileId,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
-            appServices: appServices,
+            dispatcher,
+            tileId,
+            dependentTiles,
+            appServices,
             service: this.api,
-            concApi: createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
-            backlink: conf.backlink || null,
-            queryType: queryType,
-            apiType: conf.apiType,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -116,7 +100,7 @@ export class CollocationsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                concIds: List.map(_ => null, queryMatches),
+                comparisonCorpname: conf.comparisonCorpname,
                 selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,
@@ -128,10 +112,12 @@ export class CollocationsTile implements ITileProvider {
                 data: List.map(_ => null, queryMatches),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
-                backlinks: [],
-                queryMatches: List.map(findCurrQueryMatch, queryMatches),
+                backlinks: List.map(_ => null, queryMatches),
+                queryMatches: List.map(v => findCurrQueryMatch(v), queryMatches),
+                queryType,
                 posQueryGenerator: conf.posQueryGenerator
-            }
+            },
+            queryMatches: List.map(findCurrQueryMatch, queryMatches),
         });
         this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');
         this.view = viewInit(
@@ -158,7 +144,7 @@ export class CollocationsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
@@ -191,10 +177,6 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return this.api.supportsMultiWordQueries();
     }
@@ -202,19 +184,25 @@ export class CollocationsTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<CollocationsTileConf> = {
 
     sanityCheck: (args) => {
-        const ans:Array<Error> = [];
-        if (args.waitForTiles.length > 1) {
-            ans.push(new Error(`The collocation can be configured to wait for 0 or 1 other tiles`));
+        if (typeof args.readDataFromTile === 'number' && !List.empty(args.dependentTiles)) {
+            return [new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time')];
         }
-        if (args.waitForTiles.length === 0 && !args.conf.posQueryGenerator) {
-            ans.push(new Error(`The collocation tile requires either waitFor or posQueryGenerator configured`));
+        if (!!args.conf.comparisonCorpname && args.queryType === QueryType.CMP_QUERY) {
+            return [new Error('collocation tile cannot work in both cmp and two corpora comparison mode at the same time')];
         }
-        return ans;
     },
     create: (args) => new CollocationsTile(args)
 };

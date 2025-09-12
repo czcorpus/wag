@@ -17,13 +17,18 @@
  */
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps,
+    BacklinkConf} from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
 import { init as viewInit } from './views.js';
-import { createApiInstance } from '../../../api/factory/wordForms.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MQueryWordFormsAPI } from './api/mquery.js';
+import { IWordFormsApi } from './common.js';
+import { FrodoWordFormsAPI } from './api/frodo.js';
+import { BacklinkConfArgs } from './api/backlink.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -49,22 +54,15 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    private readonly waitForTiles:Array<number>;
-
     constructor({
-        tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy,
-        waitForTiles, waitForTilesTimeoutSecs, theme, mainPosAttr,
-        useDataStream}:TileFactoryArgs<WordFormsTileConf>
+        tileId, dispatcher, appServices, ut, queryMatches, widthFract, conf, isBusy,
+        theme, mainPosAttr, useDataStream}:TileFactoryArgs<WordFormsTileConf>
     ) {
 
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.waitForTiles = waitForTiles;
         this.label = this.appServices.importExternalMessage(conf.label || 'wordforms__main_label');
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/MultiWordGeoAreas/authenticate")} :
-            {};
         this.model = new WordFormsModel({
             dispatcher,
             initialState: {
@@ -80,22 +78,23 @@ export class WordFormsTile implements ITileProvider {
                 mainPosAttr
             },
             tileId,
-            api: createApiInstance({
-                apiIdent: conf.apiType,
-                apiURL: conf.apiURL,
-                srcInfoURL: conf.srcInfoURL,
-                apiServices: appServices,
-                useDataStream,
-                apiOptions
-            }),
+            api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices, conf.backlink),
             queryMatches,
-            queryDomain: domain1,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs,
             appServices,
-            backlink: conf.backlink || null,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
+    }
+
+    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf<BacklinkConfArgs>):IWordFormsApi {
+        switch (apiType) {
+            case CoreApiGroup.MQUERY:
+                return new MQueryWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
+            case CoreApiGroup.FRODO:
+                return new FrodoWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
+            case CoreApiGroup.KORPUS_DB:
+            default:
+                throw new Error(`Unsupported API type: ${apiType}`);
+        }
     }
 
     getLabel():string {
@@ -114,7 +113,7 @@ export class WordFormsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
@@ -147,19 +146,20 @@ export class WordFormsTile implements ITileProvider {
         return true;
     }
 
-    /**
-     * Return a list of tiles this tile depends on
-     */
-    getBlockingTiles():Array<number> {
-        return this.waitForTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

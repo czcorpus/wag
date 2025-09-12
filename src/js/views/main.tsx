@@ -15,38 +15,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
+import { Bound, IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import * as React from 'react';
-import * as domtoimage from 'dom-to-image-more';
 import { Keyboard, pipe, List } from 'cnc-tskit';
-import { tap } from 'rxjs/operators';
+import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { Input } from '../page/forms.js';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types.js';
-import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index.js';
+import { QueryType, QueryMatch, RecognizedQueries, QueryTypeMenuItem } from '../query/index.js';
 import { AltViewIconProps, TileFrameProps } from '../page/tile.js';
 import { TileGroup } from '../page/layout.js';
 import { Actions } from '../models/actions.js';
 import { MessagesModel, MessagesState } from '../models/messages.js';
-import { QueryFormModel, QueryFormModelState } from '../models/query.js';
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight, TileResultFlag } from '../models/tiles.js';
+import { QueryFormModel } from '../models/query.js';
+import { WdglanceTilesModel, blinkAndDehighlight, TileResultFlag, TileResultFlagRec } from '../models/tiles.js';
 import { init as corpusInfoViewInit } from './common/corpusInfo.js';
 import { GlobalComponents } from './common/index.js';
-import { timer } from 'rxjs';
+import { fromEvent, timer } from 'rxjs';
+import { ThemeProvider } from 'styled-components';
 
 import * as S from './style.js';
-import * as SC from './common/style.js';
+import * as CS from './common/style.js';
 import { GlobalStyle } from './layout/style.js';
-import { MainPosAttrValues } from '../conf/index.js';
+import { MainPosAttrValues, TranslatLanguage, UserQuery } from '../conf/index.js';
+import { Theme } from '../page/theme.js';
 
 
 export interface WdglanceMainProps {
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
+    queries:Array<UserQuery>;
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;
-    onMount:()=>void
+    onMount:()=>void;
 }
 
 function mkTileSectionId(tileId:number):string {
@@ -54,11 +56,18 @@ function mkTileSectionId(tileId:number):string {
 }
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:QueryFormModel, tilesModel:WdglanceTilesModel,
-            messagesModel:MessagesModel) {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    formModel:QueryFormModel,
+    tilesModel:WdglanceTilesModel,
+    messagesModel:MessagesModel,
+    dynamicTheme:Theme
+):React.FC<WdglanceMainProps> {
 
     const globalComponents = ut.getComponents();
     const CorpusInfo = corpusInfoViewInit(dispatcher, ut);
+    const GlobalStyleWithDynamicTheme = GlobalStyle(dynamicTheme);
 
     // ------------------ <SystemMessage /> ------------------------------
 
@@ -100,7 +109,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <p className="text">{props.text}</p>
                         <div className="close">
                             <a onClick={handleCloseClick}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
+                                <img className="filtered" src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                             </a>
                         </div>
                     </div>
@@ -109,49 +118,29 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
-    // ------------------ <QueryDomainSelector /> ------------------------------
+    // ------------------ <TranslationLangSelector /> ------------------------------
 
-    const QueryDomainSelector:React.FC<{
+    const TranslationLangSelector:React.FC<{
         value:string;
-        searchDomains:Array<SearchDomain>;
+        translatLanguages:Array<TranslatLanguage>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
 
     }> = (props) => {
+
         const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
             props.onChange(evt.target.value);
         }
 
         return (
-            <select className={`QueryDomainSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
+            <select className={`translat-lang-selector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.searchDomains.filter(v => v.queryTypes.indexOf(props.queryType) > -1).map(v =>
-                        <option key={v.code} value={v.code}>{v.label}</option>)}
-            </select>
-        );
-    };
-
-    // ------------------ <QueryDomain2Selector /> ------------------------------
-
-    const QueryDomain2Selector:React.FC<{
-        value:string;
-        targetDomains:Array<[string, string]>;
-        htmlClass?:string;
-        queryType:QueryType;
-        onChange:(v:string)=>void;
-
-    }> = (props) => {
-        const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            props.onChange(evt.target.value);
-        }
-
-        return (
-            <select className={`QueryDomainSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
-                    value={props.value}
-                    aria-label={ut.translate('global__aria_search_lang')}>
-                {props.targetDomains.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
+                {List.map(
+                    v => <option key={v.code} value={v.code}>{v.label}</option>,
+                    props.translatLanguages
+                )}
             </select>
         );
     };
@@ -208,40 +197,49 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         return (
-            <span className="SubmitButton">
+            <S.SubmitButton>
                 <button className="cnc-button cnc-button-primary" type="button" onClick={props.onClick}
                         aria-label={ut.translate('global__aria_search_btn')}>
                     {ut.translate('global__search')}
                 </button>
-            </span>
+            </S.SubmitButton>
         );
     };
 
     // ------------------ <QueryTypeSelector /> ------------------------------
 
     const QueryTypeSelector:React.FC<{
-        menuItems:Array<QueryTypeMenuItem>;
-        value:QueryType;
+        qeryTypes:Array<QueryTypeMenuItem>;
+        value:string;
         isMobile:boolean;
-        onChange:(v:QueryType)=>void;
+        onChange:(v:string)=>void;
 
-    }> = (props) => {
-        return <div className="QueryTypeSelector">
-            <nav>
-            {props.menuItems.filter(v => v.isEnabled).map((v, i) =>
-                <React.Fragment key={v.type}>
-                    {i > 0 && <span className="separ"> | </span>}
-                    <span className={`item${v.type === props.value ? ' current' : ''}`}>
-                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
-                                    aria-current={v.type === props.value ? 'page' : null}>
-                            {v.label}
-                        </a>
-                    </span>
-                </React.Fragment>
-            )}
-            </nav>
-        </div>
-    };
+    }> = (props) => (
+        <S.QueryTypeSelector>
+            {pipe(props.qeryTypes, List.filter(x => x.isEnabled), List.size()) < 2 ?
+                <span></span> :
+                <nav>
+                {pipe(
+                    props.qeryTypes,
+                    List.filter(v => v.isEnabled),
+                    List.map(
+                        (v, i) => (
+                            <React.Fragment key={v.type}>
+                                {i > 0 && <span className="separ"> | </span>}
+                                <span className={`item${v.type === props.value ? ' current' : ''}`}>
+                                    <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
+                                                aria-current={v.type === props.value ? 'page' : null}>
+                                        {v.label}
+                                    </a>
+                                </span>
+                            </React.Fragment>
+                        )
+                    )
+                )}
+                </nav>
+            }
+        </S.QueryTypeSelector>
+    );
 
     // ------------------ <AddCmpQueryField /> ------------------------------
 
@@ -294,12 +292,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryFields:React.FC<{
         queries:Array<Input>;
-        queryType:QueryType;
+        currQueryType:QueryType;
         wantsFocus:boolean;
-        queryDomain:string;
-        queryDomain2:string;
-        searchDomains:Array<SearchDomain>;
-        targetDomains:Array<[string, string]>;
+        translatLang:string;
+        translatLanguages:Array<TranslatLanguage>;
         maxCmpQueries:number;
         onEnterKey:()=>void;
 
@@ -315,26 +311,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
-        const handleTargetDomainChange = (primary:boolean) => (domain:string) => {
-            dispatcher.dispatch<typeof Actions.ChangeTargetDomain>({
-                name: Actions.ChangeTargetDomain.name,
+        const handleTranslatLangChange = (lang:string) => {
+            dispatcher.dispatch<typeof Actions.ChangeTranslatLanguage>({
+                name: Actions.ChangeTranslatLanguage.name,
                 payload: {
-                    domain1: primary ? domain : props.queryDomain,
-                    domain2: primary ? props.queryDomain2 : domain,
-                    queryType: props.queryType,
-                    queries: props.queries.map(v => v.value)
+                    lang
                 }
             });
         };
 
-
-        switch (props.queryType) {
+        switch (props.currQueryType) {
 
             case QueryType.SINGLE_QUERY:
                 return (
                     <>
-                        <QueryDomainSelector value={props.queryDomain} searchDomains={props.searchDomains}
-                                onChange={handleTargetDomainChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
@@ -346,8 +336,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 const focusOn = props.queries.findIndex((query, index) => query.value === '' || index === props.queries.length-1);
                 return (
                     <>
-                        <QueryDomainSelector value={props.queryDomain} searchDomains={props.searchDomains}
-                                onChange={handleTargetDomainChange(true)} queryType={QueryType.CMP_QUERY} />
                         <ul className="input-group">
                             {props.queries.map((query, queryIdx) => (
                                 <li className="input-row" key={`query:${queryIdx}`}>
@@ -363,20 +351,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             case QueryType.TRANSLAT_QUERY:
                 return (
                     <>
-                        <QueryDomainSelector value={props.queryDomain} searchDomains={props.searchDomains}
-                                onChange={handleTargetDomainChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
-                        <span className="arrow">{'\u25B6'}</span>
-                        <QueryDomain2Selector value={props.queryDomain2} targetDomains={props.targetDomains}
-                                htmlClass="secondary"
-                                onChange={handleTargetDomainChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
                                     allowRemoval={false} />
                         </span>
+                        <span className="arrow">{'\u25B6'}</span>
+                        <TranslationLangSelector value={props.translatLang} translatLanguages={props.translatLanguages}
+                                htmlClass="secondary"
+                                onChange={handleTranslatLangChange} queryType={QueryType.TRANSLAT_QUERY} />
                     </>
                 );
-
         }
     };
 
@@ -446,9 +431,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 const curr = List.find(v => v.isCurrent == true, props.matches[0]);
                 if (curr) {
                     return (
-                        <div className="LemmaSelector">
+                        <S.LemmaSelector>
                             {ut.translate('global__searching_by_pos')}:{'\u00a0'}
-                            <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
+                            <span className="curr">{curr.lemma ? curr.lemma : curr.word} ({mkAltLabel(curr)})</span>
                             <br />
                             {props.matches[0].length > 1 ?
                                 <div className="variants">
@@ -468,10 +453,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 </div>
                                 : null
                             }
-                        </div>
+                        </S.LemmaSelector>
                     );
                 }
-                return <div className="LemmaSelector"></div>;
+                return <S.LemmaSelector></S.LemmaSelector>;
             }
 
         } else {
@@ -515,7 +500,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             } else {
                 const numAmbig = props.matches.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0);
                 return (
-                    <div className="LemmaSelector">
+                    <S.LemmaSelector>
                         {numAmbig > 0 ?
                             <a className="modal-box-trigger" onClick={handleShowModal}>
                                 {ut.translate('global__some_results_ambiguous_msg_{num}',
@@ -523,7 +508,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </a> :
                             null
                         }
-                    </div>
+                    </S.LemmaSelector>
                 );
             }
         }
@@ -531,70 +516,64 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <WdglanceControls /> ------------------------------
 
-    class WdglanceControls extends React.PureComponent<QueryFormModelState & {isMobile:boolean; isAnswerMode:boolean}> {
+    const WdglanceControls:React.FC<{isMobile:boolean; isAnswerMode:boolean}> = (props) => {
 
-        constructor(props) {
-            super(props);
-            this.handleQueryTypeChange = this.handleQueryTypeChange.bind(this);
-        }
-
-        private handleSubmit() {
+        const handleSubmit = () => {
             dispatcher.dispatch<typeof Actions.SubmitQuery>({
                 name: Actions.SubmitQuery.name
             });
-        }
-
-        handleQueryTypeChange(qt:QueryType):void {
-            dispatcher.dispatch<typeof Actions.ChangeQueryType>({
-                name: Actions.ChangeQueryType.name,
-                payload: {
-                    queryType: qt,
-                    domain1: this.props.queryDomain,
-                    domain2: this.props.queryDomain2,
-                    queries: this.props.queries.map(v => v.value),
-                }
-            });
         };
 
-        render() {
-            return (
-                <S.WdglanceControls>
-                    <form className="cnc-form">
-                        <div>
-                            {this.props.queryTypesMenuItems.filter(v => v.isEnabled).length > 1 ?
-                                <QueryTypeSelector menuItems={this.props.queryTypesMenuItems}
-                                        value={this.props.queryType}
-                                        onChange={this.handleQueryTypeChange}
-                                        isMobile={this.props.isMobile} /> :
-                                null}
-                        </div>
-                        <div className="main">
-                            <QueryFields
-                                    wantsFocus={!this.props.isAnswerMode || this.props.initialQueryType !== this.props.queryType}
-                                    queries={this.props.queries}
-                                    queryType={this.props.queryType}
-                                    queryDomain={this.props.queryDomain}
-                                    queryDomain2={this.props.queryDomain2}
-                                    searchDomains={this.props.searchDomains}
-                                    targetDomains={this.props.targetDomains[this.props.queryType]}
-                                    onEnterKey={this.handleSubmit}
-                                    maxCmpQueries={this.props.maxCmpQueries} />
-                            <SubmitButton onClick={this.handleSubmit} />
-                        </div>
-                    </form>
-                    {this.props.isAnswerMode ?
-                        <LemmaSelector matches={this.props.queryMatches} queries={this.props.queries.map(v => v.value)}
-                                lemmaSelectorModalVisible={this.props.lemmaSelectorModalVisible}
-                                modalSelections={this.props.modalSelections} mainPosAttr={this.props.mainPosAttr} /> :
-                        null
-                    }
-                </S.WdglanceControls>
+        const handleQueryTypeChange = (queryType:QueryType) => {
+            dispatcher.dispatch(
+                Actions.ChangeQueryType,
+                { queryType }
             );
-        }
+        };
+
+        const state = useModel(formModel);
+
+        return (
+            <S.WdglanceControls className={props.isAnswerMode ? 'result-page-mode' : null}>
+                <form className="cnc-form">
+                   <div className="tabs">
+                        <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
+                                qeryTypes={state.queryTypesMenuItems} value={state.queryType} />
+                        <OtherVariantsMenu instanceSwitchMenu={state.instanceSwitchMenu} />
+                    </div>
+                    <div className="main">
+                        <QueryFields
+                                wantsFocus={!props.isAnswerMode || state.initialQueryType !== state.queryType}
+                                queries={state.queries}
+                                currQueryType={state.queryType}
+                                translatLang={state.currTranslatLanguage}
+                                translatLanguages={state.translatLanguages}
+                                onEnterKey={handleSubmit}
+                                maxCmpQueries={state.maxCmpQueries} />
+                        <SubmitButton onClick={handleSubmit} />
+                    </div>
+                </form>
+            </S.WdglanceControls>
+        );
     }
 
-    const WdglanceControlsBound = BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, QueryFormModelState>(WdglanceControls, formModel);
+    // ------------- <OtherVariantsMenu /> -------------------------------
 
+    const OtherVariantsMenu:React.FC<{instanceSwitchMenu:Array<{label:string; url:string}>}> = (props) => {
+        return (
+            <S.OtherVariantsMenu>
+                {List.map(
+                    (item, i) => (
+                        <React.Fragment key={item.label}>
+                            {i > 0 ? <span className="separ">|</span> : null}
+                            <a href={item.url}>{item.label}</a>
+                        </React.Fragment>
+                    ),
+                    props.instanceSwitchMenu
+                )}
+            </S.OtherVariantsMenu>
+        )
+    };
 
     // ------------- <HelpButton /> --------------------------------------
 
@@ -615,7 +594,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="HelpButton bar-button">
                 <button type="button" onClick={handleClick} title={ut.translate('global__show_tile_help')}>
-                    <img src={ut.createStaticUrl('question-mark.svg')}
+                    <img className="filtered" src={ut.createStaticUrl('question-mark.svg')}
                         alt={ut.translate('global__img_alt_question_mark')} />
                 </button>
             </span>
@@ -661,6 +640,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <span className="AltViewButton bar-button">
                 <button type="button" onClick={handleClick} title={label}>
                     <img
+                        className="filtered"
                         src={isAltView ? lightIcon : icon}
                         alt={ut.translate('global__img_alt_alt_view')}
                         style={inlineCss} />
@@ -700,7 +680,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="TweakButton bar-button">
                 <button type="button" onClick={handleClick} title={props.isExtended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
-                    <img src={ut.createStaticUrl(props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg')}
+                    <img className="filtered" src={ut.createStaticUrl(props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg')}
                         alt={props.isExtended ? 'configuration icon (highlighted)' : 'configuration icon'} />
                 </button>
             </span>
@@ -727,7 +707,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="SaveButton bar-button">
                 <button type="button" onClick={handleClick} title={ut.translate('global__save_svg')}>
-                    <img src={props.disabled ? ut.createStaticUrl('download-button_g.svg') : ut.createStaticUrl('download-button.svg')} alt={'download button'} />
+                    <img className="filtered" src={props.disabled ? ut.createStaticUrl('download-button_g.svg') : ut.createStaticUrl('download-button.svg')} alt={'download button'} />
                 </button>
             </span>
         );
@@ -801,7 +781,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         reason:string;
 
     }> = (props) => (
-        <SC.TileWrapper className="empty">
+        <CS.TileWrapper className="empty">
             <div className="loader-wrapper"></div>
             <div className="cnc-tile-body content empty">
                 <div className="not-applicable-box">
@@ -814,111 +794,98 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <p className="not-applicable" title={ut.translate('global__not_applicable')}><span>N/A</span></p>
                 </div>
             </div>
-        </SC.TileWrapper>
+        </CS.TileWrapper>
     );
 
 
     // ------------- <TileContainer /> --------------------------------------
 
-    class TileContainer extends React.Component<{
+    const TileContainer:React.FC<{
         isTweakMode:boolean;
         isMobile:boolean;
         isAltViewMode:boolean;
         helpURL:string;
         tile:TileFrameProps;
+        overwriteLabel:string;
         supportsCurrQuery:boolean;
         tileResultFlag:TileResultFlagRec;
         isHighlighted:boolean;
         altViewIcon:AltViewIconProps;
 
-    }, {}> {
+    }> = (props) => {
 
-        private ref:React.RefObject<HTMLDivElement>;
-
-        constructor(props) {
-            super(props);
-            this.ref = React.createRef();
-        }
-
-        componentDidMount() {
-            dispatcher.dispatch<typeof Actions.SetTileRenderSize>({
-                name: Actions.SetTileRenderSize.name,
-                payload: {
-                    tileId: this.props.tile.tileId,
-                    size: ut.getElementSize(this.ref.current),
-                    isMobile: this.props.isMobile
-                }
-            });
-        }
-
-        private getHTMLClass() {
+        const getHTMLClass = () => {
             const ans = ['cnc-tile', 'app-output'];
-            if (this.props.isTweakMode) {
+
+            if (props.isTweakMode) {
                 ans.push('expanded');
             }
-            if (!this.props.isMobile) {
-                ans.push(`span${this.props.tile.widthFract}`);
+            if (!props.isMobile) {
+                ans.push(`span${props.tile.widthFract}`);
             }
-            if (this.props.isHighlighted) {
+            if (props.isHighlighted) {
                 ans.push('highlighted');
             }
+            if (props.tileResultFlag.status === TileResultFlag.EMPTY_RESULT && props.tile.hideOnNoData) {
+                ans.push('hidden-no-data');
+            }
             return ans.join(' ');
-        }
+        };
 
-        render() {
-            return (
-                <section id={mkTileSectionId(this.props.tile.tileId)} key={`tile-ident-${this.props.tile.tileId}`}
-                        className={this.getHTMLClass()}>
-                    <header className="cnc-tile-header panel">
-                        <h2>{this.props.tile.label}</h2>
-                        <div className="window-buttons">
-                        {this.props.tileResultFlag && this.props.tileResultFlag.canBeAmbiguousResult ?
-                            <AmbiguousResultWarning /> :
-                            null
-                        }
-                        {this.props.tile.supportsSVGFigureSave ?
-                            <SaveButton
-                                tileId={this.props.tile.tileId}
-                                disabled={!this.props.tileResultFlag || this.props.tileResultFlag.status !== TileResultFlag.VALID_RESULT} /> :
-                            null
-                        }
-                        {this.props.tile.supportsAltView ?
-                            <AltViewButton
-                                tileId={this.props.tile.tileId}
-                                isAltView={this.props.isAltViewMode}
-                                altIconProps={this.props.altViewIcon} />  :
-                            null
-                        }
-                        {this.props.tile.supportsTweakMode ?
-                            <TweakButton tileId={this.props.tile.tileId} isExtended={this.props.isTweakMode} /> :
-                            null
-                        }
-                        {this.props.tile.supportsHelpView ?
-                            <HelpButton tileId={this.props.tile.tileId} /> :
-                            null
-                        }
-                        </div>
-                    </header>
-                    <div className="provider" ref={this.ref} style={{height: '100%', overflow: this.props.tile.maxTileHeight ? 'auto' : 'initial'}}>
-                        <div style={{height: '100%', maxHeight: this.props.tile.maxTileHeight ? this.props.tile.maxTileHeight : 'initial'}}>
-                            <globalComponents.ErrorBoundary>
-                                {this.props.supportsCurrQuery ?
-                                    <this.props.tile.Component
-                                            tileId={this.props.tile.tileId}
-                                            tileName={this.props.tile.tileName}
-                                            renderSize={this.props.tile.renderSize}
-                                            isMobile={this.props.isMobile}
-                                            widthFract={this.props.tile.widthFract}
-                                            supportsReloadOnError={this.props.tile.supportsReloadOnError}
-                                            issueReportingUrl={this.props.tile.issueReportingUrl} /> :
-                                    <DisabledTile reason={this.props.tile.reasonTileDisabled} />
-                                }
-                            </globalComponents.ErrorBoundary>
-                        </div>
+        const currLabel = props.overwriteLabel ? props.overwriteLabel : props.tile.label;
+
+        return (
+            <section id={mkTileSectionId(props.tile.tileId)} key={`tile-ident-${props.tile.tileId}`}
+                    className={getHTMLClass()}>
+                <header className="cnc-tile-header panel">
+                    <h2>{currLabel}</h2>
+                    <div className="window-buttons">
+                    {props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult ?
+                        <AmbiguousResultWarning /> :
+                        null
+                    }
+                    {props.tile.supportsSVGFigureSave ?
+                        <SaveButton
+                            tileId={props.tile.tileId}
+                            disabled={!props.tileResultFlag || props.tileResultFlag.status !== TileResultFlag.VALID_RESULT} /> :
+                        null
+                    }
+                    {props.tile.supportsAltView ?
+                        <AltViewButton
+                            tileId={props.tile.tileId}
+                            isAltView={props.isAltViewMode}
+                            altIconProps={props.altViewIcon} />  :
+                        null
+                    }
+                    {props.tile.supportsTweakMode ?
+                        <TweakButton tileId={props.tile.tileId} isExtended={props.isTweakMode} /> :
+                        null
+                    }
+                    {props.tile.supportsHelpView ?
+                        <HelpButton tileId={props.tile.tileId} /> :
+                        null
+                    }
                     </div>
-                </section>
-            );
-        }
+                </header>
+                <div className="provider" style={{height: '100%', overflow: props.tile.maxTileHeight ? 'auto' : 'initial'}}>
+                    <div style={{height: '100%', maxHeight: props.tile.maxTileHeight ? props.tile.maxTileHeight : 'initial'}}>
+                        <globalComponents.ErrorBoundary>
+                            {props.supportsCurrQuery ?
+                                <props.tile.Component
+                                        tileId={props.tile.tileId}
+                                        tileName={props.tile.tileName}
+                                        tileLabel={currLabel}
+                                        isMobile={props.isMobile}
+                                        widthFract={props.tile.widthFract}
+                                        supportsReloadOnError={props.tile.supportsReloadOnError}
+                                        issueReportingUrl={props.tile.issueReportingUrl} /> :
+                                <DisabledTile reason={props.tile.reasonTileDisabled} />
+                            }
+                        </globalComponents.ErrorBoundary>
+                    </div>
+                </div>
+            </section>
+        );
     }
 
 
@@ -967,8 +934,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <span className="flex">
                     <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
                                 {props.groupHidden ?
-                                    <img src={ut.createStaticUrl('triangle_w_right.svg')} alt={ut.translate('global__img_alt_triangle_w_right')} /> :
-                                    <img src={ut.createStaticUrl('triangle_w_down.svg')} alt={ut.translate('global__img_alt_triangle_w_down')} />
+                                    <img className="filtered" src={ut.createStaticUrl('triangle_w_right.svg')} alt={ut.translate('global__img_alt_triangle_w_right')} /> :
+                                    <img className="filtered" src={ut.createStaticUrl('triangle_w_down.svg')} alt={ut.translate('global__img_alt_triangle_w_down')} />
                                 }
                             </span>
                         <a className="switch-common" onClick={props.groupDisabled ? null : ()=>props.clickHandler()}
@@ -1024,6 +991,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const TileGroupSection:React.FC<{
         data:TileGroup;
+        labelsOverwrites:{[tileId:number]:string};
         idx:number;
         isHidden:boolean;
         hasData:boolean;
@@ -1061,7 +1029,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <S.Tiles>
                         <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
                             <div className="provider">
-                                <SC.TileWrapper>
+                                <CS.TileWrapper>
                                     <div className="cnc-tile-body content empty">
                                         <div className="message">
                                             <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
@@ -1070,7 +1038,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             </p>
                                         </div>
                                     </div>
-                                </SC.TileWrapper>
+                                </CS.TileWrapper>
                             </div>
                         </section>
                     </S.Tiles>
@@ -1087,9 +1055,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {pipe(
                         props.data.tiles,
                         List.map(v => props.tileFrameProps[v.tileId]),
-                        List.map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                        List.map(tile => <TileContainer key={`tile:${tile.tileId}`}
+                                            tile={tile}
                                             isMobile={props.isMobile}
                                             helpURL={tile.helpURL}
+                                            overwriteLabel={props.labelsOverwrites[tile.tileId]}
                                             isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}
                                             isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
@@ -1242,86 +1212,81 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <TilesSections /> -----------------------------
 
-    class TilesSections extends React.PureComponent<{
+    const TilesSections:React.FC<{
         layout:Array<TileGroup>;
         homepageSections:Array<{label:string; html:string}>;
+    }> = (props) => {
 
-    } & WdglanceTilesState> {
+        const state = useModel(tilesModel);
 
-        constructor(props) {
-            super(props);
-            this.handleCloseSourceInfo = this.handleCloseSourceInfo.bind(this);
-            this.handleCloseGroupHelp = this.handleCloseGroupHelp.bind(this);
-            this.handleCloseTileHelp = this.handleCloseTileHelp.bind(this);
-            this.handleAmbiguousResultHelp = this.handleAmbiguousResultHelp.bind(this);
-        }
-
-        private handleCloseSourceInfo() {
+        const handleCloseSourceInfo = () => {
             dispatcher.dispatch<typeof Actions.CloseSourceInfo>({
                 name: Actions.CloseSourceInfo.name
             });
-        }
+        };
 
-        private handleCloseGroupHelp() {
+        const handleCloseGroupHelp = () => {
             dispatcher.dispatch<typeof Actions.HideGroupHelp>({
                 name: Actions.HideGroupHelp.name
             });
-        }
+        };
 
-        private handleCloseTileHelp() {
+        const handleCloseTileHelp = () => {
             dispatcher.dispatch<typeof Actions.HideTileHelp>({
                 name: Actions.HideTileHelp.name
             });
-        }
+        };
 
-        private handleAmbiguousResultHelp() {
+        const handleAmbiguousResultHelp = () => {
             dispatcher.dispatch<typeof Actions.HideAmbiguousResultHelp>({
                 name: Actions.HideAmbiguousResultHelp.name
             });
-        }
+        };
 
-        private renderModal() {
-            if (this.props.activeSourceInfo !== null) {
+        const renderModal = () => {
+            if (state.activeSourceInfo !== null) {
                 return (
-                    <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
+                    <globalComponents.ModalBox onCloseClick={handleCloseSourceInfo}
                             title={ut.translate('global__source_detail')}>
                         <globalComponents.ErrorBoundary>
-                            {this.props.isBusy ?
+                            <div className="content">
+                            {state.isBusy ?
                                 <WithinModalAjaxLoader /> :
-                                <SourceInfo tileProps={this.props.tileProps} data={this.props.activeSourceInfo} />
+                                <SourceInfo tileProps={state.tileProps} data={state.activeSourceInfo} />
                             }
+                            </div>
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
                 );
 
-            } else if (this.props.activeGroupHelp !== null) {
-                const group = this.props.layout[this.props.activeGroupHelp.idx];
-                return <ModalHelpContent onClose={this.handleCloseGroupHelp} title={group.groupLabel}
-                            html={this.props.activeGroupHelp.html}
-                            isBusy={this.props.isBusy} />;
+            } else if (state.activeGroupHelp !== null) {
+                const group = props.layout[state.activeGroupHelp.idx];
+                return <ModalHelpContent onClose={handleCloseGroupHelp} title={group.groupLabel}
+                            html={state.activeGroupHelp.html}
+                            isBusy={state.isBusy} />;
 
-            } else if (this.props.activeTileHelp !== null) {
-                return <ModalHelpContent onClose={this.handleCloseTileHelp}
-                            title={this.props.tileProps[this.props.activeTileHelp.ident].label}
-                            html={this.props.activeTileHelp.html}
-                            isBusy={this.props.isBusy} />;
+            } else if (state.activeTileHelp !== null) {
+                return <ModalHelpContent onClose={handleCloseTileHelp}
+                            title={state.tileProps[state.activeTileHelp.ident].label}
+                            html={state.activeTileHelp.html}
+                            isBusy={state.isBusy} />;
 
-            } else if (this.props.showAmbiguousResultHelp) {
-                return <ModalHelpContent onClose={this.handleAmbiguousResultHelp}
+            } else if (state.showAmbiguousResultHelp) {
+                return <ModalHelpContent onClose={handleAmbiguousResultHelp}
                             title={ut.translate('global__not_using_lemmatized_query_title')}
                             html={'<p>' + ut.translate('global__not_using_lemmatized_query_msg') + '</p>'}
-                            isBusy={this.props.isBusy} />;
+                            isBusy={state.isBusy} />;
 
             } else {
                 return null;
             }
-        }
+        };
 
-        private renderContents() {
-            if (this.props.numTileErrors > this.props.maxTileErrors) {
-                return <TooManyErrorsBox reportHref={this.props.issueReportingUrl} />;
+        const renderContents = () => {
+            if (state.numTileErrors > state.maxTileErrors) {
+                return <TooManyErrorsBox reportHref={state.issueReportingUrl} />;
 
-            } else if (this.props.datalessGroups.length >= this.props.layout.length) {
+            } else if (state.datalessGroups.length >= props.layout.length) {
                 return <NothingFoundBox />;
 
             } else {
@@ -1330,31 +1295,52 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <TileGroupSection
                             key={`${group.groupLabel}:${groupIdx}`}
                             data={group}
+                            labelsOverwrites={state.labelsOverwrites}
                             idx={groupIdx}
-                            isHidden={List.some(v => v === groupIdx, this.props.hiddenGroups)}
-                            hasData={!List.some(v => v === groupIdx, this.props.datalessGroups)}
-                            isMobile={this.props.isMobile}
-                            tileFrameProps={this.props.tileProps}
-                            tweakActiveTiles={this.props.tweakActiveTiles}
-                            altViewActiveTiles={this.props.altViewActiveTiles}
-                            tileResultFlags={this.props.tileResultFlags}
-                            highlightedTileId={this.props.highlightedTileId} />
+                            isHidden={List.some(v => v === groupIdx, state.hiddenGroups)}
+                            hasData={!List.some(v => v === groupIdx, state.datalessGroups)}
+                            isMobile={state.isMobile}
+                            tileFrameProps={state.tileProps}
+                            tweakActiveTiles={state.tweakActiveTiles}
+                            altViewActiveTiles={state.altViewActiveTiles}
+                            tileResultFlags={state.tileResultFlags}
+                            highlightedTileId={state.highlightedTileId} />
 
                     ),
-                    this.props.layout
+                    props.layout
                 );
             }
         }
 
-        componentDidUpdate() {
-            if (this.props.allTilesLoaded && this.props.scrollToTileId > -1) {
+
+        const [height, setHeight] = React.useState(200);
+
+        React.useEffect(
+            () => {
+                const subsc = fromEvent(window, 'resize').pipe(
+                    debounceTime(500),
+                    map(v => window.innerWidth / props.layout.length)
+
+                ).subscribe(v => setHeight(v));
+
+                setHeight(window.innerHeight / props.layout.length);
+
+                return () => {
+                    subsc.unsubscribe();
+                }
+            },
+            []
+        );
+
+        React.useEffect(() => {
+            if (state.allTilesLoaded && state.scrollToTileId > -1) {
                 blinkAndDehighlight(
-                    this.props.scrollToTileId,
+                    state.scrollToTileId,
                     dispatcher,
                     timer(0).pipe(
                         tap(
                             () => {
-                                const elm = window.document.getElementById(mkTileSectionId(this.props.highlightedTileId));
+                                const elm = window.document.getElementById(mkTileSectionId(state.highlightedTileId));
                                 if (elm) {
                                     elm.scrollIntoView();
                                 }
@@ -1363,22 +1349,36 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     )
                 );
             }
-        }
+        });
 
-        render() {
-            return (
-                <S.TilesSections>
-                    {this.props.isAnswerMode ?
-                        this.renderContents() :
-                        <S.Tiles><InitialHelp sections={this.props.homepageSections} /></S.Tiles>
-                    }
-                    {this.renderModal()}
-                </S.TilesSections>
-            );
-        }
+        return (
+            <S.TilesSections>
+                {state.isAnswerMode ?
+                    <globalComponents.TileMinHeightContext value={height}>
+                        <SubmenuTile />
+                        {renderContents()}
+                    </globalComponents.TileMinHeightContext> :
+                    <S.Tiles><InitialHelp sections={props.homepageSections} /></S.Tiles>
+                }
+                {renderModal()}
+            </S.TilesSections>
+        );
     }
 
-    const BoundTilesSections = BoundWithProps<any, any>(TilesSections, tilesModel);
+    // ------------------ <SubmenuTile /> -------------------------------
+
+    const SubmenuTile = () => {
+
+        const state = useModel(formModel);
+
+        return (
+            <S.SubmenuTile>
+                <LemmaSelector matches={state.queryMatches} queries={state.queries.map(v => v.value)}
+                    lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
+                    modalSelections={state.modalSelections} mainPosAttr={state.mainPosAttr} />
+            </S.SubmenuTile>
+        );
+    }
 
     // ------------------ <WdglanceMain /> ------------------------------
 
@@ -1393,10 +1393,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <S.WdglanceMain>
-                <GlobalStyle createStaticUrl={ut.createStaticUrl} />
-                <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
-                <BoundMessagesBox />
-                <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />
+                <GlobalStyleWithDynamicTheme createStaticUrl={ut.createStaticUrl} />
+                <ThemeProvider theme={dynamicTheme}>
+                    <BoundMessagesBox />
+                    <WdglanceControls isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
+                    <TilesSections layout={props.layout} homepageSections={props.homepageSections} />
+                </ThemeProvider>
             </S.WdglanceMain>
         );
     }

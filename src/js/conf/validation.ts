@@ -20,7 +20,7 @@ import { Dict, List } from 'cnc-tskit';
 import * as path from 'path';
 import { Ajv } from 'ajv';
 import * as fs from 'fs';
-import { DomainAnyTileConf, ServerConf } from './index.js';
+import { AllQueryTypesTileConf, ServerConf } from './index.js';
 import { QueryType } from '../query/index.js';
 import { fileURLToPath } from 'url';
 
@@ -34,14 +34,13 @@ const CUSTOM_TILES_ROOT_DIR = path.resolve(__dirname, '../tiles/custom');
 const SCHEMA_FILENAME = 'config-schema.json';
 
 
-export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
+export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
     const validator = new Ajv();
     let validationError = false;
-
     console.info('Validating tiles configuration...');
 
-    Dict.forEach((tiles, domain) => {
-        Dict.forEach((tileConf, tileName) => {
+    Dict.forEach(
+        (tileConf, tileName) => {
             let configSchema:{};
             const tileType = tileConf.tileType + '';
             const folderName = tileType[0].toLowerCase() + tileType.slice(1).split('Tile')[0];
@@ -56,15 +55,18 @@ export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
                 }
             }
             if (!configSchema) {
-                console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 console.info(`    \u25B6 schema "${tileType}" not found`);
                 validationError = true;
+                return;
+            }
+            const isPreviewTile = tileName.startsWith('PREVIEW__');
+            const isValid = validator.validate(configSchema, tileConf);
+            if (isValid && !isPreviewTile) {
+                console.info(`  ${tileName} [\x1b[32m OK \x1b[0m]`);
 
-            } else if (validator.validate(configSchema, tileConf)) {
-                console.info(`  ${domain}/${tileName} [\x1b[32m OK \x1b[0m]`);
-
-            } else {
-                console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+            } else if (!isValid) {
+                console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 List.forEach(
                     err => {
                         console.error(`    \u25B6 ${err.message}`)
@@ -73,8 +75,9 @@ export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
                 );
                 validationError = true;
             }
-        }, tiles);
-    }, tilesConf);
+        },
+        tilesConf
+    );
     if (validationError) {
         return false;
     }
@@ -83,14 +86,5 @@ export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
 }
 
 export function maxQueryWordsForQueryType(conf:ServerConf, qt:QueryType):number {
-    switch (qt) {
-        case QueryType.SINGLE_QUERY:
-            return conf?.freqDB?.single?.maxQueryWords || 1;
-        case QueryType.CMP_QUERY:
-            return conf?.freqDB?.cmp?.maxQueryWords || 1;
-        case QueryType.TRANSLAT_QUERY:
-            return conf?.freqDB?.translat?.maxQueryWords || 1;
-        default:
-            throw new Error(`Unknown query type ${qt}`);
-    }
+    return conf?.freqDB?.maxQueryWords || 1;
 }

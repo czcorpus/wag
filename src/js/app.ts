@@ -22,6 +22,9 @@
  */
 import * as React from 'react';
 import { Observable } from 'rxjs';
+import { ViewUtils, IFullActionControl } from 'kombo';
+import { List, pipe, Dict } from 'cnc-tskit';
+
 import { Theme } from './page/theme.js';
 import { ScreenProps } from './page/hostPage.js';
 import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index.js';
@@ -35,11 +38,8 @@ import { TileResultFlag, WdglanceTilesModel } from './models/tiles.js';
 import { GlobalComponents, init as globalCompInit } from './views/common/index.js';
 import { init as viewInit, WdglanceMainProps } from './views/main.js';
 import { RetryTileLoad } from './models/retryLoad.js';
-import { ViewUtils, IFullActionControl } from 'kombo';
 import { IAppServices } from './appServices.js';
 import { mkTileFactory } from './page/tileLoader.js';
-import { List, pipe, Dict } from 'cnc-tskit';
-import { DataStreaming } from './page/streaming.js';
 
 
 interface AttachTileArgs {
@@ -55,8 +55,7 @@ interface AttachTileArgs {
 const mkAttachTile = (
     queryType:QueryType,
     isMultiWordQuery:boolean,
-    domain1:string,
-    domain2:string,
+    translatLang:string,
     appServices:IAppServices
 
     ) =>
@@ -69,13 +68,15 @@ const mkAttachTile = (
         maxTileHeight,
         retryLoadModel
     }:AttachTileArgs):void => {
-        const support = tile.supportsQueryType(queryType, domain1, domain2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
+        const support = (tile.supportsQueryType(queryType, translatLang) && (!isMultiWordQuery || tile.supportsMultiWordQueries())) || queryType === QueryType.PREVIEW;
         let reasonDisabled = undefined;
-        if (!tile.supportsQueryType(queryType, domain1, domain2)) {
-            reasonDisabled = appServices.translate('global__query_type_not_supported');
+        if (!support) {
+            if (!tile.supportsQueryType(queryType, translatLang)) {
+                reasonDisabled = appServices.translate('global__query_type_not_supported');
 
-        } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-            reasonDisabled = appServices.translate('global__multi_word_query_not_supported');
+            } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
+                reasonDisabled = appServices.translate('global__multi_word_query_not_supported');
+            }
         }
 
         data.push({
@@ -90,8 +91,8 @@ const mkAttachTile = (
             reasonTileDisabled: reasonDisabled,
             supportsHelpView: !!helpURL,
             supportsAltView: tile.supportsAltView(),
+            hideOnNoData: tile.hideOnNoData(),
             supportsSVGFigureSave: tile.supportsSVGFigureSave(),
-            renderSize: [50, 50],
             widthFract: tile.getWidthFract(),
             maxTileHeight: maxTileHeight,
             helpURL: helpURL,
@@ -124,34 +125,40 @@ export function createRootComponent({
     dispatcher,
     onResize,
     viewUtils,
-    layoutManager,
+    layoutManager
 }:InitIntArgs):{
     component:React.FunctionComponent<WdglanceMainProps>,
     tileGroups:Array<TileGroup>,
     mainPosAttr:MainPosAttrValues
  } {
-    const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
+    const theme = new Theme(config.colors);
+    const globalComponents = globalCompInit(dispatcher, viewUtils, onResize, theme);
     viewUtils.attachComponents(globalComponents);
 
     const tiles:Array<TileFrameProps> = [];
-    const theme = new Theme(config.colors);
 
     const qType = userSession.queryType as QueryType; // TODO validate
-    const dfltDomainSrch = List.find(v => List.some(v2 => v2 === qType, v.queryTypes), config.searchDomains);
-    const dfltDomain = dfltDomainSrch ?
-        dfltDomainSrch :
-        { code: 'en', label: 'English', queryTypes: [QueryType.CMP_QUERY, QueryType.SINGLE_QUERY, QueryType.TRANSLAT_QUERY]};
 
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1Domain: userSession.query1Domain || dfltDomain.code,
-        query2Domain: userSession.query2Domain || '',
+        translatLanguage: userSession.translatLanguage || '',
         queryType: qType,
+        availQueryTypes: pipe(
+            layoutManager.getQueryTypesMenuItems(),
+            List.filter(x => x.isEnabled),
+            List.map(x => x.type)
+        ),
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
-        uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
-        searchDomains: config.searchDomains,
+        uiLanguages: pipe(
+            userSession.uiLanguages,
+            Dict.toEntries(),
+            List.map(
+                ([code, label]) => ({code, label})
+            )
+        ),
+        instanceSwitchMenu: config.instanceSwitchMenu,
         layout: layoutManager,
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords
@@ -165,16 +172,14 @@ export function createRootComponent({
         theme,
         layoutManager,
         qType,
-        userSession.query1Domain,
-        userSession.query2Domain
+        userSession.translatLanguage
     );
 
     const isMultiWordQuery = testIsMultiWordMode(queryMatches);
     const attachTile = mkAttachTile(
         qType,
         isMultiWordQuery,
-        userSession.query1Domain,
-        userSession.query2Domain,
+        userSession.translatLanguage,
         appServices
     );
     const retryLoadModel = new RetryTileLoad(dispatcher);
@@ -182,7 +187,7 @@ export function createRootComponent({
         config.tiles,
         Dict.forEach(
             (tileConf, tileId) => {
-                const tile = factory(tileId, tileConf);
+                const tile = factory.create(tileId, tileConf);
                 attachTile({
                     data: tiles,
                     tileName: tileId,
@@ -211,7 +216,7 @@ export function createRootComponent({
             hiddenGroups: [],
             datalessGroups: [],
             tileResultFlags: pipe(
-                layoutManager.getLayoutGroups(qType),
+                layoutManager.getLayoutGroups(),
                 List.flatMap(
                     (v, groupIdx) => List.map(v2 => [groupIdx, v2] as [number, GroupedTileProps],
                         v.tiles)
@@ -223,6 +228,7 @@ export function createRootComponent({
                     canBeAmbiguousResult: false
                 }))
             ),
+            labelsOverwrites: {},
             tileProps: tiles,
             activeSourceInfo: null,
             activeGroupHelp: null,
@@ -239,7 +245,8 @@ export function createRootComponent({
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
 
-    const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
+    const WdglanceMain = viewInit(
+        dispatcher, viewUtils, formModel, tilesModel, messagesModel, theme);
 
     onResize.subscribe(
         (props) => {
@@ -251,8 +258,8 @@ export function createRootComponent({
     );
 
     return {
-        component,
-        tileGroups: layoutManager.getLayoutGroups(qType),
-        mainPosAttr: layoutManager.getLayoutMainPosAttr(qType)
+        component: WdglanceMain,
+        tileGroups: layoutManager.getLayoutGroups(),
+        mainPosAttr: layoutManager.getLayoutMainPosAttr()
     };
 }

@@ -96,11 +96,11 @@ export class AudioPlayer {
                             });
                             observer.complete();
                         },
-                        onloaderror: () => {
-                            observer.error(new Error('Error during playback'));
+                        onloaderror: (_, err) => {
+                            observer.error(new Error(`Error during playback: ${err}`));
                         },
-                        onplayerror: () => {
-                            observer.error(new Error('Error during playback'));
+                        onplayerror: (_, err) => {
+                            observer.error(new Error(`Error during playback: ${err}`));
                         }
                     });
                     this.sound.play();

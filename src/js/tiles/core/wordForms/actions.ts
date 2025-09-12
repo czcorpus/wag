@@ -16,16 +16,14 @@
  * limitations under the License.
  */
 
-import { WordFormItem } from '../../../api/abstract/wordForms.js';
 import { SubqueryPayload } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Action } from 'kombo';
-import { BacklinkWithArgs } from '../../../page/tile.js';
+import { WordFormItem } from './common.js';
 
 
 export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<WordFormItem>;
-    backlink:BacklinkWithArgs<{}>;
 }
 
 export class Actions {

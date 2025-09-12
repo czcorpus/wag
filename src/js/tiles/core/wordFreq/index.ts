@@ -17,15 +17,19 @@
  */
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
-import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf,
+    TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model.js';
 import { init as viewInit } from './views/index.js';
-import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo.js';
-import { createApiInstance } from '../../../api/factory/similarFreq.js';
+import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
+import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 
 
 export interface WordFreqTileConf extends TileConf {
     apiURL?:string;
+    infoApiURL?:string;
     apiType?:string;
     corpname:string;
     corpusSize:number;
@@ -54,8 +58,8 @@ export class WordFreqTile implements ITileProvider {
     private readonly view:TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract,
-        conf, isBusy, queryType, mainPosAttr, useDataStream}:TileFactoryArgs<WordFreqTileConf>
+        tileId, dispatcher, appServices, ut, queryMatches, widthFract,
+        conf, isBusy, queryType, mainPosAttr, useDataStream, theme}:TileFactoryArgs<WordFreqTileConf>
     ) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -76,22 +80,18 @@ export class WordFreqTile implements ITileProvider {
                 mainPosAttr,
             },
             tileId,
-            api: createApiInstance({
-                apiIdent: conf.apiType,
-                apiOptions: {},
-                apiServices: appServices,
-                apiURL: conf.apiURL,
-                useDataStream,
-                srcInfoURL: null
-            }),
-            sourceInfoApi: new InternalResourceInfoApi(conf.apiURL, appServices),
+            api: new SimilarFreqWordsFrodoAPI(
+                queryType === QueryType.CMP_QUERY ? '' : conf.apiURL,
+                appServices,
+                useDataStream
+            ),
+            sourceInfoApi: new CorpusInfoAPI(conf.infoApiURL ? conf.infoApiURL : conf.apiURL, appServices),
             queryMatches: queryMatches,
-            queryDomain: domain1,
             queryType,
             appServices
         });
         this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');
-        this.view = viewInit(dispatcher, ut, this.model);
+        this.view = viewInit(dispatcher, ut, this.model, theme);
     }
 
     getIdent():number {
@@ -110,7 +110,7 @@ export class WordFreqTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
@@ -143,10 +143,6 @@ export class WordFreqTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
@@ -154,11 +150,17 @@ export class WordFreqTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<WordFreqTileConf> = {
-
     sanityCheck: (args) => [],
-
     create: (args) => new WordFreqTile(args)
 };

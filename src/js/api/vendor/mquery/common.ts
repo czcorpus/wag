@@ -26,30 +26,20 @@ export interface FreqRowResponse {
     freq:number;
     base:number;
     ipm:number;
-    collWeight:number;
-    coOccScore:number;
+    collScore:number;
 }
 
-export function escapeVal(v:string) {
-    const map = {
-        '"': '\\"',
-        '?': '\\?',
-        '!': '\\!',
-        '.': '\\.',
-        '*': '\\*',
-        '+': '\\+'
-    };
-    return v.replace(/[?"!.*+]/g, match => map[match]);
+function escapeDQuotes(v:string):string {
+    return v.replaceAll('"', '\\"');
 }
-
 
 /**
  * Transform a provided QueryMatch into a valid CQL query.
  *
  * a) lemma with a PoS information like e.g.: lemma='foo bar', tag=['A', 'B']
- * is transformed into: [lemma="foo" & tag="A"] [lemma="bar" & tag="B"].
+ * is transformed into: [lemma=="foo" & tag="A"] [lemma=="bar" & tag="B"].
  * b) lemma without a PoS information, e.g.: lemma='foo bar'
- * is transformed into: [lemma="foo"] [lemma="bar"]
+ * is transformed into: [lemma=="foo"] [lemma=="bar"]
  */
 export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
 
@@ -57,20 +47,31 @@ export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):s
     return pipe(
         lvar.lemma.split(' '),
         List.map((lemma, i) => lvar.pos[i] !== undefined ?
-            `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
-            `[lemma="${escapeVal(lemma)}"]`)
+            `[lemma=="${escapeDQuotes(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
+            `[lemma=="${escapeDQuotes(lemma)}"]`)
     ).join(' ');
 }
 
 
+/**
+ * Creates a 'word' matching query based on the provided QueryMatch.
+ *
+ * @see mkLemmaMatchQuery
+ */
 export function mkWordMatchQuery(lvar:QueryMatch):string {
     return List.map(
-        word => `[word="${escapeVal(word)}"]`,
+        word => `[word=="${escapeDQuotes(word)}"]`,
         lvar.word.split(' ')
     ).join('');
 }
 
 
+/**
+ * Create either lemma (preferably) or word matching CQL query.
+ *
+ * @see mkLemmaMatchQuery
+ * @see mkWordMatchQuery
+ */
 export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
         if (lvar.pos.length > 0) {
             return mkLemmaMatchQuery(lvar, generator);

@@ -15,18 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionQueue } from 'kombo';
+import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
-import { Backlink } from '../../../page/tile.js';
-import { SyntacticCollsModelState } from '../../../models/tiles/syntacticColls.js';
-import { QueryType } from '../../../query/index.js';
+import { QueryMatch, QueryType } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
-import { merge, of as rxOf } from 'rxjs';
-import { SyntacticCollsApi, SyntacticCollsExamplesApi } from '../../../api/abstract/syntacticColls.js';
+import { of as rxOf } from 'rxjs';
 import { Dict, List } from 'cnc-tskit';
 import { SystemMessageType } from '../../../types.js';
+import { ScollexSyntacticCollsAPI } from './api/scollex.js';
+import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
+import { IDataStreaming } from '../../../page/streaming.js';
+import { SCERequestArgs, SCollsExamples, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
+import { SCollsData, SCollsQueryType, SCollsRequest } from './api/common.js';
+
+
+export type CollMeasure = 'LMI' | 'LL' | 'LogDice' | 'T-Score';
 
 
 export interface SyntacticCollsModelArgs {
@@ -34,13 +39,32 @@ export interface SyntacticCollsModelArgs {
     tileId:number;
     appServices:IAppServices;
     initState:SyntacticCollsModelState;
-    waitForTile:number;
-    waitForTilesTimeoutSecs:number;
-    backlink:Backlink;
     queryType:QueryType;
-    api:SyntacticCollsApi<any>;
-    eApi:SyntacticCollsExamplesApi<any>;
+    api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
+    eApi:SyntacticCollsExamplesAPI;
     maxItems:number;
+}
+
+
+export interface SyntacticCollsModelState {
+    isBusy:boolean;
+    tileId:number;
+    isMobile:boolean;
+    isAltViewMode:boolean;
+    isTweakMode:boolean;
+    apiType:'default'|'wss';
+    error:string|null;
+    widthFract:number;
+    datasetName:string;
+    corpname:string;
+    queryMatch:QueryMatch;
+    data:SCollsData;
+    displayType:SCollsQueryType;
+    label:string;
+    availableMeasures:Array<CollMeasure>;
+    visibleMeasures:Array<CollMeasure>;
+    examplesCache:{[key:string]:SCollsExamples};
+    exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
 }
 
 
@@ -50,28 +74,19 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
     private readonly tileId:number;
 
-    private readonly waitForTile:number;
-
-    private readonly waitForTilesTimeoutSecs:number;
-
     private readonly queryType:QueryType;
 
-    private readonly backlink:Backlink;
+    private readonly api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
 
-    private readonly api:SyntacticCollsApi<any>;
-
-    private readonly eApi:SyntacticCollsExamplesApi<any>;
+    private readonly eApi:SyntacticCollsExamplesAPI;
 
     private readonly maxItems:number;
 
     constructor({
         dispatcher,
         tileId,
-        waitForTile,
-        waitForTilesTimeoutSecs,
         appServices,
         initState,
-        backlink,
         queryType,
         api,
         eApi,
@@ -79,10 +94,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
     }:SyntacticCollsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTile = waitForTile;
-        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = backlink;
         this.queryType = queryType;
         this.api = api;
         this.eApi = eApi;
@@ -107,34 +119,7 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                merge(...List.map(qType =>
-                    this.api.call(this.tileId, true, this.api.stateToArgs(state, qType)),
-                    state.displayTypes,
-                )).subscribe({
-                    next: ([qType, data]) => {
-                        seDispatch<typeof Actions.TileDataLoaded>({
-                            name: Actions.TileDataLoaded.name,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: false,
-                                data,
-                                qType,
-                            }
-                        })
-                    },
-                    error: (error) => {
-                        seDispatch<typeof Actions.TileDataLoaded>({
-                            name: Actions.TileDataLoaded.name,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true,
-                                data: undefined,
-                                qType: undefined,
-                            },
-                            error,
-                        })
-                    },
-                });
+                this.reloadData(appServices.dataStreaming(), state, seDispatch);
             }
         );
 
@@ -150,11 +135,8 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                     this.appServices.showMessage(SystemMessageType.ERROR, state.error);
 
                 } else {
-                    state.data[action.payload.qType] = action.payload.data;
-                    state.data[action.payload.qType].rows = state.data[action.payload.qType].rows.slice(0, this.maxItems);
-                    if (List.every(qType => !!state.data[qType], state.displayTypes)) {
-                        state.isBusy = false;
-                    }
+                    state.data = action.payload.data;
+                    state.isBusy = false;
                 }
             }
         );
@@ -166,15 +148,35 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 state.isBusy = true;
             },
             (state, action, dispatch) => {
-                const q = state.data[action.payload.qType].examplesQueryTpl.replace('%s', action.payload.word);
+                let q:string;
+                const row = state.data.rows[action.payload.rowId];
+                if (!state.data.examplesQueryTpl) {
+                    q = this.eApi.makeQuery(
+                        state.queryMatch.lemma,
+                        row.value,
+                        (state.queryMatch.upos[0] || state.queryMatch.pos[0]).value,
+                        row.pos,
+                        row.deprel,
+                        row.mutualDist,
+                    );
+
+                } else {
+                    q = state.data.examplesQueryTpl.replace('%s', row.value);
+                }
                 (Dict.hasKey(q, state.examplesCache) ?
                     rxOf(state.examplesCache[q]) :
-                    this.eApi.call(this.tileId, false, this.eApi.stateToArgs(state, q)).pipe(
+                    this.eApi.call(
+                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                        this.tileId,
+                        0,
+                        this.stateToEapiArgs(state, q)
+
+                    ).pipe(
                         map(
                             data => ({
                                 ...data,
                                 word1: state.queryMatch.word,
-                                word2: action.payload.word
+                                word2: row.value
                             })
                         )
                     )
@@ -227,8 +229,129 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionHandler(
             GlobalActions.GetSourceInfo,
-            (state, action) => {},
-            (state, action, seDispatch) => {},
+            (state, action) => {
+            },
+            (state, action, seDispatch) => {
+                this.eApi.getSourceDescription(
+                    appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    this.tileId,
+                    this.appServices.getISO639UILang(),
+                    state.corpname
+
+                ).subscribe({
+                    next: (data) => {
+                        seDispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            payload: {
+                                data: data
+                            }
+                        });
+                    },
+                    error: (err) => {
+                        console.error(err);
+                        seDispatch({
+                            name: GlobalActions.GetSourceInfoDone.name,
+                            error: err
+
+                        });
+                    }
+                });
+            },
         );
+
+        this.addActionSubtypeHandler(
+            Actions.SetDisplayScore,
+            action => action.payload.tileId === this.tileId,
+            (state, action) => {
+                state.visibleMeasures[action.payload.position] = action.payload.value;
+            },
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableTileTweakMode,
+            action => action.payload.ident === this.tileId,
+            (state, action) => {
+                state.isTweakMode = true;
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableTileTweakMode,
+            action => action.payload.ident === this.tileId,
+            (state, action) => {
+                state.isTweakMode = false;
+            }
+        );
+    }
+
+    private reloadData(streaming:IDataStreaming, state:SyntacticCollsModelState, seDispatch:SEDispatcher) {
+        this.api.call(
+            streaming,
+            this.tileId,
+            0,
+            this.stateToArgs(state)
+
+        ).subscribe({
+            next: (data) => {
+                seDispatch<typeof GlobalActions.OverwriteTileLabel>({
+                    name: GlobalActions.OverwriteTileLabel.name,
+                    payload: {
+                        tileId: this.tileId,
+                        value: state.label
+                    }
+                });
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: List.empty(data.rows),
+                        data,
+                    }
+                })
+            },
+            error: (error) => {
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: false,
+                        data: undefined,
+                    },
+                    error,
+                })
+            },
+        });
+    }
+
+
+    private stateToArgs(state:SyntacticCollsModelState):SCollsRequest {
+        if (state.displayType === 'none') {
+            return null;
+        }
+        const args = {
+            w: state.queryMatch.lemma ? state.queryMatch.lemma : state.queryMatch.word,
+        };
+        if (state.queryMatch.upos.length > 0) {
+            args['pos'] = state.queryMatch.upos[0].value;
+            args['deprel'] = undefined;
+        }
+        return {
+            params: {
+                corpname: state.datasetName,
+                queryType: state.displayType,
+            },
+            args
+        };
+    }
+
+    private stateToEapiArgs(state:SyntacticCollsModelState, q:string):SCERequestArgs {
+        return {
+            params: {
+                corpname: state.corpname,
+            },
+            args: {
+                q
+            }
+        };
     }
 }

@@ -17,26 +17,27 @@
  */
 
 import { Action } from 'kombo';
-import { WordTranslation } from '../../../api/abstract/translations.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
+import { WordTranslation } from '../translations/api.js';
 
 
-export interface DataLoadedPayload {
-    query:string;
-    lines:Array<WordTranslation>;
-    sum:number;
-    subsetId:string|null;
+export interface DataLoadedPayload extends SubqueryPayload {
+    subqueries:Array<{value: string}>;
+}
+
+export interface PartialDataLoadedPayload {
+    subsets:{[subsetId:string]:Array<WordTranslation>};
 }
 
 
 export class Actions {
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & SubqueryPayload> = {
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
 	    name: GlobalActions.TileDataLoaded.name
     };
 
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
 	    name: GlobalActions.TilePartialDataLoaded.name
     };
 

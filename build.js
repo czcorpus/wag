@@ -66,15 +66,17 @@ function validateLanguageCodes(codeList) {
 
 export class ProcTranslationsPlugin {
 
-    constructor(srcPath, distPath, conf) {
+    constructor(srcPath, distPath, conf, options = {}) {
         this._srcPath = srcPath;
         this._distPath = distPath;
-        this._conf = conf
+        this._conf = conf;
+        this._cleanupTempDir = options.cleanupTempDir !== false;
     }
 
     apply(compiler) {
+        const tmpJsDir = path.resolve(this._distPath, '.compiled');
+
         compiler.hooks.afterPlugins.tap('ProcTranslationsPlugin', (compilation) => {
-            const tmpJsDir = path.resolve(this._distPath, '.compiled');
             if (fs.existsSync(tmpJsDir)) {
                 fs.readdirSync(tmpJsDir).forEach(item => {
                     try {
@@ -97,10 +99,34 @@ export class ProcTranslationsPlugin {
                 console.log("\x1b[32m", item, "\x1b[0m", '\u21D2', compiler.options.resolve.alias[item]);
             });
         });
+
+        if (this._cleanupTempDir) {
+            // Cleanup phase - remove temp directory after compilation
+            compiler.hooks.afterEmit.tap('ProcTranslationsPlugin', (compilation) => {
+                if (fs.existsSync(tmpJsDir)) {
+                    try {
+                        fs.readdirSync(tmpJsDir).forEach(item => {
+                            fs.unlinkSync(path.resolve(tmpJsDir, item));
+                        });
+                        fs.rmdirSync(tmpJsDir);
+                        console.log("\x1b[33m", 'Cleaned up temporary directory:', tmpJsDir, "\x1b[0m");
+                    } catch (err) {
+                        console.log('Error cleaning up temp directory:', err);
+                    }
+                }
+            });
+        }
     }
 }
 
 
 export function loadConf(path) {
-    return JSON.parse(fs.readFileSync(path, 'utf-8'));
+    const conf = JSON.parse(fs.readFileSync(path, 'utf-8'));
+    if (conf['import']) {
+        console.log('Importing configuration from:', conf.import);
+        const importedConf = JSON.parse(fs.readFileSync(conf['import'], 'utf-8'));
+        Object.assign(importedConf, conf);
+        return importedConf;
+    }
+    return conf;
 };

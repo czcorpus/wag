@@ -1,17 +1,26 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "additionalProperties": {
-        "additionalProperties": {
-            "$ref": "#/definitions/TileConf"
+    "anyOf": [
+        {
+            "$ref": "#/definitions/TileDbConf"
         },
-        "type": "object"
-    },
+        {
+            "$ref": "#/definitions/AllQueryTypesTileConf"
+        },
+        {
+            "type": "string"
+        }
+    ],
     "definitions": {
-        "Backlink": {
+        "AllQueryTypesTileConf": {
+            "additionalProperties": {
+                "$ref": "#/definitions/TileConf"
+            },
+            "type": "object"
+        },
+        "BacklinkConf<any>": {
             "properties": {
-                "isAppUrl": {
-                    "type": "boolean"
-                },
+                "args": {},
                 "label": {
                     "anyOf": [
                         {
@@ -25,34 +34,20 @@
                         }
                     ]
                 },
-                "method": {
-                    "enum": [
-                        "CONNECT",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ],
-                    "type": "string"
-                },
-                "subcname": {
-                    "type": "string"
-                },
                 "url": {
                     "type": "string"
                 }
             },
+            "required": [
+                "url"
+            ],
             "type": "object"
         },
         "TileConf": {
             "description": "A configuration for a tile\nprovided by hosting page",
             "properties": {
                 "backlink": {
-                    "$ref": "#/definitions/Backlink",
+                    "$ref": "#/definitions/BacklinkConf<any>",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "compatibleSubqProviders": {
@@ -108,17 +103,36 @@
                 },
                 "useDataStream": {
                     "type": "boolean"
-                },
-                "waitForTimeoutSecs": {
-                    "type": "number"
                 }
             },
             "required": [
                 "tileType"
             ],
             "type": "object"
+        },
+        "TileDbConf": {
+            "properties": {
+                "appId": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "appId",
+                "password",
+                "server",
+                "username"
+            ],
+            "type": "object"
         }
-    },
-    "type": "object"
+    }
 }
 

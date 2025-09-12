@@ -19,12 +19,28 @@
 import { pipe, List } from 'cnc-tskit';
 import { PosItem, posTagsEqual } from '../postag.js';
 import { MainPosAttrValues } from '../conf/index.js';
+import { HTTPAction } from '../page/actions.js';
 
 
 export enum QueryType {
     SINGLE_QUERY = 'single',
     CMP_QUERY = 'cmp',
-    TRANSLAT_QUERY = 'translat'
+    TRANSLAT_QUERY = 'translat',
+    PREVIEW = 'preview',
+}
+
+
+export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
+    switch (qt) {
+        case QueryType.CMP_QUERY:
+            return HTTPAction.COMPARE;
+        case QueryType.SINGLE_QUERY:
+            return HTTPAction.SEARCH;
+        case QueryType.TRANSLAT_QUERY:
+            return HTTPAction.TRANSLATE;
+        default:
+            return undefined;
+    }
 }
 
 export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
@@ -37,11 +53,6 @@ export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     throw new Error(`Unknown query type '${v}'`);
 }
 
-export interface SearchDomain {
-    code:string;
-    label:string;
-    queryTypes:Array<QueryType>;
-}
 
 export interface QueryTypeMenuItem {
     type:QueryType;
@@ -55,22 +66,12 @@ export interface SubQueryItem<T=string> {
     color?:string;
 }
 
-export interface SubqueryPayload<T=string> {
+export interface SubqueryPayload {
     tileId:number;
-    queryId:number;
-    subqueries:Array<SubQueryItem<T>>;
-    domain1:string;
-    domain2:string;
+    queryIdx:number;
+    translatLanguage?:string;
 }
 
-export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
-    return Array.isArray(payload['subqueries']);
-}
-
-export interface RangeRelatedSubqueryValue {
-    value:string;
-    context:[number, number];
-}
 
 /**
  * FreqBand is an arbitrary frequency band
@@ -101,7 +102,6 @@ export interface QueryMatchCore {
     upos:Array<PosItem>; // each word of a multi-word query
     ipm:number;
     flevel:FreqBand|null;
-    isNonDict?:boolean;
 }
 
 
@@ -119,14 +119,35 @@ export interface QueryMatch extends QueryMatchCore {
 }
 
 /**
+ * Out of provided list of query matches, find the one with
+ * the 'current' flag set to true. The function never returns
+ * null/undefined - in case there is no match, value with
+ * empty lemma, word etc. is returned.
+ */
+export function findCurrQueryMatch(queryMatches:Array<QueryMatch>):QueryMatch {
+    const srch = queryMatches.find(v => v.isCurrent);
+    return srch ? srch : {
+        lemma: undefined,
+        word: undefined,
+        pos: [],
+        upos: [],
+        abs: -1,
+        ipm: -1,
+        arf: -1,
+        flevel: null,
+        isCurrent: true
+    };
+};
+
+/**
  * For each query (1st array dimension) we provide possibly multiple
  * lemma variants (2nd array dimension).
  */
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictMatch(queryMatche:QueryMatch):boolean {
-    return !queryMatche.isNonDict;
+export function testIsDictMatch(queryMatch:QueryMatch):boolean {
+    return !!queryMatch.lemma;
 }
 
 /**
@@ -162,7 +183,6 @@ export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
                     flevel: calcFreqBand(List.foldl((acc, m) => acc + m.ipm, 0, matches)),
-                    isNonDict: false,
                     word: matches[0].word,
                     abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
                     arf: -1,

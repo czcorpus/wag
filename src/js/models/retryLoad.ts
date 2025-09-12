@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
+
 import { Actions } from '../models/actions.js';
-import { List, Dict } from 'cnc-tskit';
 import { ITileProvider, ITileReloader } from '../page/tile.js';
 
 
 
-interface ModelInfo {
+interface ReloadModelInfo {
     model:StatelessModel<{}>;
     isError:boolean;
-    blockers:Array<number>;
+    readDataFrom:number|null;
 }
 
 interface RetryTileLoadState {
-    models:{[k:string]:ModelInfo};
+    models:{[k:string]:ReloadModelInfo};
     lastAction:Action|null;
 }
 
@@ -54,58 +54,10 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements 
         this.reloadDispatcher = dispatcher;
     }
 
-    /**
-     * Blocked groups means any tile dependent on tileId and
-     * any tile tileId is dependent on (in this case including
-     * transitive dependencies).
-     */
-    private getBlockedGroup(tileId:number):Array<number> {
-        let ans = [tileId];
-        let toProc = this.state.models[tileId.toFixed()].blockers;
-        while (toProc.length > 0) {
-            const item = toProc[0];
-            toProc = List.shift(toProc);
-            ans = List.addUnique(item, ans);
-            const model = this.state.models[item.toFixed()];
-            if (model) {
-                toProc = toProc.concat(this.state.models[item.toFixed()].blockers);
-
-            } else {
-                console.error('Tile dependency misconfiguration related to tile ', item);
-            }
-        }
-        Dict.forEach(
-            (model, ident) => {
-                if (model.blockers.indexOf(tileId) > -1) {
-                    ans = List.addUnique(parseInt(ident), ans);
-                }
-            },
-            this.state.models
-        );
-        return ans;
-    }
-
     onAction(action:Action) {
         switch (action.name) {
             case Actions.RetryTileLoad.name:
-                const blockedGroup = this.getBlockedGroup(action.payload['tileId']);
-                Dict.forEach(
-                    (model, ident) => {
-                        if (!blockedGroup.some(x => x.toFixed() === ident)) {
-                            model.model.waitForActionWithTimeout(5000, {}, (action, syncData) => {
-                                if (action.name === Actions.WakeSuspendedTiles.name) {
-                                    return true;
-                                }
-                                return false;
-                            });
-                        }
-                    },
-                    this.state.models
-                );
                 this.reloadDispatcher.dispatch(this.state.lastAction);
-                this.reloadDispatcher.dispatch({
-                    name: Actions.WakeSuspendedTiles.name
-                });
             break;
             case Actions.RequestQueryResponse.name:
                 this.state.lastAction = action;
@@ -119,7 +71,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements 
                             ...{[action.payload['tileId']]:{
                                 model: m.model,
                                 isError: true,
-                                blockers: m.blockers
+                                readDataFrom: m.readDataFrom
                             }}
                         }
                     }
@@ -136,7 +88,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements 
                     {
                         model: model,
                         isError: false,
-                        blockers: tile.getBlockingTiles()
+                        readDataFrom: tile.getReadDataFrom()
                     }
                 }
             };

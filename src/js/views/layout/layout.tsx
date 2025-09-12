@@ -28,6 +28,7 @@ import { GlobalComponents } from '../common/index.js';
 import { WdglanceMainProps } from '../main.js';
 import { ErrPageProps } from '../error.js';
 import { List, pipe } from 'cnc-tskit';
+import { Theme } from '../../page/theme.js';
 
 
 
@@ -62,7 +63,21 @@ export interface HtmlHeadProps {
 }
 
 
-export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBodyProps>; HtmlHead: React.FC<HtmlHeadProps>} {
+function marshalJSON(data:any):string {
+    return JSON.stringify(data)
+        .replace(/</g, '\\u003c')
+        .replace(/>/g, '\\u003e')
+        .replace(/'/g, '\\u0027');
+}
+
+
+export function init(
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme
+):{
+    HtmlBody:React.FC<HtmlBodyProps>;
+    HtmlHead:React.FC<HtmlHeadProps>;
+} {
 
     // -------- <ThemeSelection /> -----------------------------
 
@@ -75,21 +90,25 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
         return (
             <form className="ThemeSelection" method="post" action={ut.createActionUrl('set-theme')}>
                 <input type="hidden" name="returnUrl" value={props.returnUrl} />
-                <span>{ut.translate('global__color_themes')}:{'\u00a0'}
+                <h3>{ut.translate('global__color_themes')}</h3>:{'\u00a0'}
+                <ul>
                 {List.map((v, i) => (
-                    <React.Fragment key={`theme:${v.themeId}`}>
-                        {i > 0 ? ', ' : ''}
+                    <li key={`theme:${v.themeId}`}>
+                        {i > 0 ? <span className="separ">, </span> : null}
                         <button type="submit"  name="themeId" value={v.themeId}
-                                disabled={v.themeId === props.currTheme}
-                                className={v.themeId === props.currTheme ? 'current' : null}>
+                                disabled={v.themeId === props.currTheme}>
+                            {v.themeId === props.currTheme ?
+                                <img src={ut.createStaticUrl('star.svg')} /> :
+                                null
+                            }
                             {typeof v.themeLabel === 'string' ?
                                 v.themeLabel :
                                 v.themeLabel['en-US']
                             }
                         </button>
-                    </React.Fragment>
+                    </li>
                 ), props.themes)}
-                </span>
+                </ul>
             </form>
         );
     }
@@ -147,12 +166,12 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
             <ThemeMenu returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
             <section className="project-info">
                 <span className="copy">
-                    &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
+                    &copy; <a href="https://ul.ff.cuni.cz/" target="_blank" rel="noopener">
                         {ut.translate('global__institute_cnc')}
                         </a>
                 </span>
                 {props.config.logo ?
-                    <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
+                    <span><img className="logo-filtered logo" src={ut.createStaticUrl('logo-small.svg')} alt="WaG installation logo" /></span> :
                     null
                 }
                 <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
@@ -202,7 +221,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
 
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.queryMatches)});
+                ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.queryMatches)});
             `
         };
 
@@ -223,12 +242,21 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
             <body>
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
-                    <a href={props.config.hostUrl} title={createLabel()}>
-                        {props.config.logo ?
-                            <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
-                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                    <div className="logo-wrapper">
+                        <a href={props.config.hostUrl} title={createLabel()}>
+                            {props.config.logo?.url ?
+                                <img className="logo-filtered" src={props.config.logo.url} alt="logo" style={props.config.logo?.inlineStyle} /> :
+                                <img className="logo-filtered" src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                            }
+                        </a>
+                        {
+                            props.config.logo.subWag ?
+                                <a href={props.config.hostUrl}>
+                                    <img src={props.config.logo.subWag.url} alt="logo" style={props.config.logo.subWag.inlineStyle} />
+                                </a> :
+                                null
                         }
-                    </a>
+                    </div>
                 </header>
                 <section className="wdglance-mount">
                     <props.RootComponent
@@ -236,6 +264,7 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
                         homepageSections={props.homepageSections}
                         isMobile={props.isMobile}
                         isAnswerMode={props.isAnswerMode}
+                        queries={props.userConfig.queries}
                         error={props.error}
                         onMount={()=>undefined}
                             />

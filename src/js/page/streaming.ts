@@ -16,15 +16,23 @@
  * limitations under the License.
  */
 
-import { HTTP, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, Subject, of as rxOf } from 'rxjs';
+import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
+import { EMPTY, Observable, of as rxOf, Subject } from 'rxjs';
 import { concatMap, filter, first, map, scan, share, tap, timeout } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
+import { UserConf, UserQuery } from '../conf/index.js';
+import { QueryType } from '../query/index.js';
 
 
 interface TileRequest {
     tileId:number;
+
+    /**
+     * 0 or undefined for single mode and first query in the cmp mode, 1,2,... for other queries
+     * in cmp mode.
+     */
+    queryIdx?:number;
     url:string;
     method:HTTP.Method,
     body:unknown;
@@ -37,9 +45,72 @@ interface TileRequest {
     isEventSource?:boolean;
 }
 
+/**
+ * OtherTileRequest is a pseudo-request which relies on other
+ * tile's true request.
+ */
+interface OtherTileRequest {
+    tileId:number;
+    queryIdx?:number;
+    otherTileId:number;
+    otherTileQueryIdx?:number;
+    contentType:string;
+    base64EncodeResult?:boolean;
+}
+
+function isOtherTileRequest(t:TileRequest|OtherTileRequest):t is OtherTileRequest {
+    return typeof t['otherTileId'] === 'number';
+}
+
+function normalizeRequest<T extends TileRequest|OtherTileRequest>(req:T):T {
+    if (isOtherTileRequest(req)) {
+        return {
+            ...req,
+            queryIdx: typeof req.queryIdx === 'number' ? req.queryIdx : 0,
+            otherQueryIdx: typeof req.otherTileQueryIdx === 'number' ? req.otherTileQueryIdx : 0,
+        };
+    }
+    return {
+        ...req,
+        queryIdx: typeof req.queryIdx === 'number' ? req.queryIdx : 0
+    }
+}
+
 interface EventItem<T = unknown> {
     tileId:number;
+    queryIdx:number;
     data:T;
+    error?:string;
+}
+
+
+export interface IDataStreaming {
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T>;
+
+    getId():string;
+
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming;
+
+    getSubgroup(subgroupId:string):IDataStreaming;
+}
+
+export class EmptyDataStreaming implements IDataStreaming {
+
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
+        return EMPTY;
+    }
+
+    getId(): string {
+        return "empty";
+    }
+
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming {
+        return undefined;
+    }
+
+    getSubgroup(subgroupId:string):IDataStreaming {
+        return undefined;
+    }
 }
 
 /**
@@ -51,119 +122,226 @@ interface EventItem<T = unknown> {
  * of WaG tiles where each tile reacts to the current word data individually and
  * also individually processes its data.
  */
-export class DataStreaming {
+export class DataStreaming implements IDataStreaming {
 
-    private readonly requestSubject:Subject<TileRequest>;
+    private readonly requestSubject:Subject<TileRequest|OtherTileRequest>;
 
     private readonly responseStream:Observable<EventItem>;
 
-    private readonly rootUrl:string|undefined;
+    private readonly rootUrl:string|null;
 
-    constructor(tileIds:Array<string|number>, rootUrl:string|undefined) {
+    private readonly tilesReadyTimeoutSecs:number;
+
+    private readonly tilesDataStreams:{[streamId:string]:DataStreaming};
+
+    private readonly id:string;
+
+    private readonly userSession:UserConf;
+
+    static readonly ID_GLOBAL = '__global__';
+
+    constructor(
+        id:string|null,
+        tileIds:Array<string|number>,
+        rootUrl:string|null,
+        tilesReadyTimeoutSecs:number,
+        userSession:UserConf
+    ) {
+        this.id = id ? id : DataStreaming.ID_GLOBAL;
+        this.userSession = userSession;
         this.rootUrl = rootUrl;
-        this.requestSubject = new Subject<TileRequest>();
-        this.responseStream = this.requestSubject.pipe(
-            scan(
-                (acc, value) => {
-                    if (acc.get(value.tileId) === undefined) {
-                        acc.set(value.tileId, value);
-                    }
-                    return acc;
-                },
-                new Map(
-                    pipe(
-                        tileIds,
-                        List.map<number|string, [number, TileRequest|undefined]>(
-                            v => tuple(typeof(v) === 'string' ? parseInt(v) : v, undefined),
-                        )
-                    )
-                )
-            ),
-            first(
-                v => {
-                    for (const [key, value] of v) {
-                        if (value === undefined) {
-                            return false;
+        this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
+        this.tilesDataStreams = {};
+        this.requestSubject = new Subject<TileRequest|OtherTileRequest>();
+        this.responseStream = this.rootUrl && userSession && userSession.answerMode ?
+            this.requestSubject.pipe(
+                scan(
+                    (acc, value) => {
+                        const key = `${value.tileId}.${value.queryIdx}`;
+                        if (acc.get(key) === undefined) {
+                            acc.set(key, value);
                         }
-                    }
-                    return true
-                }
-            ),
-            timeout(30000),
-            concatMap(
-                tileReqMap => ajax$<{id:string}>(
-                    HTTP.Method.PUT,
-                    this.rootUrl,
-                    {
-                        requests: pipe(
-                            Array.from(tileReqMap.entries()),
-                            List.map(
-                                ([k, tileReq]) => tileReq
-                            )
-                        )
+                        return acc;
                     },
-                    {
-                        contentType: 'application/json'
-                    }
-                ).pipe(
-                    map(
-                        resp => tuple(tileReqMap, resp)
+                    new Map(
+                        pipe(
+                            tileIds,
+                            List.map<number|string, Array<[string, TileRequest|OtherTileRequest|undefined]>>(
+                                v => List.repeat(
+                                    i => tuple(`${v}.${i}`, undefined),
+                                    userSession ? List.size(userSession.queries) : 1
+                                ),
+                            ),
+                            List.flatMap(x => x)
+                        )
                     )
-                )
-            ),
-            concatMap(
-                ([tileReqMap, resp]) => new Observable<EventItem>(
-                    observer => {
-                        const evtSrc = new EventSource(
-                            urlJoin(this.rootUrl, resp.id)
-                        );
-                        tileReqMap.forEach(
-                            (val, key) => {
-                                evtSrc.addEventListener(`DataTile-${val.tileId}`, evt => {
-                                    if (val.contentType == 'application/json') {
-                                        observer.next({
-                                            data: JSON.parse(evt.data),
-                                            tileId: val.tileId
-                                        });
-
-                                    } else if (val.base64EncodeResult && typeof evt.data === 'string') {
-                                        const tmp = atob(evt.data);
-                                        observer.next({
-                                            data: tmp,
-                                            tileId: val.tileId
-                                        })
-
-                                    } else {
-                                        observer.next({
-                                            data: val.contentType == 'application/json' ?
-                                                JSON.parse(evt.data) : evt.data,
-                                            tileId: val.tileId
-                                        })
-                                    }
-                                });
-                            }
-                        );
-                        evtSrc.addEventListener('close', () => {
-                            observer.complete();
-                            evtSrc.close();
+                ),
+                // TODO, remove when in production-ready quality
+                tap(
+                    v => {
+                        console.log('tile dispatching status:');
+                        v.forEach((v, k) => {
+                            console.log('   ', k, ': ', v);
                         })
-                        evtSrc.onerror = v => {
-                            console.error(v);
-                            if (evtSrc.readyState === EventSource.CLOSED) {
-                                evtSrc.close();
-                                observer.complete();
+
+                    }
+                ),
+                first(
+                    v => {
+                        for (const [key, value] of v) {
+                            if (value === undefined) {
+                                return false;
                             }
                         }
+                        return true
                     }
-                )
-            ),
-            share()
+                ),
+                timeout(this.tilesReadyTimeoutSecs),
+                concatMap(
+                    tileReqMap => ajax$<{id:string}>(
+                        HTTP.Method.PUT,
+                        this.rootUrl,
+                        {
+                            requests: pipe(
+                                Array.from(tileReqMap.entries()),
+                                List.map(
+                                    ([k, tileReq]) => tileReq
+                                )
+                            )
+                        },
+                        {
+                            contentType: 'application/json'
+                        }
+                    ).pipe(
+                        map(
+                            resp => tuple(tileReqMap, resp)
+                        )
+                    )
+                ),
+                concatMap(
+                    ([tileReqMap, resp]) => new Observable<EventItem>(
+                        observer => {
+                            const evtSrc = new EventSource(
+                                urlJoin(this.rootUrl, resp.id)
+                            );
+                            tileReqMap.forEach(
+                                (val, key) => {
+                                    evtSrc.addEventListener(`DataTile-${val.tileId}.${val.queryIdx}`, evt => {
+                                        if (val.contentType == 'application/json') {
+                                            try {
+                                                const tmp = JSON.parse(evt.data);
+                                                observer.next({
+                                                    data: tmp,
+                                                    error: !!tmp && tmp.hasOwnProperty('error') ? tmp.error : undefined,
+                                                    tileId: val.tileId,
+                                                    queryIdx: val.queryIdx
+                                                });
+
+                                            } catch (e) {
+                                                observer.next({
+                                                    data: undefined,
+                                                    error: `Failed to process response for tile ${val.tileId}: ${e}`,
+                                                    tileId: val.tileId,
+                                                    queryIdx: val.queryIdx
+                                                });
+                                            }
+
+                                        } else if (val.base64EncodeResult && typeof evt.data === 'string') {
+                                            const tmp = atob(evt.data);
+                                            observer.next({
+                                                data: tmp,
+                                                tileId: val.tileId,
+                                                queryIdx: val.queryIdx
+                                            })
+
+                                        } else {
+                                            observer.next({
+                                                data: evt.data,
+                                                tileId: val.tileId,
+                                                queryIdx: val.queryIdx
+                                            })
+                                        }
+                                    });
+                                }
+                            );
+                            evtSrc.addEventListener('close', () => {
+                                observer.complete();
+                                evtSrc.close();
+                            })
+                            evtSrc.onerror = v => {
+                                console.error(v);
+                                if (evtSrc.readyState === EventSource.CLOSED) {
+                                    evtSrc.close();
+                                    observer.complete();
+                                }
+                            }
+                        }
+                    )
+                ),
+                share()
+            ) :
+            EMPTY;
+        if (typeof window !== 'undefined') {
+            this.responseStream.subscribe({
+                error: error => {
+                    console.log(`response stream error for tile group ${tileIds.join(',')}: ${error}`)
+                }
+            });
+        }
+    }
+
+    getId():string {
+        return this.id;
+    }
+
+    /**
+     * Creates a new DataStreaming instance with custom
+     * group of tiles. This is mostly used for:
+     *
+     * 1) obtaining source info (single tile stream)
+     * 2) updating independent tile's parameters (single tile stream)
+     * 3) updating dependent tiles (typically - two tile stream)
+     *
+     * The stream, once created, starts to measure time
+     * and handle possible timeout so it is important
+     * not to call this too early (like during a model
+     * instantiation).
+     *
+     * The method returns a unique identifier of the subgroup
+     * and the caller should dispatch an action informing
+     * that the group is ready so dependent tiles may react
+     * accordingly (i.e. get the stream and register their requests).
+     *
+     * @param tiles
+     * @returns
+     */
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):DataStreaming {
+        const groupId = Ident.puid();
+        this.tilesDataStreams[groupId] = new DataStreaming(
+            groupId,
+            [mainTileId,...dependentTiles],
+            this.rootUrl,
+            this.tilesReadyTimeoutSecs,
+            this.userSession
         );
-        this.responseStream.subscribe({
-            error: error => {
-                console.log('response stream error: ', error)
-            }
-        });
+        return this.tilesDataStreams[groupId];
+    }
+
+    /**
+     * A dependent tile must use a data stream
+     * group where its data source tile is the "main tile".
+     *
+     * In case the group is not found, the method throws
+     * an exception.
+     *
+     * @param subgroupId is the ID of the group
+     */
+    getSubgroup(subgroupId:string):DataStreaming {
+        const curr = this.tilesDataStreams[subgroupId];
+        if (!curr) {
+            throw new Error(`DataStreaming subgroup ${subgroupId} does not exist.`);
+        }
+        return curr;
     }
 
     private prepareTileRequest(entry:TileRequest):TileRequest {
@@ -191,91 +369,69 @@ export class DataStreaming {
     }
 
 
-    registerTileRequest<T>(multicastRequest:boolean, entry:TileRequest):Observable<T> {
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
         if (!this.rootUrl) {
-            console.error('trying to register tile for data stream but there is no URL set, this is likely a config error')
             return EMPTY;
         }
-        if (multicastRequest) {
-            this.requestSubject.next(this.prepareTileRequest(entry));
-            return this.responseStream.pipe(
-                filter((response:EventItem<T>) => response.tileId === entry.tileId),
-                map(response => response.data as T)
-            );
+        const normEntry = normalizeRequest(entry);
+        this.requestSubject.next(
+            isOtherTileRequest(normEntry) ?
+                normEntry :
+                this.prepareTileRequest(normEntry)
+        );
+        return this.responseStream.pipe(
+            filter(
+                (response:EventItem<T>) => {
+                    if (isOtherTileRequest(normEntry)) {
+                        return response.tileId === normEntry.otherTileId && response.queryIdx === normEntry.otherTileQueryIdx;
 
-        } else {
-            return this.registerExclusiveTileRequest(entry);
-        }
+                    } else {
+                        return response.tileId === normEntry.tileId && response.queryIdx === normEntry.queryIdx;
+                    }
+                }
+            ),
+            map(response => {
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+                return response.data as T;
+            })
+        );
     }
 
-    private registerExclusiveTileRequest<T>(entry:TileRequest):Observable<T> {
-        const responseStream = rxOf(this.prepareTileRequest(entry)).pipe(
-            concatMap(
-                entry => ajax$<{id:string}>(
-                    HTTP.Method.PUT,
-                    this.rootUrl,
-                    {
-                        requests: [entry]
-                    },
-                    {
-                        contentType: 'application/json'
-                    }
-                ).pipe(
-                    map(
-                        resp => tuple(entry, resp)
-                    )
-                )
-            ),
-            concatMap(
-                ([reqEntry, resp]) => new Observable<EventItem>(
-                    observer => {
-                        const evtSrc = new EventSource(
-                            urlJoin(this.rootUrl, resp.id)
-                        );
-                        evtSrc.addEventListener(`DataTile-${reqEntry.tileId}`, evt => {
-                            if (reqEntry.contentType == 'application/json') {
-                                observer.next({
-                                    data: JSON.parse(evt.data),
-                                    tileId: reqEntry.tileId
-                                });
+}
 
-                            } else if (reqEntry.base64EncodeResult && typeof evt.data === 'string') {
-                                const tmp = atob(evt.data);
-                                observer.next({
-                                    data: tmp,
-                                    tileId: reqEntry.tileId
-                                })
+export class DataStreamingPreview implements IDataStreaming {
 
-                            } else {
-                                observer.next({
-                                    data: reqEntry.contentType == 'application/json' ?
-                                        JSON.parse(evt.data) : evt.data,
-                                    tileId: reqEntry.tileId
-                                })
-                            }
-                        });
-                        evtSrc.addEventListener('close', () => {
-                            observer.complete();
-                            evtSrc.close();
-                        })
-                        evtSrc.onerror = v => {
-                            console.error(v);
-                            if (evtSrc.readyState === EventSource.CLOSED) {
-                                evtSrc.close();
-                                observer.complete();
-                            }
-                        }
-                    }
-                )
-            ),
-            map(response => response.data as T),
-            share()
-        );
-        responseStream.subscribe({
-            error: error => {
-                console.log('response stream error: ', error)
-            }
+    registerTileRequest<T>(entry:TileRequest|OtherTileRequest):Observable<T> {
+        if (isOtherTileRequest(entry)) {
+            return EMPTY;
+        }
+        // we assume that the fake preview api URLs are always absolute
+        const splitUrl = entry.url.split('/');
+        const tileId = splitUrl[1].endsWith('2') ? splitUrl[1].substring(0, entry.url.length - 1) : splitUrl[1];
+        return new Observable<T>(observer => {
+            import(/* webpackChunkName: "previewData" */ '../conf/previewData.js').then(module => {
+                const tileData = module.loadTileData(tileId, entry.queryIdx);
+                if (tileData) {
+                    observer.next(tileData as T);
+                } else {
+                    observer.error(new Error(`No preview data for tile ${tileId} and query index ${entry.queryIdx}`));
+                }
+                observer.complete();
+            });
         });
-        return responseStream;
+    }
+
+    getId(): string {
+        return 'mock';
+    }
+
+    startNewSubgroup(mainTileId:number, ...dependentTiles:Array<number>):IDataStreaming {
+        return this;
+    }
+
+    getSubgroup(subgroupId:string):IDataStreaming {
+        return this;
     }
 }

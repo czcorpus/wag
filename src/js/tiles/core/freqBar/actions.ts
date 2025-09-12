@@ -17,26 +17,16 @@
  */
 import { Action } from 'kombo';
 
-import { LocalizedConfMsg } from '../../../types.js';
-import { ApiDataBlock } from '../../../api/abstract/freqs.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { DataRow } from '../../../api/vendor/mquery/freqs.js';
 
 
 export interface DataLoadedPayload {
-    block:ApiDataBlock;
-    blockLabel?:LocalizedConfMsg;
-    concId:string;
-    critIdx:number;
+    queryIdx:number;
+    data:Array<DataRow>;
 }
 
 export class Actions {
-
-    static SetActiveBlock:Action<{
-        idx:number;
-        tileId:number;
-    }> = {
-        name: 'TT_DISTRIB_SET_ACTIVE_BLOCK'
-    };
 
     static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
         name: GlobalActions.TileDataLoaded.name

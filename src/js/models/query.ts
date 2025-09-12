@@ -17,30 +17,30 @@
  */
 
 import { StatelessModel, IActionQueue } from 'kombo';
-import { pipe, List } from 'cnc-tskit';
+import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices.js';
 import { MultiDict } from '../multidict.js';
 import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index.js';
+import { QueryType, QueryTypeMenuItem, matchesPos, RecognizedQueries, findCurrQueryMatch, queryTypeToAction } from '../query/index.js';
 import { QueryValidator } from '../query/validation.js';
 import { Actions } from './actions.js';
-import { HTTPAction } from '../server/routes/actions.js';
 import { LayoutManager } from '../page/layout.js';
-import { MainPosAttrValues } from '../conf/index.js';
+import { MainPosAttrValues, TranslatLanguage } from '../conf/index.js';
+import urlJoin from 'url-join';
 
 
 export interface QueryFormModelState {
     queries:Array<Input>;
     initialQueryType:QueryType;
-    multiWordQuerySupport:{[k in QueryType]?:number};
+    multiWordQuerySupport:number;
+    instanceSwitchMenu:Array<{label:string; url:string}>;
     queryType:QueryType;
-    queryDomain:string;
-    queryDomain2:string;
-    searchDomains:Array<SearchDomain>;
-    targetDomains:{[k in QueryType]:Array<[string, string]>};
+    availQueryTypes:Array<QueryType>;
+    currTranslatLanguage:string;
+    translatLanguages:Array<TranslatLanguage>;
     queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Array<Error>;
     queryMatches:RecognizedQueries;
@@ -52,20 +52,7 @@ export interface QueryFormModelState {
     mainPosAttr:MainPosAttrValues;
 }
 
-export const findCurrQueryMatch = (queryMatches:Array<QueryMatch>):QueryMatch => {
-    const srch = queryMatches.find(v => v.isCurrent);
-    return srch ? srch : {
-        lemma: undefined,
-        word: undefined,
-        pos: [],
-        upos: [],
-        abs: -1,
-        ipm: -1,
-        arf: -1,
-        flevel: null,
-        isCurrent: true
-    };
-};
+
 
 /**
  * QueryFormModel handles both user entered raw query and switching between already found lemmas.
@@ -80,8 +67,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.queryValidator = new QueryValidator(this.appServices);
-        this.addActionHandler<typeof Actions.ChangeQueryInput>(
-            Actions.ChangeQueryInput.name,
+
+        this.addActionHandler(
+            Actions.ChangeQueryInput,
             (state, action) => {
                 state.errors = [];
                 state.queries[action.payload.queryIdx] =
@@ -89,8 +77,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeCurrQueryMatch>(
-            Actions.ChangeCurrQueryMatch.name,
+        this.addActionHandler(
+            Actions.ChangeCurrQueryMatch,
             (state, action) => {
                 const group = state.queryMatches[action.payload.queryIdx];
                 state.queryMatches[action.payload.queryIdx] = List.map(
@@ -108,44 +96,29 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeTargetDomain>(
-            Actions.ChangeTargetDomain.name,
+        this.addActionHandler(
+            Actions.ChangeTranslatLanguage,
             (state, action) => {
-                const prevDomain2 = state.queryDomain2;
-                state.queryDomain = action.payload.domain1;
-                state.queryDomain2 = action.payload.domain2;
-                state.queryType = action.payload.queryType;
-                if (state.isAnswerMode && state.queryType === QueryType.TRANSLAT_QUERY &&
-                            prevDomain2 !== action.payload.domain2) {
-                    this.checkAndSubmitUserQuery(state);
-                }
+                state.currTranslatLanguage = action.payload.lang;
             }
         );
 
-        this.addActionHandler<typeof Actions.ChangeQueryType>(
-            Actions.ChangeQueryType.name,
-            (state, action) => {
-                state.queryType = action.payload.queryType;
-                const hasMoreQueries = pipe(state.queries, List.slice(1), List.some(v => v.value !== ''));
-                const allowsValidSingleQuery = state.queryType !== QueryType.CMP_QUERY && state.queries[0].value !== '';
-                if (state.isAnswerMode && (allowsValidSingleQuery || hasMoreQueries)) {
-                    this.checkAndSubmitUserQuery(state);
-                }
-
-                if (state.queryType === QueryType.SINGLE_QUERY || state.queryType === QueryType.TRANSLAT_QUERY) {
-                    state.queries = state.queries.map(q => Forms.updateFormInput(q, {isRequired: false}));
-
-                } else {
-                    state.queries = state.queries.map(q => Forms.updateFormInput(q, {isRequired: true}));
-                    if (state.queries.length === 1) {
-                        state.queries.push(Forms.newFormValue('', true));
-                    }
-                }
+        this.addActionHandler(
+            Actions.ChangeQueryType,
+            null,
+            (state, action, dispatch) => {
+                window.location.href = this.appServices.createActionUrl(
+                    queryTypeToAction(action.payload.queryType),
+                    pipe(
+                        state.queries,
+                        List.map(v => tuple('q', v.value))
+                    )
+                );
             }
         );
 
-        this.addActionHandler<typeof Actions.SubmitQuery>(
-            Actions.SubmitQuery.name,
+        this.addActionHandler(
+            Actions.SubmitQuery,
             (state, action) => {
                 this.checkAndSubmitUserQuery(state);
             },
@@ -156,8 +129,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.AddCmpQueryInput>(
-            Actions.AddCmpQueryInput.name,
+        this.addActionHandler(
+            Actions.AddCmpQueryInput,
             (state, action) => {
                 if (state.queries.length < state.maxCmpQueries) {
                     state.queries.push(Forms.newFormValue('', true));
@@ -170,36 +143,36 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<typeof Actions.RemoveCmpQueryInput>(
-            Actions.RemoveCmpQueryInput.name,
+        this.addActionHandler(
+            Actions.RemoveCmpQueryInput,
             (state, action) => {
                 state.queries.splice(action.payload.queryIdx, 1);
             }
         );
 
-        this.addActionHandler<typeof Actions.ShowQueryMatchModal>(
-            Actions.ShowQueryMatchModal.name,
+        this.addActionHandler(
+            Actions.ShowQueryMatchModal,
             (state, action) => {
                 state.lemmaSelectorModalVisible = true;
             }
         );
 
-        this.addActionHandler<typeof Actions.HideQueryMatchModal>(
-            Actions.HideQueryMatchModal.name,
+        this.addActionHandler(
+            Actions.HideQueryMatchModal,
             (state, action) => {
                 state.lemmaSelectorModalVisible = false;
             }
         );
 
-        this.addActionHandler<typeof Actions.SelectModalQueryMatch>(
-            Actions.SelectModalQueryMatch.name,
+        this.addActionHandler(
+            Actions.SelectModalQueryMatch,
             (state, action) => {
                 state.modalSelections[action.payload.queryIdx] = action.payload.variantIdx;
             }
         );
 
-        this.addActionHandler<typeof Actions.ApplyModalQueryMatchSelection>(
-            Actions.ApplyModalQueryMatchSelection.name,
+        this.addActionHandler(
+            Actions.ApplyModalQueryMatchSelection,
             (state, action) => {
                 state.lemmaSelectorModalVisible = false;
                 state.modalSelections.forEach((sel, idx) => {
@@ -252,37 +225,30 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         this.normalizeQueries(state);
         state.errors = [];
         this.validateQuery(state);
-        if (state.errors.length === 0) { // we leave the page here, TODO: use some kind of routing
+        if (state.errors.length === 0) {
             window.location.href = this.appServices.createActionUrl(this.buildQueryPath(state));
         }
     }
 
     private buildQueryPath(state:QueryFormModelState):string {
-        const action = (
-            state.queryType === QueryType.SINGLE_QUERY ? HTTPAction.SEARCH :
-            state.queryType === QueryType.CMP_QUERY ? HTTPAction.COMPARE :
-            HTTPAction.TRANSLATE
-        );
+        const action = queryTypeToAction(state.queryType);
 
-        const domains = [state.queryDomain];
-        if (state.queryType === QueryType.TRANSLAT_QUERY) {
-            domains.push(state.queryDomain2);
-        }
+        const queries = state.queryType === QueryType.CMP_QUERY ?
+            List.map(v => v.value, state.queries) :
+            [state.queries[0].value];
 
-        const queries = [state.queries[0].value];
-        if (state.queryType === QueryType.CMP_QUERY) {
-            state.queries.slice(1).forEach(v => {
-                queries.push(v.value);
-            });
-        }
 
-        return `${action}${domains.join('--')}/${queries.join('--')}`;
+        const translatChunk = state.queryType === QueryType.TRANSLAT_QUERY ?
+            state.currTranslatLanguage :
+            '';
+
+        return urlJoin(action, translatChunk, queries.join('--'));
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
         const errors = this.queryValidator.validateQuery(
             state.queries[idx].value,
-            state.multiWordQuerySupport[state.queryType] || 1
+            state.multiWordQuerySupport || 1
         );
         state.queries[idx] = Forms.updateFormInput(state.queries[idx], {isValid: errors.length === 0});
         state.errors.push(...errors);
@@ -319,9 +285,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
             this.validateNthQuery(state, 0);
-            if (state.queryDomain === state.queryDomain2) {
-                state.errors.push(new Error(this.appServices.translate('global__src_and_dst_domains_must_be_different')));
-            }
         }
     }
 
@@ -330,28 +293,28 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 export interface DefaultFactoryArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
-    query1Domain:string;
-    query2Domain:string;
+    translatLanguage:string;
     queryType:QueryType;
+    availQueryTypes:Array<QueryType>;
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
-    searchDomains:Array<SearchDomain>;
+    instanceSwitchMenu:Array<{label:string; url:string}>;
     layout:LayoutManager;
     maxCmpQueries:number;
-    maxQueryWords:{[k in QueryType]?:number};
+    maxQueryWords:number;
 }
 
 export const defaultFactory = ({
     dispatcher,
     appServices,
-    query1Domain,
-    query2Domain,
+    translatLanguage,
     queryType,
+    availQueryTypes,
     queryMatches,
     isAnswerMode,
     uiLanguages,
-    searchDomains,
+    instanceSwitchMenu,
     layout,
     maxCmpQueries,
     maxQueryWords
@@ -366,16 +329,16 @@ export const defaultFactory = ({
                 queryMatches
             ),
             queryType,
+            availQueryTypes,
             initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
-            queryDomain: query1Domain,
-            queryDomain2: query2Domain,
-            searchDomains,
-            targetDomains: layout.getTargetDomains(),
+            currTranslatLanguage: translatLanguage,
+            translatLanguages: layout.getTranslatLanguages(),
             errors: [],
             queryMatches,
             isAnswerMode,
             uiLanguages,
+            instanceSwitchMenu,
             multiWordQuerySupport: maxQueryWords,
             maxCmpQueries,
             lemmaSelectorModalVisible: false,
@@ -383,7 +346,7 @@ export const defaultFactory = ({
                 v => v.findIndex(v2 => v2.isCurrent),
                 queryMatches
             ),
-            mainPosAttr: layout.getLayoutMainPosAttr(queryType),
+            mainPosAttr: layout.getLayoutMainPosAttr(),
         }
     );
 };

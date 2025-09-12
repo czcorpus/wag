@@ -17,20 +17,19 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON,
+    ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
-import { QueryType } from '../../../query/index.js';
-import { OperationMode } from '../../../models/tiles/wordSim.js';
-import { IWordSimApi } from '../../../api/abstract/wordSim.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
-import { createApiInstance } from '../../../api/factory/wordSim.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import { CNCWord2VecSimApi, OperationMode } from './api/standard.js';
+import { CNCWSServerApi } from './api/wss.js';
 
 
 export interface WordSimTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
+    apiType?:'wss'|'default';
     maxResultItems:number;
     minMatchFreq:number;
     minScore?:number;
@@ -56,25 +55,24 @@ export class WordSimTile implements ITileProvider {
 
     private readonly srcInfoView:React.FC;
 
-    private readonly blockingTiles:Array<number>;
-
     private readonly label:string;
 
     private readonly widthFract:number;
 
-    private readonly api:IWordSimApi<{}>;
+    private readonly api:CNCWord2VecSimApi|CNCWSServerApi;
 
     constructor({
-        tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-        isBusy, queryMatches, domain1}:TileFactoryArgs<WordSimTileConf>
+        tileId, dispatcher, appServices, ut, widthFract, conf, theme,
+        isBusy, useDataStream, queryMatches}:TileFactoryArgs<WordSimTileConf>
     ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
-        this.blockingTiles = waitForTiles;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
-        this.api = createApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices);
+        this.api = conf.apiType === 'wss' ?
+            new CNCWSServerApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices) :
+            new CNCWord2VecSimApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices);
         this.model = new WordSimModel({
             appServices,
             dispatcher,
@@ -95,8 +93,7 @@ export class WordSimTile implements ITileProvider {
                 selectedText: null
             },
             tileId,
-            api: this.api,
-            queryDomain: domain1
+            api: this.api
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
@@ -118,7 +115,7 @@ export class WordSimTile implements ITileProvider {
         return this.srcInfoView;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
@@ -151,16 +148,20 @@ export class WordSimTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

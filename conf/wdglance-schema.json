@@ -1,11 +1,15 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
-        "Backlink": {
+        "AllQueryTypesTileConf": {
+            "additionalProperties": {
+                "$ref": "#/definitions/TileConf"
+            },
+            "type": "object"
+        },
+        "BacklinkConf<any>": {
             "properties": {
-                "isAppUrl": {
-                    "type": "boolean"
-                },
+                "args": {},
                 "label": {
                     "anyOf": [
                         {
@@ -19,32 +23,21 @@
                         }
                     ]
                 },
-                "method": {
-                    "enum": [
-                        "CONNECT",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ],
-                    "type": "string"
-                },
-                "subcname": {
-                    "type": "string"
-                },
                 "url": {
                     "type": "string"
                 }
             },
+            "required": [
+                "url"
+            ],
             "type": "object"
         },
         "ColorTheme": {
             "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
             "properties": {
+                "backgroundImage": {
+                    "type": "string"
+                },
                 "category": {
                     "items": {
                         "type": "string"
@@ -54,11 +47,59 @@
                 "categoryOther": {
                     "type": "string"
                 },
+                "chartTextColor": {
+                    "type": "string"
+                },
                 "cmpCategory": {
                     "items": {
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "colorDefaultText": {
+                    "type": "string"
+                },
+                "colorInvertText": {
+                    "type": "string"
+                },
+                "colorInvertedSecondaryText": {
+                    "type": "string"
+                },
+                "colorLightText": {
+                    "type": "string"
+                },
+                "colorLogoBlue": {
+                    "type": "string"
+                },
+                "colorLogoBlueShining": {
+                    "type": "string"
+                },
+                "colorLogoPink": {
+                    "type": "string"
+                },
+                "colorSecondaryText": {
+                    "type": "string"
+                },
+                "colorSuperlightGrey": {
+                    "type": "string"
+                },
+                "colorWhitelikeBlue": {
+                    "type": "string"
+                },
+                "condensedFontFamily": {
+                    "type": "string"
+                },
+                "cssMediaMediumScreen": {
+                    "type": "string"
+                },
+                "cssMediaSmallScreen": {
+                    "type": "string"
+                },
+                "defaultFontFamily": {
+                    "type": "string"
+                },
+                "defaultFontSize": {
+                    "type": "string"
                 },
                 "description": {
                     "anyOf": [
@@ -91,11 +132,20 @@
                 "lineConfidenceAreaColor2": {
                     "type": "string"
                 },
+                "pageBackgroundColor": {
+                    "type": "string"
+                },
                 "scale": {
                     "items": {
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "svgIconsFilter": {
+                    "type": "string"
+                },
+                "svgLogoFilter": {
+                    "type": "string"
                 },
                 "themeId": {
                     "type": "string"
@@ -112,6 +162,15 @@
                             "type": "string"
                         }
                     ]
+                },
+                "tileBackgroundColor": {
+                    "type": "string"
+                },
+                "tileBorderRadius": {
+                    "type": "string"
+                },
+                "tileBorderStyle": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -195,22 +254,6 @@
             ],
             "type": "object"
         },
-        "DomainAnyTileConf": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "$ref": "#/definitions/TileConf"
-                },
-                "type": "object"
-            },
-            "type": "object"
-        },
-        "DomainLayoutsConfig": {
-            "additionalProperties": {
-                "$ref": "#/definitions/LayoutsConfig"
-            },
-            "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
-            "type": "object"
-        },
         "FaviconConf": {
             "properties": {
                 "contentType": {
@@ -257,25 +300,7 @@
                 "groupTemplate": {},
                 "tiles": {
                     "items": {
-                        "allOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "properties": {
-                                    "ref": {
-                                        "type": "string"
-                                    },
-                                    "width": {
-                                        "type": "number"
-                                    }
-                                },
-                                "required": [
-                                    "width"
-                                ],
-                                "type": "object"
-                            }
-                        ]
+                        "$ref": "#/definitions/LayoutVisibleTile"
                     },
                     "type": "array"
                 }
@@ -356,21 +381,36 @@
             ],
             "type": "object"
         },
+        "InstanceLink": {
+            "properties": {
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "label",
+                "url"
+            ],
+            "type": "object"
+        },
         "LayoutConfigCmpQuery": {
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -427,21 +467,79 @@
             ],
             "type": "object"
         },
+        "LayoutConfigPreviewQuery": {
+            "properties": {
+                "groups": {
+                    "items": {
+                        "$ref": "#/definitions/GroupLayoutConfig"
+                    },
+                    "type": "array"
+                },
+                "insertAfter": {
+                    "additionalProperties": {
+                        "items": {
+                            "properties": {
+                                "tile": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "tile",
+                                "width"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "mainPosAttr": {
+                    "$ref": "#/definitions/MainPosAttrValues"
+                },
+                "replace": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "targetLanguages": {
+                    "items": {
+                        "$ref": "#/definitions/TranslatLanguage"
+                    },
+                    "type": "array"
+                },
+                "useLayout": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "groups",
+                "mainPosAttr",
+                "targetLanguages"
+            ],
+            "type": "object"
+        },
         "LayoutConfigSingleQuery": {
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -502,17 +600,7 @@
             "properties": {
                 "groups": {
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/ServiceTile"
-                            },
-                            {
-                                "$ref": "#/definitions/GroupLayoutConfig"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "$ref": "#/definitions/GroupLayoutConfig"
                     },
                     "type": "array"
                 },
@@ -559,9 +647,9 @@
                     },
                     "type": "object"
                 },
-                "targetDomains": {
+                "targetLanguages": {
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/TranslatLanguage"
                     },
                     "type": "array"
                 },
@@ -572,7 +660,28 @@
             "required": [
                 "groups",
                 "mainPosAttr",
-                "targetDomains"
+                "targetLanguages"
+            ],
+            "type": "object"
+        },
+        "LayoutVisibleTile": {
+            "properties": {
+                "readDataFrom": {
+                    "type": "string"
+                },
+                "ref": {
+                    "type": "string"
+                },
+                "tile": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "tile",
+                "width"
             ],
             "type": "object"
         },
@@ -580,6 +689,9 @@
             "properties": {
                 "cmp": {
                     "$ref": "#/definitions/LayoutConfigCmpQuery"
+                },
+                "preview": {
+                    "$ref": "#/definitions/LayoutConfigPreviewQuery"
                 },
                 "single": {
                     "$ref": "#/definitions/LayoutConfigSingleQuery"
@@ -590,16 +702,74 @@
             },
             "type": "object"
         },
-        "LogoConf": {
+        "LogoStaticConf": {
             "properties": {
                 "inlineStyle": {
                     "$ref": "#/definitions/React.CSSProperties"
                 },
                 "label": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "subWag": {
+                    "description": "For WaG instances displaying specific text type / media / etc.,\nan additional logo can be used to display something like e.g.:\n[Word at a Glance] [ / Fiction].",
+                    "properties": {
+                        "inlineStyle": {
+                            "$ref": "#/definitions/React.CSSProperties"
+                        },
+                        "label": {
+                            "anyOf": [
+                                {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "anyOf": [
+                                {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "url"
+                    ],
+                    "type": "object"
                 },
                 "url": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -30228,51 +30398,11 @@
             },
             "type": "object"
         },
-        "ServiceTile": {
-            "description": "ServiceTile is a tile which is a functional part of a layout but not\nnecessarily in a visual way.",
-            "properties": {
-                "readSubqFrom": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
-                },
-                "tile": {
-                    "type": "string"
-                },
-                "waitFor": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
-                }
-            },
-            "required": [
-                "tile"
-            ],
-            "type": "object"
-        },
         "TileConf": {
             "description": "A configuration for a tile\nprovided by hosting page",
             "properties": {
                 "backlink": {
-                    "$ref": "#/definitions/Backlink",
+                    "$ref": "#/definitions/BacklinkConf<any>",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "compatibleSubqProviders": {
@@ -30328,9 +30458,6 @@
                 },
                 "useDataStream": {
                     "type": "boolean"
-                },
-                "waitForTimeoutSecs": {
-                    "type": "number"
                 }
             },
             "required": [
@@ -30340,13 +30467,10 @@
         },
         "TileDbConf": {
             "properties": {
-                "db": {
+                "appId": {
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "prefix": {
                     "type": "string"
                 },
                 "server": {
@@ -30357,11 +30481,25 @@
                 }
             },
             "required": [
-                "db",
+                "appId",
                 "password",
-                "prefix",
                 "server",
                 "username"
+            ],
+            "type": "object"
+        },
+        "TranslatLanguage": {
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "label"
             ],
             "type": "object"
         }
@@ -30376,6 +30514,9 @@
                 "type": "object"
             },
             "type": "object"
+        },
+        "applicationId": {
+            "type": "string"
         },
         "colors": {
             "anyOf": [
@@ -30425,13 +30566,22 @@
             },
             "type": "object"
         },
+        "import": {
+            "type": "string"
+        },
+        "instanceSwitchMenu": {
+            "items": {
+                "$ref": "#/definitions/InstanceLink"
+            },
+            "type": "array"
+        },
         "issueReportingUrl": {
             "type": "string"
         },
         "layouts": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/DomainLayoutsConfig"
+                    "$ref": "#/definitions/LayoutsConfig"
                 },
                 {
                     "type": "string"
@@ -30439,7 +30589,7 @@
             ]
         },
         "logo": {
-            "$ref": "#/definitions/LogoConf"
+            "$ref": "#/definitions/LogoStaticConf"
         },
         "maxTileErrors": {
             "type": "number"
@@ -30450,46 +30600,19 @@
             },
             "type": "array"
         },
-        "reqCacheTTL": {
-            "type": "number"
-        },
         "rootUrl": {
             "type": "string"
         },
         "runtimeAssetsUrl": {
             "type": "string"
         },
-        "searchDomains": {
-            "additionalProperties": {
-                "type": "string"
-            },
-            "type": "object"
-        },
-        "telemetry": {
-            "properties": {
-                "participationProbability": {
-                    "type": "number"
-                },
-                "sendIntervalSecs": {
-                    "type": "number"
-                },
-                "url": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "participationProbability",
-                "sendIntervalSecs"
-            ],
-            "type": "object"
-        },
         "tiles": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/DomainAnyTileConf"
+                    "$ref": "#/definitions/TileDbConf"
                 },
                 {
-                    "$ref": "#/definitions/TileDbConf"
+                    "$ref": "#/definitions/AllQueryTypesTileConf"
                 },
                 {
                     "type": "string"
@@ -30499,15 +30622,14 @@
     },
     "required": [
         "apiHeaders",
+        "applicationId",
         "corpInfoApiUrl",
         "homepage",
         "hostUrl",
         "layouts",
         "maxTileErrors",
-        "reqCacheTTL",
         "rootUrl",
         "runtimeAssetsUrl",
-        "searchDomains",
         "tiles"
     ],
     "type": "object"

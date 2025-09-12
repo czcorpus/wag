@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils } from 'kombo';
-import { Ident, List } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 
-import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, Backlink, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader,
+    TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { findCurrQueryMatch } from '../../../models/query.js';
-import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance.js';
-import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs.js';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { MergeFreqsApi } from './api.js';
+import { findCurrentMatches } from '../wordFreq/model.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -41,11 +41,14 @@ export interface MergeCorpFreqTileConf extends TileConf {
         subcname?:string;
         corpusSize:number;
         fcrit:string;
+        posQueryGenerator:[string, string];
         freqType:'tokens'|'text-types';
         flimit:number;
         freqSort:string;
         fpage:number;
         fttIncludeEmpty:boolean;
+
+        viewInOtherWagUrl?:string;
 
         /**
          * If true, then WaG will colorize a respective
@@ -66,7 +69,6 @@ export interface MergeCorpFreqTileConf extends TileConf {
           * by something more specific (e.g. 'social media')
           */
         valuePlaceholder?:LocalizedConfMsg;
-        backlink?:Backlink;
 
         /**
          * If true then the model will always consider possible
@@ -101,30 +103,19 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly blockingTiles:Array<number>;
-
     constructor({
-        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut,
-        theme, appServices, widthFract, conf, isBusy, queryMatches
+        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<MergeCorpFreqTileConf>) {
 
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        this.blockingTiles = waitForTiles;
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/MergeCorpFreqTile/authenticate")} :
-            {};
         this.model = new MergeCorpFreqModel({
             dispatcher: this.dispatcher,
             tileId,
-            waitForTiles,
-            waitForTilesTimeoutSecs,
             appServices,
-            concApi: conf.apiType === CoreApiGroup.MQUERY ? null :
-                     createConcApiInstance(conf.apiType, conf.apiURL, false, appServices, apiOptions),
-            freqApi: createFreqApiInstance(conf.apiType, conf.apiURL, conf.useDataStream, appServices, apiOptions),
+            freqApi: new MergeFreqsApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
@@ -144,20 +135,18 @@ export class MergeCorpFreqTile implements ITileProvider {
                         valuePlaceholder: src.valuePlaceholder ?
                                 appServices.importExternalMessage(src.valuePlaceholder) :
                                 null,
-                        uuid: Ident.puid(),
-                        backlinkTpl: src.backlink || null,
-                        backlink: null,
                         isSingleCategory: !!src.isSingleCategory,
-                        uniqueColor: !!src.uniqueColor
+                        uniqueColor: !!src.uniqueColor,
+                        posQueryGenerator: src.posQueryGenerator,
+                        viewInOtherWagUrl: src.viewInOtherWagUrl || null,
                     }),
                     conf.sources
                 ),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
-                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 tooltipData: null,
-                appBacklink: null,
+                backlinks: List.map(_ => List.map(_ => null, conf.sources), queryMatches),
+                queryMatches: List.map(match => findCurrQueryMatch(match), queryMatches),
             },
-            backlink: conf.backlink || null,
             downloadLabel: conf.downloadLabel,
         });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
@@ -180,7 +169,7 @@ export class MergeCorpFreqTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
     }
 
@@ -213,10 +202,6 @@ export class MergeCorpFreqTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
@@ -224,11 +209,21 @@ export class MergeCorpFreqTile implements ITileProvider {
     getIssueReportingUrl():null {
         return null;
     }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
     sanityCheck: (args) => [],
 
-    create: (args) => new MergeCorpFreqTile(args)
+    create: (args) => {
+        return new MergeCorpFreqTile(args);
+    }
 };

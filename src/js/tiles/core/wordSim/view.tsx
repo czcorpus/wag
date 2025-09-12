@@ -20,21 +20,20 @@ import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { Theme } from '../../../page/theme.js';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
-import { WordSimModel } from './model.js';
+import { WordSimModel, WordSimModelState } from './model.js';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
 import { Actions } from './actions.js';
-import { WordSimWord } from '../../../api/abstract/wordSim.js';
-import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim.js';
 import { List, pipe } from 'cnc-tskit';
 
 import * as S from './style.js';
+import { OperationMode, WordSimEntry } from './api/standard.js';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):TileComponent  {
 
     const globalCompontents = ut.getComponents();
 
-    const WordCloud = wcloudViewInit<WordSimWord>(dispatcher, ut, theme);
+    const WordCloud = wcloudViewInit<WordSimEntry>(dispatcher, ut, theme);
 
 
     // ------------------ <Controls /> --------------------------------------------
@@ -68,7 +67,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <AltView /> --------------------------------------------
 
     const TableView:React.FC<{
-        data:Array<WordSimWord>;
+        data:Array<WordSimEntry>;
         caption:string;
 
     }> = (props) => (
@@ -100,7 +99,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const WordSimView:React.FC<WordSimModelState & CoreTileComponentProps> = (props) => {
 
-        const dataTransform = (v:WordSimWord) => ({
+        const dataTransform = (v:WordSimEntry) => ({
             text: v.word,
             value: v.score,
             tooltip: [{label: ut.translate('wordsim__attr_score'), value: v.score}],

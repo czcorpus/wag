@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -17,35 +17,50 @@
  */
 
 import { Action } from 'kombo';
-import { DataRow } from '../../../api/abstract/freqs.js';
+import { TargetDataRow } from './views/compare.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { DataRow } from '../../../api/vendor/mquery/freqs.js';
 
 
-export interface DataLoadedPayload {
-    data:Array<DataRow>;
+export interface PartialDataLoadedPayload {
+    tileId:number;
     mapSVG:string|null;
-    concId:string;
+    data:Array<DataRow>;
+    queryId:number;
+}
+
+// this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
+export interface LoadFinishedPayload {
+    corpusName:string;
 }
 
 export class Actions {
 
     static ShowAreaTooltip:Action<{
         tileId:number;
-        dataIdx:number;
         areaName:string;
+        areaIpmNorm:number;
+        areaData:Array<TargetDataRow>;
         tooltipX:number;
         tooltipY:number;
+
     }> = {
         name: 'GEO_AREAS_SHOW_AREA_TOOLTIP'
-    };
+    }
 
     static HideAreaTooltip:Action<{
         tileId:number;
+
     }> = {
         name: 'GEO_AREAS_HIDE_AREA_TOOLTIP'
+    }
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & LoadFinishedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
     };
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
     };
 }

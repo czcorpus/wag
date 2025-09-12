@@ -18,7 +18,7 @@
 import { Observable } from 'rxjs';
 import { SourceDetails, ResourceApi } from '../../types.js';
 import { MatchingDocsModelState } from '../../models/tiles/matchingDocs.js';
-import { BacklinkWithArgs } from '../../page/tile.js';
+import { IDataStreaming } from '../../page/streaming.js';
 
 
 export interface DataRow {
@@ -33,9 +33,7 @@ export interface APIResponse {
 
 export interface MatchingDocsAPI<T> extends ResourceApi<T, APIResponse> {
 
-    stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<{}>|null;
-
     stateToArgs(state:MatchingDocsModelState, query:string):T;
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 }

@@ -30,6 +30,19 @@
                     "fcrit": {
                         "type": "string"
                     },
+                    "posQueryGenerator": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2
+                    },
                     "freqType": {
                         "enum": [
                             "text-types",
@@ -49,6 +62,9 @@
                     "fttIncludeEmpty": {
                         "type": "boolean"
                     },
+                    "viewInOtherWagUrl": {
+                        "type": "string"
+                    },
                     "uniqueColor": {
                         "description": "If true, then WaG will colorize a respective\nfreq. bar to a color different from the default one.\nIf multiple source items have this set to true\nthen each item will have its own unique color.\n\nCurrently, this works only for the \"single\" mode.",
                         "type": "boolean"
@@ -67,9 +83,6 @@
                             }
                         ]
                     },
-                    "backlink": {
-                        "$ref": "#/definitions/Backlink"
-                    },
                     "isSingleCategory": {
                         "description": "If true then the model will always consider possible\nmultiple values as some sub-categorization we are actually\nnot interested in merge all the values into one.",
                         "type": "boolean"
@@ -83,7 +96,8 @@
                     "fpage",
                     "freqSort",
                     "freqType",
-                    "fttIncludeEmpty"
+                    "fttIncludeEmpty",
+                    "posQueryGenerator"
                 ]
             }
         },
@@ -107,14 +121,11 @@
         },
         "backlink": {
             "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage.",
-            "$ref": "#/definitions/Backlink"
+            "$ref": "#/definitions/BacklinkConf<any>"
         },
         "isDisabled": {
             "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
             "type": "boolean"
-        },
-        "waitForTimeoutSecs": {
-            "type": "number"
         },
         "label": {
             "description": "A label used in the header of the tile",
@@ -144,6 +155,9 @@
             "items": {
                 "type": "string"
             }
+        },
+        "useDataStream": {
+            "type": "boolean"
         }
     },
     "required": [
@@ -153,7 +167,7 @@
         "tileType"
     ],
     "definitions": {
-        "Backlink": {
+        "BacklinkConf<any>": {
             "type": "object",
             "properties": {
                 "url": {
@@ -172,27 +186,11 @@
                         }
                     ]
                 },
-                "method": {
-                    "enum": [
-                        "CONNECT",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ],
-                    "type": "string"
-                },
-                "subcname": {
-                    "type": "string"
-                },
-                "isAppUrl": {
-                    "type": "boolean"
-                }
-            }
+                "args": {}
+            },
+            "required": [
+                "url"
+            ]
         }
     },
     "$schema": "http://json-schema.org/draft-07/schema#"

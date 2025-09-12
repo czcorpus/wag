@@ -15,15 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index.js';
-import { TranslationResponse } from '../../../api/abstract/translations.js';
+import { SubqueryPayload } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Action } from 'kombo';
+import { TranslationResponse } from './api.js';
 
 
-export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
+export interface DataLoadedPayload extends SubqueryPayload {
     query:string;
     data:TranslationResponse;
+    subqueries:Array<{
+        value: {
+            value: string;
+            context: [number, number];
+        },
+        interactionId: string;
+        color: string;
+    }>;
+}
+
+export function isTranslationsPayload(payload:any):payload is DataLoadedPayload {
+    return payload['query'] && payload['data'] && payload['subqueries'];
 }
 
 export class Actions {

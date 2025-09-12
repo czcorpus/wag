@@ -7,7 +7,6 @@ services:
       dockerfile: dockerfiles/Dockerfile.dev
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
-      - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
       - ./install/docker/server-build-and-run.sh:/var/opt/install/server-build-and-run.sh
       - ./src:/opt/wag/src

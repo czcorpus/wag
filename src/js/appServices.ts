@@ -19,17 +19,15 @@ import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
-import { HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
-import { LemmaDbApi, LemmaDbResponse } from './api/lemma.js';
-import { SystemNotifications } from './page/notifications.js';
-import { HTTPAction } from './server/routes/actions.js';
+import { DataApi, HTTPHeaders, LocalizedConfMsg, SystemMessageType } from './types.js';
+import { ISystemNotifications as ISystemNotifications, SystemNotifications } from './page/notifications.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
-import { DataReadabilityMapping, CommonTextStructures, MainPosAttrValues } from './conf/index.js';
+import { DataReadabilityMapping, CommonTextStructures } from './conf/index.js';
 import { AjaxError } from 'rxjs/ajax';
 import { DummySessionStorage, ISimpleSessionStorage } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
-import { DataStreaming } from './page/streaming.js';
+import { DataStreaming, IDataStreaming } from './page/streaming.js';
 
 
 export interface IApiServices {
@@ -44,7 +42,7 @@ export interface IApiServices {
 
     importExternalMessage(label:LocalizedConfMsg):string;
 
-    dataStreaming():DataStreaming;
+    dataStreaming():IDataStreaming;
 }
 
 
@@ -53,8 +51,6 @@ export interface IAppServices extends IApiServices {
     showMessage(type:SystemMessageType, text:string|Error):void;
 
     translate(key:string, args?:{[key: string]:string|number;}):string;
-
-    getDomainName(langCode:string):string;
 
     externalMessageIsDefined(label:string|{[lang:string]:string}):boolean;
 
@@ -71,8 +67,6 @@ export interface IAppServices extends IApiServices {
     forceMobileMode():void;
 
     isMobileMode():boolean;
-
-    queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
 
@@ -94,7 +88,19 @@ export interface IAppServices extends IApiServices {
 
     ajax$<T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T>;
 
-    dataStreaming():DataStreaming;
+    callAPI:IAPICaller['callAPI'];
+
+    callAPIWithExtraVal:IAPICaller['callAPIWithExtraVal'];
+
+    dataStreaming():IDataStreaming;
+}
+
+
+export interface IAPICaller {
+
+    callAPI<T, U>(api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U>;
+
+    callAPIWithExtraVal<T, U, V>(api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T, v:V):Observable<[U, V]>;
 }
 
 
@@ -102,15 +108,15 @@ export interface IAppServices extends IApiServices {
  *
  */
 export interface AppServicesArgs {
-    notifications:SystemNotifications;
+    notifications:ISystemNotifications;
     uiLang:string;
-    domainNames:Array<[string, string]>;
     translator:ITranslator;
     staticUrlCreator:(path:string)=>string;
     actionUrlCreator:(path: string)=>string;
     dataReadability:DataReadabilityMapping;
     apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
-    dataStreaming:DataStreaming;
+    apiCaller:IAPICaller;
+    dataStreaming:IDataStreaming;
     mobileModeTest:()=>boolean;
 }
 
@@ -121,7 +127,7 @@ export class AppServices implements IAppServices {
 
     private static SESSION_STORAGE_API_KEYS_ENTRY = 'api_keys';
 
-    private readonly notifications:SystemNotifications;
+    private readonly notifications:ISystemNotifications;
 
     private readonly translator:ITranslator;
 
@@ -137,26 +143,23 @@ export class AppServices implements IAppServices {
 
     private readonly apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
 
-    private readonly lemmaDbApi:LemmaDbApi;
-
     private readonly mobileModeTest:()=>boolean;
 
     private readonly audioPlayer:AudioPlayer;
 
-    private readonly domainNames:{[k:string]:string};
-
     private readonly sessionStorage:ISimpleSessionStorage;
 
-    private readonly dataStreamingImpl:DataStreaming;
+    private readonly dataStreamingImpl:IDataStreaming;
+
+    private readonly apiCaller:IAPICaller;
 
     constructor({
-            notifications, uiLang, domainNames, translator,
+            notifications, uiLang, translator,
             staticUrlCreator, actionUrlCreator, dataReadability,
-            apiHeadersMapping, dataStreaming, mobileModeTest
+            apiHeadersMapping, apiCaller, dataStreaming, mobileModeTest
     }:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
-        this.domainNames = Dict.fromEntries(domainNames);
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
@@ -164,12 +167,12 @@ export class AppServices implements IAppServices {
         this.dataReadability = dataReadability;
         this.apiHeadersMapping = apiHeadersMapping || {};
         this.mobileModeTest = mobileModeTest;
-        this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
         this.audioPlayer = new AudioPlayer();
         this.sessionStorage = typeof window === 'undefined' ?
             new DummySessionStorage() :
             window.sessionStorage;
         this.dataStreamingImpl = dataStreaming;
+        this.apiCaller = apiCaller;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -206,10 +209,6 @@ export class AppServices implements IAppServices {
         return err instanceof AjaxError ?
             this.translate('global__api_error_short_{code}', {code: err.status}) :
             err.message;
-    }
-
-    getDomainName(langCode:string):string {
-        return Dict.get(langCode.split('-')[0], '??', this.domainNames);
     }
 
     private importText<T>(label:string|{[lang:string]:T}):string|T {
@@ -327,10 +326,6 @@ export class AppServices implements IAppServices {
             AppServices.SESSION_STORAGE_API_KEYS_ENTRY, JSON.stringify(apiKeyHeaders));
     }
 
-    queryLemmaDbApi(tileId:number, domain:string, q:string, mainPosAttr:MainPosAttrValues):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call(tileId, false, {domain, q, mainPosAttr});
-    }
-
     getISO639UILang():string {
         return this.uiLang.split('-')[0];
     }
@@ -355,7 +350,16 @@ export class AppServices implements IAppServices {
         return ajax$<T>(method, url, args, options);
     }
 
-    dataStreaming():DataStreaming {
+    dataStreaming():IDataStreaming {
         return this.dataStreamingImpl;
+    }
+
+    callAPI<T, U>(api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U> {
+        return this.apiCaller.callAPI(api, streaming, tileId, queryIdx, queryArgs);
+    }
+
+    callAPIWithExtraVal<T, U, V>(
+        api:DataApi<T, U>, streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T, passThrough:V):Observable<[U, V]> {
+        return this.apiCaller.callAPIWithExtraVal(api, streaming, tileId, queryIdx, queryArgs, passThrough);
     }
 }

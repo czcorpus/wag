@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { pipe, List } from 'cnc-tskit';
 
 import { ajax$ } from '../../../page/ajax.js';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
-import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq.js';
-import { HTTPAction } from '../../../server/routes/actions.js';
+import { RequestArgs, Response } from '../../abstract/similarFreq.js';
+import { HTTPAction } from '../../../page/actions.js';
 import { IApiServices } from '../../../appServices.js';
 
 
@@ -33,7 +33,7 @@ interface HTTPResponse {
 
 
 
-export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
+export class SimilarFreqWordsAPI {
 
     private readonly apiURL:string;
 
@@ -44,12 +44,12 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
+    call(tileId:number, queryIdx:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
             new MultiDict([
-                ['domain', args.domain],
+                ['domain', args.corpname],
                 ['word', args.word],
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(' ')],

@@ -17,17 +17,20 @@
  */
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
-import { SearchPackages } from '../../../api/vendor/treq/index.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileConf, TileFactory, TileFactoryArgs
+} from '../../../page/tile.js';
+import { SearchPackages, TreqAPI } from './api.js';
 import { TranslationsModel } from './model.js';
 import { init as viewInit } from './view.js';
-import { createInstance as createApiInstance } from '../../../api/factory/translations.js';
 
 
 export interface TranslationsTileConf extends TileConf {
     apiURL:string;
-    apiType:string;
     srchPackages:SearchPackages;
+    primaryPackage:string;
+    fetchExamplesFrom?:[string, string];
     maxNumLines?:number;
     minItemFreq?:number;
 }
@@ -54,32 +57,31 @@ export class TranslationsTile implements ITileProvider {
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, domain1, domain2, queryMatches, widthFract,
+        tileId, dispatcher, appServices, ut, theme, queryMatches, translatLanguage, widthFract,
         conf, isBusy
     }:TileFactoryArgs<TranslationsTileConf>) {
 
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        const apiOptions = {authenticateURL: appServices.createActionUrl("/TranslationsTile/authenticate")};
         this.model = new TranslationsModel({
             dispatcher,
             appServices,
+            useDataStreaming: conf.useDataStream,
             initialState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                searchPackages: (conf.srchPackages[domain2] || []),
+                searchPackages: (conf.srchPackages[translatLanguage] || []),
                 translations: [],
-                backLink: null,
+                backlink: null,
                 maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
                 minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
-                domain1: domain1,
-                domain2: domain2
+                lang1: conf.primaryPackage,
+                lang2: translatLanguage
             },
             tileId,
-            api: createApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
-            backlink: conf.backlink || null,
+            api: new TreqAPI(conf.apiURL, conf.fetchExamplesFrom, appServices, conf.backlink),
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed
         });
@@ -103,7 +105,7 @@ export class TranslationsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 
@@ -136,16 +138,20 @@ export class TranslationsTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return [];
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

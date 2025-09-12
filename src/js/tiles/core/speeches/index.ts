@@ -15,18 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+
+import { pipe, Color, List } from 'cnc-tskit';
+
+import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
+    TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
 import { SpeechesModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { createAudioUrlGeneratorInstance, createSpeechesApiInstance } from '../../../api/factory/speeches.js';
-import { pipe, Color, List } from 'cnc-tskit';
-import { CoreApiGroup } from '../../../api/coreGroups.js';
+import { SpeechesApi } from './api.js';
+import { AudioLinkGenerator } from './common.js';
 
 
 export interface SpeechesTileConf extends TileConf {
-    apiType:string;
     apiURL:string;
     corpname:string;
     subcname?:string;
@@ -35,8 +38,9 @@ export interface SpeechesTileConf extends TileConf {
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
-    audioPlaybackUrl?:string;
     maxNumSpeeches?:number;
+    audioApiURL?:string;
+    posQueryGenerator:[string, string];
 }
 
 
@@ -53,35 +57,24 @@ export class SpeechesTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly blockingTiles:Array<number>;
-
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({
-        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
-        theme, appServices, widthFract, conf, isBusy
+        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy, queryMatches
     }:TileFactoryArgs<SpeechesTileConf>) {
 
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        this.blockingTiles = waitForTiles;
         const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
-        const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
-            {authenticateURL: appServices.createActionUrl("/SpeechesTile/authenticate")} :
-            {};
         this.model = new SpeechesModel({
             dispatcher,
             tileId,
             appServices,
-            api: createSpeechesApiInstance(conf.apiType, conf.apiURL, appServices, apiOptions),
-            backlink: conf.backlink || null,
-            waitForTiles,
-            waitForTilesTimeoutSecs,
-            subqSourceTiles,
-            audioLinkGenerator: conf.audioPlaybackUrl ?
-                    createAudioUrlGeneratorInstance(conf.apiType, conf.audioPlaybackUrl) :
-                    null,
+            api: new SpeechesApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            audioLinkGenerator: conf.audioApiURL ?
+                new AudioLinkGenerator(conf.audioApiURL) :
+                null,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -90,7 +83,6 @@ export class SpeechesTile implements ITileProvider {
                 corpname: conf.corpname,
                 subcname: conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
-                concId: null,
                 speakerIdAttr: [conf.speakerIdAttr[0], conf.speakerIdAttr[1]],
                 speechSegment: [conf.speechSegment[0], conf.speechSegment[1]],
                 speechOverlapAttr: [conf.speechOverlapAttr[0], conf.speechOverlapAttr[1]],
@@ -99,18 +91,19 @@ export class SpeechesTile implements ITileProvider {
                     List.repeat(v => v, 10),
                     List.map(v => Color.importColor(0.9, colorGen(v)))
                 ),
-                wideCtxGlobals: [],
                 speakerColorsAttachments: {},
                 spkOverlapMode: (conf.speechOverlapAttr || [])[1] ? 'full' : 'simple',
-                expandLeftArgs: [],
-                expandRightArgs: [],
+                leftRange: SpeechesModel.DEFAULT_LEFT_RANGE,
+                rightRange: SpeechesModel.DEFAULT_RIGHT_RANGE,
+                maxSingleSideRange: 50, // TODO is that right?
                 data: [],
-                availTokens: [],
-                tokenIdx: 0,
                 kwicNumTokens: 1,
                 backlink: null,
                 playback: null,
-                maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES
+                playbackEnabled: !!conf.audioApiURL,
+                maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
+                posQueryGenerator: conf.posQueryGenerator,
+                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
             }
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
@@ -134,7 +127,7 @@ export class SpeechesTile implements ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
+    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
@@ -167,16 +160,20 @@ export class SpeechesTile implements ITileProvider {
         return true;
     }
 
-    getBlockingTiles():Array<number> {
-        return this.blockingTiles;
-    }
-
     supportsMultiWordQueries():boolean {
         return true;
     }
 
     getIssueReportingUrl():null {
         return null;
+    }
+
+    getReadDataFrom():number|null {
+        return null;
+    }
+
+    hideOnNoData():boolean {
+        return false;
     }
 }
 

@@ -16,14 +16,67 @@
  * limitations under the License.
  */
 
-import { CustomArgs, TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib.js';
 import { map, Observable, scan, takeWhile } from 'rxjs';
-import { CorpusDetails } from '../../../types.js';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile.js';
+import urlJoin from 'url-join';
+
+import { DataApi } from '../../../types.js';
+import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IApiServices } from '../../../appServices.js';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import { FreqRowResponse } from './common.js';
-import { CorpusInfoAPI } from './corpusInfo.js';
+import { ajax$ } from '../../../page/ajax.js';
+import { IDataStreaming } from '../../../page/streaming.js';
+
+
+export interface TimeDistribArgs {
+
+    corpname:string;
+
+    q:string;
+
+    fcrit:string;
+
+    maxItems:number;
+
+    subcorpName:string|undefined;
+
+    fromYear:string|undefined;
+
+    toYear:string|undefined;
+}
+
+export type CustomArgs = {[k:string]:string};
+
+/**
+ *
+ */
+export interface TimeDistribItem {
+
+    datetime:string;
+
+    /**
+     * Absolute frequency
+     */
+    freq:number;
+
+    /**
+     * Size of a respective (sub)corpus in tokens
+     */
+    norm:number;
+}
+
+/**
+ *
+ */
+export interface TimeDistribResponse {
+    corpName:string;
+    subcorpName?:string;
+    concPersistenceID?:string;
+    data:Array<TimeDistribItem>;
+    overwritePrevious?:boolean;
+}
+
+
 
 export interface MqueryStreamData {
     chunkNum:number;
@@ -57,41 +110,37 @@ function getChunkYearRange(items:Array<FreqRowResponse>):[number, number] {
  * This is the main TimeDistrib API for KonText. It should work in any
  * case.
  */
-export class MQueryTimeDistribStreamApi implements TimeDistribApi {
+export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, TimeDistribResponse> {
 
     private readonly apiURL:string;
 
-    private readonly customArgs:CustomArgs;
-
-    private readonly srcInfoService:CorpusInfoAPI;
-
-    private readonly useDataStream:boolean;
-
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, customArgs:CustomArgs) {
+    private readonly backlinkConf:BacklinkConf;
+
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
-        this.customArgs = customArgs;
-        this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
+        this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(tileId:number, multicastRequest:boolean, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(tileId, multicastRequest, {corpname, lang});
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        return this.backlinkConf ?
+            {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'KonText',
+            } :
+            null;
     }
 
-    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<{}> {
-        return null
-    }
-
-    private prepareArgs(tileId:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
+    private prepareArgs(tileId:number, queryIdx:number, queryArgs:TimeDistribArgs, eventSource?:boolean):string {
         return pipe(
             {
-                ...this.customArgs,
-                q: queryArgs.concIdent,
-                event: eventSource ? `DataTile-${tileId}` : undefined
+                ...queryArgs,
+                event: eventSource ? `DataTile-${tileId}.${queryIdx}` : undefined
             },
+            Dict.filter((v, k) => v !== undefined),
             Dict.map(
                 (v, k) => encodeURIComponent(v)
             ),
@@ -103,26 +152,23 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         )
     }
 
-    /*
-
-    // this serves for tile backend which themselves use streaming
-    // and we have to determine whether they're complete.
-    // For this, we expect JSON responses of the following form:
-    // { ..., chunkNum: number, totalChunks: number}
-    chunks:Map<number, boolean>;
-    */
-    private callViaDataStream(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        const args = this.prepareArgs(tileId, queryArgs, true);
-        return this.apiServices.dataStreaming().registerTileRequest<MqueryStreamData>(
-                multicastRequest,
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`,
-                    body: {},
-                    contentType: 'application/json',
-                    isEventSource: true
-                }
+    public loadSecondWord(
+        streaming:IDataStreaming,
+        tileId:number,
+        queryIdx:number,
+        queryArgs:TimeDistribArgs
+    ):Observable<TimeDistribResponse> {
+        const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
+        return streaming.registerTileRequest<MqueryStreamData>(
+            {
+                tileId,
+                queryIdx,
+                method: HTTP.Method.GET,
+                url: `${this.apiURL}/time-dist-word?${args}`,
+                body: {},
+                contentType: 'application/json',
+                isEventSource: true
+            }
         ).pipe(
             scan<MqueryStreamData, {curr:MqueryStreamData; chunks:Map<number, boolean>}>(
                 (acc, value) => {
@@ -143,17 +189,20 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                 ) <= curr.totalChunks
             ),
             map(
-                ({curr, chunks}) => {
+                ({curr}) => {
+                    if (curr.error) {
+                        throw new Error(curr.error);
+                    }
                     return {
-                        corpName: queryArgs.corpName,
+                        corpName: queryArgs.corpname,
                         subcorpName: queryArgs.subcorpName,
                         data: List.map(
                             v => ({
                                 datetime: v.word,
                                 freq: v.freq,
-                                norm: v.base,
+                                norm: v.base
                             }),
-                            curr.entries.freqs,
+                            curr.entries.freqs
                         ),
                         overwritePrevious: true
                     }
@@ -162,13 +211,83 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         )
     }
 
-    private callViaAjAX(tileId:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+    /*
+
+    // this serves for tile backend which themselves use streaming
+    // and we have to determine whether they're complete.
+    // For this, we expect JSON responses of the following form:
+    // { ..., chunkNum: number, totalChunks: number}
+    chunks:Map<number, boolean>;
+    */
+    private callViaDataStream(
+        streaming:IDataStreaming,
+        tileId:number,
+        queryIdx:number,
+        queryArgs:TimeDistribArgs
+    ):Observable<TimeDistribResponse> {
+        return streaming.registerTileRequest<MqueryStreamData>(
+                {
+                    tileId,
+                    queryIdx,
+                    method: HTTP.Method.GET,
+                    url: queryArgs ?
+                        `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}` :
+                        '',
+                    body: {},
+                    contentType: 'application/json',
+                    isEventSource: true
+                }
+        ).pipe(
+            scan<MqueryStreamData, {curr:MqueryStreamData; chunks:Map<number, boolean>}>(
+                (acc, value) => {
+                    if (value) {
+                        acc.chunks.set(value.chunkNum, true)
+                        acc.curr = value;
+                    }
+                    return acc;
+                },
+                {
+                    curr: null,
+                    chunks: new Map<number, boolean>()
+                }
+            ),
+            takeWhile(
+                ({curr, chunks}) => curr && pipe(
+                    Array.from(chunks.entries()),
+                    List.filter(([k, v]) => !!v),
+                    List.size()
+                ) <= curr.totalChunks
+            ),
+            map(
+                ({curr}) => {
+                    if (curr.error) {
+                        throw new Error(curr.error);
+                    }
+                    return {
+                        corpName: queryArgs.corpname,
+                        subcorpName: queryArgs.subcorpName,
+                        data: List.map(
+                            v => ({
+                                datetime: v.word,
+                                freq: v.freq,
+                                norm: v.base
+                            }),
+                            curr.entries.freqs
+                        ),
+                        overwritePrevious: true
+                    }
+                }
+            )
+        )
+    }
+
+    private callViaAjAX(tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
         return new Observable(o => {
-            const args = this.prepareArgs(tileId, queryArgs, true);
-            const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpName}?${args}`);
+            const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
+            const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${args}`);
             const procChunks:{[k:number]:number} = {};
-            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : (parseInt(this.customArgs['fromYear']) || -1);
-            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : (parseInt(this.customArgs['toYear']) || -1);
+            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
+            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : -1;
 
             eventSource.onmessage = (e) => {
                 const message = JSON.parse(e.data) as MqueryStreamData;
@@ -185,7 +304,7 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
                         maxYear = currMax;
                     }
                     o.next({
-                        corpName: queryArgs.corpName,
+                        corpName: queryArgs.corpname,
                         subcorpName: queryArgs.subcorpName,
                         data: List.map(
                             v => ({
@@ -222,9 +341,42 @@ export class MQueryTimeDistribStreamApi implements TimeDistribApi {
         });
     }
 
-    call(tileId:number, multicastRequest:boolean, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return this.useDataStream ?
-            this.callViaDataStream(tileId, multicastRequest, queryArgs) :
-            this.callViaAjAX(tileId, queryArgs);
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return streaming ?
+            this.callViaDataStream(streaming, tileId, queryIdx, queryArgs) :
+            this.callViaAjAX(tileId, queryIdx, queryArgs);
+    }
+
+    requestBacklink(args:TimeDistribArgs):Observable<URL> {
+        const concArgs = {
+            corpname: args.corpname,
+            q: `q${args.q}`,
+            format: 'json',
+        };
+        if (args.subcorpName) {
+            concArgs['subcorpus'] = args.subcorpName;
+        }
+        return ajax$<{conc_persistence_op_id:string}>(
+            'GET',
+            urlJoin(this.backlinkConf.url, 'create_view'),
+            concArgs,
+            {
+                headers: this.apiServices.getApiHeaders(this.apiURL),
+                withCredentials: true,
+            }
+        ).pipe(
+            map(resp => {
+                const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
+                url.searchParams.set('corpname', args.corpname);
+                if (args.subcorpName) {
+                    url.searchParams.set('subcorpus', args.subcorpName);
+                }
+                url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
+                url.searchParams.set('fcrit', args.fcrit);
+                url.searchParams.set('freq_type', 'text-types');
+                url.searchParams.set('freq_sort', '0');
+                return url;
+            })
+        );
     }
 }
