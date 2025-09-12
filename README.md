@@ -1,65 +1,37 @@
-# WaG - Word at a Glance
+# Word at a Glance (WaG) v2
 
 ![WaG screenshot](https://github.com/czcorpus/wag/blob/master/assets/screenshot1.jpg)
 
-1. Use existing corpus/data search and retrieval software as backend,
-1. Obtain and compile information about:
-   1. single word,
-   1. two or more words compared with each other,
-   1. word translation.
-1. explore text metadata statistics, time-based trends, word cloud-based data and many more,
-1. combine statistics from different corpora,
-1. Use results of a resource as an input for other resource.
+WaG is a highly configurable frontend for creating word profile portals based on corpus resources compatible with the Manatee-open search engine. It provides comprehensive visualizations of linguistic data through seamless integration with our API services.
 
+## Core Components
 
-## Currently supported resources
+WaG integrates with the following backend services:
 
- - [KonText](https://github.com/czcorpus/kontext)
- - [MQuery](https://github.com/czcorpus/mquery)
- - [NoSketch Engine](https://nlp.fi.muni.cz/trac/noske)
- - [Treq](https://treq.korpus.cz/)
- - [Clarin FCS Core 1](https://www.clarin.eu/content/federated-content-search-clarin-fcs)
- - [Datamuse API](https://www.datamuse.com/)
- - [Leipzig Corpora Collection (REST API)](http://api.corpora.uni-leipzig.de/ws/swagger-ui.html) (LCC)
+* **[MQuery](https://github.com/czcorpus/mquery)** - General corpora analysis including concordances, frequency distributions, and collocations
+* **[Frodo](https://github.com/czcorpus/frodo)** - Corpus-driven dictionaries
+* **[WSServer](https://github.com/czcorpus/wsserver)** - Syntax-based collocations and word similarities
 
-|                   | WaG       | KonText | MQuery | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
---------------------|-----------|---------|--------|--------|------------|------------|-------------|---------|---------|
-| collocations      |           | :star:  | 🚧    | :star: |            |            |            |             | :star:  |
-| concFilter        |           | :star:  |       |         |        |            |            |             |         |
-| concordance       |           | :star:  |       | :star: |        | :star:     |            |             | :star:  |
-| freqBar           |           | :star:  |       | :star:  |        |            |            |             |         |
-| freqComparison    |           | :star:  | :star: | :star: |        |            |            |             |         |
-| freqPie           |           | :star:  |       | :star: |        |            |            |             |         |
-| geoAreas          |           | :star:  |       | :star: |        |            |            |             |         |
-| multiWordGeoAreas |           | :star:  |       | :star: |        |            |            |             |         |
-| html              |           | :star:  |       | :star: |        |            |            |             |         |
-| matchingDocuments |           | :star:  |       |        |        |            |            | :star:      |         |
-| mergeCorpFreq     |           | :star:  |       | :star: |        |            |            |             |         |
-| speeches          |           | :star:  |       |        |        |            |            |             |         |
-| syntacticColls    |           |         | :star: |       |        |            |             |            |         |
-| timeDistrib       |           | :star:  | :star:       | :star: |       |            |            |             |         |
-| multiWordtimeDistrib |        | :star:  |        | :star: |        |            |            |             |         |
-| translations      |           |         |        |        | :star: |            |            |             |         |
-| treqSubsets       |           |         |        |        | :star: |            |            |             |         |
-| wordForms         | :star:    | :star:  | 🚧     |       |         |            |            |             |         |
-| wordFreq          | :star:    | :star:  | 🚧     |       |         |            |            |             |         |
-| wordSim           | :star:    |         | 🚧     |       |         |            |  :star:    |             | :star: |
+WaG operates in conjunction with APIGuard, our specialized proxy and virtual API endpoint provider server.
 
+## Features
 
-## Requirements
+With WaG, you can:
 
-WaG is able to run either as a self-hosted application or within a compatible web page.
-For the self-hosted variant the following is needed:
+1. **Analyze linguistic data** for:
+   - Single words
+   - Comparative analysis of two or more words
+   - Word translations
 
-- Node.JS + NPM package manager
-- HTTP proxy server (Nginx, HAProxy, Apache)
-- a core word frequency database:   
-   - [CouchDB](https://couchdb.apache.org/) (data can be generated from a corpus vertical file using [CNC-MASM](https://github.com/czcorpus/cnc-masm))
-   - [KorpusDB](https://db.korpus.cz/search/forms/) (CNC's own service)
-   - [KonText](https://github.com/czcorpus/kontext)   
-   - [SQLite3](https://www.sqlite.org/)
+2. **Explore comprehensive linguistics insights** including:
+   - Text statistics
+   - Time-based trends
+   - Collocations
+   - Geographical data
+   - And much more
 
-Please refer for more information to the [INSTALL.md](./INSTALL.md).
+3. **Combine data from multiple resources** for enriched analysis
+
 
 ## How to cite WaG
 
