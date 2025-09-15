@@ -155,6 +155,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 legendItem,
                 'text',
                 {
+                    'fill': theme.chartTextColor,
                     'dominant-baseline': 'middle',
                     'transform': 'translate(140, 60)',
                     'font-size': '4.5em',
