@@ -109,7 +109,8 @@
         "global__api_error_short_{code}":  "Data source error (code {code})",
         "global__api_error_500": "One of the services experienced an error in processing the request. Please try again later or report the issue.",
         "global__api_error_502": "One of the services failed to provide required data. Please try again later. In case the problem persists, please report the error.",
-        "global__api_error_503": "One of the services is temporarily down. Please try again later."
+        "global__api_error_503": "One of the services is temporarily down. Please try again later.",
+        "global__redirecting_to_extrenal_page": "Redirecting to external page"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -221,6 +222,7 @@
         "global__api_error_short_{code}":  "Chyba zdroje dat (kód {code})",
         "global__api_error_500": "Při zpracování požadavku se v jedné ze služeb vyskytla chyba. Zkuste prosím akci opakovat později nebo nám nahlašte problém.",
         "global__api_error_502": "Jedna ze služeb selhala při poskytování dat. Zkuste prosím akci opakovat později. Pokud problém přetrvává, nahlašte nám prosím chybu.",
-        "global__api_error_503": "Jedna ze služeb je dočasně mimo provoz. Zkuste prosím akci opakovat později."
+        "global__api_error_503": "Jedna ze služeb je dočasně mimo provoz. Zkuste prosím akci opakovat později.",
+        "global__redirecting_to_extrenal_page": "Přesměrovávám na externí stránku"
     }
 }

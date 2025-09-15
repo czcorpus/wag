@@ -312,6 +312,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatch(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });

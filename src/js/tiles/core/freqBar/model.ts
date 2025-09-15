@@ -248,6 +248,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatcher.dispatchSideEffect(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });

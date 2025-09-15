@@ -64,6 +64,8 @@ export interface WdglanceTilesState {
     highlightedTileId:number;
     scrollToTileId:number;
     allTilesLoaded:boolean;
+    showRedirectingModal:boolean;
+    redirectingMessage:string;
 }
 
 /**
@@ -445,6 +447,27 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             Actions.HideAmbiguousResultHelp,
             (state, action) => {
                 state.showAmbiguousResultHelp = false;
+            }
+        );
+
+        this.addActionHandler(
+            Actions.FollowBacklink,
+            (state, action) => {
+                state.showRedirectingModal = true;
+                state.redirectingMessage = null;
+            }
+        );
+
+        this.addActionHandler(
+            Actions.BacklinkPreparationDone,
+            (state, action) => {
+                if (action.payload?.message) {
+                    state.redirectingMessage = action.payload.message;
+                } else if (action.error) {
+                    state.redirectingMessage = action.error.message;
+                } else {
+                    state.showRedirectingModal = false;
+                }
             }
         );
     }

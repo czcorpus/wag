@@ -231,6 +231,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatch(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });
