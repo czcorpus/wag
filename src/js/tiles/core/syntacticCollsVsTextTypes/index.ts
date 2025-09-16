@@ -78,7 +78,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
             queryType: queryType,
             maxItems: conf.maxItems,
             theme,
-            api: new WSServerSyntacticCollsTTAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            api: new WSServerSyntacticCollsTTAPI(conf.apiURL, appServices, conf.backlink),
             eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
                 corpname: conf.corpname,

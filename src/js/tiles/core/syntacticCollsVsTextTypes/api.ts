@@ -84,18 +84,15 @@ export class WSServerSyntacticCollsTTAPI implements DataApi<SCollsRequest, SColl
 
     private readonly apiURL:string;
 
-    private readonly useDataStream:boolean;
-
     private readonly apiServices:IApiServices;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }

@@ -59,7 +59,7 @@ export class WordFreqTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, widthFract,
-        conf, isBusy, queryType, mainPosAttr, useDataStream, theme}:TileFactoryArgs<WordFreqTileConf>
+        conf, isBusy, queryType, mainPosAttr, theme}:TileFactoryArgs<WordFreqTileConf>
     ) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -82,8 +82,7 @@ export class WordFreqTile implements ITileProvider {
             tileId,
             api: new SimilarFreqWordsFrodoAPI(
                 queryType === QueryType.CMP_QUERY ? '' : conf.apiURL,
-                appServices,
-                useDataStream
+                appServices
             ),
             sourceInfoApi: new CorpusInfoAPI(conf.infoApiURL ? conf.infoApiURL : conf.apiURL, appServices),
             queryMatches: queryMatches,

@@ -140,8 +140,8 @@ export class SyntacticCollsTile implements ITileProvider {
             queryType: queryType,
             maxItems: conf.maxItems,
             api: conf.apiType === 'wss' ?
-                new WSServerSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices) :
-                new ScollexSyntacticCollsAPI(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+                new WSServerSyntacticCollsAPI(conf.apiURL, appServices) :
+                new ScollexSyntacticCollsAPI(conf.apiURL, appServices, conf.backlink),
             eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
             initState: {
                 isBusy: isBusy,

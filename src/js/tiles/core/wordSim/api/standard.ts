@@ -169,7 +169,6 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
 
     constructor(
         apiURL:string,
-        useDataStream:boolean,
         srcInfoURL:string,
         apiServices:IApiServices
     ) {

@@ -54,18 +54,15 @@ export class SimilarFreqWordsFrodoAPI {
 
     private readonly apiServices:IApiServices;
 
-    private readonly useDataStream:boolean;
-
-    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.useDataStream = useDataStream;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
+    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
         return (
-            this.useDataStream ?
-                this.apiServices.dataStreaming().registerTileRequest<HTTPResponse>(
+            dataStreaming ?
+                dataStreaming.registerTileRequest<HTTPResponse>(
                     {
                         contentType: 'application/json',
                         body: {},

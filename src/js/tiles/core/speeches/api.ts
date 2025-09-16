@@ -77,19 +77,16 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
 
     private readonly apiUrl:string;
 
-    private readonly useDataStream:boolean;
-
     private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly apiServices:IApiServices;
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiUrl:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiUrl:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiUrl = apiUrl;
         this.srcInfoService = new CorpusInfoAPI(apiUrl, apiServices);
         this.apiServices = apiServices;
-        this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
     }
 
@@ -110,7 +107,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
     }
 
     call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:SpeechReqArgs|null):Observable<SpeechData> {
-        if (this.useDataStream) {
+        if (dataStreaming) {
             return dataStreaming.registerTileRequest<SpeechResponse>(
                 {
                     tileId,

@@ -18,9 +18,17 @@
             },
             "type": "object"
         },
-        "BacklinkConf<any>": {
+        "BacklinkConf": {
             "properties": {
-                "args": {},
+                "args": {
+                    "additionalProperties": {
+                        "type": [
+                            "string",
+                            "number"
+                        ]
+                    },
+                    "type": "object"
+                },
                 "label": {
                     "anyOf": [
                         {
@@ -47,7 +55,7 @@
             "description": "A configuration for a tile\nprovided by hosting page",
             "properties": {
                 "backlink": {
-                    "$ref": "#/definitions/BacklinkConf<any>",
+                    "$ref": "#/definitions/BacklinkConf",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "compatibleSubqProviders": {
@@ -100,9 +108,6 @@
                 "tileType": {
                     "description": "An identifier as defined by tiles configuration interface",
                     "type": "string"
-                },
-                "useDataStream": {
-                    "type": "boolean"
                 }
             },
             "required": [

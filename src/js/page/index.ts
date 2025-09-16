@@ -160,9 +160,6 @@ export function initClient(
             null,
             pipe(
                 config.tiles,
-                Dict.filter(
-                    (v, k) => v.useDataStream
-                ),
                 Dict.keys(),
                 List.map(v => tileIdentMap[v])
             ),

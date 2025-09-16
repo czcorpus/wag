@@ -78,7 +78,7 @@ export class GeoAreasTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches,
-            freqApi: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.useDataStream, conf.backlink),
+            freqApi: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.backlink),
             mapLoader: new MapLoader(appServices),
             queryType,
             initState: {

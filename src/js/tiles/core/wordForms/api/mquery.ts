@@ -49,9 +49,9 @@ export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements Resource
         )
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
+    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
-        return (this.useDataStream ?
+        return (dataStreaming ?
             dataStreaming.registerTileRequest<Array<LemmaItem>>(
                 {
                     tileId,

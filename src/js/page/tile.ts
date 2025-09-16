@@ -26,10 +26,10 @@ import { MainPosAttrValues } from '../conf/index.js';
 import { List } from 'cnc-tskit';
 
 
-export interface BacklinkConf<T = undefined> {
+export interface BacklinkConf {
     url:string;
     label?:LocalizedConfMsg;
-    args?:T;
+    args?:{[k:string]:number|string};
 }
 
 export interface Backlink {
@@ -70,7 +70,7 @@ export interface TileConf {
      * tile logic is able to pass proper arguments to the
      * page.
      */
-    backlink?:BacklinkConf<any>;
+    backlink?:BacklinkConf;
 
     /**
      * Normally, any tile configured in the "tiles" section
@@ -110,7 +110,6 @@ export interface TileConf {
      */
     compatibleSubqProviders?:Array<string>;
 
-    useDataStream?:boolean;
 }
 
 /**
@@ -330,8 +329,6 @@ export interface TileFactoryArgs<T> {
     conf:T;
 
     mainPosAttr:MainPosAttrValues;
-
-    useDataStream:boolean;
 
     dependentTiles:Array<number>;
 }

@@ -51,7 +51,6 @@ export class CNCWSServerApi implements ResourceApi<CNCWord2VecSimApiArgs, WordSi
 
     constructor(
         apiURL:string,
-        useDataStream:boolean,
         srcInfoURL:string,
         apiServices:IApiServices
     ) {

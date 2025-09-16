@@ -115,7 +115,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             dispatcher: this.dispatcher,
             tileId,
             appServices,
-            freqApi: new MergeFreqsApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            freqApi: new MergeFreqsApi(conf.apiURL, appServices, conf.backlink),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,

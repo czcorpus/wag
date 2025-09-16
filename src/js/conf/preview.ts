@@ -39,13 +39,11 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         corpname: "ksp_2",
         corpusSize: 43224671,
         sfwRowRange: 7,
-        useDataStream: true,
     },
     PREVIEW__mergeCorpFreq: {
         tileType: "MergeCorpFreqTile",
         apiType: "mquery",
         apiURL: "/PREVIEW__mergeCorpFreq",
-        useDataStream: true,
         pixelsPerItem: 80,
         sources: [
             {
@@ -81,7 +79,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         tileType: "WordFormsTile",
         apiType: "mquery",
         apiURL: "/PREVIEW__wordForms",
-        useDataStream: true,
         label: {
             "cs-CZ": "Tvary",
             "en-US": "Forms"
@@ -89,6 +86,7 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         corpname: "syn2020",
         maxNumItems: 10,
         corpusSize: 150426,
+        posQueryGenerator: ["tag", "ppTagset"],
         freqFilterAlphaLevel: "0.05",
         helpURL: "---",
     },
@@ -96,7 +94,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         tileType: "CollocTile",
         apiType: "default",
         apiURL: "/PREVIEW__colloc",
-        useDataStream: true,
         corpname: "syn2020",
         minFreq: 5,
         minLocalFreq: 5,
@@ -115,7 +112,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         },
         pageSize: 10,
         posAttrs: ["word"],
-        useDataStream: true,
         sentenceStruct: "s",
         posQueryGenerator: [
             "tag",
@@ -128,7 +124,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         tileType: "TimeDistribTile",
         apiType: "mquery",
         apiURL: "/PREVIEW__timeDistrib",
-        useDataStream: true,
         corpname: "syn2020",
         subcname: ["9eSmyKII"],
         showMeasuredFreq: true,
@@ -150,7 +145,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
     PREVIEW__freqBar: {
         tileType: "FreqBarTile",
         apiURL: "/PREVIEW__freqBar",
-        useDataStream: true,
         corpname: "oral_v1",
         fcrit: "sp.gender 0",
         freqType: "text-types",
@@ -174,7 +168,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         tileType: "SpeechesTile",
         apiType: "mquery",
         apiURL: "/PREVIEW__speeches",
-        useDataStream: true,
 
         audioPlaybackUrl: "/kontext/audio",
         helpURL: "/wag/static/help/czcorpus/missing.html",
@@ -192,7 +185,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
         tileType: "GeoAreasTile",
         apiType: "mquery",
         apiURL: "/PREVIEW__geoAreas",
-        useDataStream: true,
 
         helpURL: "/wag/static/help/czcorpus/missing.html",
         corpname: "oral_v1",
@@ -224,7 +216,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
     },
     PREVIEW__wordSim: {
         tileType: "WordSimTile",
-        useDataStream: true,
         apiURL: "/PREVIEW__wordSim",
         maxResultItems: 20,
         minMatchFreq: 0,
@@ -232,7 +223,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
     PREVIEW__translations: {
         tileType: "TranslationsTile",
         apiURL: "/PREVIEW__translations",
-        useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
             en: [
@@ -250,7 +240,6 @@ const tileConf: {[name:string]:AnyPreviewTileConf} = {
     PREVIEW__treqSubsets: {
         tileType: "TreqSubsetsTile",
         apiURL: "/PREVIEW__treqSubsets",
-        useDataStream: true,
         primaryPackage: "CORE",
         srchPackages: {
             en: [

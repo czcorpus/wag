@@ -67,7 +67,6 @@ export class TranslationsTile implements ITileProvider {
         this.model = new TranslationsModel({
             dispatcher,
             appServices,
-            useDataStreaming: conf.useDataStream,
             initialState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
