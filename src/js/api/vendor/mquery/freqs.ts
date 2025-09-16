@@ -261,7 +261,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                     }
                 ).pipe(
                     catchError(err => {
-                        if (err.status === 401) {
+                        if (err.status === 401 || err.status === 403) {
                             throw new Error('global__kontext_login_required')
                         }
                         throw err;
