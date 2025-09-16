@@ -230,6 +230,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 };
                 this.api.requestBacklink(args, variant).subscribe({
                     next: url => {
+                        dispatch(GlobalActions.BacklinkPreparationDone);
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {

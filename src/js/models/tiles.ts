@@ -453,8 +453,10 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler(
             Actions.FollowBacklink,
             (state, action) => {
-                state.showRedirectingModal = true;
-                state.redirectingMessage = null;
+                if (action.payload.backlink.async) {
+                    state.showRedirectingModal = true;
+                    state.redirectingMessage = null;
+                }
             }
         );
 

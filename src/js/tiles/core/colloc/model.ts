@@ -232,6 +232,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     this.stateToArgs(state, this.queryMatches[action.payload.backlink.queryId])
                 ).subscribe({
                     next: url => {
+                        dispatch(GlobalActions.BacklinkPreparationDone);
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {

@@ -21,7 +21,7 @@ import { ajax$ } from "../../../../page/ajax.js";
 import urlJoin from "url-join";
 import { mkLemmaMatchQuery } from "../../../../api/vendor/mquery/common.js";
 import { QueryMatch } from "../../../../query/index.js";
-import { BacklinkConf } from "../../../../page/tile.js";
+import { Backlink, BacklinkConf } from "../../../../page/tile.js";
 import { IApiServices } from "../../../../appServices.js";
 import { CorpusInfoAPI } from "../../../../api/vendor/mquery/corpusInfo.js";
 
@@ -74,5 +74,17 @@ export class WordFormsBacklinkAPI {
                 return url;
             })
         );
+    }
+
+    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+        if (this.backlinkConf) {
+            return {
+                queryId,
+                subqueryId,
+                label: this.backlinkConf.label || 'KonText',
+                async: true,
+            };
+        }
+        return null;
     }
 }

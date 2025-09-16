@@ -106,6 +106,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 queryId,
                 subqueryId,
                 label: this.backlinkConf.label || 'KonText',
+                async: true,
             };
         }
         return null;

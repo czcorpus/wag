@@ -130,6 +130,7 @@ export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, Time
                 queryId,
                 subqueryId,
                 label: this.backlinkConf.label || 'KonText',
+                async: true,
             } :
             null;
     }

@@ -229,6 +229,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
             return {
                 queryId,
                 label: this.backlinkConf.label || 'KonText',
+                async: true,
             };
         }
         return null;

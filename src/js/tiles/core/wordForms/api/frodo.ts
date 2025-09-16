@@ -18,7 +18,6 @@
 import { Observable, map } from 'rxjs';
 
 import { CorpusDetails, ResourceApi } from '../../../../types.js';
-import { Backlink } from '../../../../page/tile.js';
 import { ajax$ } from '../../../../page/ajax.js';
 import { HTTP, Ident, List } from 'cnc-tskit';
 import { RequestArgs, Response } from '../common.js';
@@ -93,17 +92,6 @@ export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceA
 
     getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
-    }
-
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        if (this.backlinkConf) {
-            return {
-                queryId,
-                subqueryId,
-                label: this.backlinkConf.label || 'KonText',
-            };
-        }
-        return null;
     }
 
     supportsMultiWordQueries():boolean {
