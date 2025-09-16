@@ -1222,9 +1222,9 @@ export function init(
             <globalComponents.ModalBox onCloseClick={props.onClose}
                     title={props.title} tileClass="text">
                 <globalComponents.ErrorBoundary>
-                    <div>
+                    <div style={{padding: "1em", paddingBottom: "0em"}}>
                         {props.content ?
-                            <span>{props.content}</span> :
+                            <span>{ut.translate(props.content)}</span> :
                             <WithinModalAjaxLoader />
                         }
                     </div>
