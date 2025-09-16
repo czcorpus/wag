@@ -175,7 +175,14 @@ export class Actions {
         tileId:number;
         backlink:Backlink;
     }> = {
-        name: 'MAIN_FOLLOW_BACKLING'
+        name: 'MAIN_FOLLOW_BACKLINK'
+    }
+
+    static BacklinkPreparationDone:Action<{
+        tileId:number;
+        message:string;
+    }> = {
+        name: 'MAIN_BACKLINK_PREPARATION_DONE'
     }
 
     static CloseSourceInfo:Action<{

@@ -239,7 +239,9 @@ export function createRootComponent({
             issueReportingUrl: config.issueReportingUrl || null,
             highlightedTileId: -1,
             scrollToTileId: -1,
-            allTilesLoaded: false
+            allTilesLoaded: false,
+            showRedirectingModal: false,
+            redirectingMessage: null,
         },
         appServices
     );

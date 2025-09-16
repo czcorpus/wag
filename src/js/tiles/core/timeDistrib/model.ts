@@ -309,9 +309,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 const args = this.stateToArgs(state, action.payload.backlink.queryId, action.payload.backlink.subqueryId === 1);
                 this.api.requestBacklink(args).subscribe({
                     next: url => {
+                        dispatch(GlobalActions.BacklinkPreparationDone);
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatch(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });

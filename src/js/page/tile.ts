@@ -36,6 +36,7 @@ export interface Backlink {
     queryId:number;
     subqueryId?:number;
     label:LocalizedConfMsg;
+    async?:boolean;
 }
 
 export function backlinkIsValid(backlink:Backlink|null|Array<Backlink|null>):boolean {

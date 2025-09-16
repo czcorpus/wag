@@ -228,9 +228,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 );
                 this.freqApi.requestBacklink(args).subscribe({
                     next: url => {
+                        dispatch(GlobalActions.BacklinkPreparationDone);
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatch(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });

@@ -245,9 +245,11 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                 const args = this.stateToArgs(this.queryMatches[action.payload.backlink.queryId]);
                 this.api.requestBacklink(args).subscribe({
                     next: url => {
+                        dispatcher.dispatchSideEffect(GlobalActions.BacklinkPreparationDone);
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatcher.dispatchSideEffect(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });

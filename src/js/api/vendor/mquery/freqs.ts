@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, concatMap, map } from 'rxjs/operators';
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
@@ -103,6 +103,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 queryId,
                 subqueryId,
                 label: this.backlinkConf.label || 'KonText',
+                async: true,
             };
         }
         return null;
@@ -234,7 +235,7 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 withCredentials: true,
             }
         ).pipe(
-            map(resp => {
+            concatMap(resp => {
                 const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
                 url.searchParams.set('corpname', args.corpname);
                 if (args.queryArgs.subcorpus) {
@@ -245,8 +246,26 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
                 url.searchParams.set('freq_type', args.path === 'freqs' ? 'tokens' : 'text-types');
                 url.searchParams.set('flimit', args.queryArgs.flimit.toString());
                 url.searchParams.set('freq_sort', 'rel');
-                return url;
-            })
+        
+                // Validate the constructed URL
+                return ajax$(
+                    'GET',
+                    url.toString(),
+                    null,
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true,
+                    }
+                ).pipe(
+                    catchError(err => {
+                        if (err.status === 401) {
+                            throw new Error('global__kontext_login_required')
+                        }
+                        throw err;
+                    }),
+                    map(() => url)
+                );
+            }),
         );
     }
 }

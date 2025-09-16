@@ -1210,6 +1210,29 @@ export function init(
         );
     };
 
+    // -------------------- <ModalRedirecting /> --------------------------
+
+    const ModalRedirecting:React.FC<{
+        title:string;
+        content?:string;
+        onClose:()=>void;
+
+    }> = (props) => {
+        return (
+            <globalComponents.ModalBox onCloseClick={props.onClose}
+                    title={props.title} tileClass="text">
+                <globalComponents.ErrorBoundary>
+                    <div style={{padding: "1em", paddingBottom: "0em"}}>
+                        {props.content ?
+                            <span>{ut.translate(props.content)}</span> :
+                            <WithinModalAjaxLoader />
+                        }
+                    </div>
+                </globalComponents.ErrorBoundary>
+            </globalComponents.ModalBox>
+        );
+    };
+
     // -------------------- <TilesSections /> -----------------------------
 
     const TilesSections:React.FC<{
@@ -1240,6 +1263,12 @@ export function init(
         const handleAmbiguousResultHelp = () => {
             dispatcher.dispatch<typeof Actions.HideAmbiguousResultHelp>({
                 name: Actions.HideAmbiguousResultHelp.name
+            });
+        };
+
+        const handleRedirectingModal = () => {
+            dispatcher.dispatch<typeof Actions.BacklinkPreparationDone>({
+                name: Actions.BacklinkPreparationDone.name
             });
         };
 
@@ -1277,6 +1306,10 @@ export function init(
                             html={'<p>' + ut.translate('global__not_using_lemmatized_query_msg') + '</p>'}
                             isBusy={state.isBusy} />;
 
+            } else if (state.showRedirectingModal) {
+                return <ModalRedirecting onClose={handleRedirectingModal}
+                            title={ut.translate('global__redirecting_to_extrenal_page')}
+                            content={state.redirectingMessage} />;
             } else {
                 return null;
             }

@@ -305,9 +305,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 const args = this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]));
                 this.freqApi.requestBacklink(args).subscribe({
                     next: url => {
+                        dispatch(GlobalActions.BacklinkPreparationDone);
                         window.open(url.toString(),'_blank');
                     },
                     error: err => {
+                        dispatch(GlobalActions.BacklinkPreparationDone, err);
                         this.appServices.showMessage(SystemMessageType.ERROR, err);
                     },
                 });
