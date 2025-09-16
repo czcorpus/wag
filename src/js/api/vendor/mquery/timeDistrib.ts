@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { map, Observable, scan, takeWhile } from 'rxjs';
+import { catchError, concatMap, map, Observable, scan, takeWhile } from 'rxjs';
 import urlJoin from 'url-join';
 
 import { DataApi } from '../../../types.js';
@@ -366,7 +366,7 @@ export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, Time
                 withCredentials: true,
             }
         ).pipe(
-            map(resp => {
+            concatMap(resp => {
                 const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
                 url.searchParams.set('corpname', args.corpname);
                 if (args.subcorpName) {
@@ -376,7 +376,25 @@ export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, Time
                 url.searchParams.set('fcrit', args.fcrit);
                 url.searchParams.set('freq_type', 'text-types');
                 url.searchParams.set('freq_sort', '0');
-                return url;
+
+                // Validate the constructed URL
+                return ajax$(
+                    'GET',
+                    url.toString(),
+                    null,
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true,
+                    }
+                ).pipe(
+                    catchError(err => {
+                        if (err.status === 401) {
+                            throw new Error('global__kontext_login_required')
+                        }
+                        throw err;
+                    }),
+                    map(() => url)
+                );
             })
         );
     }

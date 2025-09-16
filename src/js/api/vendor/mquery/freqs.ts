@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, concatMap, map } from 'rxjs/operators';
 import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 

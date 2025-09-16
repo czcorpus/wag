@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, concatMap, map } from 'rxjs/operators';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
@@ -253,7 +253,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                 withCredentials: true,
             }
         ).pipe(
-            map(resp => {
+            concatMap(resp => {
                 const url = new URL(urlJoin(this.backlinkConf.url, 'collx'));
                 url.searchParams.set('corpname', args.corpusId);
                 if (args.subcorpus) {
@@ -263,7 +263,25 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                 url.searchParams.set('cfromw', `-${args.srchLeft.toString()}`);
                 url.searchParams.set('ctow', args.srchRight.toString());
                 url.searchParams.set('cminfreq', args.minCollFreq.toString());
-                return url;
+                
+                // Validate the constructed URL
+                return ajax$(
+                    'GET',
+                    url.toString(),
+                    null,
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true,
+                    }
+                ).pipe(
+                    catchError(err => {
+                        if (err.status === 401) {
+                            throw new Error('global__kontext_login_required')
+                        }
+                        throw err;
+                    }),
+                    map(() => url)
+                );
             })
         );
     }

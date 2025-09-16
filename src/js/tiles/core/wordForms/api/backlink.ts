@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, Observable } from "rxjs";
+import { catchError, concatMap, map, Observable } from "rxjs";
 import { RequestArgs } from "../common.js";
 import { ajax$ } from "../../../../page/ajax.js";
 import urlJoin from "url-join";
@@ -31,7 +31,7 @@ export interface BacklinkConfArgs {
 
 export class WordFormsBacklinkAPI {
 
-    protected readonly apiURL;
+    protected readonly apiURL:string;
     
     protected readonly apiServices:IApiServices;
 
@@ -64,14 +64,32 @@ export class WordFormsBacklinkAPI {
                 withCredentials: true,
             }
         ).pipe(
-            map(resp => {
+            concatMap(resp => {
                 const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
                 url.searchParams.set('corpname', args.corpName);
                 url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
                 url.searchParams.set('fcrit', 'word/ie 0~0>0');
                 url.searchParams.set('freq_type', 'tokens');
                 url.searchParams.set('freq_sort', 'freq');
-                return url;
+                
+                // Validate the constructed URL
+                return ajax$(
+                    'GET',
+                    url.toString(),
+                    null,
+                    {
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
+                        withCredentials: true,
+                    }
+                ).pipe(
+                    catchError(err => {
+                        if (err.status === 401) {
+                            throw new Error('global__kontext_login_required')
+                        }
+                        throw err;
+                    }),
+                    map(() => url)
+                );
             })
         );
     }
