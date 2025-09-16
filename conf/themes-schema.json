@@ -116,6 +116,9 @@
                 "svgLogoFilter": {
                     "type": "string"
                 },
+                "textInputBackgroundColor": {
+                    "type": "string"
+                },
                 "themeId": {
                     "type": "string"
                 },
@@ -139,6 +142,9 @@
                     "type": "string"
                 },
                 "tileBorderStyle": {
+                    "type": "string"
+                },
+                "tileHeadingSeparColor": {
                     "type": "string"
                 }
             },

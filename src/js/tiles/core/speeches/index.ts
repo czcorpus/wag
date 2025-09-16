@@ -71,7 +71,7 @@ export class SpeechesTile implements ITileProvider {
             dispatcher,
             tileId,
             appServices,
-            api: new SpeechesApi(conf.apiURL, conf.useDataStream, appServices, conf.backlink),
+            api: new SpeechesApi(conf.apiURL, appServices, conf.backlink),
             audioLinkGenerator: conf.audioApiURL ?
                 new AudioLinkGenerator(conf.audioApiURL) :
                 null,

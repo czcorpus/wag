@@ -84,15 +84,12 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    private readonly useDataStream:boolean;
-
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, apiServices:IApiServices, useDataStream:boolean, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
-        this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
     }
 
@@ -123,9 +120,9 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryFreqArgs|null):Observable<APIResponse> {
+    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:MQueryFreqArgs|null):Observable<APIResponse> {
         return (
-            this.useDataStream ?
+            streaming ?
                 streaming.registerTileRequest<HTTPResponse>({
                     contentType: 'application/json',
                     body: {},

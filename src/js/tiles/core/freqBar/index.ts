@@ -22,7 +22,8 @@ import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
     TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps,
+    BacklinkConf} from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { FreqBarModel } from './model.js';
 import { init as singleViewInit } from './views/single.js';
@@ -75,7 +76,7 @@ export class FreqBarTile implements ITileProvider {
 
     constructor({
         dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy,
-        useDataStream, readDataFromTile, queryMatches, queryType
+        readDataFromTile, queryMatches, queryType
     }:TileFactoryArgs<FreqBarTileConf>) {
 
         this.dispatcher = dispatcher;
@@ -89,7 +90,7 @@ export class FreqBarTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches: findCurrentMatches(queryMatches),
-            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, useDataStream, conf.backlink),
+            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.backlink),
             readDataFromTile,
             initState: {
                 isBusy,

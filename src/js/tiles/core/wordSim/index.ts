@@ -63,7 +63,7 @@ export class WordSimTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, widthFract, conf, theme,
-        isBusy, useDataStream, queryMatches}:TileFactoryArgs<WordSimTileConf>
+        isBusy, queryMatches}:TileFactoryArgs<WordSimTileConf>
     ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -71,8 +71,8 @@ export class WordSimTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
         this.api = conf.apiType === 'wss' ?
-            new CNCWSServerApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices) :
-            new CNCWord2VecSimApi(conf.apiURL, useDataStream, conf.srcInfoURL, appServices);
+            new CNCWSServerApi(conf.apiURL, conf.srcInfoURL, appServices) :
+            new CNCWord2VecSimApi(conf.apiURL, conf.srcInfoURL, appServices);
         this.model = new WordSimModel({
             appServices,
             dispatcher,

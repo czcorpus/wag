@@ -34,7 +34,6 @@ export interface TranslationModelArgs {
     tileId:number;
     api:TreqAPI;
     queryMatches:RecognizedQueries;
-    useDataStreaming:boolean;
     scaleColorGen:ColorScaleFunctionGenerator;
 }
 
@@ -51,8 +50,6 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
     private readonly appServices:IAppServices;
 
-    private readonly useDataStreaming:boolean;
-
     constructor({
         dispatcher,
         appServices,
@@ -60,14 +57,12 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
         tileId,
         api,
         queryMatches,
-        useDataStreaming,
         scaleColorGen}:TranslationModelArgs) {
 
         super(dispatcher, initialState);
         this.api = api;
         this.queryMatches = queryMatches;
         this.tileId = tileId;
-        this.useDataStreaming = useDataStreaming;
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
 

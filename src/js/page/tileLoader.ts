@@ -114,7 +114,6 @@ export const mkTileFactory = (
                     conf,
                     isBusy: true,
                     mainPosAttr: layoutManager.getLayoutMainPosAttr(),
-                    useDataStream: !!conf.useDataStream,
                     dependentTiles: layoutManager.getDependentTiles(tileId)
                 };
                 const errs = tileFactory.sanityCheck(args);

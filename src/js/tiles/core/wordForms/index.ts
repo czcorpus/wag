@@ -28,7 +28,6 @@ import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
 import { IWordFormsApi } from './common.js';
 import { FrodoWordFormsAPI } from './api/frodo.js';
-import { BacklinkConfArgs } from './api/backlink.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -37,6 +36,7 @@ export interface WordFormsTileConf extends TileConf {
     corpname:string;
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
+    posQueryGenerator:[string, string];
 }
 
 
@@ -56,7 +56,7 @@ export class WordFormsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, queryMatches, widthFract, conf, isBusy,
-        theme, mainPosAttr, useDataStream}:TileFactoryArgs<WordFormsTileConf>
+        theme, mainPosAttr}:TileFactoryArgs<WordFormsTileConf>
     ) {
 
         this.tileId = tileId;
@@ -78,22 +78,22 @@ export class WordFormsTile implements ITileProvider {
                 mainPosAttr
             },
             tileId,
-            api: this.createApi(conf.apiType, conf.apiURL, useDataStream, appServices, conf.backlink),
+            api: this.createApi(conf, appServices),
             queryMatches,
             appServices,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-    private createApi(apiType:string, apiURL:string, useDataStream:boolean, appServices:IAppServices, backlinkConf:BacklinkConf<BacklinkConfArgs>):IWordFormsApi {
-        switch (apiType) {
+    private createApi(conf:WordFormsTileConf, appServices:IAppServices):IWordFormsApi {
+        switch (conf.apiType) {
             case CoreApiGroup.MQUERY:
-                return new MQueryWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
+                return new MQueryWordFormsAPI(conf.apiURL, appServices, conf.posQueryGenerator, conf.backlink);
             case CoreApiGroup.FRODO:
-                return new FrodoWordFormsAPI(apiURL, useDataStream, appServices, backlinkConf);
+                return new FrodoWordFormsAPI(conf.apiURL, appServices, conf.posQueryGenerator, conf.backlink);
             case CoreApiGroup.KORPUS_DB:
             default:
-                throw new Error(`Unsupported API type: ${apiType}`);
+                throw new Error(`Unsupported API type: ${conf.apiType}`);
         }
     }
 

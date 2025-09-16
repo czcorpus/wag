@@ -72,7 +72,7 @@ export class CollocationsTile implements ITileProvider {
 
     constructor({
         tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        queryMatches, queryType, useDataStream, dependentTiles, readDataFromTile
+        queryMatches, queryType, dependentTiles
     }:TileFactoryArgs<CollocationsTileConf>) {
 
         this.tileId = tileId;

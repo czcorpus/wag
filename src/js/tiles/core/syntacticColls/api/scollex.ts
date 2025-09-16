@@ -61,18 +61,15 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCol
 
     private readonly apiURL:string;
 
-    private readonly useDataStream:boolean;
-
     private readonly apiServices:IApiServices;
 
     private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly backlinkConf:BacklinkConf;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.useDataStream = useDataStream;
         this.backlinkConf = backlinkConf;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
@@ -86,10 +83,10 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCol
         return null;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, request:SCollsRequest):Observable<SCollsData> {
+    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, request:SCollsRequest):Observable<SCollsData> {
         const url = urlJoin(this.apiURL, 'query', request.params.corpname, request.params.queryType);
         let data:Observable<SCollsApiResponse>;
-        if (this.useDataStream) {
+        if (dataStreaming) {
             data = dataStreaming.registerTileRequest<SCollsApiResponse>(
                 {
                     tileId,
