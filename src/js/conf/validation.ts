@@ -35,7 +35,7 @@ const SCHEMA_FILENAME = 'config-schema.json';
 
 
 export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
-    const validator = new Ajv();
+    const validator = new Ajv({allowUnionTypes:true});
     let validationError = false;
     console.info('Validating tiles configuration...');
 

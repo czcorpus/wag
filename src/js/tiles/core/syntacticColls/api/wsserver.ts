@@ -60,14 +60,11 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, SCollsD
 
     private readonly apiURL:string;
 
-    private readonly useDataStream:boolean;
-
     private readonly apiServices:IApiServices;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.useDataStream = useDataStream;
     }
 
     private mkUrl(request:SCollsRequest):string {

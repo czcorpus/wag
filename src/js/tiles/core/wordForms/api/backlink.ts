@@ -25,34 +25,32 @@ import { Backlink, BacklinkConf } from "../../../../page/tile.js";
 import { IApiServices } from "../../../../appServices.js";
 import { CorpusInfoAPI } from "../../../../api/vendor/mquery/corpusInfo.js";
 
-export interface BacklinkConfArgs {
-    posQueryGenerator:[string, string];
-}
+
 
 export class WordFormsBacklinkAPI {
 
     protected readonly apiURL:string;
-    
+
     protected readonly apiServices:IApiServices;
 
     protected readonly srcInfoService:CorpusInfoAPI;
 
-    protected readonly useDataStream:boolean;
+    protected readonly backlinkConf:BacklinkConf;
 
-    protected readonly backlinkConf:BacklinkConf<BacklinkConfArgs>;
+    protected readonly posQueryGenerator:[string, string];
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf<BacklinkConfArgs>) {
+    constructor(apiURL:string, apiServices:IApiServices, posQueryGenerator:[string, string], backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.backlinkConf = backlinkConf;
+        this.posQueryGenerator = posQueryGenerator;
     }
 
     requestBacklink(args:RequestArgs, queryMatch:QueryMatch):Observable<URL> {
         const concArgs = {
             corpname: args.corpName,
-            q: `q${mkLemmaMatchQuery(queryMatch, this.backlinkConf.args.posQueryGenerator)}`,
+            q: `q${mkLemmaMatchQuery(queryMatch, this.posQueryGenerator)}`,
             format: 'json',
         };
         return ajax$<{conc_persistence_op_id:string}>(

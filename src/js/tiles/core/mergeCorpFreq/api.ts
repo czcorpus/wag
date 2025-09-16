@@ -69,8 +69,6 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
 
     private readonly apiURL:string;
 
-    private readonly useDataStream:boolean;
-
     private readonly apiServices:IApiServices;
 
     private readonly backlinkConf:BacklinkConf;
@@ -79,13 +77,12 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
 
     private freqApi:MQueryFreqDistribAPI;
 
-    constructor(apiURL:string, useDataStream:boolean, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
-        this.useDataStream = useDataStream;
         this.apiServices = apiServices;
         this.backlinkConf = backlinkConf;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
-        this.freqApi = new MQueryFreqDistribAPI(this.apiURL, this.apiServices, this.useDataStream, this.backlinkConf);
+        this.freqApi = new MQueryFreqDistribAPI(this.apiURL, this.apiServices, this.backlinkConf);
     }
 
     private prepareArgs(queryArgs:MQueryFreqArgs):string {
