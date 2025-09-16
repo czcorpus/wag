@@ -133,7 +133,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return state.queryMatches[idx].word;
             }
         };
-        console.log('>>>>> state.backlinks: ', state.backlinks)
+
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={state.isBusy} error={state.error}
                     hasData={state.data.some(data => data !== null && data.length > 0)} sourceIdent={{corp: state.corpname}}
