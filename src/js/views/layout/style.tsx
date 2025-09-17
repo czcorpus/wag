@@ -26,6 +26,7 @@ import { Theme } from '../../page/theme.js';
 export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticUrl: (file: string) => string}>`
 
     body {
+        visibility: visible !important;
         font-family: ${confTheme.defaultFontFamily};
         font-size: ${confTheme.defaultFontSize};
         background-image: ${confTheme.backgroundImage};
