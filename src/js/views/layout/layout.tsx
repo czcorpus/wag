@@ -239,7 +239,7 @@ export function init(
             ut.translate('global__wdglance_title');
 
         return (
-            <body style={{visibility: 'hidden'}}>
+            <body style={{visibility: 'hidden', opacity: 0}}>
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
                     <div className="logo-wrapper">

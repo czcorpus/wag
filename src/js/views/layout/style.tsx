@@ -27,6 +27,9 @@ export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticU
 
     body {
         visibility: visible !important;
+        opacity: 1 !important;
+        transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
+
         font-family: ${confTheme.defaultFontFamily};
         font-size: ${confTheme.defaultFontSize};
         background-image: ${confTheme.backgroundImage};
