@@ -508,7 +508,7 @@ export function queryAction({
                 layoutManager
             });
 
-            const currTheme = new Theme(getAppliedThemeConf(services.clientConf));
+            const currTheme = new Theme(getAppliedThemeConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]));
 
             const {HtmlHead, HtmlBody} = viewInit(viewUtils, currTheme);
             // Here we're going to use the fact that (the current)
@@ -554,8 +554,8 @@ export function queryAction({
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(
                 services.clientConf.applicationId, services.serverConf.languages, error, uiLang);
-            const currTheme = new Theme(getAppliedThemeConf(services.clientConf));
-            const { HtmlHead, HtmlBody } = viewInit(viewUtils, currTheme);
+            const currTheme = new Theme(getAppliedThemeConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]));
+            const { HtmlHead, HtmlBody } = viewInit(viewUtils, currTheme, true);
             const errView = errPageInit(viewUtils);
             res.send(renderResult({
                 HtmlBody,
