@@ -74,13 +74,14 @@ export const LineMetadata = styled.div<{theme:Theme}>`
     max-width: 30em;
     position: absolute;
     padding: 1em;
-    background-color: #FFFFFF;
-    margin-left: 0em;
+    background-color: ${(props:{theme:Theme}) => props.theme.tileBackgroundColor};
+    margin-left: 2em;
     border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+    z-index: 10000;
 
     dl {
         margin: 0;

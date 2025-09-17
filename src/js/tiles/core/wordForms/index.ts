@@ -18,8 +18,7 @@
 import { Maths } from 'cnc-tskit';
 
 import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps,
-    BacklinkConf} from '../../../page/tile.js';
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps} from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
