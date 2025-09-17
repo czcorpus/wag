@@ -242,7 +242,6 @@ export function init(
         return (
             <body style={{
                 visibility: errorPage ? 'visible' : 'hidden',
-                opacity: errorPage ? 1 : 0,
                 backgroundColor: theme.pageBackgroundColor,
                 backgroundImage: theme.backgroundImage
             }}>
