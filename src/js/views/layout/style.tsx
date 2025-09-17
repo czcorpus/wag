@@ -26,10 +26,14 @@ import { Theme } from '../../page/theme.js';
 export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticUrl: (file: string) => string}>`
 
     body {
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition: opacity 0.3s ease-in-out;
+
         font-family: ${confTheme.defaultFontFamily};
         font-size: ${confTheme.defaultFontSize};
-        background-image: ${confTheme.backgroundImage};
-        background-color: ${confTheme.pageBackgroundColor};
+        background-image: ${confTheme.backgroundImage} !important;
+        background-color: ${confTheme.pageBackgroundColor} !important;
 
         img.filtered {
             ${confTheme.svgIconsFilter};

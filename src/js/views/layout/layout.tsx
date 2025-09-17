@@ -73,7 +73,8 @@ function marshalJSON(data:any):string {
 
 export function init(
     ut:ViewUtils<GlobalComponents>,
-    theme:Theme
+    theme:Theme,
+    errorPage?:boolean,
 ):{
     HtmlBody:React.FC<HtmlBodyProps>;
     HtmlHead:React.FC<HtmlHeadProps>;
@@ -239,7 +240,12 @@ export function init(
             ut.translate('global__wdglance_title');
 
         return (
-            <body>
+            <body style={{
+                visibility: errorPage ? 'visible' : 'hidden',
+                opacity: errorPage ? 1 : 0,
+                backgroundColor: theme.pageBackgroundColor,
+                backgroundImage: theme.backgroundImage
+            }}>
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
                     <div className="logo-wrapper">
