@@ -27,6 +27,7 @@ import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { SpeechesApi } from './api.js';
 import { AudioLinkGenerator } from './common.js';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 export interface SpeechesTileConf extends TileConf {
@@ -179,7 +180,12 @@ export class SpeechesTile implements ITileProvider {
 
 export const init:TileFactory<SpeechesTileConf> = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (err !== null) {
+            return [err];
+        }
+    },
 
     create: (args) => new SpeechesTile(args)
 };

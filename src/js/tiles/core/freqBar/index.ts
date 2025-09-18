@@ -31,6 +31,7 @@ import { init as compareViewInit } from './views/compare.js';
 import { findCurrentMatches } from '../wordFreq/model.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { List } from 'cnc-tskit';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 export interface FreqBarTileConf extends TileConf {
@@ -46,9 +47,9 @@ export interface FreqBarTileConf extends TileConf {
     pixelsPerCategory?:number;
 
     /**
-     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset']).
      */
-    posQueryGenerator?:[string, string];
+    posQueryGenerator:[string, string];
 }
 
 
@@ -192,7 +193,12 @@ export class FreqBarTile implements ITileProvider {
 
 export const init:TileFactory<FreqBarTileConf>  = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (err !== null) {
+            return [err];
+        }
+    },
 
     create: (args) => new FreqBarTile(args)
 };

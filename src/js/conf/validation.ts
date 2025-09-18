@@ -88,3 +88,16 @@ export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
 export function maxQueryWordsForQueryType(conf:ServerConf, qt:QueryType):number {
     return conf?.freqDB?.maxQueryWords || 1;
 }
+
+export function validatePosQueryGenerator(posQueryGenerator:any):Error|null {
+    if (
+        !Array.isArray(posQueryGenerator) ||
+        (posQueryGenerator.length !== 1 && posQueryGenerator.length !== 2) ||
+        typeof posQueryGenerator[0] !== 'string' ||
+        (typeof posQueryGenerator[1] !== 'string' && posQueryGenerator[1] !== null && posQueryGenerator[1] !== undefined) ||
+        (!!posQueryGenerator[1] && !["ppTagset", "pennTreebank", "directPos"].includes(posQueryGenerator[1]))
+    ) {
+        return new Error('Invalid posQueryGenerator: Expected an array of one or two strings. First being PoS positional attribute and second being a generator function [ppTagset, pennTreebank, directPos (default)]');
+    }
+    return null;
+}

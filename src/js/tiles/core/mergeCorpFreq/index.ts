@@ -27,7 +27,7 @@ import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { MergeFreqsApi } from './api.js';
-import { findCurrentMatches } from '../wordFreq/model.js';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -213,7 +213,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     getReadDataFrom():number|null {
         return null;
     }
-
+    
     hideOnNoData():boolean {
         return false;
     }
@@ -221,7 +221,17 @@ export class MergeCorpFreqTile implements ITileProvider {
 
 export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const ans = [];
+        for (let i = 0; i < args.conf.sources.length; i++) {
+            const source = args.conf.sources[i];
+            const err = validatePosQueryGenerator(source.posQueryGenerator);
+            if (err !== null) {
+                ans.push(err);
+            }
+        }
+        return ans;
+    },
 
     create: (args) => {
         return new MergeCorpFreqTile(args);

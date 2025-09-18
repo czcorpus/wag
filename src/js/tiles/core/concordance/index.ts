@@ -28,6 +28,7 @@ import { init as viewInit } from './views.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
@@ -35,7 +36,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     pageSize:number;
     posAttrs:Array<string>;
     sentenceStruct:string;
-    posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
+    posQueryGenerator:[string, string]; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
     parallelLangMapping?:{[lang:string]:string};
     disableViewModes?:boolean;
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
@@ -187,6 +188,12 @@ export class ConcordanceTile implements ITileProvider {
 
 export const init:TileFactory<ConcordanceTileConf> = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (err !== null) {
+            return [err];
+        }
+    },
+
     create: (args) => new ConcordanceTile(args)
 }

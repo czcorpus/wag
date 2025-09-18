@@ -28,6 +28,7 @@ import {
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
 } from '../../../page/tile.js';
 import { MQueryCollAPI } from './api/index.js';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 
@@ -44,7 +45,7 @@ export interface CollocationsTileConf extends TileConf {
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
      */
-    posQueryGenerator?:[string, string];
+    posQueryGenerator:[string, string];
 }
 
 /**
@@ -197,12 +198,19 @@ export class CollocationsTile implements ITileProvider {
 export const init:TileFactory<CollocationsTileConf> = {
 
     sanityCheck: (args) => {
+        const ans = [];
         if (typeof args.readDataFromTile === 'number' && !List.empty(args.dependentTiles)) {
-            return [new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time')];
+            ans.push(new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time'));
         }
         if (!!args.conf.comparisonCorpname && args.queryType === QueryType.CMP_QUERY) {
-            return [new Error('collocation tile cannot work in both cmp and two corpora comparison mode at the same time')];
+            ans.push(new Error('collocation tile cannot work in both cmp and two corpora comparison mode at the same time'));
         }
+        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (err !== null) {
+            ans.push(err);
+        }
+        return ans
     },
+
     create: (args) => new CollocationsTile(args)
 };

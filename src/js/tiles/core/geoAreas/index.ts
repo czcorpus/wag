@@ -25,6 +25,7 @@ import { init as compareViewInit } from './views/compare.js';
 import { init as singleViewInit } from './views/single.js';
 import { MapLoader } from './mapLoader.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 export interface GeoAreasTileConf extends TileConf {
@@ -40,9 +41,9 @@ export interface GeoAreasTileConf extends TileConf {
     frequencyDisplayLimit:number;
 
     /**
-     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset]).
      */
-    posQueryGenerator?:[string, string];
+    posQueryGenerator:[string, string];
 }
 
 
@@ -184,7 +185,12 @@ export class GeoAreasTile implements ITileProvider {
 
 export const init:TileFactory<GeoAreasTileConf> = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (err !== null) {
+            return [err];
+        }
+    },
 
     create: (args) => new GeoAreasTile(args)
 };

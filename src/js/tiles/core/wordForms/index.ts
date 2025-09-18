@@ -27,6 +27,7 @@ import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
 import { IWordFormsApi } from './common.js';
 import { FrodoWordFormsAPI } from './api/frodo.js';
+import { validatePosQueryGenerator } from '../../../conf/validation.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -164,7 +165,12 @@ export class WordFormsTile implements ITileProvider {
 
 export const init:TileFactory<WordFormsTileConf> = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (err !== null) {
+            return [err];
+        }
+    },
 
     create: (args) => new WordFormsTile(args)
 };
