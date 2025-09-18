@@ -69,9 +69,9 @@ export class CNCWSServerApi implements ResourceApi<CNCWord2VecSimApiArgs, WordSi
         return false;
     }
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(streaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call(dataStreaming, tileId, 0, {
+            this.srcInfoApi.call(streaming, tileId, 0, {
                 corpname: corpname,
                 lang: domain
             }) :
@@ -105,72 +105,30 @@ export class CNCWSServerApi implements ResourceApi<CNCWord2VecSimApiArgs, WordSi
         )
     }
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
-        if (dataStreaming) {
-            return this.apiServices.dataStreaming().registerTileRequest<WSServerResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: args ?
-                        urlJoin(
-                            this.apiURL,
-                            'dataset',
-                            encodeURIComponent(args.corpus),
-                            'similarWords',
-                            encodeURIComponent(args.model),
-                            encodeURIComponent(args.word)
-                        ) + '?' + this.prepareArgs(args) :
-                        '',
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ).pipe(
-                map(
-                    resp => ({
-                        words: resp
-                    })
-                )
-            );
-
-        } else {
-            const url = urlJoin(
-                this.apiURL,
-                'corpora',
-                encodeURIComponent(args.corpus),
-                'similarWords',
-                encodeURIComponent(args.model),
-                encodeURIComponent(args.word),
-                encodeURIComponent(args.pos)
-            ) + '?' + this.prepareArgs(args)
-            return ajax$<WordSimApiLegacyResponse>(
-                'GET',
-                url,
-                {
-                    limit: args.limit,
-                    minScore: args.minScore
-                },
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                    withCredentials: true
-                }
-
-            ).pipe(
-                catchError(
-                    (err:AjaxError) => {
-                        if (err.status === HTTP.Status.NotFound) {
-                            return rxOf<HTTPResponse>([]);
-                        }
-                        throw err;
-                    }
-                ),
-                map(
-                    (ans) => ({words: ans.map(v => ({
-                        word: v.word,
-                        score: v.score,
-                        interactionId: Ident.puid()
-                    }))})
-                )
-            );
-        }
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
+        return streaming.registerTileRequest<WSServerResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: args ?
+                    urlJoin(
+                        this.apiURL,
+                        'dataset',
+                        encodeURIComponent(args.corpus),
+                        'similarWords',
+                        encodeURIComponent(args.model),
+                        encodeURIComponent(args.word)
+                    ) + '?' + this.prepareArgs(args) :
+                    '',
+                body: {},
+                contentType: 'application/json',
+            }
+        ).pipe(
+            map(
+                resp => ({
+                    words: resp
+                })
+            )
+        );
     }
 }

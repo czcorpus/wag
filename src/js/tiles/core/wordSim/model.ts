@@ -207,7 +207,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         };
     }
 
-    getData(state:WordSimModelState, dataStreaming:IDataStreaming, seDispatch:SEDispatcher):void {
+    getData(state:WordSimModelState, streaming:IDataStreaming, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<[number, QueryMatch]>) => {
             state.queryMatches.forEach((queryMatch, queryId) => {
                 observer.next(tuple(queryId, queryMatch));
@@ -217,7 +217,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         }).pipe(
             mergeMap(([queryId, queryMatch]) =>
                 callWithExtraVal(
-                    dataStreaming,
+                    streaming,
                     this.api,
                     this.tileId,
                     queryId,

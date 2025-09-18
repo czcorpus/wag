@@ -68,28 +68,17 @@ export function filterByMinFreq(data:{[subsetId:string]:Array<WordEntry>}, minFr
 
 export class TreqSubsetsAPI extends TreqAPICommon {
 
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:{[subsetId:string]:RequestArgs}):Observable<TranslationResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:{[subsetId:string]:RequestArgs}):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        const source = streaming ?
-            streaming.registerTileRequest<HTTPResponse>({
-                isEventSource: true,
-                contentType: 'application/json',
-                body: args,
-                method: HTTP.Method.POST,
-                tileId,
-                url: urlJoin(this.apiURL, 'subsets') + '?' + encodeArgs({ tileId }),
-            }) : ajax$<HTTPResponse>(
-                HTTP.Method.GET,
-                this.apiURL,
-                args,
-                {
-                    headers,
-                    withCredentials: true
-                },
-            );
-
-        return source.pipe(
+        return streaming.registerTileRequest<HTTPResponse>({
+            isEventSource: true,
+            contentType: 'application/json',
+            body: args,
+            method: HTTP.Method.POST,
+            tileId,
+            url: urlJoin(this.apiURL, 'subsets') + '?' + encodeArgs({ tileId }),
+        }).pipe(
             map(
                 resp => {
                     if (!resp) {

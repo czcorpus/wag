@@ -288,7 +288,7 @@ export interface ClientStaticConf {
      * to true, then it does not matter whether this value
      * is filled or not.
      */
-    dataStreamingUrl?:string;
+    dataStreamingUrl:string;
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration

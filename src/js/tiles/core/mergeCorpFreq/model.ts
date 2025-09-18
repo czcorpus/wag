@@ -275,7 +275,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private loadFreqs(
         state:MergeCorpFreqModelState,
-        dataStreaming:IDataStreaming,
+        streaming:IDataStreaming,
         seDispatch:SEDispatcher
     ):void {
         new Observable<[Array<MQueryFreqArgs>, {queryIdx:number}]>((observer) => {
@@ -303,7 +303,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         }).pipe(
             mergeMap(([args, {queryIdx}]) =>
                 callWithExtraVal(
-                    dataStreaming,
+                    streaming,
                     this.freqApi,
                     this.tileId,
                     queryIdx,

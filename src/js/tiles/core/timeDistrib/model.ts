@@ -486,7 +486,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(
         state:TimeDistribModelState,
-        dataStreaming:IDataStreaming,
+        streaming:IDataStreaming,
         targetId:SubchartID,
         dispatch:SEDispatcher
     ):void {
@@ -519,7 +519,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }).pipe(
                 mergeMap(([args, pass]) =>
                     callWithExtraVal(
-                        dataStreaming,
+                        streaming,
                         this.api,
                         this.tileId,
                         pass.queryIdx,
@@ -529,7 +529,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 ),
             ) :
             this.api.loadSecondWord(
-                dataStreaming,
+                streaming,
                 this.tileId,
                 0,
                 this.stateToArgs(state, 0, true),

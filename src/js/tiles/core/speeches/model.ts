@@ -55,7 +55,7 @@ export interface SpeechesModelArgs {
 interface ReloadDataArgs {
     state:SpeechesModelState;
     dispatch:SEDispatcher;
-    dataStreaming:IDataStreaming,
+    streaming:IDataStreaming,
     range:[number, number];
 }
 
@@ -89,7 +89,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (state, action, dispatch) => {
                 this.reloadData({
                     state,
-                    dataStreaming: appServices.dataStreaming(),
+                    streaming: appServices.dataStreaming(),
                     dispatch,
                     range: tuple(state.leftRange, state.rightRange)
                 });
@@ -141,7 +141,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    dataStreaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    streaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     range: [
                         state.leftRange + action.payload.leftChange,
                         state.rightRange + action.payload.rightChange
@@ -167,7 +167,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    dataStreaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    streaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
                     range: tuple(state.leftRange, state.rightRange),
                     dispatch
                 });
@@ -335,10 +335,10 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         return null;
     }
 
-    private reloadData({state, dataStreaming, range, dispatch}:ReloadDataArgs):void {
+    private reloadData({state, streaming, range, dispatch}:ReloadDataArgs):void {
         this.api
             .call(
-                dataStreaming,
+                streaming,
                 this.tileId,
                 0,
                 this.stateToArgs(state, range)

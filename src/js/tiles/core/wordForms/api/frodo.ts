@@ -51,28 +51,16 @@ export interface FrodoResponse {
 
 export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/dictionary/', args.corpName, 'search', args.lemma);
-        return (dataStreaming ?
-            dataStreaming.registerTileRequest<FrodoResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: url + `?pos=${encodeURIComponent(args.pos.join(" "))}`,
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ) :
-            ajax$<FrodoResponse>(
-                HTTP.Method.GET,
-                url,
-                {
-                    pos: args.pos.join(" "),
-                },
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                }
-            )
+        return streaming.registerTileRequest<FrodoResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: url + `?pos=${encodeURIComponent(args.pos.join(" "))}`,
+                body: {},
+                contentType: 'application/json',
+            }
         ).pipe(
             map(resp => {
                 return {
@@ -90,8 +78,8 @@ export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceA
         );
     }
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     supportsMultiWordQueries():boolean {

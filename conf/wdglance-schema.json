@@ -30635,6 +30635,7 @@
         "apiHeaders",
         "applicationId",
         "corpInfoApiUrl",
+        "dataStreamingUrl",
         "homepage",
         "hostUrl",
         "layouts",

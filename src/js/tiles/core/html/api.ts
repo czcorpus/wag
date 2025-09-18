@@ -65,7 +65,7 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
         return true;
     }
 
-    call(dataStream:IDataStreaming, tileId:number, queryIdx:number, queryArgs:HtmlApiArgs):Observable<string|null> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:HtmlApiArgs):Observable<string|null> {
         return ajax$<string>(
             'GET',
             this.apiURL,

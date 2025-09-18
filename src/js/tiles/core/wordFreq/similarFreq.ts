@@ -59,55 +59,34 @@ export class SimilarFreqWordsFrodoAPI {
         this.apiServices = apiServices;
     }
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
-        return (
-            dataStreaming ?
-                dataStreaming.registerTileRequest<HTTPResponse>(
-                    {
-                        contentType: 'application/json',
-                        body: {},
-                        method: HTTP.Method.GET,
-                        tileId,
-                        queryIdx,
-                        url: args && this.apiURL ?
-                            urlJoin(
-                                this.apiURL,
-                                'dictionary',
-                                args.corpname,
-                                'similarARFWords',
-                                args.word
-                            ) + '?' + encodeURLParameters(
-                                [['domain', args.corpname],
-                                ['lemma', args.lemma],
-                                ['pos', args.pos.join(' ')],
-                                ['mainPosAttr', args.mainPosAttr],
-                                ['srchRange', args.srchRange]]
-                            ) :
-                            ''
-                    }
-                ).pipe(
-                    map(
-                        v => v ? v : { matches: []}
-                    )
-                ) :
-                ajax$<HTTPResponse>(
-                    'GET',
-                    this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
-                    new MultiDict([
-                        ['domain', args.corpname],
-                        ['word', args.word],
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
+        return streaming.registerTileRequest<HTTPResponse>(
+            {
+                contentType: 'application/json',
+                body: {},
+                method: HTTP.Method.GET,
+                tileId,
+                queryIdx,
+                url: args && this.apiURL ?
+                    urlJoin(
+                        this.apiURL,
+                        'dictionary',
+                        args.corpname,
+                        'similarARFWords',
+                        args.word
+                    ) + '?' + encodeURLParameters(
+                        [['domain', args.corpname],
                         ['lemma', args.lemma],
                         ['pos', args.pos.join(' ')],
                         ['mainPosAttr', args.mainPosAttr],
-                        ['srchRange', args.srchRange]
-                    ]),
-                    {
-                        headers: this.apiServices.getApiHeaders(this.apiURL),
-                        withCredentials: true
-                    }
-                )
-
+                        ['srchRange', args.srchRange]]
+                    ) :
+                    ''
+            }
         ).pipe(
+            map(
+                v => v ? v : { matches: []}
+            ),
             map(
                 data =>  pipe(
                     data.matches,

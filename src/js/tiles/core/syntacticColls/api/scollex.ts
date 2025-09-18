@@ -75,41 +75,26 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCol
     }
 
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     getBacklink(queryId:number, subqueryId?:number):Backlink|null {
         return null;
     }
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, request:SCollsRequest):Observable<SCollsData> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, request:SCollsRequest):Observable<SCollsData> {
         const url = urlJoin(this.apiURL, 'query', request.params.corpname, request.params.queryType);
         let data:Observable<SCollsApiResponse>;
-        if (dataStreaming) {
-            data = dataStreaming.registerTileRequest<SCollsApiResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: `${url}?${this.prepareArgs(request)}`,
-                    body: {},
-                    contentType: 'application/json',
-                }
-            );
-
-        } else {
-            data = ajax$<SCollsApiResponse>(
-                HTTP.Method.GET,
-                url,
-                request.args,
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                    withCredentials: true
-                }
-            );
-        }
-
-        return data.pipe(
+        return streaming.registerTileRequest<SCollsApiResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: `${url}?${this.prepareArgs(request)}`,
+                body: {},
+                contentType: 'application/json',
+            }
+        ).pipe(
             map(data => (
                 {
                     rows: List.map(

@@ -121,57 +121,44 @@ export class MQueryFreqDistribAPI implements ResourceApi<MQueryFreqArgs, APIResp
      * For args.path == 'text-types', multiple values represent whole different thing
      * (freqs for different domains) - so in that case, we don't group anything.
      */
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:MQueryFreqArgs|null):Observable<APIResponse> {
-        return (
-            streaming ?
-                streaming.registerTileRequest<HTTPResponse>({
-                    contentType: 'application/json',
-                    body: {},
-                    method: HTTP.Method.GET,
-                    tileId,
-                    queryIdx,
-                    url: args ?
-                        urlJoin(
-                            this.apiURL,
-                            args.path,
-                            args.corpname
-                        ) + '?' + encodeURLParameters(
-                            List.filter(
-                                item => !!item[1],
-                                [
-                                    tuple('attr', args.queryArgs.attr),
-                                    tuple('flimit', args.queryArgs.flimit),
-                                    tuple('matchCase', args.queryArgs.matchCase),
-                                    tuple('maxItems', args.queryArgs.maxItems),
-                                    tuple('q', args.queryArgs.q),
-                                    tuple('subcorpus', args.queryArgs.subcorpus),
-                                    tuple('textProperty', args.queryArgs.textProperty),
-                                ]
-                            )
-                        ) :
-                        '',
-                }).pipe(
-                    map(
-                        resp => resp ?
-                            resp :
-                            ({
-                                concSize: 0,
-                                corpusSize: 0,
-                                freqs: [],
-                                fcrit: ''
-                            })
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryFreqArgs|null):Observable<APIResponse> {
+        return streaming.registerTileRequest<HTTPResponse>({
+            contentType: 'application/json',
+            body: {},
+            method: HTTP.Method.GET,
+            tileId,
+            queryIdx,
+            url: args ?
+                urlJoin(
+                    this.apiURL,
+                    args.path,
+                    args.corpname
+                ) + '?' + encodeURLParameters(
+                    List.filter(
+                        item => !!item[1],
+                        [
+                            tuple('attr', args.queryArgs.attr),
+                            tuple('flimit', args.queryArgs.flimit),
+                            tuple('matchCase', args.queryArgs.matchCase),
+                            tuple('maxItems', args.queryArgs.maxItems),
+                            tuple('q', args.queryArgs.q),
+                            tuple('subcorpus', args.queryArgs.subcorpus),
+                            tuple('textProperty', args.queryArgs.textProperty),
+                        ]
                     )
                 ) :
-                ajax$<HTTPResponse>(
-                    'GET',
-                    urlJoin(this.apiURL, args.path, args.corpname),
-                    args.queryArgs,
-                    {
-                        headers: this.apiServices.getApiHeaders(this.apiURL),
-                        withCredentials: true
-                    }
-                )
-        ).pipe(
+                '',
+        }).pipe(
+            map(
+                resp => resp ?
+                    resp :
+                    ({
+                        concSize: 0,
+                        corpusSize: 0,
+                        freqs: [],
+                        fcrit: ''
+                    })
+            ),
             map<HTTPResponse, APIResponse>(resp => ({
                 corpname: args?.corpname,
                 usesubcorp: args?.queryArgs.subcorpus,

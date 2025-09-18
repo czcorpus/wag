@@ -96,28 +96,23 @@ export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number
         ).join('&')
     }
 
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:ConcApiArgs|null):Observable<[ConcResponse, number]> {
-        if (streaming) {
-            return streaming.registerTileRequest<ConcResponse>(
-                {
-                    tileId,
-                    queryIdx,
-                    method: HTTP.Method.GET,
-                    url: args ?
-                        urlJoin(this.apiUrl, 'concordance', args.corpusName) + `?${this.prepareArgs(args)}` :
-                        '',
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ).pipe(
-                map(
-                    resp => tuple(resp, queryIdx)
-                )
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:ConcApiArgs|null):Observable<[ConcResponse, number]> {
+        return streaming.registerTileRequest<ConcResponse>(
+            {
+                tileId,
+                queryIdx,
+                method: HTTP.Method.GET,
+                url: args ?
+                    urlJoin(this.apiUrl, 'concordance', args.corpusName) + `?${this.prepareArgs(args)}` :
+                    '',
+                body: {},
+                contentType: 'application/json',
+            }
+        ).pipe(
+            map(
+                resp => tuple(resp, queryIdx)
             )
-
-        } else {
-            return EMPTY
-        }
+        );
     }
 
     requestBacklink(args:ConcApiArgs):URL {
