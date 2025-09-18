@@ -30,7 +30,7 @@
             "type": "number"
         },
         "posQueryGenerator": {
-            "description": "A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).",
+            "description": "A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).",
             "type": "array",
             "items": [
                 {
