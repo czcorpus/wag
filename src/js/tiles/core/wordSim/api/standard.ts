@@ -79,77 +79,41 @@ export class WSServerCorpusInfo implements DataApi<QueryArgs, SourceDetails> {
     }
 
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:QueryArgs):Observable<SourceDetails> {
-        if (dataStreaming) {
-            return dataStreaming.registerTileRequest<MQHTTPResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: args ?
-                        urlJoin(
-                            this.apiURL,
-                            'corpora',
-                            encodeURIComponent(args.corpname),
-                        ) :
-                        '',
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ).pipe(
-                map<MQHTTPResponse, SourceDetails>(
-                    (resp) => ({
-                        tileId,
-                        title: resp.corpus.data.corpname,
-                        description: resp.corpus.data.description,
-                        author: '',
-                        href: resp.corpus.data.webUrl,
-                        attrList: resp.corpus.data.attrList,
-                        citationInfo: {
-                            sourceName: resp.corpus.data.corpname,
-                            main: resp.corpus.data.citationInfo?.default_ref,
-                            papers: resp.corpus.data.citationInfo?.article_ref || [],
-                            otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
-                        },
-
-                        keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
-                    })
-                )
-            );
-
-
-        } else {
-            return ajax$(
-                    HTTP.Method.GET,
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:QueryArgs):Observable<SourceDetails> {
+        return streaming.registerTileRequest<MQHTTPResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: args ?
                     urlJoin(
                         this.apiURL,
                         'corpora',
                         encodeURIComponent(args.corpname),
-                    ),
-                    {},
-                    {contentType: 'application/json'},
+                    ) :
+                    '',
+                body: {},
+                contentType: 'application/json',
+            }
+        ).pipe(
+            map<MQHTTPResponse, SourceDetails>(
+                (resp) => ({
+                    tileId,
+                    title: resp.corpus.data.corpname,
+                    description: resp.corpus.data.description,
+                    author: '',
+                    href: resp.corpus.data.webUrl,
+                    attrList: resp.corpus.data.attrList,
+                    citationInfo: {
+                        sourceName: resp.corpus.data.corpname,
+                        main: resp.corpus.data.citationInfo?.default_ref,
+                        papers: resp.corpus.data.citationInfo?.article_ref || [],
+                        otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
+                    },
 
-            ).pipe(
-                map<MQHTTPResponse, SourceDetails>(
-                    (resp) => ({
-                        tileId,
-                        title: resp.corpus.data.corpname,
-                        description: resp.corpus.data.description,
-                        author: '',
-                        href: resp.corpus.data.webUrl,
-                        attrList: resp.corpus.data.attrList,
-                        citationInfo: {
-                            sourceName: resp.corpus.data.corpname,
-                            main: resp.corpus.data.citationInfo?.default_ref,
-                            papers: resp.corpus.data.citationInfo?.article_ref || [],
-                            otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
-                        },
-
-                        keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
-                    })
-                )
-            );
-        }
-
+                    keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
+                })
+            )
+        );
     }
 
 
@@ -187,9 +151,9 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         return false;
     }
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(streaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
-            this.srcInfoApi.call(dataStreaming, tileId, 0, {
+            this.srcInfoApi.call(streaming, tileId, 0, {
                 corpname: corpname,
                 lang: domain
             }) :
@@ -223,71 +187,29 @@ export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, Wor
         )
     }
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
-        if (dataStreaming) {
-            return this.apiServices.dataStreaming().registerTileRequest<WordSimApiLegacyResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: args ?
-                        urlJoin(
-                            this.apiURL,
-                            'corpora',
-                            encodeURIComponent(args.corpus),
-                            'similarWords',
-                            encodeURIComponent(args.model),
-                            encodeURIComponent(args.word),
-                            encodeURIComponent(args.pos)
-                        ) + '?' + this.prepareArgs(args) :
-                        '',
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ).pipe(
-                map(
-                    resp => resp ? {words: resp} : { words: [] }
-                )
-            );
-
-        } else {
-            const url = urlJoin(
-                this.apiURL,
-                'corpora',
-                encodeURIComponent(args.corpus),
-                'similarWords',
-                encodeURIComponent(args.model),
-                encodeURIComponent(args.word),
-                encodeURIComponent(args.pos)
-            ) + '?' + this.prepareArgs(args)
-            return ajax$<WordSimApiLegacyResponse>(
-                'GET',
-                url,
-                {
-                    limit: args.limit,
-                    minScore: args.minScore
-                },
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                    withCredentials: true
-                }
-
-            ).pipe(
-                catchError(
-                    (err:AjaxError) => {
-                        if (err.status === HTTP.Status.NotFound) {
-                            return rxOf<HTTPResponse>([]);
-                        }
-                        throw err;
-                    }
-                ),
-                map(
-                    (ans) => ({words: ans.map(v => ({
-                        word: v.word,
-                        score: v.score,
-                        interactionId: Ident.puid()
-                    }))})
-                )
-            );
-        }
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
+        return streaming.registerTileRequest<WordSimApiLegacyResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: args ?
+                    urlJoin(
+                        this.apiURL,
+                        'corpora',
+                        encodeURIComponent(args.corpus),
+                        'similarWords',
+                        encodeURIComponent(args.model),
+                        encodeURIComponent(args.word),
+                        encodeURIComponent(args.pos)
+                    ) + '?' + this.prepareArgs(args) :
+                    '',
+                body: {},
+                contentType: 'application/json',
+            }
+        ).pipe(
+            map(
+                resp => resp ? {words: resp} : { words: [] }
+            )
+        );
     }
 }

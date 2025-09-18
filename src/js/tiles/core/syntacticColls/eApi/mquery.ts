@@ -154,32 +154,19 @@ export class SyntacticCollsExamplesAPI implements DataApi<SCERequestArgs, SColls
     }
 
     call(
-        dataStreaming:IDataStreaming | null,
+        streaming:IDataStreaming,
         tileId:number,
         queryIdx:number,
         request:SCERequestArgs,
     ): Observable<SCollsExamples> {
         const url = urlJoin(this.apiURL, 'conc-examples', request.params.corpname);
-        if (dataStreaming) {
-        return dataStreaming.registerTileRequest<SCollsExamples>({
+        return streaming.registerTileRequest<SCollsExamples>({
             tileId,
             method: HTTP.Method.GET,
             url: `${url}?${this.prepareArgs(request)}`,
             body: {},
-            contentType: 'application/json'
+            contentType: 'application/json',
         });
-
-        } else {
-            return ajax$<SCollsExamples>(
-                HTTP.Method.GET,
-                url,
-                request.args,
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                    withCredentials: true
-                }
-            );
-        }
     }
 
     private prepareArgs(queryArgs:SCERequestArgs):string {

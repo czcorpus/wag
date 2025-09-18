@@ -182,7 +182,7 @@ export class TreqAPICommon {
         return data['en-US'];
     }
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: this.translateText(this.titleI18n, this.appServices.getUILang()),
@@ -258,7 +258,7 @@ export class TreqAPI extends TreqAPICommon {
         this.fetchExamplesFrom = fetchExamplesFrom;
     }
 
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
         const allArgs = this.fetchExamplesFrom ?
@@ -269,27 +269,16 @@ export class TreqAPI extends TreqAPICommon {
                 tileId
             } :
             args;
-        const source = streaming ?
-            streaming.registerTileRequest<HTTPResponse>({
-                contentType: 'application/json',
-                isEventSource: true,
-                body: {},
-                method: HTTP.Method.GET,
-                tileId,
-                url: this.fetchExamplesFrom ?
-                    this.apiURL + '/with-examples' + '?' + encodeArgs(allArgs) :
-                    this.apiURL + '/' + '?' + encodeArgs(allArgs),
-            }) : ajax$<HTTPResponse>(
-                HTTP.Method.GET,
-                this.apiURL,
-                args,
-                {
-                    headers,
-                    withCredentials: true
-                },
-            );
-
-        return source.pipe(
+        return streaming.registerTileRequest<HTTPResponse>({
+            contentType: 'application/json',
+            isEventSource: true,
+            body: {},
+            method: HTTP.Method.GET,
+            tileId,
+            url: this.fetchExamplesFrom ?
+                this.apiURL + '/with-examples' + '?' + encodeArgs(allArgs) :
+                this.apiURL + '/' + '?' + encodeArgs(allArgs),
+        }).pipe(
             map(
                 resp => {
                     if (!resp) {

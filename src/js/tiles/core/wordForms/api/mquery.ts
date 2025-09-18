@@ -48,29 +48,16 @@ export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements Resource
         )
     }
 
-    call(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
         const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
-        return (dataStreaming ?
-            dataStreaming.registerTileRequest<Array<LemmaItem>>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: url + `?${this.prepareArgs(args)}`,
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ) :
-            ajax$<Array<LemmaItem>>(
-                HTTP.Method.GET,
-                url,
-                {
-                    lemma: args.lemma,
-                    pos: args.pos.join(" "),
-                },
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                }
-            )
+        return streaming.registerTileRequest<Array<LemmaItem>>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: url + `?${this.prepareArgs(args)}`,
+                body: {},
+                contentType: 'application/json',
+            }
         ).pipe(
             map(resp => {
                 const total = resp[0].forms.reduce((acc, curr) => curr.freq + acc, 0);
@@ -89,8 +76,8 @@ export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements Resource
         );
     }
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, 0, {corpname, lang});
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
     }
 
     supportsMultiWordQueries():boolean {

@@ -29,7 +29,7 @@ export class MapLoader implements DataApi<string, string> {
         this.appServices = appServices;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, file:string):Observable<string> {
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, file:string):Observable<string> {
 
         return ajax$<string>(
             'GET',

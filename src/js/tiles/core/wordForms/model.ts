@@ -27,9 +27,6 @@ import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
-import { IDataStreaming } from '../../../page/streaming.js';
-
-
 
 
 export interface WordFormsModelState {
@@ -94,8 +91,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly backlink:BacklinkConf;
 
-    private readonly dataStreaming:IDataStreaming;
-
     constructor({
         dispatcher, initialState, tileId, api, queryMatches, appServices
     }:WordFormsModelArgs) {
@@ -104,7 +99,6 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.api = api;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
-
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,

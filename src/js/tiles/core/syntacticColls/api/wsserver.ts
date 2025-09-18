@@ -119,34 +119,21 @@ export class WSServerSyntacticCollsAPI implements DataApi<SCollsRequest, SCollsD
     }
 
     call(
-        dataStreaming:IDataStreaming|null,
+        streaming:IDataStreaming,
         tileId:number,
         queryIdx:number,
         request:SCollsRequest|null
     ):Observable<SCollsData> {
         const url = request ? this.mkUrl(request) : null;
         const argsStr = request ? this.prepareArgs({...request.args, limit: 20}) : '';
-        return (
-            dataStreaming ?
-                dataStreaming.registerTileRequest<WSServerResponse>(
-                    {
-                        tileId,
-                        method: HTTP.Method.GET,
-                        url: request ? `${url}?${argsStr}` : null,
-                        body: {},
-                        contentType: 'application/json',
-                    }
-                ) :
-                ajax$<WSServerResponse>(
-                    HTTP.Method.GET,
-                    url,
-                    request.args,
-                    {
-                        headers: this.apiServices.getApiHeaders(this.apiURL),
-                        withCredentials: true
-                    }
-                )
-
+        return streaming.registerTileRequest<WSServerResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: request ? `${url}?${argsStr}` : null,
+                body: {},
+                contentType: 'application/json',
+            }
         ).pipe(
             map(data => (
                 data ?

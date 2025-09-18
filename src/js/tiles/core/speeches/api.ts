@@ -90,8 +90,8 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(dataStreaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(dataStreaming, tileId, 0, {
+    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {
             corpname: corpname,
             lang: lang
         });
@@ -106,51 +106,28 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         null;
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:SpeechReqArgs|null):Observable<SpeechData> {
-        if (dataStreaming) {
-            return dataStreaming.registerTileRequest<SpeechResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.GET,
-                    url: args ? urlJoin(this.apiUrl, 'speeches') + `?${this.prepareArgs(args)}` : '',
-                    body: {},
-                    contentType: 'application/json',
-                }
-            ).pipe(
-                map(
-                    resp => resp ?
-                        {
-                            text: resp.context.text,
-                            kwicTokenIdx: parseInt(resp.context.ref.substring(1))
-                        } :
-                        {
-                            text: [],
-                            kwicTokenIdx: -1
-                        }
-                )
-            );
-
-        } else {
-            const headers = this.apiServices.getApiHeaders(this.apiUrl);
-            headers['X-Is-Web-App'] = '1';
-            return ajax$<SpeechResponse>(
-                HTTP.Method.GET,
-                urlJoin(this.apiUrl, 'speeches'),
-                args,
-                {
-                    headers,
-                    withCredentials: true
-                }
-
-            ).pipe(
-                map(
-                    resp => ({
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:SpeechReqArgs|null):Observable<SpeechData> {
+        return streaming.registerTileRequest<SpeechResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: args ? urlJoin(this.apiUrl, 'speeches') + `?${this.prepareArgs(args)}` : '',
+                body: {},
+                contentType: 'application/json',
+            }
+        ).pipe(
+            map(
+                resp => resp ?
+                    {
                         text: resp.context.text,
                         kwicTokenIdx: parseInt(resp.context.ref.substring(1))
-                    })
-                )
+                    } :
+                    {
+                        text: [],
+                        kwicTokenIdx: -1
+                    }
             )
-        }
+        );
     }
 
     private prepareArgs(queryArgs:SpeechReqArgs):string {

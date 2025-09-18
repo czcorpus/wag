@@ -319,11 +319,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
     }
 
     private handleLoad(
-        dataStream:Observable<[string, APIResponse]>,
+        streaming:Observable<[string, APIResponse]>,
         state:GeoAreasModelState,
         dispatch:SEDispatcher
     ):void {
-        dataStream.subscribe({
+        streaming.subscribe({
             next: ([mapSVG, resp]) => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
@@ -349,7 +349,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         });
 
-        dataStream.pipe(
+        streaming.pipe(
             reduce<[string, APIResponse], {hasData:boolean}>(
                 (acc, [_, resp]) => {
                     acc.hasData = acc.hasData || (resp.data && resp.data.length > 0);

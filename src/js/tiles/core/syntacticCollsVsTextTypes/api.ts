@@ -98,41 +98,28 @@ export class WSServerSyntacticCollsTTAPI implements DataApi<SCollsRequest, SColl
     }
 
     call(
-        dataStreaming:IDataStreaming|null,
+        streaming:IDataStreaming,
         tileId:number,
         queryIdx:number,
         request:SCollsTTRequest|null
     ):Observable<SCollsPartsData> {
         const url = request ? urlJoin(this.apiURL, 'collocations-tt') : null;
 
-        return (
-            dataStreaming ?
-                dataStreaming.registerTileRequest<WSServerResponse>(
-                    {
-                        tileId,
-                        method: HTTP.Method.POST,
-                        url,
-                        body: {
-                            tileId,
-                            textTypes: request.args.textTypes,
-                            dataset: request.params.corpname,
-                            word: request.args.w,
-                            pos: request.args.pos,
-                            limit: 20
-                        },
-                        contentType: 'application/json',
-                    }
-                ) :
-                ajax$<WSServerResponse>(
-                    HTTP.Method.GET,
-                    url,
-                    request.args,
-                    {
-                        headers: this.apiServices.getApiHeaders(this.apiURL),
-                        withCredentials: true
-                    }
-                )
-
+        return streaming.registerTileRequest<WSServerResponse>(
+            {
+                tileId,
+                method: HTTP.Method.POST,
+                url,
+                body: {
+                    tileId,
+                    textTypes: request.args.textTypes,
+                    dataset: request.params.corpname,
+                    word: request.args.w,
+                    pos: request.args.pos,
+                    limit: 20
+                },
+                contentType: 'application/json',
+            }
         ).pipe(
             filter(
                 v => !!v

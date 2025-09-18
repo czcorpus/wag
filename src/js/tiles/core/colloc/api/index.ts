@@ -153,43 +153,30 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     }
 
     private mkRequest(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryCollArgs|null):Observable<BasicHTTPResponse> {
-        if (streaming) {
-            return streaming.registerTileRequest<BasicHTTPResponse>(
-                {
-                    tileId,
-                    queryIdx,
-                    method: HTTP.Method.GET,
-                    url: args ? this.mkUrl(args, `DataTile-${tileId}.${queryIdx}`) : '',
-                    body: {},
-                    isEventSource: this.useWithExamplesVariant,
-                    contentType: 'application/json',
-                }
-            ).pipe(
-                map(
-                    resp => resp ?
-                        resp :
-                        {
-                            concSize: 0,
-                            corpusSize: 0,
-                            colls: [],
-                            measure: null,
-                            srchRange: tuple(0, 0),
-                            resultType:'coll'
-                        }
-                )
+        return streaming.registerTileRequest<BasicHTTPResponse>(
+            {
+                tileId,
+                queryIdx,
+                method: HTTP.Method.GET,
+                url: args ? this.mkUrl(args, `DataTile-${tileId}.${queryIdx}`) : '',
+                body: {},
+                isEventSource: this.useWithExamplesVariant,
+                contentType: 'application/json',
+            }
+        ).pipe(
+            map(
+                resp => resp ?
+                    resp :
+                    {
+                        concSize: 0,
+                        corpusSize: 0,
+                        colls: [],
+                        measure: null,
+                        srchRange: tuple(0, 0),
+                        resultType:'coll'
+                    }
             )
-
-        } else {
-            return ajax$<BasicHTTPResponse>(
-                'GET',
-                urlJoin(this.apiURL, '/collocations/', args.corpusId),
-                args,
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                    withCredentials: true
-                }
-            )
-        }
+        );
     }
 
     call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryCollArgs|null):Observable<CollApiResponse> {

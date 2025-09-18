@@ -220,7 +220,7 @@ export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, Time
     // { ..., chunkNum: number, totalChunks: number}
     chunks:Map<number, boolean>;
     */
-    private callViaDataStream(
+    call(
         streaming:IDataStreaming,
         tileId:number,
         queryIdx:number,
@@ -280,72 +280,6 @@ export class MQueryTimeDistribStreamApi implements DataApi<TimeDistribArgs, Time
                 }
             )
         )
-    }
-
-    private callViaAjAX(tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return new Observable(o => {
-            const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
-            const eventSource = new EventSource(`${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${args}`);
-            const procChunks:{[k:number]:number} = {};
-            let minYear = queryArgs.fromYear ? parseInt(queryArgs.fromYear) : -1;
-            let maxYear = queryArgs.toYear ? parseInt(queryArgs.toYear) : -1;
-
-            eventSource.onmessage = (e) => {
-                const message = JSON.parse(e.data) as MqueryStreamData;
-                if (message.error) {
-                    eventSource.close();
-                    o.error(new Error(message.error));
-
-                } else {
-                    const [currMin, currMax] = getChunkYearRange(message.entries.freqs);
-                    if (minYear > -1 && currMin < minYear) {
-                        minYear = currMin;
-                    }
-                    if (maxYear > -1 && currMax > maxYear) {
-                        maxYear = currMax;
-                    }
-                    o.next({
-                        corpName: queryArgs.corpname,
-                        subcorpName: queryArgs.subcorpName,
-                        data: List.map(
-                            v => ({
-                                datetime: v.word,
-                                freq: v.freq,
-                                norm: v.base,
-                            }),
-                            message.entries.freqs,
-                        ),
-                        overwritePrevious: true,
-                    });
-                }
-
-                if (message.chunkNum) { // valid chunk nums start with 1 (see Mquery docs)
-                    procChunks[message.chunkNum] = (new Date().getTime()) / 1000;
-                }
-
-                const totalProc = pipe(
-                    procChunks,
-                    Dict.filter((v, k) => !!v),
-                    Dict.size()
-                );
-
-                if (totalProc >= message.totalChunks) {
-                    eventSource.close();
-                    o.complete();
-                }
-            };
-
-            eventSource.onerror = (e) => {
-                console.log(e);
-            };
-
-        });
-    }
-
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        return streaming ?
-            this.callViaDataStream(streaming, tileId, queryIdx, queryArgs) :
-            this.callViaAjAX(tileId, queryIdx, queryArgs);
     }
 
     requestBacklink(args:TimeDistribArgs):Observable<URL> {

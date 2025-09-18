@@ -109,63 +109,47 @@ export class MergeFreqsApi implements ResourceApi<Array<MQueryFreqArgs>, Array<S
         return List.some(x => !x, args);
     }
 
-    private mkRequest(dataStreaming:IDataStreaming|null, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
-        if (dataStreaming) {
-            return dataStreaming.registerTileRequest<HTTPResponse>(
-                {
-                    tileId,
-                    method: HTTP.Method.POST,
-                    url: this.isNoMatchArgs(args) ? '' : urlJoin(this.apiURL, '/merge-freqs'),
-                    body: {
-                        urls: this.isNoMatchArgs(args) ?
-                            [] :
-                            List.map(
-                                arg => urlJoin(this.apiURL, arg.path, arg.corpname) + '?' + this.prepareArgs(arg),
-                                args
-                            )
-                    },
-                    contentType: 'application/json',
-                    queryIdx,
-                }
-            ).pipe(
-                filter(
-                    v => !isEmptyObject(v)
-                ),
-                map(
-                    resp => resp ?
-                        resp :
-                        {
-                            parts: List.repeat(
-                                x => ({
-                                    concSize: 0,
-                                    corpusSize: 0,
-                                    fcrit: 0,
-                                    freqs: []
-                                }),
-                                List.size(args)
-                            )
-                        }
-                )
+    private mkRequest(streaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs|null>):Observable<HTTPResponse> {
+        return streaming.registerTileRequest<HTTPResponse>(
+            {
+                tileId,
+                method: HTTP.Method.POST,
+                url: this.isNoMatchArgs(args) ? '' : urlJoin(this.apiURL, '/merge-freqs'),
+                body: {
+                    urls: this.isNoMatchArgs(args) ?
+                        [] :
+                        List.map(
+                            arg => urlJoin(this.apiURL, arg.path, arg.corpname) + '?' + this.prepareArgs(arg),
+                            args
+                        )
+                },
+                contentType: 'application/json',
+                queryIdx,
+            }
+        ).pipe(
+            filter(
+                v => !isEmptyObject(v)
+            ),
+            map(
+                resp => resp ?
+                    resp :
+                    {
+                        parts: List.repeat(
+                            x => ({
+                                concSize: 0,
+                                corpusSize: 0,
+                                fcrit: 0,
+                                freqs: []
+                            }),
+                            List.size(args)
+                        )
+                    }
             )
-
-        } else {
-            return ajax$<HTTPResponse>(
-                'POST',
-                urlJoin(this.apiURL, '/merge-freqs'),
-                List.map(
-                    arg => urlJoin(this.apiURL, arg.path, arg.corpname) + '?' + this.prepareArgs(arg),
-                    args
-                ),
-                {
-                    headers: this.apiServices.getApiHeaders(this.apiURL),
-                    withCredentials: true
-                }
-            )
-        }
+        )
     }
 
-    call(dataStreaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
-        return this.mkRequest(dataStreaming, tileId, queryIdx, args).pipe(map(resp => resp.parts));
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:Array<MQueryFreqArgs>):Observable<Array<SingleFreqResult>> {
+        return this.mkRequest(streaming, tileId, queryIdx, args).pipe(map(resp => resp.parts));
     }
 
     getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

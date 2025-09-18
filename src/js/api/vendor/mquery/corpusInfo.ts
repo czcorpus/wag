@@ -69,28 +69,15 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
         this.apiServices = apiServices;
     }
 
-    call(streaming:IDataStreaming|null, tileId:number, queryIdx:number, args:QueryArgs):Observable<CorpusDetails> {
-        return (
-            streaming ?
-                streaming.registerTileRequest<HTTPResponse>(
-                    {
-                        tileId,
-                        method: HTTP.Method.GET,
-                        url: `${this.apiURL}/info/${args.corpname}`,
-                        body: {},
-                        contentType: 'application/json'
-                    }
-                ) :
-                ajax$<HTTPResponse>(
-                    HTTP.Method.GET,
-                    this.apiURL + `/info/${args.corpname}`,
-                    {lang: args.lang},
-                    {
-                        headers: this.apiServices.getApiHeaders(this.apiURL),
-                        withCredentials: true
-                    }
-                )
-
+    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:QueryArgs):Observable<CorpusDetails> {
+        return streaming.registerTileRequest<HTTPResponse>(
+            {
+                tileId,
+                method: HTTP.Method.GET,
+                url: `${this.apiURL}/info/${args.corpname}`,
+                body: {},
+                contentType: 'application/json'
+            }
         ).pipe(
             map<HTTPResponse, CorpusDetails>(
                 (resp) => ({
