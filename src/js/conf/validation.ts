@@ -35,7 +35,7 @@ const SCHEMA_FILENAME = 'config-schema.json';
 
 
 export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
-    const validator = new Ajv({allowUnionTypes:true});
+    const validator = new Ajv({allowUnionTypes:true, verbose:true, allErrors:true});
     let validationError = false;
     console.info('Validating tiles configuration...');
 
@@ -69,7 +69,8 @@ export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
                 console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 List.forEach(
                     err => {
-                        console.error(`    \u25B6 ${err.message}`)
+                        console.error(`    \u25B6 ${err.instancePath}: ${err.message}`)
+                        console.error(`      schema: ${JSON.stringify(err.parentSchema)}`)
                     },
                     validator.errors
                 );
@@ -87,17 +88,4 @@ export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
 
 export function maxQueryWordsForQueryType(conf:ServerConf, qt:QueryType):number {
     return conf?.freqDB?.maxQueryWords || 1;
-}
-
-export function validatePosQueryGenerator(posQueryGenerator:any):Error|null {
-    if (
-        !Array.isArray(posQueryGenerator) ||
-        (posQueryGenerator.length !== 1 && posQueryGenerator.length !== 2) ||
-        typeof posQueryGenerator[0] !== 'string' ||
-        (typeof posQueryGenerator[1] !== 'string' && posQueryGenerator[1] !== null && posQueryGenerator[1] !== undefined) ||
-        (!!posQueryGenerator[1] && !["ppTagset", "pennTreebank", "directPos"].includes(posQueryGenerator[1]))
-    ) {
-        return new Error('Invalid posQueryGenerator: Expected an array of one or two strings. First being PoS positional attribute and second being a generator function [ppTagset, pennTreebank, directPos (default)]');
-    }
-    return null;
 }

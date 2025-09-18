@@ -28,7 +28,7 @@ import { init as viewInit } from './views.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
 import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { validatePosQueryGenerator } from '../../../conf/validation.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
@@ -36,7 +36,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     pageSize:number;
     posAttrs:Array<string>;
     sentenceStruct:string;
-    posQueryGenerator:[string, string]; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
+    posQueryGenerator:PosQueryGeneratorType; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
     parallelLangMapping?:{[lang:string]:string};
     disableViewModes?:boolean;
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
@@ -189,9 +189,9 @@ export class ConcordanceTile implements ITileProvider {
 export const init:TileFactory<ConcordanceTileConf> = {
 
     sanityCheck: (args) => {
-        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
-        if (err !== null) {
-            return [err];
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            return [new Error(`invalid posQueryGenerator in concordance tile, ${message}`)];
         }
     },
 

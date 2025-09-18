@@ -28,7 +28,7 @@ import {
     DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
 } from '../../../page/tile.js';
 import { MQueryCollAPI } from './api/index.js';
-import { validatePosQueryGenerator } from '../../../conf/validation.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 
@@ -45,7 +45,7 @@ export interface CollocationsTileConf extends TileConf {
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
      */
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 }
 
 /**
@@ -205,9 +205,9 @@ export const init:TileFactory<CollocationsTileConf> = {
         if (!!args.conf.comparisonCorpname && args.queryType === QueryType.CMP_QUERY) {
             ans.push(new Error('collocation tile cannot work in both cmp and two corpora comparison mode at the same time'));
         }
-        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
-        if (err !== null) {
-            ans.push(err);
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            ans.push(new Error(`invalid posQueryGenerator in collocation tile, ${message}`));
         }
         return ans
     },

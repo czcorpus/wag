@@ -27,7 +27,7 @@ import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { MergeFreqsApi } from './api.js';
-import { validatePosQueryGenerator } from '../../../conf/validation.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -41,7 +41,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         subcname?:string;
         corpusSize:number;
         fcrit:string;
-        posQueryGenerator:[string, string];
+        posQueryGenerator:PosQueryGeneratorType;
         freqType:'tokens'|'text-types';
         flimit:number;
         freqSort:string;
@@ -224,10 +224,10 @@ export const init:TileFactory<MergeCorpFreqTileConf>  = {
     sanityCheck: (args) => {
         const ans = [];
         for (let i = 0; i < args.conf.sources.length; i++) {
-            const source = args.conf.sources[i];
-            const err = validatePosQueryGenerator(source.posQueryGenerator);
-            if (err !== null) {
-                ans.push(err);
+            const posQueryGenerator = args.conf.sources[i].posQueryGenerator;
+            const message = validatePosQueryGenerator(posQueryGenerator);
+            if (message) {
+                ans.push(new Error(`invalid posQueryGenerator in mergeCorpFreq tile source ${i}, ${message}`));
             }
         }
         return ans;

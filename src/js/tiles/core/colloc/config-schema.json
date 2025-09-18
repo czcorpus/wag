@@ -37,6 +37,11 @@
                     "type": "string"
                 },
                 {
+                    "enum": [
+                        "directPos",
+                        "pennTreebank",
+                        "ppTagset"
+                    ],
                     "type": "string"
                 }
             ],
@@ -105,6 +110,7 @@
         "corpname",
         "minFreq",
         "minLocalFreq",
+        "posQueryGenerator",
         "rangeSize",
         "tileType"
     ],

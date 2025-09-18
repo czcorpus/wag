@@ -40,6 +40,7 @@ import { CollWithExamplesResponse } from '../colloc/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { HTTPResponse as TranslatHTTPResponse } from '../translations/api.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 
 export interface ConcordanceTileState {
@@ -55,7 +56,7 @@ export interface ConcordanceTileState {
     sentenceStruct:string;
     metadataAttrs:Array<{value:string; label:string}>;
     attrs:Array<string>;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
     concordances:Array<ConcData>;
     visibleQueryIdx:number;
     isBusy:boolean;

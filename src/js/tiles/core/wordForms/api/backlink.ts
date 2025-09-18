@@ -24,6 +24,7 @@ import { QueryMatch } from "../../../../query/index.js";
 import { Backlink, BacklinkConf } from "../../../../page/tile.js";
 import { IApiServices } from "../../../../appServices.js";
 import { CorpusInfoAPI } from "../../../../api/vendor/mquery/corpusInfo.js";
+import { PosQueryGeneratorType } from "src/js/conf/common.js";
 
 
 
@@ -37,9 +38,9 @@ export class WordFormsBacklinkAPI {
 
     protected readonly backlinkConf:BacklinkConf;
 
-    protected readonly posQueryGenerator:[string, string];
+    protected readonly posQueryGenerator:PosQueryGeneratorType;
 
-    constructor(apiURL:string, apiServices:IApiServices, posQueryGenerator:[string, string], backlinkConf:BacklinkConf) {
+    constructor(apiURL:string, apiServices:IApiServices, posQueryGenerator:PosQueryGeneratorType, backlinkConf:BacklinkConf) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);

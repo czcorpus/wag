@@ -25,7 +25,7 @@ import { init as compareViewInit } from './views/compare.js';
 import { init as singleViewInit } from './views/single.js';
 import { MapLoader } from './mapLoader.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
-import { validatePosQueryGenerator } from '../../../conf/validation.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface GeoAreasTileConf extends TileConf {
@@ -43,7 +43,7 @@ export interface GeoAreasTileConf extends TileConf {
     /**
      * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset]).
      */
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 }
 
 
@@ -186,9 +186,9 @@ export class GeoAreasTile implements ITileProvider {
 export const init:TileFactory<GeoAreasTileConf> = {
 
     sanityCheck: (args) => {
-        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
-        if (err !== null) {
-            return [err];
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            return [new Error(`invalid posQueryGenerator in geoAreas tile, ${message}`)];
         }
     },
 

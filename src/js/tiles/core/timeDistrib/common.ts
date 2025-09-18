@@ -18,6 +18,7 @@
 import { Action } from 'kombo';
 import { CorpSrchTileConf } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -32,7 +33,7 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     toYear?:number;
 
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 
     showMeasuredFreq?:boolean;
 }

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { PosQueryGeneratorType } from '../../../../conf/common.js';
 import { XMLNode } from '../../../../page/xml.js';
 
 
@@ -198,6 +199,6 @@ export interface ConcordanceMinState {
     shuffle:boolean;
     metadataAttrs:Array<{value:string; label:string}>;
     attrs:Array<string>;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
     concordances:Array<ConcData>;
 }

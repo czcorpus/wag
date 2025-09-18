@@ -27,7 +27,7 @@ import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { SpeechesApi } from './api.js';
 import { AudioLinkGenerator } from './common.js';
-import { validatePosQueryGenerator } from '../../../conf/validation.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface SpeechesTileConf extends TileConf {
@@ -41,7 +41,7 @@ export interface SpeechesTileConf extends TileConf {
     speechOverlapVal:string;
     maxNumSpeeches?:number;
     audioApiURL?:string;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 }
 
 
@@ -181,9 +181,9 @@ export class SpeechesTile implements ITileProvider {
 export const init:TileFactory<SpeechesTileConf> = {
 
     sanityCheck: (args) => {
-        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
-        if (err !== null) {
-            return [err];
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            return [new Error(`invalid posQueryGenerator in speeches tile, ${message}`)];
         }
     },
 

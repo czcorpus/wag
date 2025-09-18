@@ -33,6 +33,7 @@ import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 
 export enum FreqFilterQuantity {
@@ -59,7 +60,7 @@ export interface TimeDistribModelState {
     subcDesc:string;
     error:string;
     alphaLevel:Maths.AlphaLevel;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
     mainPosAttr:MainPosAttrValues;
     isTweakMode:boolean;
     data:Array<Array<DataItemWithWCI>>;

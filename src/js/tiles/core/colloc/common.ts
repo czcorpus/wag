@@ -20,6 +20,7 @@ import { SubqueryPayload, QueryMatch, QueryType } from '../../../query/index.js'
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 import { Line } from '../../../api/vendor/mquery/concordance/common.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 
 export enum CollocMetric {
@@ -183,7 +184,7 @@ export interface CollocModelState {
 
     queryMatches:Array<QueryMatch>;
 
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 }
 
 

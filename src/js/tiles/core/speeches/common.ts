@@ -21,6 +21,7 @@ import { MarkupToken, SpeechToken } from './api.js';
 import { QueryMatch } from '../../../query/index.js';
 import urlJoin from 'url-join';
 import { Backlink } from '../../../page/tile.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 
 
@@ -86,7 +87,7 @@ export interface SpeechesModelState {
         newPlaybackSession:string|null;
         currPlaybackSession:string|null;
     }|null;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
     queryMatches:Array<QueryMatch>;
 }
 

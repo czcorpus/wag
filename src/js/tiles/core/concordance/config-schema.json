@@ -23,6 +23,11 @@
                     "type": "string"
                 },
                 {
+                    "enum": [
+                        "directPos",
+                        "pennTreebank",
+                        "ppTagset"
+                    ],
                     "type": "string"
                 }
             ],
@@ -156,6 +161,7 @@
         "corpname",
         "pageSize",
         "posAttrs",
+        "posQueryGenerator",
         "sentenceStruct",
         "tileType"
     ],

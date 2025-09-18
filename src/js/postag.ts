@@ -304,7 +304,7 @@ export function posQueryFactory(fnName:string|null):PosQueryExport {
             if (!fnName) {
                 return directPos;
             }
-            throw new Error(`Invalid 'fnName' in 'posQueryFactory': ${fnName}`);
+            throw new Error(`Unknown 'fnName' in 'posQueryFactory': ${fnName}`);
     }
 }
 

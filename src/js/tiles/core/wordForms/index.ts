@@ -27,7 +27,7 @@ import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
 import { IWordFormsApi } from './common.js';
 import { FrodoWordFormsAPI } from './api/frodo.js';
-import { validatePosQueryGenerator } from '../../../conf/validation.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -36,7 +36,7 @@ export interface WordFormsTileConf extends TileConf {
     corpname:string;
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 }
 
 
@@ -166,9 +166,9 @@ export class WordFormsTile implements ITileProvider {
 export const init:TileFactory<WordFormsTileConf> = {
 
     sanityCheck: (args) => {
-        const err = validatePosQueryGenerator(args.conf.posQueryGenerator);
-        if (err !== null) {
-            return [err];
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            return [new Error(`invalid posQueryGenerator in wordForms tile, ${message}`)];
         }
     },
 

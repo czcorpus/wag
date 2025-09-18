@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+import { PosQueryGeneratorType } from "src/js/conf/common.js";
+
 export interface FreqBarModelStateBase {
     isBusy:boolean;
     error:string;
@@ -41,7 +43,7 @@ export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelState
 
     fpage:number;
 
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 
     fttIncludeEmpty?:boolean;
 
