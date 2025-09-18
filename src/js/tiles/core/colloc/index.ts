@@ -43,7 +43,7 @@ export interface CollocationsTileConf extends TileConf {
     maxItems?:number;
 
     /**
-     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     * A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).
      */
     posQueryGenerator:PosQueryGeneratorType;
 }
