@@ -35,7 +35,7 @@ const SCHEMA_FILENAME = 'config-schema.json';
 
 
 export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
-    const validator = new Ajv({allowUnionTypes:true});
+    const validator = new Ajv({allowUnionTypes:true, verbose:true, allErrors:true});
     let validationError = false;
     console.info('Validating tiles configuration...');
 
@@ -69,7 +69,8 @@ export function validateTilesConf(tilesConf:AllQueryTypesTileConf):boolean {
                 console.info(`  ${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 List.forEach(
                     err => {
-                        console.error(`    \u25B6 ${err.message}`)
+                        console.error(`    \u25B6 ${err.instancePath}: ${err.message}`)
+                        console.error(`      schema: ${JSON.stringify(err.parentSchema)}`)
                     },
                     validator.errors
                 );

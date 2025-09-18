@@ -30,6 +30,7 @@ import { findCurrQueryMatch, QueryMatch, QueryType, RecognizedQueries, testIsDic
 import { Backlink } from '../../../page/tile.js';
 import { APIResponse, DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 /*
 oral2013:
@@ -75,7 +76,7 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<A
     tooltipArea:{tooltipX:number; tooltipY:number, caption:string, data:TooltipValues, multiWordMode:boolean}|null;
     mapSVG:string;
     isAltViewMode:boolean;
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
     frequencyDisplayLimit:number;
     backlinks:Array<Backlink>;
 }

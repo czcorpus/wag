@@ -23,6 +23,11 @@
                     "type": "string"
                 },
                 {
+                    "enum": [
+                        "directPos",
+                        "pennTreebank",
+                        "ppTagset"
+                    ],
                     "type": "string"
                 }
             ],

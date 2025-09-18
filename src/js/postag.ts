@@ -292,15 +292,19 @@ export function posTagsEqual(tag1:Array<string>, tag2:Array<string>):boolean {
  *  - Penn Treebank (pennTreebank)
  *  - direct (directPos)
  */
-export function posQueryFactory(fnName:string):PosQueryExport {
+export function posQueryFactory(fnName:string|null):PosQueryExport {
     switch (fnName) {
         case 'ppTagset':
             return ppTagset;
         case 'pennTreebank':
             return pennTreebank;
         case 'directPos':
-        default:
             return directPos;
+        default:
+            if (!fnName) {
+                return directPos;
+            }
+            throw new Error(`Unknown 'fnName' in 'posQueryFactory': ${fnName}`);
     }
 }
 

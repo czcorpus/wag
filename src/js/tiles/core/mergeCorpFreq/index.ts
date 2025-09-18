@@ -27,7 +27,7 @@ import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { MergeFreqsApi } from './api.js';
-import { findCurrentMatches } from '../wordFreq/model.js';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
@@ -41,7 +41,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         subcname?:string;
         corpusSize:number;
         fcrit:string;
-        posQueryGenerator:[string, string];
+        posQueryGenerator:PosQueryGeneratorType;
         freqType:'tokens'|'text-types';
         flimit:number;
         freqSort:string;
@@ -213,7 +213,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     getReadDataFrom():number|null {
         return null;
     }
-
+    
     hideOnNoData():boolean {
         return false;
     }
@@ -221,7 +221,17 @@ export class MergeCorpFreqTile implements ITileProvider {
 
 export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const ans = [];
+        for (let i = 0; i < args.conf.sources.length; i++) {
+            const posQueryGenerator = args.conf.sources[i].posQueryGenerator;
+            const message = validatePosQueryGenerator(posQueryGenerator);
+            if (message) {
+                ans.push(new Error(`invalid posQueryGenerator in mergeCorpFreq tile source ${i}, ${message}`));
+            }
+        }
+        return ans;
+    },
 
     create: (args) => {
         return new MergeCorpFreqTile(args);

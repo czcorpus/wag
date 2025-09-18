@@ -27,6 +27,7 @@ import { init as singleViewInit } from './views/single.js';
 import { init as compareViewInit } from './views/compare.js';
 import { MQueryTimeDistribStreamApi } from '../../../api/vendor/mquery/timeDistrib.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 /**
@@ -187,6 +188,10 @@ export const init:TileFactory<TimeDistTileConf> = {
         }
         if (!args.conf.posQueryGenerator) {
             ans.push(new Error(`${args.conf.tileType}: missing "posQueryGenerator" configuration`));
+        }
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            ans.push(new Error(`invalid posQueryGenerator in timeDistrib tile, ${message}`));
         }
         return ans;
     },

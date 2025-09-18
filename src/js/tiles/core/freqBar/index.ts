@@ -22,8 +22,7 @@ import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
     TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps,
-    BacklinkConf} from '../../../page/tile.js';
+    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { FreqBarModel } from './model.js';
 import { init as singleViewInit } from './views/single.js';
@@ -31,6 +30,7 @@ import { init as compareViewInit } from './views/compare.js';
 import { findCurrentMatches } from '../wordFreq/model.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { List } from 'cnc-tskit';
+import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
 
 
 export interface FreqBarTileConf extends TileConf {
@@ -46,9 +46,9 @@ export interface FreqBarTileConf extends TileConf {
     pixelsPerCategory?:number;
 
     /**
-     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset']).
      */
-    posQueryGenerator?:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 }
 
 
@@ -192,7 +192,12 @@ export class FreqBarTile implements ITileProvider {
 
 export const init:TileFactory<FreqBarTileConf>  = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
+        if (message) {
+            return [new Error(`invalid posQueryGenerator in freqBar tile, ${message}`)];
+        }
+    },
 
     create: (args) => new FreqBarTile(args)
 };

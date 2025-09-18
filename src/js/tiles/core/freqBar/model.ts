@@ -26,7 +26,7 @@ import { DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vend
 import { SystemMessageType } from '../../../types.js';
 import { mergeMap, Observable } from 'rxjs';
 import { List, pipe, tuple } from 'cnc-tskit';
-import { callWithExtraVal } from '../../../api/util.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 
 export interface FreqDataBlock {
@@ -44,7 +44,7 @@ export interface FreqBarModelState {
     matchCase:boolean;
     label:string;
     freqType:'tokens'|'text-types';
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
     flimit:number;
     fpage:number;
     fmaxitems?:number;

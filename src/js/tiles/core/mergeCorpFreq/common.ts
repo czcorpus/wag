@@ -20,6 +20,7 @@ import { QueryMatch } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import { DataRow } from './api.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 export interface ModelSourceArgs {
 
@@ -37,7 +38,7 @@ export interface ModelSourceArgs {
 
     fpage:number;
 
-    posQueryGenerator:[string, string];
+    posQueryGenerator:PosQueryGeneratorType;
 
     fttIncludeEmpty?:boolean;
 
