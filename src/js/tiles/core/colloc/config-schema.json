@@ -29,6 +29,9 @@
         "maxItems": {
             "type": "number"
         },
+        "examplesPerColl": {
+            "type": "number"
+        },
         "posQueryGenerator": {
             "description": "A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).",
             "type": "array",

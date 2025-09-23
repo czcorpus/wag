@@ -70,6 +70,7 @@ export interface MQueryCollArgs {
     srchAttr:string;
     minCollFreq:number;
     maxItems:number;
+    examplesPerColl?:number;
 }
 
 export const measureMap = {
@@ -133,7 +134,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
     private prepareCollWithExArgs(queryArgs:MQueryCollArgs, event:string):string {
         return this.prepareArgs({
             ...queryArgs,
-            examplesPerColl: 2,
+            examplesPerColl: queryArgs.examplesPerColl || 3,
             event
         });
     }
@@ -149,7 +150,7 @@ export class MQueryCollAPI implements ResourceApi<MQueryCollArgs, CollApiRespons
                 this.apiURL,
                 'collocations',
                 args.corpusId
-            ) + `?${this.prepareArgs(args)}`;
+            ) + `?${this.prepareArgs({...args, examplesPerColl: undefined})}`;
     }
 
     private mkRequest(streaming:IDataStreaming, tileId:number, queryIdx:number, args:MQueryCollArgs|null):Observable<BasicHTTPResponse> {

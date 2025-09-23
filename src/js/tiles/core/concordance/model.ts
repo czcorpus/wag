@@ -258,12 +258,13 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                 if (!action.error) {
                     this.changeState(
                         state =>  {
+                            const numPages = state.isExamplesMode ? action.payload.resp.lines.length/state.pageSize : action.payload.resp.concSize/state.pageSize;
                             state.concordances[action.payload.queryIdx] = {
                                 concSize: action.payload.resp.concSize,
                                 ipm: action.payload.resp.ipm,
                                 currPage: state.concordances[action.payload.queryIdx].loadPage,
                                 loadPage: state.concordances[action.payload.queryIdx].loadPage,
-                                numPages: Math.ceil(action.payload.resp.concSize / state.pageSize),
+                                numPages: Math.ceil(numPages),
                                 queryIdx: action.payload.queryIdx,
                                 lines: action.payload.resp.lines
                             };
@@ -294,6 +295,16 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                             state.concordances = createInitialLinesData(this.queryMatches.length);
                             state.error = this.appServices.normalizeHttpApiError(action.error);
                             state.backlinks = List.map(_ => null, this.queryMatches);
+                        } else {
+                            if (state.isExamplesMode) {
+                                state.concordances = List.map(
+                                    conc => {
+                                        conc.currPage = conc.loadPage;
+                                        return conc;
+                                    },
+                                    state.concordances,
+                                );
+                            }
                         }
                     }
                 );
