@@ -41,6 +41,7 @@ export interface CollocationsTileConf extends TileConf {
     minLocalFreq:number;
     rangeSize:number;
     maxItems?:number;
+    examplesPerColl?:number;
 
     /**
      * A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).
@@ -116,7 +117,8 @@ export class CollocationsTile implements ITileProvider {
                 backlinks: List.map(_ => null, queryMatches),
                 queryMatches: List.map(v => findCurrQueryMatch(v), queryMatches),
                 queryType,
-                posQueryGenerator: conf.posQueryGenerator
+                posQueryGenerator: conf.posQueryGenerator,
+                examplesPerColl: conf.examplesPerColl,
             },
             queryMatches: List.map(findCurrQueryMatch, queryMatches),
         });

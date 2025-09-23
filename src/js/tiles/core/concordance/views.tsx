@@ -434,7 +434,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 }
                                             </React.Fragment>
                                     ),
-                                    conc.lines
+                                    state.isExamplesMode ?
+                                        conc.lines.slice(state.pageSize*(conc.currPage-1), state.pageSize*conc.currPage) :
+                                        conc.lines
                                 )}
                             </tbody>
                         </table>

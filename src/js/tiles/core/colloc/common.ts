@@ -185,6 +185,8 @@ export interface CollocModelState {
     queryMatches:Array<QueryMatch>;
 
     posQueryGenerator:PosQueryGeneratorType;
+
+    examplesPerColl?:number;
 }
 
 

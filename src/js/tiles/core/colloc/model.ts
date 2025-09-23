@@ -289,7 +289,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 srchRight:  Math.abs(ctow),
                 srchAttr: state.tokenAttr,
                 minCollFreq: state.minAbsFreq, // TODO what about global vs local freq.?
-                maxItems: state.citemsperpage
+                maxItems: state.citemsperpage,
+                examplesPerColl: state.examplesPerColl,
             }
         }
         return null;
