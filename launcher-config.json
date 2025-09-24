@@ -64,7 +64,9 @@
       "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
       "node dist-server/service.js"
     ],
-    "test": "npm test"
+    "test": "npm test",
+    "code:format": "npx prettier . --write",
+    "code:add-hooks": "npx simple-git-hooks"
   },
   "settings": {
     "tiles": [
