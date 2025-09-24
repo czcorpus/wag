@@ -131,5 +131,9 @@
         "conf_name": "WordSimTileConf"
       }
     ]
+  },
+  "options": {
+    "limit": 10,
+    "logLevel": 0
   }
 }
