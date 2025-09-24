@@ -32,6 +32,7 @@
     "mock-xmlhttprequest": "^7.0.4",
     "null-loader": "^4.0.1",
     "path-browserify": "^1.0.1",
+    "prettier": "3.6.2",
     "progress-bar-webpack-plugin": "^2.1.0",
     "script-launcher": "^1.37.3",
     "sinon": "11.1.2",
