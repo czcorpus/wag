@@ -4,7 +4,9 @@
     "port": 3000,
     "distFilesUrl": "/wag/dist/",
     "theme": "default.less",
-    "langCookie": "wdg_ui_lang",
+    "langCookie": {
+        "name": "wag_ui_lang"
+    },
     "languages": {
         "en-US": "English",
         "cs-CZ": "Čeština"
@@ -14,49 +16,22 @@
         "url": "https://www.korpus.cz/toolbar/toolbar"
     },
     "develServer": {
+        "host": "0.0.0.0",
         "port": 9001,
         "urlRootPath": "/wag/"
     },
     "freqDB": {
-        "single": {
-            "minLemmaFreq": 2,
-            "similarFreqWordsMaxCtx": 10,
-            "databases": {
-                "cs": {
-                    "path": "/path/to/databases/czech-words.db",
-                    "corpusSize": 12345
-                },
-                "en": {
-                    "path": "/path/to/databases/enf-words.db",
-                    "corpusSize": 12345
-                }
-            }
-        },
-        "cmp": {
-            "minLemmaFreq": 2,
-            "databases": {
-                "cs": {
-                    "path": "/path/to/databases/czech-words.db",
-                    "corpusSize": 12345
-                },
-                "en": {
-                    "path": "/path/to/databases/enf-words.db",
-                    "corpusSize": 12345
-                }
-            }
-        },
-        "translat": {
-            "minLemmaFreq": 2,
-            "databases": {
-                "cs": {
-                    "path": "/path/to/databases/czech-words.db",
-                    "corpusSize": 12345
-                },
-                "en": {
-                    "path": "/path/to/databases/enf-words.db",
-                    "corpusSize": 12345
-                }
-            }
+        "maxQueryWords": 3,
+        "minLemmaFreq": 2,
+        "similarFreqWordsMaxCtx": 10,
+        "database": {
+            "path": "/path/to/databases/czech-words.db",
+            "corpusSize": 12345,
+            "dbType": "sqlite"
         }
+    },
+    "logging": {
+        "path": "/var/log/wag/app.log",
+        "rotation": false
     }
 }
