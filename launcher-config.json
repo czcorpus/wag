@@ -15,22 +15,7 @@
       "typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts DataReadabilityMapping --ignoreErrors --out conf/dataReadability-schema.json --required --strictNullChecks"
     ],
-    "schemata:check-conf": [
-      "_CONFIG_PATH=\"${CONFIG_PATH=./conf}\"",
-      "_SERVER_CONF=\"${SERVER_CONF=./conf/server.json}\"",
-      "echo Using config path: $_CONFIG_PATH",
-      "echo Using server config: $_SERVER_CONF",
-      "ajv --allow-union-types --all-errors -s ./conf/server-schema.json -d $_SERVER_CONF",
-      "ajv --allow-union-types -s ./conf/wdglance-schema.json -d $_CONFIG_PATH/wdglance.json",
-      "LAYOUTS_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync($_CONFIG_PATH + \"/wdglance.json\", \"utf8\")).layouts')\"",
-      "if test -f $LAYOUTS_PATH 2> /dev/null; then ajv -s ./conf/layouts-schema.json -d $LAYOUTS_PATH ; else echo \"layouts config file not found\"; fi",
-      "TILES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync($_CONFIG_PATH + \"/wdglance.json\", \"utf8\")).tiles')\"",
-      "if test -f $TILES_PATH 2> /dev/null; then ajv --allow-union-types -s ./conf/tiles-schema.json -d $TILES_PATH ; else echo \"tiles config file not found\"; fi",
-      "THEMES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync($_CONFIG_PATH + \"/wdglance.json\", \"utf8\")).colors')\"",
-      "if test -f $THEMES_PATH 2> /dev/null; then ajv -s ./conf/themes-schema.json -d $THEMES_PATH ; else echo \"themes config file not found\"; fi",
-      "DATA_READABILITY_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync($_CONFIG_PATH + \"/wdglance.json\", \"utf8\")).dataReadability')\"",
-      "if test -f $DATA_READABILITY_PATH 2> /dev/null; then ajv -s ./conf/dataReadability-schema.json -d $DATA_READABILITY_PATH ; else echo \"dataReadability config file not found\"; fi"
-    ],
+    "schemata:check-conf": "sh ./scripts/check-conf.sh",
     "schemata:check-samples": [
       "ajv --allow-union-types --all-errors -s ./conf/server-schema.json -d ./conf/server.sample.json",
       "ajv --allow-union-types -s ./conf/wdglance-schema.json -d ./conf/wdglance.sample.json"
@@ -62,10 +47,7 @@
     "create:custom-tile": "tsx ./scripts/create-tile.ts $1",
     "create:tile-conf": "tsx ./scripts/create-tile-conf.ts $1",
     "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
-    "server": [
-      "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
-      "node dist-server/service.js"
-    ],
+    "server": "SERVER_CONF=${SERVER_CONF:-./conf/server.json} node dist-server/service.js",
     "test": "npm test"
   },
   "settings": {
@@ -131,9 +113,5 @@
         "conf_name": "WordSimTileConf"
       }
     ]
-  },
-  "options": {
-    "limit": 10,
-    "logLevel": 0
   }
 }
