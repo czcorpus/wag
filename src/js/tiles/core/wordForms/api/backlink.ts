@@ -24,7 +24,7 @@ import { QueryMatch } from "../../../../query/index.js";
 import { Backlink, BacklinkConf } from "../../../../page/tile.js";
 import { IApiServices } from "../../../../appServices.js";
 import { CorpusInfoAPI } from "../../../../api/vendor/mquery/corpusInfo.js";
-import { PosQueryGeneratorType } from "src/js/conf/common.js";
+import { PosQueryGeneratorType } from "../../../../conf/common.js";
 
 
 
@@ -70,7 +70,7 @@ export class WordFormsBacklinkAPI {
                 url.searchParams.set('fcrit', 'word/ie 0~0>0');
                 url.searchParams.set('freq_type', 'tokens');
                 url.searchParams.set('freq_sort', 'freq');
-                
+
                 // Validate the constructed URL
                 return ajax$(
                     'GET',
