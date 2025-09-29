@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { PosQueryGeneratorType } from "src/js/conf/common.js";
+import { PosQueryGeneratorType } from "../../conf/common.js";
 
 export interface FreqBarModelStateBase {
     isBusy:boolean;
