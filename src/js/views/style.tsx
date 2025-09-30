@@ -124,7 +124,7 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
     }
 
     .tabs.empty {
-        border: none;
+        display: none;
     }
 
     &.result-page-mode {
