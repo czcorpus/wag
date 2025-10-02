@@ -23,6 +23,10 @@
     },
     "devel-server:starts a development server (no type checks)": "devel-server",
     "server:starts WaG web server": "server",
-    "test:runs tests": "test"
+    "test:runs tests": "test",
+    "code:related to code": {
+      "format:runs code formatter": "code:format",
+      "add-hooks:adds configured git hooks for code checks": "code:add-hooks"
+    }
   }
 }

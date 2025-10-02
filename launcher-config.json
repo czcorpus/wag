@@ -47,8 +47,13 @@
     "create:custom-tile": "tsx ./scripts/create-tile.ts $1",
     "create:tile-conf": "tsx ./scripts/create-tile-conf.ts $1",
     "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
-    "server": "SERVER_CONF=${SERVER_CONF:-./conf/server.json} node dist-server/service.js",
-    "test": "npm test"
+    "server": [
+      "SERVER_CONF=${SERVER_CONF:-./conf/server.json}",
+      "node dist-server/service.js"
+    ],
+    "test": "npm test",
+    "code:format": "npx prettier . --write",
+    "code:add-hooks": "npx simple-git-hooks"
   },
   "settings": {
     "tiles": [
