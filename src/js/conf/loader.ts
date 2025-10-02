@@ -21,121 +21,145 @@ import axios from 'axios';
 import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
 import {
-    TileDbConf, LayoutsConfig, LayoutConfigCommon,
-    AllQueryTypesTileConf
+    TileDbConf,
+    LayoutsConfig,
+    LayoutConfigCommon,
+    AllQueryTypesTileConf,
 } from './index.js';
 import { TileConf } from '../page/tile.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
 import urlJoin from 'url-join';
 
-
 /**
  * StoredTileConf describes a JSON record for a tile
  * configuration as stored in a CouchDB or APIGuard instance.
  */
 interface StoredTileConf {
-    _id:string;
-    _rev:string;
-    ident:string;
-    conf:TileConf;
+    _id: string;
+    _rev: string;
+    ident: string;
+    conf: TileConf;
 }
 
 /**
  * Checks if the given object has an `import` property.
  */
-function isPartialConf<T>(obj: Partial<T>): obj is Partial<T> & { 'import': string } {
+function isPartialConf<T>(
+    obj: Partial<T>
+): obj is Partial<T> & { import: string } {
     return obj['import'] !== undefined;
 }
 
 /**
  * Load a locally stored general JSON file.
  */
-export function parseJsonConfig<T>(confPath:string):Observable<T> {
+export function parseJsonConfig<T>(confPath: string): Observable<T> {
     return new Observable<T>((observer) => {
         try {
             console.info(`Loading configuration ${confPath}`);
             fs.readFile(confPath, 'utf8', (err, data) => {
                 if (err) {
-                    observer.error(new Error(`Failed to read file ${confPath}: ${err}`));
-
+                    observer.error(
+                        new Error(`Failed to read file ${confPath}: ${err}`)
+                    );
                 } else {
                     const conf = JSON.parse(data) as Partial<T>;
                     if (isPartialConf(conf)) {
-                        console.info(`Loading import configuration ${conf.import}`);
-                        fs.readFile(conf.import, 'utf8', (importErr, importData) => {
-                            if (importErr) {
-                                observer.error(new Error(`Failed to read imported file ${conf.import}: ${importErr}`));
-
-                            } else {
-                                const importedConf = JSON.parse(importData) as T;
-                                observer.next(Object.assign(importedConf, conf));
-                                observer.complete();
+                        console.info(
+                            `Loading import configuration ${conf.import}`
+                        );
+                        fs.readFile(
+                            conf.import,
+                            'utf8',
+                            (importErr, importData) => {
+                                if (importErr) {
+                                    observer.error(
+                                        new Error(
+                                            `Failed to read imported file ${conf.import}: ${importErr}`
+                                        )
+                                    );
+                                } else {
+                                    const importedConf = JSON.parse(
+                                        importData
+                                    ) as T;
+                                    observer.next(
+                                        Object.assign(importedConf, conf)
+                                    );
+                                    observer.complete();
+                                }
                             }
-                        });
-
+                        );
                     } else {
                         observer.next(conf as T);
                         observer.complete();
                     }
                 }
             });
-
         } catch (e) {
-            observer.error(new Error(`Failed to parse configuration ${path.basename(confPath)}: ${e}`));
+            observer.error(
+                new Error(
+                    `Failed to parse configuration ${path.basename(confPath)}: ${e}`
+                )
+            );
         }
     });
 }
-
 
 /**
  * Load all the required tiles defined in the provided layout.
  * The layout is expected to
  */
-export function loadRemoteTileConf(layout:LayoutsConfig, tileDBConf:TileDbConf|undefined):Observable<AllQueryTypesTileConf> {
+export function loadRemoteTileConf(
+    layout: LayoutsConfig,
+    tileDBConf: TileDbConf | undefined
+): Observable<AllQueryTypesTileConf> {
     const tiles = pipe(
         layout.cmp.groups,
         List.concat(layout.single.groups),
         List.concat(layout.translat.groups),
-        List.flatMap(group => group.tiles),
-        List.map(t => t.tile)
+        List.flatMap((group) => group.tiles),
+        List.map((t) => t.tile)
     );
-    return rxOf(...List.map<string, Observable<StoredTileConf>>(
-        (tile) => new Observable<StoredTileConf>((observer) => {
-            const url = urlJoin(tileDBConf.server, `${tileDBConf.appId}:${tile}`)
-            console.info(`Loading tile configuration from ${url}`);
-            axios.get<StoredTileConf>(
-                url,
-                {
-                    auth: {
-                        username: tileDBConf.username,
-                        password: tileDBConf.password
-                    }
-                }
-            ).then(
-                (resp) => {
-                    observer.next(resp.data);
-                    observer.complete();
-                },
-                (err) => {
-                    observer.error(new Error(`Failed to load a configuration for ${tile}: ${err}`));
-                }
-            );
-        }),
-        tiles
-
-    )).pipe(
-        mergeMap(
-            v => v
-        ),
-        reduce(
-            (tilesConf, data) => {
-                tilesConf[data.ident] = data.conf;
-
-                return tilesConf;
-            },
-            {} as AllQueryTypesTileConf
+    return rxOf(
+        ...List.map<string, Observable<StoredTileConf>>(
+            (tile) =>
+                new Observable<StoredTileConf>((observer) => {
+                    const url = urlJoin(
+                        tileDBConf.server,
+                        `${tileDBConf.appId}:${tile}`
+                    );
+                    console.info(`Loading tile configuration from ${url}`);
+                    axios
+                        .get<StoredTileConf>(url, {
+                            auth: {
+                                username: tileDBConf.username,
+                                password: tileDBConf.password,
+                            },
+                        })
+                        .then(
+                            (resp) => {
+                                observer.next(resp.data);
+                                observer.complete();
+                            },
+                            (err) => {
+                                observer.error(
+                                    new Error(
+                                        `Failed to load a configuration for ${tile}: ${err}`
+                                    )
+                                );
+                            }
+                        );
+                }),
+            tiles
         )
+    ).pipe(
+        mergeMap((v) => v),
+        reduce((tilesConf, data) => {
+            tilesConf[data.ident] = data.conf;
+
+            return tilesConf;
+        }, {} as AllQueryTypesTileConf)
     );
 }
 
@@ -143,21 +167,23 @@ export function loadRemoteTileConf(layout:LayoutsConfig, tileDBConf:TileDbConf|u
  *
  */
 function expandLayout<T extends LayoutConfigCommon>(
-    layout:T,
-    mkEmpty:()=>T,
-    layouts:LayoutsConfig
-):T {
+    layout: T,
+    mkEmpty: () => T,
+    layouts: LayoutsConfig
+): T {
     if (!layout) {
         return mkEmpty();
     }
     // if referenced layout, copy its groups
     if (layout.useLayout) {
-        layout.groups = JSON.parse(JSON.stringify(layouts[layout.useLayout].groups)); // deep copy
+        layout.groups = JSON.parse(
+            JSON.stringify(layouts[layout.useLayout].groups)
+        ); // deep copy
 
-        layout.groups = List.map(
-            group => {
-                if (typeof group !== 'string') {
-                    group.tiles = List.reduce((tiles, tile) => {
+        layout.groups = List.map((group) => {
+            if (typeof group !== 'string') {
+                group.tiles = List.reduce(
+                    (tiles, tile) => {
                         // replace referenced tile
                         if (Dict.hasKey(tile.ref, layout.replace)) {
                             tile.tile = layout.replace[tile.ref];
@@ -170,23 +196,32 @@ function expandLayout<T extends LayoutConfigCommon>(
                         }
 
                         return tiles;
-                    }, [], group.tiles)
-                }
-                return group
-            },
-            layout.groups
-        );
+                    },
+                    [],
+                    group.tiles
+                );
+            }
+            return group;
+        }, layout.groups);
     }
     return layout;
 }
 
-
-export function useCommonLayouts(layouts:LayoutsConfig):LayoutsConfig {
+export function useCommonLayouts(layouts: LayoutsConfig): LayoutsConfig {
     layouts.cmp = expandLayout(
-        layouts.cmp, () => ({ groups: [], mainPosAttr: 'pos' }), layouts);
+        layouts.cmp,
+        () => ({ groups: [], mainPosAttr: 'pos' }),
+        layouts
+    );
     layouts.single = expandLayout(
-        layouts.single, () => ({ groups: [], mainPosAttr: 'pos' }), layouts);
+        layouts.single,
+        () => ({ groups: [], mainPosAttr: 'pos' }),
+        layouts
+    );
     layouts.translat = expandLayout(
-        layouts.translat, () => ({ groups: [], mainPosAttr: 'pos', targetLanguages: [] }), layouts);
+        layouts.translat,
+        () => ({ groups: [], mainPosAttr: 'pos', targetLanguages: [] }),
+        layouts
+    );
     return layouts;
 }

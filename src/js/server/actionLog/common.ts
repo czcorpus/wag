@@ -25,27 +25,24 @@ import { Observable, of as rxOf } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ActionLogRecord } from '../actionLog/abstract.js';
 
-
 interface LogActionArgs {
-    actionWriter:IActionWriter;
-    req:Request;
-    httpAction:HTTPAction;
-    datetime:string;
-    userId:number|null;
-    userConf:UserConf|null;
-    isMobileClient:boolean|null;
-    hasMatch:boolean|null;
+    actionWriter: IActionWriter;
+    req: Request;
+    httpAction: HTTPAction;
+    datetime: string;
+    userId: number | null;
+    userConf: UserConf | null;
+    isMobileClient: boolean | null;
+    hasMatch: boolean | null;
 }
 
-
-function extractRemoteIP(req:Request):string {
-    const xff = req.headers['x-forwarded-for']
+function extractRemoteIP(req: Request): string {
+    const xff = req.headers['x-forwarded-for'];
     if (xff != undefined) {
         return Array.isArray(xff) ? xff[0] : xff;
     }
     return req.socket.remoteAddress;
 }
-
 
 export function logAction({
     actionWriter,
@@ -55,32 +52,40 @@ export function logAction({
     userId,
     userConf,
     isMobileClient,
-    hasMatch
-}:LogActionArgs):Observable<ActionLogRecord> {
+    hasMatch,
+}: LogActionArgs): Observable<ActionLogRecord> {
     return rxOf({
-            action: httpAction.substring(1, httpAction.length - 1),
-            userId,
-            datetime,
-            queryType: userConf ? userConf.queryType : null,
-            request: {
-                origin: extractRemoteIP(req),
-                userAgent: req.headers['user-agent'],
-                referer: req.headers['referer']
-            },
-            applicationId: userConf ? userConf.applicationId : null,
-            lang2: userConf && httpAction === HTTPAction.TRANSLATE ? userConf.translatLanguage : null,
-            isQuery: List.some(
-                a => a === httpAction,
-                [HTTPAction.SEARCH, HTTPAction.COMPARE, HTTPAction.TRANSLATE, HTTPAction.EMBEDDED_SEARCH]
-            ),
-            isMobileClient,
-            hasMatch,
-            hasPosSpecification: userConf ? List.some(query => List.size(query.pos) > 0, userConf.queries) : false
-        }).pipe(
-            tap(
-                item => {
-                    actionWriter.write(item);
-                }
-            )
-        );
+        action: httpAction.substring(1, httpAction.length - 1),
+        userId,
+        datetime,
+        queryType: userConf ? userConf.queryType : null,
+        request: {
+            origin: extractRemoteIP(req),
+            userAgent: req.headers['user-agent'],
+            referer: req.headers['referer'],
+        },
+        applicationId: userConf ? userConf.applicationId : null,
+        lang2:
+            userConf && httpAction === HTTPAction.TRANSLATE
+                ? userConf.translatLanguage
+                : null,
+        isQuery: List.some(
+            (a) => a === httpAction,
+            [
+                HTTPAction.SEARCH,
+                HTTPAction.COMPARE,
+                HTTPAction.TRANSLATE,
+                HTTPAction.EMBEDDED_SEARCH,
+            ]
+        ),
+        isMobileClient,
+        hasMatch,
+        hasPosSpecification: userConf
+            ? List.some((query) => List.size(query.pos) > 0, userConf.queries)
+            : false,
+    }).pipe(
+        tap((item) => {
+            actionWriter.write(item);
+        })
+    );
 }

@@ -22,21 +22,27 @@ import { GlobalComponents } from './common/index.js';
 
 import * as S from './style.js';
 
-
 export interface ErrPageProps {
-    error:[number, string]|null;
+    error: [number, string] | null;
 }
 
-export function init(ut:ViewUtils<GlobalComponents>):React.FC<ErrPageProps> {
-
-    const ErrPage:React.FC<ErrPageProps> = (props) => {
+export function init(ut: ViewUtils<GlobalComponents>): React.FC<ErrPageProps> {
+    const ErrPage: React.FC<ErrPageProps> = (props) => {
         return (
             <S.ErrPage>
                 <div className="cnc-tile">
-                    <header className="cnc-tile-header panel err">{ut.translate('global__server_error')}</header>
+                    <header className="cnc-tile-header panel err">
+                        {ut.translate('global__server_error')}
+                    </header>
                     <div className="tile-body text">
-                        <p><strong>{props.error[0]}:</strong> {props.error[1]}</p>
-                        <p><a href={ut.createActionUrl('/')}>{ut.translate('global__go_to_main_page')}</a></p>
+                        <p>
+                            <strong>{props.error[0]}:</strong> {props.error[1]}
+                        </p>
+                        <p>
+                            <a href={ut.createActionUrl('/')}>
+                                {ut.translate('global__go_to_main_page')}
+                            </a>
+                        </p>
                     </div>
                 </div>
             </S.ErrPage>

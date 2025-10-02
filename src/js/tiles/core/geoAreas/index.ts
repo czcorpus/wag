@@ -19,56 +19,73 @@ import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileConf,
+    TileFactory,
+    TileFactoryArgs,
+} from '../../../page/tile.js';
 import { GeoAreasModel } from './model.js';
 import { init as compareViewInit } from './views/compare.js';
 import { init as singleViewInit } from './views/single.js';
 import { MapLoader } from './mapLoader.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface GeoAreasTileConf extends TileConf {
-    apiURL:string;
-    apiType:string;
-    corpname:string;
-    fcrit:string;
-    freqType:'tokens'|'text-types';
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
-    areaCodeMapping:{[name:string]:string};
-    frequencyDisplayLimit:number;
+    apiURL: string;
+    apiType: string;
+    corpname: string;
+    fcrit: string;
+    freqType: 'tokens' | 'text-types';
+    freqSort: string;
+    fpage: number;
+    fttIncludeEmpty: boolean;
+    areaCodeMapping: { [name: string]: string };
+    frequencyDisplayLimit: number;
 
     /**
      * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset]).
      */
-    posQueryGenerator:PosQueryGeneratorType;
+    posQueryGenerator: PosQueryGeneratorType;
 }
 
-
 export class GeoAreasTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private label: string;
 
-    private label:string;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: GeoAreasModel;
 
-    private readonly model:GeoAreasModel;
+    private readonly view: TileComponent;
 
-    private readonly view:TileComponent;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
-
-    private readonly blockingTiles:Array<number>;
+    private readonly blockingTiles: Array<number>;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme,
-        widthFract, conf, isBusy, queryMatches, queryType,
-    }:TileFactoryArgs<GeoAreasTileConf>) {
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        theme,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+        queryType,
+    }: TileFactoryArgs<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -79,21 +96,25 @@ export class GeoAreasTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches,
-            freqApi: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.backlink),
+            freqApi: new MQueryFreqDistribAPI(
+                conf.apiURL,
+                appServices,
+                conf.backlink
+            ),
             mapLoader: new MapLoader(appServices),
             queryType,
             initState: {
                 isBusy: isBusy,
                 error: null,
-                areaCodeMapping: {...conf.areaCodeMapping},
+                areaCodeMapping: { ...conf.areaCodeMapping },
                 mapSVG: '',
                 tooltipArea: null,
-                data: List.map(_ => [], queryMatches),
+                data: List.map((_) => [], queryMatches),
                 corpname: conf.corpname,
                 subcname: null, // TODO
                 fcrit: conf.fcrit,
                 freqType: conf.freqType,
-                flimit: 1,  // necessary for the freqApi
+                flimit: 1, // necessary for the freqApi
                 frequencyDisplayLimit: conf.frequencyDisplayLimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
@@ -101,97 +122,106 @@ export class GeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
-                currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
-                backlinks: List.map(_ => null, queryMatches),
+                currQueryMatches: List.map(
+                    (lemma) => findCurrQueryMatch(lemma),
+                    queryMatches
+                ),
+                backlinks: List.map((_) => null, queryMatches),
             },
         });
-        this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
-        this.view = queryType === QueryType.CMP_QUERY || queryType === QueryType.PREVIEW && queryMatches.length > 1 ?
-            compareViewInit(this.dispatcher, ut, theme, this.model) :
-            singleViewInit(this.dispatcher, ut, theme, this.model);
+        this.label = appServices.importExternalMessage(
+            conf.label || 'geolocations__main_label'
+        );
+        this.view =
+            queryType === QueryType.CMP_QUERY ||
+            (queryType === QueryType.PREVIEW && queryMatches.length > 1)
+                ? compareViewInit(this.dispatcher, ut, theme, this.model)
+                : singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
     /**
      */
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    getBlockingTiles():Array<number> {
+    getBlockingTiles(): Array<number> {
         return this.blockingTiles;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<GeoAreasTileConf> = {
-
+export const init: TileFactory<GeoAreasTileConf> = {
     sanityCheck: (args) => {
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            return [new Error(`invalid posQueryGenerator in geoAreas tile, ${message}`)];
+            return [
+                new Error(
+                    `invalid posQueryGenerator in geoAreas tile, ${message}`
+                ),
+            ];
         }
     },
 
-    create: (args) => new GeoAreasTile(args)
+    create: (args) => new GeoAreasTile(args),
 };
-

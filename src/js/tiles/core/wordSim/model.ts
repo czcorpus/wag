@@ -26,49 +26,56 @@ import { Actions } from './actions.js';
 import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
-import { CNCWord2VecSimApi, CNCWord2VecSimApiArgs, OperationMode, WordSimEntry } from './api/standard.js';
+import {
+    CNCWord2VecSimApi,
+    CNCWord2VecSimApiArgs,
+    OperationMode,
+    WordSimEntry,
+} from './api/standard.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CNCWSServerApi } from './api/wss.js';
 
-
 export interface WordSimModelArgs {
-    dispatcher:IActionDispatcher;
-    initState:WordSimModelState;
-    tileId:number;
-    api:CNCWord2VecSimApi|CNCWSServerApi;
-    appServices:IAppServices;
+    dispatcher: IActionDispatcher;
+    initState: WordSimModelState;
+    tileId: number;
+    api: CNCWord2VecSimApi | CNCWSServerApi;
+    appServices: IAppServices;
 }
-
 
 /**
  * WordSimModelState is a state for 'word similarity' core tile (and
  * derived tiles).
  */
 export interface WordSimModelState {
-    isBusy:boolean;
-    isTweakMode:boolean;
-    isMobile:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    maxResultItems:number;
-    minScore:number;
-    minMatchFreq:number;
-    data:Array<Array<WordSimEntry>>;
-    operationMode:OperationMode;
-    corpus:string;
-    model:string;
-    queryMatches:Array<QueryMatch>;
-    selectedText:string;
+    isBusy: boolean;
+    isTweakMode: boolean;
+    isMobile: boolean;
+    isAltViewMode: boolean;
+    error: string;
+    maxResultItems: number;
+    minScore: number;
+    minMatchFreq: number;
+    data: Array<Array<WordSimEntry>>;
+    operationMode: OperationMode;
+    corpus: string;
+    model: string;
+    queryMatches: Array<QueryMatch>;
+    selectedText: string;
 }
 
-
 export class WordSimModel extends StatelessModel<WordSimModelState> {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly api: CNCWord2VecSimApi | CNCWSServerApi;
 
-    private readonly api:CNCWord2VecSimApi|CNCWSServerApi;
-
-    constructor({dispatcher, initState, tileId, api, appServices}:WordSimModelArgs) {
+    constructor({
+        dispatcher,
+        initState,
+        tileId,
+        api,
+        appServices,
+    }: WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -133,12 +140,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.data = List.map(_ => [], state.queryMatches);
-                        state.error = appServices.normalizeHttpApiError(action.error);
-
+                        state.data = List.map((_) => [], state.queryMatches);
+                        state.error = appServices.normalizeHttpApiError(
+                            action.error
+                        );
                     } else {
-                        state.data[action.payload.queryIdx] = action.payload.words;
-
+                        state.data[action.payload.queryIdx] =
+                            action.payload.words;
                     }
                 }
             }
@@ -149,7 +157,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.operationMode = action.payload.value;
-                    state.data = state.queryMatches.map(_ => []);
+                    state.data = state.queryMatches.map((_) => []);
                 }
             },
             (state, action, seDispatch) => {
@@ -165,94 +173,104 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(
-                        appServices.dataStreaming().startNewSubgroup(this.tileId),
-                        this.tileId,
-                        appServices.getISO639UILang(),
-                        state.corpus
-                    ).subscribe({
-                        next:(data) => {
-                            seDispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    tileId: this.tileId,
-                                    data: data
-                                }
-                            });
-                        },
-                        error: (err) => {
-                            seDispatch({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    tileId: this.tileId,
-                                    data: null
-                                },
-                                error: err
-                            });
-                        }
-                    });
+                    this.api
+                        .getSourceDescription(
+                            appServices
+                                .dataStreaming()
+                                .startNewSubgroup(this.tileId),
+                            this.tileId,
+                            appServices.getISO639UILang(),
+                            state.corpus
+                        )
+                        .subscribe({
+                            next: (data) => {
+                                seDispatch({
+                                    name: GlobalActions.GetSourceInfoDone.name,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        data: data,
+                                    },
+                                });
+                            },
+                            error: (err) => {
+                                seDispatch({
+                                    name: GlobalActions.GetSourceInfoDone.name,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        data: null,
+                                    },
+                                    error: err,
+                                });
+                            },
+                        });
                 }
             }
         );
     }
 
-    private stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
+    private stateToArgs(
+        state: WordSimModelState,
+        queryMatch: QueryMatch
+    ): CNCWord2VecSimApiArgs {
         return {
             corpus: state.corpus,
             model: state.model,
             word: queryMatch.lemma,
-            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0]: '', // TODO is the first zero OK? (i.e. we ignore other variants)
+            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0] : '', // TODO is the first zero OK? (i.e. we ignore other variants)
             limit: state.maxResultItems,
-            minScore: state.minScore
+            minScore: state.minScore,
         };
     }
 
-    getData(state:WordSimModelState, streaming:IDataStreaming, seDispatch:SEDispatcher):void {
-        new Observable((observer:Observer<[number, QueryMatch]>) => {
+    getData(
+        state: WordSimModelState,
+        streaming: IDataStreaming,
+        seDispatch: SEDispatcher
+    ): void {
+        new Observable((observer: Observer<[number, QueryMatch]>) => {
             state.queryMatches.forEach((queryMatch, queryId) => {
                 observer.next(tuple(queryId, queryMatch));
             });
             observer.complete();
-
-        }).pipe(
-            mergeMap(([queryId, queryMatch]) =>
-                callWithExtraVal(
-                    streaming,
-                    this.api,
-                    this.tileId,
-                    queryId,
-                    testIsDictMatch(queryMatch) ?
-                        this.stateToArgs(state, queryMatch) :
-                        null,
-                    queryId
+        })
+            .pipe(
+                mergeMap(([queryId, queryMatch]) =>
+                    callWithExtraVal(
+                        streaming,
+                        this.api,
+                        this.tileId,
+                        queryId,
+                        testIsDictMatch(queryMatch)
+                            ? this.stateToArgs(state, queryMatch)
+                            : null,
+                        queryId
+                    )
                 )
             )
-        ).subscribe({
-            next: ([data, queryId]) => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        queryIdx: queryId,
-                        words: data.words,
-                        isEmpty: data.words.length === 0
-                    }
-                });
-
-            },
-            error: (error) => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        queryIdx: null,
-                        words: [],
-                        isEmpty: true
-                    },
-                    error
-                })
-            }
-        });
+            .subscribe({
+                next: ([data, queryId]) => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            queryIdx: queryId,
+                            words: data.words,
+                            isEmpty: data.words.length === 0,
+                        },
+                    });
+                },
+                error: (error) => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            queryIdx: null,
+                            words: [],
+                            isEmpty: true,
+                        },
+                        error,
+                    });
+                },
+            });
     }
-
 }

@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
-import { List, pipe } from 'cnc-tskit'
+import { List, pipe } from 'cnc-tskit';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
@@ -26,29 +26,26 @@ import { IAppServices } from '../../../appServices.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
 
-
 export interface TranslationModelArgs {
-    dispatcher:IActionQueue;
-    appServices:IAppServices;
-    initialState:TranslationsModelState;
-    tileId:number;
-    api:TreqAPI;
-    queryMatches:RecognizedQueries;
-    scaleColorGen:ColorScaleFunctionGenerator;
+    dispatcher: IActionQueue;
+    appServices: IAppServices;
+    initialState: TranslationsModelState;
+    tileId: number;
+    api: TreqAPI;
+    queryMatches: RecognizedQueries;
+    scaleColorGen: ColorScaleFunctionGenerator;
 }
 
-
 export class TranslationsModel extends StatelessModel<TranslationsModelState> {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly api: TreqAPI;
 
-    private readonly api:TreqAPI;
+    private readonly queryMatches: RecognizedQueries;
 
-    private readonly queryMatches:RecognizedQueries;
+    private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
-    private readonly scaleColorGen:ColorScaleFunctionGenerator;
-
-    private readonly appServices:IAppServices;
+    private readonly appServices: IAppServices;
 
     constructor({
         dispatcher,
@@ -57,8 +54,8 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
         tileId,
         api,
         queryMatches,
-        scaleColorGen}:TranslationModelArgs) {
-
+        scaleColorGen,
+    }: TranslationModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.queryMatches = queryMatches;
@@ -79,13 +76,14 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
-            action => this.tileId === action.payload.tileId,
+            (action) => this.tileId === action.payload.tileId,
             (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
                     state.translations = [];
-                    state.error = this.appServices.normalizeHttpApiError(action.error);
-
+                    state.error = this.appServices.normalizeHttpApiError(
+                        action.error
+                    );
                 } else {
                     state.translations = action.payload.data.translations;
                     state.backlink = this.api.getBacklink(0);
@@ -95,7 +93,7 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
-            action => this.tileId === action.payload.ident,
+            (action) => this.tileId === action.payload.ident,
             (state, action) => {
                 state.isAltViewMode = true;
             }
@@ -103,7 +101,7 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.DisableAltViewMode,
-            action => this.tileId === action.payload.ident,
+            (action) => this.tileId === action.payload.ident,
             (state, action) => {
                 state.isAltViewMode = false;
             }
@@ -111,47 +109,49 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.GetSourceInfo,
-            action => this.tileId === action.payload.tileId,
+            (action) => this.tileId === action.payload.tileId,
             null,
             (state, action, dispatch) => {
-                this.api.getSourceDescription(
-                    appServices.dataStreaming().startNewSubgroup(this.tileId),
-                    this.tileId,
-                    appServices.getISO639UILang(),
-                    action.payload.corpusId,
-
-                ).subscribe({
-                    next: (data) => {
-                        dispatch(
-                            GlobalActions.GetSourceInfoDone,
-                            {
-                                data
-                            }
-                        );
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        dispatch(
-                            GlobalActions.GetSourceInfoDone,
-                            error
-                        );
-                    }
-                });
+                this.api
+                    .getSourceDescription(
+                        appServices
+                            .dataStreaming()
+                            .startNewSubgroup(this.tileId),
+                        this.tileId,
+                        appServices.getISO639UILang(),
+                        action.payload.corpusId
+                    )
+                    .subscribe({
+                        next: (data) => {
+                            dispatch(GlobalActions.GetSourceInfoDone, {
+                                data,
+                            });
+                        },
+                        error: (error) => {
+                            console.error(error);
+                            dispatch(GlobalActions.GetSourceInfoDone, error);
+                        },
+                    });
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]);
+                const srchLemma = findCurrQueryMatch(
+                    this.queryMatches[action.payload.backlink.queryId]
+                );
                 const url = this.api.requestBacklink(state, srchLemma.lemma);
-                window.open(url.toString(),'_blank');
+                window.open(url.toString(), '_blank');
             }
         );
     }
 
-    private stateToArgs(state:TranslationsModelState, query:string):RequestArgs {
+    private stateToArgs(
+        state: TranslationsModelState,
+        query: string
+    ): RequestArgs {
         return {
             from: state.lang1,
             to: state.lang2,
@@ -166,76 +166,80 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
         };
     }
 
-    private loadData(state:TranslationsModelState, dispatch:SEDispatcher):void {
+    private loadData(
+        state: TranslationsModelState,
+        dispatch: SEDispatcher
+    ): void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
-        this.api.call(
-            this.appServices.dataStreaming(),
-            this.tileId,
-            0,
-            this.stateToArgs(state, srchLemma.lemma)
-
-        ).pipe(
-                map(item => {
-                    const colors = this.scaleColorGen(0)
+        this.api
+            .call(
+                this.appServices.dataStreaming(),
+                this.tileId,
+                0,
+                this.stateToArgs(state, srchLemma.lemma)
+            )
+            .pipe(
+                map((item) => {
+                    const colors = this.scaleColorGen(0);
                     return pipe(
                         item.translations,
-                        List.filter(x => x.freq >= state.minItemFreq),
+                        List.filter((x) => x.freq >= state.minItemFreq),
                         List.slice(0, state.maxNumLines),
-                        List.map(
-                            (line, i) => ({
-                                freq: line.freq,
-                                score: line.score,
-                                word: line.word,
-                                translations: line.translations,
-                                firstTranslatLc: line.firstTranslatLc,
-                                interactionId: line.interactionId,
-                                color: colors(i)
-                            })
-                        )
+                        List.map((line, i) => ({
+                            freq: line.freq,
+                            score: line.score,
+                            word: line.word,
+                            translations: line.translations,
+                            firstTranslatLc: line.firstTranslatLc,
+                            interactionId: line.interactionId,
+                            color: colors(i),
+                        }))
                     );
                 })
             )
             .subscribe({
-                next: data => {
+                next: (data) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: data.length === 0,
-                            query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
+                            query: findCurrQueryMatch(this.queryMatches[0])
+                                .lemma, // TODO switch to word and give up dict support
                             subqueries: List.map(
-                                v => ({
+                                (v) => ({
                                     value: {
                                         value: v.firstTranslatLc,
-                                        context: [0, 0]
+                                        context: [0, 0],
                                     },
                                     interactionId: v.interactionId,
-                                    color: v.color
+                                    color: v.color,
                                 }),
                                 data
                             ),
                             translatLanguage: state.lang2,
-                            data: {translations: data}
-                        }
+                            data: { translations: data },
+                        },
                     });
                 },
-                error: error => {
+                error: (error) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: true,
-                            query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
+                            query: findCurrQueryMatch(this.queryMatches[0])
+                                .lemma, // TODO switch to word and give up dict support
                             subqueries: [],
                             translatLanguage: state.lang1,
-                            data: {translations: []}
+                            data: { translations: [] },
                         },
-                        error
+                        error,
                     });
                     console.error(error);
-                }
+                },
             });
-        }
+    }
 }

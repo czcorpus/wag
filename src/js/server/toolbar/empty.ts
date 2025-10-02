@@ -21,32 +21,35 @@ import { HostPageEnv, IToolbarProvider } from '../../page/hostPage.js';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/common/index.js';
 
-
-
-export const emptyValue = ():HostPageEnv => {
+export const emptyValue = (): HostPageEnv => {
     return {
         userId: null,
         styles: [],
         scripts: [],
         html: null,
-        toolbarHeight: null
+        toolbarHeight: null,
     };
-}
+};
 
 export class EmptyToolbar implements IToolbarProvider {
-    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
+    get(
+        uiLang: string,
+        returnUrl: string,
+        cookies: { [key: string]: string },
+        ut: ViewUtils<GlobalComponents>
+    ): Observable<HostPageEnv> {
         return rxOf(emptyValue());
     }
 
-    importLangCode(uiLang:string):string {
+    importLangCode(uiLang: string): string {
         return uiLang;
     }
 
-    exportLangCode(uiLang:string, avail:{[code:string]:string}):string {
+    exportLangCode(uiLang: string, avail: { [code: string]: string }): string {
         return uiLang;
     }
 
-    defaultHostLangCode():string {
+    defaultHostLangCode(): string {
         return 'en-US';
     }
 }

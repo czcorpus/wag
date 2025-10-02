@@ -19,32 +19,32 @@
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 
-
 export interface __Template__ModelState {
-    isBusy:boolean;
-    tileId:number;
-    isAltViewMode:boolean;
-    isTileTweakMode:boolean;
-    error:string|null;
-    data:Array<string>;
+    isBusy: boolean;
+    tileId: number;
+    isAltViewMode: boolean;
+    isTileTweakMode: boolean;
+    error: string | null;
+    data: Array<string>;
 }
 
-
-export interface DataLoadedPayload {
-}
-
+export interface DataLoadedPayload {}
 
 export interface PartialDataLoadedPayload {
-    data:string;
+    data: string;
 }
 
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-	    name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
-	    name: GlobalActions.TilePartialDataLoaded.name
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload &
+            PartialDataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
 }

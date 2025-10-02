@@ -22,25 +22,36 @@ import { GlobalComponents } from '../../../../views/common/index.js';
 
 import * as S from '../style.js';
 
-
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
-
+export function init(
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>
+) {
     // -------------------- <Stars /> -----------------------------------------------
 
-    const Stars:React.FC<{
-        freqBand:number;
-
+    const Stars: React.FC<{
+        freqBand: number;
     }> = (props) => {
-        return <S.Stars>{[1, 2, 3, 4, 5].map(v =>
-            <img className="filtered" key={`${v}`} src={ut.createStaticUrl(`star${v <= props.freqBand ? '' : '_grey'}.svg`)}
-                 alt={ut.translate(v <= props.freqBand ? 'global__img_alt_star_icon' : 'global__img_alt_star_icon_grey')} />
-        )}</S.Stars>
+        return (
+            <S.Stars>
+                {[1, 2, 3, 4, 5].map((v) => (
+                    <img
+                        className="filtered"
+                        key={`${v}`}
+                        src={ut.createStaticUrl(
+                            `star${v <= props.freqBand ? '' : '_grey'}.svg`
+                        )}
+                        alt={ut.translate(
+                            v <= props.freqBand
+                                ? 'global__img_alt_star_icon'
+                                : 'global__img_alt_star_icon_grey'
+                        )}
+                    />
+                ))}
+            </S.Stars>
+        );
     };
-
 
     return {
-        Stars: Stars
+        Stars: Stars,
     };
-
 }
-

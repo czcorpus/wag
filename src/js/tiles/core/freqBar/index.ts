@@ -21,8 +21,15 @@ import { IAppServices } from '../../../appServices.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
-    TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+    TileComponent,
+    TileConf,
+    TileFactory,
+    ITileProvider,
+    TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileReloader,
+    AltViewIconProps,
+} from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { FreqBarModel } from './model.js';
 import { init as singleViewInit } from './views/single.js';
@@ -30,55 +37,63 @@ import { init as compareViewInit } from './views/compare.js';
 import { findCurrentMatches } from '../wordFreq/model.js';
 import { MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
 import { List } from 'cnc-tskit';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface FreqBarTileConf extends TileConf {
-    apiURL:string;
-    corpname:string|null; // null can be used in case subqueryMode is enabled
-    subcname?:string;
-    fcrit:string;
-    freqType:'tokens'|'text-types';
-    label:LocalizedConfMsg;
-    flimit:number;
-    fpage:number;
-    matchCase:boolean;
-    pixelsPerCategory?:number;
+    apiURL: string;
+    corpname: string | null; // null can be used in case subqueryMode is enabled
+    subcname?: string;
+    fcrit: string;
+    freqType: 'tokens' | 'text-types';
+    label: LocalizedConfMsg;
+    flimit: number;
+    fpage: number;
+    matchCase: boolean;
+    pixelsPerCategory?: number;
 
     /**
      * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset']).
      */
-    posQueryGenerator:PosQueryGeneratorType;
+    posQueryGenerator: PosQueryGeneratorType;
 }
 
-
 export class FreqBarTile implements ITileProvider {
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly ut: ViewUtils<GlobalComponents>;
 
-    private readonly ut:ViewUtils<GlobalComponents>;
+    private readonly model: FreqBarModel;
 
-    private readonly model:FreqBarModel;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private view: TileComponent;
 
-    private view:TileComponent;
+    private readonly label: string;
 
-    private readonly label:string;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly blockingTiles: Array<number>;
 
-    private readonly blockingTiles:Array<number>;
-
-    private readonly readDataFromTile:number;
+    private readonly readDataFromTile: number;
 
     constructor({
-        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy,
-        readDataFromTile, queryMatches, queryType
-    }:TileFactoryArgs<FreqBarTileConf>) {
-
+        dispatcher,
+        tileId,
+        ut,
+        theme,
+        appServices,
+        widthFract,
+        conf,
+        isBusy,
+        readDataFromTile,
+        queryMatches,
+        queryType,
+    }: TileFactoryArgs<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -90,12 +105,23 @@ export class FreqBarTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches: findCurrentMatches(queryMatches),
-            api: new MQueryFreqDistribAPI(conf.apiURL, appServices, conf.backlink),
+            api: new MQueryFreqDistribAPI(
+                conf.apiURL,
+                appServices,
+                conf.backlink
+            ),
             readDataFromTile,
             initState: {
                 isBusy,
                 error: null,
-                freqData: List.map(match => ({word: findCurrQueryMatch(match).word, isReady: false, rows: []}), queryMatches),
+                freqData: List.map(
+                    (match) => ({
+                        word: findCurrQueryMatch(match).word,
+                        isReady: false,
+                        rows: [],
+                    }),
+                    queryMatches
+                ),
                 tileBoxSize: [100, 100],
                 corpname: conf.corpname,
                 subcname: conf.subcname,
@@ -108,96 +134,106 @@ export class FreqBarTile implements ITileProvider {
                 flimit: conf.flimit,
                 fpage: conf.fpage,
                 fmaxitems: 100,
-                backlinks: List.map(_ => null, queryMatches),
+                backlinks: List.map((_) => null, queryMatches),
                 subqSyncPalette: false,
                 isAltViewMode: false,
-                pixelsPerCategory: conf.pixelsPerCategory || 30
-            }
+                pixelsPerCategory: conf.pixelsPerCategory || 30,
+            },
         });
-        this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');
-        this.view = queryType === QueryType.CMP_QUERY ?
-            compareViewInit(this.dispatcher, ut, theme, this.model) :
-            singleViewInit(this.dispatcher, ut, theme, this.model);
+        this.label = appServices.importExternalMessage(
+            conf.label || 'freqBar__main_label'
+        );
+        this.view =
+            queryType === QueryType.CMP_QUERY
+                ? compareViewInit(this.dispatcher, ut, theme, this.model)
+                : singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
+        return (
+            qt === QueryType.SINGLE_QUERY ||
+            qt === QueryType.CMP_QUERY ||
+            qt === QueryType.TRANSLAT_QUERY
+        );
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    getBlockingTiles():Array<number> {
+    getBlockingTiles(): Array<number> {
         return this.blockingTiles;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return this.readDataFromTile;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<FreqBarTileConf>  = {
-
+export const init: TileFactory<FreqBarTileConf> = {
     sanityCheck: (args) => {
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            return [new Error(`invalid posQueryGenerator in freqBar tile, ${message}`)];
+            return [
+                new Error(
+                    `invalid posQueryGenerator in freqBar tile, ${message}`
+                ),
+            ];
         }
     },
 
-    create: (args) => new FreqBarTile(args)
+    create: (args) => new FreqBarTile(args),
 };

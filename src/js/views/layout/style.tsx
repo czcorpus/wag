@@ -23,7 +23,9 @@ import { Theme } from '../../page/theme.js';
 
 // ---------------- <GlobalStyle /> --------------------------------------
 
-export const GlobalStyle = (confTheme:Theme) => createGlobalStyle<{createStaticUrl: (file: string) => string}>`
+export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
+    createStaticUrl: (file: string) => string;
+}>`
 
     body {
         visibility: visible !important;

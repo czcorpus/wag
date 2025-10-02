@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
@@ -26,28 +26,32 @@ import { concatMap } from 'rxjs/operators';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
 
-
 export interface HtmlModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    appServices:IAppServices;
-    service:RawHtmlAPI;
-    initState:HtmlModelState;
-    queryMatches:RecognizedQueries;
+    dispatcher: IActionQueue;
+    tileId: number;
+    appServices: IAppServices;
+    service: RawHtmlAPI;
+    initState: HtmlModelState;
+    queryMatches: RecognizedQueries;
 }
 
-
 export class HtmlModel extends StatelessModel<HtmlModelState> {
+    private readonly queryMatches: RecognizedQueries;
 
-    private readonly queryMatches:RecognizedQueries;
+    private readonly service: RawHtmlAPI;
 
-    private readonly service:RawHtmlAPI;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
-
-    constructor({dispatcher, tileId, appServices, service, initState, queryMatches}:HtmlModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        appServices,
+        service,
+        initState,
+        queryMatches,
+    }: HtmlModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -72,8 +76,9 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
-
+                        state.error = this.appServices.normalizeHttpApiError(
+                            action.error
+                        );
                     } else {
                         state.data = action.payload.data;
                         state.backlink = this.service.getBacklink(0);
@@ -84,67 +89,88 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const variant = findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]);
-                const url = this.service.requestBacklink(this.service.stateToArgs(state, variant.lemma));
-                window.open(url.toString(),'_blank');
+                const variant = findCurrQueryMatch(
+                    this.queryMatches[action.payload.backlink.queryId]
+                );
+                const url = this.service.requestBacklink(
+                    this.service.stateToArgs(state, variant.lemma)
+                );
+                window.open(url.toString(), '_blank');
             }
         );
     }
 
-    private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
-        (variant ?
-            this.service.call(this.appServices.dataStreaming(), this.tileId, 0, this.service.stateToArgs(state, variant)) :
-            rxOf(null)
-
-        ).pipe(
-            concatMap(
-                (ans:string) => new Observable<string|null>((observer) => {
-                    if (ans === null) {
-                        observer.next(null);
-                        observer.complete();
-
-                    } else if (state.sanitizeHTML) {
-                        import(/* webpackChunkName: "sanitize-html" */ 'sanitize-html').then(
-                            (sanitizeHtml) => {
-                                observer.next(sanitizeHtml['default'](ans, {
-                                    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
-                                }));
+    private requestData(
+        state: HtmlModelState,
+        variant: string,
+        seDispatch: SEDispatcher
+    ): void {
+        (variant
+            ? this.service.call(
+                  this.appServices.dataStreaming(),
+                  this.tileId,
+                  0,
+                  this.service.stateToArgs(state, variant)
+              )
+            : rxOf(null)
+        )
+            .pipe(
+                concatMap(
+                    (ans: string) =>
+                        new Observable<string | null>((observer) => {
+                            if (ans === null) {
+                                observer.next(null);
                                 observer.complete();
-                            },
-                            (err) => {
-                                observer.error(err);
+                            } else if (state.sanitizeHTML) {
+                                import(
+                                    /* webpackChunkName: "sanitize-html" */ 'sanitize-html'
+                                ).then(
+                                    (sanitizeHtml) => {
+                                        observer.next(
+                                            sanitizeHtml['default'](ans, {
+                                                allowedTags:
+                                                    sanitizeHtml.defaults.allowedTags.concat(
+                                                        ['img']
+                                                    ),
+                                            })
+                                        );
+                                        observer.complete();
+                                    },
+                                    (err) => {
+                                        observer.error(err);
+                                    }
+                                );
+                            } else {
+                                observer.next(ans);
+                                observer.complete();
                             }
-                        )
-                    } else {
-                        observer.next(ans);
-                        observer.complete();
-                    }
-                })
+                        })
+                )
             )
-        ).subscribe(
-            (data) => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: !data,
-                        data: data,
-                    }
-                });
-            },
-            (err) => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: true,
-                        data: null,
-                    },
-                    error: err
-                });
-            }
-        );
+            .subscribe(
+                (data) => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: !data,
+                            data: data,
+                        },
+                    });
+                },
+                (err) => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null,
+                        },
+                        error: err,
+                    });
+                }
+            );
     }
 }

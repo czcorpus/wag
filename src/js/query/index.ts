@@ -21,7 +21,6 @@ import { PosItem, posTagsEqual } from '../postag.js';
 import { MainPosAttrValues } from '../conf/index.js';
 import { HTTPAction } from '../page/actions.js';
 
-
 export enum QueryType {
     SINGLE_QUERY = 'single',
     CMP_QUERY = 'cmp',
@@ -29,8 +28,7 @@ export enum QueryType {
     PREVIEW = 'preview',
 }
 
-
-export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
+export function queryTypeToAction(qt: QueryType): HTTPAction | undefined {
     switch (qt) {
         case QueryType.CMP_QUERY:
             return HTTPAction.COMPARE;
@@ -43,40 +41,41 @@ export function queryTypeToAction(qt:QueryType):HTTPAction|undefined {
     }
 }
 
-export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
-    if (v === QueryType.SINGLE_QUERY || v === QueryType.CMP_QUERY || v === QueryType.TRANSLAT_QUERY) {
+export function importQueryTypeString(v: string, dflt: QueryType): QueryType {
+    if (
+        v === QueryType.SINGLE_QUERY ||
+        v === QueryType.CMP_QUERY ||
+        v === QueryType.TRANSLAT_QUERY
+    ) {
         return v as QueryType;
-
     } else if (!v) {
         return dflt;
     }
     throw new Error(`Unknown query type '${v}'`);
 }
 
-
 export interface QueryTypeMenuItem {
-    type:QueryType;
-    label:string;
-    isEnabled:boolean;
+    type: QueryType;
+    label: string;
+    isEnabled: boolean;
 }
 
-export interface SubQueryItem<T=string> {
-    value:T;
-    interactionId?:string;
-    color?:string;
+export interface SubQueryItem<T = string> {
+    value: T;
+    interactionId?: string;
+    color?: string;
 }
 
 export interface SubqueryPayload {
-    tileId:number;
-    queryIdx:number;
-    translatLanguage?:string;
+    tileId: number;
+    queryIdx: number;
+    translatLanguage?: string;
 }
-
 
 /**
  * FreqBand is an arbitrary frequency band
  */
-export type FreqBand = 1|2|3|4|5;
+export type FreqBand = 1 | 2 | 3 | 4 | 5;
 
 /**
  * calcFreqBand calculates a FreqBand based
@@ -87,7 +86,7 @@ export type FreqBand = 1|2|3|4|5;
  * [100, 1000) => 4
  * [1000, 1000000] => 5
  */
-export function calcFreqBand(ipm:number):FreqBand {
+export function calcFreqBand(ipm: number): FreqBand {
     if (ipm < 1) return 1;
     if (ipm < 10) return 2;
     if (ipm < 100) return 3;
@@ -95,15 +94,13 @@ export function calcFreqBand(ipm:number):FreqBand {
     return 5;
 }
 
-
 export interface QueryMatchCore {
-    lemma:string; // space-based value for a multi-word query
-    pos:Array<PosItem>; // each word of a multi-word query
-    upos:Array<PosItem>; // each word of a multi-word query
-    ipm:number;
-    flevel:FreqBand|null;
+    lemma: string; // space-based value for a multi-word query
+    pos: Array<PosItem>; // each word of a multi-word query
+    upos: Array<PosItem>; // each word of a multi-word query
+    ipm: number;
+    flevel: FreqBand | null;
 }
-
 
 /**
  * QueryMatch represents a single matching item
@@ -112,10 +109,10 @@ export interface QueryMatchCore {
  * terms of part of speech (see 'pos' as an Array).
  */
 export interface QueryMatch extends QueryMatchCore {
-    word:string;
-    abs:number;
-    arf:number;
-    isCurrent:boolean;
+    word: string;
+    abs: number;
+    arf: number;
+    isCurrent: boolean;
 }
 
 /**
@@ -124,20 +121,24 @@ export interface QueryMatch extends QueryMatchCore {
  * null/undefined - in case there is no match, value with
  * empty lemma, word etc. is returned.
  */
-export function findCurrQueryMatch(queryMatches:Array<QueryMatch>):QueryMatch {
-    const srch = queryMatches.find(v => v.isCurrent);
-    return srch ? srch : {
-        lemma: undefined,
-        word: undefined,
-        pos: [],
-        upos: [],
-        abs: -1,
-        ipm: -1,
-        arf: -1,
-        flevel: null,
-        isCurrent: true
-    };
-};
+export function findCurrQueryMatch(
+    queryMatches: Array<QueryMatch>
+): QueryMatch {
+    const srch = queryMatches.find((v) => v.isCurrent);
+    return srch
+        ? srch
+        : {
+              lemma: undefined,
+              word: undefined,
+              pos: [],
+              upos: [],
+              abs: -1,
+              ipm: -1,
+              arf: -1,
+              flevel: null,
+              isCurrent: true,
+          };
+}
 
 /**
  * For each query (1st array dimension) we provide possibly multiple
@@ -145,24 +146,30 @@ export function findCurrQueryMatch(queryMatches:Array<QueryMatch>):QueryMatch {
  */
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
-
-export function testIsDictMatch(queryMatch:QueryMatch):boolean {
+export function testIsDictMatch(queryMatch: QueryMatch): boolean {
     return !!queryMatch.lemma;
 }
 
 /**
  * Test whether at least one of provided matches is a multi-word one.
  */
-export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
+export function testIsMultiWordMode(queries: RecognizedQueries): boolean {
     return pipe(
         queries,
-        List.flatMap(v => v),
-        List.some(v => /\s/.test(v.word))
+        List.flatMap((v) => v),
+        List.some((v) => /\s/.test(v.word))
     );
 }
 
-export function matchesPos(lv:QueryMatchCore, mainPosAttr:MainPosAttrValues, pos:Array<string>):boolean {
-    return posTagsEqual(List.map(v => v.value, lv[mainPosAttr]), pos);
+export function matchesPos(
+    lv: QueryMatchCore,
+    mainPosAttr: MainPosAttrValues,
+    pos: Array<string>
+): boolean {
+    return posTagsEqual(
+        List.map((v) => v.value, lv[mainPosAttr]),
+        pos
+    );
 }
 
 /**
@@ -171,27 +178,29 @@ export function matchesPos(lv:QueryMatchCore, mainPosAttr:MainPosAttrValues, pos
  * "multiple PoS variant". The original items are always preserved
  * so user can select also the exact types.
  */
-export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
+export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
     return pipe(
         qm,
         List.groupBy((match) => match.lemma),
         List.map(([, matches]) => {
             if (matches.length > 1) {
-                const wildCard:QueryMatch = {
+                const wildCard: QueryMatch = {
                     lemma: matches[0].lemma,
                     pos: [],
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
-                    flevel: calcFreqBand(List.foldl((acc, m) => acc + m.ipm, 0, matches)),
+                    flevel: calcFreqBand(
+                        List.foldl((acc, m) => acc + m.ipm, 0, matches)
+                    ),
                     word: matches[0].word,
                     abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
                     arf: -1,
-                    isCurrent: false
+                    isCurrent: false,
                 };
                 return [...matches, wildCard];
             }
             return matches;
         }),
-        List.flatMap(v => v)
+        List.flatMap((v) => v)
     );
 }

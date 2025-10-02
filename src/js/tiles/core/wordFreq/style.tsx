@@ -21,16 +21,14 @@
 import { styled } from 'styled-components';
 import { Theme } from '../../../page/theme.js';
 
-
 // ------------- <WordFreqTileView /> -----------------------------
 
-export const WordFreqTileView = styled.div<{theme:Theme}>`
+export const WordFreqTileView = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: stretch;
     justify-content: space-between;
 
     .chart {
-
         h2 {
             margin: 0 0 0.7em 0;
             font-weight: bold;
@@ -46,11 +44,10 @@ export const WordFreqTileView = styled.div<{theme:Theme}>`
     }
 
     dl.info {
-
         dt {
             margin-bottom: 0.4em;
-            color: ${props => props.theme.colorLightText};
-            font-family: ${props => props.theme.condensedFontFamily};
+            color: ${(props) => props.theme.colorLightText};
+            font-family: ${(props) => props.theme.condensedFontFamily};
         }
 
         dd {
@@ -58,7 +55,7 @@ export const WordFreqTileView = styled.div<{theme:Theme}>`
             margin-left: 1em;
 
             span.squareb {
-                color: ${props => props.theme.colorLightText};
+                color: ${(props) => props.theme.colorLightText};
             }
         }
 
@@ -70,19 +67,19 @@ export const WordFreqTileView = styled.div<{theme:Theme}>`
             line-height: 1.5em;
             font-size: 1.3em;
             a {
-                color: ${props => props.theme.colorDefaultText};
+                color: ${(props) => props.theme.colorDefaultText};
                 cursor: pointer;
                 text-decoration: none;
             }
 
             a:hover {
-                color: ${props => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorLogoBlue};
                 text-decoration: underline;
             }
         }
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMediaSmallSize} {
         flex-direction: column;
 
         & > div.cell h3 {
@@ -91,10 +88,9 @@ export const WordFreqTileView = styled.div<{theme:Theme}>`
     }
 `;
 
-
 // ------------- <Stars /> -----------------------------
 
-export const Stars = styled.span<{theme:Theme}>`
+export const Stars = styled.span<{ theme: Theme }>`
     display: block;
     white-space: nowrap;
 
@@ -105,24 +101,25 @@ export const Stars = styled.span<{theme:Theme}>`
 
 // ------------- <MultiWordProfile /> -----------------------------
 
-export const MultiWordProfile = styled.div<{theme:Theme}>`
+export const MultiWordProfile = styled.div<{ theme: Theme }>`
     & > table {
-
         border-spacing: 2px 4px;
 
         thead th {
-            color: ${props => props.theme.colorLightText};
+            color: ${(props) => props.theme.colorLightText};
             text-align: right;
         }
 
-        td, th {
+        td,
+        th {
             padding: 0.4em 0.7em;
             vertical-align: top;
         }
 
         th.query-num {
-            background-color: ${props => props.theme.colorInvertedSecondaryText};
-            color: ${props => props.theme.colorDefaultText};
+            background-color: ${(props) =>
+                props.theme.colorInvertedSecondaryText};
+            color: ${(props) => props.theme.colorDefaultText};
             border-radius: 0.3em;
         }
 
@@ -142,7 +139,6 @@ export const MultiWordProfile = styled.div<{theme:Theme}>`
             padding-right: 2.4em;
 
             dl.info {
-
                 margin-top: 0;
 
                 dd:not(:last-child) {

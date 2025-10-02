@@ -21,95 +21,99 @@ import { concatMap } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 import { Howl } from 'howler';
 
-
-
 export enum AudioPlayerStatus {
     STOPPED = 'stop',
     PAUSED = 'pause',
     PLAYING = 'play',
-    ERROR = 'error'
+    ERROR = 'error',
 }
 
 export interface ChunkPlayback<T> {
-    sessionId:string;
-    idx:number;
-    total:number;
-    isPlaying:boolean;
-    item:T;
+    sessionId: string;
+    idx: number;
+    total: number;
+    isPlaying: boolean;
+    item: T;
 }
 
 interface ItemToPlay<T> {
-    idx:number;
-    total:number;
-    item:T;
+    idx: number;
+    total: number;
+    item: T;
 }
 
 /**
  *
  */
 export class AudioPlayer {
+    private status: AudioPlayerStatus;
 
-    private status:AudioPlayerStatus;
-
-    private sound:Howl;
+    private sound: Howl;
 
     constructor() {
         this.status = AudioPlayerStatus.STOPPED;
     }
 
-    play<T extends {url:string, format:string}>(items:Array<T>): Observable<ChunkPlayback<T>> {
+    play<T extends { url: string; format: string }>(
+        items: Array<T>
+    ): Observable<ChunkPlayback<T>> {
         const sessionId = `playback:${Ident.puid()}`;
-        const itemsToPlay:Array<ItemToPlay<T>> = items.map((v, i) => ({
+        const itemsToPlay: Array<ItemToPlay<T>> = items.map((v, i) => ({
             idx: i,
             total: items.length,
-            item: v
+            item: v,
         }));
         return rxOf(...itemsToPlay).pipe(
             concatMap(
-                (item) => new Observable<ChunkPlayback<T>>((observer) => {
-                    this.sound = new Howl({
-                        src: [item.item.url],
-                        volume: 1.0,
-                        autoplay: false,
-                        format: [item.item.format],
-                        onload: () => {
-                            this.status = AudioPlayerStatus.ERROR;
-                        },
-                        onplay: () => {
-                            this.status = AudioPlayerStatus.PLAYING;
-                            observer.next({
-                                sessionId: sessionId,
-                                isPlaying: true,
-                                idx: item.idx,
-                                total: item.total,
-                                item: item.item
-                            });
-                        },
-                        onend: () => {
-                            this.status = AudioPlayerStatus.STOPPED;
-                            observer.next({
-                                sessionId: sessionId,
-                                isPlaying: false,
-                                idx: item.idx,
-                                total: item.total,
-                                item: item.item
-                            });
-                            observer.complete();
-                        },
-                        onloaderror: (_, err) => {
-                            observer.error(new Error(`Error during playback: ${err}`));
-                        },
-                        onplayerror: (_, err) => {
-                            observer.error(new Error(`Error during playback: ${err}`));
-                        }
-                    });
-                    this.sound.play();
-                })
+                (item) =>
+                    new Observable<ChunkPlayback<T>>((observer) => {
+                        this.sound = new Howl({
+                            src: [item.item.url],
+                            volume: 1.0,
+                            autoplay: false,
+                            format: [item.item.format],
+                            onload: () => {
+                                this.status = AudioPlayerStatus.ERROR;
+                            },
+                            onplay: () => {
+                                this.status = AudioPlayerStatus.PLAYING;
+                                observer.next({
+                                    sessionId: sessionId,
+                                    isPlaying: true,
+                                    idx: item.idx,
+                                    total: item.total,
+                                    item: item.item,
+                                });
+                            },
+                            onend: () => {
+                                this.status = AudioPlayerStatus.STOPPED;
+                                observer.next({
+                                    sessionId: sessionId,
+                                    isPlaying: false,
+                                    idx: item.idx,
+                                    total: item.total,
+                                    item: item.item,
+                                });
+                                observer.complete();
+                            },
+                            onloaderror: (_, err) => {
+                                observer.error(
+                                    new Error(`Error during playback: ${err}`)
+                                );
+                            },
+                            onplayerror: (_, err) => {
+                                observer.error(
+                                    new Error(`Error during playback: ${err}`)
+                                );
+                            },
+                        });
+                        this.sound.play();
+                    })
             )
         );
     }
 
-    pause():void {
+    pause(): void {
         if (this.status === AudioPlayerStatus.PAUSED) {
             this.sound.play();
             this.status = AudioPlayerStatus.PLAYING;
@@ -119,14 +123,14 @@ export class AudioPlayer {
         }
     }
 
-    stop():void {
+    stop(): void {
         if (this.sound) {
             this.sound.stop();
             this.sound.unload();
         }
     }
 
-    getStatus():AudioPlayerStatus {
+    getStatus(): AudioPlayerStatus {
         return this.status;
     }
 }

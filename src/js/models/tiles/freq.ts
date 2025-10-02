@@ -16,42 +16,40 @@
  * limitations under the License.
  */
 
-import { PosQueryGeneratorType } from "../../conf/common.js";
+import { PosQueryGeneratorType } from '../../conf/common.js';
 
 export interface FreqBarModelStateBase {
-    isBusy:boolean;
-    error:string;
-    corpname:string;
+    isBusy: boolean;
+    error: string;
+    corpname: string;
 }
 
 // these represent state parameters required to use freq APIs `stateToArgs` method
 
+export interface GeneralSingleCritFreqBarModelState<T>
+    extends FreqBarModelStateBase {
+    corpname: string;
 
-export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase {
+    subcname: string | null;
 
-    corpname:string;
+    fcrit: string;
 
-    subcname:string|null;
+    freqType: 'tokens' | 'text-types';
 
-    fcrit:string;
+    flimit: number;
 
-    freqType:'tokens'|'text-types';
+    freqSort: string;
 
-    flimit:number;
+    fpage: number;
 
-    freqSort:string;
+    posQueryGenerator: PosQueryGeneratorType;
 
-    fpage:number;
+    fttIncludeEmpty?: boolean;
 
-    posQueryGenerator:PosQueryGeneratorType;
+    fmaxitems?: number;
 
-    fttIncludeEmpty?:boolean;
-
-    fmaxitems?:number;
-
-    data:Array<T>;
+    data: Array<T>;
 }
-
 
 /**
  * SubqueryModeConf defines a special part
@@ -64,7 +62,7 @@ export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelState
  * for most relevant ones (= subqueries).
  */
 export interface SubqueryModeConf {
-    concApiURL:string;
-    maxNumSubqueries:number;
-    langMapping:{[lang:string]:string};
+    concApiURL: string;
+    maxNumSubqueries: number;
+    langMapping: { [lang: string]: string };
 }

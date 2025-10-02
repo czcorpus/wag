@@ -26,46 +26,43 @@ import { TileFrameProps } from '../page/tile.js';
 import { Actions } from './actions.js';
 import { List, Dict, pipe } from 'cnc-tskit';
 
-
-
 export enum TileResultFlag {
     PENDING = 0,
     EMPTY_RESULT = 1,
     VALID_RESULT = 2,
-    ERROR = 3
+    ERROR = 3,
 }
 
 export interface TileResultFlagRec {
-    tileId:number;
-    groupId:number;
-    status:TileResultFlag;
-    canBeAmbiguousResult:boolean;
+    tileId: number;
+    groupId: number;
+    status: TileResultFlag;
+    canBeAmbiguousResult: boolean;
 }
 
-
 export interface WdglanceTilesState {
-    isAnswerMode:boolean;
-    isBusy:boolean;
-    isMobile:boolean;
-    labelsOverwrites:{[tileId:number]:string};
-    altViewActiveTiles:Array<number>;
-    tweakActiveTiles:Array<number>;
-    hiddenGroups:Array<number>;
-    activeSourceInfo:SourceDetails|null;
-    activeGroupHelp:{html:string; idx:number}|null;
-    activeTileHelp:{html:string; ident:number}|null;
-    showAmbiguousResultHelp:boolean;
-    datalessGroups:Array<number>;
-    tileResultFlags:Array<TileResultFlagRec>;
-    tileProps:Array<TileFrameProps>;
-    maxTileErrors:number;
-    numTileErrors:number;
-    issueReportingUrl:string|null;
-    highlightedTileId:number;
-    scrollToTileId:number;
-    allTilesLoaded:boolean;
-    showRedirectingModal:boolean;
-    redirectingMessage:string;
+    isAnswerMode: boolean;
+    isBusy: boolean;
+    isMobile: boolean;
+    labelsOverwrites: { [tileId: number]: string };
+    altViewActiveTiles: Array<number>;
+    tweakActiveTiles: Array<number>;
+    hiddenGroups: Array<number>;
+    activeSourceInfo: SourceDetails | null;
+    activeGroupHelp: { html: string; idx: number } | null;
+    activeTileHelp: { html: string; ident: number } | null;
+    showAmbiguousResultHelp: boolean;
+    datalessGroups: Array<number>;
+    tileResultFlags: Array<TileResultFlagRec>;
+    tileProps: Array<TileFrameProps>;
+    maxTileErrors: number;
+    numTileErrors: number;
+    issueReportingUrl: string | null;
+    highlightedTileId: number;
+    scrollToTileId: number;
+    allTilesLoaded: boolean;
+    showRedirectingModal: boolean;
+    redirectingMessage: string;
 }
 
 /**
@@ -74,50 +71,61 @@ export interface WdglanceTilesState {
  * with highlight status disabled. If appendTo Observable is
  * provided then the action is chanied to it.
  */
-export function blinkAndDehighlight(tileId:number, someDispatcher:SEDispatcher|IActionDispatcher, appendTo?:Observable<any>):void {
-    const dispatch = typeof someDispatcher === 'function' ? someDispatcher : someDispatcher.dispatch;
-    (appendTo ? appendTo : rxOf(null)).pipe(
-        concatMap(() => interval(100)),
-        take(13)
-    ).subscribe(
-        v => {
-            if (v % 2 == 1 || v < 6) {
-                dispatch<typeof Actions.HighlightTile>({
-                    name: Actions.HighlightTile.name,
-                    payload: {
-                        tileId: tileId
-                    }
-                });
-
-            } else {
+export function blinkAndDehighlight(
+    tileId: number,
+    someDispatcher: SEDispatcher | IActionDispatcher,
+    appendTo?: Observable<any>
+): void {
+    const dispatch =
+        typeof someDispatcher === 'function'
+            ? someDispatcher
+            : someDispatcher.dispatch;
+    (appendTo ? appendTo : rxOf(null))
+        .pipe(
+            concatMap(() => interval(100)),
+            take(13)
+        )
+        .subscribe(
+            (v) => {
+                if (v % 2 == 1 || v < 6) {
+                    dispatch<typeof Actions.HighlightTile>({
+                        name: Actions.HighlightTile.name,
+                        payload: {
+                            tileId: tileId,
+                        },
+                    });
+                } else {
+                    dispatch<typeof Actions.DehighlightTile>({
+                        name: Actions.DehighlightTile.name,
+                        payload: {
+                            tileId: tileId,
+                        },
+                    });
+                }
+            },
+            (err) => {},
+            () => {
                 dispatch<typeof Actions.DehighlightTile>({
                     name: Actions.DehighlightTile.name,
                     payload: {
-                        tileId: tileId
-                    }
+                        tileId: tileId,
+                    },
                 });
             }
-        },
-        err => {},
-        () => {
-            dispatch<typeof Actions.DehighlightTile>({
-                name: Actions.DehighlightTile.name,
-                payload: {
-                    tileId: tileId
-                }
-            });
-        }
-    );
+        );
 }
 
 /**
  * General tile model handling common tile actions.
  */
 export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
-
-    constructor(dispatcher:IActionDispatcher, initialState:WdglanceTilesState, appServices:IAppServices) {
+    constructor(
+        dispatcher: IActionDispatcher,
+        initialState: WdglanceTilesState,
+        appServices: IAppServices
+    ) {
         super(dispatcher, initialState);
         this.appServices = appServices;
 
@@ -128,156 +136,152 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             }
         );
 
-        this.addActionHandler(
-            Actions.EnableAltViewMode,
-            (state, action) => {
-                state.altViewActiveTiles = List.addUnique(action.payload.ident, state.altViewActiveTiles);
-            }
-        );
+        this.addActionHandler(Actions.EnableAltViewMode, (state, action) => {
+            state.altViewActiveTiles = List.addUnique(
+                action.payload.ident,
+                state.altViewActiveTiles
+            );
+        });
 
-        this.addActionHandler(
-            Actions.DisableAltViewMode,
-            (state, action) => {
-                state.altViewActiveTiles = List.removeValue(action.payload.ident, state.altViewActiveTiles);
-            }
-        );
+        this.addActionHandler(Actions.DisableAltViewMode, (state, action) => {
+            state.altViewActiveTiles = List.removeValue(
+                action.payload.ident,
+                state.altViewActiveTiles
+            );
+        });
 
-        this.addActionHandler(
-            Actions.EnableTileTweakMode,
-            (state, action) => {
-                state.tweakActiveTiles = List.addUnique(action.payload.ident, state.tweakActiveTiles);
-            }
-        );
+        this.addActionHandler(Actions.EnableTileTweakMode, (state, action) => {
+            state.tweakActiveTiles = List.addUnique(
+                action.payload.ident,
+                state.tweakActiveTiles
+            );
+        });
 
-        this.addActionHandler(
-            Actions.DisableTileTweakMode,
-            (state, action) => {
-                state.tweakActiveTiles = List.removeValue(action.payload.ident, state.tweakActiveTiles);
-            }
-        );
+        this.addActionHandler(Actions.DisableTileTweakMode, (state, action) => {
+            state.tweakActiveTiles = List.removeValue(
+                action.payload.ident,
+                state.tweakActiveTiles
+            );
+        });
 
-        this.addActionHandler(
-            Actions.OverwriteTileLabel,
-            (state, action) => {
-                state.labelsOverwrites[action.payload.tileId] = action.payload.value;
-            }
-        );
+        this.addActionHandler(Actions.OverwriteTileLabel, (state, action) => {
+            state.labelsOverwrites[action.payload.tileId] =
+                action.payload.value;
+        });
 
         this.addActionHandler(
             Actions.ShowTileHelp,
             (state, action) => {
-                state.activeTileHelp = {ident: action.payload.tileId, html: null};
+                state.activeTileHelp = {
+                    ident: action.payload.tileId,
+                    html: null,
+                };
                 state.isBusy = true;
             },
             (state, action, dispatch) => {
-                this.getTileProps(state, action.payload.tileId).pipe(
-                    map(
-                        (props) => {
+                this.getTileProps(state, action.payload.tileId)
+                    .pipe(
+                        map((props) => {
                             if (!props.helpURL) {
                                 throw new Error('Missing help URL');
                             }
                             return props.helpURL;
-                        }
-                    ),
-                    concatMap(
-                        (url) => {
+                        }),
+                        concatMap((url) => {
                             return this.appServices.ajax$<string>(
                                 'GET',
                                 url,
                                 {},
                                 {
-                                    responseType: ResponseType.TEXT
+                                    responseType: ResponseType.TEXT,
                                 }
                             );
-                        }
+                        })
                     )
-                ).subscribe({
-                    next: html => {
-                        dispatch<typeof Actions.LoadTileHelpDone>({
-                            name: Actions.LoadTileHelpDone.name,
-                            payload: {
-                                tileId: action.payload['tileId'],
-                                html: html
-                            }
-                        });
-                    },
-                    error: error => {
-                        this.appServices.showMessage(SystemMessageType.ERROR, error);
-                        dispatch(
-                            Actions.LoadTileHelpDone,
-                            {
-                                tileId: action.payload['tileId'],
-                                html: null
-                            },
-                            error
-                        );
-                    }
-                });
+                    .subscribe({
+                        next: (html) => {
+                            dispatch<typeof Actions.LoadTileHelpDone>({
+                                name: Actions.LoadTileHelpDone.name,
+                                payload: {
+                                    tileId: action.payload['tileId'],
+                                    html: html,
+                                },
+                            });
+                        },
+                        error: (error) => {
+                            this.appServices.showMessage(
+                                SystemMessageType.ERROR,
+                                error
+                            );
+                            dispatch(
+                                Actions.LoadTileHelpDone,
+                                {
+                                    tileId: action.payload['tileId'],
+                                    html: null,
+                                },
+                                error
+                            );
+                        },
+                    });
             }
         );
 
-        this.addActionHandler(
-            Actions.LoadTileHelpDone,
-            (state, action) => {
-                state.isBusy = false;
-                if (action.error) {
-                    state.activeTileHelp = null;
-
-                } else {
-                    state.activeTileHelp = {ident: action.payload.tileId, html: action.payload.html};
-                }
-            }
-        );
-
-        this.addActionHandler(
-            Actions.HideTileHelp,
-            (state, action) => {
+        this.addActionHandler(Actions.LoadTileHelpDone, (state, action) => {
+            state.isBusy = false;
+            if (action.error) {
                 state.activeTileHelp = null;
-            }
-        );
-
-        this.addActionHandler(
-            Actions.GetSourceInfo,
-            (state, action) => {
-                state.activeSourceInfo = {
-                    tileId: action.payload.tileId,
-                    title: null,
-                    description: null,
-                    author: null
+            } else {
+                state.activeTileHelp = {
+                    ident: action.payload.tileId,
+                    html: action.payload.html,
                 };
-                state.isBusy = true;
             }
-        );
+        });
 
-        this.addActionHandler(
-            Actions.GetSourceInfoDone,
-            (state, action) => {
-                state.isBusy = false;
-                if (action.error) {
-                    state.activeSourceInfo = null;
+        this.addActionHandler(Actions.HideTileHelp, (state, action) => {
+            state.activeTileHelp = null;
+        });
 
-                } else {
-                    state.activeSourceInfo = action.payload.data;
-                }
-            }
-        );
+        this.addActionHandler(Actions.GetSourceInfo, (state, action) => {
+            state.activeSourceInfo = {
+                tileId: action.payload.tileId,
+                title: null,
+                description: null,
+                author: null,
+            };
+            state.isBusy = true;
+        });
 
-        this.addActionHandler(
-            Actions.CloseSourceInfo,
-            (state, action) => {
+        this.addActionHandler(Actions.GetSourceInfoDone, (state, action) => {
+            state.isBusy = false;
+            if (action.error) {
                 state.activeSourceInfo = null;
+            } else {
+                state.activeSourceInfo = action.payload.data;
             }
-        );
+        });
+
+        this.addActionHandler(Actions.CloseSourceInfo, (state, action) => {
+            state.activeSourceInfo = null;
+        });
 
         this.addActionHandler(
             Actions.ToggleGroupVisibility,
             (state, action) => {
                 state.highlightedTileId = -1;
                 state.scrollToTileId = -1;
-                state.hiddenGroups =
-                        List.some(v => v === action.payload.groupIdx, state.hiddenGroups) ?
-                        List.removeValue(action.payload.groupIdx, state.hiddenGroups) :
-                        List.addUnique(action.payload.groupIdx, state.hiddenGroups);
+                state.hiddenGroups = List.some(
+                    (v) => v === action.payload.groupIdx,
+                    state.hiddenGroups
+                )
+                    ? List.removeValue(
+                          action.payload.groupIdx,
+                          state.hiddenGroups
+                      )
+                    : List.addUnique(
+                          action.payload.groupIdx,
+                          state.hiddenGroups
+                      );
             }
         );
 
@@ -291,146 +295,149 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             }
         );
 
-        this.addActionHandler(
-            Actions.HighlightTile,
-            (state, action) => {
-                state.highlightedTileId = action.payload.tileId;
-            }
-        );
+        this.addActionHandler(Actions.HighlightTile, (state, action) => {
+            state.highlightedTileId = action.payload.tileId;
+        });
 
-        this.addActionHandler(
-            Actions.DehighlightTile,
-            (state, action) => {
-                state.highlightedTileId = -1;
-                state.scrollToTileId = -1;
-            }
-        );
+        this.addActionHandler(Actions.DehighlightTile, (state, action) => {
+            state.highlightedTileId = -1;
+            state.scrollToTileId = -1;
+        });
 
         this.addActionHandler(
             Actions.ShowGroupHelp,
             (state, action) => {
                 state.isBusy = true;
-                state.activeGroupHelp = {html: '', idx: action.payload.groupIdx};
+                state.activeGroupHelp = {
+                    html: '',
+                    idx: action.payload.groupIdx,
+                };
             },
             (state, action, dispatch) => {
-                this.appServices.ajax$<string>(
-                    'GET',
-                    action.payload['url'],
-                    {},
-                    {
-                        responseType: ResponseType.TEXT
-                    }
-                ).subscribe({
-                    next: html => {
-                        dispatch<typeof Actions.ShowGroupHelpDone>({
-                            name: Actions.ShowGroupHelpDone.name,
-                            payload: {
-                                html: html,
-                                groupIdx: action.payload['groupIdx']
-                            }
-                        });
-                    },
-                    error: error => {
-                        this.appServices.showMessage(SystemMessageType.ERROR, error);
-                        dispatch(
-                            Actions.ShowGroupHelpDone,
-                            {
-                                html: null,
-                                groupIdx: -1
-                            },
-                            error
-                        );
-                    }
-                });
+                this.appServices
+                    .ajax$<string>(
+                        'GET',
+                        action.payload['url'],
+                        {},
+                        {
+                            responseType: ResponseType.TEXT,
+                        }
+                    )
+                    .subscribe({
+                        next: (html) => {
+                            dispatch<typeof Actions.ShowGroupHelpDone>({
+                                name: Actions.ShowGroupHelpDone.name,
+                                payload: {
+                                    html: html,
+                                    groupIdx: action.payload['groupIdx'],
+                                },
+                            });
+                        },
+                        error: (error) => {
+                            this.appServices.showMessage(
+                                SystemMessageType.ERROR,
+                                error
+                            );
+                            dispatch(
+                                Actions.ShowGroupHelpDone,
+                                {
+                                    html: null,
+                                    groupIdx: -1,
+                                },
+                                error
+                            );
+                        },
+                    });
             }
         );
 
-        this.addActionHandler(
-            Actions.ShowGroupHelpDone,
-            (state, action) => {
-                state.isBusy = false;
-                if (action.error) {
-                    state.activeGroupHelp = null;
-
-                } else {
-                    state.activeGroupHelp = {html: action.payload.html, idx: action.payload.groupIdx};
-                }
-            }
-        );
-
-        this.addActionHandler(
-            Actions.HideGroupHelp,
-            (state, action) => {
+        this.addActionHandler(Actions.ShowGroupHelpDone, (state, action) => {
+            state.isBusy = false;
+            if (action.error) {
                 state.activeGroupHelp = null;
+            } else {
+                state.activeGroupHelp = {
+                    html: action.payload.html,
+                    idx: action.payload.groupIdx,
+                };
             }
-        );
+        });
 
-        this.addActionHandler(
-            Actions.RequestQueryResponse,
-            (state, action) => {
-                if (action.payload?.focusedTile) {
-                    const scrollToTile = List.find(v => v.tileName === action.payload.focusedTile, state.tileProps);
-                    if (scrollToTile) {
-                        state.scrollToTileId = scrollToTile.tileId;
-                        state.highlightedTileId = scrollToTile.tileId;
-                    }
-                }
-                state.allTilesLoaded = false;
-                state.tileResultFlags = List.map(
-                    v => ({
-                        tileId: v.tileId,
-                        groupId: v.groupId,
-                        status: TileResultFlag.PENDING,
-                        canBeAmbiguousResult: false
-                    }),
-                    state.tileResultFlags
-                );
-                state.datalessGroups = [];
-            }
-        );
+        this.addActionHandler(Actions.HideGroupHelp, (state, action) => {
+            state.activeGroupHelp = null;
+        });
 
-        this.addActionHandler(
-            Actions.TileDataLoaded,
-            (state, action) => {
-                const srchIdx = state.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
-                if (srchIdx > -1) {
-                    const curr = state.tileResultFlags[srchIdx];
-                    state.tileResultFlags[srchIdx] = {
-                        tileId: curr.tileId,
-                        groupId: curr.groupId,
-                        status: this.inferResultFlag(action),
-                        canBeAmbiguousResult: action.payload.canBeAmbiguousResult
-                    };
-                }
-                if (this.allTileStatusFlagsWritten(state)) { // to make sure we don't react to a particular load misusing TileDataLoaded
-                    state.allTilesLoaded = true;
-                    this.findEmptyGroups(state);
-                }
-                state.tweakActiveTiles = List.removeValue(action.payload.tileId, state.tweakActiveTiles);
-                state.numTileErrors = List.foldl(
-                    (acc, v) => v.status === TileResultFlag.ERROR ? acc + 1 : acc,
-                    0,
-                    state.tileResultFlags
+        this.addActionHandler(Actions.RequestQueryResponse, (state, action) => {
+            if (action.payload?.focusedTile) {
+                const scrollToTile = List.find(
+                    (v) => v.tileName === action.payload.focusedTile,
+                    state.tileProps
                 );
+                if (scrollToTile) {
+                    state.scrollToTileId = scrollToTile.tileId;
+                    state.highlightedTileId = scrollToTile.tileId;
+                }
             }
-        );
+            state.allTilesLoaded = false;
+            state.tileResultFlags = List.map(
+                (v) => ({
+                    tileId: v.tileId,
+                    groupId: v.groupId,
+                    status: TileResultFlag.PENDING,
+                    canBeAmbiguousResult: false,
+                }),
+                state.tileResultFlags
+            );
+            state.datalessGroups = [];
+        });
+
+        this.addActionHandler(Actions.TileDataLoaded, (state, action) => {
+            const srchIdx = state.tileResultFlags.findIndex(
+                (v) => v.tileId === action.payload.tileId
+            );
+            if (srchIdx > -1) {
+                const curr = state.tileResultFlags[srchIdx];
+                state.tileResultFlags[srchIdx] = {
+                    tileId: curr.tileId,
+                    groupId: curr.groupId,
+                    status: this.inferResultFlag(action),
+                    canBeAmbiguousResult: action.payload.canBeAmbiguousResult,
+                };
+            }
+            if (this.allTileStatusFlagsWritten(state)) {
+                // to make sure we don't react to a particular load misusing TileDataLoaded
+                state.allTilesLoaded = true;
+                this.findEmptyGroups(state);
+            }
+            state.tweakActiveTiles = List.removeValue(
+                action.payload.tileId,
+                state.tweakActiveTiles
+            );
+            state.numTileErrors = List.foldl(
+                (acc, v) => (v.status === TileResultFlag.ERROR ? acc + 1 : acc),
+                0,
+                state.tileResultFlags
+            );
+        });
 
         this.addActionHandler(
             Actions.SetEmptyResult,
             (state, action) => {
-                state.tileResultFlags = state.tileResultFlags
-                    .map(v => ({
-                        tileId: v.tileId,
-                        groupId: v.groupId,
-                        status: TileResultFlag.EMPTY_RESULT,
-                        canBeAmbiguousResult: false
-                    }));
+                state.tileResultFlags = state.tileResultFlags.map((v) => ({
+                    tileId: v.tileId,
+                    groupId: v.groupId,
+                    status: TileResultFlag.EMPTY_RESULT,
+                    canBeAmbiguousResult: false,
+                }));
                 this.findEmptyGroups(state);
                 return state;
             },
             (state, action, dispatch) => {
                 if (action.payload && action.payload.error) {
-                    this.appServices.showMessage(SystemMessageType.ERROR, action.payload.error[1]);
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        action.payload.error[1]
+                    );
                 }
             }
         );
@@ -450,15 +457,12 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             }
         );
 
-        this.addActionHandler(
-            Actions.FollowBacklink,
-            (state, action) => {
-                if (action.payload.backlink.async) {
-                    state.showRedirectingModal = true;
-                    state.redirectingMessage = null;
-                }
+        this.addActionHandler(Actions.FollowBacklink, (state, action) => {
+            if (action.payload.backlink.async) {
+                state.showRedirectingModal = true;
+                state.redirectingMessage = null;
             }
-        );
+        });
 
         this.addActionHandler(
             Actions.BacklinkPreparationDone,
@@ -474,38 +478,48 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         );
     }
 
-    private allTileStatusFlagsWritten(state:WdglanceTilesState):boolean {
-        return List.find(v => v.status === TileResultFlag.PENDING, state.tileResultFlags) === undefined;
+    private allTileStatusFlagsWritten(state: WdglanceTilesState): boolean {
+        return (
+            List.find(
+                (v) => v.status === TileResultFlag.PENDING,
+                state.tileResultFlags
+            ) === undefined
+        );
     }
 
-    private inferResultFlag(action:typeof Actions.TileDataLoaded):TileResultFlag {
+    private inferResultFlag(
+        action: typeof Actions.TileDataLoaded
+    ): TileResultFlag {
         if (action.error) {
             return TileResultFlag.ERROR;
-
         } else if (action.payload.isEmpty) {
             return TileResultFlag.EMPTY_RESULT;
         }
         return TileResultFlag.VALID_RESULT;
     }
 
-    private findEmptyGroups(state:WdglanceTilesState):void {
+    private findEmptyGroups(state: WdglanceTilesState): void {
         state.datalessGroups = pipe(
             state.tileResultFlags,
-            List.groupBy(v => v.groupId.toString()),
+            List.groupBy((v) => v.groupId.toString()),
             Dict.fromEntries(),
-            Dict.map((v, _) => List.every(t => t.status === TileResultFlag.EMPTY_RESULT, v)),
+            Dict.map((v, _) =>
+                List.every((t) => t.status === TileResultFlag.EMPTY_RESULT, v)
+            ),
             Dict.filter((v, _) => !!v),
             Dict.keys(),
-            List.map(v => parseInt(v))
+            List.map((v) => parseInt(v))
         );
     }
 
-    private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {
+    private getTileProps(
+        state: WdglanceTilesState,
+        tileId: number
+    ): Observable<TileFrameProps> {
         return new Observable<TileFrameProps>((observer) => {
             if (state.tileProps[tileId]) {
                 observer.next(state.tileProps[tileId]);
                 observer.complete();
-
             } else {
                 observer.error(new Error('Missing help URL'));
             }

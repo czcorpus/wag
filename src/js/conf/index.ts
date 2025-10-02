@@ -27,12 +27,12 @@ export const THEME_COOKIE_NAME = 'wag_theme';
 
 export const LAST_USED_TRANSLAT_LANG_COOKIE_NAME = 'wag_last_translat_lang';
 
-export type MainPosAttrValues = 'pos'|'upos';
+export type MainPosAttrValues = 'pos' | 'upos';
 
 export interface UserQuery {
-    word:string;
-    pos:Array<string>;
-    lemma?:string;
+    word: string;
+    pos: Array<string>;
+    lemma?: string;
 }
 
 /**
@@ -40,23 +40,23 @@ export interface UserQuery {
  * user specific information/input.
  */
 export interface UserConf {
-    applicationId:string;
-    uiLanguages:{[code:string]:string};
-    uiLang:string;
-    queries:Array<UserQuery>;
-    queryType:QueryType;
-    translatLanguage:string|undefined;
-    answerMode:boolean;
-    staticPage?:boolean;
-    error?:[number, string]; // server error (e.g. bad request)
+    applicationId: string;
+    uiLanguages: { [code: string]: string };
+    uiLang: string;
+    queries: Array<UserQuery>;
+    queryType: QueryType;
+    translatLanguage: string | undefined;
+    answerMode: boolean;
+    staticPage?: boolean;
+    error?: [number, string]; // server error (e.g. bad request)
 }
 
 export function errorUserConf(
-    applicationId:string,
-    uiLanguages:{[code:string]:string},
-    error:[number, string],
-    uiLang:string
-):UserConf {
+    applicationId: string,
+    uiLanguages: { [code: string]: string },
+    error: [number, string],
+    uiLang: string
+): UserConf {
     return {
         applicationId,
         uiLanguages,
@@ -66,14 +66,14 @@ export function errorUserConf(
         translatLanguage: '',
         answerMode: false, // ??
         staticPage: false,
-        error
+        error,
     };
 }
 
 export interface ColorThemeIdent {
-    themeId:string;
-    themeLabel:LocalizedConfMsg;
-    description?:LocalizedConfMsg;
+    themeId: string;
+    themeLabel: LocalizedConfMsg;
+    description?: LocalizedConfMsg;
 }
 
 /**
@@ -82,81 +82,76 @@ export interface ColorThemeIdent {
  * (mainly chart colors).
  */
 export interface ColorTheme extends ColorThemeIdent {
+    defaultFontFamily?: string;
+    condensedFontFamily?: string;
+    defaultFontSize?: string;
+    backgroundImage?: string;
+    pageBackgroundColor?: string;
+    tileBackgroundColor?: string;
+    tileHeadingSeparColor?: string;
+    textInputBackgroundColor?: string;
+    colorLogoBlue?: string;
+    colorLogoBlueShining?: string;
+    colorWhitelikeBlue?: string;
+    colorLightText?: string;
+    colorDefaultText?: string;
+    colorInvertText?: string;
+    colorInvertedSecondaryText?: string;
+    colorSecondaryText?: string;
+    colorLogoPink?: string;
+    colorSuperlightGrey?: string;
+    svgIconsFilter?: string;
+    svgLogoFilter?: string;
 
-    defaultFontFamily?:string;
-    condensedFontFamily?:string;
-    defaultFontSize?:string;
-    backgroundImage?:string;
-    pageBackgroundColor?:string;
-    tileBackgroundColor?:string;
-    tileHeadingSeparColor?:string;
-    textInputBackgroundColor?:string;
-    colorLogoBlue?:string;
-    colorLogoBlueShining?:string;
-    colorWhitelikeBlue?:string;
-    colorLightText?:string;
-    colorDefaultText?:string;
-    colorInvertText?:string;
-    colorInvertedSecondaryText?:string;
-    colorSecondaryText?:string;
-    colorLogoPink?:string;
-    colorSuperlightGrey?:string;
-    svgIconsFilter?:string;
-    svgLogoFilter?:string;
+    tileBorderStyle?: string;
+    tileBorderRadius?: string;
 
-    tileBorderStyle?:string;
-    tileBorderRadius?:string;
+    cssMediaMediumScreen?: string;
+    cssMediaSmallScreen?: string;
 
-    cssMediaMediumScreen?:string;
-    cssMediaSmallScreen?:string;
+    lineChartColor1: string;
+    lineConfidenceAreaColor1: string;
+    lineChartColor2: string;
+    lineConfidenceAreaColor2: string;
+    category: Array<string>;
+    categoryOther: string;
+    cmpCategory: Array<string>;
+    scale: Array<string>;
+    geoAreaSpotFillColor: string;
+    geoAreaSpotTextColor?: string;
 
-
-    lineChartColor1:string;
-    lineConfidenceAreaColor1:string;
-    lineChartColor2:string;
-    lineConfidenceAreaColor2:string;
-    category:Array<string>;
-    categoryOther:string;
-    cmpCategory:Array<string>;
-    scale:Array<string>;
-    geoAreaSpotFillColor:string;
-    geoAreaSpotTextColor?:string;
-
-    chartTextColor?:string;
+    chartTextColor?: string;
 }
 
 export interface ColorsConf {
-    themes:Array<ColorTheme>;
-    default:string;
+    themes: Array<ColorTheme>;
+    default: string;
 }
-
 
 export interface LayoutVisibleTile {
+    tile: string;
 
-    tile:string;
+    width: number;
 
-    width:number;
+    readDataFrom?: string;
 
-    readDataFrom?:string;
-
-    ref?:string;
+    ref?: string;
 }
 
-
 export interface GroupLayoutConfig {
-    groupLabel?:LocalizedConfMsg;
-    groupDescURL?:LocalizedConfMsg;
-    groupTemplate?:any; // TODO unfinished concept
-    tiles:Array<LayoutVisibleTile>;
+    groupLabel?: LocalizedConfMsg;
+    groupDescURL?: LocalizedConfMsg;
+    groupTemplate?: any; // TODO unfinished concept
+    tiles: Array<LayoutVisibleTile>;
 }
 
 export interface LayoutConfigCommon {
-    mainPosAttr:MainPosAttrValues;
-    groups:Array<GroupLayoutConfig>;
-    label?:LocalizedConfMsg;
-    useLayout?:string;
-    replace?:{[ref:string]:string};
-    insertAfter?:{[ref:string]:Array<{tile:string; width:number}>};
+    mainPosAttr: MainPosAttrValues;
+    groups: Array<GroupLayoutConfig>;
+    label?: LocalizedConfMsg;
+    useLayout?: string;
+    replace?: { [ref: string]: string };
+    insertAfter?: { [ref: string]: Array<{ tile: string; width: number }> };
 }
 
 export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
@@ -164,60 +159,60 @@ export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
 export interface LayoutConfigCmpQuery extends LayoutConfigCommon {}
 
 export interface TranslatLanguage {
-    code:string;
-    label:string;
+    code: string;
+    label: string;
 }
 
 export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
-    targetLanguages:Array<TranslatLanguage>;
+    targetLanguages: Array<TranslatLanguage>;
 }
 
 export interface LayoutConfigPreviewQuery extends LayoutConfigCommon {
-    targetLanguages:Array<TranslatLanguage>;
+    targetLanguages: Array<TranslatLanguage>;
 }
 
 export interface LayoutsConfig {
-    single?:LayoutConfigSingleQuery;
-    cmp?:LayoutConfigCmpQuery;
-    translat?:LayoutConfigTranslatQuery;
-    preview?:LayoutConfigPreviewQuery;
+    single?: LayoutConfigSingleQuery;
+    cmp?: LayoutConfigCmpQuery;
+    translat?: LayoutConfigTranslatQuery;
+    preview?: LayoutConfigPreviewQuery;
 }
 
 export interface HomePageTileConfI18n {
-    label:{[lang:string]:string};
-    contents:{[lang:string]:string|{file:string}};
+    label: { [lang: string]: string };
+    contents: { [lang: string]: string | { file: string } };
 }
 
 export interface HomepageConfI18n {
-    tiles:Array<HomePageTileConfI18n>;
-    footer?:{[lang:string]:string|{file:string}};
+    tiles: Array<HomePageTileConfI18n>;
+    footer?: { [lang: string]: string | { file: string } };
 }
 
 export interface FaviconConf {
-    contentType:string;
-    url:string;
+    contentType: string;
+    url: string;
 }
 
 export interface InstanceLink {
-    label:LocalizedConfMsg;
-    url:string;
+    label: LocalizedConfMsg;
+    url: string;
 }
 
 export interface LogoStaticConf {
-    url:LocalizedConfMsg;
-    inlineStyle?:CSSProperties;
-    label?:LocalizedConfMsg;
+    url: LocalizedConfMsg;
+    inlineStyle?: CSSProperties;
+    label?: LocalizedConfMsg;
 
     /**
      * For WaG instances displaying specific text type / media / etc.,
      * an additional logo can be used to display something like e.g.:
      * [Word at a Glance] [ / Fiction].
      */
-    subWag?:{
-        url:LocalizedConfMsg; // for different language versions, use object
-        inlineStyle?:CSSProperties;
-        label?:LocalizedConfMsg; // for different language versions, use object
-    }
+    subWag?: {
+        url: LocalizedConfMsg; // for different language versions, use object
+        inlineStyle?: CSSProperties;
+        label?: LocalizedConfMsg; // for different language versions, use object
+    };
 }
 
 /**
@@ -225,60 +220,60 @@ export interface LogoStaticConf {
  * of the LogoStaticConf (i.e. once we know ui language)
  */
 export interface LogoRuntimeConf {
-    url:string;
-    inlineStyle:CSSProperties;
-    label:string;
+    url: string;
+    inlineStyle: CSSProperties;
+    label: string;
 
     /**
      * For WaG instances displaying specific text type / media / etc.,
      * an additional logo can be used to display something like e.g.:
      * [Word at a Glance] [ / Fiction].
      */
-    subWag?:{
-        url:string;
-        inlineStyle:CSSProperties;
-        label:string;
-    }
+    subWag?: {
+        url: string;
+        inlineStyle: CSSProperties;
+        label: string;
+    };
 }
 
 export interface CommonTextStructures {
-    sentence?:string;
-    paragraph?:string;
-    document?:string;
+    sentence?: string;
+    paragraph?: string;
+    document?: string;
 }
 
 export interface DataReadabilityMapping {
-    metadataMapping:{
-        [corp:string]:{[key:string]:LocalizedConfMsg}
+    metadataMapping: {
+        [corp: string]: { [key: string]: LocalizedConfMsg };
     };
-    commonStructures:{[corp:string]:CommonTextStructures};
-};
+    commonStructures: { [corp: string]: CommonTextStructures };
+}
 
 /**
  * Client side app configuration as present in wdglance.json
  * configuration file.
  */
 export interface ClientStaticConf {
-    import?:string; // if present, then this is a path to another JSON file
-    applicationId:string;
-    rootUrl:string;
-    hostUrl:string;
-    runtimeAssetsUrl:string;
-    favicon?:FaviconConf;
-    logo?:LogoStaticConf;
-    instanceSwitchMenu?:Array<InstanceLink>;
-	corpInfoApiUrl:string;
-    dataReadability?:DataReadabilityMapping|string;
-    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
-    onLoadInit?:Array<string>;
-    issueReportingUrl?:string;
-    maxTileErrors:number;
-    homepage:HomepageConfI18n;
-    htmlTitle?:{[lang:string]:string};
-    colors?:ColorsConf|string;
+    import?: string; // if present, then this is a path to another JSON file
+    applicationId: string;
+    rootUrl: string;
+    hostUrl: string;
+    runtimeAssetsUrl: string;
+    favicon?: FaviconConf;
+    logo?: LogoStaticConf;
+    instanceSwitchMenu?: Array<InstanceLink>;
+    corpInfoApiUrl: string;
+    dataReadability?: DataReadabilityMapping | string;
+    apiHeaders: { [urlPrefix: string]: HTTPHeaders };
+    onLoadInit?: Array<string>;
+    issueReportingUrl?: string;
+    maxTileErrors: number;
+    homepage: HomepageConfI18n;
+    htmlTitle?: { [lang: string]: string };
+    colors?: ColorsConf | string;
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
-    externalStyles?:Array<string>;
+    externalStyles?: Array<string>;
 
     /**
      * This specifies an URL used by the DataStreaming class
@@ -288,38 +283,37 @@ export interface ClientStaticConf {
      * to true, then it does not matter whether this value
      * is filled or not.
      */
-    dataStreamingUrl:string;
+    dataStreamingUrl: string;
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
-    tiles:MultiSourceTileConf;
+    tiles: MultiSourceTileConf;
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-    layouts:LayoutsConfig|string;
+    layouts: LayoutsConfig | string;
 }
-
 
 export interface TileDbConf {
-    server:string; // e.g. http://foo:5984
-    appId:string;
-    username:string;
-    password:string; // please do not use admin credentials for this
+    server: string; // e.g. http://foo:5984
+    appId: string;
+    username: string;
+    password: string; // please do not use admin credentials for this
 }
 
-export interface AllQueryTypesTileConf {[qType:string]:TileConf};
+export interface AllQueryTypesTileConf {
+    [qType: string]: TileConf;
+}
 
+type MultiSourceTileConf = string | TileDbConf | AllQueryTypesTileConf;
 
-type MultiSourceTileConf = string|TileDbConf|AllQueryTypesTileConf;
-
-
-export function isTileDBConf(tiles:MultiSourceTileConf):tiles is TileDbConf {
+export function isTileDBConf(tiles: MultiSourceTileConf): tiles is TileDbConf {
     return (tiles as TileDbConf).server !== undefined;
 }
 
 export interface HomepageTileConf {
-    label:string;
-    html:string;
+    label: string;
+    html: string;
 }
 
 /**
@@ -328,72 +322,75 @@ export interface HomepageTileConf {
  * specific query type).
  */
 export interface ClientConf {
-    rootUrl:string;
-    hostUrl:string;
-    runtimeAssetsUrl:string;
-    favicon?:FaviconConf;
-	corpInfoApiUrl:string;
-    dataReadability?:DataReadabilityMapping;
-    logo?:LogoRuntimeConf;
-    instanceSwitchMenu?:Array<{label:string; url:string}>;
-    colors?:ColorTheme;
-    colorThemes:Array<ColorThemeIdent>;
-    onLoadInit?:Array<string>;
-    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
-    issueReportingUrl?:string;
-    homepage:{
-        tiles:Array<HomepageTileConf>;
-        footer?:string;
+    rootUrl: string;
+    hostUrl: string;
+    runtimeAssetsUrl: string;
+    favicon?: FaviconConf;
+    corpInfoApiUrl: string;
+    dataReadability?: DataReadabilityMapping;
+    logo?: LogoRuntimeConf;
+    instanceSwitchMenu?: Array<{ label: string; url: string }>;
+    colors?: ColorTheme;
+    colorThemes: Array<ColorThemeIdent>;
+    onLoadInit?: Array<string>;
+    apiHeaders: { [urlPrefix: string]: HTTPHeaders };
+    issueReportingUrl?: string;
+    homepage: {
+        tiles: Array<HomepageTileConf>;
+        footer?: string;
     };
-    tiles:{[ident:string]:TileConf};
-    dataStreamingUrl:string;
+    tiles: { [ident: string]: TileConf };
+    dataStreamingUrl: string;
 
-    layouts:LayoutsConfig;
-    queryTypes:Array<QueryType>;
-    externalStyles:Array<string>;
-    maxTileErrors:number;
-    error?:Error;
-    redirect?:[number, string];
-    maxQueryWords:number;
+    layouts: LayoutsConfig;
+    queryTypes: Array<QueryType>;
+    externalStyles: Array<string>;
+    maxTileErrors: number;
+    error?: Error;
+    redirect?: [number, string];
+    maxQueryWords: number;
 }
 
-export function emptyLayoutConf():LayoutsConfig {
+export function emptyLayoutConf(): LayoutsConfig {
     return {
         single: {
             groups: [],
-            mainPosAttr: 'pos'
+            mainPosAttr: 'pos',
         },
         cmp: {
             groups: [],
-            mainPosAttr: 'pos'
+            mainPosAttr: 'pos',
         },
         translat: {
             groups: [],
             targetLanguages: [],
-            mainPosAttr: 'pos'
-        }
+            mainPosAttr: 'pos',
+        },
     };
 }
 
-export function mergeToEmptyLayoutConf(other:LayoutsConfig):LayoutsConfig {
+export function mergeToEmptyLayoutConf(other: LayoutsConfig): LayoutsConfig {
     const layout = emptyLayoutConf();
     return {
-        single: {...layout.single, ...other.single},
-        cmp: {...layout.cmp, ...other.cmp},
-        translat: {...layout.translat, ...other.translat},
-        preview: {...layout.preview, ...other.preview}
+        single: { ...layout.single, ...other.single },
+        cmp: { ...layout.cmp, ...other.cmp },
+        translat: { ...layout.translat, ...other.translat },
+        preview: { ...layout.preview, ...other.preview },
     };
 }
 
-export function getAppliedThemeConf(conf:ClientStaticConf, themeId?:string):ColorTheme|undefined {
-    let ans:ColorTheme;
+export function getAppliedThemeConf(
+    conf: ClientStaticConf,
+    themeId?: string
+): ColorTheme | undefined {
+    let ans: ColorTheme;
     const colors = conf.colors;
     if (typeof colors === 'object') {
         if (themeId) {
-            ans = List.find(t => t.themeId === themeId, colors.themes);
+            ans = List.find((t) => t.themeId === themeId, colors.themes);
         }
         if (!ans) {
-            ans = List.find(t => t.themeId === colors.default, colors.themes);
+            ans = List.find((t) => t.themeId === colors.default, colors.themes);
         }
         if (!ans) {
             throw new Error('Color theme misconfiguration - no default found');
@@ -402,18 +399,21 @@ export function getAppliedThemeConf(conf:ClientStaticConf, themeId?:string):Colo
     return ans;
 }
 
-export function getThemeList(conf:ClientStaticConf):Array<ColorThemeIdent> {
+export function getThemeList(conf: ClientStaticConf): Array<ColorThemeIdent> {
     return pipe(
         typeof conf.colors === 'string' ? [] : conf.colors.themes,
-        List.map(v => ({
+        List.map((v) => ({
             themeId: v.themeId,
             themeLabel: v.themeLabel ? v.themeLabel : v.themeId,
-            description: v.description
+            description: v.description,
         }))
     );
 }
 
-export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined):ClientConf {
+export function emptyClientConf(
+    conf: ClientStaticConf,
+    themeId: string | undefined
+): ClientConf {
     return {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
@@ -428,7 +428,7 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         apiHeaders: conf.apiHeaders,
         dataReadability: {
             metadataMapping: {},
-            commonStructures: {}
+            commonStructures: {},
         },
         onLoadInit: conf.onLoadInit || [],
         colors: getAppliedThemeConf(conf, themeId),
@@ -437,54 +437,68 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {
-            tiles: []
+            tiles: [],
         },
         queryTypes: [],
         externalStyles: [],
         maxTileErrors: 0,
-        maxQueryWords: 1
+        maxQueryWords: 1,
     };
 }
 
-export function getSupportedQueryTypes(conf:ClientStaticConf, translatLang:string):Array<QueryType> {
+export function getSupportedQueryTypes(
+    conf: ClientStaticConf,
+    translatLang: string
+): Array<QueryType> {
     if (typeof conf.layouts === 'string') {
         return [];
     }
     const layout = conf.layouts[translatLang] || emptyLayoutConf();
-    const ans:Array<QueryType> = [];
-    if (layout.single && Array.isArray(layout.single.groups) && layout.single.groups.length > 0) {
+    const ans: Array<QueryType> = [];
+    if (
+        layout.single &&
+        Array.isArray(layout.single.groups) &&
+        layout.single.groups.length > 0
+    ) {
         ans.push(QueryType.SINGLE_QUERY);
     }
-    if (layout.translat && Array.isArray(layout.translat.groups) && layout.translat.groups.length > 0) {
+    if (
+        layout.translat &&
+        Array.isArray(layout.translat.groups) &&
+        layout.translat.groups.length > 0
+    ) {
         ans.push(QueryType.TRANSLAT_QUERY);
     }
-    if (layout.cmp && Array.isArray(layout.cmp.groups) && layout.cmp.groups.length > 0) {
+    if (
+        layout.cmp &&
+        Array.isArray(layout.cmp.groups) &&
+        layout.cmp.groups.length > 0
+    ) {
         ans.push(QueryType.CMP_QUERY);
     }
     return ans;
 }
 
-
 export interface ToolbarDef {
-    type:string;
-    url?:string;
+    type: string;
+    url?: string;
 }
 
 export interface LogQueueConf {
-    host:string;
-    port:number;
-    db:number;
-    key:string;
+    host: string;
+    port: number;
+    db: number;
+    key: string;
 }
 
 export interface FreqDbOptions {
-    urlArgs?:{[key:string]:string};
-    httpHeaders?:{[key:string]:string};
-    sourceInfoUrl?:string;
-    sourceInfoUsername?:string;
-    sourceInfoPassword?:string;
-    username?:string;
-    password?:string;
+    urlArgs?: { [key: string]: string };
+    httpHeaders?: { [key: string]: string };
+    sourceInfoUrl?: string;
+    sourceInfoUsername?: string;
+    sourceInfoPassword?: string;
+    username?: string;
+    password?: string;
 
     /**
      * If N, then for any 1, 2,...,N-gram type, the database
@@ -494,69 +508,68 @@ export interface FreqDbOptions {
      * returns just any 1, 2,...N-grams matching entered
      * ARF. This is only supported for 1, 2, 3, 4-grams.
      */
-    maxSingleTypeNgramArf?:number;
+    maxSingleTypeNgramArf?: number;
 
-    korpusDBCrit?:string;
-    korpusDBNgramCrit?:string;
-    korpusDBNorm?:string;
+    korpusDBCrit?: string;
+    korpusDBNgramCrit?: string;
+    korpusDBNorm?: string;
 }
 
 export interface FreqDbConf {
-    dbType:string;
-    path:string;
-    corpusSize:number;
-    options?:FreqDbOptions;
+    dbType: string;
+    path: string;
+    corpusSize: number;
+    options?: FreqDbOptions;
 }
 
 export interface WordDbConf {
-    maxQueryWords:number;
-    minLemmaFreq:number;
-    database:FreqDbConf;
-    similarFreqWordsMaxCtx:number;
-};
+    maxQueryWords: number;
+    minLemmaFreq: number;
+    database: FreqDbConf;
+    similarFreqWordsMaxCtx: number;
+}
 
 export interface LangCookieSetup {
-    name:string;
-    domain?:string;
+    name: string;
+    domain?: string;
 }
 
 export interface GroupedAuth {
-    ident:string;
-    preflightUrl?:string;
-    authenticateUrl:string;
-    token:string;
-    cookieName:string;
-    cookieDomain:string;
+    ident: string;
+    preflightUrl?: string;
+    authenticateUrl: string;
+    token: string;
+    cookieName: string;
+    cookieDomain: string;
 }
 
 /**
  * Server side app configuration.
  */
 export interface ServerConf {
-    import?:string; // if present, then this is a path to another JSON file
-    address:string;
-    port:number;
-    distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
-    languages:{[code:string]:string};
-    develServer:{
-        host:string;
-        port:number;
-        urlRootPath:string;
-        webSocketURL?:string;
+    import?: string; // if present, then this is a path to another JSON file
+    address: string;
+    port: number;
+    distFilesUrl: string; // this ensures Webpack to resolve dynamic imports properly
+    languages: { [code: string]: string };
+    develServer: {
+        host: string;
+        port: number;
+        urlRootPath: string;
+        webSocketURL?: string;
     };
-    freqDB:WordDbConf;
-    logQueue?:LogQueueConf;
-    toolbar:ToolbarDef;
-    langCookie?:LangCookieSetup;
-    logging:{
-        path?:string;
-        rotation?:boolean;
+    freqDB: WordDbConf;
+    logQueue?: LogQueueConf;
+    toolbar: ToolbarDef;
+    langCookie?: LangCookieSetup;
+    logging: {
+        path?: string;
+        rotation?: boolean;
     };
-    sessions?:{
-        path?:string;
-        ttl?:number;
-        secret?:string;
+    sessions?: {
+        path?: string;
+        ttl?: number;
+        secret?: string;
     };
-    CSPDomains?:Array<string>;
+    CSPDomains?: Array<string>;
 }
-

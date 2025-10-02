@@ -21,7 +21,6 @@
 import { Theme } from '../../page/theme.js';
 import { styled } from 'styled-components';
 
-
 // ---------------- <AjaxLoader /> --------------------------------------
 
 export const AjaxLoader = styled.img`
@@ -52,14 +51,14 @@ export const TileWrapper = styled.div`
     }
 
     .source {
-        font-size: .9em;
+        font-size: 0.9em;
         padding: 1.25em;
-        color: ${props => props.theme.colorLightText};
+        color: ${(props) => props.theme.colorLightText};
 
         a {
             cursor: pointer;
             text-decoration: none;
-            color: ${props => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorLogoBlue};
         }
 
         a:hover {
@@ -68,7 +67,6 @@ export const TileWrapper = styled.div`
     }
 
     .empty {
-
         .not-applicable-box {
             height: 100%;
             display: flex;
@@ -78,14 +76,13 @@ export const TileWrapper = styled.div`
                 display: flex;
                 flex-grow: 1;
                 margin: 0;
-                color: ${props => props.theme.colorSuperlightGrey};
+                color: ${(props) => props.theme.colorSuperlightGrey};
                 font-size: 9em;
                 text-align: center;
                 justify-content: center;
                 align-items: center;
 
                 span {
-
                 }
             }
         }
@@ -94,8 +91,8 @@ export const TileWrapper = styled.div`
     hr {
         border: none;
         height: 2px;
-        color: ${props => props.theme.colorWhitelikeBlue};
-        background-color: ${props => props.theme.colorWhitelikeBlue};
+        color: ${(props) => props.theme.colorWhitelikeBlue};
+        background-color: ${(props) => props.theme.colorWhitelikeBlue};
     }
 `;
 
@@ -118,7 +115,12 @@ export const TitleLoaderBar = styled.div`
         margin-left: -110%;
         width: 100%;
         height: 0.2em;
-        background: linear-gradient(0.25turn, #ffffff, ${(props:{theme:Theme}) => props.theme.colorLogoPink}, #ffffff);
+        background: linear-gradient(
+            0.25turn,
+            #ffffff,
+            ${(props: { theme: Theme }) => props.theme.colorLogoPink},
+            #ffffff
+        );
     }
 `;
 
@@ -130,7 +132,7 @@ export const HorizontalBlockSwitch = styled.div`
     text-align: center;
 
     a {
-        color: ${props => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorLogoBlue};
         cursor: pointer;
         font-size: 2em;
         padding: 0.2em;
@@ -142,7 +144,7 @@ export const HorizontalBlockSwitch = styled.div`
     }
 
     a.current {
-        color: ${props => props.theme.colorLogoBlueShining};
+        color: ${(props) => props.theme.colorLogoBlueShining};
     }
 `;
 
@@ -159,35 +161,34 @@ export const TileReloadControl = styled.p`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const ResponsiveWrapper = styled.div<{$minWidth:number}>`
+export const ResponsiveWrapper = styled.div<{ $minWidth: number }>`
     width: 100%;
     height: 100%;
-    min-width: ${props => props.$minWidth ? props.$minWidth : 'auto'};
+    min-width: ${(props) => (props.$minWidth ? props.$minWidth : 'auto')};
 `;
 
 // ---------------- <ModalOverlay /> --------------------------------------
 
-export const ModalOverlay = styled.div<{theme:Theme}>`
-
+export const ModalOverlay = styled.div<{ theme: Theme }>`
     position: fixed;
     z-index: 10000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: hsla(0, 0%, 8%, .7);
+    background-color: hsla(0, 0%, 8%, 0.7);
 
     .box {
         position: absolute;
         top: 30%;
         left: 50%;
-        transform: translate(-50%,-30%);
+        transform: translate(-50%, -30%);
         max-height: 100%;
-        box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
-        background-color: ${props => props.theme.tileBackgroundColor};
-        color: ${props => props.theme.colorSecondaryText};
-        border: ${props => props.theme.tileBorderStyle};
-        border-color: ${props => props.theme.tileHeadingSeparColor};
+        box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
+        background-color: ${(props) => props.theme.tileBackgroundColor};
+        color: ${(props) => props.theme.colorSecondaryText};
+        border: ${(props) => props.theme.tileBorderStyle};
+        border-color: ${(props) => props.theme.tileHeadingSeparColor};
 
         header span:first-letter {
             text-transform: uppercase;
@@ -229,8 +230,7 @@ export const ModalOverlay = styled.div<{theme:Theme}>`
         font-size: 1rem;
     }
 
-
-    ${props => props.theme.cssMediaMediumSize} {
+    ${(props) => props.theme.cssMediaMediumSize} {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -277,8 +277,8 @@ export const ModalOverlay = styled.div<{theme:Theme}>`
         }
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
-        background-color: hsla(0,0%,8%,.7);
+    ${(props) => props.theme.cssMediaSmallSize} {
+        background-color: hsla(0, 0%, 8%, 0.7);
 
         .box {
             height: calc(100vh - 2em);
@@ -301,11 +301,12 @@ export const ModalOverlay = styled.div<{theme:Theme}>`
 
 // ---------------- <WdgTooltip /> --------------------------------------
 
-export const WdgTooltip = styled.div<{$multiword?:boolean, theme:Theme}>`
-    background-color: ${(props:{theme:Theme}) => props.theme.tileBackgroundColor};
+export const WdgTooltip = styled.div<{ $multiword?: boolean; theme: Theme }>`
+    background-color: ${(props: { theme: Theme }) =>
+        props.theme.tileBackgroundColor};
     z-index: 10000;
-    padding: ${props => props.$multiword ? '0.3em 1em 1.3em 1em' : '1em'};
-    border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
+    padding: ${(props) => (props.$multiword ? '0.3em 1em 1.3em 1em' : '1em')};
+    border: 1px solid ${(props) => props.theme.colorInvertedSecondaryText};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
@@ -318,21 +319,22 @@ export const WdgTooltip = styled.div<{$multiword?:boolean, theme:Theme}>`
 
     table {
         .value {
-            ${props => props.$multiword ? null : 'font-weight: bold'};
+            ${(props) => (props.$multiword ? null : 'font-weight: bold')};
             text-align: left;
         }
 
         .label {
-            text-align: ${props => props.$multiword ? 'center' : 'right'};
-            padding: ${props => props.$multiword ? '0 10px 0 10px' : '0 0.4em 0 0'};
-            ${props => props.$multiword ? 'font-weight: 900' : null};
-            ${props => props.$multiword ? 'color: white' : null};
+            text-align: ${(props) => (props.$multiword ? 'center' : 'right')};
+            padding: ${(props) =>
+                props.$multiword ? '0 10px 0 10px' : '0 0.4em 0 0'};
+            ${(props) => (props.$multiword ? 'font-weight: 900' : null)};
+            ${(props) => (props.$multiword ? 'color: white' : null)};
         }
 
         th {
-            padding: ${props => props.$multiword ? '10px 0' : '0 0 1em 0'};
-            ${props => props.$multiword ? 'text-align: left' : null};
-            ${props => props.$multiword ? 'font-weight: bolder' : null};
+            padding: ${(props) => (props.$multiword ? '10px 0' : '0 0 1em 0')};
+            ${(props) => (props.$multiword ? 'text-align: left' : null)};
+            ${(props) => (props.$multiword ? 'font-weight: bolder' : null)};
         }
 
         td {
@@ -341,7 +343,8 @@ export const WdgTooltip = styled.div<{$multiword?:boolean, theme:Theme}>`
 
         td.numWh {
             text-align: right;
-            padding: ${props => props.$multiword ? '0 0 0 10px' : '0 0 0 1em'};
+            padding: ${(props) =>
+                props.$multiword ? '0 0 0 10px' : '0 0 0 1em'};
         }
 
         td.numDec {
@@ -356,15 +359,19 @@ export const WdgTooltip = styled.div<{$multiword?:boolean, theme:Theme}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkButton = styled.button<{$createStaticUrl: (file:string) => string, theme:Theme}>`
+export const BacklinkButton = styled.button<{
+    $createStaticUrl: (file: string) => string;
+    theme: Theme;
+}>`
     display: inline;
     padding: 0 12px 0 0;
     border: none;
     background-color: transparent;
     cursor: pointer;
     text-decoration: none;
-    color: ${props => props.theme.colorLogoBlue};
-    background-image: url(${props => props.$createStaticUrl('external-link.svg')});
+    color: ${(props) => props.theme.colorLogoBlue};
+    background-image: url(${(props) =>
+        props.$createStaticUrl('external-link.svg')});
     background-repeat: no-repeat;
     background-position: 99% 0;
 
@@ -375,11 +382,13 @@ export const BacklinkButton = styled.button<{$createStaticUrl: (file:string) => 
 
 // ---------------- <SourceInfoBox /> --------------------------------------
 
-export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:string) => string}>`
+export const SourceInfoBox = styled.div<{
+    theme: Theme;
+    $createStaticUrl: (file: string) => string;
+}>`
     font-size: 1.1em;
 
     ul.information-tab-sel {
-
         list-style-type: none;
         text-align: center;
         margin-top: 0;
@@ -391,20 +400,19 @@ export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:st
             font-size: 1em;
 
             a {
-                color: ${props => props.theme.colorDefaultText};
+                color: ${(props) => props.theme.colorDefaultText};
                 cursor: pointer;
                 margin: 0 0.6em;
                 text-decoration: none;
             }
 
             a.current {
-                border-color: ${props => props.theme.colorLogoBlue};
+                border-color: ${(props) => props.theme.colorLogoBlue};
                 border-style: solid;
                 border-width: 0 0 2px 0;
             }
 
             .separ {
-
             }
         }
     }
@@ -413,7 +421,7 @@ export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:st
         th {
             text-align: left;
             font-weight: normal;
-            color: ${props => props.theme.colorLogoPink};
+            color: ${(props) => props.theme.colorLogoPink};
         }
     }
 
@@ -425,11 +433,10 @@ export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:st
     }
 
     dl {
-
         dt {
             margin-bottom: 0.4em;
-            color: ${props => props.theme.colorLightText};
-            font-family: ${props => props.theme.condensedFontFamily};
+            color: ${(props) => props.theme.colorLightText};
+            font-family: ${(props) => props.theme.condensedFontFamily};
         }
 
         dd {
@@ -452,7 +459,7 @@ export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:st
 
     .keyword {
         border-style: solid;
-        border-color: ${props => props.theme.colorLogoBlue};
+        border-color: ${(props) => props.theme.colorLogoBlue};
         border-width: 1pt;
         border-radius: 5px;
         margin: 0.4em 0.2em;
@@ -462,16 +469,17 @@ export const SourceInfoBox = styled.div<{theme:Theme, $createStaticUrl: (file:st
 
     .citation {
         em {
-            color: ${props => props.theme.colorLogoPink};
+            color: ${(props) => props.theme.colorLogoPink};
         }
 
         a {
-            color: ${props => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorLogoBlue};
         }
     }
 
     a.external {
-        background-image: url(${props => props.$createStaticUrl('external-link.svg')});
+        background-image: url(${(props) =>
+            props.$createStaticUrl('external-link.svg')});
         background-repeat: no-repeat;
         background-position: 99% 0;
         padding-right: 1.1em;

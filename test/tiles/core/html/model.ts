@@ -23,58 +23,65 @@ import { assert } from 'chai';
 import { of as rxOf, Observable } from 'rxjs';
 
 import { HtmlModel } from '../../../../src/js/tiles/core/html/model.js';
-import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/tiles/core/html/api.js';
+import {
+    RawHtmlAPI,
+    HtmlApiArgs,
+} from '../../../../src/js/tiles/core/html/api.js';
 import { HtmlModelState } from '../../../../src/js/tiles/core/html/common.js';
 import { QueryMatch } from '../../../../src/js/query/index.js';
 import { Actions } from '../../../../src/js/models/actions.js';
 
-
 describe('HtmlTile model', function () {
+    let htmlApiStub: RawHtmlAPI;
 
-    let htmlApiStub:RawHtmlAPI;
-
-    let testHtmlModel:TestModelWrapper<HtmlModel, HtmlModelState>;
+    let testHtmlModel: TestModelWrapper<HtmlModel, HtmlModelState>;
 
     this.beforeEach(function () {
-        htmlApiStub = sinon.createStubInstance(
-            RawHtmlAPI,
-            {
-                call: sinon.stub<[any, number, number, HtmlApiArgs], Observable<string>>().callsFake(
-                    (dataStream, tileId, queryIdx, queryArgs) => {
-                        return queryArgs.query === 'anything' ?
-                            rxOf('fake html response') :
-                            rxOf('invalid html response');
-                    }
-                ),
-                stateToArgs: sinon.stub<[{lemmaArg:string, args:{[key:string]:string}}, string], HtmlApiArgs>().callsFake(
-                    (state, query) => {
-                        return {
-                            query
-                        }
-                    }
-                )
-            }
-        );
+        htmlApiStub = sinon.createStubInstance(RawHtmlAPI, {
+            call: sinon
+                .stub<[any, number, number, HtmlApiArgs], Observable<string>>()
+                .callsFake((dataStream, tileId, queryIdx, queryArgs) => {
+                    return queryArgs.query === 'anything'
+                        ? rxOf('fake html response')
+                        : rxOf('invalid html response');
+                }),
+            stateToArgs: sinon
+                .stub<
+                    [
+                        { lemmaArg: string; args: { [key: string]: string } },
+                        string,
+                    ],
+                    HtmlApiArgs
+                >()
+                .callsFake((state, query) => {
+                    return {
+                        query,
+                    };
+                }),
+        });
 
         testHtmlModel = new TestModelWrapper<HtmlModel, HtmlModelState>(
-            (dispatcher, appServices) => new HtmlModel({
-                dispatcher,
-                appServices,
-                tileId: 1,
-                service: htmlApiStub,
-                initState: {
-                    isBusy: false,
+            (dispatcher, appServices) =>
+                new HtmlModel({
+                    dispatcher,
+                    appServices,
                     tileId: 1,
-                    error: null,
-                    widthFract: 1,
-                    data: null,
-                    args: {},
-                    lemmaArg: '',
-                    sanitizeHTML: false,
-                    backlink: {label: '', queryId: 0, subqueryId: 0}
-                },
-                queryMatches: [[{isCurrent: true, lemma: 'anything'} as QueryMatch]],
-            })
+                    service: htmlApiStub,
+                    initState: {
+                        isBusy: false,
+                        tileId: 1,
+                        error: null,
+                        widthFract: 1,
+                        data: null,
+                        args: {},
+                        lemmaArg: '',
+                        sanitizeHTML: false,
+                        backlink: { label: '', queryId: 0, subqueryId: 0 },
+                    },
+                    queryMatches: [
+                        [{ isCurrent: true, lemma: 'anything' } as QueryMatch],
+                    ],
+                })
         );
     });
 
@@ -84,9 +91,9 @@ describe('HtmlTile model', function () {
 
     it('gets initial data', function (done) {
         testHtmlModel.checkState(
-            {name: Actions.RequestQueryResponse.name},
+            { name: Actions.RequestQueryResponse.name },
             Actions.TileDataLoaded.name,
-            state => {
+            (state) => {
                 assert.equal(state.data, 'fake html response');
                 done();
             }

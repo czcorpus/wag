@@ -15,22 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, IStatelessModel, StatefulModel, IFullActionControl, SEDispatcher, IActionCapturer } from 'kombo';
-import { BehaviorSubject, Observable, Subscription, Subject, of as rxOf } from 'rxjs';
+import {
+    Action,
+    IStatelessModel,
+    StatefulModel,
+    IFullActionControl,
+    SEDispatcher,
+    IActionCapturer,
+} from 'kombo';
+import {
+    BehaviorSubject,
+    Observable,
+    Subscription,
+    Subject,
+    of as rxOf,
+} from 'rxjs';
 import { scan, startWith, mergeMap } from 'rxjs/operators';
 
-
-
 export class ServerSideActionDispatcher implements IFullActionControl {
+    private readonly inActions: Subject<Action | Observable<Action>>;
 
-    private readonly inActions:Subject<Action | Observable<Action>>;
-
-    private readonly actions:Observable<Action>;
+    private readonly actions: Observable<Action>;
 
     constructor() {
-        this.inActions = new Subject<Action  | Observable<Action>>();
+        this.inActions = new Subject<Action | Observable<Action>>();
         this.actions = this.inActions.pipe(
-            mergeMap(v => v instanceof Observable ? v : rxOf(v))
+            mergeMap((v) => (v instanceof Observable ? v : rxOf(v)))
         );
     }
 
@@ -38,23 +48,29 @@ export class ServerSideActionDispatcher implements IFullActionControl {
         this.inActions.next(action);
     }
 
-    dispatchSideEffect<T extends Action>(action: T): void {
-    }
+    dispatchSideEffect<T extends Action>(action: T): void {}
 
     registerStatefulModel<T>(model: StatefulModel<T>): Subscription {
         return this.actions.subscribe(model.onAction.bind(model));
     }
 
-    registerActionListener(fn: (action: Action, dispatch: SEDispatcher) => void): Subscription {
-        return this.actions.subscribe((a:Action) => fn(a, seAction => this.inActions.next(seAction)));
+    registerActionListener(
+        fn: (action: Action, dispatch: SEDispatcher) => void
+    ): Subscription {
+        return this.actions.subscribe((a: Action) =>
+            fn(a, (seAction) => this.inActions.next(seAction))
+        );
     }
 
-    registerModel<T>(model: IStatelessModel<T>, initialState: T): [BehaviorSubject<T>, Subscription] {
+    registerModel<T>(
+        model: IStatelessModel<T>,
+        initialState: T
+    ): [BehaviorSubject<T>, Subscription] {
         const state$ = new BehaviorSubject(initialState);
-        const subscr = this.actions.pipe(
-            startWith(null),
-            scan(
-                (state:T, action:Action<{}>) => {
+        const subscr = this.actions
+            .pipe(
+                startWith(null),
+                scan((state: T, action: Action<{}>) => {
                     if (action !== null) {
                         model.wakeUp(action);
                         if (model.isActive()) {
@@ -62,10 +78,9 @@ export class ServerSideActionDispatcher implements IFullActionControl {
                         }
                     }
                     return state;
-                },
-                initialState
+                }, initialState)
             )
-        ).subscribe(state$);
+            .subscribe(state$);
         return [state$, subscr];
     }
 
@@ -73,5 +88,5 @@ export class ServerSideActionDispatcher implements IFullActionControl {
         // TODO
     }
 
-    unregister():void {}
+    unregister(): void {}
 }

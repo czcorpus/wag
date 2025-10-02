@@ -28,81 +28,98 @@ import { List, pipe, Color } from 'cnc-tskit';
 import * as S from './style.js';
 import { SpeechToken } from './api.js';
 
-
-
 export function init(
-    dispatcher:IActionDispatcher,
-    ut:ViewUtils<GlobalComponents>,
-    theme:Theme,
-    model:SpeechesModel
-):TileComponent {
-
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>,
+    theme: Theme,
+    model: SpeechesModel
+): TileComponent {
     const globComponents = ut.getComponents();
 
     function exportMetadata(data) {
         if (data.size > 0) {
             return data.map((val, attr) => `${attr}: ${val}`).join(', ');
-
         } else {
             return ut.translate('speeches__no_speech_metadata_available');
         }
     }
 
-
     // ------------------------- <SpeechText /> ---------------------------
 
-    const SpeechText:React.FC<{
-        bulletColor:string;
-        data:Array<SpeechToken>;
-        isIncomplete:boolean;
-
+    const SpeechText: React.FC<{
+        bulletColor: string;
+        data: Array<SpeechToken>;
+        isIncomplete: boolean;
     }> = (props) => {
-
         return (
             <div className="speech-text">
-                <span style={{color: props.bulletColor}}>{'\u25cf\u00a0'}</span>
+                <span style={{ color: props.bulletColor }}>
+                    {'\u25cf\u00a0'}
+                </span>
                 {props.isIncomplete ? '\u2026\u00a0' : null}
                 {List.map(
-                    (item, i) => <span key={i} className={item.strong ? 'coll' : item.type}>{item.word} </span>,
+                    (item, i) => (
+                        <span
+                            key={i}
+                            className={item.strong ? 'coll' : item.type}
+                        >
+                            {item.word}{' '}
+                        </span>
+                    ),
                     props.data
                 )}
             </div>
         );
     };
 
-
     // ------------------------- <TRSingleSpeech /> ---------------------------
 
-    const TRSingleSpeech:React.FC<{
-        tileId:number;
-        idx:number;
-        speech:Speech;
-        isPlaying:boolean;
-        playbackEnabled:boolean;
-
+    const TRSingleSpeech: React.FC<{
+        tileId: number;
+        idx: number;
+        speech: Speech;
+        isPlaying: boolean;
+        playbackEnabled: boolean;
     }> = (props) => {
         const style = {
             backgroundColor: Color.color2str(props.speech.colorCode),
-            color: pipe(props.speech.colorCode, Color.textColorFromBg(), Color.color2str())
+            color: pipe(
+                props.speech.colorCode,
+                Color.textColorFromBg(),
+                Color.color2str()
+            ),
         };
         return (
             <>
                 <S.Speaker>
-                    <strong title={exportMetadata(props.speech.metadata)}
-                            style={style}>
-                        {props.speech.speakerId ? props.speech.speakerId : '\u2026'}
+                    <strong
+                        title={exportMetadata(props.speech.metadata)}
+                        style={style}
+                    >
+                        {props.speech.speakerId
+                            ? props.speech.speakerId
+                            : '\u2026'}
                     </strong>
-                    {props.speech.segments.length > 0 && props.playbackEnabled ?
-                        <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
-                                segments={props.speech.segments} /> :
-                        null
-                    }
+                    {props.speech.segments.length > 0 &&
+                    props.playbackEnabled ? (
+                        <PlayerIcon
+                            tileId={props.tileId}
+                            lineIdx={props.idx}
+                            isPlaying={props.isPlaying}
+                            segments={props.speech.segments}
+                        />
+                    ) : null}
                 </S.Speaker>
                 <S.Speech>
                     <div className="text">
-                        <SpeechText data={props.speech.text} key={props.idx}
-                                bulletColor={Color.color2str(props.speech.colorCode)}
-                                isIncomplete={!props.speech.speakerId} />
+                        <SpeechText
+                            data={props.speech.text}
+                            key={props.idx}
+                            bulletColor={Color.color2str(
+                                props.speech.colorCode
+                            )}
+                            isIncomplete={!props.speech.speakerId}
+                        />
                     </div>
                 </S.Speech>
             </>
@@ -111,36 +128,44 @@ export function init(
 
     // ------------------------- <TROverlappingSpeeches /> ---------------------------
 
-    const TROverlappingSpeeches:React.FC<{
-        tileId:number;
-        idx:number;
-        speeches:Array<Speech>;
-        isPlaying:boolean;
-        playbackEnabled:boolean;
-
+    const TROverlappingSpeeches: React.FC<{
+        tileId: number;
+        idx: number;
+        speeches: Array<Speech>;
+        isPlaying: boolean;
+        playbackEnabled: boolean;
     }> = (props) => {
-
         const renderOverlappingSpeakersLabel = () => {
             return pipe(
                 props.speeches,
-                List.groupBy(v => v.speakerId),
-                List.reduce(
-                    (acc, [,speakerSpeeches], i) => {
-                        const speech = speakerSpeeches[0];
-                        if (i > 0) {
-                            acc.push(<span key={`p-${props.idx}:${i}`} className="plus">{'\u00a0'}+{'\u00a0'}</span>);
-                        }
-                        const css = {
-                            backgroundColor: Color.color2str(speech.colorCode),
-                            color: Color.color2str(Color.textColorFromBg(speech.colorCode))
-                        };
-                        acc.push(<strong key={`${props.idx}:${i}`} className="speaker"
-                                        title={exportMetadata(speech.metadata)}
-                                        style={css}>{speech.speakerId}</strong>);
-                        return acc;
-                    },
-                    [] as Array<React.ReactElement>
-                )
+                List.groupBy((v) => v.speakerId),
+                List.reduce((acc, [, speakerSpeeches], i) => {
+                    const speech = speakerSpeeches[0];
+                    if (i > 0) {
+                        acc.push(
+                            <span key={`p-${props.idx}:${i}`} className="plus">
+                                {'\u00a0'}+{'\u00a0'}
+                            </span>
+                        );
+                    }
+                    const css = {
+                        backgroundColor: Color.color2str(speech.colorCode),
+                        color: Color.color2str(
+                            Color.textColorFromBg(speech.colorCode)
+                        ),
+                    };
+                    acc.push(
+                        <strong
+                            key={`${props.idx}:${i}`}
+                            className="speaker"
+                            title={exportMetadata(speech.metadata)}
+                            style={css}
+                        >
+                            {speech.speakerId}
+                        </strong>
+                    );
+                    return acc;
+                }, [] as Array<React.ReactElement>)
             );
         };
 
@@ -148,102 +173,138 @@ export function init(
             <>
                 <S.Speaker>
                     {renderOverlappingSpeakersLabel()}
-                    {props.playbackEnabled ?
-                        <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
-                            segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments), [])} /> :
-                        null
-                    }
+                    {props.playbackEnabled ? (
+                        <PlayerIcon
+                            tileId={props.tileId}
+                            lineIdx={props.idx}
+                            isPlaying={props.isPlaying}
+                            segments={props.speeches.reduce(
+                                (acc, curr) => acc.concat(curr.segments),
+                                []
+                            )}
+                        />
+                    ) : null}
                 </S.Speaker>
                 <S.Speech className="overlapping-block">
                     <div className="text">
-                        {props.speeches.map((speech, i) => <SpeechText data={speech.text}
-                                    key={`${props.idx}:${i}`}
-                                    bulletColor={Color.color2str(speech.colorCode)}
-                                    isIncomplete={!speech.speakerId} />)}
+                        {props.speeches.map((speech, i) => (
+                            <SpeechText
+                                data={speech.text}
+                                key={`${props.idx}:${i}`}
+                                bulletColor={Color.color2str(speech.colorCode)}
+                                isIncomplete={!speech.speakerId}
+                            />
+                        ))}
                     </div>
                 </S.Speech>
             </>
         );
     };
 
-
     // -------------------------- <LoadNext /> --------------------------------------
 
-    const LoadNext:React.FC<{
-        tileId:number;
-        active:boolean;
-
+    const LoadNext: React.FC<{
+        tileId: number;
+        active: boolean;
     }> = (props) => {
-
         const handleClick = () => {
             dispatcher.dispatch<typeof Actions.LoadAnotherSpeech>({
                 name: Actions.LoadAnotherSpeech.name,
                 payload: {
-                    tileId: props.tileId
-                }
+                    tileId: props.tileId,
+                },
             });
         };
 
         return (
-            <a style={props.active ? null : {pointerEvents: 'none', cursor: 'default'}} onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
-                <img className="filtered" src={ut.createStaticUrl(props.active ? 'next.svg' : 'next_grey.svg')} style={{width: '1.8em'}} alt={ut.translate('speeches__load_different_sp_button')} />
+            <a
+                style={
+                    props.active
+                        ? null
+                        : { pointerEvents: 'none', cursor: 'default' }
+                }
+                onClick={handleClick}
+                title={ut.translate('speeches__load_different_sp_button')}
+            >
+                <img
+                    className="filtered"
+                    src={ut.createStaticUrl(
+                        props.active ? 'next.svg' : 'next_grey.svg'
+                    )}
+                    style={{ width: '1.8em' }}
+                    alt={ut.translate('speeches__load_different_sp_button')}
+                />
             </a>
         );
     };
 
     // ------------------------- <PlayerIcon /> -------------------------------
 
-    const PlayerIcon:React.FC<{
-        tileId:number;
-        lineIdx:number;
-        isPlaying:boolean;
-        segments:Array<Segment>;
-
+    const PlayerIcon: React.FC<{
+        tileId: number;
+        lineIdx: number;
+        isPlaying: boolean;
+        segments: Array<Segment>;
     }> = (props) => {
-
         const handleClick = () => {
             dispatcher.dispatch<typeof Actions.ClickAudioPlayer>({
                 name: Actions.ClickAudioPlayer.name,
                 payload: {
                     tileId: props.tileId,
                     lineIdx: props.lineIdx,
-                    segments: props.segments
-                }
+                    segments: props.segments,
+                },
             });
         };
 
         return (
             <S.PlayerIcon onClick={handleClick}>
-                <img className="filtered" src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')}
-                        alt={ut.translate('global__img_alt_play_audio')} />
+                <img
+                    className="filtered"
+                    src={ut.createStaticUrl(
+                        props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg'
+                    )}
+                    alt={ut.translate('global__img_alt_play_audio')}
+                />
             </S.PlayerIcon>
-        )
-    }
+        );
+    };
 
     // ------------------------- <SpeechView /> -------------------------------
 
-    const SpeechView:React.FC<{
-        tileId:number;
-        isTweakMode:boolean;
-        data:Array<SpeechLine>;
-        hasExpandLeft:boolean;
-        hasExpandRight:boolean;
-        playingLineIdx:number;
-        playbackEnabled:boolean;
-
+    const SpeechView: React.FC<{
+        tileId: number;
+        isTweakMode: boolean;
+        data: Array<SpeechLine>;
+        hasExpandLeft: boolean;
+        hasExpandRight: boolean;
+        playingLineIdx: number;
+        playbackEnabled: boolean;
     }> = (props) => {
         const renderSpeechLines = () => {
             return (props.data || []).map((item, i) => {
                 if (item.length === 1) {
-                    return <TRSingleSpeech key={`sp-line-${i}`} tileId={props.tileId}
-                                playbackEnabled={props.playbackEnabled}
-                                speech={item[0]} idx={i} isPlaying={props.playingLineIdx === i} />;
-
+                    return (
+                        <TRSingleSpeech
+                            key={`sp-line-${i}`}
+                            tileId={props.tileId}
+                            playbackEnabled={props.playbackEnabled}
+                            speech={item[0]}
+                            idx={i}
+                            isPlaying={props.playingLineIdx === i}
+                        />
+                    );
                 } else if (item.length > 1) {
-                    return <TROverlappingSpeeches key={`sp-line-${i}`} tileId={props.tileId} speeches={item}
-                                playbackEnabled={props.playbackEnabled}
-                                idx={i} isPlaying={props.playingLineIdx === i} />;
-
+                    return (
+                        <TROverlappingSpeeches
+                            key={`sp-line-${i}`}
+                            tileId={props.tileId}
+                            speeches={item}
+                            playbackEnabled={props.playbackEnabled}
+                            idx={i}
+                            isPlaying={props.playingLineIdx === i}
+                        />
+                    );
                 } else {
                     return null;
                 }
@@ -254,8 +315,8 @@ export function init(
             dispatcher.dispatch<typeof Actions.ClickAudioPlayAll>({
                 name: Actions.ClickAudioPlayAll.name,
                 payload: {
-                    tileId: props.tileId
-                }
+                    tileId: props.tileId,
+                },
             });
         };
 
@@ -263,8 +324,9 @@ export function init(
             <div>
                 <div className="navig">
                     <div className="next">
-                            {props.isTweakMode ?
-                                <LoadNext tileId={props.tileId} active={true} /> : null}
+                        {props.isTweakMode ? (
+                            <LoadNext tileId={props.tileId} active={true} />
+                        ) : null}
                     </div>
                 </div>
                 <div className="play-all">
@@ -272,34 +334,50 @@ export function init(
                         {ut.translate('speeches__play_all_btn')}
                     </a>
                 </div>
-                <S.Speeches>
-                    {renderSpeechLines()}
-                </S.Speeches>
+                <S.Speeches>{renderSpeechLines()}</S.Speeches>
             </div>
         );
-    }
+    };
 
     // -------------------------- <SpeechesTile /> --------------------------------------
 
-    const SpeechesTile:React.FC<SpeechesModelState & CoreTileComponentProps> = (props) => {
+    const SpeechesTile: React.FC<
+        SpeechesModelState & CoreTileComponentProps
+    > = (props) => {
         return (
-            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.data.length > 0}
-                    sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
-                    backlink={props.backlink}
-                    supportsTileReload={props.supportsReloadOnError}
-                    issueReportingUrl={props.issueReportingUrl}>
+            <globComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={props.isBusy}
+                error={props.error}
+                hasData={props.data.length > 0}
+                sourceIdent={{ corp: props.corpname, subcorp: props.subcDesc }}
+                backlink={props.backlink}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+            >
                 <S.SpeechesTile>
-                    <SpeechView data={props.data} hasExpandLeft={props.leftRange < props.maxSingleSideRange}
-                            hasExpandRight={props.rightRange < props.maxSingleSideRange}
-                            tileId={props.tileId} isTweakMode={props.isTweakMode}
-                            playbackEnabled={props.playbackEnabled}
-                            playingLineIdx={props.playback ? props.playback.currLineIdx : -1} />
+                    <SpeechView
+                        data={props.data}
+                        hasExpandLeft={
+                            props.leftRange < props.maxSingleSideRange
+                        }
+                        hasExpandRight={
+                            props.rightRange < props.maxSingleSideRange
+                        }
+                        tileId={props.tileId}
+                        isTweakMode={props.isTweakMode}
+                        playbackEnabled={props.playbackEnabled}
+                        playingLineIdx={
+                            props.playback ? props.playback.currLineIdx : -1
+                        }
+                    />
                 </S.SpeechesTile>
             </globComponents.TileWrapper>
         );
-    }
+    };
 
-    return BoundWithProps<CoreTileComponentProps, SpeechesModelState>(SpeechesTile, model);
-
+    return BoundWithProps<CoreTileComponentProps, SpeechesModelState>(
+        SpeechesTile,
+        model
+    );
 }

@@ -27,60 +27,59 @@ import { SystemMessageType } from '../../../types.js';
 import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { IDataStreaming } from '../../../page/streaming.js';
-import { SCERequestArgs, SCollsExamples, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
+import {
+    SCERequestArgs,
+    SCollsExamples,
+    SyntacticCollsExamplesAPI,
+} from './eApi/mquery.js';
 import { SCollsData, SCollsQueryType, SCollsRequest } from './api/common.js';
-
 
 export type CollMeasure = 'LMI' | 'LL' | 'LogDice' | 'T-Score';
 
-
 export interface SyntacticCollsModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    appServices:IAppServices;
-    initState:SyntacticCollsModelState;
-    queryType:QueryType;
-    api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
-    eApi:SyntacticCollsExamplesAPI;
-    maxItems:number;
+    dispatcher: IActionQueue;
+    tileId: number;
+    appServices: IAppServices;
+    initState: SyntacticCollsModelState;
+    queryType: QueryType;
+    api: ScollexSyntacticCollsAPI | WSServerSyntacticCollsAPI;
+    eApi: SyntacticCollsExamplesAPI;
+    maxItems: number;
 }
-
 
 export interface SyntacticCollsModelState {
-    isBusy:boolean;
-    tileId:number;
-    isMobile:boolean;
-    isAltViewMode:boolean;
-    isTweakMode:boolean;
-    apiType:'default'|'wss';
-    error:string|null;
-    widthFract:number;
-    datasetName:string;
-    corpname:string;
-    queryMatch:QueryMatch;
-    data:SCollsData;
-    displayType:SCollsQueryType;
-    label:string;
-    availableMeasures:Array<CollMeasure>;
-    visibleMeasures:Array<CollMeasure>;
-    examplesCache:{[key:string]:SCollsExamples};
-    exampleWindowData:SCollsExamples|undefined; // if undefined, the window is closed
+    isBusy: boolean;
+    tileId: number;
+    isMobile: boolean;
+    isAltViewMode: boolean;
+    isTweakMode: boolean;
+    apiType: 'default' | 'wss';
+    error: string | null;
+    widthFract: number;
+    datasetName: string;
+    corpname: string;
+    queryMatch: QueryMatch;
+    data: SCollsData;
+    displayType: SCollsQueryType;
+    label: string;
+    availableMeasures: Array<CollMeasure>;
+    visibleMeasures: Array<CollMeasure>;
+    examplesCache: { [key: string]: SCollsExamples };
+    exampleWindowData: SCollsExamples | undefined; // if undefined, the window is closed
 }
 
-
 export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState> {
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly queryType: QueryType;
 
-    private readonly queryType:QueryType;
+    private readonly api: ScollexSyntacticCollsAPI | WSServerSyntacticCollsAPI;
 
-    private readonly api:ScollexSyntacticCollsAPI|WSServerSyntacticCollsAPI;
+    private readonly eApi: SyntacticCollsExamplesAPI;
 
-    private readonly eApi:SyntacticCollsExamplesAPI;
-
-    private readonly maxItems:number;
+    private readonly maxItems: number;
 
     constructor({
         dispatcher,
@@ -90,8 +89,8 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         queryType,
         api,
         eApi,
-        maxItems
-    }:SyntacticCollsModelArgs) {
+        maxItems,
+    }: SyntacticCollsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -102,14 +101,18 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
-            action => action.payload.ident === this.tileId,
-            (state, action) => {state.isAltViewMode = true}
+            (action) => action.payload.ident === this.tileId,
+            (state, action) => {
+                state.isAltViewMode = true;
+            }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.DisableAltViewMode,
-            action => action.payload.ident === this.tileId,
-            (state, action) => {state.isAltViewMode = false}
+            (action) => action.payload.ident === this.tileId,
+            (state, action) => {
+                state.isAltViewMode = false;
+            }
         );
 
         this.addActionHandler(
@@ -125,15 +128,19 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.exampleWindowData = undefined;
                 if (action.error) {
                     console.error(action.error);
                     state.isBusy = false;
-                    state.error = this.appServices.normalizeHttpApiError(action.error);
-                    this.appServices.showMessage(SystemMessageType.ERROR, state.error);
-
+                    state.error = this.appServices.normalizeHttpApiError(
+                        action.error
+                    );
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        state.error
+                    );
                 } else {
                     state.data = action.payload.data;
                     state.isBusy = false;
@@ -143,85 +150,87 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionSubtypeHandler(
             Actions.ClickForExample,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
             },
             (state, action, dispatch) => {
-                let q:string;
+                let q: string;
                 const row = state.data.rows[action.payload.rowId];
                 if (!state.data.examplesQueryTpl) {
                     q = this.eApi.makeQuery(
                         state.queryMatch.lemma,
                         row.value,
-                        (state.queryMatch.upos[0] || state.queryMatch.pos[0]).value,
+                        (state.queryMatch.upos[0] || state.queryMatch.pos[0])
+                            .value,
                         row.pos,
                         row.deprel,
-                        row.mutualDist,
+                        row.mutualDist
                     );
-
                 } else {
                     q = state.data.examplesQueryTpl.replace('%s', row.value);
                 }
-                (Dict.hasKey(q, state.examplesCache) ?
-                    rxOf(state.examplesCache[q]) :
-                    this.eApi.call(
-                        this.appServices.dataStreaming().startNewSubgroup(this.tileId),
-                        this.tileId,
-                        0,
-                        this.stateToEapiArgs(state, q)
-
-                    ).pipe(
-                        map(
-                            data => ({
-                                ...data,
-                                word1: state.queryMatch.word,
-                                word2: row.value
-                            })
-                        )
-                    )
+                (Dict.hasKey(q, state.examplesCache)
+                    ? rxOf(state.examplesCache[q])
+                    : this.eApi
+                          .call(
+                              this.appServices
+                                  .dataStreaming()
+                                  .startNewSubgroup(this.tileId),
+                              this.tileId,
+                              0,
+                              this.stateToEapiArgs(state, q)
+                          )
+                          .pipe(
+                              map((data) => ({
+                                  ...data,
+                                  word1: state.queryMatch.word,
+                                  word2: row.value,
+                              }))
+                          )
                 ).subscribe({
                     next: (data) => {
-                        dispatch(
-                            Actions.ShowExampleWindow,
-                            {
-                                tileId: this.tileId,
-                                data,
-                                query: q
-                            }
-                        );
+                        dispatch(Actions.ShowExampleWindow, {
+                            tileId: this.tileId,
+                            data,
+                            query: q,
+                        });
                     },
                     error: (error) => {
                         dispatch({
                             name: Actions.ShowExampleWindow.name,
                             payload: { tileId: this.tileId, query: q },
-                            error
+                            error,
                         });
-                    }
-                })
+                    },
+                });
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.ShowExampleWindow,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = false;
                 state.exampleWindowData = action.payload.data;
                 if (!Dict.hasKey(action.payload.query, state.examplesCache)) {
-                    state.examplesCache[action.payload.query] = action.payload.data;
+                    state.examplesCache[action.payload.query] =
+                        action.payload.data;
                 }
             },
             (state, action, dispatch) => {
                 if (action.error) {
-                    this.appServices.showMessage(SystemMessageType.ERROR, action.error);
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        action.error
+                    );
                 }
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.HideExampleWindow,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.exampleWindowData = undefined;
             }
@@ -229,47 +238,49 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionHandler(
             GlobalActions.GetSourceInfo,
-            (state, action) => {
-            },
+            (state, action) => {},
             (state, action, seDispatch) => {
-                this.eApi.getSourceDescription(
-                    appServices.dataStreaming().startNewSubgroup(this.tileId),
-                    this.tileId,
-                    this.appServices.getISO639UILang(),
-                    state.corpname
-
-                ).subscribe({
-                    next: (data) => {
-                        seDispatch({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            payload: {
-                                data: data
-                            }
-                        });
-                    },
-                    error: (err) => {
-                        console.error(err);
-                        seDispatch({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            error: err
-
-                        });
-                    }
-                });
-            },
+                this.eApi
+                    .getSourceDescription(
+                        appServices
+                            .dataStreaming()
+                            .startNewSubgroup(this.tileId),
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        state.corpname
+                    )
+                    .subscribe({
+                        next: (data) => {
+                            seDispatch({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                payload: {
+                                    data: data,
+                                },
+                            });
+                        },
+                        error: (err) => {
+                            console.error(err);
+                            seDispatch({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error: err,
+                            });
+                        },
+                    });
+            }
         );
 
         this.addActionSubtypeHandler(
             Actions.SetDisplayScore,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                state.visibleMeasures[action.payload.position] = action.payload.value;
-            },
+                state.visibleMeasures[action.payload.position] =
+                    action.payload.value;
+            }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableTileTweakMode,
-            action => action.payload.ident === this.tileId,
+            (action) => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isTweakMode = true;
             }
@@ -277,59 +288,60 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
 
         this.addActionSubtypeHandler(
             GlobalActions.DisableTileTweakMode,
-            action => action.payload.ident === this.tileId,
+            (action) => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isTweakMode = false;
             }
         );
     }
 
-    private reloadData(streaming:IDataStreaming, state:SyntacticCollsModelState, seDispatch:SEDispatcher) {
-        this.api.call(
-            streaming,
-            this.tileId,
-            0,
-            this.stateToArgs(state)
-
-        ).subscribe({
-            next: (data) => {
-                seDispatch<typeof GlobalActions.OverwriteTileLabel>({
-                    name: GlobalActions.OverwriteTileLabel.name,
-                    payload: {
-                        tileId: this.tileId,
-                        value: state.label
-                    }
-                });
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: List.empty(data.rows),
-                        data,
-                    }
-                })
-            },
-            error: (error) => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: false,
-                        data: undefined,
-                    },
-                    error,
-                })
-            },
-        });
+    private reloadData(
+        streaming: IDataStreaming,
+        state: SyntacticCollsModelState,
+        seDispatch: SEDispatcher
+    ) {
+        this.api
+            .call(streaming, this.tileId, 0, this.stateToArgs(state))
+            .subscribe({
+                next: (data) => {
+                    seDispatch<typeof GlobalActions.OverwriteTileLabel>({
+                        name: GlobalActions.OverwriteTileLabel.name,
+                        payload: {
+                            tileId: this.tileId,
+                            value: state.label,
+                        },
+                    });
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: List.empty(data.rows),
+                            data,
+                        },
+                    });
+                },
+                error: (error) => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: false,
+                            data: undefined,
+                        },
+                        error,
+                    });
+                },
+            });
     }
 
-
-    private stateToArgs(state:SyntacticCollsModelState):SCollsRequest {
+    private stateToArgs(state: SyntacticCollsModelState): SCollsRequest {
         if (state.displayType === 'none') {
             return null;
         }
         const args = {
-            w: state.queryMatch.lemma ? state.queryMatch.lemma : state.queryMatch.word,
+            w: state.queryMatch.lemma
+                ? state.queryMatch.lemma
+                : state.queryMatch.word,
         };
         if (state.queryMatch.upos.length > 0) {
             args['pos'] = state.queryMatch.upos[0].value;
@@ -340,18 +352,21 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
                 corpname: state.datasetName,
                 queryType: state.displayType,
             },
-            args
+            args,
         };
     }
 
-    private stateToEapiArgs(state:SyntacticCollsModelState, q:string):SCERequestArgs {
+    private stateToEapiArgs(
+        state: SyntacticCollsModelState,
+        q: string
+    ): SCERequestArgs {
         return {
             params: {
                 corpname: state.corpname,
             },
             args: {
-                q
-            }
+                q,
+            },
         };
     }
 }

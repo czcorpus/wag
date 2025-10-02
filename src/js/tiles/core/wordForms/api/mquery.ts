@@ -26,62 +26,77 @@ import urlJoin from 'url-join';
 import { WordFormsBacklinkAPI } from './backlink.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
 
-
 export interface LemmaItem {
-    lemma:string;
-    pos:string;
-    forms:Array<FreqRowResponse>;
+    lemma: string;
+    pos: string;
+    forms: Array<FreqRowResponse>;
 }
 
-
-export class MQueryWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
-
-    private prepareArgs(queryArgs:RequestArgs):string {
+export class MQueryWordFormsAPI
+    extends WordFormsBacklinkAPI
+    implements ResourceApi<RequestArgs, Response>
+{
+    private prepareArgs(queryArgs: RequestArgs): string {
         return pipe(
             {
                 lemma: queryArgs.lemma,
-                pos: queryArgs.pos.join(" "),
+                pos: queryArgs.pos.join(' '),
             },
             Dict.toEntries(),
             List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
-            x => x.join('&')
-        )
+            (x) => x.join('&')
+        );
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: RequestArgs
+    ): Observable<Response> {
         const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
-        return streaming.registerTileRequest<Array<LemmaItem>>(
-            {
+        return streaming
+            .registerTileRequest<Array<LemmaItem>>({
                 tileId,
                 method: HTTP.Method.GET,
                 url: url + `?${this.prepareArgs(args)}`,
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map(resp => {
-                const total = resp[0].forms.reduce((acc, curr) => curr.freq + acc, 0);
-                return {
-                    forms: List.map(
-                        item => ({
-                            value: item.word,
-                            freq: item.freq,
-                            ratio: item.freq / total,
-                            interactionId: Ident.puid(),
-                        }),
-                        resp[0].forms,
-                    )
-                }
             })
-        );
+            .pipe(
+                map((resp) => {
+                    const total = resp[0].forms.reduce(
+                        (acc, curr) => curr.freq + acc,
+                        0
+                    );
+                    return {
+                        forms: List.map(
+                            (item) => ({
+                                value: item.word,
+                                freq: item.freq,
+                                ratio: item.freq / total,
+                                interactionId: Ident.puid(),
+                            }),
+                            resp[0].forms
+                        ),
+                    };
+                })
+            );
     }
 
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        lang: string,
+        corpname: string
+    ): Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {
+            corpname,
+            lang,
+        });
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return false;
     }
-
 }

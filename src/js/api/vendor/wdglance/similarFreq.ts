@@ -26,25 +26,26 @@ import { RequestArgs, Response } from '../../abstract/similarFreq.js';
 import { HTTPAction } from '../../../page/actions.js';
 import { IApiServices } from '../../../appServices.js';
 
-
 interface HTTPResponse {
-    result:Array<QueryMatch>;
+    result: Array<QueryMatch>;
 }
 
-
-
 export class SimilarFreqWordsAPI {
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
-
-    constructor(apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL: string, apiServices: IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
-    call(tileId:number, queryIdx:number, multicastRequest:boolean, args:RequestArgs):Observable<Response> {
+    call(
+        tileId: number,
+        queryIdx: number,
+        multicastRequest: boolean,
+        args: RequestArgs
+    ): Observable<Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
@@ -54,35 +55,30 @@ export class SimilarFreqWordsAPI {
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(' ')],
                 ['mainPosAttr', args.mainPosAttr],
-                ['srchRange', args.srchRange]
+                ['srchRange', args.srchRange],
             ]),
             {
                 headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
+                withCredentials: true,
             }
-
         ).pipe(
-            map(data => ({
+            map((data) => ({
                 result: pipe(
                     data.result,
-                    List.map(
-                        v => ({
-                            lemma: v.lemma,
-                            pos: v.pos,
-                            upos: v.upos,
-                            ipm: v.ipm,
-                            flevel: calcFreqBand(v.ipm)
-                        })
-                    ),
+                    List.map((v) => ({
+                        lemma: v.lemma,
+                        pos: v.pos,
+                        upos: v.upos,
+                        ipm: v.ipm,
+                        flevel: calcFreqBand(v.ipm),
+                    })),
                     List.filter(
-                        item => (
+                        (item) =>
                             item.lemma !== args.lemma ||
                             !matchesPos(item, args.mainPosAttr, args.pos)
-                        )
                     )
-                )
+                ),
             }))
         );
     }
 }
-

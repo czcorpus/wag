@@ -20,25 +20,23 @@ import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { OperationMode, WordSimEntry } from './api/standard.js';
 
-
 export interface DataLoadedPayload {
-    tileId:number;
-    queryIdx:number;
-    words:Array<WordSimEntry>;
+    tileId: number;
+    queryIdx: number;
+    words: Array<WordSimEntry>;
 }
 
-
 export class Actions {
-
-    static SetOperationMode:Action<{
-        tileId:number;
-        value:OperationMode;
+    static SetOperationMode: Action<{
+        tileId: number;
+        value: OperationMode;
     }> = {
-        name: 'WORDSIM_SET_OPERATION_MODE'
-    }
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+        name: 'WORDSIM_SET_OPERATION_MODE',
     };
 
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
+    };
 }

@@ -22,32 +22,31 @@ import { GlobalComponents } from '../../views/common/index.js';
 import { ViewUtils } from 'kombo';
 import { init as viewInit } from '../../views/layout/langSwitchToolbar.js';
 
-
-
-
-
 export class LangSwitchToolbar implements IToolbarProvider {
-
-    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
-
+    get(
+        uiLang: string,
+        returnUrl: string,
+        cookies: { [key: string]: string },
+        ut: ViewUtils<GlobalComponents>
+    ): Observable<HostPageEnv> {
         return rxOf({
             userId: null,
             styles: [],
             scripts: [],
             html: viewInit(ut),
-            toolbarHeight: null
+            toolbarHeight: null,
         });
     }
 
-    importLangCode(uiLang:string):string {
+    importLangCode(uiLang: string): string {
         return uiLang;
     }
 
-    exportLangCode(uiLang:string, avail:{[code:string]:string}):string {
+    exportLangCode(uiLang: string, avail: { [code: string]: string }): string {
         return uiLang;
     }
 
-    defaultHostLangCode():string {
+    defaultHostLangCode(): string {
         return 'en-US';
     }
 }

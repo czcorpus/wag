@@ -28,8 +28,7 @@ import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { Dict } from 'cnc-tskit';
 import { IDataStreaming } from '../../../page/streaming.js';
 
-
-export type HtmlApiArgs = {[key:string]:string};
+export type HtmlApiArgs = { [key: string]: string };
 
 /**
  * This is a raw html loading api for WaG. !!! Please note that
@@ -39,74 +38,73 @@ export type HtmlApiArgs = {[key:string]:string};
  * vulnerable from the external service!!!
  */
 
-export class RawHtmlAPI implements DataApi<HtmlApiArgs, string|null> {
+export class RawHtmlAPI implements DataApi<HtmlApiArgs, string | null> {
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+    private readonly backlinkConf: BacklinkConf;
 
-    private readonly backlinkConf:BacklinkConf;
-
-    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(
+        apiURL: string,
+        apiServices: IApiServices,
+        backlinkConf: BacklinkConf
+    ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.backlinkConf = backlinkConf;
     }
 
-    stateToArgs(state:{lemmaArg:string, args:{[key:string]:string}}, query:string):HtmlApiArgs {
-        const args = {...state.args};
+    stateToArgs(
+        state: { lemmaArg: string; args: { [key: string]: string } },
+        query: string
+    ): HtmlApiArgs {
+        const args = { ...state.args };
         if (state.lemmaArg) {
             args[state.lemmaArg] = query;
         }
         return args;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:HtmlApiArgs):Observable<string|null> {
-        return ajax$<string>(
-            'GET',
-            this.apiURL,
-            queryArgs,
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true,
-                responseType: ResponseType.TEXT
-            }
-
-        ).pipe(
-            catchError(
-                (err) => {
-                    if (err instanceof AjaxError && err.status === 404) {
-                        return rxOf(null);
-                    }
-                    throw err;
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        queryArgs: HtmlApiArgs
+    ): Observable<string | null> {
+        return ajax$<string>('GET', this.apiURL, queryArgs, {
+            headers: this.apiServices.getApiHeaders(this.apiURL),
+            withCredentials: true,
+            responseType: ResponseType.TEXT,
+        }).pipe(
+            catchError((err) => {
+                if (err instanceof AjaxError && err.status === 404) {
+                    return rxOf(null);
                 }
-            )
+                throw err;
+            })
         );
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        return this.backlinkConf ? {
-            queryId,
-            subqueryId,
-            label: this.backlinkConf.label || 'Page',
-        } :
-        null;
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
+        return this.backlinkConf
+            ? {
+                  queryId,
+                  subqueryId,
+                  label: this.backlinkConf.label || 'Page',
+              }
+            : null;
     }
 
-    requestBacklink(args:HtmlApiArgs):URL {
+    requestBacklink(args: HtmlApiArgs): URL {
         const url = new URL(this.backlinkConf.url);
-        Dict.forEach(
-            (value, key) => {
-                url.searchParams.set(key, value);
-            },
-            args,
-        );
+        Dict.forEach((value, key) => {
+            url.searchParams.set(key, value);
+        }, args);
         return url;
     }
 }
-
-

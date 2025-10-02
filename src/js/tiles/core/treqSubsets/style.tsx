@@ -21,20 +21,18 @@
 import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
 
-
 // --------------------- <TreqSubsetsView /> ----------------------
 
-export const TreqSubsetsView = styled.div<{theme:Theme}>`
+export const TreqSubsetsView = styled.div<{ theme: Theme }>`
     .data {
         overflow-x: auto;
         overflow-y: hidden;
     }
 `;
 
-
 // --------------------- <AltViewTable /> ----------------------
 
-export const AltViewTable = styled.table<{theme:Theme}>`
+export const AltViewTable = styled.table<{ theme: Theme }>`
     th.word {
         text-align: right;
         padding-right: 0.7em;
@@ -48,7 +46,7 @@ export const AltViewTable = styled.table<{theme:Theme}>`
 
 // --------------------- <ChartLikeTable /> ----------------------
 
-export const ChartLikeTable = styled.table<{theme:Theme}>`
+export const ChartLikeTable = styled.table<{ theme: Theme }>`
     border-spacing: 0;
     border-collapse: collapse;
 
@@ -73,7 +71,7 @@ export const ChartLikeTable = styled.table<{theme:Theme}>`
     }
 
     tr.highlighted {
-        background-color: ${props => props.theme.colorDataHighlightRow};
+        background-color: ${(props) => props.theme.colorDataHighlightRow};
     }
 
     .SimpleBar {
@@ -90,7 +88,7 @@ export const ChartLikeTable = styled.table<{theme:Theme}>`
             td {
                 border-style: solid;
                 border-color: #f2f2f2;
-                border-width:  0 1px 0 1px;
+                border-width: 0 1px 0 1px;
             }
         }
     }
@@ -98,7 +96,7 @@ export const ChartLikeTable = styled.table<{theme:Theme}>`
 
 // --------------------- <SimpleBar /> ----------------------
 
-export const SimpleBar = styled.svg<{theme:Theme}>`
+export const SimpleBar = styled.svg<{ theme: Theme }>`
     .bar {
         position: absolute;
         margin-top: 5px;
@@ -112,7 +110,7 @@ export const SimpleBar = styled.svg<{theme:Theme}>`
         td {
             border-style: solid;
             border-color: #f2f2f2;
-            border-width:  0 1px 0 1px;
+            border-width: 0 1px 0 1px;
         }
     }
 `;

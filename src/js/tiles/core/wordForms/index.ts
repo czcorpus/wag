@@ -17,8 +17,16 @@
  */
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps} from '../../../page/tile.js';
+import {
+    ITileProvider,
+    TileFactory,
+    TileComponent,
+    TileConf,
+    TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileReloader,
+    AltViewIconProps,
+} from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
 import { QueryType } from '../../../query/index.js';
@@ -27,42 +35,51 @@ import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
 import { IWordFormsApi } from './common.js';
 import { FrodoWordFormsAPI } from './api/frodo.js';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface WordFormsTileConf extends TileConf {
-    apiType:string;
-    apiURL:string;
-    corpname:string;
-    corpusSize:number;
-    freqFilterAlphaLevel:Maths.AlphaLevel;
-    posQueryGenerator:PosQueryGeneratorType;
+    apiType: string;
+    apiURL: string;
+    corpname: string;
+    corpusSize: number;
+    freqFilterAlphaLevel: Maths.AlphaLevel;
+    posQueryGenerator: PosQueryGeneratorType;
 }
 
-
 export class WordFormsTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly label: string;
 
-    private readonly label:string;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: WordFormsModel;
 
-    private readonly model:WordFormsModel;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
-
-    private readonly view:TileComponent;
+    private readonly view: TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, queryMatches, widthFract, conf, isBusy,
-        theme, mainPosAttr}:TileFactoryArgs<WordFormsTileConf>
-    ) {
-
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        queryMatches,
+        widthFract,
+        conf,
+        isBusy,
+        theme,
+        mainPosAttr,
+    }: TileFactoryArgs<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.label = this.appServices.importExternalMessage(conf.label || 'wordforms__main_label');
+        this.label = this.appServices.importExternalMessage(
+            conf.label || 'wordforms__main_label'
+        );
         this.model = new WordFormsModel({
             dispatcher,
             initialState: {
@@ -75,7 +92,7 @@ export class WordFormsTile implements ITileProvider {
                 freqFilterAlphaLevel: conf.freqFilterAlphaLevel,
                 data: [],
                 backlink: null,
-                mainPosAttr
+                mainPosAttr,
             },
             tileId,
             api: this.createApi(conf, appServices),
@@ -85,92 +102,108 @@ export class WordFormsTile implements ITileProvider {
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-    private createApi(conf:WordFormsTileConf, appServices:IAppServices):IWordFormsApi {
+    private createApi(
+        conf: WordFormsTileConf,
+        appServices: IAppServices
+    ): IWordFormsApi {
         switch (conf.apiType) {
             case CoreApiGroup.MQUERY:
-                return new MQueryWordFormsAPI(conf.apiURL, appServices, conf.posQueryGenerator, conf.backlink);
+                return new MQueryWordFormsAPI(
+                    conf.apiURL,
+                    appServices,
+                    conf.posQueryGenerator,
+                    conf.backlink
+                );
             case CoreApiGroup.FRODO:
-                return new FrodoWordFormsAPI(conf.apiURL, appServices, conf.posQueryGenerator, conf.backlink);
+                return new FrodoWordFormsAPI(
+                    conf.apiURL,
+                    appServices,
+                    conf.posQueryGenerator,
+                    conf.backlink
+                );
             case CoreApiGroup.KORPUS_DB:
             default:
                 throw new Error(`Unsupported API type: ${conf.apiType}`);
         }
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
-    disable():void {
+    disable(): void {
         this.model.waitForAction({}, (_, sd) => sd);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<WordFormsTileConf> = {
-
+export const init: TileFactory<WordFormsTileConf> = {
     sanityCheck: (args) => {
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            return [new Error(`invalid posQueryGenerator in wordForms tile, ${message}`)];
+            return [
+                new Error(
+                    `invalid posQueryGenerator in wordForms tile, ${message}`
+                ),
+            ];
         }
     },
 
-    create: (args) => new WordFormsTile(args)
+    create: (args) => new WordFormsTile(args),
 };

@@ -28,18 +28,17 @@ import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
 
-
 export interface WordFormsModelState {
-    isBusy:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    corpname:string;
-    roundToPos:number; // 0 to N
-    corpusSize:number;
-    freqFilterAlphaLevel:Maths.AlphaLevel;
-    data:Array<WordFormItem>;
-    backlink:Backlink;
-    mainPosAttr:MainPosAttrValues;
+    isBusy: boolean;
+    isAltViewMode: boolean;
+    error: string;
+    corpname: string;
+    roundToPos: number; // 0 to N
+    corpusSize: number;
+    freqFilterAlphaLevel: Maths.AlphaLevel;
+    data: Array<WordFormItem>;
+    backlink: Backlink;
+    mainPosAttr: MainPosAttrValues;
 }
 
 /**
@@ -49,7 +48,11 @@ export interface WordFormsModelState {
  * For each item we check whether the lower end of a respective
  * Wilson score interval is non-zero (after rounding).
  */
-function filterRareVariants(items:Array<WordFormItem>, corpSize:number, alpha:Maths.AlphaLevel):Array<WordFormItem> {
+function filterRareVariants(
+    items: Array<WordFormItem>,
+    corpSize: number,
+    alpha: Maths.AlphaLevel
+): Array<WordFormItem> {
     const total = List.reduce(
         (acc, curr) => {
             return acc + curr.freq;
@@ -58,42 +61,43 @@ function filterRareVariants(items:Array<WordFormItem>, corpSize:number, alpha:Ma
         items
     );
 
-    return List.filter(
-        (value) => {
-            const left = Maths.wilsonConfInterval(value.freq, total, alpha)[0] * 100;
-            const abs = Maths.wilsonConfInterval(value.freq, corpSize, alpha)[0] * corpSize;
-            return Math.round(left) > 0 && Math.round(abs) > 0;
-        },
-        items
-    );
+    return List.filter((value) => {
+        const left =
+            Maths.wilsonConfInterval(value.freq, total, alpha)[0] * 100;
+        const abs =
+            Maths.wilsonConfInterval(value.freq, corpSize, alpha)[0] * corpSize;
+        return Math.round(left) > 0 && Math.round(abs) > 0;
+    }, items);
 }
-
 
 export interface WordFormsModelArgs {
-    dispatcher:IActionQueue;
-    initialState:WordFormsModelState;
-    tileId:number;
-    api:IWordFormsApi;
-    queryMatches:RecognizedQueries;
-    appServices:IAppServices;
+    dispatcher: IActionQueue;
+    initialState: WordFormsModelState;
+    tileId: number;
+    api: IWordFormsApi;
+    queryMatches: RecognizedQueries;
+    appServices: IAppServices;
 }
 
-
 export class WordFormsModel extends StatelessModel<WordFormsModelState> {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly api: IWordFormsApi;
 
-    private readonly api:IWordFormsApi;
+    private readonly queryMatches: RecognizedQueries;
 
-    private readonly queryMatches:RecognizedQueries;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
-
-    private readonly backlink:BacklinkConf;
+    private readonly backlink: BacklinkConf;
 
     constructor({
-        dispatcher, initialState, tileId, api, queryMatches, appServices
-    }:WordFormsModelArgs) {
+        dispatcher,
+        initialState,
+        tileId,
+        api,
+        queryMatches,
+        appServices,
+    }: WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
@@ -127,8 +131,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             },
             (state, action, dispatch) => {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
-                if (variant.pos.length > 1 && !this.api.supportsMultiWordQueries()) {
-                    const err = Error("Current WordForms API does'nt support multi word queries!");
+                if (
+                    variant.pos.length > 1 &&
+                    !this.api.supportsMultiWordQueries()
+                ) {
+                    const err = Error(
+                        "Current WordForms API does'nt support multi word queries!"
+                    );
                     console.error(err);
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
@@ -139,15 +148,15 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             isEmpty: true,
                             data: [],
                             translatLanguage: null,
-                        }
+                        },
                     });
                 } else {
                     this.fetchWordForms(
                         {
                             lemma: variant.lemma,
-                            pos: List.map(v => v.value, variant.pos),
+                            pos: List.map((v) => v.value, variant.pos),
                             corpName: state.corpname,
-                            mainPosAttr: state.mainPosAttr
+                            mainPosAttr: state.mainPosAttr,
                         },
                         dispatch
                     );
@@ -161,20 +170,22 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = this.appServices.normalizeHttpApiError(action.error);
+                        state.error = this.appServices.normalizeHttpApiError(
+                            action.error
+                        );
                         state.backlink = null;
-
                     } else if (action.payload.data.length === 0) {
                         state.data = [];
                         state.backlink = null;
-
                     } else {
                         state.data = filterRareVariants(
                             action.payload.data,
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
-                        state.backlink = this.api.getBacklink(action.payload.queryIdx);
+                        state.backlink = this.api.getBacklink(
+                            action.payload.queryIdx
+                        );
                     }
                 }
             }
@@ -185,103 +196,113 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(
-                        appServices.dataStreaming().startNewSubgroup(this.tileId),
-                        this.tileId,
-                        appServices.getISO639UILang(),
-                        state.corpname,
-                    ).subscribe({
-                        next: (data) => {
-                            seDispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                payload: {
-                                    data
-                                }
-                            });
-                        },
-                        error: (error) => {
-                            seDispatch<typeof GlobalActions.GetSourceInfoDone>({
-                                name: GlobalActions.GetSourceInfoDone.name,
-                                error
-                            });
-                        }
-                    });
+                    this.api
+                        .getSourceDescription(
+                            appServices
+                                .dataStreaming()
+                                .startNewSubgroup(this.tileId),
+                            this.tileId,
+                            appServices.getISO639UILang(),
+                            state.corpname
+                        )
+                        .subscribe({
+                            next: (data) => {
+                                seDispatch<
+                                    typeof GlobalActions.GetSourceInfoDone
+                                >({
+                                    name: GlobalActions.GetSourceInfoDone.name,
+                                    payload: {
+                                        data,
+                                    },
+                                });
+                            },
+                            error: (error) => {
+                                seDispatch<
+                                    typeof GlobalActions.GetSourceInfoDone
+                                >({
+                                    name: GlobalActions.GetSourceInfoDone.name,
+                                    error,
+                                });
+                            },
+                        });
                 }
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
                 const args = {
                     lemma: variant.lemma,
-                    pos: List.map(v => v.value, variant.pos),
+                    pos: List.map((v) => v.value, variant.pos),
                     corpName: state.corpname,
-                    mainPosAttr: state.mainPosAttr
+                    mainPosAttr: state.mainPosAttr,
                 };
                 this.api.requestBacklink(args, variant).subscribe({
-                    next: url => {
+                    next: (url) => {
                         dispatch(GlobalActions.BacklinkPreparationDone);
-                        window.open(url.toString(),'_blank');
+                        window.open(url.toString(), '_blank');
                     },
-                    error: err => {
+                    error: (err) => {
                         dispatch(GlobalActions.BacklinkPreparationDone, err);
-                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                        this.appServices.showMessage(
+                            SystemMessageType.ERROR,
+                            err
+                        );
                     },
                 });
             }
         );
     }
 
-    private fetchWordForms(args:RequestArgs, dispatch:SEDispatcher):void {
-        this.api.call(this.appServices.dataStreaming(), this.tileId, 0, args).pipe(
-            map((v => {
-                const updated = Maths.calcPercentRatios(
-                    (item) => item.freq,
-                    (item, ratio) => ({
-                        value: item.value,
-                        freq: item.freq,
-                        ratio: ratio,
-                        interactionId: item.interactionId
-                    }),
-                    v.forms
-                );
-                return {
-                    forms: updated
-                };
-            }))
-
-        ).subscribe({
-            next: (data) => {
-                dispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        queryIdx: 0,
-                        isEmpty: false,
-                        data: List.sortBy(
-                            x => -x.freq,
-                            data.forms
-                        )
-                    }
-                });
-            },
-            error: (err) => {
-                console.error(err);
-                dispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    error: err,
-                    payload: {
-                        tileId: this.tileId,
-                        queryIdx: 0,
-                        isEmpty: true,
-                        data: []
-                    }
-                });
-            }
-        });
+    private fetchWordForms(args: RequestArgs, dispatch: SEDispatcher): void {
+        this.api
+            .call(this.appServices.dataStreaming(), this.tileId, 0, args)
+            .pipe(
+                map((v) => {
+                    const updated = Maths.calcPercentRatios(
+                        (item) => item.freq,
+                        (item, ratio) => ({
+                            value: item.value,
+                            freq: item.freq,
+                            ratio: ratio,
+                            interactionId: item.interactionId,
+                        }),
+                        v.forms
+                    );
+                    return {
+                        forms: updated,
+                    };
+                })
+            )
+            .subscribe({
+                next: (data) => {
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            queryIdx: 0,
+                            isEmpty: false,
+                            data: List.sortBy((x) => -x.freq, data.forms),
+                        },
+                    });
+                },
+                error: (err) => {
+                    console.error(err);
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        error: err,
+                        payload: {
+                            tileId: this.tileId,
+                            queryIdx: 0,
+                            isEmpty: true,
+                            data: [],
+                        },
+                    });
+                },
+            });
     }
 }

@@ -23,91 +23,92 @@ import urlJoin from 'url-join';
 import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
 import { matchesPos, calcFreqBand } from '../../../query/index.js';
 import { MultiDict } from '../../../multidict.js';
-import { RequestArgs, SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
+import {
+    RequestArgs,
+    SimilarFreqWord,
+} from '../../../api/abstract/similarFreq.js';
 import { HTTPAction } from '../../../page/actions.js';
 import { IApiServices } from '../../../appServices.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
-
 interface ResponseItem {
-    count:number;
-    forms:Array<{arf:number; count:number; word:string}>;
-    is_pname:boolean;
-    lemma:string;
-    ngramSize:number;
-    pos:string;
-    ipm:number;
-    simFreqScore:number;
-    sublemmas:Array<{value:string; count:number}>;
-    _id:string;
+    count: number;
+    forms: Array<{ arf: number; count: number; word: string }>;
+    is_pname: boolean;
+    lemma: string;
+    ngramSize: number;
+    pos: string;
+    ipm: number;
+    simFreqScore: number;
+    sublemmas: Array<{ value: string; count: number }>;
+    _id: string;
 }
-
 
 interface HTTPResponse {
-    matches:Array<ResponseItem>;
+    matches: Array<ResponseItem>;
 }
 
-
 export class SimilarFreqWordsFrodoAPI {
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
-
-    constructor(apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL: string, apiServices: IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs|null):Observable<Array<SimilarFreqWord>> {
-        return streaming.registerTileRequest<HTTPResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: RequestArgs | null
+    ): Observable<Array<SimilarFreqWord>> {
+        return streaming
+            .registerTileRequest<HTTPResponse>({
                 contentType: 'application/json',
                 body: {},
                 method: HTTP.Method.GET,
                 tileId,
                 queryIdx,
-                url: args && this.apiURL ?
-                    urlJoin(
-                        this.apiURL,
-                        'dictionary',
-                        args.corpname,
-                        'similarARFWords',
-                        args.word
-                    ) + '?' + encodeURLParameters(
-                        [['domain', args.corpname],
-                        ['lemma', args.lemma],
-                        ['pos', args.pos.join(' ')],
-                        ['mainPosAttr', args.mainPosAttr],
-                        ['srchRange', args.srchRange]]
-                    ) :
-                    ''
-            }
-        ).pipe(
-            map(
-                v => v ? v : { matches: []}
-            ),
-            map(
-                data =>  pipe(
-                    data.matches,
-                    List.map(
-                        v => ({
+                url:
+                    args && this.apiURL
+                        ? urlJoin(
+                              this.apiURL,
+                              'dictionary',
+                              args.corpname,
+                              'similarARFWords',
+                              args.word
+                          ) +
+                          '?' +
+                          encodeURLParameters([
+                              ['domain', args.corpname],
+                              ['lemma', args.lemma],
+                              ['pos', args.pos.join(' ')],
+                              ['mainPosAttr', args.mainPosAttr],
+                              ['srchRange', args.srchRange],
+                          ])
+                        : '',
+            })
+            .pipe(
+                map((v) => (v ? v : { matches: [] })),
+                map((data) =>
+                    pipe(
+                        data.matches,
+                        List.map((v) => ({
                             lemma: v.lemma,
-                            pos: [{value: v.pos, label: v.pos}], // TODO what about label?
+                            pos: [{ value: v.pos, label: v.pos }], // TODO what about label?
                             upos: [], // TODO UD support?
                             ipm: v.ipm,
-                            flevel: calcFreqBand(v.ipm)
-                        })
-                    ),
-                    List.filter(
-                        item => (
-                            item.lemma !== args.lemma ||
-                            !matchesPos(item, args.mainPosAttr, args.pos)
+                            flevel: calcFreqBand(v.ipm),
+                        })),
+                        List.filter(
+                            (item) =>
+                                item.lemma !== args.lemma ||
+                                !matchesPos(item, args.mainPosAttr, args.pos)
                         )
                     )
                 )
-            )
-        );
+            );
     }
 }
-

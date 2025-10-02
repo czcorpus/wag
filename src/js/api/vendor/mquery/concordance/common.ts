@@ -16,57 +16,57 @@
  * limitations under the License.
  */
 
-import { List, pipe } from "cnc-tskit";
+import { List, pipe } from 'cnc-tskit';
 
-
-export type AttrViewMode = 'visible-all'|'visible-kwic'|'visible-multiline'|'mouseover';
-
+export type AttrViewMode =
+    | 'visible-all'
+    | 'visible-kwic'
+    | 'visible-multiline'
+    | 'mouseover';
 
 export enum ViewMode {
     KWIC = 'kwic',
     SENT = 'sen',
-    ALIGN = 'align'
+    ALIGN = 'align',
 }
 
-
-export type LineElementType = ''|'strc'|'attr'|'str'|'coll';
-
+export type LineElementType = '' | 'strc' | 'attr' | 'str' | 'coll';
 
 export interface Token {
-    type:'token'|'markup';
-    word:string;
-    matchType:'kwic'|'coll';
-    strong:boolean;
-    attrs:{[name:string]:string};
+    type: 'token' | 'markup';
+    word: string;
+    matchType: 'kwic' | 'coll';
+    strong: boolean;
+    attrs: { [name: string]: string };
 }
-
 
 export interface Line {
-    ref:string;
-    text:Array<Token>;
-    alignedText:Array<Token>;
-    props:{[name:string]:string};
-    interactionId?:string;
-    highlighted?:boolean;
+    ref: string;
+    text: Array<Token>;
+    alignedText: Array<Token>;
+    props: { [name: string]: string };
+    interactionId?: string;
+    highlighted?: boolean;
 }
 
-export function getLineLeftCtx(line:Line):Array<Token> {
-    const srchFor = List.some(x => x.matchType === 'kwic', line.text) ?
-        'kwic' : 'coll';
-    const srchIdx = List.findIndex(x => x.matchType === srchFor, line.text);
+export function getLineLeftCtx(line: Line): Array<Token> {
+    const srchFor = List.some((x) => x.matchType === 'kwic', line.text)
+        ? 'kwic'
+        : 'coll';
+    const srchIdx = List.findIndex((x) => x.matchType === srchFor, line.text);
     return List.slice(0, srchIdx, line.text);
 }
 
-
-export function getKwicCtx(line:Line):Array<Token> {
-    const srchFor = List.some(x => x.matchType === 'kwic', line.text) ?
-        'kwic' : 'coll';
-    const srchIdx1 = List.findIndex(x => x.matchType === srchFor, line.text);
+export function getKwicCtx(line: Line): Array<Token> {
+    const srchFor = List.some((x) => x.matchType === 'kwic', line.text)
+        ? 'kwic'
+        : 'coll';
+    const srchIdx1 = List.findIndex((x) => x.matchType === srchFor, line.text);
     const srchIdx2 = pipe(
         line.text,
         List.reversed(),
-        List.findIndex(x => x.matchType === srchFor),
-        x => x > -1 ? List.size(line.text) - 1 - x : -1
+        List.findIndex((x) => x.matchType === srchFor),
+        (x) => (x > -1 ? List.size(line.text) - 1 - x : -1)
     );
     if (srchIdx1 === -1 || srchIdx2 === -1) {
         throw new Error('cannot find kwic/coll ctx');
@@ -74,45 +74,45 @@ export function getKwicCtx(line:Line):Array<Token> {
     return List.slice(srchIdx1, srchIdx2 + 1, line.text);
 }
 
-
-export function getLineRightCtx(line:Line):Array<Token> {
-    const srchFor = List.some(x => x.matchType === 'kwic', line.text) ?
-        'kwic' : 'coll';
+export function getLineRightCtx(line: Line): Array<Token> {
+    const srchFor = List.some((x) => x.matchType === 'kwic', line.text)
+        ? 'kwic'
+        : 'coll';
     const srchIdx = pipe(
         line.text,
         List.reversed(),
-        List.findIndex(x => x.matchType === srchFor),
-        x => x > -1 ? List.size(line.text) - x : -1
+        List.findIndex((x) => x.matchType === srchFor),
+        (x) => (x > -1 ? List.size(line.text) - x : -1)
     );
     return List.slice(srchIdx, -1, line.text);
 }
 
 export interface ConcResponse {
-    concSize:number;
-    ipm:number;
-    lines:Array<Line>;
-    corpname?:string;
-    alignedCorpname?:string;
-    resultType:'concordance';
+    concSize: number;
+    ipm: number;
+    lines: Array<Line>;
+    corpname?: string;
+    alignedCorpname?: string;
+    resultType: 'concordance';
 }
 
-
 export interface ConcData {
-    queryIdx:number;
-    concSize:number;
-    ipm:number;
-    lines:Array<Line>;
-    loadPage:number;
+    queryIdx: number;
+    concSize: number;
+    ipm: number;
+    lines: Array<Line>;
+    loadPage: number;
     /**
      * note: starts from 1
      */
-    currPage:number;
-    numPages:number;
+    currPage: number;
+    numPages: number;
 }
 
-
-export function createInitialLinesData(numQueryMatches:number):Array<ConcData> {
-    const ans:Array<ConcData> = [];
+export function createInitialLinesData(
+    numQueryMatches: number
+): Array<ConcData> {
+    const ans: Array<ConcData> = [];
     for (let i = 0; i < numQueryMatches; i++) {
         ans.push({
             queryIdx: 0,
@@ -121,7 +121,7 @@ export function createInitialLinesData(numQueryMatches:number):Array<ConcData> {
             ipm: 0,
             loadPage: 1,
             currPage: 1,
-            numPages: 0
+            numPages: 0,
         });
     }
     return ans;

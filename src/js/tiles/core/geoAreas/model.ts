@@ -26,9 +26,20 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
-import { findCurrQueryMatch, QueryMatch, QueryType, RecognizedQueries, testIsDictMatch } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    QueryMatch,
+    QueryType,
+    RecognizedQueries,
+    testIsDictMatch,
+} from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
-import { APIResponse, DataRow, MQueryFreqArgs, MQueryFreqDistribAPI } from '../../../api/vendor/mquery/freqs.js';
+import {
+    APIResponse,
+    DataRow,
+    MQueryFreqArgs,
+    MQueryFreqDistribAPI,
+} from '../../../api/vendor/mquery/freqs.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 
@@ -70,44 +81,58 @@ ORAL_V1:
 "neznámé": "naUNK"
 */
 
-export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<Array<DataRow>> {
-    currQueryMatches:Array<QueryMatch>;
-    areaCodeMapping:{[key:string]:string};
-    tooltipArea:{tooltipX:number; tooltipY:number, caption:string, data:TooltipValues, multiWordMode:boolean}|null;
-    mapSVG:string;
-    isAltViewMode:boolean;
-    posQueryGenerator:PosQueryGeneratorType;
-    frequencyDisplayLimit:number;
-    backlinks:Array<Backlink>;
+export interface GeoAreasModelState
+    extends GeneralSingleCritFreqBarModelState<Array<DataRow>> {
+    currQueryMatches: Array<QueryMatch>;
+    areaCodeMapping: { [key: string]: string };
+    tooltipArea: {
+        tooltipX: number;
+        tooltipY: number;
+        caption: string;
+        data: TooltipValues;
+        multiWordMode: boolean;
+    } | null;
+    mapSVG: string;
+    isAltViewMode: boolean;
+    posQueryGenerator: PosQueryGeneratorType;
+    frequencyDisplayLimit: number;
+    backlinks: Array<Backlink>;
 }
 
 interface GeoAreasModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    appServices:IAppServices;
-    queryMatches:RecognizedQueries;
-    freqApi:MQueryFreqDistribAPI;
-    mapLoader:DataApi<string, string>;
-    initState:GeoAreasModelState;
-    queryType:QueryType;
+    dispatcher: IActionQueue;
+    tileId: number;
+    appServices: IAppServices;
+    queryMatches: RecognizedQueries;
+    freqApi: MQueryFreqDistribAPI;
+    mapLoader: DataApi<string, string>;
+    initState: GeoAreasModelState;
+    queryType: QueryType;
 }
 
 export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly freqApi: MQueryFreqDistribAPI;
 
-    private readonly freqApi:MQueryFreqDistribAPI;
+    private readonly mapLoader: DataApi<string, string>;
 
-    private readonly mapLoader:DataApi<string, string>;
+    private readonly queryMatches: Array<Array<QueryMatch>>;
 
-    private readonly queryMatches:Array<Array<QueryMatch>>;
+    private readonly queryType: QueryType;
 
-    private readonly queryType:QueryType;
-
-    constructor({dispatcher, tileId, appServices, queryMatches,
-                freqApi, mapLoader, initState, queryType}:GeoAreasModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        appServices,
+        queryMatches,
+        freqApi,
+        mapLoader,
+        initState,
+        queryType,
+    }: GeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -120,65 +145,70 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             GlobalActions.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
-                state.backlinks = List.map(_ => null, this.queryMatches);
+                state.backlinks = List.map((_) => null, this.queryMatches);
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const dataStream = new Observable<[MQueryFreqArgs|null, number]>((observer) => {
+                const dataStream = new Observable<
+                    [MQueryFreqArgs | null, number]
+                >((observer) => {
                     try {
                         pipe(
                             this.queryMatches,
-                            List.map(
-                                (queryMatch, queryIdx) => {
-                                    const match = findCurrQueryMatch(queryMatch);
-                                    return tuple(
-                                        testIsDictMatch(match) ?
-                                            this.stateToArgs(state, match) : null,
-                                        queryIdx
-                                    )
-                                }
-                            ),
-                            List.forEach(args => observer.next(args)),
+                            List.map((queryMatch, queryIdx) => {
+                                const match = findCurrQueryMatch(queryMatch);
+                                return tuple(
+                                    testIsDictMatch(match)
+                                        ? this.stateToArgs(state, match)
+                                        : null,
+                                    queryIdx
+                                );
+                            }),
+                            List.forEach((args) => observer.next(args))
                         );
                         observer.complete();
-
                     } catch (e) {
                         observer.error(e);
                     }
-
                 }).pipe(
                     mergeMap(([args, queryIdx]) =>
                         zip(
-                            this.mapLoader.call(this.appServices.dataStreaming(), this.tileId, queryIdx, 'mapCzech.inline.svg'),
+                            this.mapLoader.call(
+                                this.appServices.dataStreaming(),
+                                this.tileId,
+                                queryIdx,
+                                'mapCzech.inline.svg'
+                            ),
                             this.freqApi.call(
                                 this.appServices.dataStreaming(),
                                 this.tileId,
                                 queryIdx,
-                                args,
-                            ),
+                                args
+                            )
                         )
                     ),
-                    share(),
-                )
+                    share()
+                );
                 this.handleLoad(dataStream, state, dispatch);
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.PartialTileDataLoaded,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 if (action.error) {
-                    state.data = state.currQueryMatches.map(_ => []);
-                    state.backlinks = List.map(_ => null, this.queryMatches);
-                    state.error = this.appServices.normalizeHttpApiError(action.error);
-
+                    state.data = state.currQueryMatches.map((_) => []);
+                    state.backlinks = List.map((_) => null, this.queryMatches);
+                    state.error = this.appServices.normalizeHttpApiError(
+                        action.error
+                    );
                 } else if (action.payload.data.length === 0) {
                     state.data[action.payload.queryId] = [];
-
                 } else {
                     state.data[action.payload.queryId] = action.payload.data;
-                    state.backlinks[action.payload.queryId] = this.freqApi.getBacklink(action.payload.queryId);
+                    state.backlinks[action.payload.queryId] =
+                        this.freqApi.getBacklink(action.payload.queryId);
                 }
                 state.mapSVG = action.payload.mapSVG;
             }
@@ -186,7 +216,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = false;
             }
@@ -194,7 +224,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
-            action => action.payload.ident === this.tileId,
+            (action) => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isAltViewMode = true;
             }
@@ -202,7 +232,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.DisableAltViewMode,
-            action => action.payload.ident === this.tileId,
+            (action) => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isAltViewMode = false;
             }
@@ -210,43 +240,93 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
         this.addActionSubtypeHandler(
             Actions.ShowAreaTooltip,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 let tooltipData, tooltipCaption;
                 if (this.queryType === QueryType.SINGLE_QUERY) {
                     const data = action.payload.areaData[0];
                     tooltipCaption = action.payload.areaName;
-                    tooltipData = action.payload.areaData === null || data.freq < state.frequencyDisplayLimit ? {
-                            [this.appServices.translate('geolocations__single_tooltip_rel_freq')]: [{value: this.appServices.translate('geolocations__not_enough_data')}],
-                            [this.appServices.translate('geolocations__single_tooltip_abs_freq')]: [{value: data ? data.freq : this.appServices.translate('geolocations__not_enough_data')}]
-                        } : {
-                            [this.appServices.translate('geolocations__single_tooltip_rel_freq')]: [{value: data.ipm}],
-                            [this.appServices.translate('geolocations__single_tooltip_abs_freq')]: [{value: data.freq}]
-                        }
-
+                    tooltipData =
+                        action.payload.areaData === null ||
+                        data.freq < state.frequencyDisplayLimit
+                            ? {
+                                  [this.appServices.translate(
+                                      'geolocations__single_tooltip_rel_freq'
+                                  )]: [
+                                      {
+                                          value: this.appServices.translate(
+                                              'geolocations__not_enough_data'
+                                          ),
+                                      },
+                                  ],
+                                  [this.appServices.translate(
+                                      'geolocations__single_tooltip_abs_freq'
+                                  )]: [
+                                      {
+                                          value: data
+                                              ? data.freq
+                                              : this.appServices.translate(
+                                                    'geolocations__not_enough_data'
+                                                ),
+                                      },
+                                  ],
+                              }
+                            : {
+                                  [this.appServices.translate(
+                                      'geolocations__single_tooltip_rel_freq'
+                                  )]: [{ value: data.ipm }],
+                                  [this.appServices.translate(
+                                      'geolocations__single_tooltip_abs_freq'
+                                  )]: [{ value: data.freq }],
+                              };
                 } else {
-                    tooltipCaption = action.payload.areaName + (action.payload.areaData === null ? '' : ` (${this.appServices.formatNumber(action.payload.areaIpmNorm, 1)} ipm)`);
-                    tooltipData = action.payload.areaData === null ?
-                        {[appServices.translate('geolocations__not_enough_data')]: [{value: ''}]} :
-                        Dict.fromEntries(
-                            List.map((lemma, index) => {
-                                const areaData = action.payload.areaData.find(item => item.target === index);
-                                return [
-                                    lemma.word,
-                                    areaData ?
-                                        [
-                                            {value: 100 * areaData.ipm / action.payload.areaIpmNorm, unit: '%'},
-                                            {value: areaData.ipm, unit: `ipm, ${appServices.translate('global__frequency')}`},
-                                            {value: areaData.freq}
-                                        ] :
-                                        [
-                                            {value: 0, unit: '%'},
-                                            {value: 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
-                                            {value: 0}
-                                        ]
-                                ]
-                            }, state.currQueryMatches)
-                        )
+                    tooltipCaption =
+                        action.payload.areaName +
+                        (action.payload.areaData === null
+                            ? ''
+                            : ` (${this.appServices.formatNumber(action.payload.areaIpmNorm, 1)} ipm)`);
+                    tooltipData =
+                        action.payload.areaData === null
+                            ? {
+                                  [appServices.translate(
+                                      'geolocations__not_enough_data'
+                                  )]: [{ value: '' }],
+                              }
+                            : Dict.fromEntries(
+                                  List.map((lemma, index) => {
+                                      const areaData =
+                                          action.payload.areaData.find(
+                                              (item) => item.target === index
+                                          );
+                                      return [
+                                          lemma.word,
+                                          areaData
+                                              ? [
+                                                    {
+                                                        value:
+                                                            (100 *
+                                                                areaData.ipm) /
+                                                            action.payload
+                                                                .areaIpmNorm,
+                                                        unit: '%',
+                                                    },
+                                                    {
+                                                        value: areaData.ipm,
+                                                        unit: `ipm, ${appServices.translate('global__frequency')}`,
+                                                    },
+                                                    { value: areaData.freq },
+                                                ]
+                                              : [
+                                                    { value: 0, unit: '%' },
+                                                    {
+                                                        value: 0,
+                                                        unit: `ipm, ${appServices.translate('global__frequency')}`,
+                                                    },
+                                                    { value: 0 },
+                                                ],
+                                      ];
+                                  }, state.currQueryMatches)
+                              );
                 }
 
                 state.tooltipArea = {
@@ -254,14 +334,16 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     tooltipY: action.payload.tooltipY,
                     caption: tooltipCaption,
                     data: tooltipData,
-                    multiWordMode: this.queryType === QueryType.CMP_QUERY && action.payload.areaData !== null,
-                }
+                    multiWordMode:
+                        this.queryType === QueryType.CMP_QUERY &&
+                        action.payload.areaData !== null,
+                };
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.HideAreaTooltip,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.tooltipArea = null;
             }
@@ -269,49 +351,60 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.GetSourceInfo,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {},
             (state, action, dispatch) => {
-                this.freqApi.getSourceDescription(
-                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
-                    this.tileId,
-                    this.appServices.getISO639UILang(),
-                    state.corpname
-
-                ).subscribe({
-                    next: data => {
-                        dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            payload: {
-                                data
-                            }
-                        });
-                    },
-                    error: error => {
-                        console.error(error);
-                        dispatch<typeof GlobalActions.GetSourceInfoDone>({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            error
-                        });
-                    }
-                });
+                this.freqApi
+                    .getSourceDescription(
+                        this.appServices
+                            .dataStreaming()
+                            .startNewSubgroup(this.tileId),
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        state.corpname
+                    )
+                    .subscribe({
+                        next: (data) => {
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                payload: {
+                                    data,
+                                },
+                            });
+                        },
+                        error: (error) => {
+                            console.error(error);
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error,
+                            });
+                        },
+                    });
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const args = this.stateToArgs(state, findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]));
+                const args = this.stateToArgs(
+                    state,
+                    findCurrQueryMatch(
+                        this.queryMatches[action.payload.backlink.queryId]
+                    )
+                );
                 this.freqApi.requestBacklink(args).subscribe({
-                    next: url => {
+                    next: (url) => {
                         dispatch(GlobalActions.BacklinkPreparationDone);
-                        window.open(url.toString(),'_blank');
+                        window.open(url.toString(), '_blank');
                     },
-                    error: err => {
+                    error: (err) => {
                         dispatch(GlobalActions.BacklinkPreparationDone, err);
-                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                        this.appServices.showMessage(
+                            SystemMessageType.ERROR,
+                            err
+                        );
                     },
                 });
             }
@@ -319,10 +412,10 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
     }
 
     private handleLoad(
-        streaming:Observable<[string, APIResponse]>,
-        state:GeoAreasModelState,
-        dispatch:SEDispatcher
-    ):void {
+        streaming: Observable<[string, APIResponse]>,
+        state: GeoAreasModelState,
+        dispatch: SEDispatcher
+    ): void {
         streaming.subscribe({
             next: ([mapSVG, resp]) => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
@@ -332,10 +425,10 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         mapSVG,
                         data: resp.data,
                         queryId: resp.queryIdx,
-                    }
+                    },
                 });
             },
-            error: error => {
+            error: (error) => {
                 dispatch<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
@@ -344,33 +437,39 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         data: null,
                         queryId: null,
                     },
-                    error: error
+                    error: error,
                 });
-            }
+            },
         });
 
-        streaming.pipe(
-            reduce<[string, APIResponse], {hasData:boolean}>(
-                (acc, [_, resp]) => {
-                    acc.hasData = acc.hasData || (resp.data && resp.data.length > 0);
-                    return acc
-                },
-                {hasData: false}
+        streaming
+            .pipe(
+                reduce<[string, APIResponse], { hasData: boolean }>(
+                    (acc, [_, resp]) => {
+                        acc.hasData =
+                            acc.hasData || (resp.data && resp.data.length > 0);
+                        return acc;
+                    },
+                    { hasData: false }
+                )
             )
-        )
-        .subscribe(acc =>
-            dispatch<typeof Actions.TileDataLoaded>({
-                name: Actions.TileDataLoaded.name,
-                payload: {
-                    tileId: this.tileId,
-                    isEmpty: !acc.hasData,
-                    corpusName: state.corpname,
-                }
-            })
-        );
+            .subscribe((acc) =>
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: !acc.hasData,
+                        corpusName: state.corpname,
+                    },
+                })
+            );
     }
 
-    private stateToArgs(state:GeoAreasModelState, queryMatch:QueryMatch, subcname?:string):MQueryFreqArgs {
+    private stateToArgs(
+        state: GeoAreasModelState,
+        queryMatch: QueryMatch,
+        subcname?: string
+    ): MQueryFreqArgs {
         return {
             corpname: state.corpname,
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
@@ -380,7 +479,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,
-            }
+            },
         };
     }
 }

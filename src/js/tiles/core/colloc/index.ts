@@ -24,59 +24,73 @@ import { CollocMetric, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
 import {
-    TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs,
-    DEFAULT_ALT_VIEW_ICON, ITileReloader, AltViewIconProps
+    TileConf,
+    ITileProvider,
+    TileComponent,
+    TileFactory,
+    TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileReloader,
+    AltViewIconProps,
 } from '../../../page/tile.js';
 import { MQueryCollAPI } from './api/index.js';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface CollocationsTileConf extends TileConf {
-    apiURL:string;
-    apiType:'default'|'with-examples';
-    corpname:string;
-    comparisonCorpname?:string;
-    minFreq:number;
-    minLocalFreq:number;
-    rangeSize:number;
-    maxItems?:number;
-    examplesPerColl?:number;
+    apiURL: string;
+    apiType: 'default' | 'with-examples';
+    corpname: string;
+    comparisonCorpname?: string;
+    minFreq: number;
+    minLocalFreq: number;
+    rangeSize: number;
+    maxItems?: number;
+    examplesPerColl?: number;
 
     /**
      * A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).
      */
-    posQueryGenerator:PosQueryGeneratorType;
+    posQueryGenerator: PosQueryGeneratorType;
 }
 
 /**
  *
  */
 export class CollocationsTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: CollocModel;
 
-    private readonly model:CollocModel;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly label: string;
 
-    private readonly label:string;
+    private view: TileComponent;
 
-    private view:TileComponent;
+    private readonly api: MQueryCollAPI;
 
-    private readonly api:MQueryCollAPI;
-
-    private readonly dependentTiles:Array<number>;
+    private readonly dependentTiles: Array<number>;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        queryMatches, queryType, dependentTiles
-    }:TileFactoryArgs<CollocationsTileConf>) {
-
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        theme,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+        queryType,
+        dependentTiles,
+    }: TileFactoryArgs<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -109,110 +123,135 @@ export class CollocationsTile implements ITileProvider {
                 srchRangeType: SrchContextType.BOTH,
                 minAbsFreq: conf.minFreq,
                 minLocalAbsFreq: conf.minLocalFreq,
-                appliedMetrics: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
+                appliedMetrics: [
+                    CollocMetric.LOG_DICE,
+                    CollocMetric.MI,
+                    CollocMetric.T_SCORE,
+                ],
                 sortByMetric: CollocMetric.LOG_DICE,
-                data: List.map(_ => null, queryMatches),
+                data: List.map((_) => null, queryMatches),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
-                backlinks: List.map(_ => null, queryMatches),
-                queryMatches: List.map(v => findCurrQueryMatch(v), queryMatches),
+                backlinks: List.map((_) => null, queryMatches),
+                queryMatches: List.map(
+                    (v) => findCurrQueryMatch(v),
+                    queryMatches
+                ),
                 queryType,
                 posQueryGenerator: conf.posQueryGenerator,
                 examplesPerColl: conf.examplesPerColl,
             },
             queryMatches: List.map(findCurrQueryMatch, queryMatches),
         });
-        this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');
-        this.view = viewInit(
-            this.dispatcher,
-            ut,
-            theme,
-            this.model
+        this.label = appServices.importExternalMessage(
+            conf.label || 'collocations__main_label'
         );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
+        return (
+            qt === QueryType.SINGLE_QUERY ||
+            qt === QueryType.CMP_QUERY ||
+            qt === QueryType.TRANSLAT_QUERY
+        );
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return this.api.supportsLeftRightContext();
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return this.api.supportsMultiWordQueries();
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<CollocationsTileConf> = {
-
+export const init: TileFactory<CollocationsTileConf> = {
     sanityCheck: (args) => {
         const ans = [];
-        if (typeof args.readDataFromTile === 'number' && !List.empty(args.dependentTiles)) {
-            ans.push(new Error('the Colloc tile cannot have dependencies and be dependent on a tile at the same time'));
+        if (
+            typeof args.readDataFromTile === 'number' &&
+            !List.empty(args.dependentTiles)
+        ) {
+            ans.push(
+                new Error(
+                    'the Colloc tile cannot have dependencies and be dependent on a tile at the same time'
+                )
+            );
         }
-        if (!!args.conf.comparisonCorpname && args.queryType === QueryType.CMP_QUERY) {
-            ans.push(new Error('collocation tile cannot work in both cmp and two corpora comparison mode at the same time'));
+        if (
+            !!args.conf.comparisonCorpname &&
+            args.queryType === QueryType.CMP_QUERY
+        ) {
+            ans.push(
+                new Error(
+                    'collocation tile cannot work in both cmp and two corpora comparison mode at the same time'
+                )
+            );
         }
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            ans.push(new Error(`invalid posQueryGenerator in collocation tile, ${message}`));
+            ans.push(
+                new Error(
+                    `invalid posQueryGenerator in collocation tile, ${message}`
+                )
+            );
         }
-        return ans
+        return ans;
     },
 
-    create: (args) => new CollocationsTile(args)
+    create: (args) => new CollocationsTile(args),
 };

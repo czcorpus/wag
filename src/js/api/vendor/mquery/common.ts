@@ -20,16 +20,15 @@ import { List, pipe } from 'cnc-tskit';
 import { posQueryFactory } from '../../../postag.js';
 import { QueryMatch } from '../../../query/index.js';
 
-
 export interface FreqRowResponse {
-    word:string;
-    freq:number;
-    base:number;
-    ipm:number;
-    collScore:number;
+    word: string;
+    freq: number;
+    base: number;
+    ipm: number;
+    collScore: number;
 }
 
-function escapeDQuotes(v:string):string {
+function escapeDQuotes(v: string): string {
     return v.replaceAll('"', '\\"');
 }
 
@@ -41,30 +40,32 @@ function escapeDQuotes(v:string):string {
  * b) lemma without a PoS information, e.g.: lemma='foo bar'
  * is transformed into: [lemma=="foo"] [lemma=="bar"]
  */
-export function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
-
+export function mkLemmaMatchQuery(
+    lvar: QueryMatch,
+    generator: [string, string]
+): string {
     const fn = posQueryFactory(generator[1]);
     return pipe(
         lvar.lemma.split(' '),
-        List.map((lemma, i) => lvar.pos[i] !== undefined ?
-            `[lemma=="${escapeDQuotes(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
-            `[lemma=="${escapeDQuotes(lemma)}"]`)
+        List.map((lemma, i) =>
+            lvar.pos[i] !== undefined
+                ? `[lemma=="${escapeDQuotes(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]`
+                : `[lemma=="${escapeDQuotes(lemma)}"]`
+        )
     ).join(' ');
 }
-
 
 /**
  * Creates a 'word' matching query based on the provided QueryMatch.
  *
  * @see mkLemmaMatchQuery
  */
-export function mkWordMatchQuery(lvar:QueryMatch):string {
+export function mkWordMatchQuery(lvar: QueryMatch): string {
     return List.map(
-        word => `[word=="${escapeDQuotes(word)}"]`,
+        (word) => `[word=="${escapeDQuotes(word)}"]`,
         lvar.word.split(' ')
     ).join('');
 }
-
 
 /**
  * Create either lemma (preferably) or word matching CQL query.
@@ -72,11 +73,13 @@ export function mkWordMatchQuery(lvar:QueryMatch):string {
  * @see mkLemmaMatchQuery
  * @see mkWordMatchQuery
  */
-export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
-        if (lvar.pos.length > 0) {
-            return mkLemmaMatchQuery(lvar, generator);
-
-        } else if (lvar.word) {
-            return mkWordMatchQuery(lvar);
-        }
+export function mkMatchQuery(
+    lvar: QueryMatch,
+    generator: [string, string]
+): string {
+    if (lvar.pos.length > 0) {
+        return mkLemmaMatchQuery(lvar, generator);
+    } else if (lvar.word) {
+        return mkWordMatchQuery(lvar);
     }
+}

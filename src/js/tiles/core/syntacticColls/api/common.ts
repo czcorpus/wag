@@ -17,40 +17,45 @@
  */
 
 export interface SCollsRequest {
-    params:{
-        corpname:string;
-        queryType:SCollsQueryType;
-    },
-    args:{
-        w:string;
-        textType?:string;
-        deprel?:string;
-        pos?:string;
-    }
+    params: {
+        corpname: string;
+        queryType: SCollsQueryType;
+    };
+    args: {
+        w: string;
+        textType?: string;
+        deprel?: string;
+        pos?: string;
+    };
 }
 
-
 // query types are mquery endpoint values
-export type SCollsQueryType = 'nouns-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed'|'none';
+export type SCollsQueryType =
+    | 'nouns-modified-by'
+    | 'modifiers-of'
+    | 'verbs-subject'
+    | 'verbs-object'
+    | 'mixed'
+    | 'none';
 
 export interface SCollsDataRow {
-    value:string;
-    pos?:string;
-    deprel?:string;
-    freq:number;
-    base:number;
-    ipm:number;
-    collWeight:number;
-    logDice?:number;
-    tscore?:number;
-    lmi?:number;
-    ll?:number;
-    rrf?:number;
-    mutualDist?:number;
-    color?:string;
+    value: string;
+    pos?: string;
+    deprel?: string;
+    freq: number;
+    base: number;
+    ipm: number;
+    collWeight: number;
+    logDice?: number;
+    tscore?: number;
+    lmi?: number;
+    ll?: number;
+    rrf?: number;
+    mutualDist?: number;
+    color?: string;
 }
 
 export interface SCollsData {
-    rows:Array<SCollsDataRow>;
-    examplesQueryTpl:string;
+    rows: Array<SCollsDataRow>;
+    examplesQueryTpl: string;
 }

@@ -34,15 +34,15 @@ import { MainPosAttrValues } from './conf/index.js';
  * depends on actual tagset.
  */
 interface PosQueryExport {
-    (pos:string):string;
+    (pos: string): string;
 }
 
 /**
  * A PoS description of a single-word token
  */
 export interface PosItem {
-    label:string;
-    value:string;
+    label: string;
+    value: string;
 }
 
 /**
@@ -64,7 +64,7 @@ export enum PoSValues {
     FOREIGN = 'F',
     UNKNOWN = 'X',
     SEGMENT = 'S',
-    ABBREVIATION = 'B'
+    ABBREVIATION = 'B',
 }
 
 /**
@@ -101,63 +101,64 @@ export enum UPoSValues {
 const posTable = {
     [PoSValues.NOUN]: {
         'cs-CZ': 'podstatné jméno',
-        'en-US': 'noun'
+        'en-US': 'noun',
     },
-	[PoSValues.ADJECTIVE]: {
+    [PoSValues.ADJECTIVE]: {
         'cs-CZ': 'přídavné jméno',
-        'en-US': 'adjective'},
-	[PoSValues.PRONOUN]: {
+        'en-US': 'adjective',
+    },
+    [PoSValues.PRONOUN]: {
         'cs-CZ': 'zájmeno',
-        'en-US': 'pronoun'
+        'en-US': 'pronoun',
     },
-	[PoSValues.NUMERAL]: {
+    [PoSValues.NUMERAL]: {
         'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi',
-        'en-US': 'numeral'
+        'en-US': 'numeral',
     },
-	[PoSValues.VERB]: {
+    [PoSValues.VERB]: {
         'cs-CZ': 'sloveso',
-        'en-US': 'verb'
+        'en-US': 'verb',
     },
-	[PoSValues.ADVERB]: {
+    [PoSValues.ADVERB]: {
         'cs-CZ': 'příslovce',
-        'en-US': 'adverb'
+        'en-US': 'adverb',
     },
-	[PoSValues.PREPOSITION]: {
+    [PoSValues.PREPOSITION]: {
         'cs-CZ': 'předložka',
-        'en-US': 'preposition'
+        'en-US': 'preposition',
     },
-	[PoSValues.CONJUNCTION]: {
+    [PoSValues.CONJUNCTION]: {
         'cs-CZ': 'spojka',
-        'en-US': 'conjunction'
+        'en-US': 'conjunction',
     },
-	[PoSValues.PARTICLE]: {
+    [PoSValues.PARTICLE]: {
         'cs-CZ': 'částice',
-        'en-US': 'particle'
+        'en-US': 'particle',
     },
-	[PoSValues.INTERJECTION]: {
+    [PoSValues.INTERJECTION]: {
         'cs-CZ': 'citoslovce',
-        'en-US': 'interjection'
+        'en-US': 'interjection',
     },
-	[PoSValues.PUNCTUATION]: {
+    [PoSValues.PUNCTUATION]: {
         'cs-CZ': 'interpunkce',
-        'en-US': 'punctuation'
+        'en-US': 'punctuation',
     },
     [PoSValues.FOREIGN]: {
         'cs-CZ': 'cizí slovo',
-        'en-US': 'foreign word'
+        'en-US': 'foreign word',
     },
     [PoSValues.ABBREVIATION]: {
         'cs-CZ': 'zkratka',
-        'en-US': 'abbreviation'
+        'en-US': 'abbreviation',
     },
     [PoSValues.SEGMENT]: {
         'cs-CZ': 'segment',
-        'en-US': 'segment'
+        'en-US': 'segment',
     },
     [PoSValues.UNKNOWN]: {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
-        'en-US': 'unknown or undetermined part of speech'
-    }
+        'en-US': 'unknown or undetermined part of speech',
+    },
 };
 
 /**
@@ -168,70 +169,71 @@ const posTable = {
 const uposTable = {
     [UPoSValues.NOUN]: {
         'cs-CZ': 'podstatné jméno',
-        'en-US': 'noun'
+        'en-US': 'noun',
     },
     [UPoSValues.PROPER_NOUN]: {
         'cs-CZ': 'vlastní jméno',
-        'en-US': 'proper noun'
+        'en-US': 'proper noun',
     },
-	[UPoSValues.ADJECTIVE]: {
+    [UPoSValues.ADJECTIVE]: {
         'cs-CZ': 'přídavné jméno',
-        'en-US': 'adjective'},
-	[UPoSValues.PRONOUN]: {
+        'en-US': 'adjective',
+    },
+    [UPoSValues.PRONOUN]: {
         'cs-CZ': 'zájmeno',
-        'en-US': 'pronoun'
+        'en-US': 'pronoun',
     },
-	[UPoSValues.NUMERAL]: {
+    [UPoSValues.NUMERAL]: {
         'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi',
-        'en-US': 'numeral'
+        'en-US': 'numeral',
     },
-	[UPoSValues.VERB]: {
+    [UPoSValues.VERB]: {
         'cs-CZ': 'sloveso',
-        'en-US': 'verb'
+        'en-US': 'verb',
     },
-	[UPoSValues.ADVERB]: {
+    [UPoSValues.ADVERB]: {
         'cs-CZ': 'příslovce',
-        'en-US': 'adverb'
+        'en-US': 'adverb',
     },
-	[UPoSValues.ADPOSITION]: {
+    [UPoSValues.ADPOSITION]: {
         'cs-CZ': 'předložka',
-        'en-US': 'preposition'
+        'en-US': 'preposition',
     },
-	[UPoSValues.COORD_CONJUNCTION]: {
+    [UPoSValues.COORD_CONJUNCTION]: {
         'cs-CZ': 'spojka souřadná',
-        'en-US': 'coordinating conjunction'
+        'en-US': 'coordinating conjunction',
     },
     [UPoSValues.SUBORD_CONJUNCTION]: {
         'cs-CZ': 'spojka podřadná',
-        'en-US': 'subordinating conjunction'
+        'en-US': 'subordinating conjunction',
     },
-	[UPoSValues.PARTICLE]: {
+    [UPoSValues.PARTICLE]: {
         'cs-CZ': 'částice',
-        'en-US': 'particle'
+        'en-US': 'particle',
     },
-	[UPoSValues.INTERJECTION]: {
+    [UPoSValues.INTERJECTION]: {
         'cs-CZ': 'citoslovce',
-        'en-US': 'interjection'
+        'en-US': 'interjection',
     },
-	[UPoSValues.PUNCTUATION]: {
+    [UPoSValues.PUNCTUATION]: {
         'cs-CZ': 'interpunkce',
-        'en-US': 'punctuation'
+        'en-US': 'punctuation',
     },
     [UPoSValues.AUXILIARY]: {
         'cs-CZ': 'pomocné sloveso',
-        'en-US': 'auxiliary'
+        'en-US': 'auxiliary',
     },
     [UPoSValues.DETERMINER]: {
         'cs-CZ': 'determiner',
-        'en-US': 'determiner'
+        'en-US': 'determiner',
     },
     [UPoSValues.SYMBOL]: {
         'cs-CZ': 'symbol',
-        'en-US': 'symbol'
+        'en-US': 'symbol',
     },
     [UPoSValues.OTHER]: {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
-        'en-US': 'unknown or undetermined part of speech'
+        'en-US': 'unknown or undetermined part of speech',
     },
 };
 
@@ -255,26 +257,28 @@ const pennTreebankLabels = {
     //SYM	Symbol
     //TO	to
     [PoSValues.INTERJECTION]: 'UH', //	Interjection
-    [PoSValues.VERB]: 'V.*'
+    [PoSValues.VERB]: 'V.*',
     //WDT	Wh-determiner
     //WP	Wh-pronoun
     //WP$	Possessive wh-pronoun
     //WRB	Wh-adverb
 };
 
-const directPos:PosQueryExport = (pos) => pos;
+const directPos: PosQueryExport = (pos) => pos;
 
-const ppTagset:PosQueryExport = (pos) => `${pos.toUpperCase()}.+`;
+const ppTagset: PosQueryExport = (pos) => `${pos.toUpperCase()}.+`;
 
-const pennTreebank:PosQueryExport = (pos) => pennTreebankLabels[pos];
-
+const pennTreebank: PosQueryExport = (pos) => pennTreebankLabels[pos];
 
 /**
  * Test two multi-word PoS tags whether they are equal.
  * E.g. ['A', 'N'] is equal to ['A', 'N'] but
  * ['A', 'A', 'N'] is not equal ['A', 'N']
  */
-export function posTagsEqual(tag1:Array<string>, tag2:Array<string>):boolean {
+export function posTagsEqual(
+    tag1: Array<string>,
+    tag2: Array<string>
+): boolean {
     for (let i = 0; i < Math.max(tag1.length, tag2.length); i++) {
         if (tag1[i] !== tag2[i]) {
             return false;
@@ -292,7 +296,7 @@ export function posTagsEqual(tag1:Array<string>, tag2:Array<string>):boolean {
  *  - Penn Treebank (pennTreebank)
  *  - direct (directPos)
  */
-export function posQueryFactory(fnName:string|null):PosQueryExport {
+export function posQueryFactory(fnName: string | null): PosQueryExport {
     switch (fnName) {
         case 'ppTagset':
             return ppTagset;
@@ -314,55 +318,62 @@ export function posQueryFactory(fnName:string|null):PosQueryExport {
  * values. In normal case the returned value is equal
  * to the entered one.
  */
-export function importQueryPos(s:string, posAttr:MainPosAttrValues):string|undefined {
+export function importQueryPos(
+    s: string,
+    posAttr: MainPosAttrValues
+): string | undefined {
     const usedValues = posAttr === 'pos' ? PoSValues : UPoSValues;
-    return List.map(
-        v => {
-            if (Object.values<string>(usedValues).indexOf(v.toUpperCase()) > -1) {
-                return v.toUpperCase();
-            }
-            return undefined;
-        },
-        s.split(' ')
-    ).join(' ');
+    return List.map((v) => {
+        if (Object.values<string>(usedValues).indexOf(v.toUpperCase()) > -1) {
+            return v.toUpperCase();
+        }
+        return undefined;
+    }, s.split(' ')).join(' ');
 }
 
 /**
  * Imports a string-encoded, possibly multi-word-based PoS
  * along with localized label.
  */
-export function importQueryPosWithLabel(s:string, posAttr:MainPosAttrValues, appServices:IAppServices):Array<PosItem> {
+export function importQueryPosWithLabel(
+    s: string,
+    posAttr: MainPosAttrValues,
+    appServices: IAppServices
+): Array<PosItem> {
     const labels = posAttr === 'pos' ? posTable : uposTable;
     const usedValues = pipe(
         Object.entries(posAttr === 'pos' ? PoSValues : UPoSValues),
         List.map(([k, v]) => tuple(v, k)),
         Dict.fromEntries()
     );
-    return s ?
-        pipe(
-            s.split(' '),
-            List.map(
-                v => {
-                    if (Dict.hasKey(v.toUpperCase(), usedValues)) {
-                        const ident = v.toUpperCase();
-                        return {
-                            value: ident,
-                            label: appServices.importExternalMessage(labels[ident])
-                        };
-                    }
-                    return {
-                        value: null,
-                        label: ''
-                    };
-                }
-            ),
-            List.foldl(
-                (acc, curr) => acc.concat([{
-                    value: curr.value,
-                    label: curr.label
-                }]),
-                [] as Array<PosItem>
-            )
-        ) :
-        [{value: null, label: ''}];
+    return s
+        ? pipe(
+              s.split(' '),
+              List.map((v) => {
+                  if (Dict.hasKey(v.toUpperCase(), usedValues)) {
+                      const ident = v.toUpperCase();
+                      return {
+                          value: ident,
+                          label: appServices.importExternalMessage(
+                              labels[ident]
+                          ),
+                      };
+                  }
+                  return {
+                      value: null,
+                      label: '',
+                  };
+              }),
+              List.foldl(
+                  (acc, curr) =>
+                      acc.concat([
+                          {
+                              value: curr.value,
+                              label: curr.label,
+                          },
+                      ]),
+                  [] as Array<PosItem>
+              )
+          )
+        : [{ value: null, label: '' }];
 }

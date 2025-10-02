@@ -15,32 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { catchError, concatMap, map, Observable } from "rxjs";
-import { RequestArgs } from "../common.js";
-import { ajax$ } from "../../../../page/ajax.js";
-import urlJoin from "url-join";
-import { mkLemmaMatchQuery } from "../../../../api/vendor/mquery/common.js";
-import { QueryMatch } from "../../../../query/index.js";
-import { Backlink, BacklinkConf } from "../../../../page/tile.js";
-import { IApiServices } from "../../../../appServices.js";
-import { CorpusInfoAPI } from "../../../../api/vendor/mquery/corpusInfo.js";
-import { PosQueryGeneratorType } from "../../../../conf/common.js";
-
-
+import { catchError, concatMap, map, Observable } from 'rxjs';
+import { RequestArgs } from '../common.js';
+import { ajax$ } from '../../../../page/ajax.js';
+import urlJoin from 'url-join';
+import { mkLemmaMatchQuery } from '../../../../api/vendor/mquery/common.js';
+import { QueryMatch } from '../../../../query/index.js';
+import { Backlink, BacklinkConf } from '../../../../page/tile.js';
+import { IApiServices } from '../../../../appServices.js';
+import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
+import { PosQueryGeneratorType } from '../../../../conf/common.js';
 
 export class WordFormsBacklinkAPI {
+    protected readonly apiURL: string;
 
-    protected readonly apiURL:string;
+    protected readonly apiServices: IApiServices;
 
-    protected readonly apiServices:IApiServices;
+    protected readonly srcInfoService: CorpusInfoAPI;
 
-    protected readonly srcInfoService:CorpusInfoAPI;
+    protected readonly backlinkConf: BacklinkConf;
 
-    protected readonly backlinkConf:BacklinkConf;
+    protected readonly posQueryGenerator: PosQueryGeneratorType;
 
-    protected readonly posQueryGenerator:PosQueryGeneratorType;
-
-    constructor(apiURL:string, apiServices:IApiServices, posQueryGenerator:PosQueryGeneratorType, backlinkConf:BacklinkConf) {
+    constructor(
+        apiURL: string,
+        apiServices: IApiServices,
+        posQueryGenerator: PosQueryGeneratorType,
+        backlinkConf: BacklinkConf
+    ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
@@ -48,13 +50,16 @@ export class WordFormsBacklinkAPI {
         this.posQueryGenerator = posQueryGenerator;
     }
 
-    requestBacklink(args:RequestArgs, queryMatch:QueryMatch):Observable<URL> {
+    requestBacklink(
+        args: RequestArgs,
+        queryMatch: QueryMatch
+    ): Observable<URL> {
         const concArgs = {
             corpname: args.corpName,
             q: `q${mkLemmaMatchQuery(queryMatch, this.posQueryGenerator)}`,
             format: 'json',
         };
-        return ajax$<{conc_persistence_op_id:string}>(
+        return ajax$<{ conc_persistence_op_id: string }>(
             'GET',
             urlJoin(this.backlinkConf.url, 'create_view'),
             concArgs,
@@ -63,7 +68,7 @@ export class WordFormsBacklinkAPI {
                 withCredentials: true,
             }
         ).pipe(
-            concatMap(resp => {
+            concatMap((resp) => {
                 const url = new URL(urlJoin(this.backlinkConf.url, 'freqs'));
                 url.searchParams.set('corpname', args.corpName);
                 url.searchParams.set('q', `~${resp.conc_persistence_op_id}`);
@@ -72,18 +77,13 @@ export class WordFormsBacklinkAPI {
                 url.searchParams.set('freq_sort', 'freq');
 
                 // Validate the constructed URL
-                return ajax$(
-                    'GET',
-                    url.toString(),
-                    null,
-                    {
-                        headers: this.apiServices.getApiHeaders(this.apiURL),
-                        withCredentials: true,
-                    }
-                ).pipe(
-                    catchError(err => {
+                return ajax$('GET', url.toString(), null, {
+                    headers: this.apiServices.getApiHeaders(this.apiURL),
+                    withCredentials: true,
+                }).pipe(
+                    catchError((err) => {
                         if (err.status === 401 || err.status === 403) {
-                            throw new Error('global__kontext_login_required')
+                            throw new Error('global__kontext_login_required');
                         }
                         throw err;
                     }),
@@ -93,7 +93,7 @@ export class WordFormsBacklinkAPI {
         );
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
         if (this.backlinkConf) {
             return {
                 queryId,

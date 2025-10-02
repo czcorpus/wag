@@ -16,12 +16,15 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { SubqueryPayload, QueryMatch, QueryType } from '../../../query/index.js';
+import {
+    SubqueryPayload,
+    QueryMatch,
+    QueryType,
+} from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 import { Line } from '../../../api/vendor/mquery/concordance/common.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
-
 
 export enum CollocMetric {
     T_SCORE = 't',
@@ -31,84 +34,90 @@ export enum CollocMetric {
     MIN_SENS = 's',
     LOG_DICE = 'd',
     MI_LOG_F = 'p',
-    REL_FREQ = 'f'
+    REL_FREQ = 'f',
 }
 
 export interface DataLoadedPayload extends SubqueryPayload {
-    data:Array<DataRow>;
-    cmpData:Array<{
-        word:string;
-        score:number;
-        freq:number;
+    data: Array<DataRow>;
+    cmpData: Array<{
+        word: string;
+        score: number;
+        freq: number;
     }>;
-    heading:DataHeading;
+    heading: DataHeading;
 }
-
 
 export class Actions {
-
-    static SetSrchContextType:Action<{
-        tileId:number;
-        ctxType:SrchContextType;
+    static SetSrchContextType: Action<{
+        tileId: number;
+        ctxType: SrchContextType;
     }> = {
-        name: 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE'
+        name: 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE',
     };
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & {}
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
-        return a.name === GlobalActions.TileDataLoaded.name &&
-            a.payload['data'] && a.payload['heading'] && a.payload['queryId'];
+    static isTileDataLoaded(a: Action): a is typeof Actions.TileDataLoaded {
+        return (
+            a.name === GlobalActions.TileDataLoaded.name &&
+            a.payload['data'] &&
+            a.payload['heading'] &&
+            a.payload['queryId']
+        );
     }
 
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TilePartialDataLoaded.name
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
 }
-
 
 // API related types
 
 export type DataHeading = Array<{
-    label:string;
-    ident:string;
+    label: string;
+    ident: string;
 }>;
 
-
 export interface DataRow {
-    str:string;
-    stats:Array<number>;
-    freq:number;
-    nfilter:[string, string];
-    pfilter:[string, string];
-    interactionId:string;
-    examples?:{
-        text:Array<Line>;
-        interactionId:string;
-        ref:string;
-    }
+    str: string;
+    stats: Array<number>;
+    freq: number;
+    nfilter: [string, string];
+    pfilter: [string, string];
+    interactionId: string;
+    examples?: {
+        text: Array<Line>;
+        interactionId: string;
+        ref: string;
+    };
 }
 
 export interface CollApiResponse {
-    collHeadings:DataHeading;
-    data:Array<DataRow>;
-    cmpData?:Array<{
-        word:string;
-        score:number;
-        freq:number;
+    collHeadings: DataHeading;
+    data: Array<DataRow>;
+    cmpData?: Array<{
+        word: string;
+        score: number;
+        freq: number;
     }>;
 }
 
 export enum SrchContextType {
     LEFT = 'lft',
     RIGHT = 'rgt',
-    BOTH = 'both'
+    BOTH = 'both',
 }
 
-
-export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {
+export function ctxToRange(
+    ctxType: SrchContextType,
+    range: number
+): [number, number] {
     switch (ctxType) {
         case SrchContextType.BOTH:
             return [-1 * range, range];
@@ -121,15 +130,14 @@ export function ctxToRange(ctxType:SrchContextType, range:number):[number, numbe
     }
 }
 
-
 export interface CollocModelState {
-    isBusy:boolean;
-    tileId:number;
-    isTweakMode:boolean;
-    isAltViewMode:boolean;
-    error:string|null;
-    widthFract:number;
-    corpname:string;
+    isBusy: boolean;
+    tileId: number;
+    isTweakMode: boolean;
+    isAltViewMode: boolean;
+    error: string | null;
+    widthFract: number;
+    corpname: string;
 
     /**
      * If set, then the tile behaves visually in a similar way to the "cmp" mode,
@@ -137,75 +145,72 @@ export interface CollocModelState {
      * (it does not work for the cmp mode, and the tile will always check that
      * in the sanity check routine).
      */
-    comparisonCorpname:string|undefined;
+    comparisonCorpname: string | undefined;
 
-    selectedText:string;
+    selectedText: string;
 
     /**
      * A positional attribute used to analyze the text
      */
-    tokenAttr:string;
+    tokenAttr: string;
 
     /**
      * KWIC search range (-a, +a)
      */
-    srchRange:number;
+    srchRange: number;
 
     /**
      * KWIC search range type: (-a, 0), (-a, a), (0, a)
      */
-    srchRangeType:SrchContextType;
+    srchRangeType: SrchContextType;
 
     /**
      * Min. required absolute freq. of a term
      * (i.e. not only within searched context)
      */
-    minAbsFreq:number;
+    minAbsFreq: number;
 
     /**
      * Min. required absolute freq. of a term
      * when looking only in the searched context
      */
-    minLocalAbsFreq:number;
+    minLocalAbsFreq: number;
 
-    appliedMetrics:Array<CollocMetric>; // TODO generalize
+    appliedMetrics: Array<CollocMetric>; // TODO generalize
 
-    sortByMetric:CollocMetric;
+    sortByMetric: CollocMetric;
 
-    data:Array<Array<DataRow>>;
+    data: Array<Array<DataRow>>;
 
-    heading:DataHeading;
+    heading: DataHeading;
 
-    citemsperpage:number;
+    citemsperpage: number;
 
-    backlinks:Array<Backlink>;
+    backlinks: Array<Backlink>;
 
-    queryType:QueryType;
+    queryType: QueryType;
 
-    queryMatches:Array<QueryMatch>;
+    queryMatches: Array<QueryMatch>;
 
-    posQueryGenerator:PosQueryGeneratorType;
+    posQueryGenerator: PosQueryGeneratorType;
 
-    examplesPerColl?:number;
+    examplesPerColl?: number;
 }
-
 
 interface CollItem {
-    word:string;
-    freq:number;
-    score:number;
-    examples:Array<Line>;
+    word: string;
+    freq: number;
+    score: number;
+    examples: Array<Line>;
 }
-
 
 export interface CollWithExamplesResponse {
-    concSize:number;
-    corpusSize:number;
-    subcSize?:number;
-    colls:Array<CollItem>;
-    measure:string;
-    srchRange:[number, number];
-    error?:string;
-    resultType:'collWithExamples';
+    concSize: number;
+    corpusSize: number;
+    subcSize?: number;
+    colls: Array<CollItem>;
+    measure: string;
+    srchRange: [number, number];
+    error?: string;
+    resultType: 'collWithExamples';
 }
-

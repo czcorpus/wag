@@ -25,86 +25,99 @@ import { QueryMatch } from '../../../../query/index.js';
 import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain.js';
 import { IApiServices } from '../../../../appServices.js';
 import { ResourceApi } from '../../../../types.js';
-import { ConcordanceMinState, ConcResponse, FCS1Args, importResponse, ViewMode } from './common.js';
+import {
+    ConcordanceMinState,
+    ConcResponse,
+    FCS1Args,
+    importResponse,
+    ViewMode,
+} from './common.js';
 import { Backlink } from '../../../../page/tile.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
-
 
 /**
  *
  */
-export class FCS1SearchRetrieveAPI implements ResourceApi<FCS1Args, ConcResponse> {
+export class FCS1SearchRetrieveAPI
+    implements ResourceApi<FCS1Args, ConcResponse>
+{
+    private readonly url: string;
 
-    private readonly url:string;
+    private readonly parser: XMLParser;
 
-    private readonly parser:XMLParser;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+    private readonly srcInfoApi: FCS1ExplainAPI;
 
-    private readonly srcInfoApi:FCS1ExplainAPI;
-
-    constructor(url:string, apiServices:IApiServices) {
+    constructor(url: string, apiServices: IApiServices) {
         this.url = url;
         this.apiServices = apiServices;
         this.parser = new XMLParser();
         this.srcInfoApi = new FCS1ExplainAPI(url, apiServices);
     }
 
-    getSupportedViewModes():Array<ViewMode> {
+    getSupportedViewModes(): Array<ViewMode> {
         return [ViewMode.KWIC];
     }
 
-    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+    mkMatchQuery(lvar: QueryMatch, generator: [string, string]): string {
         return lvar.word;
     }
 
-    stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):FCS1Args {
+    stateToArgs(
+        state: ConcordanceMinState,
+        lvar: QueryMatch,
+        lvarIdx: number,
+        otherLangCql: string
+    ): FCS1Args {
         return {
             operation: 'searchRetrieve',
             query: lvar.lemma,
             recordPacking: 'xml',
             recordSchema: 'http://clarin.eu/fcs/resource',
-            startRecord: state.pageSize * (state.concordances[lvarIdx].loadPage - 1) + 1,
+            startRecord:
+                state.pageSize * (state.concordances[lvarIdx].loadPage - 1) + 1,
             maximumRecords: state.pageSize ? state.pageSize : undefined,
-            'x-cmd-context': state.corpname ? state.corpname : undefined
+            'x-cmd-context': state.corpname ? state.corpname : undefined,
         };
     }
 
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        lang: string,
+        corpname: string
+    ): Observable<FCS1ExplainResponse> {
         return this.srcInfoApi.call(streaming, tileId, 0, {
             tileId: tileId,
             uiLang: lang,
-            'x-fcs-endpoint-description': 'true' // TODO
+            'x-fcs-endpoint-description': 'true', // TODO
         });
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
         return null;
     }
 
-	call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:FCS1Args):Observable<ConcResponse> {
-		return ajax$(
-            HTTP.Method.GET,
-            this.url,
-            args,
-            {
-                headers: this.apiServices.getApiHeaders(this.url),
-                withCredentials: true,
-                responseType: ResponseType.TEXT
-            }
-
-        ).pipe(
-            map(
-                (xml:string) => {
-                    return importResponse(
-                        this.parser.parse(xml),
-                        args.query,
-                        args['x-cmd-context'] || '',
-                        ''
-                    );
-                }
-            )
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: FCS1Args
+    ): Observable<ConcResponse> {
+        return ajax$(HTTP.Method.GET, this.url, args, {
+            headers: this.apiServices.getApiHeaders(this.url),
+            withCredentials: true,
+            responseType: ResponseType.TEXT,
+        }).pipe(
+            map((xml: string) => {
+                return importResponse(
+                    this.parser.parse(xml),
+                    args.query,
+                    args['x-cmd-context'] || '',
+                    ''
+                );
+            })
         );
     }
-
 }

@@ -25,65 +25,83 @@ import urlJoin from 'url-join';
 import { WordFormsBacklinkAPI } from './backlink.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
 
-
 export interface FrodoResponse {
-    matches:Array<{
-        _id:string;
-        lemma:string;
-        forms:Array<{
-            word:string;
-            count:number;
-            arf:number;
+    matches: Array<{
+        _id: string;
+        lemma: string;
+        forms: Array<{
+            word: string;
+            count: number;
+            arf: number;
         }>;
-        sublemmas:Array<{
-            value:string;
-            count:number;
+        sublemmas: Array<{
+            value: string;
+            count: number;
         }>;
-        pos:string;
-        is_pname:boolean;
-        count:number;
-        ipm:number;
-        ngramSize:number;
-        simFreqScore:number;
+        pos: string;
+        is_pname: boolean;
+        count: number;
+        ipm: number;
+        ngramSize: number;
+        simFreqScore: number;
     }>;
 }
 
-
-export class FrodoWordFormsAPI extends WordFormsBacklinkAPI implements ResourceApi<RequestArgs, Response> {
-
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:RequestArgs):Observable<Response> {
-        const url = urlJoin(this.apiURL, '/dictionary/', args.corpName, 'search', args.lemma);
-        return streaming.registerTileRequest<FrodoResponse>(
-            {
+export class FrodoWordFormsAPI
+    extends WordFormsBacklinkAPI
+    implements ResourceApi<RequestArgs, Response>
+{
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: RequestArgs
+    ): Observable<Response> {
+        const url = urlJoin(
+            this.apiURL,
+            '/dictionary/',
+            args.corpName,
+            'search',
+            args.lemma
+        );
+        return streaming
+            .registerTileRequest<FrodoResponse>({
                 tileId,
                 method: HTTP.Method.GET,
-                url: url + `?pos=${encodeURIComponent(args.pos.join(" "))}`,
+                url: url + `?pos=${encodeURIComponent(args.pos.join(' '))}`,
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map(resp => {
-                return {
-                    forms: List.map(
-                        item => ({
-                            value: item.word,
-                            freq: item.count,
-                            ratio: item.count / resp.matches[0].count,
-                            interactionId: Ident.puid(),
-                        }),
-                        resp.matches[0].forms,
-                    )
-                }
             })
-        );
+            .pipe(
+                map((resp) => {
+                    return {
+                        forms: List.map(
+                            (item) => ({
+                                value: item.word,
+                                freq: item.count,
+                                ratio: item.count / resp.matches[0].count,
+                                interactionId: Ident.puid(),
+                            }),
+                            resp.matches[0].forms
+                        ),
+                    };
+                })
+            );
     }
 
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        lang: string,
+        corpname: string
+    ): Observable<CorpusDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {
+            corpname,
+            lang,
+        });
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return false;
     }
-
 }

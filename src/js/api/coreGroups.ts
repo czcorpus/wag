@@ -17,71 +17,70 @@
  */
 
 export enum CoreApiGroup {
+    /**
+     * Datamuse.com API
+     */
+    DATAMUSE = 'datamuse',
 
-	/**
-	 * Datamuse.com API
-	 */
-	DATAMUSE = 'datamuse',
+    /**
+     * Elasticsearch API
+     */
+    ELASTICSEARCH = 'elasticsearch',
 
-	/**
-	 * Elasticsearch API
-	 */
-	ELASTICSEARCH = 'elasticsearch',
+    /**
+     * Clarin FCS Core 1 functions
+     */
+    FCS_V1 = 'fcsv1',
 
-	/**
-	 * Clarin FCS Core 1 functions
-	 */
-	FCS_V1 = 'fcsv1',
+    FRODO = 'frodo',
 
-	FRODO = 'frodo',
+    /**
+     * KonText API
+     */
+    KONTEXT = 'kontext',
+    KONTEXT_LIVEATTRS = 'kontextLiveattrs', // kontext with liveattrs support
+    KONTEXT_API = 'kontextApi',
+    KONTEXT_API_LIVEATTRS = 'kontextApiLiveattrs', // kontext api with liveattrs support
+    KONTEXT_API_EXPERIMENTAL = 'kontextApiExperimental',
 
-	/**
-	 * KonText API
-	 */
-	KONTEXT = 'kontext',
-	KONTEXT_LIVEATTRS = 'kontextLiveattrs',  // kontext with liveattrs support
-	KONTEXT_API = 'kontextApi',
-	KONTEXT_API_LIVEATTRS = 'kontextApiLiveattrs',  // kontext api with liveattrs support
-	KONTEXT_API_EXPERIMENTAL = 'kontextApiExperimental',
+    /**
+     * Leipzig Corpora Collection
+     */
+    LCC = 'lcc',
 
-	/**
-	 * Leipzig Corpora Collection
-	 */
-	LCC = 'lcc',
+    /**
+     * No Sketch Engine
+     */
+    NOSKE = 'noske',
 
-	/**
-	 * No Sketch Engine
-	 */
-	NOSKE = 'noske',
+    /**
+     * Treq (CNC app)
+     */
+    TREQ = 'treq',
 
-	/**
-	 * Treq (CNC app)
-	 */
-	TREQ = 'treq',
+    /**
+     * Mquery (CNC app)
+     */
+    MQUERY = 'mquery',
 
-	/**
-	 * Mquery (CNC app)
-	 */
-	MQUERY = 'mquery',
+    /**
+     * KorpusDB (CNC app)
+     */
+    KORPUS_DB = 'korpusdb',
 
-	/**
-	 * KorpusDB (CNC app)
-	 */
-	KORPUS_DB = 'korpusdb',
+    /**
+     * SCollEx - cnc syntactic collocation explorer
+     */
+    SCOLLEX = 'scollex',
 
-	/**
-	 * SCollEx - cnc syntactic collocation explorer
-	 */
-	SCOLLEX = 'scollex',
+    /**
+     * Embedded API functions
+     */
+    WDGLANCE = 'wdglance',
 
-	/**
-	 * Embedded API functions
-	 */
-	WDGLANCE = 'wdglance',
-
-	WIKTIONARY = 'wiktionary'
+    WIKTIONARY = 'wiktionary',
 }
 
 export function supportedCoreApiGroups() {
-	return Object.keys(CoreApiGroup).map(k => CoreApiGroup[k]);
+    return Object.keys(CoreApiGroup).map((k) => CoreApiGroup[k]);
 }

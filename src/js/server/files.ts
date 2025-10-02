@@ -18,20 +18,15 @@
 import { Observable } from 'rxjs';
 import { readFile } from 'fs';
 
-
-export function loadFile(path:string):Observable<string> {
-    return new Observable<string>(
-        (observer) => {
-            readFile(path, 'utf-8', (err, data) => {
-                if (err) {
-                    observer.error(err);
-
-                } else {
-                    observer.next(data);
-                    observer.complete();
-                }
-            });
-        }
-    );
+export function loadFile(path: string): Observable<string> {
+    return new Observable<string>((observer) => {
+        readFile(path, 'utf-8', (err, data) => {
+            if (err) {
+                observer.error(err);
+            } else {
+                observer.next(data);
+                observer.complete();
+            }
+        });
+    });
 }
-

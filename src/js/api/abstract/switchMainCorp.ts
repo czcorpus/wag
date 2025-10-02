@@ -19,7 +19,7 @@
 import { DataApi } from '../../types.js';
 
 export interface SwitchMainCorpResponse {
-    concPersistenceID:string;
+    concPersistenceID: string;
 }
 
 /**

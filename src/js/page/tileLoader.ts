@@ -19,7 +19,12 @@
 import { IFullActionControl, ViewUtils } from 'kombo';
 import { List } from 'cnc-tskit';
 
-import { TileFactory, ITileProvider, TileConf, TileFactoryArgs } from './tile.js';
+import {
+    TileFactory,
+    ITileProvider,
+    TileConf,
+    TileFactoryArgs,
+} from './tile.js';
 import { GlobalComponents } from '../views/common/index.js';
 import { IAppServices } from '../appServices.js';
 import { Theme } from './theme.js';
@@ -27,23 +32,25 @@ import { LayoutManager } from './layout.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
 import { EmptyTile } from '../tiles/core/empty.js';
 
-declare var require:any;
+declare var require: any;
 
 interface DynamicTileModule {
-    init:TileFactory<{}>;
+    init: TileFactory<{}>;
 }
 
+type TileFactoryMap = { [tileType: string]: TileFactory<{}> };
 
-type TileFactoryMap = {[tileType:string]:TileFactory<{}>};
+const tileFactories: TileFactoryMap = {};
 
-const tileFactories:TileFactoryMap = {};
-
-const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
-    ctx.keys().forEach(path => {
+const applyContext = (ctx: any, tfMap: TileFactoryMap) => {
+    ctx.keys().forEach((path) => {
         const tileFolder = path.split('/').slice(-2)[0];
-        const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1) + 'Tile';
+        const tileType =
+            tileFolder[0].toUpperCase() + tileFolder.slice(1) + 'Tile';
         if (tfMap[tileType]) {
-            throw new Error(`Tile type name collision. Value ${tileType} cannot be used`);
+            throw new Error(
+                `Tile type name collision. Value ${tileType} cannot be used`
+            );
         }
         tfMap[tileType] = (ctx(path) as DynamicTileModule).init;
     });
@@ -60,34 +67,40 @@ applyContext(
     tileFactories
 );
 
-
 export const mkTileFactory = (
-    dispatcher:IFullActionControl,
-    viewUtils:ViewUtils<GlobalComponents>,
-    queryMatches:RecognizedQueries,
-    appServices:IAppServices,
-    theme:Theme,
-    layoutManager:LayoutManager,
-    queryType:QueryType,
-    translatLanguage:string
-
+    dispatcher: IFullActionControl,
+    viewUtils: ViewUtils<GlobalComponents>,
+    queryMatches: RecognizedQueries,
+    appServices: IAppServices,
+    theme: Theme,
+    layoutManager: LayoutManager,
+    queryType: QueryType,
+    translatLanguage: string
 ) => {
-
     const factoryObj = {
-
         createdTiles: {},
 
-        create(confName:string, conf:TileConf):ITileProvider|null  {
-            if (conf.isDisabled || !layoutManager.isInCurrentLayout(layoutManager.getTileNumber(confName))) {
+        create(confName: string, conf: TileConf): ITileProvider | null {
+            if (
+                conf.isDisabled ||
+                !layoutManager.isInCurrentLayout(
+                    layoutManager.getTileNumber(confName)
+                )
+            ) {
                 return new EmptyTile(layoutManager.getTileNumber(confName));
-
             } else {
                 const tileFactory = tileFactories[conf.tileType];
                 if (typeof tileFactory === 'undefined') {
-                    throw new Error(`Cannot invoke tile init() for ${confName} - type ${conf.tileType} not found. Check your src/js/tiles/custom directory.`);
-
-                } else if (typeof tileFactory.create !== 'function' || typeof tileFactory.sanityCheck !== 'function') {
-                    throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`);
+                    throw new Error(
+                        `Cannot invoke tile init() for ${confName} - type ${conf.tileType} not found. Check your src/js/tiles/custom directory.`
+                    );
+                } else if (
+                    typeof tileFactory.create !== 'function' ||
+                    typeof tileFactory.sanityCheck !== 'function'
+                ) {
+                    throw new Error(
+                        `Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`
+                    );
                 }
 
                 const tileId = layoutManager.getTileNumber(confName);
@@ -98,9 +111,12 @@ export const mkTileFactory = (
                 // instantiation where for the first instance, we give the tile just a single word search while
                 // for the second (and more) we provide multiple queries. This all applies just for the
                 // preview mode and it is made to align with hardcoded layout of the preview result page.
-                const queryMatchesAppl = queryType === QueryType.PREVIEW && !factoryObj.createdTiles.hasOwnProperty(conf.tileType) ?
-                        [queryMatches[0]] : queryMatches;
-                const args:TileFactoryArgs<{}> = {
+                const queryMatchesAppl =
+                    queryType === QueryType.PREVIEW &&
+                    !factoryObj.createdTiles.hasOwnProperty(conf.tileType)
+                        ? [queryMatches[0]]
+                        : queryMatches;
+                const args: TileFactoryArgs<{}> = {
                     tileId,
                     dispatcher,
                     ut: viewUtils,
@@ -108,25 +124,30 @@ export const mkTileFactory = (
                     appServices,
                     queryType,
                     translatLanguage,
-                    readDataFromTile: layoutManager.getTileNumber(tileLayoutConf.readDataFrom),
+                    readDataFromTile: layoutManager.getTileNumber(
+                        tileLayoutConf.readDataFrom
+                    ),
                     widthFract: tileLayoutConf.width,
                     theme,
                     conf,
                     isBusy: true,
                     mainPosAttr: layoutManager.getLayoutMainPosAttr(),
-                    dependentTiles: layoutManager.getDependentTiles(tileId)
+                    dependentTiles: layoutManager.getDependentTiles(tileId),
                 };
                 const errs = tileFactory.sanityCheck(args);
                 if (!List.empty(errs)) {
-                    throw new Error('Tile sanity check: ' + List.head(errs).message); // TODO maybe we should join the errors?
+                    throw new Error(
+                        'Tile sanity check: ' + List.head(errs).message
+                    ); // TODO maybe we should join the errors?
                 }
-                factoryObj.createdTiles[conf.tileType] = factoryObj.createdTiles[conf.tileType] ?
-                    factoryObj.createdTiles[conf.tileType] + 1 :
-                    1;
+                factoryObj.createdTiles[conf.tileType] = factoryObj
+                    .createdTiles[conf.tileType]
+                    ? factoryObj.createdTiles[conf.tileType] + 1
+                    : 1;
                 return tileFactory.create(args);
             }
-        }
-    }
+        },
+    };
 
     return factoryObj;
-}
+};

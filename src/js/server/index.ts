@@ -29,12 +29,20 @@ import { randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
 
 import {
-    ClientStaticConf, ServerConf, isTileDBConf, ColorsConf,
+    ClientStaticConf,
+    ServerConf,
+    isTileDBConf,
+    ColorsConf,
     DataReadabilityMapping,
     AllQueryTypesTileConf,
-    LayoutsConfig} from '../conf/index.js';
+    LayoutsConfig,
+} from '../conf/index.js';
 import { validateTilesConf } from '../conf/validation.js';
-import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts as expandLayouts } from '../conf/loader.js';
+import {
+    parseJsonConfig,
+    loadRemoteTileConf,
+    useCommonLayouts as expandLayouts,
+} from '../conf/loader.js';
 import { wdgRouter } from './routes/index.js';
 import { createToolbarInstance } from './toolbar/factory.js';
 import { PackageInfo } from '../types.js';
@@ -42,154 +50,188 @@ import { QueryActionWriter } from './actionLog/logWriter.js';
 import { initLogging } from './logging.js';
 import { generatePreviewTileConf } from '../conf/preview.js';
 
-
 /**
  * Note: when calling this, clientConf must already contain
  * expanded layouts (see use of `expandLayouts`).
  */
-function loadTilesConf(clientConf:ClientStaticConf):Observable<AllQueryTypesTileConf> {
+function loadTilesConf(
+    clientConf: ClientStaticConf
+): Observable<AllQueryTypesTileConf> {
     if (typeof clientConf.tiles === 'string') {
         return parseJsonConfig(clientConf.tiles);
-
     } else if (isTileDBConf(clientConf.tiles)) {
         if (typeof clientConf.layouts !== 'string') {
-            return loadRemoteTileConf(
-                clientConf.layouts,
-                clientConf.tiles
-            );
-
+            return loadRemoteTileConf(clientConf.layouts, clientConf.tiles);
         } else {
             throw new Error('expanded layouts must be used');
         }
-
     } else {
         return rxOf(clientConf.tiles);
     }
 }
 
-function loadColorsConf(clientConf:ClientStaticConf):Observable<ColorsConf> {
-    return typeof clientConf.colors === 'string' ?
-        parseJsonConfig(clientConf.colors) :
-        rxOf(clientConf.colors);
+function loadColorsConf(clientConf: ClientStaticConf): Observable<ColorsConf> {
+    return typeof clientConf.colors === 'string'
+        ? parseJsonConfig(clientConf.colors)
+        : rxOf(clientConf.colors);
 }
 
-function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataReadabilityMapping> {
-    return typeof clientConf.dataReadability === 'string' ?
-        parseJsonConfig(clientConf.dataReadability) :
-        rxOf(clientConf.dataReadability);
+function loadDataReadabilityConf(
+    clientConf: ClientStaticConf
+): Observable<DataReadabilityMapping> {
+    return typeof clientConf.dataReadability === 'string'
+        ? parseJsonConfig(clientConf.dataReadability)
+        : rxOf(clientConf.dataReadability);
 }
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-forkJoin([ // load core configs
-    parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
-        process.env.SERVER_CONF :
-        path.resolve(__dirname, '../../../conf/server.json')),
-    parseJsonConfig<ClientStaticConf>(process.env.WDGLANCE_CONF ?
-        process.env.WDGLANCE_CONF :
-        path.resolve(__dirname, '../../../conf/wdglance.json')),
-    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../../../package.json')),
-
-]).pipe(
-    concatMap( // load layouts config
-        ([serverConf, clientConf, pkgInfo]) => (typeof clientConf.layouts === 'string' ?
-            parseJsonConfig<LayoutsConfig>(clientConf.layouts) :
-            rxOf(clientConf.layouts)
-        ).pipe(
-            map<LayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
-                (layoutsExp) => {
-                    clientConf.layouts = expandLayouts(layoutsExp);
-                    return [serverConf, clientConf, pkgInfo];
-                }
-            )
-        )
+forkJoin([
+    // load core configs
+    parseJsonConfig<ServerConf>(
+        process.env.SERVER_CONF
+            ? process.env.SERVER_CONF
+            : path.resolve(__dirname, '../../../conf/server.json')
     ),
-    concatMap( // load tile and theme definitions
-        ([serverConf, clientConf, pkgInfo]) => forkJoin([
-            loadTilesConf(clientConf),
-            loadColorsConf(clientConf),
-            loadDataReadabilityConf(clientConf)
-
-        ]).pipe(
-            map(
-                ([tiles, colors, dataReadability]) => {
-                    clientConf.tiles = pipe(
-                        tiles,
-                        Dict.filter(
-                            tile => !tile.isDisabled,
-                        ),
-                        curr => ({...curr, ...generatePreviewTileConf()})
-                    );
-                    clientConf.colors = colors;
-                    clientConf.dataReadability = dataReadability;
-                    return tuple(serverConf, clientConf, pkgInfo);
-                }
-            ),
-            tap( // validate tiles
-                ([,clientConf,]) => {
-                    if (!validateTilesConf(clientConf.tiles as AllQueryTypesTileConf)) {
-                        throw Error('\uD83D\uDC4E Invalid tile config found!');
-                    }
-                }
-            )
+    parseJsonConfig<ClientStaticConf>(
+        process.env.WDGLANCE_CONF
+            ? process.env.WDGLANCE_CONF
+            : path.resolve(__dirname, '../../../conf/wdglance.json')
+    ),
+    parseJsonConfig<PackageInfo>(
+        path.resolve(__dirname, '../../../package.json')
+    ),
+])
+    .pipe(
+        concatMap(
+            // load layouts config
+            ([serverConf, clientConf, pkgInfo]) =>
+                (typeof clientConf.layouts === 'string'
+                    ? parseJsonConfig<LayoutsConfig>(clientConf.layouts)
+                    : rxOf(clientConf.layouts)
+                ).pipe(
+                    map<
+                        LayoutsConfig,
+                        [ServerConf, ClientStaticConf, PackageInfo]
+                    >((layoutsExp) => {
+                        clientConf.layouts = expandLayouts(layoutsExp);
+                        return [serverConf, clientConf, pkgInfo];
+                    })
+                )
+        ),
+        concatMap(
+            // load tile and theme definitions
+            ([serverConf, clientConf, pkgInfo]) =>
+                forkJoin([
+                    loadTilesConf(clientConf),
+                    loadColorsConf(clientConf),
+                    loadDataReadabilityConf(clientConf),
+                ]).pipe(
+                    map(([tiles, colors, dataReadability]) => {
+                        clientConf.tiles = pipe(
+                            tiles,
+                            Dict.filter((tile) => !tile.isDisabled),
+                            (curr) => ({
+                                ...curr,
+                                ...generatePreviewTileConf(),
+                            })
+                        );
+                        clientConf.colors = colors;
+                        clientConf.dataReadability = dataReadability;
+                        return tuple(serverConf, clientConf, pkgInfo);
+                    }),
+                    tap(
+                        // validate tiles
+                        ([, clientConf]) => {
+                            if (
+                                !validateTilesConf(
+                                    clientConf.tiles as AllQueryTypesTileConf
+                                )
+                            ) {
+                                throw Error(
+                                    '\uD83D\uDC4E Invalid tile config found!'
+                                );
+                            }
+                        }
+                    )
+                )
         )
     )
+    .subscribe({
+        next: ([serverConf, clientConf, pkgInfo]) => {
+            const app = express();
+            const FileStore = sessionFileStore(session);
+            app.set('query parser', 'simple');
+            app.set('trust proxy', true);
+            app.use(express.json());
+            app.use(express.urlencoded({ extended: true }));
+            app.use(cookieParser());
+            app.use(
+                session({
+                    name: 'wag.session',
+                    cookie: {
+                        maxAge: serverConf.sessions?.ttl
+                            ? serverConf.sessions.ttl * 1000
+                            : undefined,
+                    },
+                    store: new FileStore({
+                        ttl: serverConf.sessions.ttl,
+                        path: serverConf.sessions.path,
+                    }),
+                    secret: serverConf.sessions?.secret
+                        ? serverConf.sessions.secret
+                        : Ident.puid(),
+                    resave: true,
+                    saveUninitialized: true,
+                })
+            );
 
-).subscribe({
-    next: ([serverConf, clientConf, pkgInfo]) => {
-        const app = express();
-        const FileStore = sessionFileStore(session)
-        app.set('query parser', 'simple');
-        app.set('trust proxy', true);
-        app.use(express.json());
-        app.use(express.urlencoded({ extended: true }));
-        app.use(cookieParser());
-        app.use(session({
-            name: 'wag.session',
-            cookie: {
-                maxAge: serverConf.sessions?.ttl ? serverConf.sessions.ttl * 1000 : undefined
-            },
-            store: new FileStore({
-                ttl: serverConf.sessions.ttl,
-                path: serverConf.sessions.path
-            }),
-            secret: serverConf.sessions?.secret ? serverConf.sessions.secret : Ident.puid(),
-            resave: true,
-            saveUninitialized: true
-        }));
+            const scriptNonce = randomBytes(16).toString('base64');
+            app.use(function (req, res, next) {
+                const domains = serverConf.CSPDomains || [];
+                const items = [
+                    'script-src',
+                    "'self'",
+                    `'nonce-${scriptNonce}'`,
+                    ...domains,
+                ];
+                res.setHeader('Content-Security-Policy', items.join(' '));
+                next();
+            });
 
-        const scriptNonce = randomBytes(16).toString("base64");
-        app.use(function(req, res, next) {
-            const domains = serverConf.CSPDomains || [];
-            const items = ['script-src', '\'self\'', `'nonce-${scriptNonce}'`,...domains];
-            res.setHeader('Content-Security-Policy', items.join(' '));
-            next();
-        });
+            const toolbar = createToolbarInstance(serverConf.toolbar);
 
-        const toolbar = createToolbarInstance(serverConf.toolbar);
+            const logger = initLogging(serverConf, true);
 
-        const logger = initLogging(serverConf, true);
+            wdgRouter({
+                serverConf,
+                clientConf,
+                translations,
+                toolbar,
+                errorLog: logger,
+                actionWriter: new QueryActionWriter(logger),
+                version: pkgInfo.version,
+                repositoryUrl: pkgInfo.repository.url,
+                scriptNonce,
+            })(app);
 
-        wdgRouter({
-            serverConf,
-            clientConf,
-            translations,
-            toolbar,
-            errorLog: logger,
-            actionWriter: new QueryActionWriter(logger),
-            version: pkgInfo.version,
-            repositoryUrl: pkgInfo.repository.url,
-            scriptNonce
-        })(app);
-
-        const server = app.listen(serverConf.port, serverConf.address, () => {
-            const addr = server.address();
-            console.info(`WaG server is running @ ${typeof addr === 'string' ? addr : addr.address + ':' + addr.port}`);
-        });
-    },
-    error: error => {
-        console.error('Failed to start WaG: ', error['message'] || error.constructor.name);
-        process.exit(1);
-    }
-});
+            const server = app.listen(
+                serverConf.port,
+                serverConf.address,
+                () => {
+                    const addr = server.address();
+                    console.info(
+                        `WaG server is running @ ${typeof addr === 'string' ? addr : addr.address + ':' + addr.port}`
+                    );
+                }
+            );
+        },
+        error: (error) => {
+            console.error(
+                'Failed to start WaG: ',
+                error['message'] || error.constructor.name
+            );
+            process.exit(1);
+        },
+    });

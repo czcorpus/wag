@@ -26,65 +26,94 @@ import { CorpusDetails } from '../../types.js';
 import * as S from './style.js';
 
 export interface CorpusInfoBoxProps {
-    data:CorpusDetails;
+    data: CorpusDetails;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.FC<CorpusInfoBoxProps> {
-
-
+export function init(
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>
+): React.FC<CorpusInfoBoxProps> {
     // ---------------------- <CorpusReference /> ------------------------------------
 
-    const CorpusReference:React.FC<{
-        data:SourceCitation;
-
+    const CorpusReference: React.FC<{
+        data: SourceCitation;
     }> = (props) => {
-        if (props.data.papers.length > 0 || props.data.main || props.data.otherBibliography) {
+        if (
+            props.data.papers.length > 0 ||
+            props.data.main ||
+            props.data.otherBibliography
+        ) {
             return (
                 <>
                     <h2>
-                        {ut.translate('global__corpus_as_resource_{corpus}', {corpus: props.data.sourceName})}:
+                        {ut.translate('global__corpus_as_resource_{corpus}', {
+                            corpus: props.data.sourceName,
+                        })}
+                        :
                     </h2>
-                    <div className="html" dangerouslySetInnerHTML={{__html: props.data.main}} />
-                    {props.data.papers.length > 0 ?
-                        (<>
+                    <div
+                        className="html"
+                        dangerouslySetInnerHTML={{ __html: props.data.main }}
+                    />
+                    {props.data.papers.length > 0 ? (
+                        <>
                             <h2>{ut.translate('global__references')}:</h2>
                             {List.map(
-                                (item, i) => <div key={i} className="html" dangerouslySetInnerHTML={{__html: item }} />,
+                                (item, i) => (
+                                    <div
+                                        key={i}
+                                        className="html"
+                                        dangerouslySetInnerHTML={{
+                                            __html: item,
+                                        }}
+                                    />
+                                ),
                                 props.data.papers
                             )}
-                        </>) :
-                        null
-                    }
-                    {props.data.otherBibliography ?
-                        (<>
-                            <h2>{ut.translate('global__general_references')}:</h2>
-                            <div className="html" dangerouslySetInnerHTML={{__html: props.data.otherBibliography}} />
-                        </>) :
-                        null}
+                        </>
+                    ) : null}
+                    {props.data.otherBibliography ? (
+                        <>
+                            <h2>
+                                {ut.translate('global__general_references')}:
+                            </h2>
+                            <div
+                                className="html"
+                                dangerouslySetInnerHTML={{
+                                    __html: props.data.otherBibliography,
+                                }}
+                            />
+                        </>
+                    ) : null}
                 </>
             );
-
         } else {
-            return <div className="empty-citation-info">{ut.translate('global__no_citation_info')}</div>
+            return (
+                <div className="empty-citation-info">
+                    {ut.translate('global__no_citation_info')}
+                </div>
+            );
         }
     };
 
     // ---------------------- <CorpusInfoBox /> ------------------------------------
 
-    const CorpusInfoBox:React.FC<CorpusInfoBoxProps> = (props) => {
-
-        const [state, setState] = React.useState({activeTab: 0});
+    const CorpusInfoBox: React.FC<CorpusInfoBoxProps> = (props) => {
+        const [state, setState] = React.useState({ activeTab: 0 });
 
         const renderWebLink = () => {
             if (props.data.href) {
-                return <a href={props.data.href} target="_blank" rel="noopener">{props.data.href}</a>;
-
+                return (
+                    <a href={props.data.href} target="_blank" rel="noopener">
+                        {props.data.href}
+                    </a>
+                );
             } else {
                 return '-';
             }
         };
 
-        const mkStyle = (bgCol:string) => ({
+        const mkStyle = (bgCol: string) => ({
             color: pipe(
                 bgCol,
                 Color.importColor(1),
@@ -95,47 +124,58 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 bgCol,
                 Color.importColor(1),
                 ([r, g, b, o]) => {
-                    return tuple(r, g, b, 0.6)
+                    return tuple(r, g, b, 0.6);
                 },
                 Color.color2str()
-            )
+            ),
         });
 
         const renderKeywords = () => {
             if (props.data.keywords && props.data.keywords.length > 0) {
-                return props.data.keywords.map(kw =>
-                    <span key={kw.name} className="keyword" style={kw.color ? mkStyle(kw.color) : undefined}>
+                return props.data.keywords.map((kw) => (
+                    <span
+                        key={kw.name}
+                        className="keyword"
+                        style={kw.color ? mkStyle(kw.color) : undefined}
+                    >
                         {kw.name}
                     </span>
-                );
+                ));
             } else {
                 return '-';
             }
         };
 
         const handleTabClick = () => {
-            setState({activeTab: Math.abs(state.activeTab - 1)});
+            setState({ activeTab: Math.abs(state.activeTab - 1) });
         };
 
         return (
-            <S.SourceInfoBox className="CorpusInfoBox" $createStaticUrl={ut.createStaticUrl}>
+            <S.SourceInfoBox
+                className="CorpusInfoBox"
+                $createStaticUrl={ut.createStaticUrl}
+            >
                 <ul className="information-tab-sel">
                     <li>
-                        <a className={state.activeTab === 0 ? 'current' : null}
-                                onClick={handleTabClick}>
+                        <a
+                            className={state.activeTab === 0 ? 'current' : null}
+                            onClick={handleTabClick}
+                        >
                             {ut.translate('global__corp_basic_info')}
                         </a>
                         <span className="separ">|</span>
                     </li>
                     <li>
-                        <a className={state.activeTab === 1 ? 'current' : null}
-                                onClick={handleTabClick}>
+                        <a
+                            className={state.activeTab === 1 ? 'current' : null}
+                            onClick={handleTabClick}
+                        >
                             {ut.translate('global__corp_citation')}
                         </a>
                     </li>
                 </ul>
                 <dl>
-                    {state.activeTab === 0 ?
+                    {state.activeTab === 0 ? (
                         <dl>
                             <dt>{ut.translate('global__source_name')}:</dt>
                             <dd>{props.data.title}</dd>
@@ -146,48 +186,98 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <table className="struct-info">
                                     <tbody>
                                         <tr>
-                                            <th>{ut.translate('global__positions')}:</th>
-                                            <td className="num">{ut.formatNumber(props.data.structure.numTokens, 0)}</td>
+                                            <th>
+                                                {ut.translate(
+                                                    'global__positions'
+                                                )}
+                                                :
+                                            </th>
+                                            <td className="num">
+                                                {ut.formatNumber(
+                                                    props.data.structure
+                                                        .numTokens,
+                                                    0
+                                                )}
+                                            </td>
                                         </tr>
-                                        {props.data.structure.numSentences ?
-                                            <tr><th>{ut.translate('global__num_sentences')}:</th><td className="num">{ut.formatNumber(props.data.structure.numSentences)}</td></tr> : null
-                                        }
-                                        {props.data.structure.numParagraphs ?
-                                            <tr><th>{ut.translate('global__num_paragraphs')}:</th><td className="num">{ut.formatNumber(props.data.structure.numParagraphs)}</td></tr> : null
-                                        }
-                                        {props.data.structure.numDocuments ?
-                                            <tr><th>{ut.translate('global__num_documents')}:</th><td className="num">{ut.formatNumber(props.data.structure.numDocuments)}</td></tr> : null
-                                        }
+                                        {props.data.structure.numSentences ? (
+                                            <tr>
+                                                <th>
+                                                    {ut.translate(
+                                                        'global__num_sentences'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="num">
+                                                    {ut.formatNumber(
+                                                        props.data.structure
+                                                            .numSentences
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ) : null}
+                                        {props.data.structure.numParagraphs ? (
+                                            <tr>
+                                                <th>
+                                                    {ut.translate(
+                                                        'global__num_paragraphs'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="num">
+                                                    {ut.formatNumber(
+                                                        props.data.structure
+                                                            .numParagraphs
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ) : null}
+                                        {props.data.structure.numDocuments ? (
+                                            <tr>
+                                                <th>
+                                                    {ut.translate(
+                                                        'global__num_documents'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="num">
+                                                    {ut.formatNumber(
+                                                        props.data.structure
+                                                            .numDocuments
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ) : null}
                                     </tbody>
                                 </table>
                             </dd>
-                            {props.data.href ?
+                            {props.data.href ? (
                                 <>
                                     <dt>{ut.translate('global__website')}:</dt>
                                     <dd>{renderWebLink()}</dd>
-                                </> :
-                                null
-                            }
-                            {props.data.keywords && props.data.keywords.length > 0 ?
+                                </>
+                            ) : null}
+                            {props.data.keywords &&
+                            props.data.keywords.length > 0 ? (
                                 <>
                                     <dt>{ut.translate('global__keywords')}:</dt>
                                     <dd>{renderKeywords()}</dd>
-                                </> :
-                                null
-                            }
-                        </dl> :
+                                </>
+                            ) : null}
+                        </dl>
+                    ) : (
                         <div className="citation">
-                            {props.data.citationInfo ?
-                                    <CorpusReference data={props.data.citationInfo} /> :
-                                null
-                            }
+                            {props.data.citationInfo ? (
+                                <CorpusReference
+                                    data={props.data.citationInfo}
+                                />
+                            ) : null}
                         </div>
-                    }
+                    )}
                 </dl>
             </S.SourceInfoBox>
         );
     };
 
     return CorpusInfoBox;
-
 }

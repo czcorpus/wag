@@ -17,17 +17,20 @@
  */
 import { AnyInterface, ListOfPairs } from './types.js';
 
-
-type AcceptedValue = string|number|boolean;
+type AcceptedValue = string | number | boolean;
 
 /**
- * MultiDict provides a multi-value dictionary  
+ * MultiDict provides a multi-value dictionary
  */
 export class MultiDict {
+    private readonly data: { [k: string]: Array<string> };
 
-    private readonly data:{[k:string]:Array<string>};
-
-    constructor(data?:ListOfPairs|AnyInterface<{}>|{[key:string]:AcceptedValue|Array<AcceptedValue>}) {
+    constructor(
+        data?:
+            | ListOfPairs
+            | AnyInterface<{}>
+            | { [key: string]: AcceptedValue | Array<AcceptedValue> }
+    ) {
         this.data = {};
         if (Array.isArray(data)) {
             for (let i = 0; i < data.length; i += 1) {
@@ -38,12 +41,10 @@ export class MultiDict {
                 }
                 this.data[k].push(this.importValue(v));
             }
-
         } else if (data !== null && data !== undefined) {
-            Object.keys(data).forEach(k => {
+            Object.keys(data).forEach((k) => {
                 if (Array.isArray(data[k])) {
                     this.data[k] = data[k];
-
                 } else {
                     this.data[k] = [data[k]];
                 }
@@ -51,21 +52,20 @@ export class MultiDict {
         }
     }
 
-    private importValue(s:AcceptedValue):string {
+    private importValue(s: AcceptedValue): string {
         if (typeof s === 'number') {
             return s.toString();
-
         } else if (typeof s === 'boolean') {
             return s ? '1' : '0';
         }
         return s;
     }
 
-    static isMultiDict(v:any):v is MultiDict {
+    static isMultiDict(v: any): v is MultiDict {
         return v instanceof MultiDict;
     }
 
-    size():number {
+    size(): number {
         let ans = 0;
         for (let p in this.data) {
             if (this.data.hasOwnProperty(p)) {
@@ -75,11 +75,11 @@ export class MultiDict {
         return ans;
     }
 
-    getFirst(key:string):string|undefined {
+    getFirst(key: string): string | undefined {
         return this.data[key] !== undefined ? this.data[key][0] : undefined;
     }
 
-    getList(key:string):Array<string> {
+    getList(key: string): Array<string> {
         return this.data[key] !== undefined ? this.data[key] : [];
     }
 
@@ -88,7 +88,7 @@ export class MultiDict {
      * already a value present it is removed
      * first.
      */
-    set(key:string, value:AcceptedValue):void {
+    set(key: string, value: AcceptedValue): void {
         this.data[key] = [this.importValue(value)];
     }
 
@@ -97,16 +97,15 @@ export class MultiDict {
      * associated with the specified key
      * with a provided list of values.
      */
-    replace(key:string, values:Array<string>):void {
+    replace(key: string, values: Array<string>): void {
         if (values.length > 0) {
             this.data[key] = values || [];
-
         } else {
             this.remove(key);
         }
     }
 
-    remove(key:string):void {
+    remove(key: string): void {
         delete this.data[key];
     }
 
@@ -116,7 +115,7 @@ export class MultiDict {
      * but the 'multi-value' mode appends the
      * value to the list of existing ones.
      */
-    add(key:string, value:any):void {
+    add(key: string, value: any): void {
         if (this.data[key] === undefined) {
             this.data[key] = [];
         }
@@ -126,8 +125,8 @@ export class MultiDict {
     /**
      * Return a list of key-value pairs.
      */
-    items():Array<[string, string]> {
-        let ans:Array<[string, string]> = [];
+    items(): Array<[string, string]> {
+        let ans: Array<[string, string]> = [];
         for (let p in this.data) {
             if (this.data.hasOwnProperty(p)) {
                 for (let i = 0; i < this.data[p].length; i += 1) {
@@ -138,7 +137,7 @@ export class MultiDict {
         return ans;
     }
 
-    has(key:string) {
+    has(key: string) {
         return this.data.hasOwnProperty(key);
     }
 }

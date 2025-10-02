@@ -20,20 +20,24 @@ import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataRow } from '../../../api/vendor/mquery/freqs.js';
 
-
 export interface DataLoadedPayload {
-    queryIdx:number;
-    data:Array<DataRow>;
+    queryIdx: number;
+    data: Array<DataRow>;
 }
 
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
-        return a.name === Actions.TileDataLoaded.name &&
-                a.payload['block'] && a.payload['concId'] && a.payload['critIdx'];
+    static isTileDataLoaded(a: Action): a is typeof Actions.TileDataLoaded {
+        return (
+            a.name === Actions.TileDataLoaded.name &&
+            a.payload['block'] &&
+            a.payload['concId'] &&
+            a.payload['critIdx']
+        );
     }
 }

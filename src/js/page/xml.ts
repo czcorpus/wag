@@ -18,158 +18,162 @@
 
 import * as sax from 'sax';
 
-
 export class XMLNode {
+    name: string;
 
-	name:string;
+    children: Array<XMLNode | string>;
 
-	children:Array<XMLNode|string>;
+    attributes: { [name: string]: string };
 
-	attributes:{[name:string]:string};
+    constructor(name?: string, attrs?: { [name: string]: string }) {
+        this.name = name || '';
+        this.attributes = attrs || {};
+        this.children = [];
+    }
 
-	constructor(name?:string, attrs?:{[name:string]:string}) {
-		this.name = name || '';
-		this.attributes = attrs || {};
-		this.children = [];
-	}
+    toString(): string {
+        if (this.children.length === 0) {
+            return `<${this.name} ${Object.entries(this.attributes).map((v) => v[0] + '=' + v[1])} />`;
+        } else {
+            return `<${this.name} ${Object.entries(this.attributes).map((v) => v[0] + '=' + v[1])}>`;
+        }
+    }
 
-	toString():string {
-		if (this.children.length === 0) {
-			return `<${this.name} ${Object.entries(this.attributes).map(v => v[0] + '=' + v[1])} />`;
+    mapChildren<T>(fn: (item: XMLNode | string) => T): Array<T> {
+        return this.children.map(fn);
+    }
 
-		} else {
-			return `<${this.name} ${Object.entries(this.attributes).map(v => v[0] + '=' + v[1])}>`;
-		}
-	}
+    filterChildren(fn: (item: XMLNode) => boolean): Array<XMLNode> {
+        return this.children.filter(isXMLNode).filter(fn);
+    }
 
-	mapChildren<T>(fn:(item:XMLNode|string)=>T):Array<T> {
-		return this.children.map(fn);
-	}
+    findChild(
+        fn: (item: XMLNode) => boolean,
+        defaultVal?: XMLNode
+    ): XMLNode | undefined {
+        const ans = this.children.find((v) => v instanceof XMLNode && fn(v));
+        return ans ? (ans as XMLNode) : defaultVal;
+    }
 
-	filterChildren(fn:(item:XMLNode)=>boolean):Array<XMLNode> {
-		return this.children.filter(isXMLNode).filter(fn);
-	}
+    findAllChildren(fn: (item: XMLNode) => boolean): Array<XMLNode> {
+        return this.children.filter(isXMLNode).filter(fn);
+    }
 
-	findChild(fn:(item:XMLNode)=>boolean, defaultVal?:XMLNode):XMLNode|undefined {
-		const ans = this.children.find(v => v instanceof XMLNode && fn(v));
-		return ans ? ans as XMLNode : defaultVal;
-	}
+    findChildRecursive(
+        fn: (item: XMLNode) => boolean,
+        defaultVal?: XMLNode
+    ): XMLNode | undefined {
+        const innerFn = (node: XMLNode) => {
+            for (let i = 0; i < node.children.length; i += 1) {
+                const v = node.children[i];
+                if (isXMLNode(v)) {
+                    if (fn(v)) {
+                        return v;
+                    } else {
+                        const ans = innerFn(v);
+                        if (ans !== undefined) {
+                            return ans;
+                        }
+                    }
+                }
+            }
+            return undefined;
+        };
 
-	findAllChildren(fn:(item:XMLNode)=>boolean):Array<XMLNode> {
-		return this.children.filter(isXMLNode).filter(fn);
-	}
+        const ans = innerFn(this);
+        return ans || defaultVal;
+    }
 
-	findChildRecursive(fn:(item:XMLNode)=>boolean, defaultVal?:XMLNode):XMLNode|undefined {
-
-		const innerFn = (node:XMLNode) => {
-			for (let i = 0; i < node.children.length; i += 1) {
-				const v = node.children[i];
-				if (isXMLNode(v)) {
-					if (fn(v)) {
-						return v;
-
-					} else {
-						const ans = innerFn(v);
-						if (ans !== undefined) {
-							return ans;
-						}
-					}
-				}
-			}
-			return undefined;
-		};
-
-		const ans = innerFn(this);
-		return ans || defaultVal;
-	}
-
-	textContent():string {
-		return this.children.filter(isTextNode).reduce(
-			(acc, curr) => acc.concat([curr.trim()]),[]).join(' ');
-	}
+    textContent(): string {
+        return this.children
+            .filter(isTextNode)
+            .reduce((acc, curr) => acc.concat([curr.trim()]), [])
+            .join(' ');
+    }
 }
 
-function isTextNode(v:XMLNode|string):v is string {
-	return typeof v === 'string';
+function isTextNode(v: XMLNode | string): v is string {
+    return typeof v === 'string';
 }
 
-function isXMLNode(v:XMLNode|string):v is XMLNode {
-	return v instanceof XMLNode;
+function isXMLNode(v: XMLNode | string): v is XMLNode {
+    return v instanceof XMLNode;
 }
 
+export function dumpTree(rootXMLNode: XMLNode): void {
+    const whitespace = (len: number) => Array(len).fill(' ').join('');
 
-export function dumpTree(rootXMLNode:XMLNode):void {
+    const dtree = (root: XMLNode | string, depth: number) => {
+        if (typeof root === 'string') {
+            console.log(whitespace(depth) + root);
+        } else {
+            console.log(whitespace(depth) + root.toString());
+            root.children.forEach((child) => dtree(child, depth + 4));
+            console.log(whitespace(depth) + `</${root.name}>`);
+        }
+    };
 
-	const whitespace = (len:number) => Array(len).fill(' ').join('');
-
-	const dtree = (root:XMLNode|string, depth:number) => {
-		if (typeof root === 'string') {
-			console.log(whitespace(depth) + root);
-
-		} else {
-			console.log(whitespace(depth) + root.toString());
-			root.children.forEach(child => dtree(child, depth + 4));
-			console.log(whitespace(depth) + `</${root.name}>`);
-		}
-	}
-
-	dtree(rootXMLNode, 0);
+    dtree(rootXMLNode, 0);
 }
 
 /**
  * A SAX based parser producing a simple tree of XMLNode and string instances.
  */
 export class XMLParser {
+    private readonly parser: sax.SAXParser;
 
- 	private readonly parser:sax.SAXParser;
+    private tree: XMLNode;
 
- 	private tree:XMLNode;
+    private stack: Array<XMLNode>;
 
- 	private stack:Array<XMLNode>;
+    constructor() {
+        this.parser = sax.parser(true, {});
+        this.parser.onerror = this.onError.bind(this);
+        this.parser.ontext = this.onText.bind(this);
+        this.parser.onopentag = this.onOpenTag.bind(this);
+        this.parser.onattribute = this.onAttribute.bind(this);
+        this.parser.onclosetag = this.onCloseTag.bind(this);
+    }
 
- 	constructor() {
- 		this.parser = sax.parser(true, {});
- 		this.parser.onerror = this.onError.bind(this);
- 		this.parser.ontext = this.onText.bind(this);
- 		this.parser.onopentag = this.onOpenTag.bind(this);
- 		this.parser.onattribute = this.onAttribute.bind(this);
- 		this.parser.onclosetag = this.onCloseTag.bind(this);
- 	}
+    private onError(err) {}
 
- 	private onError(err) {
- 	}
+    private onText(t) {
+        this.stackCurr().children.push(t);
+    }
 
- 	private onText(t) {
- 		this.stackCurr().children.push(t);
- 	}
+    private onOpenTag(node: {
+        name: string;
+        attributes: {};
+        isSelfClosing: boolean;
+    }) {
+        const curr = this.stackCurr();
+        const elm = this.pushXMLNode(node.name, node.attributes);
+        curr.children.push(elm);
+    }
 
- 	private onOpenTag(node:{name:string; attributes:{}, isSelfClosing:boolean}) {
- 		const curr = this.stackCurr();
- 		const elm = this.pushXMLNode(node.name, node.attributes);
- 		curr.children.push(elm);
- 	}
+    private onAttribute(attr: { name: string; value: string }) {}
 
- 	private onAttribute(attr:{name:string; value:string}) {
- 	}
+    private onCloseTag() {
+        this.stack.pop();
+    }
 
- 	private onCloseTag() {
- 		this.stack.pop();
- 	}
+    private stackCurr(): XMLNode {
+        return this.stack[this.stack.length - 1];
+    }
 
- 	private stackCurr():XMLNode {
- 		return this.stack[this.stack.length - 1];
- 	}
+    private pushXMLNode(
+        name: string,
+        attrs: { [name: string]: string }
+    ): XMLNode {
+        const node = new XMLNode(name, attrs);
+        this.stack.push(node);
+        return node;
+    }
 
- 	private pushXMLNode(name:string, attrs:{[name:string]:string}):XMLNode {
- 		const node = new XMLNode(name, attrs);
- 		this.stack.push(node);
- 		return node;
- 	}
-
- 	parse(xml:string):XMLNode {
- 		this.tree = new XMLNode('__document__');
- 		this.stack = [this.tree];
- 		this.parser.write(xml).close();
- 		return this.tree;
- 	}
- }
+    parse(xml: string): XMLNode {
+        this.tree = new XMLNode('__document__');
+        this.stack = [this.tree];
+        this.parser.write(xml).close();
+        return this.tree;
+    }
+}

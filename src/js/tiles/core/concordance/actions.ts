@@ -19,81 +19,91 @@ import { Action } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
-import { ConcResponse, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
-
+import {
+    ConcResponse,
+    ViewMode,
+} from '../../../api/vendor/mquery/concordance/common.js';
 
 export interface ConcLoadedPayload {
-    corpusName:string;
-    subcorpusName?:string;
+    corpusName: string;
+    subcorpusName?: string;
 }
 
 export interface PartialDataPayload extends SubqueryPayload {
-    resp:ConcResponse;
+    resp: ConcResponse;
 }
 
-export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
+export function isConcLoadedPayload(p: any): p is ConcLoadedPayload {
     return p.concPersistenceIDs !== undefined && p.corpusName !== undefined;
 }
 
 export class Actions {
-
-    static LoadNextPage:Action<{
-        tileId:number;
+    static LoadNextPage: Action<{
+        tileId: number;
     }> = {
-        name: 'CONCORDANCE_LOAD_NEXT_PAGE'
+        name: 'CONCORDANCE_LOAD_NEXT_PAGE',
     };
 
-    static LoadPrevPage:Action<{
-        tileId:number;
+    static LoadPrevPage: Action<{
+        tileId: number;
     }> = {
-        name: 'CONCORDANCE_LOAD_PREV_PAGE'
+        name: 'CONCORDANCE_LOAD_PREV_PAGE',
     };
 
-    static SetViewMode:Action<{
-        tileId:number;
-        mode:ViewMode;
+    static SetViewMode: Action<{
+        tileId: number;
+        mode: ViewMode;
     }> = {
-        name: 'CONCORDANCE_SET_VIEW_MODE'
+        name: 'CONCORDANCE_SET_VIEW_MODE',
     };
 
-    static SetVisibleQuery:Action<{
-        tileId:number;
-        queryIdx:number;
+    static SetVisibleQuery: Action<{
+        tileId: number;
+        queryIdx: number;
     }> = {
-        name: 'CONCORDANCE_SET_VISIBLE_QUERY'
+        name: 'CONCORDANCE_SET_VISIBLE_QUERY',
     };
 
-    static ShowLineMetadata:Action<{
-        tileId:number;
-        idx:number;
+    static ShowLineMetadata: Action<{
+        tileId: number;
+        idx: number;
     }> = {
-        name: 'CONCORDANCE_SHOW_LINE_METADATA'
+        name: 'CONCORDANCE_SHOW_LINE_METADATA',
     };
 
-    static HideLineMetadata:Action<{
-        tileId:number;
+    static HideLineMetadata: Action<{
+        tileId: number;
     }> = {
-        name: 'CONCORDANCE_HIDE_LINE_METADATA'
+        name: 'CONCORDANCE_HIDE_LINE_METADATA',
     };
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & ConcLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & ConcLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
-        return a.name === Actions.TileDataLoaded.name &&
-                !!a.payload['corpusName'] && !!a.payload['concPersistenceIDs'];
+    static isTileDataLoaded(a: Action): a is typeof Actions.TileDataLoaded {
+        return (
+            a.name === Actions.TileDataLoaded.name &&
+            !!a.payload['corpusName'] &&
+            !!a.payload['concPersistenceIDs']
+        );
     }
 
-
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload &
-            PartialDataPayload> = {
-        name: GlobalActions.TilePartialDataLoaded.name
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
 
-    static isPartialTileDataLoaded(a:Action):a is typeof Actions.PartialTileDataLoaded {
-        return a.name === Actions.PartialTileDataLoaded.name &&
-                !!a.payload['data'] && !!a.payload['tileId'];
+    static isPartialTileDataLoaded(
+        a: Action
+    ): a is typeof Actions.PartialTileDataLoaded {
+        return (
+            a.name === Actions.PartialTileDataLoaded.name &&
+            !!a.payload['data'] &&
+            !!a.payload['tileId']
+        );
     }
-
 }

@@ -46,23 +46,21 @@ export const Messages = styled.ul`
 
 // ---------------- <SystemMessage /> --------------------------------------
 
-export const SystemMessage = styled.li<{theme:Theme}>`
-    background-color: ${props => props.theme.tileBackgroundColor};
-    border-style: ${props => props.theme.tileBorderStyle};
-    box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0,0,0, 0.2);
-    color: ${props => props.theme.colorDefaultText};
+export const SystemMessage = styled.li<{ theme: Theme }>`
+    background-color: ${(props) => props.theme.tileBackgroundColor};
+    border-style: ${(props) => props.theme.tileBorderStyle};
+    box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
+    color: ${(props) => props.theme.colorDefaultText};
     margin: 0;
     padding: 0;
 
     .wrapper {
-
         display: block;
         padding: 1.2em 0.5em 1.2em 0.5em;
         margin-top: 0.2em;
         margin-bottom: 0.2em;
 
         .flex {
-
             width: 100%;
             display: flex;
             flex-direction: row;
@@ -108,8 +106,7 @@ export const SystemMessage = styled.li<{theme:Theme}>`
 
 // ---------------- <WdglanceControls /> --------------------------------------
 
-export const WdglanceControls = styled.div<{theme:Theme}>`
-
+export const WdglanceControls = styled.div<{ theme: Theme }>`
     display: flex;
     width: 100%;
     justify-content: center;
@@ -120,7 +117,7 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         margin-top: 2em;
         border-width: 0 0 1px 0;
         border-style: solid;
-        border-color: ${props => props.theme.colorLightText};
+        border-color: ${(props) => props.theme.colorLightText};
     }
 
     .tabs.empty {
@@ -142,7 +139,6 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         display: flex;
         align-items: center;
         justify-content: center;
-
     }
 
     .translat-lang-selector {
@@ -166,7 +162,7 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
     }
 
     .QueryInput.invalid {
-        border-color: ${props => props.theme.colorLogoOrange};
+        border-color: ${(props) => props.theme.colorLogoOrange};
     }
 
     .input-group .input-row:not(:last-child) {
@@ -180,14 +176,12 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         padding: 0;
 
         .input-row {
-
             margin: 0;
             padding: 0;
             display: flex;
             align-items: center;
 
             .RemoveCmpQueryField {
-
                 display: inline-block;
                 padding: 0;
                 margin: 0;
@@ -205,11 +199,9 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
                     }
                 }
             }
-
         }
 
         .AddCmpQueryField {
-
             margin-top: 0.7em;
             text-align: center;
 
@@ -231,7 +223,7 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         }
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMediaSmallSize} {
         padding: 0;
         margin-bottom: 2em;
 
@@ -246,11 +238,11 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
 export const LemmaSelector = styled.div`
     font-size: 80%;
     padding: 0.8em 0 0 0;
-    color: ${props => props.theme.colorLightText};
+    color: ${(props) => props.theme.colorLightText};
 
     .curr {
         font-size: 125%;
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
     }
 
     .variants > ul {
@@ -265,7 +257,7 @@ export const LemmaSelector = styled.div`
             display: inline-block;
 
             a {
-                color: ${props => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorLogoBlue};
                 cursor: pointer;
             }
 
@@ -277,16 +269,15 @@ export const LemmaSelector = styled.div`
 
     a.modal-box-trigger {
         cursor: pointer;
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
     }
 
-    &.multiple-queries  {
+    &.multiple-queries {
         font-size: 1.25em;
         text-align: left;
         padding-top: 0;
 
         .variants {
-
             h2.query-num {
                 font-size: 1.1em;
                 margin: 1.1em 0 0.2em 0;
@@ -307,10 +298,10 @@ export const LemmaSelector = styled.div`
 
                 em {
                     font-style: normal;
-                    color: ${props => props.theme.colorLogoPink};
+                    color: ${(props) => props.theme.colorLogoPink};
                 }
 
-                input[type="radio"] {
+                input[type='radio'] {
                     display: inline-block;
                     padding: 0;
                     vertical-align: middle;
@@ -332,22 +323,19 @@ export const LemmaSelector = styled.div`
 // -------------- <SubmenuTile /> --------------------------------------------
 
 export const SubmenuTile = styled.section`
-
     display: flex;
     justify-content: center;
     padding: 0;
-
 `;
 
 // --------------- <OtherVariantsMenu /> --------------------------------------
 
-export const OtherVariantsMenu = styled.div<{theme:Theme}>`
-
+export const OtherVariantsMenu = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: center;
 
     a {
-        color: ${props => props.theme.colorDefaultText};
+        color: ${(props) => props.theme.colorDefaultText};
         padding: 0.2em 0.8em;
         display: inline-block;
         padding-top: 0.4em;
@@ -356,30 +344,26 @@ export const OtherVariantsMenu = styled.div<{theme:Theme}>`
     }
 
     a:hover {
-        color: ${props => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorLogoBlue};
     }
 
     .separ {
-        color: ${props => props.theme.colorDefaultText};
+        color: ${(props) => props.theme.colorDefaultText};
         font-size: 1.5em;
     }
 `;
 
 // -------------- <QueryTypeSelector /> --------------------------------------
 
-
-export const QueryTypeSelector = styled.div<{theme:Theme}>`
-
+export const QueryTypeSelector = styled.div<{ theme: Theme }>`
     flex-grow: 1;
 
     nav {
-
         display: flex;
         align-items: center;
-        color: ${props => props.theme.colorDefaultText};
+        color: ${(props) => props.theme.colorDefaultText};
 
         .item {
-
             display: block;
             padding: 0.2em 0.8em;
 
@@ -388,11 +372,11 @@ export const QueryTypeSelector = styled.div<{theme:Theme}>`
                 padding-top: 0.4em;
                 cursor: pointer;
                 text-decoration: none;
-                color: ${props => props.theme.colorDefaultText};
+                color: ${(props) => props.theme.colorDefaultText};
             }
 
             a:hover {
-                color: ${props => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorLogoBlue};
             }
         }
 
@@ -403,12 +387,11 @@ export const QueryTypeSelector = styled.div<{theme:Theme}>`
 
         .item.current a {
             border-style: solid;
-            border-color: ${props => props.theme.colorLogoBlue};
+            border-color: ${(props) => props.theme.colorLogoBlue};
             border-width: 2px 0 0 0;
         }
 
-
-        ${props => props.theme.cssMediaMediumSize} {
+        ${(props) => props.theme.cssMediaMediumSize} {
             margin-bottom: 0.7em;
 
             span.item {
@@ -424,15 +407,15 @@ export const QueryTypeSelector = styled.div<{theme:Theme}>`
 
             .item.current {
                 border: none;
-                color: ${props => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorLogoBlue};
             }
 
             .item.current a:after {
-                content: "\\00a0\\25AA";
+                content: '\\00a0\\25AA';
             }
 
             .item.current a:before {
-                content: "\\25AA\\00a0";
+                content: '\\25AA\\00a0';
             }
 
             span.separ {
@@ -440,18 +423,16 @@ export const QueryTypeSelector = styled.div<{theme:Theme}>`
             }
         }
 
-        ${props => props.theme.cssMediaSmallSize} {
+        ${(props) => props.theme.cssMediaSmallSize} {
             margin-top: 0.2em;
         }
-
     }
 `;
 
 // -------------- <SubmitButton /> -------------------------------------------
 
-export const SubmitButton = styled.span<{theme:Theme}>`
-
-    ${props => props.theme.cssMediaSmallSize} {
+export const SubmitButton = styled.span<{ theme: Theme }>`
+    ${(props) => props.theme.cssMediaSmallSize} {
         button {
             padding: 0.5em 1.5em 0.5em 1.5em;
         }
@@ -480,7 +461,7 @@ export const TooManyErrorsBox = styled(NothingFoundBox)`
 
 // ---------------- <TilesSections /> --------------------------------------
 
-export const TilesSections = styled.section<{theme:Theme}>`
+export const TilesSections = styled.section<{ theme: Theme }>`
     padding: 0.7em;
 
     & > header .loader {
@@ -488,21 +469,19 @@ export const TilesSections = styled.section<{theme:Theme}>`
         left: calc(100% - 100px);
     }
 
-    ${props => props.theme.cssMediaMediumSize} {
+    ${(props) => props.theme.cssMediaMediumSize} {
         padding: 0;
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMediaSmallSize} {
         padding: 0;
     }
 `;
 
 // ---------------- <Group /> --------------------------------------
 
-export const Group = styled.section<{theme:Theme}>`
-
+export const Group = styled.section<{ theme: Theme }>`
     & > header {
-
         padding: 0;
         margin-top: 0;
         margin-bottom: 1.2em;
@@ -516,7 +495,7 @@ export const Group = styled.section<{theme:Theme}>`
         margin-top: 1.7em;
     }
 
-    ${props => props.theme.cssMediaMediumSize} {
+    ${(props) => props.theme.cssMediaMediumSize} {
         & > header {
             display: block;
 
@@ -526,7 +505,7 @@ export const Group = styled.section<{theme:Theme}>`
         }
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMediaSmallSize} {
         & > header {
             display: block;
 
@@ -540,8 +519,8 @@ export const Group = styled.section<{theme:Theme}>`
 
 // ---------------- <MinimizedGroup /> --------------------------------------
 
-export const MinimizedGroup = styled.ul<{theme:Theme}>`
-    background-color: #FFFFFF;
+export const MinimizedGroup = styled.ul<{ theme: Theme }>`
+    background-color: #ffffff;
     border-radius: 0.25em;
 
     list-style-type: none;
@@ -550,7 +529,7 @@ export const MinimizedGroup = styled.ul<{theme:Theme}>`
 
     li {
         a {
-            color: ${props => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorLogoBlue};
             cursor: pointer;
         }
     }
@@ -562,12 +541,11 @@ export const MinimizedGroup = styled.ul<{theme:Theme}>`
 
 // ---------------- <Tiles /> --------------------------------------
 
-export const Tiles = styled.section<{theme:Theme}>`
+export const Tiles = styled.section<{ theme: Theme }>`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 1fr 1fr 1fr;
     color: #444;
-
 
     .app-output.span1 {
         grid-column: span 1;
@@ -582,8 +560,8 @@ export const Tiles = styled.section<{theme:Theme}>`
     }
 
     .app-output {
-        border-color: ${props => props.theme.colorLogoBlue};
-        border-radius: ${props => props.theme.defaultBorderRadius};
+        border-color: ${(props) => props.theme.colorLogoBlue};
+        border-radius: ${(props) => props.theme.defaultBorderRadius};
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -594,8 +572,7 @@ export const Tiles = styled.section<{theme:Theme}>`
             justify-content: space-between;
             align-items: center;
 
-            .window-buttons  {
-
+            .window-buttons {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -610,7 +587,7 @@ export const Tiles = styled.section<{theme:Theme}>`
                         cursor: pointer;
 
                         img {
-                            width:1.2em;
+                            width: 1.2em;
                         }
                     }
 
@@ -661,7 +638,7 @@ export const Tiles = styled.section<{theme:Theme}>`
         }
     }
 
-    ${props => props.theme.cssMediaMediumSize} {
+    ${(props) => props.theme.cssMediaMediumSize} {
         display: grid;
         grid-gap: 1em;
         grid-template-columns: 1fr;
@@ -680,14 +657,13 @@ export const Tiles = styled.section<{theme:Theme}>`
         }
 
         .app-output .panel {
-
             .window-buttons span.bar-button button img {
-                width:1.7em;
+                width: 1.7em;
             }
         }
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMediaSmallSize} {
         .app-output .panel h2 {
             font-size: 1.1em;
         }
@@ -696,17 +672,14 @@ export const Tiles = styled.section<{theme:Theme}>`
 
 // ---------------- <TileGroupButton /> --------------------------------------
 
-export const TileGroupButton = styled.section<{theme:Theme}>`
-
+export const TileGroupButton = styled.section<{ theme: Theme }>`
     width: 25em;
 
     &.disabled {
-
         h2 {
-            background-color: ${props => props.theme.colorLightText};
+            background-color: ${(props) => props.theme.colorLightText};
 
             .flex {
-
                 a:hover {
                     color: inherit;
                 }
@@ -723,12 +696,12 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
     }
 
     h2 {
-        background-color: ${props => props.theme.colorLogoBlue};
-        color: ${props => props.theme.colorInvertText};
+        background-color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorInvertText};
         border-radius: 0.25em;
         font-weight: 400;
         font-size: 1.3em;
-        box-shadow: 0 -0.1em 0 0 rgba(0,0,0, .25) inset;
+        box-shadow: 0 -0.1em 0 0 rgba(0, 0, 0, 0.25) inset;
         margin: 0;
         padding: 0.1em;
 
@@ -750,12 +723,12 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
             }
 
             a {
-                color: #FFFFFF;
+                color: #ffffff;
                 cursor: pointer;
             }
 
             a:hover {
-                color: ${props => props.theme.colorLogoBlueShining};
+                color: ${(props) => props.theme.colorLogoBlueShining};
             }
 
             .triangle {
@@ -775,14 +748,13 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
             }
 
             .switch-common {
-
                 flex-grow: 2;
                 margin-left: 0.4em;
             }
 
             .help {
                 border-style: solid;
-                border-color: #FFFFFF;
+                border-color: #ffffff;
                 border-width: 0 0 0 1px;
                 padding-left: 0.3em;
                 font-size: 1.1em;
@@ -790,8 +762,7 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
         }
     }
 
-    ${props => props.theme.cssMediaMediumSize} {
-
+    ${(props) => props.theme.cssMediaMediumSize} {
         white-space: normal;
 
         & > * {
@@ -806,21 +777,18 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
                 align-items: center;
                 justify-content: space-between;
 
-
                 a:hover {
-                    color: #FFFFFF;
+                    color: #ffffff;
                 }
 
                 .help {
                     margin-left: auto;
                 }
-
             }
         }
     }
 
-    ${props => props.theme.cssMediaSmallSize} {
-
+    ${(props) => props.theme.cssMediaSmallSize} {
         width: 100%;
         white-space: normal;
 
@@ -834,7 +802,7 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
                 justify-content: space-between;
 
                 a:hover {
-                    color: #FFFFFF;
+                    color: #ffffff;
                 }
 
                 .help {
@@ -843,7 +811,6 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
                     font-size: 120%;
                     padding-right: 0.2em;
                 }
-
             }
         }
     }
@@ -851,16 +818,16 @@ export const TileGroupButton = styled.section<{theme:Theme}>`
 
 // ---------------- <ErrPage /> --------------------------------------
 
-export const ErrPage = styled.div<{theme:Theme}>`
+export const ErrPage = styled.div<{ theme: Theme }>`
     margin: 2em auto 3em auto;
     margin-bottom: 2em;
     max-width: 20em;
 
     header.err {
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
     }
 
     a {
-        color: ${props => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorLogoBlue};
     }
 `;

@@ -22,24 +22,17 @@ import { IAppServices } from '../appServices.js';
 import { SystemMessage } from '../page/notifications.js';
 import { Actions } from './actions.js';
 
-
-
 export interface MessagesState {
-    systemMessages:Array<SystemMessage>;
+    systemMessages: Array<SystemMessage>;
 }
 
-
 export class MessagesModel extends StatelessModel<MessagesState> {
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
-
-    constructor(dispatcher:IActionQueue, appServices:IAppServices) {
-        super(
-            dispatcher,
-            {
-                systemMessages: []
-            }
-        );
+    constructor(dispatcher: IActionQueue, appServices: IAppServices) {
+        super(dispatcher, {
+            systemMessages: [],
+        });
         this.appServices = appServices;
         this.addActionHandler<typeof Actions.AddSystemMessage>(
             Actions.AddSystemMessage.name,
@@ -48,7 +41,7 @@ export class MessagesModel extends StatelessModel<MessagesState> {
                     type: action.payload.type,
                     text: action.payload.text,
                     ttl: action.payload.ttl,
-                    ident: action.payload.ident
+                    ident: action.payload.ident,
                 });
             }
         );
@@ -56,7 +49,7 @@ export class MessagesModel extends StatelessModel<MessagesState> {
             Actions.RemoveSystemMessage.name,
             (state, action) => {
                 const srchIdx = List.findIndex(
-                    v => v.ident === action.payload.ident,
+                    (v) => v.ident === action.payload.ident,
                     state.systemMessages
                 );
                 if (srchIdx > -1) {
@@ -65,5 +58,4 @@ export class MessagesModel extends StatelessModel<MessagesState> {
             }
         );
     }
-
 }

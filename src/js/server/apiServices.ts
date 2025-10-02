@@ -17,40 +17,47 @@
  */
 
 import { Dict } from 'cnc-tskit';
-import { ClientStaticConf, CommonTextStructures } from '../conf/index.js'
+import { ClientStaticConf, CommonTextStructures } from '../conf/index.js';
 import { IApiServices } from '../appServices.js';
 import { DataStreaming } from '../page/streaming.js';
 
-
 export class ApiServices implements IApiServices {
+    private readonly apiKeyStorage: {
+        [url: string]: { [header: string]: string };
+    };
 
-    private readonly apiKeyStorage:{[url:string]:{[header:string]:string}};
+    private readonly clientConf: ClientStaticConf;
 
-    private readonly clientConf:ClientStaticConf;
+    private readonly dataStreamingImpl: DataStreaming;
 
-    private readonly dataStreamingImpl:DataStreaming;
-
-    constructor(clientConf:ClientStaticConf, dataStreaming:DataStreaming) {
+    constructor(clientConf: ClientStaticConf, dataStreaming: DataStreaming) {
         this.apiKeyStorage = {};
         this.clientConf = clientConf;
         this.dataStreamingImpl = dataStreaming;
     }
 
-    getApiHeaders(apiUrl:string) {
+    getApiHeaders(apiUrl: string) {
         return this.apiKeyStorage[apiUrl] || {};
     }
 
-    translateResourceMetadata(corpname:string, value:keyof CommonTextStructures) {
+    translateResourceMetadata(
+        corpname: string,
+        value: keyof CommonTextStructures
+    ) {
         return value;
     }
 
-    getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures) {
-        return typeof this.clientConf.dataReadability === 'string' ?
-                struct :
-                (this.clientConf.dataReadability?.commonStructures[corpname] || {})[struct];
+    getCommonResourceStructure(
+        corpname: string,
+        struct: keyof CommonTextStructures
+    ) {
+        return typeof this.clientConf.dataReadability === 'string'
+            ? struct
+            : (this.clientConf.dataReadability?.commonStructures[corpname] ||
+                  {})[struct];
     }
 
-    importExternalMessage(label:string|{[lang:string]:string}) {
+    importExternalMessage(label: string | { [lang: string]: string }) {
         if (typeof label === 'string') {
             return label;
         }
@@ -63,14 +70,14 @@ export class ApiServices implements IApiServices {
         return '??';
     }
 
-    setApiKeyHeader(apiUrl:string, headerName:string, key:string):void {
+    setApiKeyHeader(apiUrl: string, headerName: string, key: string): void {
         if (!Dict.hasKey(apiUrl, this.apiKeyStorage)) {
             this.apiKeyStorage[apiUrl] = {};
         }
         this.apiKeyStorage[apiUrl][headerName] = key;
     }
 
-     dataStreaming():DataStreaming {
+    dataStreaming(): DataStreaming {
         return this.dataStreamingImpl;
-     }
+    }
 }

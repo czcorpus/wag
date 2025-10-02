@@ -17,7 +17,15 @@
  */
 
 import { IActionDispatcher } from 'kombo';
-import { AltViewIconProps, ITileProvider, ITileReloader, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileConf,
+    TileFactory,
+    TileFactoryArgs,
+} from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { SyntacticCollsVsTTModel } from './model.js';
 import { init as viewInit } from './view.js';
@@ -25,52 +33,61 @@ import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
 import { WSServerSyntacticCollsTTAPI } from './api.js';
-import { AttrNamesConf, SyntacticCollsExamplesAPI } from '../syntacticColls/eApi/mquery.js';
-
+import {
+    AttrNamesConf,
+    SyntacticCollsExamplesAPI,
+} from '../syntacticColls/eApi/mquery.js';
 
 interface TTConf {
-    id:string;
-    label:LocalizedConfMsg;
+    id: string;
+    label: LocalizedConfMsg;
 }
-
 
 export interface SyntacticCollsVsTextTypesTileConf extends TileConf {
-    apiURL:string;
-    eApiURL:string;
-    textTypes:Array<TTConf>;
-    corpname:string;
-    datasetName?:string;
-    maxItems:number;
-    attrNames:AttrNamesConf;
+    apiURL: string;
+    eApiURL: string;
+    textTypes: Array<TTConf>;
+    corpname: string;
+    datasetName?: string;
+    maxItems: number;
+    attrNames: AttrNamesConf;
 }
 
-
 export class SyntacticCollsVsTextTypesTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: SyntacticCollsVsTTModel;
 
-    private readonly model:SyntacticCollsVsTTModel;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly label: string;
 
-    private readonly label:string;
-
-    private view:TileComponent;
+    private view: TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        queryMatches, queryType
-    }:TileFactoryArgs<SyntacticCollsVsTextTypesTileConf>) {
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        theme,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+        queryType,
+    }: TileFactoryArgs<SyntacticCollsVsTextTypesTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
 
-        this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
+        this.label = appServices.importExternalMessage(
+            conf.label || 'syntactic_colls__main_label'
+        );
         this.model = new SyntacticCollsVsTTModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -78,110 +95,114 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
             queryType: queryType,
             maxItems: conf.maxItems,
             theme,
-            api: new WSServerSyntacticCollsTTAPI(conf.apiURL, appServices, conf.backlink),
-            eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
+            api: new WSServerSyntacticCollsTTAPI(
+                conf.apiURL,
+                appServices,
+                conf.backlink
+            ),
+            eApi: new SyntacticCollsExamplesAPI(
+                conf.eApiURL,
+                appServices,
+                conf.attrNames
+            ),
             initState: {
                 corpname: conf.corpname,
-                datasetName: conf.datasetName ? conf.datasetName : conf.corpname,
+                datasetName: conf.datasetName
+                    ? conf.datasetName
+                    : conf.corpname,
                 scollType: 'mixed', // TODO
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: List.map(
-                    tt => ({
+                    (tt) => ({
                         id: tt.id,
                         data: {
                             rows: [],
-                            examplesQueryTpl: undefined
+                            examplesQueryTpl: undefined,
                         },
-                        label: appServices.importExternalMessage(tt.label)
+                        label: appServices.importExternalMessage(tt.label),
                     }),
                     conf.textTypes
                 ),
                 examplesCache: {},
                 exampleWindowData: undefined,
                 isBusy: false,
-                error: undefined
-            }
+                error: undefined,
+            },
         });
-        this.view = viewInit(
-            this.dispatcher,
-            ut,
-            theme,
-            this.model
-        );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
-
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return true;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return false;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return {
             baseImg: 'wcloud-view.svg',
             highlightedImg: 'wcloud-view_s.svg',
-            inlineCss: {width: '2.2em'}
+            inlineCss: { width: '2.2em' },
         };
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return false;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<SyntacticCollsVsTextTypesTileConf> = {
+export const init: TileFactory<SyntacticCollsVsTextTypesTileConf> = {
     sanityCheck: (args) => [],
-    create: (args) => new SyntacticCollsVsTextTypesTile(args)
+    create: (args) => new SyntacticCollsVsTextTypesTile(args),
 };

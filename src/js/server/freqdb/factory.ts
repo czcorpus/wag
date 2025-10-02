@@ -23,15 +23,19 @@ import { KorpusFreqDB } from './backends/korpusdb.js';
 import { IApiServices } from '../../appServices.js';
 import { FrodoClient } from './backends/frodo.js';
 
-
 export enum FreqDBType {
     COUCHDB = 'couchdb',
     KORPUSDB = 'korpusdb',
-    FRODO = 'frodo'
+    FRODO = 'frodo',
 }
 
-
-export function createInstance(dbType:FreqDBType, connPath:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions):IFreqDB {
+export function createInstance(
+    dbType: FreqDBType,
+    connPath: string,
+    corpusSize: number,
+    apiServices: IApiServices,
+    options: FreqDbOptions
+): IFreqDB {
     switch (dbType) {
         case FreqDBType.COUCHDB:
             return new CouchFreqDB(connPath, corpusSize, apiServices, options);

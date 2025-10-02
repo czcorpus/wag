@@ -15,87 +15,88 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
+import {
+    StatelessModel,
+    StatefulModel,
+    Action,
+    IFullActionControl,
+} from 'kombo';
 
 import { Actions } from '../models/actions.js';
 import { ITileProvider, ITileReloader } from '../page/tile.js';
 
-
-
 interface ReloadModelInfo {
-    model:StatelessModel<{}>;
-    isError:boolean;
-    readDataFrom:number|null;
+    model: StatelessModel<{}>;
+    isError: boolean;
+    readDataFrom: number | null;
 }
 
 interface RetryTileLoadState {
-    models:{[k:string]:ReloadModelInfo};
-    lastAction:Action|null;
+    models: { [k: string]: ReloadModelInfo };
+    lastAction: Action | null;
 }
-
 
 /**
  * This special model allows restarting tile load after error. It is
  * able to handle tile dependencies too (=> single tile reload may
  * trigger a number of other tiles to reload too).
  */
-export class RetryTileLoad extends StatefulModel<RetryTileLoadState> implements ITileReloader {
+export class RetryTileLoad
+    extends StatefulModel<RetryTileLoadState>
+    implements ITileReloader
+{
+    private readonly reloadDispatcher: IFullActionControl;
 
-    private readonly reloadDispatcher:IFullActionControl;
-
-    constructor(dispatcher:IFullActionControl) {
-        super(
-            dispatcher,
-            {
-                models: {},
-                lastAction: null
-            }
-        );
+    constructor(dispatcher: IFullActionControl) {
+        super(dispatcher, {
+            models: {},
+            lastAction: null,
+        });
         this.reloadDispatcher = dispatcher;
     }
 
-    onAction(action:Action) {
+    onAction(action: Action) {
         switch (action.name) {
             case Actions.RetryTileLoad.name:
                 this.reloadDispatcher.dispatch(this.state.lastAction);
-            break;
+                break;
             case Actions.RequestQueryResponse.name:
                 this.state.lastAction = action;
-            break;
+                break;
             case Actions.TileDataLoaded.name:
                 if (action.error) {
                     const m = this.state.models[action.payload['tileId']];
                     if (m) {
                         this.state.models = {
                             ...this.state.models,
-                            ...{[action.payload['tileId']]:{
-                                model: m.model,
-                                isError: true,
-                                readDataFrom: m.readDataFrom
-                            }}
-                        }
+                            ...{
+                                [action.payload['tileId']]: {
+                                    model: m.model,
+                                    isError: true,
+                                    readDataFrom: m.readDataFrom,
+                                },
+                            },
+                        };
                     }
                 }
-            break;
+                break;
         }
     }
 
-    registerModel(tile:ITileProvider, model:StatelessModel<{}>):void {
+    registerModel(tile: ITileProvider, model: StatelessModel<{}>): void {
         if (model) {
             this.state.models = {
                 ...this.state.models,
-                ...{[tile.getIdent().toFixed()]:
-                    {
+                ...{
+                    [tile.getIdent().toFixed()]: {
                         model: model,
                         isError: false,
-                        readDataFrom: tile.getReadDataFrom()
-                    }
-                }
+                        readDataFrom: tile.getReadDataFrom(),
+                    },
+                },
             };
         }
     }
 
-    unregister():void {
-    }
-
+    unregister(): void {}
 }

@@ -21,46 +21,46 @@ import { TargetDataRow } from './views/compare.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataRow } from '../../../api/vendor/mquery/freqs.js';
 
-
 export interface PartialDataLoadedPayload {
-    tileId:number;
-    mapSVG:string|null;
-    data:Array<DataRow>;
-    queryId:number;
+    tileId: number;
+    mapSVG: string | null;
+    data: Array<DataRow>;
+    queryId: number;
 }
 
 // this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
 export interface LoadFinishedPayload {
-    corpusName:string;
+    corpusName: string;
 }
 
 export class Actions {
-
-    static ShowAreaTooltip:Action<{
-        tileId:number;
-        areaName:string;
-        areaIpmNorm:number;
-        areaData:Array<TargetDataRow>;
-        tooltipX:number;
-        tooltipY:number;
-
+    static ShowAreaTooltip: Action<{
+        tileId: number;
+        areaName: string;
+        areaIpmNorm: number;
+        areaData: Array<TargetDataRow>;
+        tooltipX: number;
+        tooltipY: number;
     }> = {
-        name: 'GEO_AREAS_SHOW_AREA_TOOLTIP'
-    }
-
-    static HideAreaTooltip:Action<{
-        tileId:number;
-
-    }> = {
-        name: 'GEO_AREAS_HIDE_AREA_TOOLTIP'
-    }
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & LoadFinishedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+        name: 'GEO_AREAS_SHOW_AREA_TOOLTIP',
     };
 
+    static HideAreaTooltip: Action<{
+        tileId: number;
+    }> = {
+        name: 'GEO_AREAS_HIDE_AREA_TOOLTIP',
+    };
 
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
-        name: GlobalActions.TilePartialDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & LoadFinishedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
+    };
+
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload &
+            PartialDataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
 }

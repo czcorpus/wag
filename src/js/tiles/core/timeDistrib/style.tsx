@@ -21,7 +21,6 @@
 import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
 
-
 export const TimeDistribTile = styled.div`
     p.message {
         margin-top: 0.2em;
@@ -29,12 +28,11 @@ export const TimeDistribTile = styled.div`
     }
 `;
 
-export const ChartLegend = styled.p<{theme:Theme}>`
+export const ChartLegend = styled.p<{ theme: Theme }>`
     text-align: center;
-    color: ${props => props.theme.chartTextColor};
+    color: ${(props) => props.theme.chartTextColor};
 
     .item {
-
         .box {
             display: inline-block;
             margin-right: 0.4em;
@@ -43,14 +41,12 @@ export const ChartLegend = styled.p<{theme:Theme}>`
             height: 0.9em;
             vertical-align: middle;
         }
-
     }
 
     .item:not(:first-child) .box {
         margin-left: 1em;
     }
 `;
-
 
 export const TweakControls = styled.form`
     ul {
@@ -95,7 +91,6 @@ export const MultiWordTimeDistribTile = styled.div`
     }
 
     .tweak-box {
-
         form {
             display: flex;
             align-self: center;
@@ -122,9 +117,9 @@ export const MultiWordTimeDistribTile = styled.div`
     }
 `;
 
-export const MultiWordChartLegend = styled.div<{theme:Theme}>`
+export const MultiWordChartLegend = styled.div<{ theme: Theme }>`
     text-align: center;
-    color: ${props => props.theme.chartTextColor};
+    color: ${(props) => props.theme.chartTextColor};
 
     .caption {
         font-weight: bold;
@@ -146,7 +141,6 @@ export const MultiWordChartLegend = styled.div<{theme:Theme}>`
             vertical-align: middle;
             border-radius: 2px;
         }
-
     }
 
     .item:not(:first-child) .box {
