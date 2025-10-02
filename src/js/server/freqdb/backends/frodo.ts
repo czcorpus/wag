@@ -1,124 +1,132 @@
-import { map, Observable, of as rxOf, tap } from "rxjs";
-import { IApiServices, IAppServices } from "../../../appServices.js";
-import { MainPosAttrValues } from "../../../conf/index.js";
-import { IFreqDB } from "../freqdb.js";
-import { calcFreqBand, QueryMatch } from "../../../query/index.js";
-import { serverHttpRequest } from "../../request.js";
-import { HTTP, List } from "cnc-tskit";
-import { importQueryPosWithLabel } from "../../../postag.js";
-import { SourceDetails } from "../../../types.js";
+import { map, Observable, of as rxOf, tap } from 'rxjs';
+import { IApiServices, IAppServices } from '../../../appServices.js';
+import { MainPosAttrValues } from '../../../conf/index.js';
+import { IFreqDB } from '../freqdb.js';
+import { calcFreqBand, QueryMatch } from '../../../query/index.js';
+import { serverHttpRequest } from '../../request.js';
+import { HTTP, List } from 'cnc-tskit';
+import { importQueryPosWithLabel } from '../../../postag.js';
+import { SourceDetails } from '../../../types.js';
 import urlJoin from 'url-join';
 
-
 interface HTTPNgramDoc {
-    _id:string;
-    _rev:string;
-    lemma:string;
-    pos:string;
-    upos:string;
-    count:number;
-    arf:number;
-    forms:Array<{
-        word:string;
-        count:number;
-        arf:number;
+    _id: string;
+    _rev: string;
+    lemma: string;
+    pos: string;
+    upos: string;
+    count: number;
+    arf: number;
+    forms: Array<{
+        word: string;
+        count: number;
+        arf: number;
     }>;
 }
 
 interface HTTPNgramResponse {
-    matches:Array<HTTPNgramDoc>;
-    error:string|undefined;
+    matches: Array<HTTPNgramDoc>;
+    error: string | undefined;
 }
 
-
 export class FrodoClient implements IFreqDB {
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+    private readonly fcrit: string;
 
-    private readonly fcrit:string;
+    private readonly ngramFcrit: string;
 
-    private readonly ngramFcrit:string;
+    private readonly normPath: string;
 
-    private readonly normPath:string;
+    private readonly sourceInfoApi: unknown;
 
-    private readonly sourceInfoApi:unknown;
+    private readonly corpusSize: number;
 
-    private readonly corpusSize:number;
-
-
-    constructor(apiURL:string, corpusSize:number, apiServices:IApiServices) {
+    constructor(apiURL: string, corpusSize: number, apiServices: IApiServices) {
         this.apiURL = apiURL;
         this.corpusSize = corpusSize;
         this.apiServices = apiServices;
     }
 
     findQueryMatches(
-        appServices:IAppServices,
-        word:string,
-        posAttr:MainPosAttrValues,
-        minFreq:number
-    ):Observable<Array<QueryMatch>> {
-
+        appServices: IAppServices,
+        word: string,
+        posAttr: MainPosAttrValues,
+        minFreq: number
+    ): Observable<Array<QueryMatch>> {
         return serverHttpRequest<HTTPNgramResponse>({
             url: urlJoin(this.apiURL, `search`, word),
             method: HTTP.Method.GET,
-            params: {}
+            params: {},
         }).pipe(
-            map(
-                (resp) => {
-                    return List.map<HTTPNgramDoc, QueryMatch>(
-                        v => ({
-                            word,
-                            lemma: v.lemma,
-                            pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
-                            upos: v.upos ?
-                                importQueryPosWithLabel(v.upos, 'upos', appServices) :
-                                importQueryPosWithLabel(v.pos, 'upos', appServices),
-                            abs: v.count,
-                            ipm: v.count / this.corpusSize * 1e6,
-                            flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
-                            arf: v.arf,
-                            isCurrent: false
-                        }),
-                        resp.matches
-                    )
-                }
-            )
+            map((resp) => {
+                return List.map<HTTPNgramDoc, QueryMatch>(
+                    (v) => ({
+                        word,
+                        lemma: v.lemma,
+                        pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
+                        upos: v.upos
+                            ? importQueryPosWithLabel(
+                                  v.upos,
+                                  'upos',
+                                  appServices
+                              )
+                            : importQueryPosWithLabel(
+                                  v.pos,
+                                  'upos',
+                                  appServices
+                              ),
+                        abs: v.count,
+                        ipm: (v.count / this.corpusSize) * 1e6,
+                        flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
+                        arf: v.arf,
+                        isCurrent: false,
+                    }),
+                    resp.matches
+                );
+            })
         );
     }
 
     getSimilarFreqWords(
-        appServices:IAppServices,
-        lemma:string,
-        pos:Array<string>,
-        posAttr:MainPosAttrValues,
-        rng:number
-    ):Observable<Array<QueryMatch>> {
+        appServices: IAppServices,
+        lemma: string,
+        pos: Array<string>,
+        posAttr: MainPosAttrValues,
+        rng: number
+    ): Observable<Array<QueryMatch>> {
         return serverHttpRequest<HTTPNgramResponse>({
-            url: urlJoin(this.apiURL, 'similarARFWords', lemma, '?pos=' + encodeURIComponent(pos[0])),
+            url: urlJoin(
+                this.apiURL,
+                'similarARFWords',
+                lemma,
+                '?pos=' + encodeURIComponent(pos[0])
+            ),
             method: HTTP.Method.GET,
-            params: {}
+            params: {},
         }).pipe(
-            map(
-                (resp) => {
-                    return List.map<HTTPNgramDoc, QueryMatch>(
-                        v => ({
-                            word: '-',
-                            lemma: v.lemma,
-                            pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
-                            upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
-                            abs: v.count,
-                            ipm: v.count / this.corpusSize * 1e6,
-                            flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
-                            arf: v.arf,
-                            isCurrent: false
-                        }),
-                        resp.matches
-                    )
-                }
-            )
+            map((resp) => {
+                return List.map<HTTPNgramDoc, QueryMatch>(
+                    (v) => ({
+                        word: '-',
+                        lemma: v.lemma,
+                        pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
+                        upos: importQueryPosWithLabel(
+                            v.upos,
+                            'upos',
+                            appServices
+                        ),
+                        abs: v.count,
+                        ipm: (v.count / this.corpusSize) * 1e6,
+                        flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
+                        arf: v.arf,
+                        isCurrent: false,
+                    }),
+                    resp.matches
+                );
+            })
         );
     }
 
@@ -128,22 +136,24 @@ export class FrodoClient implements IFreqDB {
      * we use array type).
      */
     getWordForms(
-        appServices:IAppServices,
-        lemma:string,
-        pos:Array<string>,
-        posAttr:MainPosAttrValues
-    ):Observable<Array<QueryMatch>> {
+        appServices: IAppServices,
+        lemma: string,
+        pos: Array<string>,
+        posAttr: MainPosAttrValues
+    ): Observable<Array<QueryMatch>> {
         return rxOf([]);
     }
 
-    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(
+        uiLang: string,
+        corpname: string
+    ): Observable<SourceDetails> {
         return rxOf({
             tileId: -1,
             title: 'Unknown resource',
             description: '',
             author: 'unknown',
-            structure: {numTokens: 0}
-        })
+            structure: { numTokens: 0 },
+        });
     }
-
 }

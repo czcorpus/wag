@@ -17,30 +17,47 @@
  */
 
 export interface Input {
-    value:string;
-    isValid:boolean;
-    isRequired:boolean;
-    errorDesc?:string;
+    value: string;
+    isValid: boolean;
+    isRequired: boolean;
+    errorDesc?: string;
 }
 
-
 export class Forms {
-
-    static updateFormInput(formValue:Input, data:{[P in keyof Input]?: Input[P]}) {
+    static updateFormInput(
+        formValue: Input,
+        data: { [P in keyof Input]?: Input[P] }
+    ) {
         return {
             value: data.value !== undefined ? data.value : formValue.value,
-            isValid: data.isValid !== undefined ? data.isValid : formValue.isValid,
-            isRequired: data.isRequired !== undefined ? data.isRequired : formValue.isRequired,
-            errorDesc: data.errorDesc !== undefined ? data.errorDesc : formValue.errorDesc
+            isValid:
+                data.isValid !== undefined ? data.isValid : formValue.isValid,
+            isRequired:
+                data.isRequired !== undefined
+                    ? data.isRequired
+                    : formValue.isRequired,
+            errorDesc:
+                data.errorDesc !== undefined
+                    ? data.errorDesc
+                    : formValue.errorDesc,
         };
-    };
-
-    static newFormValue(v:string, isRequired:boolean):Input {
-        return {value: v, isValid: true, isRequired: isRequired, errorDesc: undefined};
     }
 
-    static resetFormValue(formValue:Input, val:string='') {
-        return {value: val, isValid: true, isRequired: formValue.isRequired, errorDesc: undefined};
-    };
+    static newFormValue(v: string, isRequired: boolean): Input {
+        return {
+            value: v,
+            isValid: true,
+            isRequired: isRequired,
+            errorDesc: undefined,
+        };
+    }
 
+    static resetFormValue(formValue: Input, val: string = '') {
+        return {
+            value: val,
+            isValid: true,
+            isRequired: formValue.isRequired,
+            errorDesc: undefined,
+        };
+    }
 }

@@ -28,77 +28,98 @@ import { IDataStreaming } from '../../../../page/streaming.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { SCollsData } from './common.js';
 
-
-
 export interface SCollsApiResponse {
-    concSize:number;
-    corpusSize:number;
-    freqs:Array<FreqRowResponse>;
-    examplesQueryTpl:string;
+    concSize: number;
+    corpusSize: number;
+    freqs: Array<FreqRowResponse>;
+    examplesQueryTpl: string;
 }
-
 
 export interface SCollsRequest {
-    params:{
-        corpname:string;
-        queryType:SCollsQueryType;
-    },
-    args:{
-        w:string;
-        textType?:string;
-        deprel?:string;
-        pos?:string;
-    }
+    params: {
+        corpname: string;
+        queryType: SCollsQueryType;
+    };
+    args: {
+        w: string;
+        textType?: string;
+        deprel?: string;
+        pos?: string;
+    };
 }
 
-
 // query types are mquery endpoint values
-export type SCollsQueryType = 'nouns-modified-by'|'modifiers-of'|'verbs-subject'|'verbs-object'|'mixed'|'none';
+export type SCollsQueryType =
+    | 'nouns-modified-by'
+    | 'modifiers-of'
+    | 'verbs-subject'
+    | 'verbs-object'
+    | 'mixed'
+    | 'none';
 
+export class ScollexSyntacticCollsAPI
+    implements ResourceApi<SCollsRequest, SCollsData>
+{
+    private readonly apiURL: string;
 
+    private readonly apiServices: IApiServices;
 
-export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCollsData> {
+    private readonly srcInfoService: CorpusInfoAPI;
 
-    private readonly apiURL:string;
+    private readonly backlinkConf: BacklinkConf;
 
-    private readonly apiServices:IApiServices;
-
-    private readonly srcInfoService:CorpusInfoAPI;
-
-    private readonly backlinkConf:BacklinkConf;
-
-    constructor(apiURL:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(
+        apiURL: string,
+        apiServices: IApiServices,
+        backlinkConf: BacklinkConf
+    ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.backlinkConf = backlinkConf;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
     }
 
-
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoService.call(streaming, tileId, 0, {corpname, lang});
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        lang: string,
+        corpname: string
+    ): Observable<SourceDetails> {
+        return this.srcInfoService.call(streaming, tileId, 0, {
+            corpname,
+            lang,
+        });
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
         return null;
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, request:SCollsRequest):Observable<SCollsData> {
-        const url = urlJoin(this.apiURL, 'query', request.params.corpname, request.params.queryType);
-        let data:Observable<SCollsApiResponse>;
-        return streaming.registerTileRequest<SCollsApiResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        request: SCollsRequest
+    ): Observable<SCollsData> {
+        const url = urlJoin(
+            this.apiURL,
+            'query',
+            request.params.corpname,
+            request.params.queryType
+        );
+        let data: Observable<SCollsApiResponse>;
+        return streaming
+            .registerTileRequest<SCollsApiResponse>({
                 tileId,
                 method: HTTP.Method.GET,
                 url: `${url}?${this.prepareArgs(request)}`,
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map(data => (
-                {
+            })
+            .pipe(
+                map((data) => ({
                     rows: List.map(
-                        row => ({
+                        (row) => ({
                             value: row.word,
                             freq: row.freq,
                             base: row.base,
@@ -107,13 +128,12 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCol
                         }),
                         data.freqs
                     ),
-                    examplesQueryTpl: data.examplesQueryTpl
-                }
-            )),
-        );
+                    examplesQueryTpl: data.examplesQueryTpl,
+                }))
+            );
     }
 
-    private prepareArgs(queryArgs:SCollsRequest):string {
+    private prepareArgs(queryArgs: SCollsRequest): string {
         return pipe(
             {
                 ...queryArgs.args,
@@ -122,7 +142,7 @@ export class ScollexSyntacticCollsAPI implements ResourceApi<SCollsRequest, SCol
             Dict.toEntries(),
             List.filter(([_, v]) => v !== null),
             List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
-            x => x.join('&'),
-        )
+            (x) => x.join('&')
+        );
     }
 }

@@ -23,30 +23,29 @@ import { DataRow } from './api.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 export interface ModelSourceArgs {
+    corpname: string;
 
-    corpname:string;
+    subcname: string | null;
 
-    subcname:string|null;
+    fcrit: string;
 
-    fcrit:string;
+    freqType: 'tokens' | 'text-types';
 
-    freqType:'tokens'|'text-types';
+    flimit: number;
 
-    flimit:number;
+    freqSort: string;
 
-    freqSort:string;
+    fpage: number;
 
-    fpage:number;
+    posQueryGenerator: PosQueryGeneratorType;
 
-    posQueryGenerator:PosQueryGeneratorType;
+    fttIncludeEmpty?: boolean;
 
-    fttIncludeEmpty?:boolean;
+    fmaxitems?: number;
 
-    fmaxitems?:number;
+    corpusSize: number;
 
-    corpusSize:number;
-
-    viewInOtherWagUrl:string|null;
+    viewInOtherWagUrl: string | null;
 
     /**
      * In case 'fcrit' describes a positional
@@ -56,26 +55,24 @@ export interface ModelSourceArgs {
      * the query 'house' the value will be 'house')
      * by something more specific (e.g. 'social media')
      */
-    valuePlaceholder:string|null;
+    valuePlaceholder: string | null;
 
-    isSingleCategory:boolean;
+    isSingleCategory: boolean;
 
-    uniqueColor:boolean;
+    uniqueColor: boolean;
 }
 
 export interface SourceMappedDataRow extends DataRow {
-    sourceIdx:number;
-    name:string;
-    uniqueColor:boolean;
-    viewInOtherWagUrl:string|null;
+    sourceIdx: number;
+    name: string;
+    uniqueColor: boolean;
+    viewInOtherWagUrl: string | null;
 }
 
-
-
 export interface MergeCorpFreqModelState {
-    isBusy:boolean;
-    isAltViewMode:boolean;
-    error:string;
+    isBusy: boolean;
+    isAltViewMode: boolean;
+    error: string;
 
     /**
      * Frequency data.
@@ -83,16 +80,16 @@ export interface MergeCorpFreqModelState {
      * in the "single" mode, it has a size of 1.
      * The inner array represents multiple configured freq. resources.
      */
-    data:Array<Array<SourceMappedDataRow>>;
-    sources:Array<ModelSourceArgs>;
-    pixelsPerCategory:number;
-    tooltipData:{
-        tooltipX:number;
-        tooltipY:number;
-        data:TooltipValues;
-        caption:string;
-        showClickTip:boolean;
-    }|null;
-    backlinks:Array<Array<Backlink>>;
-    queryMatches:Array<QueryMatch>;
+    data: Array<Array<SourceMappedDataRow>>;
+    sources: Array<ModelSourceArgs>;
+    pixelsPerCategory: number;
+    tooltipData: {
+        tooltipX: number;
+        tooltipY: number;
+        data: TooltipValues;
+        caption: string;
+        showClickTip: boolean;
+    } | null;
+    backlinks: Array<Array<Backlink>>;
+    queryMatches: Array<QueryMatch>;
 }

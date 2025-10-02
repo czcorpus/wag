@@ -31,14 +31,14 @@ import { IDataStreaming } from '../page/streaming.js';
  * @param passThrough
  */
 export const callWithExtraVal = <T, U, V>(
-    streaming:IDataStreaming,
-    api:DataApi<T, U>,
-    tileId:number,
-    queryIdx:number,
-    args:T,
-    passThrough:V
-):Observable<[U, V]> => {
-    return api.call(streaming, tileId, queryIdx, args).pipe(
-        map(v => [v, passThrough] as [U, V])
-    );
-}
+    streaming: IDataStreaming,
+    api: DataApi<T, U>,
+    tileId: number,
+    queryIdx: number,
+    args: T,
+    passThrough: V
+): Observable<[U, V]> => {
+    return api
+        .call(streaming, tileId, queryIdx, args)
+        .pipe(map((v) => [v, passThrough] as [U, V]));
+};

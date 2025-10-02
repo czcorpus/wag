@@ -21,330 +21,313 @@ import { SystemMessageType, SourceDetails } from '../types.js';
 import { QueryType } from '../query/index.js';
 import { Backlink } from '../page/tile.js';
 
-
 export class Actions {
-
-    static RequestQueryResponse:Action<{
-        focusedTile?:string;
+    static RequestQueryResponse: Action<{
+        focusedTile?: string;
     }> = {
-        name: 'MAIN_REQUEST_QUERY_RESPONSE'
-    }
+        name: 'MAIN_REQUEST_QUERY_RESPONSE',
+    };
 
-    static RetryTileLoad:Action<{
-        tileId:number;
+    static RetryTileLoad: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_RETRY_TILE_LOAD'
-    }
+        name: 'MAIN_RETRY_TILE_LOAD',
+    };
 
-    static TileSubgroupReady:Action<{
-        mainTileId:number;
-        subgroupId:string;
+    static TileSubgroupReady: Action<{
+        mainTileId: number;
+        subgroupId: string;
     }> = {
-        name: 'MAIN_TILE_SUBGROUP_READY'
-    }
+        name: 'MAIN_TILE_SUBGROUP_READY',
+    };
 
-    static SetEmptyResult:Action<{
-        error:[number, string];
+    static SetEmptyResult: Action<{
+        error: [number, string];
     }> = {
-        name: 'MAIN_SET_EMPTY_RESULT'
-    }
+        name: 'MAIN_SET_EMPTY_RESULT',
+    };
 
-    static TileDataLoaded:Action<{
-        tileId:number;
-        isEmpty:boolean;
-        canBeAmbiguousResult?:boolean;
-
+    static TileDataLoaded: Action<{
+        tileId: number;
+        isEmpty: boolean;
+        canBeAmbiguousResult?: boolean;
     }> = {
-        name: 'MAIN_TILE_DATA_LOADED'
-    }
+        name: 'MAIN_TILE_DATA_LOADED',
+    };
 
-    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
-        return a.name === Actions.TileDataLoaded.name &&
+    static isTileDataLoaded(a: Action): a is typeof Actions.TileDataLoaded {
+        return (
+            a.name === Actions.TileDataLoaded.name &&
             typeof a.payload['tileId'] === 'number' &&
             typeof a.payload['isEmpty'] === 'boolean' &&
-            (
-                a.payload['canBeAmbiguousResult'] === undefined ||
-                typeof a.payload['canBeAmbiguousResult'] === 'boolean'
-            );
+            (a.payload['canBeAmbiguousResult'] === undefined ||
+                typeof a.payload['canBeAmbiguousResult'] === 'boolean')
+        );
     }
 
-    static TilePartialDataLoaded:Action<{
-        tileId:number;
+    static TilePartialDataLoaded: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_TILE_PARTIAL_DATA_LOADED'
-    }
+        name: 'MAIN_TILE_PARTIAL_DATA_LOADED',
+    };
 
-    static ChangeQueryInput:Action<{
-        value:string;
-        queryIdx:number;
+    static ChangeQueryInput: Action<{
+        value: string;
+        queryIdx: number;
     }> = {
-        name:'MAIN_CHANGE_QUERY_INPUT'
-    }
+        name: 'MAIN_CHANGE_QUERY_INPUT',
+    };
 
-    static ChangeCurrQueryMatch:Action<{
-        queryIdx:number;
-        word:string;
-        lemma:string;
-        pos:Array<string>;
-        upos:Array<string>;
-
+    static ChangeCurrQueryMatch: Action<{
+        queryIdx: number;
+        word: string;
+        lemma: string;
+        pos: Array<string>;
+        upos: Array<string>;
     }> = {
-        name:'MAIN_CHANGE_CURR_QUERY_MATCH'
-    }
+        name: 'MAIN_CHANGE_CURR_QUERY_MATCH',
+    };
 
-    static ChangeTranslatLanguage:Action<{
-        lang:string;
+    static ChangeTranslatLanguage: Action<{
+        lang: string;
     }> = {
-        name: 'MAIN_CHANGE_TRANSLAT_LANGUAGE'
-    }
+        name: 'MAIN_CHANGE_TRANSLAT_LANGUAGE',
+    };
 
-    static ChangeQueryType:Action<{
-        queryType:QueryType;
+    static ChangeQueryType: Action<{
+        queryType: QueryType;
     }> = {
-        name: 'MAIN_CHANGE_QUERY_TYPE'
-    }
+        name: 'MAIN_CHANGE_QUERY_TYPE',
+    };
 
-    static SetScreenMode:Action<{
-        isMobile:boolean;
-        innerWidth:number;
-        innerHeight:number;
-
+    static SetScreenMode: Action<{
+        isMobile: boolean;
+        innerWidth: number;
+        innerHeight: number;
     }> = {
-        name: 'MAIN_SET_SCREEN_MODE'
-    }
+        name: 'MAIN_SET_SCREEN_MODE',
+    };
 
-    static AddSystemMessage:Action<{
-        ident:string;
-        type:SystemMessageType;
-        text:string;
-        ttl:number;
+    static AddSystemMessage: Action<{
+        ident: string;
+        type: SystemMessageType;
+        text: string;
+        ttl: number;
     }> = {
-        name: 'MAIN_ADD_SYSTEM_MESSAGE'
-    }
+        name: 'MAIN_ADD_SYSTEM_MESSAGE',
+    };
 
-    static RemoveSystemMessage:Action<{
-        ident:string;
+    static RemoveSystemMessage: Action<{
+        ident: string;
     }> = {
-        name: 'MAIN_REMOVE_SYSTEM_MESSAGE'
-    }
+        name: 'MAIN_REMOVE_SYSTEM_MESSAGE',
+    };
 
-    static SubmitQuery:Action<{}> = {
-        name: 'MAIN_SUBMIT_QUERY'
-    }
+    static SubmitQuery: Action<{}> = {
+        name: 'MAIN_SUBMIT_QUERY',
+    };
 
-    static EnableAltViewMode:Action<{
-        ident:number;
+    static EnableAltViewMode: Action<{
+        ident: number;
     }> = {
-        name: 'MAIN_ENABLE_ALT_VIEW_MODE'
-    }
+        name: 'MAIN_ENABLE_ALT_VIEW_MODE',
+    };
 
-    static DisableAltViewMode:Action<{
-        ident:number;
+    static DisableAltViewMode: Action<{
+        ident: number;
     }> = {
-        name: 'MAIN_DISABLE_ALT_VIEW_MODE'
-    }
+        name: 'MAIN_DISABLE_ALT_VIEW_MODE',
+    };
 
-    static EnableTileTweakMode:Action<{
-        ident:number;
+    static EnableTileTweakMode: Action<{
+        ident: number;
     }> = {
-        name: 'MAIN_ENABLE_TILE_TWEAK_MODE'
-    }
+        name: 'MAIN_ENABLE_TILE_TWEAK_MODE',
+    };
 
-    static DisableTileTweakMode:Action<{
-        ident:number;
+    static DisableTileTweakMode: Action<{
+        ident: number;
     }> = {
-        name: 'MAIN_DISABLE_TILE_TWEAK_MODE'
-    }
+        name: 'MAIN_DISABLE_TILE_TWEAK_MODE',
+    };
 
-    static OverwriteTileLabel:Action<{
-        tileId:number;
-        value:string;
+    static OverwriteTileLabel: Action<{
+        tileId: number;
+        value: string;
     }> = {
-        name: 'MAIN_OVERWRITE_TILE_LABEL'
-    }
+        name: 'MAIN_OVERWRITE_TILE_LABEL',
+    };
 
-    static GetSourceInfo:Action<{
-        tileId:number;
-        corpusId:string;
-        subcorpusId?:string;
+    static GetSourceInfo: Action<{
+        tileId: number;
+        corpusId: string;
+        subcorpusId?: string;
     }> = {
-        name: 'MAIN_GET_SOURCE_INFO'
-    }
+        name: 'MAIN_GET_SOURCE_INFO',
+    };
 
-    static FollowBacklink:Action<{
-        tileId:number;
-        backlink:Backlink;
+    static FollowBacklink: Action<{
+        tileId: number;
+        backlink: Backlink;
     }> = {
-        name: 'MAIN_FOLLOW_BACKLINK'
-    }
+        name: 'MAIN_FOLLOW_BACKLINK',
+    };
 
-    static BacklinkPreparationDone:Action<{
-        tileId:number;
-        message:string;
+    static BacklinkPreparationDone: Action<{
+        tileId: number;
+        message: string;
     }> = {
-        name: 'MAIN_BACKLINK_PREPARATION_DONE'
-    }
+        name: 'MAIN_BACKLINK_PREPARATION_DONE',
+    };
 
-    static CloseSourceInfo:Action<{
+    static CloseSourceInfo: Action<{}> = {
+        name: 'MAIN_CLOSE_SOURCE_INFO',
+    };
+
+    static GetSourceInfoDone: Action<{
+        data: SourceDetails;
     }> = {
-        name: 'MAIN_CLOSE_SOURCE_INFO'
-    }
+        name: 'MAIN_GET_SOURCE_INFO_DONE',
+    };
 
-    static GetSourceInfoDone:Action<{
-        data:SourceDetails;
+    static ToggleGroupVisibility: Action<{
+        groupIdx: number;
     }> = {
-        name: 'MAIN_GET_SOURCE_INFO_DONE'
-    }
+        name: 'MAIN_TOGGLE_GROUP_VISIBILITY',
+    };
 
-    static ToggleGroupVisibility:Action<{
-        groupIdx:number;
+    static OpenGroupAndHighlightTile: Action<{
+        groupIdx: number;
+        tileId: number;
     }> = {
-        name: 'MAIN_TOGGLE_GROUP_VISIBILITY'
-    }
+        name: 'MAIN_OPEN_GROUP_AND_FOCUS_TILE',
+    };
 
-    static OpenGroupAndHighlightTile:Action<{
-        groupIdx:number;
-        tileId:number;
+    static HighlightTile: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_OPEN_GROUP_AND_FOCUS_TILE'
-    }
+        name: 'MAIN_HIGHLIGHT_TILE',
+    };
 
-    static HighlightTile:Action<{
-        tileId:number;
+    static DehighlightTile: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_HIGHLIGHT_TILE'
-    }
+        name: 'MAIN_DEHIGHLIGHT_TILE',
+    };
 
-    static DehighlightTile:Action<{
-        tileId:number;
+    static ShowGroupHelp: Action<{
+        groupIdx: number;
+        url: string;
     }> = {
-        name: 'MAIN_DEHIGHLIGHT_TILE'
-    }
+        name: 'MAIN_SHOW_GROUP_HELP',
+    };
 
-    static ShowGroupHelp:Action<{
-        groupIdx:number;
-        url:string;
+    static ShowGroupHelpDone: Action<{
+        groupIdx: number;
+        html: string;
     }> = {
-        name: 'MAIN_SHOW_GROUP_HELP'
-    }
+        name: 'MAIN_SHOW_GROUP_HELP_DONE',
+    };
 
-    static ShowGroupHelpDone:Action<{
-        groupIdx:number;
-        html:string;
+    static HideGroupHelp: Action<{}> = {
+        name: 'MAIN_HIDE_GROUP_HELP',
+    };
+
+    static ShowTileHelp: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_SHOW_GROUP_HELP_DONE'
-    }
+        name: 'MAIN_SHOW_TILE_HELP',
+    };
 
-    static HideGroupHelp:Action<{
+    static HideTileHelp: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_HIDE_GROUP_HELP'
-    }
+        name: 'MAIN_HIDE_TILE_HELP',
+    };
 
-    static ShowTileHelp:Action<{
-        tileId:number;
-
+    static LoadTileHelpDone: Action<{
+        tileId: number;
+        html: string;
     }> = {
-        name: 'MAIN_SHOW_TILE_HELP'
-    }
+        name: 'MAIN_LOAD_TILE_HELP_DONE',
+    };
 
-    static HideTileHelp:Action<{
-        tileId:number;
-
+    static SubqItemHighlighted: Action<{
+        interactionId: string;
+        text: string;
     }> = {
-        name: 'MAIN_HIDE_TILE_HELP'
-    }
+        name: 'MAIN_SUBQ_ITEM_HIGHLIGHTED',
+    };
 
-    static LoadTileHelpDone:Action<{
-        tileId:number;
-        html:string;
-
+    static SubqItemDehighlighted: Action<{
+        interactionId: string;
     }> = {
-        name: 'MAIN_LOAD_TILE_HELP_DONE'
-    }
+        name: 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED',
+    };
 
-    static SubqItemHighlighted:Action<{
-        interactionId:string;
-        text:string;
-
+    static TileAreaClicked: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_SUBQ_ITEM_HIGHLIGHTED'
-    }
+        name: 'MAIN_TILE_AREA_CLICKED',
+    };
 
-    static SubqItemDehighlighted:Action<{
-        interactionId:string;
+    static ShowAmbiguousResultHelp: Action<{}> = {
+        name: 'MAIN_SHOW_AMBIGUOUS_TILE_HELP',
+    };
 
+    static HideAmbiguousResultHelp: Action<{}> = {
+        name: 'MAIN_HIDE_AMBIGUOUS_TILE_HELP',
+    };
+
+    static AddCmpQueryInput: Action<{}> = {
+        name: 'MAIN_ADD_CMP_QUERY_INPUT',
+    };
+
+    static RemoveCmpQueryInput: Action<{
+        queryIdx: number;
     }> = {
-        name: 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED'
-    }
+        name: 'MAIN_REMOVE_CMP_QUERY_INPUT',
+    };
 
-    static TileAreaClicked:Action<{
-        tileId:number;
-    }> = {
-        name: 'MAIN_TILE_AREA_CLICKED'
-    }
+    static ShowQueryMatchModal: Action<{}> = {
+        name: 'MAIN_SHOW_QUERY_MATCH_MODAL',
+    };
 
-    static ShowAmbiguousResultHelp:Action<{
-    }> = {
-        name: 'MAIN_SHOW_AMBIGUOUS_TILE_HELP'
-    }
+    static HideQueryMatchModal: Action<{}> = {
+        name: 'MAIN_HIDE_QUERY_MATCH_MODAL',
+    };
 
-    static HideAmbiguousResultHelp:Action<{
+    static SelectModalQueryMatch: Action<{
+        queryIdx: number;
+        variantIdx: number;
     }> = {
-        name: 'MAIN_HIDE_AMBIGUOUS_TILE_HELP'
-    }
+        name: 'MAIN_SELECT_MODAL_QUERY_MATCH',
+    };
 
-    static AddCmpQueryInput:Action<{
-    }> = {
-        name: 'MAIN_ADD_CMP_QUERY_INPUT'
-    }
+    static ApplyModalQueryMatchSelection: Action<{}> = {
+        name: 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION',
+    };
 
-    static RemoveCmpQueryInput:Action<{
-        queryIdx:number;
+    static SetColorTheme: Action<{
+        ident: string;
     }> = {
-        name: 'MAIN_REMOVE_CMP_QUERY_INPUT'
-    }
+        name: 'MAIN_SET_COLOR_THEME',
+    };
 
-    static ShowQueryMatchModal:Action<{
+    static SaveSVGFigure: Action<{
+        tileId: number;
     }> = {
-        name: 'MAIN_SHOW_QUERY_MATCH_MODAL'
-    }
-
-    static HideQueryMatchModal:Action<{
-    }> = {
-        name: 'MAIN_HIDE_QUERY_MATCH_MODAL'
-    }
-
-    static SelectModalQueryMatch:Action<{
-        queryIdx:number;
-        variantIdx:number;
-    }> = {
-        name: 'MAIN_SELECT_MODAL_QUERY_MATCH'
-    }
-
-    static ApplyModalQueryMatchSelection:Action<{
-    }> = {
-        name: 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION'
-    }
-
-    static SetColorTheme:Action<{
-        ident:string;
-    }> = {
-        name: 'MAIN_SET_COLOR_THEME'
-    }
-
-    static SaveSVGFigure:Action<{
-        tileId:number;
-    }> = {
-        name: 'MAIN_SAVE_SVG_FIGURE'
-    }
+        name: 'MAIN_SAVE_SVG_FIGURE',
+    };
 }
-
 
 /**
  * Tests whether the action is either  TileDataLoaded or TilePartialDataLoaded.
  * This can be used when syncing dependent tile.
  */
- export function isTileSomeDataLoadedAction(action:Action):boolean {
-    return action.name === Actions.TileDataLoaded.name ||
-            action.name === Actions.TilePartialDataLoaded.name;
+export function isTileSomeDataLoadedAction(action: Action): boolean {
+    return (
+        action.name === Actions.TileDataLoaded.name ||
+        action.name === Actions.TilePartialDataLoaded.name
+    );
 }

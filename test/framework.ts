@@ -21,20 +21,18 @@ import sinon from 'sinon';
 
 import { IAppServices, AppServices } from '../src/js/appServices.js';
 
-
 /**
  * T = Model type
  * U = Model state type
  */
 export class TestModelWrapper<T extends IModel<U>, U> {
+    appServicesStub: sinon.SinonStubbedInstance<IAppServices>;
 
-    appServicesStub:sinon.SinonStubbedInstance<IAppServices>;
+    dispatcher: ActionDispatcher;
 
-    dispatcher:ActionDispatcher;
+    lastAction: string; // records last action name received by dispatcher
 
-    lastAction:string; // records last action name received by dispatcher
-
-    model:T;
+    model: T;
 
     /**
      * Wrapper creates its own dispatcher and appServices stub and uses them to create model instance.
@@ -42,12 +40,21 @@ export class TestModelWrapper<T extends IModel<U>, U> {
      * @param modelArgs arguments object to create model instance
      * @param appServicesOverrides object to specify appServices stub return values if necessary
      */
-    constructor(modelFactory:(dispatcher:IActionDispatcher, appServices:IAppServices)=>T, appServicesOverrides = {}) {
+    constructor(
+        modelFactory: (
+            dispatcher: IActionDispatcher,
+            appServices: IAppServices
+        ) => T,
+        appServicesOverrides = {}
+    ) {
         this.dispatcher = new ActionDispatcher();
         this.dispatcher.registerActionListener((action, _) => {
             this.lastAction = action.name;
         });
-        this.appServicesStub = sinon.createStubInstance(AppServices, appServicesOverrides);
+        this.appServicesStub = sinon.createStubInstance(
+            AppServices,
+            appServicesOverrides
+        );
         this.model = modelFactory(this.dispatcher, this.appServicesStub);
     }
 
@@ -57,9 +64,15 @@ export class TestModelWrapper<T extends IModel<U>, U> {
      * @param checkActionName when this action occurrs call `checkState` function
      * @param checkState function to check model state or called appServices
      */
-    checkState(evokeAction:Action, checkActionName:string,
-                checkState:(state:U, appServicesStub:sinon.SinonStubbedInstance<IAppServices>) => void) {
-        this.model.addListener(state => {
+    checkState(
+        evokeAction: Action,
+        checkActionName: string,
+        checkState: (
+            state: U,
+            appServicesStub: sinon.SinonStubbedInstance<IAppServices>
+        ) => void
+    ) {
+        this.model.addListener((state) => {
             if (this.lastAction === checkActionName && state !== undefined) {
                 checkState(state, this.appServicesStub);
             }

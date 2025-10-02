@@ -19,8 +19,15 @@ import { IActionDispatcher } from 'kombo';
 import { List, Maths } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
-    TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileFactory,
+    TileFactoryArgs,
+} from '../../../page/tile.js';
 import { TimeDistTileConf } from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as singleViewInit } from './views/single.js';
@@ -28,7 +35,6 @@ import { init as compareViewInit } from './views/compare.js';
 import { MQueryTimeDistribStreamApi } from '../../../api/vendor/mquery/timeDistrib.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { validatePosQueryGenerator } from '../../../conf/common.js';
-
 
 /**
  * Important note: the tile works in two mutually exclusive
@@ -46,24 +52,31 @@ import { validatePosQueryGenerator } from '../../../conf/common.js';
  *
  */
 export class TimeDistTile implements ITileProvider {
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly model: TimeDistribModel;
 
-    private readonly model:TimeDistribModel;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly view: TileComponent;
 
-    private readonly view:TileComponent;
-
-    private readonly label:string;
+    private readonly label: string;
 
     constructor({
-        dispatcher, tileId, ut, theme, appServices, widthFract, queryMatches, conf,
-        isBusy, mainPosAttr, queryType
-    }:TileFactoryArgs<TimeDistTileConf>) {
-
+        dispatcher,
+        tileId,
+        ut,
+        theme,
+        appServices,
+        widthFract,
+        queryMatches,
+        conf,
+        isBusy,
+        mainPosAttr,
+        queryType,
+    }: TileFactoryArgs<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -71,20 +84,24 @@ export class TimeDistTile implements ITileProvider {
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
             initState: {
-                loadingStatus: isBusy ? LoadingStatus.BUSY_LOADING_MAIN : LoadingStatus.IDLE,
+                loadingStatus: isBusy
+                    ? LoadingStatus.BUSY_LOADING_MAIN
+                    : LoadingStatus.IDLE,
                 error: null,
                 corpname: conf.corpname,
-                subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],
+                subcnames: Array.isArray(conf.subcname)
+                    ? [...conf.subcname]
+                    : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 mainPosAttr,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
-                data: List.map(_ => [], queryMatches),
+                data: List.map((_) => [], queryMatches),
                 dataCmp: [],
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
                 useAbsFreq: false,
                 displayObserved: conf.showMeasuredFreq || false,
-                wordMainLabels: List.map(_ => '', queryMatches),
+                wordMainLabels: List.map((_) => '', queryMatches),
                 wordCmpInput: '',
                 wordCmp: '',
                 zoom: [null, null],
@@ -93,110 +110,137 @@ export class TimeDistTile implements ITileProvider {
                 toYear: conf.toYear,
                 maxItems: conf.maxItems,
                 fcrit: conf.fcrit,
-                mainBacklinks: List.map(_ => null, queryMatches),
+                mainBacklinks: List.map((_) => null, queryMatches),
                 cmpBacklink: null,
                 averagingYears: 0,
                 units: '%',
             },
-            api: new MQueryTimeDistribStreamApi(conf.apiURL, appServices, conf.backlink),
+            api: new MQueryTimeDistribStreamApi(
+                conf.apiURL,
+                appServices,
+                conf.backlink
+            ),
             infoApi: new CorpusInfoAPI(conf.apiURL, appServices),
             tileId,
             appServices,
             queryMatches,
         });
-        this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
-        this.view = queryType === QueryType.CMP_QUERY || queryType === QueryType.PREVIEW && queryMatches.length > 1 ?
-            compareViewInit(this.dispatcher, ut, theme, this.model) :
-            singleViewInit(this.dispatcher, ut, theme, this.model);
+        this.label = appServices.importExternalMessage(
+            conf.label || 'timeDistrib__main_label'
+        );
+        this.view =
+            queryType === QueryType.CMP_QUERY ||
+            (queryType === QueryType.PREVIEW && queryMatches.length > 1)
+                ? compareViewInit(this.dispatcher, ut, theme, this.model)
+                : singleViewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
+        return (
+            qt === QueryType.SINGLE_QUERY ||
+            qt === QueryType.CMP_QUERY ||
+            qt === QueryType.TRANSLAT_QUERY
+        );
     }
 
-    disable():void {
+    disable(): void {
         this.model.waitForAction({}, (_, sd) => sd);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return true;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return false;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<TimeDistTileConf> = {
-
+export const init: TileFactory<TimeDistTileConf> = {
     sanityCheck: (args) => {
         let ans = [];
         if (!args.conf.fcrit) {
-            ans.push(new Error(`${args.conf.tileType}: missing "fcrit" configuration`));
+            ans.push(
+                new Error(
+                    `${args.conf.tileType}: missing "fcrit" configuration`
+                )
+            );
         }
         if (!args.conf.maxItems) {
-            ans.push(new Error(`${args.conf.tileType}: missing "maxItems" configuration`));
+            ans.push(
+                new Error(
+                    `${args.conf.tileType}: missing "maxItems" configuration`
+                )
+            );
         }
         if (!args.conf.posQueryGenerator) {
-            ans.push(new Error(`${args.conf.tileType}: missing "posQueryGenerator" configuration`));
+            ans.push(
+                new Error(
+                    `${args.conf.tileType}: missing "posQueryGenerator" configuration`
+                )
+            );
         }
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            ans.push(new Error(`invalid posQueryGenerator in timeDistrib tile, ${message}`));
+            ans.push(
+                new Error(
+                    `invalid posQueryGenerator in timeDistrib tile, ${message}`
+                )
+            );
         }
         return ans;
     },
 
     create: (args) => {
         return new TimeDistTile(args);
-    }
+    },
 };

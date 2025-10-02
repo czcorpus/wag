@@ -25,12 +25,12 @@ export const ConcordanceTileView = styled.div`
     overflow: hidden;
 `;
 
-export const QueryInfo = styled.p<{theme:Theme}>`
+export const QueryInfo = styled.p<{ theme: Theme }>`
     font-size: 1.2em;
 
     a.variant {
         cursor: pointer;
-        color: ${props => props.theme.colorDefaultText};
+        color: ${(props) => props.theme.colorDefaultText};
         font-weight: bold;
         text-decoration: none;
     }
@@ -40,28 +40,29 @@ export const QueryInfo = styled.p<{theme:Theme}>`
     }
 `;
 
-export const Summary = styled.dl<{theme:Theme}>`
+export const Summary = styled.dl<{ theme: Theme }>`
     margin-top: 0.7em;
     margin-bottom: 1.5em;
 
-    dt, dd {
+    dt,
+    dd {
         display: inline-block;
         margin: 0;
     }
 
     dt {
-        font-family: ${props => props.theme.condensedFontFamily};
-        color: ${props => props.theme.colorLightText};
+        font-family: ${(props) => props.theme.condensedFontFamily};
+        color: ${(props) => props.theme.colorLightText};
     }
 
     dd {
         font-weight: bold;
         margin-left: 0.3em;
-        color: ${props => props.theme.colorLightText};
+        color: ${(props) => props.theme.colorLightText};
     }
 
     dd:not(:last-child)::after {
-        content: " | ";
+        content: ' | ';
         font-weight: normal;
     }
 
@@ -70,13 +71,14 @@ export const Summary = styled.dl<{theme:Theme}>`
     }
 `;
 
-export const LineMetadata = styled.div<{theme:Theme}>`
+export const LineMetadata = styled.div<{ theme: Theme }>`
     max-width: 30em;
     position: absolute;
     padding: 1em;
-    background-color: ${(props:{theme:Theme}) => props.theme.tileBackgroundColor};
+    background-color: ${(props: { theme: Theme }) =>
+        props.theme.tileBackgroundColor};
     margin-left: 2em;
-    border: 1px solid ${props => props.theme.colorInvertedSecondaryText};
+    border: 1px solid ${(props) => props.theme.colorInvertedSecondaryText};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
@@ -88,9 +90,8 @@ export const LineMetadata = styled.div<{theme:Theme}>`
         padding: 0;
 
         dd {
-            margin-left: .7em;
+            margin-left: 0.7em;
             padding-left: 0;
-
         }
 
         dt:not(:first-child) {
@@ -106,8 +107,8 @@ export const LineMetadata = styled.div<{theme:Theme}>`
     }
 `;
 
-export const ConcLines = styled.div<{theme:Theme}>`
-    font-family: ${props => props.theme.condensedFontFamily};
+export const ConcLines = styled.div<{ theme: Theme }>`
+    font-family: ${(props) => props.theme.condensedFontFamily};
     display: flex;
     justify-content: center;
     border-spacing: 0;
@@ -131,13 +132,13 @@ export const ConcLines = styled.div<{theme:Theme}>`
             display: inline-block;
             padding-left: 0.3em;
             padding-right: 0.3em;
-            color: ${props => props.theme.colorLogoPink};
+            color: ${(props) => props.theme.colorLogoPink};
         }
     }
 
     tr.separator:not(:last-of-type) td {
         border-width: 0 0 1px 0;
-        border-color: ${props => props.theme.colorInvertedSecondaryText};
+        border-color: ${(props) => props.theme.colorInvertedSecondaryText};
         border-style: solid;
     }
 
@@ -149,7 +150,7 @@ export const ConcLines = styled.div<{theme:Theme}>`
         display: block;
 
         tr:nth-child(odd) {
-            background-color: ${props => props.theme.colorWhitelikeBlue};
+            background-color: ${(props) => props.theme.colorWhitelikeBlue};
         }
 
         tr {
@@ -158,11 +159,13 @@ export const ConcLines = styled.div<{theme:Theme}>`
     }
 
     &.sent.aligned {
-        tr.Row:nth-child(4n+1), tr.Row:nth-child(4n+2) {
+        tr.Row:nth-child(4n + 1),
+        tr.Row:nth-child(4n + 2) {
             background-color: #eff9fe;
         }
 
-        tr.Row:nth-child(4n+2), tr.Row:nth-child(4n) {
+        tr.Row:nth-child(4n + 2),
+        tr.Row:nth-child(4n) {
             margin-bottom: 0.1em;
         }
     }
@@ -174,7 +177,7 @@ export const ConcLines = styled.div<{theme:Theme}>`
     }
 `;
 
-export const Row = styled.tr<{theme:Theme}>`
+export const Row = styled.tr<{ theme: Theme }>`
     white-space: nowrap;
 
     td {
@@ -194,11 +197,11 @@ export const Row = styled.tr<{theme:Theme}>`
         padding-left: 0.5em;
         padding-right: 0.5em;
         text-align: center;
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
     }
 
     td .coll {
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
         font-style: italic;
         display: inline-block;
         padding-left: 0.2em;
@@ -206,11 +209,9 @@ export const Row = styled.tr<{theme:Theme}>`
     }
 `;
 
-
-export const SentRow = styled.tr<{theme:Theme}>`
-
+export const SentRow = styled.tr<{ theme: Theme }>`
     &.highlighted {
-        background-color: ${props => props.theme.colorDataHighlightRow};
+        background-color: ${(props) => props.theme.colorDataHighlightRow};
     }
 
     white-space: inherit;
@@ -221,16 +222,15 @@ export const SentRow = styled.tr<{theme:Theme}>`
     }
 
     td .coll {
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
         font-style: italic;
         display: inline-block;
         padding-left: 0.2em;
         padding-right: 0.2em;
     }
-
 `;
 
-export const Controls = styled.form<{theme:Theme}>`
+export const Controls = styled.form<{ theme: Theme }>`
     margin-bottom: 0.7em;
 
     fieldset {

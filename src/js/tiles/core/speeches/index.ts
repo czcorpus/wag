@@ -20,62 +20,75 @@ import { pipe, Color, List } from 'cnc-tskit';
 
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
-    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
-    TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileConf,
+    TileFactory,
+    TileFactoryArgs,
+} from '../../../page/tile.js';
 import { SpeechesModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { SpeechesApi } from './api.js';
 import { AudioLinkGenerator } from './common.js';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface SpeechesTileConf extends TileConf {
-    apiURL:string;
-    corpname:string;
-    subcname?:string;
-    subcDesc?:LocalizedConfMsg;
-    speakerIdAttr:[string, string];
-    speechSegment:[string, string];
-    speechOverlapAttr:[string, string];
-    speechOverlapVal:string;
-    maxNumSpeeches?:number;
-    audioApiURL?:string;
-    posQueryGenerator:PosQueryGeneratorType;
+    apiURL: string;
+    corpname: string;
+    subcname?: string;
+    subcDesc?: LocalizedConfMsg;
+    speakerIdAttr: [string, string];
+    speechSegment: [string, string];
+    speechOverlapAttr: [string, string];
+    speechOverlapVal: string;
+    maxNumSpeeches?: number;
+    audioApiURL?: string;
+    posQueryGenerator: PosQueryGeneratorType;
 }
 
-
 export class SpeechesTile implements ITileProvider {
+    private readonly model: SpeechesModel;
 
+    private readonly tileId: number;
 
-    private readonly model:SpeechesModel;
+    private view: TileComponent;
 
-    private readonly tileId:number;
+    private readonly label: string;
 
-    private view:TileComponent;
-
-    private readonly label:string;
-
-    private readonly widthFract:number;
+    private readonly widthFract: number;
 
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({
-        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy, queryMatches
-    }:TileFactoryArgs<SpeechesTileConf>) {
-
+        dispatcher,
+        tileId,
+        ut,
+        theme,
+        appServices,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+    }: TileFactoryArgs<SpeechesTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
+        const colorGen = theme.categoryPalette(List.repeat((v) => v, 10));
         this.model = new SpeechesModel({
             dispatcher,
             tileId,
             appServices,
             api: new SpeechesApi(conf.apiURL, appServices, conf.backlink),
-            audioLinkGenerator: conf.audioApiURL ?
-                new AudioLinkGenerator(conf.audioApiURL) :
-                null,
+            audioLinkGenerator: conf.audioApiURL
+                ? new AudioLinkGenerator(conf.audioApiURL)
+                : null,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -83,17 +96,24 @@ export class SpeechesTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 subcname: conf.subcname,
-                subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
+                subcDesc: conf.subcDesc
+                    ? appServices.importExternalMessage(conf.subcDesc)
+                    : '',
                 speakerIdAttr: [conf.speakerIdAttr[0], conf.speakerIdAttr[1]],
                 speechSegment: [conf.speechSegment[0], conf.speechSegment[1]],
-                speechOverlapAttr: [conf.speechOverlapAttr[0], conf.speechOverlapAttr[1]],
+                speechOverlapAttr: [
+                    conf.speechOverlapAttr[0],
+                    conf.speechOverlapAttr[1],
+                ],
                 speechOverlapVal: conf.speechOverlapVal,
                 speakerColors: pipe(
-                    List.repeat(v => v, 10),
-                    List.map(v => Color.importColor(0.9, colorGen(v)))
+                    List.repeat((v) => v, 10),
+                    List.map((v) => Color.importColor(0.9, colorGen(v)))
                 ),
                 speakerColorsAttachments: {},
-                spkOverlapMode: (conf.speechOverlapAttr || [])[1] ? 'full' : 'simple',
+                spkOverlapMode: (conf.speechOverlapAttr || [])[1]
+                    ? 'full'
+                    : 'simple',
                 leftRange: SpeechesModel.DEFAULT_LEFT_RANGE,
                 rightRange: SpeechesModel.DEFAULT_RIGHT_RANGE,
                 maxSingleSideRange: 50, // TODO is that right?
@@ -102,90 +122,98 @@ export class SpeechesTile implements ITileProvider {
                 backlink: null,
                 playback: null,
                 playbackEnabled: !!conf.audioApiURL,
-                maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
+                maxNumSpeeches:
+                    conf.maxNumSpeeches ||
+                    SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
                 posQueryGenerator: conf.posQueryGenerator,
-                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
-            }
+                queryMatches: List.map(
+                    (lemma) => findCurrQueryMatch(lemma),
+                    queryMatches
+                ),
+            },
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
     /**
      */
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
-    disable():void {
+    disable(): void {
         this.model.waitForAction({}, (_, sd) => sd);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return true;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return false;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<SpeechesTileConf> = {
-
+export const init: TileFactory<SpeechesTileConf> = {
     sanityCheck: (args) => {
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            return [new Error(`invalid posQueryGenerator in speeches tile, ${message}`)];
+            return [
+                new Error(
+                    `invalid posQueryGenerator in speeches tile, ${message}`
+                ),
+            ];
         }
     },
 
-    create: (args) => new SpeechesTile(args)
+    create: (args) => new SpeechesTile(args),
 };

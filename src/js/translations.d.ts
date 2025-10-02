@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-declare module "translations" {
-
-    var translations:{[locale:string]:{[key:string]:string}};
+declare module 'translations' {
+    var translations: { [locale: string]: { [key: string]: string } };
 
     export = translations;
 }

@@ -23,32 +23,44 @@ import { AvailableLanguage } from '../../page/hostPage.js';
 import { HTTPAction } from '../../page/actions.js';
 import { List } from 'cnc-tskit';
 
-
-export function init(ut:ViewUtils<GlobalComponents>) {
-
+export function init(ut: ViewUtils<GlobalComponents>) {
     class LangSwitchToolbar extends React.Component<{
-        languages:Array<AvailableLanguage>;
-        uiLang:string;
-        returnUrl:string;
+        languages: Array<AvailableLanguage>;
+        uiLang: string;
+        returnUrl: string;
     }> {
-
         render() {
             return (
                 <div className="LangSwitchToolbar">
-                    <form method="POST" action={ut.createActionUrl(HTTPAction.SET_UI_LANG)}>
-                        <input type="hidden" name="returnUrl" value={this.props.returnUrl} />
+                    <form
+                        method="POST"
+                        action={ut.createActionUrl(HTTPAction.SET_UI_LANG)}
+                    >
+                        <input
+                            type="hidden"
+                            name="returnUrl"
+                            value={this.props.returnUrl}
+                        />
                         <ul>
-                            {
-                                List.map(v => (
+                            {List.map(
+                                (v) => (
                                     <li key={v.code}>
-                                        <button className={v.code === this.props.uiLang ? 'current' : null} type="submit" name="lang" value={v.code}>
+                                        <button
+                                            className={
+                                                v.code === this.props.uiLang
+                                                    ? 'current'
+                                                    : null
+                                            }
+                                            type="submit"
+                                            name="lang"
+                                            value={v.code}
+                                        >
                                             {v.label}
                                         </button>
                                     </li>
-                                    ),
-                                    this.props.languages
-                                )
-                            }
+                                ),
+                                this.props.languages
+                            )}
                         </ul>
                     </form>
                 </div>
@@ -56,7 +68,5 @@ export function init(ut:ViewUtils<GlobalComponents>) {
         }
     }
 
-
     return LangSwitchToolbar;
-
 }

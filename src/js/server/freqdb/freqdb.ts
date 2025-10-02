@@ -22,23 +22,21 @@ import { IAppServices } from '../../appServices.js';
 import { SourceDetails } from '../../types.js';
 import { MainPosAttrValues } from '../../conf/index.js';
 
-
 export interface IFreqDB {
-
     findQueryMatches(
-        appServices:IAppServices,
-        word:string,
-        posAttr:MainPosAttrValues,
-        minFreq:number
-    ):Observable<Array<QueryMatch>>;
+        appServices: IAppServices,
+        word: string,
+        posAttr: MainPosAttrValues,
+        minFreq: number
+    ): Observable<Array<QueryMatch>>;
 
     getSimilarFreqWords(
-        appServices:IAppServices,
-        lemma:string,
-        pos:Array<string>,
-        posAttr:MainPosAttrValues,
-        rng:number
-    ):Observable<Array<QueryMatch>>;
+        appServices: IAppServices,
+        lemma: string,
+        pos: Array<string>,
+        posAttr: MainPosAttrValues,
+        rng: number
+    ): Observable<Array<QueryMatch>>;
 
     /**
      * Find words with similar frequency as the one specified by lemma and pos.
@@ -46,11 +44,14 @@ export interface IFreqDB {
      * we use array type).
      */
     getWordForms(
-        appServices:IAppServices,
-        lemma:string,
-        pos:Array<string>,
-        posAttr:MainPosAttrValues
-    ):Observable<Array<QueryMatch>>;
+        appServices: IAppServices,
+        lemma: string,
+        pos: Array<string>,
+        posAttr: MainPosAttrValues
+    ): Observable<Array<QueryMatch>>;
 
-    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(
+        uiLang: string,
+        corpname: string
+    ): Observable<SourceDetails>;
 }

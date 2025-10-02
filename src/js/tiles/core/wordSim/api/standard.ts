@@ -27,76 +27,78 @@ import { IApiServices } from '../../../../appServices.js';
 import { Backlink } from '../../../../page/tile.js';
 import urlJoin from 'url-join';
 import { IDataStreaming } from '../../../../page/streaming.js';
-import { CorpusInfoAPI, QueryArgs, HTTPResponse as MQHTTPResponse }
-    from '../../../../api/vendor/mquery/corpusInfo.js';
-
-
+import {
+    CorpusInfoAPI,
+    QueryArgs,
+    HTTPResponse as MQHTTPResponse,
+} from '../../../../api/vendor/mquery/corpusInfo.js';
 
 export interface WordSimEntry {
-    word:string;
-    score:number;
-    interactionId?:string;
+    word: string;
+    score: number;
+    interactionId?: string;
 }
 
 export type WordSimApiLegacyResponse = Array<WordSimEntry>;
 
 export interface WordSimApiResponse {
-    words:Array<WordSimEntry>;
+    words: Array<WordSimEntry>;
 }
 
 export interface CNCWord2VecSimApiArgs {
-    corpus:string;
-    model:string;
-    word:string;
-    pos:string;
-    minScore:number; // default 0
-    limit:number; // default 10
+    corpus: string;
+    model: string;
+    word: string;
+    pos: string;
+    minScore: number; // default 0
+    limit: number; // default 10
 }
 
 export type HTTPResponse = Array<{
-    word:string;
-    score:number;
+    word: string;
+    score: number;
 }>;
-
 
 export enum OperationMode {
     MeansLike = 'ml',
-    SoundsLike = 'sl'
+    SoundsLike = 'sl',
 }
 
 /**
  *
  */
 export class WSServerCorpusInfo implements DataApi<QueryArgs, SourceDetails> {
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
-
-    constructor(apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL: string, apiServices: IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
-
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:QueryArgs):Observable<SourceDetails> {
-        return streaming.registerTileRequest<MQHTTPResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: QueryArgs
+    ): Observable<SourceDetails> {
+        return streaming
+            .registerTileRequest<MQHTTPResponse>({
                 tileId,
                 method: HTTP.Method.GET,
-                url: args ?
-                    urlJoin(
-                        this.apiURL,
-                        'corpora',
-                        encodeURIComponent(args.corpname),
-                    ) :
-                    '',
+                url: args
+                    ? urlJoin(
+                          this.apiURL,
+                          'corpora',
+                          encodeURIComponent(args.corpname)
+                      )
+                    : '',
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map<MQHTTPResponse, SourceDetails>(
-                (resp) => ({
+            })
+            .pipe(
+                map<MQHTTPResponse, SourceDetails>((resp) => ({
                     tileId,
                     title: resp.corpus.data.corpname,
                     description: resp.corpus.data.description,
@@ -106,110 +108,116 @@ export class WSServerCorpusInfo implements DataApi<QueryArgs, SourceDetails> {
                     citationInfo: {
                         sourceName: resp.corpus.data.corpname,
                         main: resp.corpus.data.citationInfo?.default_ref,
-                        papers: resp.corpus.data.citationInfo?.article_ref || [],
-                        otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
+                        papers:
+                            resp.corpus.data.citationInfo?.article_ref || [],
+                        otherBibliography:
+                            resp.corpus.data.citationInfo?.other_bibliography ||
+                            undefined,
                     },
 
-                    keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
-                })
-            )
-        );
+                    keywords: List.map(
+                        (v) => ({ name: v, color: null }),
+                        resp.corpus.data.srchKeywords
+                    ),
+                }))
+            );
     }
-
-
 }
 
 /**
  * This is a client for CNC's Word-Sim-Service (https://is.korpus.cz/git/machalek/word-sim-service)
  * which is just a glue for http server and word2vec handling libraries.
  */
-export class CNCWord2VecSimApi implements ResourceApi<CNCWord2VecSimApiArgs, WordSimApiResponse> {
+export class CNCWord2VecSimApi
+    implements ResourceApi<CNCWord2VecSimApiArgs, WordSimApiResponse>
+{
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+    private readonly srcInfoApi: DataApi<QueryArgs, SourceDetails>;
 
-    private readonly srcInfoApi:DataApi<QueryArgs, SourceDetails>;
-
-    constructor(
-        apiURL:string,
-        srcInfoURL:string,
-        apiServices:IApiServices
-    ) {
+    constructor(apiURL: string, srcInfoURL: string, apiServices: IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
-        this.srcInfoApi = srcInfoURL ?
-            new CorpusInfoAPI(srcInfoURL, apiServices) :
-            new WSServerCorpusInfo(apiURL, apiServices);
+        this.srcInfoApi = srcInfoURL
+            ? new CorpusInfoAPI(srcInfoURL, apiServices)
+            : new WSServerCorpusInfo(apiURL, apiServices);
     }
 
-    supportsTweaking():boolean {
+    supportsTweaking(): boolean {
         return false;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return false;
     }
 
-    getSourceDescription(streaming:IDataStreaming, tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
-        return this.srcInfoApi ?
-            this.srcInfoApi.call(streaming, tileId, 0, {
-                corpname: corpname,
-                lang: domain
-            }) :
-             rxOf({
-                tileId: tileId,
-                title: 'Word2Vec/Wang2Vec generated from an unknown source',
-                description: '',
-                author: '',
-                href: '',
-                structure: {
-                    numTokens: 0 // TODO
-                }
-            });
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        domain: string,
+        corpname: string
+    ): Observable<SourceDetails> {
+        return this.srcInfoApi
+            ? this.srcInfoApi.call(streaming, tileId, 0, {
+                  corpname: corpname,
+                  lang: domain,
+              })
+            : rxOf({
+                  tileId: tileId,
+                  title: 'Word2Vec/Wang2Vec generated from an unknown source',
+                  description: '',
+                  author: '',
+                  href: '',
+                  structure: {
+                      numTokens: 0, // TODO
+                  },
+              });
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
         return null;
     }
 
-    private prepareArgs(queryArgs:CNCWord2VecSimApiArgs):string {
+    private prepareArgs(queryArgs: CNCWord2VecSimApiArgs): string {
         return pipe(
             {
-                ...queryArgs
+                ...queryArgs,
             },
             Dict.filter((v, k) => k === 'minScore' || k === 'limit'),
             Dict.toEntries(),
-            List.map(
-                ([k, v]) => `${k}=${encodeURIComponent(v)}`
-            ),
-            x => x.join('&')
-        )
+            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
+            (x) => x.join('&')
+        );
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:CNCWord2VecSimApiArgs|null):Observable<WordSimApiResponse> {
-        return streaming.registerTileRequest<WordSimApiLegacyResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: CNCWord2VecSimApiArgs | null
+    ): Observable<WordSimApiResponse> {
+        return streaming
+            .registerTileRequest<WordSimApiLegacyResponse>({
                 tileId,
                 method: HTTP.Method.GET,
-                url: args ?
-                    urlJoin(
-                        this.apiURL,
-                        'corpora',
-                        encodeURIComponent(args.corpus),
-                        'similarWords',
-                        encodeURIComponent(args.model),
-                        encodeURIComponent(args.word),
-                        encodeURIComponent(args.pos)
-                    ) + '?' + this.prepareArgs(args) :
-                    '',
+                url: args
+                    ? urlJoin(
+                          this.apiURL,
+                          'corpora',
+                          encodeURIComponent(args.corpus),
+                          'similarWords',
+                          encodeURIComponent(args.model),
+                          encodeURIComponent(args.word),
+                          encodeURIComponent(args.pos)
+                      ) +
+                      '?' +
+                      this.prepareArgs(args)
+                    : '',
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map(
-                resp => resp ? {words: resp} : { words: [] }
-            )
-        );
+            })
+            .pipe(map((resp) => (resp ? { words: resp } : { words: [] })));
     }
 }

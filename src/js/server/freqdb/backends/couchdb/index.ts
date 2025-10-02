@@ -28,7 +28,6 @@ import { importQueryPosWithLabel, posTagsEqual } from '../../../../postag.js';
 import { SourceDetails } from '../../../../types.js';
 import { CouchStoredSourceInfo } from './sourceInfo.js';
 
-
 /*
 CouchDB as an internal word frequency database for WaG
 
@@ -51,7 +50,6 @@ the database functional along with WaG (see below).
 */
 
 enum Views {
-
     /*
     function (doc) {
         emit(doc.arf, 1);
@@ -68,7 +66,7 @@ enum Views {
     */
     BY_ARF_1G = '1g-by-arf',
 
-   /*
+    /*
     function (doc) {
         if (doc.lemma.split(' ').length === 2) {
             emit(doc.arf, null);
@@ -100,207 +98,223 @@ enum Views {
         });
     }
     */
-   BY_WORD = 'by-word'
+    BY_WORD = 'by-word',
 }
 
 interface HTTPNgramDoc {
-    _id:string;
-    _rev:string;
-    lemma:string;
-    pos:string;
-    upos:string;
-    count:number;
-    arf:number;
-    forms:Array<{
-        word:string;
-        count:number;
-        arf:number;
+    _id: string;
+    _rev: string;
+    lemma: string;
+    pos: string;
+    upos: string;
+    count: number;
+    arf: number;
+    forms: Array<{
+        word: string;
+        count: number;
+        arf: number;
     }>;
 }
 
 interface HTTPNgramResponse {
-    total_rows:number;
-    offset:number;
-    rows:Array<{
-        id:string;
-        key:string;
-        value:number;
-        doc:HTTPNgramDoc;
+    total_rows: number;
+    offset: number;
+    rows: Array<{
+        id: string;
+        key: string;
+        value: number;
+        doc: HTTPNgramDoc;
     }>;
 }
 
-
 export class CouchFreqDB implements IFreqDB {
+    private readonly dbUrl: string;
 
-    private readonly dbUrl:string;
+    private readonly sourceDbApi: CouchStoredSourceInfo | null;
 
-    private readonly sourceDbApi:CouchStoredSourceInfo|null;
+    private readonly dbUser: string;
 
-    private readonly dbUser:string;
+    private readonly dbPassword: string;
 
-    private readonly dbPassword:string;
+    private readonly corpusSize: number;
 
-    private readonly corpusSize:number;
+    private readonly maxSingleTypeNgramArf: number;
 
-    private readonly maxSingleTypeNgramArf:number;
-
-    constructor(dbPath:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions) {
+    constructor(
+        dbPath: string,
+        corpusSize: number,
+        apiServices: IApiServices,
+        options: FreqDbOptions
+    ) {
         this.dbUrl = dbPath;
-        this.sourceDbApi = options.sourceInfoUrl ?
-            new CouchStoredSourceInfo(
-                options.sourceInfoUrl,
-                options.username,
-                options.password,
-                apiServices
-            ) :
-            null;
+        this.sourceDbApi = options.sourceInfoUrl
+            ? new CouchStoredSourceInfo(
+                  options.sourceInfoUrl,
+                  options.username,
+                  options.password,
+                  apiServices
+              )
+            : null;
         this.dbUser = options.username;
         this.dbPassword = options.password;
         this.corpusSize = corpusSize;
-        if (options.maxSingleTypeNgramArf && options.maxSingleTypeNgramArf > 3) {
-            throw new Error('maxSingleTypeNgramArf can be only from {0, 1, 2, 3}');
+        if (
+            options.maxSingleTypeNgramArf &&
+            options.maxSingleTypeNgramArf > 3
+        ) {
+            throw new Error(
+                'maxSingleTypeNgramArf can be only from {0, 1, 2, 3}'
+            );
         }
         this.maxSingleTypeNgramArf = options.maxSingleTypeNgramArf || 0;
     }
 
-    private getViewByLemmaWords(lemma:string):Views.BY_ARF|Views.BY_ARF_1G|Views.BY_ARF_2G|Views.BY_ARF_3G {
+    private getViewByLemmaWords(
+        lemma: string
+    ): Views.BY_ARF | Views.BY_ARF_1G | Views.BY_ARF_2G | Views.BY_ARF_3G {
         const lemmaLen = lemma.split(' ').length;
         if (lemmaLen <= this.maxSingleTypeNgramArf) {
             switch (lemmaLen) {
-                case 1: return Views.BY_ARF_1G;
-                case 2: return Views.BY_ARF_2G;
-                case 3: return Views.BY_ARF_3G;
+                case 1:
+                    return Views.BY_ARF_1G;
+                case 2:
+                    return Views.BY_ARF_2G;
+                case 3:
+                    return Views.BY_ARF_3G;
             }
         }
         return Views.BY_ARF;
     }
 
-    private queryExact(view:string, value:string):Observable<HTTPNgramResponse> {
-        return this.queryServer(view, {key: `"${value}"`});
+    private queryExact(
+        view: string,
+        value: string
+    ): Observable<HTTPNgramResponse> {
+        return this.queryServer(view, { key: `"${value}"` });
     }
 
-    private queryServer(view:string, args:{[key:string]:number|string}):Observable<HTTPNgramResponse> {
+    private queryServer(
+        view: string,
+        args: { [key: string]: number | string }
+    ): Observable<HTTPNgramResponse> {
         return serverHttpRequest<HTTPNgramResponse>({
             url: this.dbUrl + view,
             method: HTTP.Method.GET,
-            params: {...args, include_docs: 'true'},
+            params: { ...args, include_docs: 'true' },
             auth: {
                 username: this.dbUser,
-                password: this.dbPassword
-            }
+                password: this.dbPassword,
+            },
         }).pipe(
-            catchError(
-                (err) => {
-                    throw new Error(`Failed to fetch frequency information (view: ${view}, key: ${args['key'] || '??'}): ${err}`);
-                }
-            )
+            catchError((err) => {
+                throw new Error(
+                    `Failed to fetch frequency information (view: ${view}, key: ${args['key'] || '??'}): ${err}`
+                );
+            })
         );
     }
 
     private mergeDocs(
-        items:Array<{doc:HTTPNgramDoc}>,
-        word:string,
-        posAttr:MainPosAttrValues,
-        appServices:IAppServices
-    ):Array<QueryMatch> {
+        items: Array<{ doc: HTTPNgramDoc }>,
+        word: string,
+        posAttr: MainPosAttrValues,
+        appServices: IAppServices
+    ): Array<QueryMatch> {
         return pipe(
             items,
-            List.map(v => v.doc),
-            List.groupBy(v => v._id),
-            List.map(([,v]) => v[0]),
-            List.map<HTTPNgramDoc, QueryMatch>(v => ({
+            List.map((v) => v.doc),
+            List.groupBy((v) => v._id),
+            List.map(([, v]) => v[0]),
+            List.map<HTTPNgramDoc, QueryMatch>((v) => ({
                 word: word,
                 lemma: v.lemma,
                 pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                 upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
                 abs: v.count,
-                ipm: v.count / this.corpusSize * 1e6,
-                flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
+                ipm: (v.count / this.corpusSize) * 1e6,
+                flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
                 arf: v.arf,
-                isCurrent: false
+                isCurrent: false,
             }))
         );
     }
 
     findQueryMatches(
-        appServices:IAppServices,
-        word:string,
-        posAttr:MainPosAttrValues,
-        minFreq:number
-    ):Observable<Array<QueryMatch>> {
+        appServices: IAppServices,
+        word: string,
+        posAttr: MainPosAttrValues,
+        minFreq: number
+    ): Observable<Array<QueryMatch>> {
         return forkJoin([
             this.queryExact(Views.BY_WORD, word),
             this.queryExact(Views.BY_LEMMA, word),
         ]).pipe(
-            map(([resp1, resp2]) => this.mergeDocs(List.concat(resp1.rows, resp2.rows), word, posAttr, appServices))
-        )
+            map(([resp1, resp2]) =>
+                this.mergeDocs(
+                    List.concat(resp1.rows, resp2.rows),
+                    word,
+                    posAttr,
+                    appServices
+                )
+            )
+        );
     }
 
     getSimilarFreqWords(
-        appServices:IAppServices,
-        lemma:string,
-        pos:Array<string>,
-        posAttr:MainPosAttrValues,
-        rng:number
-    ):Observable<Array<QueryMatch>> {
+        appServices: IAppServices,
+        lemma: string,
+        pos: Array<string>,
+        posAttr: MainPosAttrValues,
+        rng: number
+    ): Observable<Array<QueryMatch>> {
         const view = this.getViewByLemmaWords(lemma);
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
-            concatMap(
-                resp => {
-                    const srch = List.find(v => v.doc.lemma === lemma && pos.join(' ') === v.doc[posAttr], resp.rows);
-                    return pos.length === 1 && srch ?
-                        merge(
-                            // we must search for exact frequency separately to prevent
-                            // finding the same results in the next two searches and
-                            // (worse) by exhausting the search items limit.
-                            this.queryServer(
-                                view,
-                                {
-                                    key: srch.doc.arf,
-                                    limit: rng
-                                }
-                            ),
-                            this.queryServer(
-                                view,
-                                {
-                                    startkey: srch.doc.arf + srch.doc.arf / 1e5,
-                                    limit: rng
-                                }
-                            ),
-                            this.queryServer(
-                                view,
-                                {
-                                    startkey: srch.doc.arf - srch.doc.arf / 1e6,
-                                    limit: rng,
-                                    descending: 'true'
-                                }
-                            )
-                        ) :
-                        EMPTY
-                }
-            ),
-            map(
-                (resp) => List.map(
-                    v => v.doc,
+            concatMap((resp) => {
+                const srch = List.find(
+                    (v) =>
+                        v.doc.lemma === lemma &&
+                        pos.join(' ') === v.doc[posAttr],
                     resp.rows
-                )
-            ),
-            reduce(
-                (acc, v) => acc.concat(v),
-                [] as Array<HTTPNgramDoc>
-            ),
-            map(
-                values => List.map(
-                    v => ({
+                );
+                return pos.length === 1 && srch
+                    ? merge(
+                          // we must search for exact frequency separately to prevent
+                          // finding the same results in the next two searches and
+                          // (worse) by exhausting the search items limit.
+                          this.queryServer(view, {
+                              key: srch.doc.arf,
+                              limit: rng,
+                          }),
+                          this.queryServer(view, {
+                              startkey: srch.doc.arf + srch.doc.arf / 1e5,
+                              limit: rng,
+                          }),
+                          this.queryServer(view, {
+                              startkey: srch.doc.arf - srch.doc.arf / 1e6,
+                              limit: rng,
+                              descending: 'true',
+                          })
+                      )
+                    : EMPTY;
+            }),
+            map((resp) => List.map((v) => v.doc, resp.rows)),
+            reduce((acc, v) => acc.concat(v), [] as Array<HTTPNgramDoc>),
+            map((values) =>
+                List.map(
+                    (v) => ({
                         lemma: v.lemma,
                         pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
-                        upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
-                        ipm: v.count / this.corpusSize * 1e6,
-                        flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
+                        upos: importQueryPosWithLabel(
+                            v.upos,
+                            'upos',
+                            appServices
+                        ),
+                        ipm: (v.count / this.corpusSize) * 1e6,
+                        flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
                         word: lemma,
                         abs: v.count,
                         arf: v.arf,
-                        isCurrent: false
+                        isCurrent: false,
                     }),
                     values
                 )
@@ -309,59 +323,65 @@ export class CouchFreqDB implements IFreqDB {
     }
 
     getWordForms(
-        appServices:IAppServices,
-        lemma:string,
-        pos:Array<string>,
-        posAttr:MainPosAttrValues
-    ):Observable<Array<QueryMatch>> {
+        appServices: IAppServices,
+        lemma: string,
+        pos: Array<string>,
+        posAttr: MainPosAttrValues
+    ): Observable<Array<QueryMatch>> {
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
-            map(resp => {
-                const srch = pos.length === 0 ?
-                    List.filter(
-                        v => v.doc.lemma === lemma,
-                        resp.rows
-                    ) :
-                    List.filter(
-                        v => v.doc.lemma === lemma && (posTagsEqual(pos, v.doc.pos.split(' '))),
-                        resp.rows
-                );
+            map((resp) => {
+                const srch =
+                    pos.length === 0
+                        ? List.filter((v) => v.doc.lemma === lemma, resp.rows)
+                        : List.filter(
+                              (v) =>
+                                  v.doc.lemma === lemma &&
+                                  posTagsEqual(pos, v.doc.pos.split(' ')),
+                              resp.rows
+                          );
                 return pipe(
                     srch,
-                    List.flatMap(
-                        v => List.map(form => tuple(v.doc.pos, v.doc.upos, form), v.doc.forms)
+                    List.flatMap((v) =>
+                        List.map(
+                            (form) => tuple(v.doc.pos, v.doc.upos, form),
+                            v.doc.forms
+                        )
                     ),
-                    List.sortBy(
-                        ([,,form]) => form.count
-                    ),
-                    List.map(
-                        ([pos, upos, form]) => ({
-                            lemma: lemma,
-                            pos: importQueryPosWithLabel(pos, 'pos', appServices),
-                            upos: importQueryPosWithLabel(upos, 'upos', appServices),
-                            ipm: form.count / this.corpusSize * 1e6,
-                            flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
-                            word: form.word,
-                            abs: form.count,
-                            arf: form.arf,
-                            isCurrent: false
-                        })
-                    )
-                )
+                    List.sortBy(([, , form]) => form.count),
+                    List.map(([pos, upos, form]) => ({
+                        lemma: lemma,
+                        pos: importQueryPosWithLabel(pos, 'pos', appServices),
+                        upos: importQueryPosWithLabel(
+                            upos,
+                            'upos',
+                            appServices
+                        ),
+                        ipm: (form.count / this.corpusSize) * 1e6,
+                        flevel: calcFreqBand(
+                            (form.count / this.corpusSize) * 1e6
+                        ),
+                        word: form.word,
+                        abs: form.count,
+                        arf: form.arf,
+                        isCurrent: false,
+                    }))
+                );
             })
         );
     }
 
-    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
-        return this.sourceDbApi ?
-            this.sourceDbApi.getSourceDescription(uiLang, corpname) :
-            rxOf({
-                tileId: -1,
-                title: 'Unknown resource',
-                description: '',
-                author: 'unknown',
-                structure: {numTokens: 0}
-            });
+    getSourceDescription(
+        uiLang: string,
+        corpname: string
+    ): Observable<SourceDetails> {
+        return this.sourceDbApi
+            ? this.sourceDbApi.getSourceDescription(uiLang, corpname)
+            : rxOf({
+                  tileId: -1,
+                  title: 'Unknown resource',
+                  description: '',
+                  author: 'unknown',
+                  structure: { numTokens: 0 },
+              });
     }
-
-
 }

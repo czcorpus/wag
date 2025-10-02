@@ -26,32 +26,46 @@ import { HtmlModelState } from './common.js';
 
 import * as S from './style.js';
 
-
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:HtmlModel):TileComponent {
-
+export function init(
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>,
+    theme: Theme,
+    model: HtmlModel
+): TileComponent {
     const globalCompontents = ut.getComponents();
 
     // -------------- <HtmlTile /> -------------------------------------
 
-    class HtmlTile extends React.PureComponent<HtmlModelState & CoreTileComponentProps> {
-
+    class HtmlTile extends React.PureComponent<
+        HtmlModelState & CoreTileComponentProps
+    > {
         constructor(props) {
             super(props);
         }
 
         render() {
             return (
-                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
-                        error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}
-                        sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}
-                        backlink={this.props.backlink} >
-                    <S.HtmlFrame dangerouslySetInnerHTML={{__html: this.props.data}} />
+                <globalCompontents.TileWrapper
+                    tileId={this.props.tileId}
+                    isBusy={this.props.isBusy}
+                    error={this.props.error}
+                    htmlClass={`HtmlTile${this.props.tileName}`}
+                    hasData={Boolean(this.props.data)}
+                    sourceIdent={null}
+                    supportsTileReload={this.props.supportsReloadOnError}
+                    issueReportingUrl={this.props.issueReportingUrl}
+                    backlink={this.props.backlink}
+                >
+                    <S.HtmlFrame
+                        dangerouslySetInnerHTML={{ __html: this.props.data }}
+                    />
                 </globalCompontents.TileWrapper>
             );
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, HtmlModelState>(HtmlTile, model);
-
+    return BoundWithProps<CoreTileComponentProps, HtmlModelState>(
+        HtmlTile,
+        model
+    );
 }

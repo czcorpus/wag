@@ -20,28 +20,26 @@ import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
 
-
 export interface HtmlModelState {
-    isBusy:boolean;
-    tileId:number;
-    error:string|null;
-    widthFract:number;
-    data:string|null;
-    args:{[key:string]:string};
-    lemmaArg:string;
-    sanitizeHTML:boolean;
-    backlink:Backlink;
+    isBusy: boolean;
+    tileId: number;
+    error: string | null;
+    widthFract: number;
+    data: string | null;
+    args: { [key: string]: string };
+    lemmaArg: string;
+    sanitizeHTML: boolean;
+    backlink: Backlink;
 }
-
 
 export interface DataLoadedPayload {
-    data:string;
+    data: string;
 }
 
-
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 }

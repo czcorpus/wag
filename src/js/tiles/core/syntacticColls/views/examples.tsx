@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 
-
 import { Dict, List, pipe } from 'cnc-tskit';
 import { mkScollExampleLineHash, SCollsExamples } from '../eApi/mquery.js';
 import * as S from '../style.js';
@@ -25,40 +24,48 @@ import * as React from 'react';
 
 // ------------------- <Examples /> ------------------------
 
-const attrsToStr = (v:{[key:string]:string}):string => pipe(
-    v,
-    Dict.toEntries(),
-    List.map(([k, v]) => `${k}: ${v}`),
-    x => x.join(', ')
-);
+const attrsToStr = (v: { [key: string]: string }): string =>
+    pipe(
+        v,
+        Dict.toEntries(),
+        List.map(([k, v]) => `${k}: ${v}`),
+        (x) => x.join(', ')
+    );
 
-export const Examples:React.FC<{
-    data:SCollsExamples;
-}> = ({data}) => (
+export const Examples: React.FC<{
+    data: SCollsExamples;
+}> = ({ data }) => (
     <S.Examples>
         <h3>
-            <span className="words">{data.word1} <span className="plus">+</span> {data.word2}</span>
+            <span className="words">
+                {data.word1} <span className="plus">+</span> {data.word2}
+            </span>
         </h3>
         <div className="texts">
-        {List.map(
-            (line, i) => (
-                <p key={`${i}:${mkScollExampleLineHash(line)}`}>
-                    {List.map(
-                        (token, j) => (
-                            <React.Fragment key={`t:${i}:${j}`}>
-                                {j > 0 ? <span> </span> : ''}
-                                {token.strong ?
-                                    <strong title={attrsToStr(token.attrs)}>{token.word}</strong> :
-                                    <span title={attrsToStr(token.attrs)}>{token.word}</span>
-                                }
-                            </React.Fragment>
-                        ),
-                        line.text
-                    )}
-                </p>
-            ),
-            data.lines
-        )}
+            {List.map(
+                (line, i) => (
+                    <p key={`${i}:${mkScollExampleLineHash(line)}`}>
+                        {List.map(
+                            (token, j) => (
+                                <React.Fragment key={`t:${i}:${j}`}>
+                                    {j > 0 ? <span> </span> : ''}
+                                    {token.strong ? (
+                                        <strong title={attrsToStr(token.attrs)}>
+                                            {token.word}
+                                        </strong>
+                                    ) : (
+                                        <span title={attrsToStr(token.attrs)}>
+                                            {token.word}
+                                        </span>
+                                    )}
+                                </React.Fragment>
+                            ),
+                            line.text
+                        )}
+                    </p>
+                ),
+                data.lines
+            )}
         </div>
     </S.Examples>
 );

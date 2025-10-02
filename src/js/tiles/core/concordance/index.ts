@@ -21,52 +21,70 @@ import { List } from 'cnc-tskit';
 
 import { LocalizedConfMsg } from '../../../types.js';
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
-import { AltViewIconProps, CorpSrchTileConf, DEFAULT_ALT_VIEW_ICON, ITileProvider,
-    ITileReloader, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+import {
+    AltViewIconProps,
+    CorpSrchTileConf,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileFactory,
+    TileFactoryArgs,
+} from '../../../page/tile.js';
 import { ConcordanceTileModel } from './model.js';
 import { init as viewInit } from './views.js';
 import { MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
-import { createInitialLinesData, ViewMode } from '../../../api/vendor/mquery/concordance/common.js';
+import {
+    createInitialLinesData,
+    ViewMode,
+} from '../../../api/vendor/mquery/concordance/common.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
-    apiURL:string;
-    pageSize:number;
-    posAttrs:Array<string>;
-    sentenceStruct:string;
-    posQueryGenerator:PosQueryGeneratorType; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
-    parallelLangMapping?:{[lang:string]:string};
-    disableViewModes?:boolean;
-    metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
+    apiURL: string;
+    pageSize: number;
+    posAttrs: Array<string>;
+    sentenceStruct: string;
+    posQueryGenerator: PosQueryGeneratorType; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
+    parallelLangMapping?: { [lang: string]: string };
+    disableViewModes?: boolean;
+    metadataAttrs?: Array<{ value: string; label: LocalizedConfMsg }>;
 }
-
 
 /**
  *
  */
 export class ConcordanceTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly model: ConcordanceTileModel;
 
-    private readonly model:ConcordanceTileModel;
+    private view: TileComponent;
 
-    private view:TileComponent;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly label: string;
 
-    private readonly label:string;
-
-    private readonly readDataFromTile:number;
+    private readonly readDataFromTile: number;
 
     constructor({
-        tileId, dispatcher, appServices, ut, queryType, queryMatches,
-        widthFract, conf, isBusy, readDataFromTile
-    }:TileFactoryArgs<ConcordanceTileConf>
-    ) {
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        queryType,
+        queryMatches,
+        widthFract,
+        conf,
+        isBusy,
+        readDataFromTile,
+    }: TileFactoryArgs<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -74,7 +92,8 @@ export class ConcordanceTile implements ITileProvider {
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
-            readDataFromTile: typeof readDataFromTile === 'number' ? readDataFromTile : null,
+            readDataFromTile:
+                typeof readDataFromTile === 'number' ? readDataFromTile : null,
             appServices,
             api: new MQueryConcApi(conf.apiURL, appServices, conf.backlink),
             infoApi: new CorpusInfoAPI(
@@ -94,106 +113,133 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: conf.pageSize,
                 concordances: createInitialLinesData(queryMatches.length),
                 corpname: conf.corpname,
-                subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
-                subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
+                subcname: Array.isArray(conf.subcname)
+                    ? conf.subcname[0]
+                    : conf.subcname,
+                subcDesc: conf.subcDesc
+                    ? appServices.importExternalMessage(conf.subcDesc)
+                    : '',
                 sentenceStruct: conf.sentenceStruct,
                 otherCorpname: null, // TODO change in case aligned conc. are supported
                 initialKwicWindow: this.calcContext(widthFract),
-                kwicWindow: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
+                kwicWindow: appServices.isMobileMode()
+                    ? ConcordanceTileModel.CTX_SIZES[0]
+                    : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: typeof readDataFromTile === 'number' ? ViewMode.SENT : ViewMode.KWIC,
+                viewMode:
+                    typeof readDataFromTile === 'number'
+                        ? ViewMode.SENT
+                        : ViewMode.KWIC,
                 attrs: conf.posAttrs,
-                metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
-                backlinks: List.map(_ => null, queryMatches),
+                metadataAttrs: (conf.metadataAttrs || []).map((v) => ({
+                    value: v.value,
+                    label: appServices.importExternalMessage(v.label),
+                })),
+                backlinks: List.map((_) => null, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,
-                queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches),
-                isExamplesMode: typeof readDataFromTile === 'number'
-            }
+                queries: List.map(
+                    (lemmaGroup) => findCurrQueryMatch(lemmaGroup).word,
+                    queryMatches
+                ),
+                isExamplesMode: typeof readDataFromTile === 'number',
+            },
         });
-        this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');
+        this.label = appServices.importExternalMessage(
+            conf.label || 'concordance__main_label'
+        );
         this.view = viewInit(this.dispatcher, ut, this.model);
     }
 
-    private calcContext(widthFract:number|undefined):number {
-        return ConcordanceTileModel.CTX_SIZES[widthFract || 0] || ConcordanceTileModel.CTX_SIZES[0];
+    private calcContext(widthFract: number | undefined): number {
+        return (
+            ConcordanceTileModel.CTX_SIZES[widthFract || 0] ||
+            ConcordanceTileModel.CTX_SIZES[0]
+        );
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
+        return (
+            qt === QueryType.SINGLE_QUERY ||
+            qt === QueryType.TRANSLAT_QUERY ||
+            qt === QueryType.CMP_QUERY
+        );
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return true;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return false;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return this.readDataFromTile;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<ConcordanceTileConf> = {
-
+export const init: TileFactory<ConcordanceTileConf> = {
     sanityCheck: (args) => {
         const message = validatePosQueryGenerator(args.conf.posQueryGenerator);
         if (message) {
-            return [new Error(`invalid posQueryGenerator in concordance tile, ${message}`)];
+            return [
+                new Error(
+                    `invalid posQueryGenerator in concordance tile, ${message}`
+                ),
+            ];
         }
     },
 
-    create: (args) => new ConcordanceTile(args)
-}
+    create: (args) => new ConcordanceTile(args),
+};

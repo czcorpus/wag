@@ -21,24 +21,25 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
 import { WordTranslation } from '../translations/api.js';
 
-
 export interface DataLoadedPayload extends SubqueryPayload {
-    subqueries:Array<{value: string}>;
+    subqueries: Array<{ value: string }>;
 }
 
 export interface PartialDataLoadedPayload {
-    subsets:{[subsetId:string]:Array<WordTranslation>};
+    subsets: { [subsetId: string]: Array<WordTranslation> };
 }
 
-
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-	    name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
-	    name: GlobalActions.TilePartialDataLoaded.name
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload &
+            PartialDataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
-
 }

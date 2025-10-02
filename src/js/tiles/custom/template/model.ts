@@ -25,25 +25,28 @@ import { __Template__ModelState, Actions } from './common.js';
 import { of as rxOf } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-
 export interface __Template__ModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    appServices:IAppServices;
-    initState:__Template__ModelState;
-    queryMatches:RecognizedQueries;
+    dispatcher: IActionQueue;
+    tileId: number;
+    appServices: IAppServices;
+    initState: __Template__ModelState;
+    queryMatches: RecognizedQueries;
 }
 
-
 export class __Template__Model extends StatelessModel<__Template__ModelState> {
+    private readonly queryMatches: RecognizedQueries;
 
-    private readonly queryMatches:RecognizedQueries;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
-
-    constructor({dispatcher, tileId, appServices, initState, queryMatches}:__Template__ModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        appServices,
+        initState,
+        queryMatches,
+    }: __Template__ModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -91,7 +94,7 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
             Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.data.push(action.payload.data)
+                    state.data.push(action.payload.data);
                 }
             }
         );
@@ -108,35 +111,33 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
 
     fetchData(seDispatch: SEDispatcher) {
         rxOf(...this.queryMatches)
-        .pipe(
-            delay(2000)
-        )
-        .subscribe(
-            next => {
-                const currentQueryMatch = findCurrQueryMatch(next);
-                seDispatch<typeof Actions.PartialTileDataLoaded>({
-                    name: Actions.PartialTileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        data: currentQueryMatch.word
-                    }
-                });
-            },
-            error => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    error
-                });
-            },
-            () => {
-                seDispatch<typeof Actions.TileDataLoaded>({
-                    name: Actions.TileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: false,
-                    }
-                });
-            }
-        );
+            .pipe(delay(2000))
+            .subscribe(
+                (next) => {
+                    const currentQueryMatch = findCurrQueryMatch(next);
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            data: currentQueryMatch.word,
+                        },
+                    });
+                },
+                (error) => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        error,
+                    });
+                },
+                () => {
+                    seDispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: false,
+                        },
+                    });
+                }
+            );
     }
 }

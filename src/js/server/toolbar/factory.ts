@@ -22,15 +22,13 @@ import { LangSwitchToolbar } from './langSwitch.js';
 import { UCNKToolbar } from './ucnk.js';
 import { ToolbarDef } from '../../conf/index.js';
 
-
 export enum ToolbarType {
     EMPTY = 'empty',
     UCNK = 'ucnk',
-    LANG_SWITCH = 'langSwitch'
+    LANG_SWITCH = 'langSwitch',
 }
 
-export function createToolbarInstance(conf:ToolbarDef):IToolbarProvider {
-
+export function createToolbarInstance(conf: ToolbarDef): IToolbarProvider {
     switch (conf.type) {
         case ToolbarType.EMPTY:
             return new EmptyToolbar();
@@ -41,5 +39,4 @@ export function createToolbarInstance(conf:ToolbarDef):IToolbarProvider {
         default:
             throw new Error(`Unknown toolbar type [${conf.type}]`);
     }
-
 }

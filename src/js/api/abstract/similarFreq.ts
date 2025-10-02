@@ -20,28 +20,27 @@ import { FreqBand } from '../../query/index.js';
 import { PosItem } from '../../postag.js';
 import { MainPosAttrValues } from '../../conf/index.js';
 
-
 export interface RequestArgs {
-    corpname:string;
-    word:string;
-    lemma:string;
+    corpname: string;
+    word: string;
+    lemma: string;
 
     /**
      * Please note that here can be either WaG's `pos` or `upos`
      */
-    pos:Array<string>;
-    mainPosAttr:MainPosAttrValues;
-    srchRange:number;
+    pos: Array<string>;
+    mainPosAttr: MainPosAttrValues;
+    srchRange: number;
 }
 
 export interface SimilarFreqWord {
-    lemma:string;
-    pos:Array<PosItem>;
-    upos:Array<PosItem>;
-    ipm:number;
-    flevel:FreqBand|null;
+    lemma: string;
+    pos: Array<PosItem>;
+    upos: Array<PosItem>;
+    ipm: number;
+    flevel: FreqBand | null;
 }
 
 export interface Response {
-    result:Array<SimilarFreqWord>;
+    result: Array<SimilarFreqWord>;
 }

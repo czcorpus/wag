@@ -28,46 +28,67 @@ import { List } from 'cnc-tskit';
 
 import * as S from './style.js';
 
-
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:__Template__Model):TileComponent {
-
+export function init(
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>,
+    theme: Theme,
+    model: __Template__Model
+): TileComponent {
     const globalCompontents = ut.getComponents();
 
     // -------------- <__Template__Tile /> -------------------------------------
 
-    class __Template__Tile extends React.PureComponent<__Template__ModelState & CoreTileComponentProps> {
-
+    class __Template__Tile extends React.PureComponent<
+        __Template__ModelState & CoreTileComponentProps
+    > {
         constructor(props) {
             super(props);
         }
 
         render() {
             return (
-                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
-                        error={this.props.error} hasData={Boolean(this.props.data)}
-                        sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl} >
-                    {
-                        this.props.isTileTweakMode ?
-                        <div><p>{ut.translate('template__tweak_panel')}</p><hr/></div> :
-                        null
-                    }
-                    <S.__Template__Tile>{
-                        this.props.isAltViewMode ?
+                <globalCompontents.TileWrapper
+                    tileId={this.props.tileId}
+                    isBusy={this.props.isBusy}
+                    error={this.props.error}
+                    hasData={Boolean(this.props.data)}
+                    sourceIdent={null}
+                    supportsTileReload={this.props.supportsReloadOnError}
+                    issueReportingUrl={this.props.issueReportingUrl}
+                >
+                    {this.props.isTileTweakMode ? (
                         <div>
-                            <p>{ut.translate('template__alt_view')}</p>
-                            <ul>{List.map(word => <li>{word}</li>, this.props.data)}</ul>
-                        </div> :
-                        <div>
-                            <p>{ut.translate('template__main_view')}</p>
-                            <p>{this.props.data.join(', ')}</p>
+                            <p>{ut.translate('template__tweak_panel')}</p>
+                            <hr />
                         </div>
-                    }</S.__Template__Tile>
+                    ) : null}
+                    <S.__Template__Tile>
+                        {this.props.isAltViewMode ? (
+                            <div>
+                                <p>{ut.translate('template__alt_view')}</p>
+                                <ul>
+                                    {List.map(
+                                        (word) => (
+                                            <li>{word}</li>
+                                        ),
+                                        this.props.data
+                                    )}
+                                </ul>
+                            </div>
+                        ) : (
+                            <div>
+                                <p>{ut.translate('template__main_view')}</p>
+                                <p>{this.props.data.join(', ')}</p>
+                            </div>
+                        )}
+                    </S.__Template__Tile>
                 </globalCompontents.TileWrapper>
             );
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, __Template__ModelState>(__Template__Tile, model);
-
+    return BoundWithProps<CoreTileComponentProps, __Template__ModelState>(
+        __Template__Tile,
+        model
+    );
 }

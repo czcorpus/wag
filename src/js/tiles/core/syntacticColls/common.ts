@@ -21,42 +21,41 @@ import { SCollsData } from './api/common.js';
 import { SCollsExamples } from './eApi/mquery.js';
 import { CollMeasure } from './model.js';
 
-
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {
-        data:SCollsData;
-    }> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & {
+            data: SCollsData;
+        }
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static ShowExampleWindow:Action<{
-        tileId:number;
-        query:string;
-        data:SCollsExamples;
+    static ShowExampleWindow: Action<{
+        tileId: number;
+        query: string;
+        data: SCollsExamples;
     }> = {
-        name: 'SYNTACTIC_COLLS_SHOW_EXAMPLE_WINDOW'
+        name: 'SYNTACTIC_COLLS_SHOW_EXAMPLE_WINDOW',
     };
 
-    static HideExampleWindow:Action<{
-        tileId:number;
+    static HideExampleWindow: Action<{
+        tileId: number;
     }> = {
-        name: 'SYNTACTIC_COLLS_HIDE_EXAMPLE_WINDOW'
+        name: 'SYNTACTIC_COLLS_HIDE_EXAMPLE_WINDOW',
     };
 
-    static ClickForExample:Action<{
-        tileId:number;
-        rowId:number;
+    static ClickForExample: Action<{
+        tileId: number;
+        rowId: number;
     }> = {
-        name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE'
-    }
+        name: 'SYNTACTIC_COLLS_CLICK_FOR_EXAMPLE',
+    };
 
-    static SetDisplayScore:Action<{
-        tileId:number;
-        value:CollMeasure;
-        position:number;
+    static SetDisplayScore: Action<{
+        tileId: number;
+        value: CollMeasure;
+        position: number;
     }> = {
-        name: 'SYNTACTIC_COLLS_SET_DISPLAY_SCORE'
-    }
-
+        name: 'SYNTACTIC_COLLS_SET_DISPLAY_SCORE',
+    };
 }

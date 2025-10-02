@@ -24,63 +24,76 @@ import { IApiServices } from '../../../appServices.js';
 import { HTTP, List } from 'cnc-tskit';
 import { IDataStreaming } from '../../../page/streaming.js';
 
-
 export interface HTTPResponse {
     corpus: {
         data: {
-            corpname:string;
-            description:string;
-            size:number;
-            attrList:Array<{name:string, size:number, description?:string}>;
-            structList:Array<{name:string; size:number, description?:string}>;
-            textProperties:Array<string>;
-            webUrl:string;
-            citationInfo?:{
-                default_ref:string;
-                article_ref:Array<string>;
-                other_bibliography:string;
+            corpname: string;
+            description: string;
+            size: number;
+            attrList: Array<{
+                name: string;
+                size: number;
+                description?: string;
+            }>;
+            structList: Array<{
+                name: string;
+                size: number;
+                description?: string;
+            }>;
+            textProperties: Array<string>;
+            webUrl: string;
+            citationInfo?: {
+                default_ref: string;
+                article_ref: Array<string>;
+                other_bibliography: string;
             };
-            srchKeywords:Array<string>;
-        },
-        resultType:'corpusInfo';
-        error?:string;
-    },
+            srchKeywords: Array<string>;
+        };
+        resultType: 'corpusInfo';
+        error?: string;
+    };
     locale: string;
 }
 
 export interface QueryArgs {
-    corpname:string;
-    lang:string;
+    corpname: string;
+    lang: string;
 }
 
-function findStructSize(data:Array<{name:string, size:number}>, name:string):number|undefined {
-    const ans = List.find(v => v.name === name, data);
+function findStructSize(
+    data: Array<{ name: string; size: number }>,
+    name: string
+): number | undefined {
+    const ans = List.find((v) => v.name === name, data);
     return ans ? ans.size : undefined;
 }
 
 export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
+    private readonly apiURL: string;
 
-    private readonly apiURL:string;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
-
-    constructor(apiURL:string, apiServices:IApiServices) {
+    constructor(apiURL: string, apiServices: IApiServices) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:QueryArgs):Observable<CorpusDetails> {
-        return streaming.registerTileRequest<HTTPResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: QueryArgs
+    ): Observable<CorpusDetails> {
+        return streaming
+            .registerTileRequest<HTTPResponse>({
                 tileId,
                 method: HTTP.Method.GET,
                 url: `${this.apiURL}/info/${args.corpname}`,
                 body: {},
-                contentType: 'application/json'
-            }
-        ).pipe(
-            map<HTTPResponse, CorpusDetails>(
-                (resp) => ({
+                contentType: 'application/json',
+            })
+            .pipe(
+                map<HTTPResponse, CorpusDetails>((resp) => ({
                     tileId,
                     title: resp.corpus.data.corpname,
                     description: resp.corpus.data.description,
@@ -90,18 +103,41 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
                     citationInfo: {
                         sourceName: resp.corpus.data.corpname,
                         main: resp.corpus.data.citationInfo?.default_ref,
-                        papers: resp.corpus.data.citationInfo?.article_ref || [],
-                        otherBibliography: resp.corpus.data.citationInfo?.other_bibliography || undefined
+                        papers:
+                            resp.corpus.data.citationInfo?.article_ref || [],
+                        otherBibliography:
+                            resp.corpus.data.citationInfo?.other_bibliography ||
+                            undefined,
                     },
                     structure: {
                         numTokens: resp.corpus.data.size,
-                        numSentences: findStructSize(resp.corpus.data.structList, this.apiServices.getCommonResourceStructure(resp.corpus.data.corpname, 'sentence')),
-                        numParagraphs: findStructSize(resp.corpus.data.structList, this.apiServices.getCommonResourceStructure(resp.corpus.data.corpname, 'paragraph')),
-                        numDocuments: findStructSize(resp.corpus.data.structList, this.apiServices.getCommonResourceStructure(resp.corpus.data.corpname, 'document'))
+                        numSentences: findStructSize(
+                            resp.corpus.data.structList,
+                            this.apiServices.getCommonResourceStructure(
+                                resp.corpus.data.corpname,
+                                'sentence'
+                            )
+                        ),
+                        numParagraphs: findStructSize(
+                            resp.corpus.data.structList,
+                            this.apiServices.getCommonResourceStructure(
+                                resp.corpus.data.corpname,
+                                'paragraph'
+                            )
+                        ),
+                        numDocuments: findStructSize(
+                            resp.corpus.data.structList,
+                            this.apiServices.getCommonResourceStructure(
+                                resp.corpus.data.corpname,
+                                'document'
+                            )
+                        ),
                     },
-                    keywords: List.map(v => ({name: v, color: null}), resp.corpus.data.srchKeywords),
-                })
-            )
-        );
+                    keywords: List.map(
+                        (v) => ({ name: v, color: null }),
+                        resp.corpus.data.srchKeywords
+                    ),
+                }))
+            );
     }
 }

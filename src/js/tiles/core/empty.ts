@@ -16,8 +16,13 @@
  * limitations under the License.
  */
 import { QueryType } from '../../query/index.js';
-import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent } from '../../page/tile.js';
-
+import {
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+} from '../../page/tile.js';
 
 /**
  * EmptyTile is used as a placeholder in case a configured
@@ -27,73 +32,71 @@ import { AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, 
  * and also tile list is always of the same length.
  */
 export class EmptyTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
-
-    constructor(tileId:number) {
+    constructor(tileId: number) {
         this.tileId = tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return 'empty tile';
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return null;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return false;
     }
 
-    disable():void {
-    }
+    disable(): void {}
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return 1;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return false;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         return false;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }

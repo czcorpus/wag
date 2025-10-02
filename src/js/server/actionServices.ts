@@ -22,15 +22,14 @@ import { ServerConf, ClientStaticConf } from '../conf/index.js';
 import { IToolbarProvider } from '../page/hostPage.js';
 import { IActionWriter } from './actionLog/abstract.js';
 
-
 export interface Services {
-    version:string;
-    repositoryUrl:string;
-    serverConf:ServerConf;
-    clientConf:ClientStaticConf;
-    toolbar:IToolbarProvider;
-    translations:{[loc:string]:{[key:string]:string}};
-    errorLog:pino.Logger<"query", boolean>;
-    actionWriter:IActionWriter;
-    scriptNonce:string;
+    version: string;
+    repositoryUrl: string;
+    serverConf: ServerConf;
+    clientConf: ClientStaticConf;
+    toolbar: IToolbarProvider;
+    translations: { [loc: string]: { [key: string]: string } };
+    errorLog: pino.Logger<'query', boolean>;
+    actionWriter: IActionWriter;
+    scriptNonce: string;
 }

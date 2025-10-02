@@ -21,31 +21,26 @@ import { MainPosAttrValues } from '../../../conf/index.js';
 import { QueryMatch } from '../../../query/index.js';
 import { Observable } from 'rxjs';
 
-
 export interface RequestArgs {
-    lemma:string;
-    pos:Array<string>;
-    mainPosAttr:MainPosAttrValues;
-    corpName:string;
+    lemma: string;
+    pos: Array<string>;
+    mainPosAttr: MainPosAttrValues;
+    corpName: string;
 }
 
-
 export interface WordFormItem {
-    value:string;
-    freq:number;
-    ratio:number;
-    interactionId?:string;
+    value: string;
+    freq: number;
+    ratio: number;
+    interactionId?: string;
 }
 
 export interface Response {
-    forms:Array<WordFormItem>;
+    forms: Array<WordFormItem>;
 }
 
-
 export interface IWordFormsApi extends ResourceApi<RequestArgs, Response> {
+    supportsMultiWordQueries(): boolean;
 
-    supportsMultiWordQueries():boolean;
-
-    requestBacklink(args:RequestArgs, queryMatch:QueryMatch):Observable<URL>;
-
+    requestBacklink(args: RequestArgs, queryMatch: QueryMatch): Observable<URL>;
 }

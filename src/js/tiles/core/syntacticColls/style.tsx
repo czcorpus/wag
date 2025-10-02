@@ -19,9 +19,8 @@
 import { styled } from 'styled-components';
 import { Theme } from '../../../page/theme.js';
 
-export const SyntacticColls = styled.div<{theme:Theme}>`
-
-    position:relative;
+export const SyntacticColls = styled.div<{ theme: Theme }>`
+    position: relative;
 
     .tables {
         display: flex;
@@ -34,9 +33,8 @@ export const SyntacticColls = styled.div<{theme:Theme}>`
     }
 
     .hint {
-        color: ${props => props.theme.colorLightText};
+        color: ${(props) => props.theme.colorLightText};
     }
-
 `;
 
 // -------------------- <SCollsWordCloud /> ----------------------
@@ -47,7 +45,7 @@ export const SCollsWordCloud = styled.div`
 
 // ------------------- <SCollsTable /> ------------------------
 
-export const SCollsTable = styled.div<{theme:Theme}>`
+export const SCollsTable = styled.div<{ theme: Theme }>`
     flex-grow: 1;
 
     h2 {
@@ -55,31 +53,29 @@ export const SCollsTable = styled.div<{theme:Theme}>`
         font-size: 1.3em;
     }
 
-
     table.data td {
-
         span {
             padding-left: 0.4em;
             padding-right: 0.4em;
         }
 
         .arrows {
-            color: ${props => props.theme.colorLogoPink};
+            color: ${(props) => props.theme.colorLogoPink};
         }
 
         .syntax-node {
-            color: ${props => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorLogoBlue};
         }
 
         .fn {
-            color: ${props => props.theme.colorLightText};
+            color: ${(props) => props.theme.colorLightText};
         }
     }
 
     .no-analysis-avail {
-        border-radius: ${props => props.theme.tileBorderRadius};
-        background-color: ${props => props.theme.colorLightText};
-        color: ${props => props.theme.colorInvertText};
+        border-radius: ${(props) => props.theme.tileBorderRadius};
+        background-color: ${(props) => props.theme.colorLightText};
+        color: ${(props) => props.theme.colorInvertText};
         font-size: 1.5em;
         padding: 1em;
         text-align: center;
@@ -88,12 +84,11 @@ export const SCollsTable = styled.div<{theme:Theme}>`
 
 // ------------------------ <Examples /> --------------------------
 
-export const Examples = styled.div<{theme:Theme}>`
-
-    background-color: ${props => props.theme.tileBackgroundColor};
-    border: ${props => props.theme.defaultBorderStyle};
-    border-radius: ${props => props.theme.defaultBorderRadius};
-    box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
+export const Examples = styled.div<{ theme: Theme }>`
+    background-color: ${(props) => props.theme.tileBackgroundColor};
+    border: ${(props) => props.theme.defaultBorderStyle};
+    border-radius: ${(props) => props.theme.defaultBorderRadius};
+    box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
     padding: 0.5em;
 
     > div.texts {
@@ -107,13 +102,13 @@ export const Examples = styled.div<{theme:Theme}>`
             padding: 0.5em 1em 0.5em 1em;
 
             strong {
-                color: ${props => props.theme.colorLogoPink};
+                color: ${(props) => props.theme.colorLogoPink};
             }
         }
 
         > p:not(:first-child) {
             border-top: 1px solid #cfcfcf;
-            border-top: 1px solid ${props => props.theme.colorWhitelikeBlue};
+            border-top: 1px solid ${(props) => props.theme.colorWhitelikeBlue};
         }
     }
 
@@ -123,16 +118,15 @@ export const Examples = styled.div<{theme:Theme}>`
         font-size: 1.6em;
 
         span.words {
-            color: ${props => props.theme.colorLogoPink};
+            color: ${(props) => props.theme.colorLogoPink};
             font-weight: normal;
 
             span.plus {
-                color: ${props => props.theme.colorDefaultText};
+                color: ${(props) => props.theme.colorDefaultText};
             }
         }
     }
 `;
-
 
 export const Controls = styled.div`
 
@@ -153,6 +147,6 @@ export const Controls = styled.div`
             padding: 0.3em 0.6em;
             border-width: 1px;
             border-style: solid;
-            border-color: ${props => props.theme.colorLightText};
+            border-color: ${(props) => props.theme.colorLightText};
         }
 `;

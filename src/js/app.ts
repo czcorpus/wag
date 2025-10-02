@@ -27,7 +27,11 @@ import { List, pipe, Dict } from 'cnc-tskit';
 
 import { Theme } from './page/theme.js';
 import { ScreenProps } from './page/hostPage.js';
-import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index.js';
+import {
+    QueryType,
+    RecognizedQueries,
+    testIsMultiWordMode,
+} from './query/index.js';
 import { ITileProvider, TileFrameProps } from './page/tile.js';
 import { ClientConf, MainPosAttrValues, UserConf } from './conf/index.js';
 import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout.js';
@@ -35,29 +39,31 @@ import { Actions } from './models/actions.js';
 import { MessagesModel } from './models/messages.js';
 import { defaultFactory as mainFormFactory } from './models/query.js';
 import { TileResultFlag, WdglanceTilesModel } from './models/tiles.js';
-import { GlobalComponents, init as globalCompInit } from './views/common/index.js';
+import {
+    GlobalComponents,
+    init as globalCompInit,
+} from './views/common/index.js';
 import { init as viewInit, WdglanceMainProps } from './views/main.js';
 import { RetryTileLoad } from './models/retryLoad.js';
 import { IAppServices } from './appServices.js';
 import { mkTileFactory } from './page/tileLoader.js';
 
-
 interface AttachTileArgs {
-    data:Array<TileFrameProps>;
-    tileName:string;
-    tile:ITileProvider;
-    helpURL:string;
-    issueReportingURL:string;
-    maxTileHeight:string;
-    retryLoadModel:RetryTileLoad;
+    data: Array<TileFrameProps>;
+    tileName: string;
+    tile: ITileProvider;
+    helpURL: string;
+    issueReportingURL: string;
+    maxTileHeight: string;
+    retryLoadModel: RetryTileLoad;
 }
 
-const mkAttachTile = (
-    queryType:QueryType,
-    isMultiWordQuery:boolean,
-    translatLang:string,
-    appServices:IAppServices
-
+const mkAttachTile =
+    (
+        queryType: QueryType,
+        isMultiWordQuery: boolean,
+        translatLang: string,
+        appServices: IAppServices
     ) =>
     ({
         data,
@@ -66,16 +72,22 @@ const mkAttachTile = (
         helpURL,
         issueReportingURL,
         maxTileHeight,
-        retryLoadModel
-    }:AttachTileArgs):void => {
-        const support = (tile.supportsQueryType(queryType, translatLang) && (!isMultiWordQuery || tile.supportsMultiWordQueries())) || queryType === QueryType.PREVIEW;
+        retryLoadModel,
+    }: AttachTileArgs): void => {
+        const support =
+            (tile.supportsQueryType(queryType, translatLang) &&
+                (!isMultiWordQuery || tile.supportsMultiWordQueries())) ||
+            queryType === QueryType.PREVIEW;
         let reasonDisabled = undefined;
         if (!support) {
             if (!tile.supportsQueryType(queryType, translatLang)) {
-                reasonDisabled = appServices.translate('global__query_type_not_supported');
-
+                reasonDisabled = appServices.translate(
+                    'global__query_type_not_supported'
+                );
             } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-                reasonDisabled = appServices.translate('global__multi_word_query_not_supported');
+                reasonDisabled = appServices.translate(
+                    'global__multi_word_query_not_supported'
+                );
             }
         }
 
@@ -97,25 +109,23 @@ const mkAttachTile = (
             maxTileHeight: maxTileHeight,
             helpURL: helpURL,
             supportsReloadOnError: tile.registerReloadModel(retryLoadModel),
-            altViewIcon: tile.getAltViewIcon()
+            altViewIcon: tile.getAltViewIcon(),
         });
         if (!support) {
             tile.disable();
         }
-};
-
+    };
 
 export interface InitIntArgs {
-    config:ClientConf;
-    userSession:UserConf;
-    queryMatches:RecognizedQueries;
-    appServices:IAppServices;
-    dispatcher:IFullActionControl;
-    onResize:Observable<ScreenProps>;
-    viewUtils:ViewUtils<GlobalComponents>;
-    layoutManager:LayoutManager;
+    config: ClientConf;
+    userSession: UserConf;
+    queryMatches: RecognizedQueries;
+    appServices: IAppServices;
+    dispatcher: IFullActionControl;
+    onResize: Observable<ScreenProps>;
+    viewUtils: ViewUtils<GlobalComponents>;
+    layoutManager: LayoutManager;
 }
-
 
 export function createRootComponent({
     config,
@@ -125,17 +135,22 @@ export function createRootComponent({
     dispatcher,
     onResize,
     viewUtils,
-    layoutManager
-}:InitIntArgs):{
-    component:React.FunctionComponent<WdglanceMainProps>,
-    tileGroups:Array<TileGroup>,
-    mainPosAttr:MainPosAttrValues
- } {
+    layoutManager,
+}: InitIntArgs): {
+    component: React.FunctionComponent<WdglanceMainProps>;
+    tileGroups: Array<TileGroup>;
+    mainPosAttr: MainPosAttrValues;
+} {
     const theme = new Theme(config.colors);
-    const globalComponents = globalCompInit(dispatcher, viewUtils, onResize, theme);
+    const globalComponents = globalCompInit(
+        dispatcher,
+        viewUtils,
+        onResize,
+        theme
+    );
     viewUtils.attachComponents(globalComponents);
 
-    const tiles:Array<TileFrameProps> = [];
+    const tiles: Array<TileFrameProps> = [];
 
     const qType = userSession.queryType as QueryType; // TODO validate
 
@@ -146,22 +161,20 @@ export function createRootComponent({
         queryType: qType,
         availQueryTypes: pipe(
             layoutManager.getQueryTypesMenuItems(),
-            List.filter(x => x.isEnabled),
-            List.map(x => x.type)
+            List.filter((x) => x.isEnabled),
+            List.map((x) => x.type)
         ),
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: pipe(
             userSession.uiLanguages,
             Dict.toEntries(),
-            List.map(
-                ([code, label]) => ({code, label})
-            )
+            List.map(([code, label]) => ({ code, label }))
         ),
         instanceSwitchMenu: config.instanceSwitchMenu,
         layout: layoutManager,
         maxCmpQueries: 10,
-        maxQueryWords: config.maxQueryWords
+        maxQueryWords: config.maxQueryWords,
     });
 
     const factory = mkTileFactory(
@@ -185,24 +198,22 @@ export function createRootComponent({
     const retryLoadModel = new RetryTileLoad(dispatcher);
     pipe(
         config.tiles,
-        Dict.forEach(
-            (tileConf, tileId) => {
-                const tile = factory.create(tileId, tileConf);
-                attachTile({
-                    data: tiles,
-                    tileName: tileId,
-                    tile,
-                    helpURL: appServices.importExternalMessage(tileConf.helpURL),
-                    issueReportingURL: config.issueReportingUrl,
-                    maxTileHeight: tileConf.maxTileHeight,
-                    retryLoadModel
-                });
+        Dict.forEach((tileConf, tileId) => {
+            const tile = factory.create(tileId, tileConf);
+            attachTile({
+                data: tiles,
+                tileName: tileId,
+                tile,
+                helpURL: appServices.importExternalMessage(tileConf.helpURL),
+                issueReportingURL: config.issueReportingUrl,
+                maxTileHeight: tileConf.maxTileHeight,
+                retryLoadModel,
+            });
 
-                if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-                    tile.disable();
-                }
-            },
-        )
+            if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
+                tile.disable();
+            }
+        })
     );
 
     const tilesModel = new WdglanceTilesModel(
@@ -217,15 +228,17 @@ export function createRootComponent({
             datalessGroups: [],
             tileResultFlags: pipe(
                 layoutManager.getLayoutGroups(),
-                List.flatMap(
-                    (v, groupIdx) => List.map(v2 => [groupIdx, v2] as [number, GroupedTileProps],
-                        v.tiles)
+                List.flatMap((v, groupIdx) =>
+                    List.map(
+                        (v2) => [groupIdx, v2] as [number, GroupedTileProps],
+                        v.tiles
+                    )
                 ),
                 List.map(([groupIdx, v], _) => ({
                     tileId: v.tileId,
                     groupId: groupIdx,
                     status: TileResultFlag.PENDING,
-                    canBeAmbiguousResult: false
+                    canBeAmbiguousResult: false,
                 }))
             ),
             labelsOverwrites: {},
@@ -248,20 +261,24 @@ export function createRootComponent({
     const messagesModel = new MessagesModel(dispatcher, appServices);
 
     const WdglanceMain = viewInit(
-        dispatcher, viewUtils, formModel, tilesModel, messagesModel, theme);
-
-    onResize.subscribe(
-        (props) => {
-            dispatcher.dispatch<typeof Actions.SetScreenMode>({
-                name: Actions.SetScreenMode.name,
-                payload: props
-            });
-        }
+        dispatcher,
+        viewUtils,
+        formModel,
+        tilesModel,
+        messagesModel,
+        theme
     );
+
+    onResize.subscribe((props) => {
+        dispatcher.dispatch<typeof Actions.SetScreenMode>({
+            name: Actions.SetScreenMode.name,
+            payload: props,
+        });
+    });
 
     return {
         component: WdglanceMain,
         tileGroups: layoutManager.getLayoutGroups(),
-        mainPosAttr: layoutManager.getLayoutMainPosAttr()
+        mainPosAttr: layoutManager.getLayoutMainPosAttr(),
     };
 }

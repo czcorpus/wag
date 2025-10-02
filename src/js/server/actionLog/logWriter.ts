@@ -19,16 +19,14 @@
 import pino from 'pino';
 import { ActionLogRecord, IActionWriter } from './abstract.js';
 
-
 export class QueryActionWriter implements IActionWriter {
+    private readonly logger: pino.Logger<'query', boolean>;
 
-    private readonly logger:pino.Logger<"query", boolean>;
-
-    constructor(logger:pino.Logger<"query", boolean>) {
+    constructor(logger: pino.Logger<'query', boolean>) {
         this.logger = logger;
     }
 
-    write(value:ActionLogRecord) {
+    write(value: ActionLogRecord) {
         this.logger.query(value);
     }
 }

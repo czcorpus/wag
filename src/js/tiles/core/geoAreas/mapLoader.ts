@@ -22,22 +22,25 @@ import { IAppServices } from '../../../appServices.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 export class MapLoader implements DataApi<string, string> {
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
-
-    constructor(appServices:IAppServices) {
+    constructor(appServices: IAppServices) {
         this.appServices = appServices;
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, file:string):Observable<string> {
-
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        file: string
+    ): Observable<string> {
         return ajax$<string>(
             'GET',
             this.appServices.createStaticUrl(file),
             {},
             {
                 withCredentials: true,
-                responseType: ResponseType.TEXT
+                responseType: ResponseType.TEXT,
             }
         );
     }

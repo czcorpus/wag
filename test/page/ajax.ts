@@ -21,33 +21,32 @@ import { assert } from 'chai';
 import * as MockXMLHttpRequest from 'mock-xmlhttprequest';
 
 describe('ajax$', function () {
-
     const server = MockXMLHttpRequest.newServer({
         get: [
             'anywhere',
             {
-                headers: {'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },
                 body: '{"message": "Data loaded"}',
-            }
+            },
         ],
     }).install();
 
     it('wraps ajax() properly in case of a non-error response', function (done) {
-        ajax$<{message:string}>(
+        ajax$<{ message: string }>(
             'get',
             'anywhere',
             {},
-            {responseType: ResponseType.JSON}
+            { responseType: ResponseType.JSON }
         ).subscribe({
-            next: value => {
+            next: (value) => {
                 assert.equal(value.message, 'Data loaded');
             },
-            error: err => {
+            error: (err) => {
                 throw err;
             },
             complete: () => {
                 done();
-            }
+            },
         });
     });
 });

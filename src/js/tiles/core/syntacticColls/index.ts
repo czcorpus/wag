@@ -18,10 +18,22 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
-import { findCurrQueryMatch, QueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    QueryMatch,
+    QueryType,
+} from '../../../query/index.js';
 import { SyntacticCollsModel } from './model.js';
 import { init as viewInit } from './views/index.js';
-import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs, ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import {
+    TileConf,
+    ITileProvider,
+    TileComponent,
+    TileFactory,
+    TileFactoryArgs,
+    ITileReloader,
+    AltViewIconProps,
+} from '../../../page/tile.js';
 import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
 import { LocalizedConfMsg } from '../../../types.js';
@@ -29,64 +41,67 @@ import { List, pipe } from 'cnc-tskit';
 import { SCollsQueryType } from './api/common.js';
 import { AttrNamesConf, SyntacticCollsExamplesAPI } from './eApi/mquery.js';
 
-
 export interface DisplayTypeConf {
-    displayType:SCollsQueryType;
-    supportedPos:'any'|Array<string>;
-    label:LocalizedConfMsg;
+    displayType: SCollsQueryType;
+    supportedPos: 'any' | Array<string>;
+    label: LocalizedConfMsg;
 }
-
 
 export interface SyntacticCollsTileConf extends TileConf {
-    apiURL:string;
-    apiType?:'default'|'wss';
-    eApiURL:string;
-    datasetName?:string;
-    corpname:string;
-    maxItems:number;
-    hideOnNoData?:boolean;
-    displayTypes:Array<DisplayTypeConf>;
-    attrNames:AttrNamesConf;
+    apiURL: string;
+    apiType?: 'default' | 'wss';
+    eApiURL: string;
+    datasetName?: string;
+    corpname: string;
+    maxItems: number;
+    hideOnNoData?: boolean;
+    displayTypes: Array<DisplayTypeConf>;
+    attrNames: AttrNamesConf;
 }
 
-
-function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):DisplayTypeConf|null {
-
-    const posMatches = (v:string, queryMatch:QueryMatch) => {
+function findQueryHandler(
+    configs: Array<DisplayTypeConf>,
+    qm: QueryMatch
+): DisplayTypeConf | null {
+    const posMatches = (v: string, queryMatch: QueryMatch) => {
         const pos = pipe(
             queryMatch.pos || [],
             List.concat(queryMatch.upos || []),
-            List.filter(v => !!v.value),
-            List.map(x => x.value),
-            x => x.join(' ')
+            List.filter((v) => !!v.value),
+            List.map((x) => x.value),
+            (x) => x.join(' ')
         ).toLowerCase();
         return pos === v.toLowerCase();
     };
 
     const matchingHandlers = pipe(
         configs,
-        List.sorted(
-            (v1, v2) => {
-                if (Array.isArray(v1.supportedPos) && !Array.isArray(v2.supportedPos)) {
-                    return -1;
-                }
-                if (!Array.isArray(v1.supportedPos) && Array.isArray(v2.supportedPos)) {
-                    return 1;
-                }
-                return 0;
+        List.sorted((v1, v2) => {
+            if (
+                Array.isArray(v1.supportedPos) &&
+                !Array.isArray(v2.supportedPos)
+            ) {
+                return -1;
             }
-        ),
-        List.filter(
-            v => {
-                if (Array.isArray(v.supportedPos)) {
-                    return !!List.find(item => posMatches(item, qm), v.supportedPos);
-
-                } else if (v.supportedPos === 'any') {
-                    return true;
-                }
-                return false;
+            if (
+                !Array.isArray(v1.supportedPos) &&
+                Array.isArray(v2.supportedPos)
+            ) {
+                return 1;
             }
-        ),
+            return 0;
+        }),
+        List.filter((v) => {
+            if (Array.isArray(v.supportedPos)) {
+                return !!List.find(
+                    (item) => posMatches(item, qm),
+                    v.supportedPos
+                );
+            } else if (v.supportedPos === 'any') {
+                return true;
+            }
+            return false;
+        })
     );
     if (!List.empty(matchingHandlers)) {
         return List.head(matchingHandlers);
@@ -98,37 +113,45 @@ function findQueryHandler(configs:Array<DisplayTypeConf>, qm:QueryMatch):Display
  *
  */
 export class SyntacticCollsTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: SyntacticCollsModel;
 
-    private readonly model:SyntacticCollsModel;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly label: string;
 
-    private readonly label:string;
+    private readonly apiType: 'default' | 'wss';
 
-    private readonly apiType:'default'|'wss';
+    private readonly displayType: DisplayTypeConf;
 
-    private readonly displayType:DisplayTypeConf;
+    private readonly _hideOnNoData: boolean;
 
-    private readonly _hideOnNoData:boolean;
-
-    private view:TileComponent;
+    private view: TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        queryMatches, queryType
-    }:TileFactoryArgs<SyntacticCollsTileConf>) {
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        theme,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+        queryType,
+    }: TileFactoryArgs<SyntacticCollsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.apiType = conf.apiType;
-        this._hideOnNoData = conf.hideOnNoData !== undefined ? !!conf.hideOnNoData : true;
+        this._hideOnNoData =
+            conf.hideOnNoData !== undefined ? !!conf.hideOnNoData : true;
 
         const currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         this.displayType = findQueryHandler(conf.displayTypes, currQueryMatch);
@@ -139,10 +162,19 @@ export class SyntacticCollsTile implements ITileProvider {
             appServices: appServices,
             queryType: queryType,
             maxItems: conf.maxItems,
-            api: conf.apiType === 'wss' ?
-                new WSServerSyntacticCollsAPI(conf.apiURL, appServices) :
-                new ScollexSyntacticCollsAPI(conf.apiURL, appServices, conf.backlink),
-            eApi: new SyntacticCollsExamplesAPI(conf.eApiURL, appServices, conf.attrNames),
+            api:
+                conf.apiType === 'wss'
+                    ? new WSServerSyntacticCollsAPI(conf.apiURL, appServices)
+                    : new ScollexSyntacticCollsAPI(
+                          conf.apiURL,
+                          appServices,
+                          conf.backlink
+                      ),
+            eApi: new SyntacticCollsExamplesAPI(
+                conf.eApiURL,
+                appServices,
+                conf.attrNames
+            ),
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
@@ -153,97 +185,103 @@ export class SyntacticCollsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                datasetName: conf.datasetName ? conf.datasetName : conf.corpname,
+                datasetName: conf.datasetName
+                    ? conf.datasetName
+                    : conf.corpname,
                 queryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
                 availableMeasures: ['LL', 'LMI', 'LogDice', 'T-Score'],
-                visibleMeasures: widthFract === 1 ? ['LL', 'T-Score'] : ['LL', 'LMI', 'LogDice', 'T-Score'],
-                displayType: this.displayType ? this.displayType.displayType : 'none',
-                label: this.displayType ? appServices.importExternalMessage(this.displayType.label) : null,
+                visibleMeasures:
+                    widthFract === 1
+                        ? ['LL', 'T-Score']
+                        : ['LL', 'LMI', 'LogDice', 'T-Score'],
+                displayType: this.displayType
+                    ? this.displayType.displayType
+                    : 'none',
+                label: this.displayType
+                    ? appServices.importExternalMessage(this.displayType.label)
+                    : null,
                 examplesCache: {},
-                exampleWindowData: undefined
-            }
+                exampleWindowData: undefined,
+            },
         });
-        this.label = appServices.importExternalMessage(conf.label || 'syntactic_colls__main_label');
-        this.view = viewInit(
-            this.dispatcher,
-            ut,
-            theme,
-            this.model
+        this.label = appServices.importExternalMessage(
+            conf.label || 'syntactic_colls__main_label'
         );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return this.widthFract === 1;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return {
             baseImg: 'wcloud-view.svg',
             highlightedImg: 'wcloud-view_s.svg',
-            inlineCss: {width: '2.2em'}
+            inlineCss: { width: '2.2em' },
         };
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return false;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return this._hideOnNoData;
     }
 }
 
-export const init:TileFactory<SyntacticCollsTileConf> = {
+export const init: TileFactory<SyntacticCollsTileConf> = {
     sanityCheck: (args) => [],
-    create: (args) => new SyntacticCollsTile(args)
+    create: (args) => new SyntacticCollsTile(args),
 };

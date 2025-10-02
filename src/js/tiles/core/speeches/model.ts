@@ -22,9 +22,13 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SubqueryPayload } from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
-import { SpeechesModelState, extractSpeeches, Segment,
+import {
+    SpeechesModelState,
+    extractSpeeches,
+    Segment,
     PlayableSegment,
-    AudioLinkGenerator} from './common.js';
+    AudioLinkGenerator,
+} from './common.js';
 import { SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
@@ -32,48 +36,52 @@ import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
-
-
 /**
  * A general action notifying about single query
  * (out of possibly multiple queries) concordance load.
  */
 export interface SingleConcLoadedPayload extends SubqueryPayload {
-    tileId:number;
-    data:ConcResponse;
+    tileId: number;
+    data: ConcResponse;
 }
 
 export interface SpeechesModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    appServices:IAppServices;
-    api:SpeechesApi;
-    initState:SpeechesModelState;
-    audioLinkGenerator:AudioLinkGenerator;
+    dispatcher: IActionQueue;
+    tileId: number;
+    appServices: IAppServices;
+    api: SpeechesApi;
+    initState: SpeechesModelState;
+    audioLinkGenerator: AudioLinkGenerator;
 }
 
 interface ReloadDataArgs {
-    state:SpeechesModelState;
-    dispatch:SEDispatcher;
-    streaming:IDataStreaming,
-    range:[number, number];
+    state: SpeechesModelState;
+    dispatch: SEDispatcher;
+    streaming: IDataStreaming;
+    range: [number, number];
 }
 
 export class SpeechesModel extends StatelessModel<SpeechesModelState> {
-
     static DEFAULT_LEFT_RANGE = 30;
 
     static DEFAULT_RIGHT_RANGE = 30;
 
-    private readonly api:SpeechesApi;
+    private readonly api: SpeechesApi;
 
-    private readonly appServices:IAppServices;
+    private readonly appServices: IAppServices;
 
-    private readonly tileId:number;
+    private readonly tileId: number;
 
-    private readonly audioLinkGenerator:AudioLinkGenerator|null;
+    private readonly audioLinkGenerator: AudioLinkGenerator | null;
 
-    constructor({dispatcher, tileId, appServices, api, initState, audioLinkGenerator}:SpeechesModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        appServices,
+        api,
+        initState,
+        audioLinkGenerator,
+    }: SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
@@ -91,22 +99,27 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     state,
                     streaming: appServices.dataStreaming(),
                     dispatch,
-                    range: tuple(state.leftRange, state.rightRange)
+                    range: tuple(state.leftRange, state.rightRange),
                 });
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
-                    state.error = this.appServices.normalizeHttpApiError(action.error);
-
+                    state.error = this.appServices.normalizeHttpApiError(
+                        action.error
+                    );
                 } else {
                     state.kwicNumTokens = action.payload.kwicNumTokens || 1;
-                    state.data = extractSpeeches(state, action.payload.data, action.payload.kwicTokenIdx);
+                    state.data = extractSpeeches(
+                        state,
+                        action.payload.data,
+                        action.payload.kwicTokenIdx
+                    );
                     state.backlink = this.api.getBacklink(0);
                 }
             }
@@ -114,7 +127,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableTileTweakMode,
-            action => action.payload.ident === this.tileId,
+            (action) => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isTweakMode = true;
             }
@@ -122,7 +135,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
         this.addActionSubtypeHandler(
             GlobalActions.DisableTileTweakMode,
-            action => action.payload.ident === this.tileId,
+            (action) => action.payload.ident === this.tileId,
             (state, action) => {
                 state.isTweakMode = false;
             }
@@ -130,7 +143,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
         this.addActionSubtypeHandler(
             Actions.ExpandSpeech,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
             },
@@ -141,19 +154,21 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    streaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    streaming: this.appServices
+                        .dataStreaming()
+                        .startNewSubgroup(this.tileId),
                     range: [
                         state.leftRange + action.payload.leftChange,
-                        state.rightRange + action.payload.rightChange
+                        state.rightRange + action.payload.rightChange,
                     ],
-                    dispatch
+                    dispatch,
                 });
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.LoadAnotherSpeech,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.speakerColorsAttachments = {};
@@ -167,24 +182,30 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 this.reloadData({
                     state,
-                    streaming: this.appServices.dataStreaming().startNewSubgroup(this.tileId),
+                    streaming: this.appServices
+                        .dataStreaming()
+                        .startNewSubgroup(this.tileId),
                     range: tuple(state.leftRange, state.rightRange),
-                    dispatch
+                    dispatch,
                 });
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.ClickAudioPlayer,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                    state.playback = {
-                        segments: action.payload.segments,
-                        currLineIdx: state.playback ? state.playback.currLineIdx : null,
-                        newLineIdx: action.payload.lineIdx,
-                        currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
-                        newPlaybackSession: null
-                    };
+                state.playback = {
+                    segments: action.payload.segments,
+                    currLineIdx: state.playback
+                        ? state.playback.currLineIdx
+                        : null,
+                    newLineIdx: action.payload.lineIdx,
+                    currPlaybackSession: state.playback
+                        ? state.playback.currPlaybackSession
+                        : null,
+                    newPlaybackSession: null,
+                };
             },
             (state, action, dispatch) => {
                 const player = this.appServices.getAudioPlayer();
@@ -193,7 +214,6 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 if (state.playback.currLineIdx !== state.playback.newLineIdx) {
                     this.playSegments(state, player, dispatch);
-
                 } else {
                     this.dispatchPlayStop(dispatch);
                 }
@@ -202,46 +222,44 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
         this.addActionSubtypeHandler(
             Actions.ClickAudioPlayAll,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 const segments = pipe(
                     state.data,
-                    List.reduce(
-                        (acc, curr) => acc.concat(curr),
-                        []
-                    ),
-                    List.reduce(
-                        (acc, curr) => acc.concat(curr.segments),
-                        []
-                    )
+                    List.reduce((acc, curr) => acc.concat(curr), []),
+                    List.reduce((acc, curr) => acc.concat(curr.segments), [])
                 );
                 state.playback = {
                     segments: segments,
-                    currLineIdx: state.playback ? state.playback.currLineIdx : null,
+                    currLineIdx: state.playback
+                        ? state.playback.currLineIdx
+                        : null,
                     newLineIdx: segments[0].lineIdx,
-                    currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
-                    newPlaybackSession: null
+                    currPlaybackSession: state.playback
+                        ? state.playback.currPlaybackSession
+                        : null,
+                    newPlaybackSession: null,
                 };
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.AudioPlayerStarted,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.playback = {
                     segments: state.playback.segments,
                     currLineIdx: state.playback.newLineIdx,
                     newLineIdx: null,
                     currPlaybackSession: action.payload.playbackSession,
-                    newPlaybackSession: null
+                    newPlaybackSession: null,
                 };
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.AudioPlayerStopped,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.playback = null;
             }
@@ -249,66 +267,71 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
         this.addActionSubtypeHandler(
             Actions.PlayedLineChanged,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.playback = {
                     currLineIdx: action.payload.lineIdx,
                     newLineIdx: null,
                     segments: state.playback.segments,
                     newPlaybackSession: state.playback.newPlaybackSession,
-                    currPlaybackSession: state.playback.currPlaybackSession
+                    currPlaybackSession: state.playback.currPlaybackSession,
                 };
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.GetSourceInfo,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                this.api.getSourceDescription(
-                    appServices.dataStreaming().startNewSubgroup(this.tileId),
-                    this.tileId,
-                    appServices.getISO639UILang(),
-                    action.payload.corpusId
-
-                ).subscribe({
-                    next: (data) => {
-                        dispatch({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            payload: {
-                                data: data
-                            }
-                        });
-                    },
-                    error: (err) => {
-                        console.error(err);
-                        dispatch({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            error: err
-
-                        });
-                    }
-                });
+                this.api
+                    .getSourceDescription(
+                        appServices
+                            .dataStreaming()
+                            .startNewSubgroup(this.tileId),
+                        this.tileId,
+                        appServices.getISO639UILang(),
+                        action.payload.corpusId
+                    )
+                    .subscribe({
+                        next: (data) => {
+                            dispatch({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                payload: {
+                                    data: data,
+                                },
+                            });
+                        },
+                        error: (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error: err,
+                            });
+                        },
+                    });
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
-            action => action.payload.tileId === this.tileId,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 const url = this.api.requestBacklink(this.stateToArgs(state));
-                window.open(url.toString(),'_blank');
+                window.open(url.toString(), '_blank');
             }
         );
     }
 
-    private normalizeSegments(segments:Array<Segment>, corpname:string):Array<PlayableSegment> {
+    private normalizeSegments(
+        segments: Array<Segment>,
+        corpname: string
+    ): Array<PlayableSegment> {
         return pipe(
             segments,
-            List.groupBy(seg => seg.value), // solving multiple speaking people at the same time
-            List.map(([,segment]) => segment[0]),
-            List.map(v => ({
+            List.groupBy((seg) => seg.value), // solving multiple speaking people at the same time
+            List.map(([, segment]) => segment[0]),
+            List.map((v) => ({
                 lineIdx: v.lineIdx,
                 url: this.audioLinkGenerator.createUrl(corpname, v.value),
                 format: this.audioLinkGenerator.getFormat(v.value),
@@ -316,17 +339,25 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         );
     }
 
-    private stateToArgs(state:SpeechesModelState, range?:[number, number]):SpeechReqArgs|null {
+    private stateToArgs(
+        state: SpeechesModelState,
+        range?: [number, number]
+    ): SpeechReqArgs | null {
         if (state.queryMatches[0].lemma) {
             return {
                 corpname: state.corpname,
                 subcorpus: state.subcname,
-                query: mkLemmaMatchQuery(state.queryMatches[0], state.posQueryGenerator),
+                query: mkLemmaMatchQuery(
+                    state.queryMatches[0],
+                    state.posQueryGenerator
+                ),
                 // hitlen: kwicNumTokens,  TODO
                 struct: [
                     state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
-                    state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
-                    state.speechSegment[0] + '.' + state.speechSegment[1]
+                    state.speechOverlapAttr[0] +
+                        '.' +
+                        state.speechOverlapAttr[1],
+                    state.speechSegment[0] + '.' + state.speechSegment[1],
                 ],
                 leftCtx: range ? range[0] : state.leftRange,
                 rightCtx: range ? range[1] : state.rightRange,
@@ -335,15 +366,15 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         return null;
     }
 
-    private reloadData({state, streaming, range, dispatch}:ReloadDataArgs):void {
+    private reloadData({
+        state,
+        streaming,
+        range,
+        dispatch,
+    }: ReloadDataArgs): void {
         this.api
-            .call(
-                streaming,
-                this.tileId,
-                0,
-                this.stateToArgs(state, range)
-
-            ).subscribe({
+            .call(streaming, this.tileId, 0, this.stateToArgs(state, range))
+            .subscribe({
                 next: (resp) => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
@@ -352,8 +383,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                             isEmpty: List.empty(resp.text),
                             data: resp.text,
                             kwicNumTokens: 1, // TODO
-                            kwicTokenIdx: resp.kwicTokenIdx
-                        }
+                            kwicTokenIdx: resp.kwicTokenIdx,
+                        },
                     });
                 },
                 error: (error) => {
@@ -366,16 +397,22 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                             kwicNumTokens: 1,
                             kwicTokenIdx: -1,
                             isEmpty: true,
-                            data: null
-                        }
+                            data: null,
+                        },
                     });
-                }
+                },
             });
     }
 
-    private playSegments(state:SpeechesModelState, player:AudioPlayer, dispatch:SEDispatcher):void {
+    private playSegments(
+        state: SpeechesModelState,
+        player: AudioPlayer,
+        dispatch: SEDispatcher
+    ): void {
         player
-            .play(this.normalizeSegments(state.playback.segments, state.corpname))
+            .play(
+                this.normalizeSegments(state.playback.segments, state.corpname)
+            )
             .subscribe({
                 next: (data) => {
                     if (data.isPlaying && data.idx === 0) {
@@ -383,24 +420,26 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                             name: Actions.AudioPlayerStarted.name,
                             payload: {
                                 tileId: this.tileId,
-                                playbackSession: data.sessionId
-                            }
+                                playbackSession: data.sessionId,
+                            },
                         });
                     } else if (!data.isPlaying && data.idx === data.total - 1) {
                         dispatch<typeof Actions.AudioPlayerStopped>({
                             name: Actions.AudioPlayerStopped.name,
                             payload: {
-                                tileId: this.tileId
-                            }
+                                tileId: this.tileId,
+                            },
                         });
-
-                    } else if (data.isPlaying && data.item.lineIdx != state.playback.currLineIdx) {
+                    } else if (
+                        data.isPlaying &&
+                        data.item.lineIdx != state.playback.currLineIdx
+                    ) {
                         dispatch<typeof Actions.PlayedLineChanged>({
                             name: Actions.PlayedLineChanged.name,
                             payload: {
                                 tileId: this.tileId,
-                                lineIdx: data.item.lineIdx
-                            }
+                                lineIdx: data.item.lineIdx,
+                            },
                         });
                     }
                 },
@@ -408,30 +447,31 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     dispatch<typeof Actions.AudioPlayerStopped>({
                         name: Actions.AudioPlayerStopped.name,
                         payload: {
-                            tileId: this.tileId
-                        }
+                            tileId: this.tileId,
+                        },
                     });
-                    this.appServices.showMessage(SystemMessageType.ERROR, error);
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        error
+                    );
                 },
                 complete: () => {
                     dispatch<typeof Actions.AudioPlayerStopped>({
                         name: Actions.AudioPlayerStopped.name,
                         payload: {
-                            tileId: this.tileId
-                        }
+                            tileId: this.tileId,
+                        },
                     });
-                }
+                },
             });
     }
 
-    private dispatchPlayStop(dispatch:SEDispatcher):void {
+    private dispatchPlayStop(dispatch: SEDispatcher): void {
         dispatch<typeof Actions.AudioPlayerStopped>({
             name: Actions.AudioPlayerStopped.name,
             payload: {
-                tileId: this.tileId
-            }
+                tileId: this.tileId,
+            },
         });
     }
-
-
 }

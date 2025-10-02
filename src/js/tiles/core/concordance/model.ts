@@ -25,16 +25,27 @@ import { List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import {
-    RecognizedQueries, QueryType, QueryMatch, findCurrQueryMatch,
-    testIsDictMatch
+    RecognizedQueries,
+    QueryType,
+    QueryMatch,
+    findCurrQueryMatch,
+    testIsDictMatch,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import {
-    AttrViewMode, ConcData, ConcResponse, createInitialLinesData, Line, ViewMode
+    AttrViewMode,
+    ConcData,
+    ConcResponse,
+    createInitialLinesData,
+    Line,
+    ViewMode,
 } from '../../../api/vendor/mquery/concordance/common.js';
-import { ConcApiArgs, MQueryConcApi } from '../../../api/vendor/mquery/concordance/index.js';
+import {
+    ConcApiArgs,
+    MQueryConcApi,
+} from '../../../api/vendor/mquery/concordance/index.js';
 import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
 import { CollWithExamplesResponse } from '../colloc/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -42,33 +53,32 @@ import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { HTTPResponse as TranslatHTTPResponse } from '../translations/api.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 
-
 export interface ConcordanceTileState {
-    tileId:number;
-    queries:Array<string>;
-    corpname:string;
-    otherCorpname:string;
-    subcname:string;
-    subcDesc:string;
-    pageSize:number;
-    attr_vmode:AttrViewMode;
-    viewMode:ViewMode;
-    sentenceStruct:string;
-    metadataAttrs:Array<{value:string; label:string}>;
-    attrs:Array<string>;
-    posQueryGenerator:PosQueryGeneratorType;
-    concordances:Array<ConcData>;
-    visibleQueryIdx:number;
-    isBusy:boolean;
-    error:string|null;
-    isTweakMode:boolean;
-    isMobile:boolean;
-    widthFract:number;
-    kwicWindow:number;
-    initialKwicWindow:number;
-    backlinks:Array<Backlink>;
-    disableViewModes:boolean;
-    visibleMetadataLine:number;
+    tileId: number;
+    queries: Array<string>;
+    corpname: string;
+    otherCorpname: string;
+    subcname: string;
+    subcDesc: string;
+    pageSize: number;
+    attr_vmode: AttrViewMode;
+    viewMode: ViewMode;
+    sentenceStruct: string;
+    metadataAttrs: Array<{ value: string; label: string }>;
+    attrs: Array<string>;
+    posQueryGenerator: PosQueryGeneratorType;
+    concordances: Array<ConcData>;
+    visibleQueryIdx: number;
+    isBusy: boolean;
+    error: string | null;
+    isTweakMode: boolean;
+    isMobile: boolean;
+    widthFract: number;
+    kwicWindow: number;
+    initialKwicWindow: number;
+    backlinks: Array<Backlink>;
+    disableViewModes: boolean;
+    visibleMetadataLine: number;
 
     /**
      * If true, then the tile won't show
@@ -77,81 +87,86 @@ export interface ConcordanceTileState {
      * from a different tile
      * (e.g. coll => examples of coll words)
      */
-    isExamplesMode:boolean;
+    isExamplesMode: boolean;
 }
-
 
 export interface ConcordanceTileModelArgs {
-    dispatcher:IFullActionControl;
-    tileId:number;
-    readDataFromTile:number|null;
-    appServices:IAppServices;
-    api:MQueryConcApi;
-    infoApi?:CorpusInfoAPI;
-    queryMatches:RecognizedQueries;
-    initState:ConcordanceTileState;
-    queryType:QueryType;
+    dispatcher: IFullActionControl;
+    tileId: number;
+    readDataFromTile: number | null;
+    appServices: IAppServices;
+    api: MQueryConcApi;
+    infoApi?: CorpusInfoAPI;
+    queryMatches: RecognizedQueries;
+    initState: ConcordanceTileState;
+    queryType: QueryType;
 }
 
-export type SupportedForeignResponses = CollWithExamplesResponse | TranslatHTTPResponse;
+export type SupportedForeignResponses =
+    | CollWithExamplesResponse
+    | TranslatHTTPResponse;
 
-function isCollWithExamplesResponse(v:SupportedForeignResponses):v is CollWithExamplesResponse {
+function isCollWithExamplesResponse(
+    v: SupportedForeignResponses
+): v is CollWithExamplesResponse {
     return Array.isArray(v['colls']) && v['resultType'] === 'collWithExamples';
 }
 
-function isTranslationResponse(v:SupportedForeignResponses):v is TranslatHTTPResponse {
+function isTranslationResponse(
+    v: SupportedForeignResponses
+): v is TranslatHTTPResponse {
     return !!v && Array.isArray(v['lines']) && v['sum'] !== undefined;
 }
 
-
-function transformSupportedForeignResponse(resp:SupportedForeignResponses|null):Array<Line> {
+function transformSupportedForeignResponse(
+    resp: SupportedForeignResponses | null
+): Array<Line> {
     if (!resp) {
         return [];
-
     } else if (isCollWithExamplesResponse(resp)) {
         return pipe(
             resp.colls,
-            List.flatMap(x => x.examples),
-            List.map(ex => ({
+            List.flatMap((x) => x.examples),
+            List.map((ex) => ({
                 ...ex,
-                metadata: []
+                metadata: [],
             }))
         );
-
     } else if (isTranslationResponse(resp)) {
         return pipe(
             resp.lines,
-            List.map(
-                item => item.to.error ?
-                    [{
-                        ref: '',
-                        text: [{
-                            type: 'token' as 'token',
-                            word: `-- ${item.to.error} -- `,
-                            matchType: 'kwic' as 'kwic',
-                            strong: true,
-                            attrs:{}
-                        }],
-                        interactionId: item.to.examples?.interactionId,
-                        alignedText: [],
-                        props: {}
-                    } as Line] :
-                    List.map(
-                        text => ({
-                            ref: text.ref,
-                            text: text?.text,
-                            alignedText: text.alignedText,
-                            props: text.props,
-                            interactionId: item.to.examples?.interactionId
-                        }),
-                        item.to.examples?.text || []
-                    )
+            List.map((item) =>
+                item.to.error
+                    ? [
+                          {
+                              ref: '',
+                              text: [
+                                  {
+                                      type: 'token' as 'token',
+                                      word: `-- ${item.to.error} -- `,
+                                      matchType: 'kwic' as 'kwic',
+                                      strong: true,
+                                      attrs: {},
+                                  },
+                              ],
+                              interactionId: item.to.examples?.interactionId,
+                              alignedText: [],
+                              props: {},
+                          } as Line,
+                      ]
+                    : List.map(
+                          (text) => ({
+                              ref: text.ref,
+                              text: text?.text,
+                              alignedText: text.alignedText,
+                              props: text.props,
+                              interactionId: item.to.examples?.interactionId,
+                          }),
+                          item.to.examples?.text || []
+                      )
             ),
-            List.flatMap(
-                item => item
-            )
+            List.flatMap((item) => item)
         );
-
     } else {
         throw new Error('unknown foreign response');
     }
@@ -161,25 +176,33 @@ function transformSupportedForeignResponse(resp:SupportedForeignResponses|null):
  *
  */
 export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
+    private readonly concApi: MQueryConcApi;
 
-    private readonly concApi:MQueryConcApi;
+    private readonly queryMatches: RecognizedQueries;
 
-    private readonly queryMatches:RecognizedQueries;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly queryType: QueryType;
 
-    private readonly queryType:QueryType;
+    private readonly readDataFromTile: number | null;
 
-    private readonly readDataFromTile:number|null;
-
-    private readonly infoApi:CorpusInfoAPI|undefined;
+    private readonly infoApi: CorpusInfoAPI | undefined;
 
     public static readonly CTX_SIZES = [8, 10, 18, 28];
 
-    constructor({dispatcher, tileId, appServices, api, infoApi, queryMatches, initState,
-            queryType, readDataFromTile}:ConcordanceTileModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        appServices,
+        api,
+        infoApi,
+        queryMatches,
+        initState,
+        queryType,
+        readDataFromTile,
+    }: ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.concApi = api;
         this.infoApi = infoApi;
@@ -189,304 +212,319 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
         this.queryType = queryType;
         this.readDataFromTile = readDataFromTile;
 
-        this.addActionHandler(
-            GlobalActions.SetScreenMode,
-            action => {
-                if (action.payload.isMobile !== this.state.isMobile) {
-                    this.changeState(
-                        state => {
-                            state.isMobile = action.payload.isMobile;
-                            if (action.payload.isMobile) {
-                                state.kwicWindow = ConcordanceTileModel.CTX_SIZES[0];
-
-                            } else {
-                                state.kwicWindow = state.initialKwicWindow;
-                            }
-                        }
-                    );
-                }
-
-                if (this.state.concordances.some(conc => conc.lines.length > 0)) {
-                    const subgroup = this.appServices.dataStreaming().startNewSubgroup(this.tileId);
-                    this.reloadData(subgroup);
-                }
+        this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
+            if (action.payload.isMobile !== this.state.isMobile) {
+                this.changeState((state) => {
+                    state.isMobile = action.payload.isMobile;
+                    if (action.payload.isMobile) {
+                        state.kwicWindow = ConcordanceTileModel.CTX_SIZES[0];
+                    } else {
+                        state.kwicWindow = state.initialKwicWindow;
+                    }
+                });
             }
-        );
+
+            if (this.state.concordances.some((conc) => conc.lines.length > 0)) {
+                const subgroup = this.appServices
+                    .dataStreaming()
+                    .startNewSubgroup(this.tileId);
+                this.reloadData(subgroup);
+            }
+        });
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableTileTweakMode,
-            action => action.payload.ident === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isTweakMode = true;
-                    }
-                );
+            (action) => action.payload.ident === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isTweakMode = true;
+                });
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.DisableTileTweakMode,
-            action => action.payload.ident === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isTweakMode = false;
-                    }
-                );
+            (action) => action.payload.ident === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isTweakMode = false;
+                });
             }
         );
 
-        this.addActionHandler(
-            GlobalActions.RequestQueryResponse,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isBusy = true;
-                        state.error = null;
-                    }
-                );
-                this.reloadData(this.appServices.dataStreaming());
-            }
-        );
+        this.addActionHandler(GlobalActions.RequestQueryResponse, (action) => {
+            this.changeState((state) => {
+                state.isBusy = true;
+                state.error = null;
+            });
+            this.reloadData(this.appServices.dataStreaming());
+        });
 
         this.addActionSubtypeHandler(
             Actions.PartialTileDataLoaded,
-            action => action.payload.tileId === this.tileId,
-            action => {
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
                 // note: error is handled via TileDataLoaded
                 if (!action.error) {
-                    this.changeState(
-                        state =>  {
-                            const numPages = state.isExamplesMode ? action.payload.resp.lines.length/state.pageSize : action.payload.resp.concSize/state.pageSize;
-                            state.concordances[action.payload.queryIdx] = {
-                                concSize: action.payload.resp.concSize,
-                                ipm: action.payload.resp.ipm,
-                                currPage: state.concordances[action.payload.queryIdx].loadPage,
-                                loadPage: state.concordances[action.payload.queryIdx].loadPage,
-                                numPages: Math.ceil(numPages),
-                                queryIdx: action.payload.queryIdx,
-                                lines: action.payload.resp.lines
-                            };
-                            if (action.payload.resp.corpname) { // this applies for foreign data conc.
-                                state.corpname = action.payload.resp.corpname;
-                            }
-                            if (action.payload.resp.alignedCorpname) {
-                                state.otherCorpname = action.payload.resp.alignedCorpname;
-                                state.viewMode = ViewMode.ALIGN
-                            }
-                            if (state.backlinks[action.payload.queryIdx] === null) {
-                                state.backlinks[action.payload.queryIdx] = this.concApi.getBacklink(action.payload.queryIdx);
-                            }
+                    this.changeState((state) => {
+                        const numPages = state.isExamplesMode
+                            ? action.payload.resp.lines.length / state.pageSize
+                            : action.payload.resp.concSize / state.pageSize;
+                        state.concordances[action.payload.queryIdx] = {
+                            concSize: action.payload.resp.concSize,
+                            ipm: action.payload.resp.ipm,
+                            currPage:
+                                state.concordances[action.payload.queryIdx]
+                                    .loadPage,
+                            loadPage:
+                                state.concordances[action.payload.queryIdx]
+                                    .loadPage,
+                            numPages: Math.ceil(numPages),
+                            queryIdx: action.payload.queryIdx,
+                            lines: action.payload.resp.lines,
+                        };
+                        if (action.payload.resp.corpname) {
+                            // this applies for foreign data conc.
+                            state.corpname = action.payload.resp.corpname;
                         }
-                    );
+                        if (action.payload.resp.alignedCorpname) {
+                            state.otherCorpname =
+                                action.payload.resp.alignedCorpname;
+                            state.viewMode = ViewMode.ALIGN;
+                        }
+                        if (state.backlinks[action.payload.queryIdx] === null) {
+                            state.backlinks[action.payload.queryIdx] =
+                                this.concApi.getBacklink(
+                                    action.payload.queryIdx
+                                );
+                        }
+                    });
                 }
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.TileDataLoaded,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isBusy = false;
-                        if (action.error) {
-                            state.concordances = createInitialLinesData(this.queryMatches.length);
-                            state.error = this.appServices.normalizeHttpApiError(action.error);
-                            state.backlinks = List.map(_ => null, this.queryMatches);
-                        } else {
-                            if (state.isExamplesMode) {
-                                state.concordances = List.map(
-                                    conc => {
-                                        conc.currPage = conc.loadPage;
-                                        return conc;
-                                    },
-                                    state.concordances,
-                                );
-                            }
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.concordances = createInitialLinesData(
+                            this.queryMatches.length
+                        );
+                        state.error = this.appServices.normalizeHttpApiError(
+                            action.error
+                        );
+                        state.backlinks = List.map(
+                            (_) => null,
+                            this.queryMatches
+                        );
+                    } else {
+                        if (state.isExamplesMode) {
+                            state.concordances = List.map((conc) => {
+                                conc.currPage = conc.loadPage;
+                                return conc;
+                            }, state.concordances);
                         }
-                    }
-                );
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.LoadNextPage,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isBusy = true;
-                        state.error = null;
-                        state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage + 1;
-                    }
-                );
-                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId));
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.LoadPrevPage,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isBusy = true;
-                        state.error = null;
-                        state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage - 1;
-                    }
-                );
-                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId));
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.SetViewMode,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.isBusy = true;
-                        state.error = null;
-                        state.viewMode = action.payload.mode;
-                    }
-                );
-                this.reloadData(this.appServices.dataStreaming().startNewSubgroup(this.tileId));
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            GlobalActions.TileSubgroupReady,
-            action => typeof this.readDataFromTile === 'number' && this.readDataFromTile === action.payload.mainTileId,
-            action => {
-                const subgroup = this.appServices.dataStreaming().getSubgroup(action.payload.subgroupId);
-                this.getDataFromStream(
-                    subgroup.registerTileRequest<CollWithExamplesResponse>(
-                        {
-                            tileId: this.tileId,
-                            otherTileId: this.readDataFromTile,
-                            contentType: 'application/json',
-                        }
-                    ).pipe(
-                        map<CollWithExamplesResponse, [ConcResponse, number]> (
-                            resp => tuple(
-                                {
-                                    concSize: 0,
-                                    ipm: 0,
-                                    lines: pipe(
-                                        resp.colls,
-                                        List.flatMap(x => x.examples),
-                                        List.map(ex => ({
-                                            ...ex,
-                                            metadata: []
-                                        }))
-                                    ),
-                                    resultType:'concordance'
-                                },
-                                0
-                            ) // TODO upgrade once we support cmp
-                        )
-                    )
-                );
-            }
-        )
-
-        this.addActionSubtypeHandler(
-            GlobalActions.GetSourceInfo,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.infoApi.call(
-                    this.appServices.dataStreaming().startNewSubgroup(this.tileId),
-                    this.tileId,
-                    0,
-                    {
-                        corpname: this.state.corpname,
-                        lang: this.appServices.getISO639UILang()
-                    }
-                ).subscribe({
-                    next: data => {
-                        this.dispatchSideEffect({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            payload: {
-                                tileId: this.readDataFromTile,
-                                data: data
-                            }
-                        });
-                    },
-                    error: err => {
-                        console.error(err);
-                        this.dispatchSideEffect({
-                            name: GlobalActions.GetSourceInfoDone.name,
-                            error: err,
-                            payload: {
-                                tileId: this.readDataFromTile,
-                            }
-                        });
                     }
                 });
             }
         );
 
         this.addActionSubtypeHandler(
-            Actions.SetVisibleQuery,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.visibleQueryIdx = action.payload.queryIdx
-                    }
+            Actions.LoadNextPage,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = true;
+                    state.error = null;
+                    state.concordances[state.visibleQueryIdx].loadPage =
+                        state.concordances[state.visibleQueryIdx].currPage + 1;
+                });
+                this.reloadData(
+                    this.appServices
+                        .dataStreaming()
+                        .startNewSubgroup(this.tileId)
                 );
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.LoadPrevPage,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = true;
+                    state.error = null;
+                    state.concordances[state.visibleQueryIdx].loadPage =
+                        state.concordances[state.visibleQueryIdx].currPage - 1;
+                });
+                this.reloadData(
+                    this.appServices
+                        .dataStreaming()
+                        .startNewSubgroup(this.tileId)
+                );
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.SetViewMode,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = true;
+                    state.error = null;
+                    state.viewMode = action.payload.mode;
+                });
+                this.reloadData(
+                    this.appServices
+                        .dataStreaming()
+                        .startNewSubgroup(this.tileId)
+                );
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.TileSubgroupReady,
+            (action) =>
+                typeof this.readDataFromTile === 'number' &&
+                this.readDataFromTile === action.payload.mainTileId,
+            (action) => {
+                const subgroup = this.appServices
+                    .dataStreaming()
+                    .getSubgroup(action.payload.subgroupId);
+                this.getDataFromStream(
+                    subgroup
+                        .registerTileRequest<CollWithExamplesResponse>({
+                            tileId: this.tileId,
+                            otherTileId: this.readDataFromTile,
+                            contentType: 'application/json',
+                        })
+                        .pipe(
+                            map<
+                                CollWithExamplesResponse,
+                                [ConcResponse, number]
+                            >(
+                                (resp) =>
+                                    tuple(
+                                        {
+                                            concSize: 0,
+                                            ipm: 0,
+                                            lines: pipe(
+                                                resp.colls,
+                                                List.flatMap((x) => x.examples),
+                                                List.map((ex) => ({
+                                                    ...ex,
+                                                    metadata: [],
+                                                }))
+                                            ),
+                                            resultType: 'concordance',
+                                        },
+                                        0
+                                    ) // TODO upgrade once we support cmp
+                            )
+                        )
+                );
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.infoApi
+                    .call(
+                        this.appServices
+                            .dataStreaming()
+                            .startNewSubgroup(this.tileId),
+                        this.tileId,
+                        0,
+                        {
+                            corpname: this.state.corpname,
+                            lang: this.appServices.getISO639UILang(),
+                        }
+                    )
+                    .subscribe({
+                        next: (data) => {
+                            this.dispatchSideEffect({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                payload: {
+                                    tileId: this.readDataFromTile,
+                                    data: data,
+                                },
+                            });
+                        },
+                        error: (err) => {
+                            console.error(err);
+                            this.dispatchSideEffect({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error: err,
+                                payload: {
+                                    tileId: this.readDataFromTile,
+                                },
+                            });
+                        },
+                    });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.SetVisibleQuery,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.visibleQueryIdx = action.payload.queryIdx;
+                });
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.TileAreaClicked,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.visibleMetadataLine = -1;
-                    }
-                );
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.visibleMetadataLine = -1;
+                });
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.ShowLineMetadata,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.visibleMetadataLine = action.payload.idx;
-                    }
-                );
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.visibleMetadataLine = action.payload.idx;
+                });
             }
         );
 
         this.addActionSubtypeHandler(
             Actions.HideLineMetadata,
-            action => action.payload.tileId === this.tileId,
-            action => {
-                this.changeState(
-                    state => {
-                        state.visibleMetadataLine = -1;
-                    }
-                );
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.visibleMetadataLine = -1;
+                });
             }
         );
 
         this.addActionSubtypeHandler(
             GlobalActions.FollowBacklink,
-            action => action.payload.tileId === this.tileId,
-            action => {
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
                 if (this.concApi instanceof MQueryConcApi) {
-                    const url = this.concApi.requestBacklink(this.stateToArgs(
-                        findCurrQueryMatch(this.queryMatches[action.payload.backlink.queryId]),
-                        action.payload.backlink.queryId
-                    ));
-                    window.open(url.toString(),'_blank');
-
+                    const url = this.concApi.requestBacklink(
+                        this.stateToArgs(
+                            findCurrQueryMatch(
+                                this.queryMatches[
+                                    action.payload.backlink.queryId
+                                ]
+                            ),
+                            action.payload.backlink.queryId
+                        )
+                    );
+                    window.open(url.toString(), '_blank');
                 } else {
                     alert('TODO - not implemented yet');
                     // TODO
@@ -494,171 +532,173 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler(
-            GlobalActions.SubqItemHighlighted,
-            action => {
-                this.changeState(
-                    state => {
-                        state.concordances[state.visibleQueryIdx].lines = pipe(
-                            state.concordances[state.visibleQueryIdx].lines,
-                            List.map(
-                                v => ({
-                                    ...v,
-                                    highlighted: v.interactionId === action.payload.interactionId
-                                })
-                            )
-                        );
-                    }
+        this.addActionHandler(GlobalActions.SubqItemHighlighted, (action) => {
+            this.changeState((state) => {
+                state.concordances[state.visibleQueryIdx].lines = pipe(
+                    state.concordances[state.visibleQueryIdx].lines,
+                    List.map((v) => ({
+                        ...v,
+                        highlighted:
+                            v.interactionId === action.payload.interactionId,
+                    }))
                 );
-            }
-        );
+            });
+        });
 
-        this.addActionHandler(
-            GlobalActions.SubqItemDehighlighted,
-            action => {
-                this.changeState(
-                    state => {
-                        state.concordances[state.visibleQueryIdx].lines = pipe(
-                            state.concordances[state.visibleQueryIdx].lines,
-                            List.map(
-                                v => ({
-                                    ...v,
-                                    highlighted: false
-                                })
-                            )
-                        );
-                    }
+        this.addActionHandler(GlobalActions.SubqItemDehighlighted, (action) => {
+            this.changeState((state) => {
+                state.concordances[state.visibleQueryIdx].lines = pipe(
+                    state.concordances[state.visibleQueryIdx].lines,
+                    List.map((v) => ({
+                        ...v,
+                        highlighted: false,
+                    }))
                 );
-            }
-        );
+            });
+        });
     }
 
-
     private stateToArgs(
-        queryMatch:QueryMatch|null,
-        queryIdx:number,
-    ):ConcApiArgs {
+        queryMatch: QueryMatch | null,
+        queryIdx: number
+    ): ConcApiArgs {
         return {
             corpusName: this.state.corpname,
             q: mkLemmaMatchQuery(queryMatch, this.state.posQueryGenerator),
-            rowsOffset: (this.state.concordances[queryIdx].loadPage - 1) * this.state.pageSize,
+            rowsOffset:
+                (this.state.concordances[queryIdx].loadPage - 1) *
+                this.state.pageSize,
             maxRows: this.state.pageSize,
-            contextWidth: this.state.viewMode === ViewMode.SENT ? 0 : this.state.kwicWindow,
-            contextStruct: this.state.viewMode === ViewMode.SENT ? this.state.sentenceStruct : undefined,
-            queryIdx
+            contextWidth:
+                this.state.viewMode === ViewMode.SENT
+                    ? 0
+                    : this.state.kwicWindow,
+            contextStruct:
+                this.state.viewMode === ViewMode.SENT
+                    ? this.state.sentenceStruct
+                    : undefined,
+            queryIdx,
         };
     }
 
     private loadViaDefaultApi(
-        streaming:IDataStreaming,
-    ):Observable<[ConcResponse, number]>  {
-        return new Observable<[ConcApiArgs|null, number]>((observer) => {
+        streaming: IDataStreaming
+    ): Observable<[ConcResponse, number]> {
+        return new Observable<[ConcApiArgs | null, number]>((observer) => {
             try {
                 pipe(
                     this.queryMatches,
-                    List.map(match => findCurrQueryMatch(match)),
-                     List.map(
-                        (currMatch, queryIdx) => tuple(
-                            testIsDictMatch(currMatch) ? this.stateToArgs(currMatch, queryIdx) : null,
-                            queryIdx,
+                    List.map((match) => findCurrQueryMatch(match)),
+                    List.map((currMatch, queryIdx) =>
+                        tuple(
+                            testIsDictMatch(currMatch)
+                                ? this.stateToArgs(currMatch, queryIdx)
+                                : null,
+                            queryIdx
                         )
                     ),
-                    List.forEach(
-                        v => {
-                            observer.next(v)
-                        }
-                    ),
+                    List.forEach((v) => {
+                        observer.next(v);
+                    })
                 );
                 observer.complete();
-
             } catch (e) {
                 observer.error(e);
             }
-
         }).pipe(
-            mergeMap(
-                ([args, queryIdx]) => this.appServices.callAPI(this.concApi, streaming, this.tileId, queryIdx, args)
+            mergeMap(([args, queryIdx]) =>
+                this.appServices.callAPI(
+                    this.concApi,
+                    streaming,
+                    this.tileId,
+                    queryIdx,
+                    args
+                )
             )
-        )
-    }
-
-    private reloadData(
-        streaming:IDataStreaming
-    ):void {
-        this.getDataFromStream(
-            typeof this.readDataFromTile === 'number' ?
-                streaming.registerTileRequest<SupportedForeignResponses>(
-                    {
-                        tileId: this.tileId,
-                        queryIdx: 0, // TODO
-                        otherTileId: this.readDataFromTile,
-                        otherTileQueryIdx: 0, // TODO
-                        contentType: 'application/json',
-                    }
-                ).pipe(
-                    map(
-                        resp => tuple(
-                            {
-                                concSize: 0,
-                                ipm: 0,
-                                lines: transformSupportedForeignResponse(resp),
-                                corpname: isTranslationResponse(resp) ? resp.fromCorp : undefined,
-                                alignedCorpname: isTranslationResponse(resp) ? resp.toCorp : undefined,
-                                resultType:'concordance' as 'concordance'
-                            },
-                            0
-                        ) // TODO upgrade once we support cmp
-                    )
-                ) :
-                this.loadViaDefaultApi(streaming)
         );
     }
 
-    private getDataFromStream(data:Observable<[ConcResponse, number]>) {
+    private reloadData(streaming: IDataStreaming): void {
+        this.getDataFromStream(
+            typeof this.readDataFromTile === 'number'
+                ? streaming
+                      .registerTileRequest<SupportedForeignResponses>({
+                          tileId: this.tileId,
+                          queryIdx: 0, // TODO
+                          otherTileId: this.readDataFromTile,
+                          otherTileQueryIdx: 0, // TODO
+                          contentType: 'application/json',
+                      })
+                      .pipe(
+                          map(
+                              (resp) =>
+                                  tuple(
+                                      {
+                                          concSize: 0,
+                                          ipm: 0,
+                                          lines: transformSupportedForeignResponse(
+                                              resp
+                                          ),
+                                          corpname: isTranslationResponse(resp)
+                                              ? resp.fromCorp
+                                              : undefined,
+                                          alignedCorpname:
+                                              isTranslationResponse(resp)
+                                                  ? resp.toCorp
+                                                  : undefined,
+                                          resultType:
+                                              'concordance' as 'concordance',
+                                      },
+                                      0
+                                  ) // TODO upgrade once we support cmp
+                          )
+                      )
+                : this.loadViaDefaultApi(streaming)
+        );
+    }
+
+    private getDataFromStream(data: Observable<[ConcResponse, number]>) {
         data.pipe(
-            tap(
-                ([resp, queryIdx]) => {
-                    this.dispatchSideEffect<typeof Actions.PartialTileDataLoaded>({
-                        name: Actions.PartialTileDataLoaded.name,
-                        payload: {
-                            tileId: this.tileId,
-                            queryIdx,
-                            resp
-                        }
-                    });
-                }
-            ),
+            tap(([resp, queryIdx]) => {
+                this.dispatchSideEffect<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        queryIdx,
+                        resp,
+                    },
+                });
+            }),
             reduce(
-                (acc, [resp,]) => {
+                (acc, [resp]) => {
                     return {
-                        isEmpty: acc.isEmpty && resp.lines.length === 0
+                        isEmpty: acc.isEmpty && resp.lines.length === 0,
                     };
                 },
-                {isEmpty: true}
+                { isEmpty: true }
             )
-
         ).subscribe({
-            next: acc => {
+            next: (acc) => {
                 this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: acc.isEmpty,
-                        corpusName: this.state.corpname
-                    }
+                        corpusName: this.state.corpname,
+                    },
                 });
             },
-            error: err => {
+            error: (err) => {
                 this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     error: err,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,
-                        corpusName: this.state.corpname
-                    }
+                        corpusName: this.state.corpname,
+                    },
                 });
-            }
+            },
         });
     }
 }

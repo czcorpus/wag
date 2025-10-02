@@ -20,142 +20,128 @@ import { CorpSrchTileConf } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 
-
 export interface TimeDistTileConf extends CorpSrchTileConf {
+    apiURL: string;
 
-    apiURL:string;
+    maxItems: number;
 
-    maxItems:number;
+    fcrit: string;
 
-    fcrit:string;
+    fromYear?: number;
 
-    fromYear?:number;
+    toYear?: number;
 
-    toYear?:number;
+    posQueryGenerator: PosQueryGeneratorType;
 
-    posQueryGenerator:PosQueryGeneratorType;
-
-    showMeasuredFreq?:boolean;
+    showMeasuredFreq?: boolean;
 }
 
-
 export interface DataLoadedPayload {
-    tileId:number;
-    queryId?:number;
-    overwritePrevious?:boolean;
-    data?:Array<DataItemWithWCI>;
-    dataCmp?:Array<DataItemWithWCI>;
-    wordMainLabel?:string;
-    origQuery?:string;
+    tileId: number;
+    queryId?: number;
+    overwritePrevious?: boolean;
+    data?: Array<DataItemWithWCI>;
+    dataCmp?: Array<DataItemWithWCI>;
+    wordMainLabel?: string;
+    origQuery?: string;
 }
 
 export interface DataItemWithWCI {
-    datetime:string;
-    freq:number;
-    ipm:number;
-    norm:number;
-    ipmInterval:[number, number];
+    datetime: string;
+    freq: number;
+    ipm: number;
+    norm: number;
+    ipmInterval: [number, number];
 }
 
 export class Actions {
-
-    static ChangeDisplayObserved:Action<{
-        tileId:number;
-        value:boolean;
-
+    static ChangeDisplayObserved: Action<{
+        tileId: number;
+        value: boolean;
     }> = {
-        name: 'TIME_DISTRIB_CHANGE_DISPLAY_OBSERVED'
+        name: 'TIME_DISTRIB_CHANGE_DISPLAY_OBSERVED',
     };
 
-    static ChangeUseAbsFreq:Action<{
-        tileId:number;
-        value:boolean;
-
+    static ChangeUseAbsFreq: Action<{
+        tileId: number;
+        value: boolean;
     }> = {
-        name: 'TIME_DISTRIB_CHANGE_USE_ABS_FREQ'
+        name: 'TIME_DISTRIB_CHANGE_USE_ABS_FREQ',
     };
 
-	static ChangeCmpWord:Action<{
-        tileId:number;
-        value:string;
-
+    static ChangeCmpWord: Action<{
+        tileId: number;
+        value: string;
     }> = {
-        name: 'TIME_DISTRIB_CHANGE_CMP_WORD'
+        name: 'TIME_DISTRIB_CHANGE_CMP_WORD',
     };
 
-	static SubmitCmpWord:Action<{
-        tileId:number;
-
+    static SubmitCmpWord: Action<{
+        tileId: number;
     }> = {
-        name: 'TIME_DISTRIB_SUBMIT_CMP_WORD'
+        name: 'TIME_DISTRIB_SUBMIT_CMP_WORD',
     };
 
-	static ZoomMouseLeave:Action<{
-        tileId:number;
-
+    static ZoomMouseLeave: Action<{
+        tileId: number;
     }> = {
-        name: 'MULTI_WORD_ZOOM_MOUSE_LEAVE'
+        name: 'MULTI_WORD_ZOOM_MOUSE_LEAVE',
     };
 
-	static ZoomMouseDown:Action<{
-        tileId:number;
-        value:number;
-
+    static ZoomMouseDown: Action<{
+        tileId: number;
+        value: number;
     }> = {
-        name: 'MULTI_WORD_ZOOM_MOUSE_DOWN'
+        name: 'MULTI_WORD_ZOOM_MOUSE_DOWN',
     };
 
-	static ZoomMouseMove:Action<{
-        tileId:number;
-        value:number;
-
+    static ZoomMouseMove: Action<{
+        tileId: number;
+        value: number;
     }> = {
-        name: 'MULTI_WORD_ZOOM_MOUSE_MOVE'
-    }
-
-	static ZoomMouseUp:Action<{
-        tileId:number;
-        value:number;
-
-    }> = {
-        name: 'MULTI_WORD_ZOOM_MOUSE_UP'
+        name: 'MULTI_WORD_ZOOM_MOUSE_MOVE',
     };
 
-	static ZoomReset:Action<{
-        tileId:number;
-
+    static ZoomMouseUp: Action<{
+        tileId: number;
+        value: number;
     }> = {
-        name: 'MULTI_WORD_ZOOM_RESET'
-    }
-
-    static ChangeTimeWindow:Action<{
-        tileId:number;
-        value:number;
-
-    }> = {
-        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
-    }
-
-	static ChangeUnits:Action<{
-        tileId:number;
-        units:string;
-
-    }> = {
-        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
-    }
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
-        name: GlobalActions.TileDataLoaded.name
+        name: 'MULTI_WORD_ZOOM_MOUSE_UP',
     };
 
-
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TilePartialDataLoaded.name
+    static ZoomReset: Action<{
+        tileId: number;
+    }> = {
+        name: 'MULTI_WORD_ZOOM_RESET',
     };
 
+    static ChangeTimeWindow: Action<{
+        tileId: number;
+        value: number;
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW',
+    };
+
+    static ChangeUnits: Action<{
+        tileId: number;
+        units: string;
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS',
+    };
+
+    static TileDataLoaded: Action<typeof GlobalActions.TileDataLoaded.payload> =
+        {
+            name: GlobalActions.TileDataLoaded.name,
+        };
+
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
+    };
 }
 
 export enum SubchartID {
     MAIN = 'main',
-    SECONDARY = 'secondary'
+    SECONDARY = 'secondary',
 }

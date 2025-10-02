@@ -23,60 +23,68 @@ import { GlobalComponents } from '../../common/index.js';
 
 import * as S from '../../common/style.js';
 
-
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
-
+export function init(
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>
+) {
     // ------------------ <IndicesList /> ----------------------------
 
-    const IndicesList:React.FC<{
-        data:Array<{name:string; title:string}>;
-
+    const IndicesList: React.FC<{
+        data: Array<{ name: string; title: string }>;
     }> = (props) => {
         return (
             <>
-                {props.data.map((v, i) =>
-                    <React.Fragment key={`${v.name}:${i}`}>{i > 0 ? ', ' : ''}<span title={v.title}>{v.name}</span></React.Fragment>
-                )}
+                {props.data.map((v, i) => (
+                    <React.Fragment key={`${v.name}:${i}`}>
+                        {i > 0 ? ', ' : ''}
+                        <span title={v.title}>{v.name}</span>
+                    </React.Fragment>
+                ))}
             </>
         );
     };
 
-
     // ------------------ <ExplainView /> ----------------------------
 
-    const ExplainView:React.FC<{
-        data:FCS1ExplainResponse;
-
+    const ExplainView: React.FC<{
+        data: FCS1ExplainResponse;
     }> = (props) => {
-
         return (
-            <S.SourceInfoBox className="ExplainView" $createStaticUrl={ut.createStaticUrl}>
+            <S.SourceInfoBox
+                className="ExplainView"
+                $createStaticUrl={ut.createStaticUrl}
+            >
                 <dl>
-                    <dt>{ut.translate('global__source_general_desc_label')}:</dt>
+                    <dt>
+                        {ut.translate('global__source_general_desc_label')}:
+                    </dt>
                     <dd>{ut.translate('global__clarin_fcs_endpoint_label')}</dd>
                     <dt>{ut.translate('global__source_desc_label')}:</dt>
                     <dd>{props.data.description}</dd>
-                    {props.data.author ?
+                    {props.data.author ? (
                         <>
                             <dt>author</dt>
                             <dd>{props.data.author}</dd>
-
-                        </> : null
-                    }
-                    {props.data.supportedIndices.length > 0 ?
+                        </>
+                    ) : null}
+                    {props.data.supportedIndices.length > 0 ? (
                         <>
-                            <dt>{ut.translate('global__source_indices_label')}:</dt>
-                            <dd><IndicesList data={props.data.supportedIndices} /></dd>
-                        </> : null
-                    }
+                            <dt>
+                                {ut.translate('global__source_indices_label')}:
+                            </dt>
+                            <dd>
+                                <IndicesList
+                                    data={props.data.supportedIndices}
+                                />
+                            </dd>
+                        </>
+                    ) : null}
                 </dl>
             </S.SourceInfoBox>
         );
     };
 
-
     return {
-        ExplainView: ExplainView
+        ExplainView: ExplainView,
     };
-
 }

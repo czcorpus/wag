@@ -23,23 +23,23 @@ export interface ActionLogRecord {
      * In case of multiple WaG installations, each should
      * have its unique applicationId.
      */
-    applicationId:string;
-    action:string;
-    userId:number|null;  // provide userId if available
-    datetime:string;
-    queryType:QueryType;
-    request:{
-        origin:string;
-        userAgent:string;
-        referer:string;
+    applicationId: string;
+    action: string;
+    userId: number | null; // provide userId if available
+    datetime: string;
+    queryType: QueryType;
+    request: {
+        origin: string;
+        userAgent: string;
+        referer: string;
     };
-    lang2:string;
-    hasPosSpecification:boolean;
-    isQuery:boolean;
-    isMobileClient:boolean;
-    hasMatch:boolean;
+    lang2: string;
+    hasPosSpecification: boolean;
+    isQuery: boolean;
+    isMobileClient: boolean;
+    hasMatch: boolean;
 }
 
 export interface IActionWriter {
-    write(log:ActionLogRecord):void;
+    write(log: ActionLogRecord): void;
 }

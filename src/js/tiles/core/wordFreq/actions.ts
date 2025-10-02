@@ -20,26 +20,27 @@ import { SimilarFreqWord } from '../../../api/abstract/similarFreq.js';
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 
-
 export interface DataLoadedPayload {
-    data:Array<SimilarFreqWord>;
+    data: Array<SimilarFreqWord>;
 }
 
 export class Actions {
-
-    static ExpandLemmaPos:Action<{
-        lemma:string;
-        tileId:number;
+    static ExpandLemmaPos: Action<{
+        lemma: string;
+        tileId: number;
     }> = {
-        name: 'FREQ_COMPARISON_SET_ACTIVE_BLOCK'
+        name: 'FREQ_COMPARISON_SET_ACTIVE_BLOCK',
     };
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TilePartialDataLoaded.name
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
 }

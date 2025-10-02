@@ -30,237 +30,350 @@ import { ErrPageProps } from '../error.js';
 import { List, pipe } from 'cnc-tskit';
 import { Theme } from '../../page/theme.js';
 
-
-
 export interface HtmlBodyProps {
-    config:ClientConf;
-    userConfig:UserConf;
-    hostPageEnv:HostPageEnv;
-    queryMatches:RecognizedQueries;
-    uiLanguages:Array<AvailableLanguage>;
-    homepageTiles:Array<{label:string; html:string}>;
-    uiLang:string;
-    returnUrl:string;
-    themes:Array<ColorThemeIdent>;
-    currTheme:string;
-    RootComponent:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
-    layout:Array<TileGroup>;
-    homepageSections:Array<{label:string; html:string}>;
-    isMobile:boolean;
-    isAnswerMode:boolean;
-    error:[number, string];
-    version:string;
-    repositoryUrl:string;
-    scriptNonce:string;
-    issueReportingUrl?:string;
+    config: ClientConf;
+    userConfig: UserConf;
+    hostPageEnv: HostPageEnv;
+    queryMatches: RecognizedQueries;
+    uiLanguages: Array<AvailableLanguage>;
+    homepageTiles: Array<{ label: string; html: string }>;
+    uiLang: string;
+    returnUrl: string;
+    themes: Array<ColorThemeIdent>;
+    currTheme: string;
+    RootComponent: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
+    layout: Array<TileGroup>;
+    homepageSections: Array<{ label: string; html: string }>;
+    isMobile: boolean;
+    isAnswerMode: boolean;
+    error: [number, string];
+    version: string;
+    repositoryUrl: string;
+    scriptNonce: string;
+    issueReportingUrl?: string;
 }
 
 export interface HtmlHeadProps {
-    config:ClientConf;
-    hostPageEnv:HostPageEnv;
-    scStyles:Array<React.ReactElement>;
-    htmlTitle?:string;
+    config: ClientConf;
+    hostPageEnv: HostPageEnv;
+    scStyles: Array<React.ReactElement>;
+    htmlTitle?: string;
 }
 
-
-function marshalJSON(data:any):string {
+function marshalJSON(data: any): string {
     return JSON.stringify(data)
         .replace(/</g, '\\u003c')
         .replace(/>/g, '\\u003e')
         .replace(/'/g, '\\u0027');
 }
 
-
 export function init(
-    ut:ViewUtils<GlobalComponents>,
-    theme:Theme,
-    errorPage?:boolean,
-):{
-    HtmlBody:React.FC<HtmlBodyProps>;
-    HtmlHead:React.FC<HtmlHeadProps>;
+    ut: ViewUtils<GlobalComponents>,
+    theme: Theme,
+    errorPage?: boolean
+): {
+    HtmlBody: React.FC<HtmlBodyProps>;
+    HtmlHead: React.FC<HtmlHeadProps>;
 } {
-
     // -------- <ThemeSelection /> -----------------------------
 
-    const ThemeSelection:React.FC<{
-        themes:Array<ColorThemeIdent>;
-        currTheme:string;
-        returnUrl:string;
-
+    const ThemeSelection: React.FC<{
+        themes: Array<ColorThemeIdent>;
+        currTheme: string;
+        returnUrl: string;
     }> = (props) => {
         return (
-            <form className="ThemeSelection" method="post" action={ut.createActionUrl('set-theme')}>
+            <form
+                className="ThemeSelection"
+                method="post"
+                action={ut.createActionUrl('set-theme')}
+            >
                 <input type="hidden" name="returnUrl" value={props.returnUrl} />
                 <h3>{ut.translate('global__color_themes')}</h3>:{'\u00a0'}
                 <ul>
-                {List.map((v, i) => (
-                    <li key={`theme:${v.themeId}`}>
-                        {i > 0 ? <span className="separ">, </span> : null}
-                        <button type="submit"  name="themeId" value={v.themeId}
-                                disabled={v.themeId === props.currTheme}>
-                            {v.themeId === props.currTheme ?
-                                <img src={ut.createStaticUrl('star.svg')} /> :
-                                null
-                            }
-                            {typeof v.themeLabel === 'string' ?
-                                v.themeLabel :
-                                v.themeLabel['en-US']
-                            }
-                        </button>
-                    </li>
-                ), props.themes)}
+                    {List.map(
+                        (v, i) => (
+                            <li key={`theme:${v.themeId}`}>
+                                {i > 0 ? (
+                                    <span className="separ">, </span>
+                                ) : null}
+                                <button
+                                    type="submit"
+                                    name="themeId"
+                                    value={v.themeId}
+                                    disabled={v.themeId === props.currTheme}
+                                >
+                                    {v.themeId === props.currTheme ? (
+                                        <img
+                                            src={ut.createStaticUrl('star.svg')}
+                                        />
+                                    ) : null}
+                                    {typeof v.themeLabel === 'string'
+                                        ? v.themeLabel
+                                        : v.themeLabel['en-US']}
+                                </button>
+                            </li>
+                        ),
+                        props.themes
+                    )}
                 </ul>
             </form>
         );
-    }
+    };
 
     // --------- <ThemeMenu /> -------------------------
 
-    const ThemeMenu:React.FC<{
-        themes:Array<ColorThemeIdent>;
-        returnUrl:string;
-        currTheme:string;
-
+    const ThemeMenu: React.FC<{
+        themes: Array<ColorThemeIdent>;
+        returnUrl: string;
+        currTheme: string;
     }> = (props) => (
         <section>
-            {props.themes.length > 0 ?
-            <ThemeSelection returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} /> :
-            null
-            }
+            {props.themes.length > 0 ? (
+                <ThemeSelection
+                    returnUrl={props.returnUrl}
+                    themes={props.themes}
+                    currTheme={props.currTheme}
+                />
+            ) : null}
         </section>
     );
 
     // -------- <CustomFooter /> ----------------------
 
-    const CustomFooter:React.FC<{
-        config:ClientConf;
-        returnUrl:string;
-        themes:Array<ColorThemeIdent>;
-        currTheme:string;
-        repositoryUrl:string;
-        version:string;
-
+    const CustomFooter: React.FC<{
+        config: ClientConf;
+        returnUrl: string;
+        themes: Array<ColorThemeIdent>;
+        currTheme: string;
+        repositoryUrl: string;
+        version: string;
     }> = (props) => (
         <>
-            <div dangerouslySetInnerHTML={{__html: props.config.homepage.footer}} />
-            <ThemeMenu returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
+            <div
+                dangerouslySetInnerHTML={{
+                    __html: props.config.homepage.footer,
+                }}
+            />
+            <ThemeMenu
+                returnUrl={props.returnUrl}
+                themes={props.themes}
+                currTheme={props.currTheme}
+            />
             <section className="project-info">
-                <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
-                (<a target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>)
+                <span>
+                    {ut.translate('global__powered_by_wag_{version}', {
+                        version: props.version,
+                    })}
+                </span>
+                (
+                <a target="_blank" rel="noopener" href={props.repositoryUrl}>
+                    {ut.translate('global__view_on_github')}
+                </a>
+                )
             </section>
         </>
     );
 
     // -------- <DefaultFooter /> ----------------------
 
-    const DefaultFooter:React.FC<{
-        config:ClientConf;
-        returnUrl:string;
-        themes:Array<ColorThemeIdent>;
-        currTheme:string;
-        repositoryUrl:string;
-        version:string;
-        issueReportingUrl:string;
-
+    const DefaultFooter: React.FC<{
+        config: ClientConf;
+        returnUrl: string;
+        themes: Array<ColorThemeIdent>;
+        currTheme: string;
+        repositoryUrl: string;
+        version: string;
+        issueReportingUrl: string;
     }> = (props) => (
         <>
-            <ThemeMenu returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
+            <ThemeMenu
+                returnUrl={props.returnUrl}
+                themes={props.themes}
+                currTheme={props.currTheme}
+            />
             <section className="project-info">
                 <span className="copy">
-                    &copy; <a href="https://ul.ff.cuni.cz/" target="_blank" rel="noopener">
+                    &copy;{' '}
+                    <a
+                        href="https://ul.ff.cuni.cz/"
+                        target="_blank"
+                        rel="noopener"
+                    >
                         {ut.translate('global__institute_cnc')}
-                        </a>
+                    </a>
                 </span>
-                {props.config.logo ?
-                    <span><img className="logo-filtered logo" src={ut.createStaticUrl('logo-small.svg')} alt="WaG installation logo" /></span> :
-                    null
-                }
-                <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
+                {props.config.logo ? (
+                    <span>
+                        <img
+                            className="logo-filtered logo"
+                            src={ut.createStaticUrl('logo-small.svg')}
+                            alt="WaG installation logo"
+                        />
+                    </span>
+                ) : null}
+                <span>
+                    {ut.translate('global__powered_by_wag_{version}', {
+                        version: props.version,
+                    })}
+                </span>
             </section>
             <section className="links">
                 <span className="action">
-                    <a target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>
+                    <a
+                        target="_blank"
+                        rel="noopener"
+                        href={props.repositoryUrl}
+                    >
+                        {ut.translate('global__view_on_github')}
+                    </a>
                 </span>
-                {props.issueReportingUrl ?
+                {props.issueReportingUrl ? (
                     <>
                         <span className="report-error action">
-                            <a target="_blank" rel="noopener" href={props.issueReportingUrl}>{ut.translate('global__report_a_problem')}</a>
+                            <a
+                                target="_blank"
+                                rel="noopener"
+                                href={props.issueReportingUrl}
+                            >
+                                {ut.translate('global__report_a_problem')}
+                            </a>
                         </span>
-                    </> :
-                    null
-                }
+                    </>
+                ) : null}
             </section>
         </>
     );
 
     // -------- <HtmlHead /> -------------------------------
 
-    const HtmlHead:React.FC<HtmlHeadProps> = (props) => {
+    const HtmlHead: React.FC<HtmlHeadProps> = (props) => {
         return (
             <head>
                 <meta charSet="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="description" content={ut.translate('global__meta_desc')} />
-                <title>{props.htmlTitle ? props.htmlTitle : ut.translate('global__wdglance_title')}</title>
-                {props.config.favicon ? <link rel="icon" type={props.config.favicon.contentType} href={props.config.favicon.url} /> : null}
-                <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext&amp;display=swap" media="all" />
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                />
+                <meta
+                    name="description"
+                    content={ut.translate('global__meta_desc')}
+                />
+                <title>
+                    {props.htmlTitle
+                        ? props.htmlTitle
+                        : ut.translate('global__wdglance_title')}
+                </title>
+                {props.config.favicon ? (
+                    <link
+                        rel="icon"
+                        type={props.config.favicon.contentType}
+                        href={props.config.favicon.url}
+                    />
+                ) : null}
+                <link
+                    rel="stylesheet"
+                    type="text/css"
+                    href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext&amp;display=swap"
+                    media="all"
+                />
                 {pipe(
                     props.hostPageEnv.styles,
                     List.concat(props.config.externalStyles),
-                    List.map(
-                        style => <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/>
-                    )
+                    List.map((style) => (
+                        <link
+                            key={style}
+                            rel="stylesheet"
+                            type="text/css"
+                            href={style}
+                            media="all"
+                        />
+                    ))
                 )}
                 {[...props.scStyles]}
             </head>
         );
-    }
+    };
 
     // -------- <HtmlBody /> -----------------------------
 
-    const HtmlBody:React.FC<HtmlBodyProps> = (props) => {
-
+    const HtmlBody: React.FC<HtmlBodyProps> = (props) => {
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
                 ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.queryMatches)});
-            `
+            `;
         };
 
         const renderToolbar = () => {
-            return typeof props.hostPageEnv.html === 'string' ?
-                <div style={{height: props.hostPageEnv.toolbarHeight ? props.hostPageEnv.toolbarHeight : 'auto'}}
-                                dangerouslySetInnerHTML={{__html: props.hostPageEnv.html}} /> :
-                <div style={{height: props.hostPageEnv.toolbarHeight ? props.hostPageEnv.toolbarHeight : 'auto'}}>
-                    <props.hostPageEnv.html languages={props.uiLanguages} uiLang={props.uiLang} returnUrl={props.returnUrl} />
-                </div>;
+            return typeof props.hostPageEnv.html === 'string' ? (
+                <div
+                    style={{
+                        height: props.hostPageEnv.toolbarHeight
+                            ? props.hostPageEnv.toolbarHeight
+                            : 'auto',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: props.hostPageEnv.html }}
+                />
+            ) : (
+                <div
+                    style={{
+                        height: props.hostPageEnv.toolbarHeight
+                            ? props.hostPageEnv.toolbarHeight
+                            : 'auto',
+                    }}
+                >
+                    <props.hostPageEnv.html
+                        languages={props.uiLanguages}
+                        uiLang={props.uiLang}
+                        returnUrl={props.returnUrl}
+                    />
+                </div>
+            );
         };
 
-        const createLabel = () => props.config.logo && props.config.logo.label ?
-            props.config.logo.label :
-            ut.translate('global__wdglance_title');
+        const createLabel = () =>
+            props.config.logo && props.config.logo.label
+                ? props.config.logo.label
+                : ut.translate('global__wdglance_title');
 
         return (
-            <body style={{
-                visibility: errorPage ? 'visible' : 'hidden',
-                backgroundColor: theme.pageBackgroundColor,
-                backgroundImage: theme.backgroundImage
-            }}>
+            <body
+                style={{
+                    visibility: errorPage ? 'visible' : 'hidden',
+                    backgroundColor: theme.pageBackgroundColor,
+                    backgroundImage: theme.backgroundImage,
+                }}
+            >
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
                     <div className="logo-wrapper">
                         <a href={props.config.hostUrl} title={createLabel()}>
-                            {props.config.logo?.url ?
-                                <img className="logo-filtered" src={props.config.logo.url} alt="logo" style={props.config.logo?.inlineStyle} /> :
-                                <img className="logo-filtered" src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
-                            }
+                            {props.config.logo?.url ? (
+                                <img
+                                    className="logo-filtered"
+                                    src={props.config.logo.url}
+                                    alt="logo"
+                                    style={props.config.logo?.inlineStyle}
+                                />
+                            ) : (
+                                <img
+                                    className="logo-filtered"
+                                    src={ut.createStaticUrl(
+                                        ut.translate('global__logo_file')
+                                    )}
+                                    alt="logo"
+                                />
+                            )}
                         </a>
-                        {
-                            props.config.logo.subWag ?
-                                <a href={props.config.hostUrl}>
-                                    <img src={props.config.logo.subWag.url} alt="logo" style={props.config.logo.subWag.inlineStyle} />
-                                </a> :
-                                null
-                        }
+                        {props.config.logo.subWag ? (
+                            <a href={props.config.hostUrl}>
+                                <img
+                                    src={props.config.logo.subWag.url}
+                                    alt="logo"
+                                    style={props.config.logo.subWag.inlineStyle}
+                                />
+                            </a>
+                        ) : null}
                     </div>
                 </header>
                 <section className="wdglance-mount">
@@ -271,29 +384,54 @@ export function init(
                         isAnswerMode={props.isAnswerMode}
                         queries={props.userConfig.queries}
                         error={props.error}
-                        onMount={()=>undefined}
-                            />
+                        onMount={() => undefined}
+                    />
                 </section>
                 <footer>
-                    {props.config.homepage.footer ?
-                        <CustomFooter config={props.config} returnUrl={props.returnUrl}
-                                repositoryUrl={props.repositoryUrl} themes={props.themes}
-                                currTheme={props.currTheme} version={props.version} /> :
-                        <DefaultFooter config={props.config} returnUrl={props.returnUrl}
-                                repositoryUrl={props.repositoryUrl} themes={props.themes}
-                                currTheme={props.currTheme} version={props.version}
-                                issueReportingUrl={props.issueReportingUrl} />
-                    }
+                    {props.config.homepage.footer ? (
+                        <CustomFooter
+                            config={props.config}
+                            returnUrl={props.returnUrl}
+                            repositoryUrl={props.repositoryUrl}
+                            themes={props.themes}
+                            currTheme={props.currTheme}
+                            version={props.version}
+                        />
+                    ) : (
+                        <DefaultFooter
+                            config={props.config}
+                            returnUrl={props.returnUrl}
+                            repositoryUrl={props.repositoryUrl}
+                            themes={props.themes}
+                            currTheme={props.currTheme}
+                            version={props.version}
+                            issueReportingUrl={props.issueReportingUrl}
+                        />
+                    )}
                 </footer>
-                {props.hostPageEnv.scripts.map(script =>
-                    <script key={script} type="text/javascript" src={script}></script>
-                )}
-                <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
-                <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
-                <script nonce={props.scriptNonce} type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
+                {props.hostPageEnv.scripts.map((script) => (
+                    <script
+                        key={script}
+                        type="text/javascript"
+                        src={script}
+                    ></script>
+                ))}
+                <script
+                    type="text/javascript"
+                    src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}
+                ></script>
+                <script
+                    type="text/javascript"
+                    src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}
+                ></script>
+                <script
+                    nonce={props.scriptNonce}
+                    type="text/javascript"
+                    dangerouslySetInnerHTML={{ __html: createScriptStr() }}
+                />
             </body>
         );
-    }
+    };
 
-    return {HtmlBody, HtmlHead};
+    return { HtmlBody, HtmlHead };
 }

@@ -20,47 +20,46 @@ import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { SourceMappedDataRow } from './common.js';
 
-
-
 export interface DataLoadedPayload {
-    data:Array<SourceMappedDataRow>;
-    queryId:number;
-    sourceIdx:number;
+    data: Array<SourceMappedDataRow>;
+    queryId: number;
+    sourceIdx: number;
 }
 
 export class Actions {
-
-    static ShowTooltip:Action<{
-        tileId:number;
-        barIdx:number;
-        dataName:string;
-        tooltipX:number;
-        tooltipY:number;
-
+    static ShowTooltip: Action<{
+        tileId: number;
+        barIdx: number;
+        dataName: string;
+        tooltipX: number;
+        tooltipY: number;
     }> = {
-        name: 'MERGECORP_SHOW_TOOLTIP'
+        name: 'MERGECORP_SHOW_TOOLTIP',
     };
 
-    static HideTooltip:Action<{
-        tileId:number;
-
+    static HideTooltip: Action<{
+        tileId: number;
     }> = {
-        name: 'MERGECORP_HIDE_TOOLTIP'
+        name: 'MERGECORP_HIDE_TOOLTIP',
     };
 
-    static ViewInOtherWag:Action<{
-        tileId:number;
-        barIdx:number;
-        queryIdx:number;
+    static ViewInOtherWag: Action<{
+        tileId: number;
+        barIdx: number;
+        queryIdx: number;
     }> = {
-        name: 'MERGECORP_VIEW_IN_OTHER_WAG'
+        name: 'MERGECORP_VIEW_IN_OTHER_WAG',
     };
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & {}
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 
-    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TilePartialDataLoaded.name
+    static PartialTileDataLoaded: Action<
+        typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
 }

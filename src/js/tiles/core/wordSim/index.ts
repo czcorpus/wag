@@ -17,8 +17,16 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs, DEFAULT_ALT_VIEW_ICON,
-    ITileReloader, AltViewIconProps } from '../../../page/tile.js';
+import {
+    TileConf,
+    ITileProvider,
+    TileFactory,
+    TileComponent,
+    TileFactoryArgs,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileReloader,
+    AltViewIconProps,
+} from '../../../page/tile.js';
 import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
@@ -26,53 +34,64 @@ import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import { CNCWord2VecSimApi, OperationMode } from './api/standard.js';
 import { CNCWSServerApi } from './api/wss.js';
 
-
 export interface WordSimTileConf extends TileConf {
-    apiURL:string;
-    apiType?:'wss'|'default';
-    maxResultItems:number;
-    minMatchFreq:number;
-    minScore?:number;
-    corpname?:string;
-    model?:string;
+    apiURL: string;
+    apiType?: 'wss' | 'default';
+    maxResultItems: number;
+    minMatchFreq: number;
+    minScore?: number;
+    corpname?: string;
+    model?: string;
 }
-
 
 /**
  *
  */
 export class WordSimTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly model: WordSimModel;
 
-    private readonly model:WordSimModel;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly view: TileComponent;
 
-    private readonly view:TileComponent;
+    private readonly srcInfoView: React.FC;
 
-    private readonly srcInfoView:React.FC;
+    private readonly label: string;
 
-    private readonly label:string;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
-
-    private readonly api:CNCWord2VecSimApi|CNCWSServerApi;
+    private readonly api: CNCWord2VecSimApi | CNCWSServerApi;
 
     constructor({
-        tileId, dispatcher, appServices, ut, widthFract, conf, theme,
-        isBusy, queryMatches}:TileFactoryArgs<WordSimTileConf>
-    ) {
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        widthFract,
+        conf,
+        theme,
+        isBusy,
+        queryMatches,
+    }: TileFactoryArgs<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
-        this.api = conf.apiType === 'wss' ?
-            new CNCWSServerApi(conf.apiURL, conf.srcInfoURL, appServices) :
-            new CNCWord2VecSimApi(conf.apiURL, conf.srcInfoURL, appServices);
+        this.label = appServices.importExternalMessage(
+            conf.label || 'wordsim__main_label'
+        );
+        this.api =
+            conf.apiType === 'wss'
+                ? new CNCWSServerApi(conf.apiURL, conf.srcInfoURL, appServices)
+                : new CNCWord2VecSimApi(
+                      conf.apiURL,
+                      conf.srcInfoURL,
+                      appServices
+                  );
         this.model = new WordSimModel({
             appServices,
             dispatcher,
@@ -82,92 +101,93 @@ export class WordSimTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 isTweakMode: false,
-                data: List.repeat(_ => [], queryMatches.length),
+                data: List.repeat((_) => [], queryMatches.length),
                 maxResultItems: conf.maxResultItems,
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',
                 model: conf.model || '',
                 minScore: conf.minScore || 0,
                 minMatchFreq: conf.minMatchFreq,
-                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
-                selectedText: null
+                queryMatches: List.map(
+                    (lemma) => findCurrQueryMatch(lemma),
+                    queryMatches
+                ),
+                selectedText: null,
             },
             tileId,
-            api: this.api
+            api: this.api,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():React.FC {
+    getSourceInfoComponent(): React.FC {
         return this.srcInfoView;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return this.api.supportsTweaking();
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return this.api.supportsMultiWordQueries();
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<WordSimTileConf> = {
-
+export const init: TileFactory<WordSimTileConf> = {
     sanityCheck: (args) => [],
 
-    create: (args) => new WordSimTile(args)
+    create: (args) => new WordSimTile(args),
 };

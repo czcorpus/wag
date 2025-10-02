@@ -16,17 +16,30 @@
  * limitations under the License.
  */
 
-export type PosQueryGeneratorType = [string, 'ppTagset'|'pennTreebank'|'directPos'];
+export type PosQueryGeneratorType = [
+    string,
+    'ppTagset' | 'pennTreebank' | 'directPos',
+];
 
-export function validatePosQueryGenerator(posQueryGenerator:any):string|null {
-    const expected = "expected schema [string, 'ppTagset'|'pennTreebank'|'directPos']";
+export function validatePosQueryGenerator(
+    posQueryGenerator: any
+): string | null {
+    const expected =
+        "expected schema [string, 'ppTagset'|'pennTreebank'|'directPos']";
     if (!Array.isArray(posQueryGenerator) && posQueryGenerator.length !== 2) {
         return `should be array of length 2, ${expected}`;
     }
-    if (typeof posQueryGenerator[0] !== 'string' && typeof posQueryGenerator[1] !== 'string') {
+    if (
+        typeof posQueryGenerator[0] !== 'string' &&
+        typeof posQueryGenerator[1] !== 'string'
+    ) {
         return `values has to of type string, ${expected}`;
     }
-    if (!["ppTagset", "pennTreebank", "directPos"].includes(posQueryGenerator[1])) {
+    if (
+        !['ppTagset', 'pennTreebank', 'directPos'].includes(
+            posQueryGenerator[1]
+        )
+    ) {
         return `invalid value, ${expected}`;
     }
     return null;

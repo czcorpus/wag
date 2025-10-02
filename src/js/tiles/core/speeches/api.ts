@@ -27,44 +27,41 @@ import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
-
-
 export interface SpeechReqArgs {
-    corpname:string;
-    subcorpus?:string;
-    query:string;
-    struct:Array<string>;
-    leftCtx?:number;
-    rightCtx?:number;
+    corpname: string;
+    subcorpus?: string;
+    query: string;
+    struct: Array<string>;
+    leftCtx?: number;
+    rightCtx?: number;
 }
 
 export interface SpeechToken {
-    type:'token';
-    word:string;
-    strong:boolean;
-    attrs:{[k:string]:string};
+    type: 'token';
+    word: string;
+    strong: boolean;
+    attrs: { [k: string]: string };
 }
 
 export interface MarkupToken {
-    type:'markup';
-    structureType:'open'|'close';
-    attrs:{[k:string]:string};
-    name:string;
+    type: 'markup';
+    structureType: 'open' | 'close';
+    attrs: { [k: string]: string };
+    name: string;
 }
 
-
 export interface SpeechResponse {
-    context:{
-        text:Array<MarkupToken|SpeechToken>;
-        ref:string;
+    context: {
+        text: Array<MarkupToken | SpeechToken>;
+        ref: string;
     };
-    resultType:'tokenContext';
-    error?:string;
+    resultType: 'tokenContext';
+    error?: string;
 }
 
 export interface SpeechData {
-    text:Array<MarkupToken|SpeechToken>;
-    kwicTokenIdx:number;
+    text: Array<MarkupToken | SpeechToken>;
+    kwicTokenIdx: number;
 }
 
 /**
@@ -74,63 +71,82 @@ export interface SpeechData {
  * for that.
  */
 export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
+    private readonly apiUrl: string;
 
-    private readonly apiUrl:string;
+    private readonly srcInfoService: CorpusInfoAPI;
 
-    private readonly srcInfoService:CorpusInfoAPI;
+    private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+    private readonly backlinkConf: BacklinkConf;
 
-    private readonly backlinkConf:BacklinkConf;
-
-    constructor(apiUrl:string, apiServices:IApiServices, backlinkConf:BacklinkConf) {
+    constructor(
+        apiUrl: string,
+        apiServices: IApiServices,
+        backlinkConf: BacklinkConf
+    ) {
         this.apiUrl = apiUrl;
         this.srcInfoService = new CorpusInfoAPI(apiUrl, apiServices);
         this.apiServices = apiServices;
         this.backlinkConf = backlinkConf;
     }
 
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        lang: string,
+        corpname: string
+    ): Observable<CorpusDetails> {
         return this.srcInfoService.call(streaming, tileId, 0, {
             corpname: corpname,
-            lang: lang
+            lang: lang,
         });
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
-        return this.backlinkConf ? {
-            queryId,
-            subqueryId,
-            label: this.backlinkConf.label || 'KonText',
-        } :
-        null;
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
+        return this.backlinkConf
+            ? {
+                  queryId,
+                  subqueryId,
+                  label: this.backlinkConf.label || 'KonText',
+              }
+            : null;
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:SpeechReqArgs|null):Observable<SpeechData> {
-        return streaming.registerTileRequest<SpeechResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: SpeechReqArgs | null
+    ): Observable<SpeechData> {
+        return streaming
+            .registerTileRequest<SpeechResponse>({
                 tileId,
                 method: HTTP.Method.GET,
-                url: args ? urlJoin(this.apiUrl, 'speeches') + `?${this.prepareArgs(args)}` : '',
+                url: args
+                    ? urlJoin(this.apiUrl, 'speeches') +
+                      `?${this.prepareArgs(args)}`
+                    : '',
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map(
-                resp => resp ?
-                    {
-                        text: resp.context.text,
-                        kwicTokenIdx: parseInt(resp.context.ref.substring(1))
-                    } :
-                    {
-                        text: [],
-                        kwicTokenIdx: -1
-                    }
-            )
-        );
+            })
+            .pipe(
+                map((resp) =>
+                    resp
+                        ? {
+                              text: resp.context.text,
+                              kwicTokenIdx: parseInt(
+                                  resp.context.ref.substring(1)
+                              ),
+                          }
+                        : {
+                              text: [],
+                              kwicTokenIdx: -1,
+                          }
+                )
+            );
     }
 
-    private prepareArgs(queryArgs:SpeechReqArgs):string {
+    private prepareArgs(queryArgs: SpeechReqArgs): string {
         return pipe(
             {
                 ...queryArgs,
@@ -142,15 +158,17 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
             List.filter(([_, v]) => v !== null),
             List.map(([k, v]) => {
                 if (Array.isArray(v)) {
-                    return v.map(item => `${k}=${encodeURIComponent(item)}`).join('&');
+                    return v
+                        .map((item) => `${k}=${encodeURIComponent(item)}`)
+                        .join('&');
                 }
-                return `${k}=${encodeURIComponent(v)}`
+                return `${k}=${encodeURIComponent(v)}`;
             }),
-            x => x.join('&')
-        )
+            (x) => x.join('&')
+        );
     }
 
-    requestBacklink(args:SpeechReqArgs):URL {
+    requestBacklink(args: SpeechReqArgs): URL {
         const url = new URL(urlJoin(this.backlinkConf.url, 'create_view'));
         url.searchParams.set('corpname', args.corpname);
         if (args.subcorpus) {

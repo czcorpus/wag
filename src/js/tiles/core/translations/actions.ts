@@ -20,28 +20,29 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Action } from 'kombo';
 import { TranslationResponse } from './api.js';
 
-
 export interface DataLoadedPayload extends SubqueryPayload {
-    query:string;
-    data:TranslationResponse;
-    subqueries:Array<{
+    query: string;
+    data: TranslationResponse;
+    subqueries: Array<{
         value: {
             value: string;
             context: [number, number];
-        },
+        };
         interactionId: string;
         color: string;
     }>;
 }
 
-export function isTranslationsPayload(payload:any):payload is DataLoadedPayload {
+export function isTranslationsPayload(
+    payload: any
+): payload is DataLoadedPayload {
     return payload['query'] && payload['data'] && payload['subqueries'];
 }
 
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-	    name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
-
 }

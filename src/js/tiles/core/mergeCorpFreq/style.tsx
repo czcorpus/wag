@@ -20,7 +20,6 @@
 
 import { styled } from 'styled-components';
 
-
 export const MergeCorpFreqBarTile = styled.div`
     min-height: 25em;
 `;

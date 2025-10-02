@@ -21,28 +21,26 @@ import { Observable } from 'rxjs';
 
 import { GlobalComponents } from '../views/common/index.js';
 
-
 export interface AvailableLanguage {
-    code:string;
-    label:string;
+    code: string;
+    label: string;
 }
 
 export type ToolbarView = React.ComponentClass<{
-    languages:Array<AvailableLanguage>;
-    uiLang:string;
-    returnUrl:string;
+    languages: Array<AvailableLanguage>;
+    uiLang: string;
+    returnUrl: string;
 }>;
 
 export interface HostPageEnv {
-    styles:Array<string>;
-    scripts:Array<string>;
-    html:string|ToolbarView|null;
-    toolbarHeight:string|null; // a CSS value
-    userId:number;
+    styles: Array<string>;
+    scripts: Array<string>;
+    html: string | ToolbarView | null;
+    toolbarHeight: string | null; // a CSS value
+    userId: number;
 }
 
 export interface IToolbarProvider {
-
     /**
      *
      * @param uiLang Current language of the user interface
@@ -50,26 +48,30 @@ export interface IToolbarProvider {
      * @param cookies Current cookies for wdglance
      * @param ut view utils
      */
-    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
+    get(
+        uiLang: string,
+        returnUrl: string,
+        cookies: { [key: string]: string },
+        ut: ViewUtils<GlobalComponents>
+    ): Observable<HostPageEnv | null>;
 
     /**
      * Import WaG language code into a host environment one
      * (e.g. "en-US" -> "en" in case the environment uses two letter format).
      */
-    importLangCode(uiLang:string):string;
+    importLangCode(uiLang: string): string;
 
     /**
      * Export host environment language code into WaG one
      * (.e.g. "en" --> "en-US")
      */
-    exportLangCode(uiLang:string, avail:{[code:string]:string}):string;
+    exportLangCode(uiLang: string, avail: { [code: string]: string }): string;
 
-    defaultHostLangCode():string;
+    defaultHostLangCode(): string;
 }
 
-
 export interface ScreenProps {
-    isMobile:boolean;
-    innerWidth:number;
-    innerHeight:number;
+    isMobile: boolean;
+    innerWidth: number;
+    innerHeight: number;
 }

@@ -20,24 +20,22 @@ import { SourceCitation } from './api/abstract/sourceInfo.js';
 import { Backlink } from './page/tile.js';
 import { IDataStreaming } from './page/streaming.js';
 
-
 export type AnyInterface<T> = {
     [P in keyof T]: T[P];
 };
 
-export type ListOfPairs = Array<[string, string|number]>;
+export type ListOfPairs = Array<[string, string | number]>;
 
 export enum SystemMessageType {
     INFO = 'info',
     WARNING = 'warning',
-    ERROR = 'error'
+    ERROR = 'error',
 }
 
 export enum CorePosAttribute {
     WORD = 'word',
-    LEMMA = 'lemma'
+    LEMMA = 'lemma',
 }
-
 
 /**
  * A general data api. While in most cases
@@ -46,8 +44,12 @@ export enum CorePosAttribute {
  * is useful to share such API libraries.
  */
 export interface DataApi<T, U> {
-
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, queryArgs:T):Observable<U>;
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        queryArgs: T
+    ): Observable<U>;
 }
 
 /**
@@ -55,46 +57,51 @@ export interface DataApi<T, U> {
  * able to provide additional information about itself.
  */
 export interface ResourceApi<T, U> extends DataApi<T, U> {
+    getSourceDescription(
+        streaming: IDataStreaming,
+        tileId: number,
+        lang: string,
+        corpname: string
+    ): Observable<SourceDetails>;
 
-    getSourceDescription(streaming:IDataStreaming, tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
-
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null;
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null;
 }
 
-export type LocalizedConfMsg = string|{[lang:string]:string};
+export type LocalizedConfMsg = string | { [lang: string]: string };
 
-
-export type HTTPHeaders = {[key:string]:string};
-
+export type HTTPHeaders = { [key: string]: string };
 
 export interface SourceDetails {
-    tileId:number;
-    title:string;
-    description:string;
-    author:string;
-    href?:string;
-    citationInfo?:SourceCitation;
-    keywords?:Array<{name:string, color?:string}>;
+    tileId: number;
+    title: string;
+    description: string;
+    author: string;
+    href?: string;
+    citationInfo?: SourceCitation;
+    keywords?: Array<{ name: string; color?: string }>;
 }
 
 export interface CorpusDetails extends SourceDetails {
-    structure:{
-        numTokens:number;
-        numSentences?:number;
-        numParagraphs?:number;
-        numDocuments?:number;
-    }
+    structure: {
+        numTokens: number;
+        numSentences?: number;
+        numParagraphs?: number;
+        numDocuments?: number;
+    };
 }
 
-export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
-    return typeof d['structure'] === 'object' && d['structure'].numTokens !== undefined;
+export function isCorpusDetails(d: SourceDetails): d is CorpusDetails {
+    return (
+        typeof d['structure'] === 'object' &&
+        d['structure'].numTokens !== undefined
+    );
 }
 
-export type TileIdentMap = {[ident:string]:number};
+export type TileIdentMap = { [ident: string]: number };
 
 export interface PackageInfo {
-    version:string;
-    repository:{
-        url:string
+    version: string;
+    repository: {
+        url: string;
     };
 }

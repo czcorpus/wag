@@ -17,8 +17,8 @@
  */
 
 export interface SourceCitation {
-    sourceName:string;
-    main:string;
-    papers:Array<string>;
-    otherBibliography?:string;
+    sourceName: string;
+    main: string;
+    papers: Array<string>;
+    otherBibliography?: string;
 }

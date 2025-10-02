@@ -25,102 +25,149 @@ import { ajax$, ResponseType } from '../../../../page/ajax.js';
 import { IApiServices } from '../../../../appServices.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
 
-
 export interface FCS1ExplainArgs {
-    tileId:number;
-    uiLang:string;
-    'x-fcs-endpoint-description': 'true'|'false';
+    tileId: number;
+    uiLang: string;
+    'x-fcs-endpoint-description': 'true' | 'false';
 }
-
 
 export interface FCS1ExplainResponse extends SourceDetails {
-    version:string;
-    title:string;
-    description:string;
-    author:string;
-    resourceDescription:string;
-    supportedIndices:Array<{name:string; title:string}>;
+    version: string;
+    title: string;
+    description: string;
+    author: string;
+    resourceDescription: string;
+    supportedIndices: Array<{ name: string; title: string }>;
 }
 
+const importResponse =
+    (tileId: number, lang: string) =>
+    (root: XMLNode): FCS1ExplainResponse => {
+        const ans: FCS1ExplainResponse = {
+            tileId: tileId,
+            title: '?',
+            description: '',
+            author: '',
+            resourceDescription: '',
+            version: '?',
+            supportedIndices: Array<{ name: string; title: string }>(),
+        };
 
-const importResponse = (tileId:number, lang:string) => (root:XMLNode):FCS1ExplainResponse => {
-    const ans:FCS1ExplainResponse = {
-        tileId: tileId,
-        title: '?',
-        description: '',
-        author: '',
-        resourceDescription: '',
-        version: '?',
-        supportedIndices: Array<{name:string; title:string}>()
+        const dbInfoElm = root.findChildRecursive(
+            (v) => v.name === 'zr:databaseInfo'
+        );
+        if (dbInfoElm) {
+            ans.version = dbInfoElm
+                .findChild((v) => v.name === 'sru:version', new XMLNode())
+                .textContent();
+            ans.title = dbInfoElm
+                .findChild((v) => v.name === 'zr:title', new XMLNode())
+                .textContent();
+            ans.description = dbInfoElm
+                .findChild(
+                    (v) =>
+                        v.name === 'zr:description' &&
+                        v.attributes['lang'] === lang,
+                    new XMLNode()
+                )
+                .textContent();
+            if (!ans.description) {
+                ans.description = dbInfoElm
+                    .findChild(
+                        (v) => v.name === 'zr:description',
+                        new XMLNode()
+                    )
+                    .textContent();
+            }
+            ans.author = dbInfoElm
+                .findChild((v) => v.name === 'zr:author', new XMLNode())
+                .textContent();
+        }
+
+        const extraElm = dbInfoElm.findChildRecursive(
+            (v) => v.name === 'sruResponse:extraResponseData'
+        );
+        if (extraElm) {
+            ans.resourceDescription = extraElm
+                .findChildRecursive(
+                    (v) => v.name === 'ed:Description',
+                    new XMLNode()
+                )
+                .textContent();
+        }
+
+        const indexInfoElm = root.findChildRecursive(
+            (v) => v.name === 'zr:indexInfo'
+        );
+        if (indexInfoElm) {
+            ans.supportedIndices = indexInfoElm
+                .findAllChildren((v) => v.name === 'zr:index')
+                .map((item) => {
+                    let name = item
+                        .findChildRecursive(
+                            (v) => v.name === 'zr:name',
+                            new XMLNode()
+                        )
+                        .textContent();
+                    let title = item
+                        .findChild(
+                            (v) =>
+                                v.name === 'zr:title' &&
+                                v.attributes['lang'] === lang,
+                            new XMLNode()
+                        )
+                        .textContent();
+                    if (!title) {
+                        title = item
+                            .findChild(
+                                (v) => v.name === 'zr:title',
+                                new XMLNode()
+                            )
+                            .textContent();
+                    }
+                    return { name: name, title: title };
+                });
+        }
+
+        return ans;
     };
 
-    const dbInfoElm = root.findChildRecursive(v => v.name === 'zr:databaseInfo');
-    if (dbInfoElm) {
-        ans.version = dbInfoElm.findChild(v => v.name === 'sru:version', new XMLNode()).textContent();
-        ans.title = dbInfoElm.findChild(v => v.name === 'zr:title', new XMLNode()).textContent();
-        ans.description = dbInfoElm.findChild(v => v.name === 'zr:description' && v.attributes['lang'] === lang, new XMLNode()).textContent();
-        if (!ans.description) {
-            ans.description = dbInfoElm.findChild(v => v.name === 'zr:description', new XMLNode()).textContent();
-        }
-        ans.author = dbInfoElm.findChild(v => v.name === 'zr:author', new XMLNode()).textContent();
-    }
+export class FCS1ExplainAPI
+    implements DataApi<FCS1ExplainArgs, FCS1ExplainResponse>
+{
+    private readonly url: string;
 
-    const extraElm = dbInfoElm.findChildRecursive(v => v.name === 'sruResponse:extraResponseData');
-    if (extraElm) {
-        ans.resourceDescription = extraElm.findChildRecursive(v => v.name === 'ed:Description',new XMLNode()).textContent();
-    }
+    private readonly parser: XMLParser;
 
-    const indexInfoElm = root.findChildRecursive(v => v.name === 'zr:indexInfo');
-    if (indexInfoElm) {
-        ans.supportedIndices = (indexInfoElm.findAllChildren(v => v.name === 'zr:index').map(
-            (item) => {
-                let name = item.findChildRecursive(v => v.name === 'zr:name', new XMLNode()).textContent();
-                let title = item.findChild(v => v.name === 'zr:title' && v.attributes['lang'] === lang, new XMLNode()).textContent();
-                if (!title) {
-                    title = item.findChild(v => v.name === 'zr:title', new XMLNode()).textContent();
-                }
-                return {name: name, title: title};
-            }
-        ));
-    }
+    private readonly apiServices: IApiServices;
 
-    return ans;
-}
-
-
-export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainResponse> {
-
-    private readonly url:string;
-
-    private readonly parser:XMLParser;
-
-    private readonly apiServices:IApiServices;
-
-    constructor(url:string, apiServices:IApiServices) {
+    constructor(url: string, apiServices: IApiServices) {
         this.url = url;
         this.apiServices = apiServices;
         this.parser = new XMLParser();
     }
 
-	call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:FCS1ExplainArgs):Observable<FCS1ExplainResponse> {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: FCS1ExplainArgs
+    ): Observable<FCS1ExplainResponse> {
         return ajax$(
             HTTP.Method.GET,
             this.url,
             {
-                'x-fcs-endpoint-description': args['x-fcs-endpoint-description']
+                'x-fcs-endpoint-description':
+                    args['x-fcs-endpoint-description'],
             },
             {
                 headers: this.apiServices.getApiHeaders(this.url),
                 withCredentials: true,
-                responseType: ResponseType.TEXT
+                responseType: ResponseType.TEXT,
             }
-
         ).pipe(
-            map(
-                (xmlSrc:string) => this.parser.parse(xmlSrc)
-            ),
+            map((xmlSrc: string) => this.parser.parse(xmlSrc)),
             map(importResponse(args.tileId, args.uiLang))
         );
     }
-
 }

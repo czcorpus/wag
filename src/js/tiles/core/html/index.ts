@@ -29,18 +29,17 @@ import {
     TileFactoryArgs,
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
-    AltViewIconProps
+    AltViewIconProps,
 } from '../../../page/tile.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { RawHtmlAPI } from './api.js';
 
-
 export interface HtmlTileConf extends TileConf {
-    apiURL:string;
-    apiType:CoreApiGroup;
-    sanitizeHTML?:boolean;
-    args?:{[key:string]:string};
-    lemmaArg?:string;
+    apiURL: string;
+    apiType: CoreApiGroup;
+    sanitizeHTML?: boolean;
+    args?: { [key: string]: string };
+    lemmaArg?: string;
 }
 
 /**
@@ -49,28 +48,33 @@ export interface HtmlTileConf extends TileConf {
  * services.
  */
 export class HtmlTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: HtmlModel;
 
-    private readonly model:HtmlModel;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
+    private readonly label: string;
 
-    private readonly label:string;
+    private readonly api: RawHtmlAPI;
 
-    private readonly api:RawHtmlAPI;
-
-    private view:TileComponent;
+    private view: TileComponent;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
-        queryMatches
-    }:TileFactoryArgs<HtmlTileConf>) {
-
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        theme,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+    }: TileFactoryArgs<HtmlTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -92,86 +96,82 @@ export class HtmlTile implements ITileProvider {
                 lemmaArg: conf.lemmaArg,
                 sanitizeHTML: !!conf.sanitizeHTML,
                 backlink: null,
-            }
+            },
         });
-        this.label = appServices.importExternalMessage(conf.label || 'html__main_label');
-        this.view = viewInit(
-            this.dispatcher,
-            ut,
-            theme,
-            this.model
+        this.label = appServices.importExternalMessage(
+            conf.label || 'html__main_label'
         );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return false;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return this.api.supportsMultiWordQueries();
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<HtmlTileConf> = {
-
+export const init: TileFactory<HtmlTileConf> = {
     sanityCheck: (args) => [],
 
-    create: (args) => new HtmlTile(args)
+    create: (args) => new HtmlTile(args),
 };

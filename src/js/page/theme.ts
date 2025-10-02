@@ -18,17 +18,13 @@
 import { ColorTheme } from '../conf/index.js';
 import { Dict, Color, pipe, List } from 'cnc-tskit';
 
-
 export interface ColorScaleFunctionGenerator {
-    (min?:number):(v:number)=>string;
+    (min?: number): (v: number) => string;
 }
 
-
-const fallbackTheme:ColorTheme = {
-
+const fallbackTheme: ColorTheme = {
     themeId: 'default',
     themeLabel: 'Default',
-
 
     defaultFontFamily: '"Roboto", "Segoe UI", Arial, sans-serif',
     condensedFontFamily: '"Roboto Condensed", "Segoe UI", sans-serif',
@@ -55,13 +51,12 @@ const fallbackTheme:ColorTheme = {
     cssMediaMediumScreen: '@media screen and (max-width: 480px)',
     cssMediaSmallScreen: '@media screen and (max-width: 480px)',
 
-
     // charts
 
-    lineChartColor1: "#DD8959",
-    lineConfidenceAreaColor1: "#f2d9ca",
-    lineChartColor2: "#1334FF",
-    lineConfidenceAreaColor2: "#e0e3fb",
+    lineChartColor1: '#DD8959',
+    lineConfidenceAreaColor1: '#f2d9ca',
+    lineChartColor2: '#1334FF',
+    lineConfidenceAreaColor2: '#e0e3fb',
     category: [
         '#DD8959',
         '#1334FF',
@@ -72,14 +67,10 @@ const fallbackTheme:ColorTheme = {
         '#E52E92',
         '#FFB700',
         '#CE536B',
-        '#72BF4D'
+        '#72BF4D',
     ],
-    categoryOther: "#494949",
-    cmpCategory: [
-        '#7fc77e',
-        '#4AB2A1',
-        '#54A82C'
-    ],
+    categoryOther: '#494949',
+    cmpCategory: ['#7fc77e', '#4AB2A1', '#54A82C'],
     scale: [
         '#2a0017',
         '#3e0022',
@@ -90,9 +81,9 @@ const fallbackTheme:ColorTheme = {
         '#a50059',
         '#b90064',
         '#ce006f',
-        '#e2007a'
+        '#e2007a',
     ],
-    geoAreaSpotFillColor: '#212F3C'
+    geoAreaSpotFillColor: '#212F3C',
 };
 
 /**
@@ -100,154 +91,177 @@ const fallbackTheme:ColorTheme = {
  * a specific ColorsConf configuration.
  */
 export class Theme {
-
-    public readonly ident:string;
+    public readonly ident: string;
 
     // main styling
 
-    public readonly pageBackgroundColor:string|undefined;
+    public readonly pageBackgroundColor: string | undefined;
 
-    public readonly tileBackgroundColor:string|undefined;
+    public readonly tileBackgroundColor: string | undefined;
 
-    public readonly tileHeadingSeparColor:string;
+    public readonly tileHeadingSeparColor: string;
 
-    public readonly textInputBackgroundColor:string;
+    public readonly textInputBackgroundColor: string;
 
-    public readonly defaultFontFamily:string;
+    public readonly defaultFontFamily: string;
 
-    public readonly condensedFontFamily:string;
+    public readonly condensedFontFamily: string;
 
-    public readonly defaultFontSize:string;
+    public readonly defaultFontSize: string;
 
-    public readonly backgroundImage:string|undefined;
+    public readonly backgroundImage: string | undefined;
 
-    public readonly colorLogoBlue:string;
+    public readonly colorLogoBlue: string;
 
-    public readonly colorWhitelikeBlue:string;
+    public readonly colorWhitelikeBlue: string;
 
-    public readonly colorDefaultText:string;
+    public readonly colorDefaultText: string;
 
-    public readonly colorInvertText:string;
+    public readonly colorInvertText: string;
 
-    public readonly colorSecondaryText:string;
+    public readonly colorSecondaryText: string;
 
-    public readonly colorLightText:string;
+    public readonly colorLightText: string;
 
-    public readonly colorLogoPink:string;
+    public readonly colorLogoPink: string;
 
-    public readonly colorSuperlightGrey:string;
+    public readonly colorSuperlightGrey: string;
 
-    public readonly colorLogoBlueShining:string;
+    public readonly colorLogoBlueShining: string;
 
-    public readonly colorInvertedSecondaryText:string;
+    public readonly colorInvertedSecondaryText: string;
 
+    public readonly cssMediaMediumSize: string;
 
-    public readonly cssMediaMediumSize:string;
+    public readonly cssMediaSmallSize: string;
 
-    public readonly cssMediaSmallSize:string;
-
-    public readonly svgIconsFilter:string|undefined;
+    public readonly svgIconsFilter: string | undefined;
 
     /**
      * note: if you want to define "no filter", please use
      * an empty string as `undefined` means - use default
      * (which is the same filter as for the icons)
      */
-    public readonly svgLogoFilter:string|undefined;
+    public readonly svgLogoFilter: string | undefined;
 
-
-
-    private readonly catColors:Array<string>;
+    private readonly catColors: Array<string>;
 
     // this is auto-generated
-    private readonly catColorsHighlighted:Array<string>;
+    private readonly catColorsHighlighted: Array<string>;
 
-    private readonly cmpCategoryColors:Array<string>;
+    private readonly cmpCategoryColors: Array<string>;
 
     // this is auto-generated
-    private readonly cmpCategoryColorsHighlighted:Array<string>;
+    private readonly cmpCategoryColorsHighlighted: Array<string>;
 
-    public readonly unfinishedChartColor:string;
+    public readonly unfinishedChartColor: string;
 
-    public readonly unfinishedChartColorLight:string;
+    public readonly unfinishedChartColorLight: string;
 
-    private readonly scaleColors:Array<string>;
+    private readonly scaleColors: Array<string>;
 
-    public readonly infoGraphicsFont:string;
+    public readonly infoGraphicsFont: string;
 
-    public readonly geoAreaSpotFillColor:string;
+    public readonly geoAreaSpotFillColor: string;
 
-    public readonly geoAreaSpotTextColor:string;
+    public readonly geoAreaSpotTextColor: string;
 
-    public readonly lineChartColor1:string;
+    public readonly lineChartColor1: string;
 
-    public readonly lineConfidenceAreaColor1:string;
+    public readonly lineConfidenceAreaColor1: string;
 
-    public readonly lineChartColor2:string;
+    public readonly lineChartColor2: string;
 
-    public readonly lineConfidenceAreaColor2:string;
+    public readonly lineConfidenceAreaColor2: string;
 
-    public readonly tileBorderStyle:string;
+    public readonly tileBorderStyle: string;
 
-    public readonly tileBorderRadius:string;
+    public readonly tileBorderRadius: string;
 
-    public readonly chartTextColor:string;
+    public readonly chartTextColor: string;
 
-    constructor(conf?:ColorTheme) {
-
-        const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
+    constructor(conf?: ColorTheme) {
+        const confSrc =
+            conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
         this.ident = confSrc.themeId;
 
-        this.defaultFontFamily = confSrc.defaultFontFamily || fallbackTheme.defaultFontFamily;
-        this.condensedFontFamily = confSrc.condensedFontFamily || fallbackTheme.condensedFontFamily;
+        this.defaultFontFamily =
+            confSrc.defaultFontFamily || fallbackTheme.defaultFontFamily;
+        this.condensedFontFamily =
+            confSrc.condensedFontFamily || fallbackTheme.condensedFontFamily;
         this.defaultFontSize = confSrc.defaultFontSize || '1em';
         this.backgroundImage = confSrc.backgroundImage || undefined;
-        this.pageBackgroundColor = confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
-        this.tileBackgroundColor = confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
+        this.pageBackgroundColor =
+            confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
+        this.tileBackgroundColor =
+            confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
         this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
-        this.textInputBackgroundColor = confSrc.textInputBackgroundColor || this.tileBackgroundColor;
-        this.colorLogoBlue = confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
-        this.colorWhitelikeBlue = confSrc.colorWhitelikeBlue || fallbackTheme.colorWhitelikeBlue;
-        this.colorLightText = confSrc.colorLightText || fallbackTheme.colorLightText;
-        this.colorDefaultText = confSrc.colorDefaultText || fallbackTheme.colorDefaultText;
-        this.colorInvertText = confSrc.colorInvertText || fallbackTheme.colorInvertedSecondaryText;
-        this.colorSecondaryText = confSrc.colorSecondaryText || fallbackTheme.colorInvertedSecondaryText;
-        this.colorLogoPink = confSrc.colorLogoPink || fallbackTheme.colorLogoPink;
-        this.colorSuperlightGrey = confSrc.colorSuperlightGrey || fallbackTheme.colorSuperlightGrey;
-        this.colorLogoBlueShining = confSrc.colorLogoBlueShining || fallbackTheme.colorLogoBlueShining;
-        this.colorInvertedSecondaryText = confSrc.colorInvertedSecondaryText || fallbackTheme.colorInvertedSecondaryText;
+        this.textInputBackgroundColor =
+            confSrc.textInputBackgroundColor || this.tileBackgroundColor;
+        this.colorLogoBlue =
+            confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
+        this.colorWhitelikeBlue =
+            confSrc.colorWhitelikeBlue || fallbackTheme.colorWhitelikeBlue;
+        this.colorLightText =
+            confSrc.colorLightText || fallbackTheme.colorLightText;
+        this.colorDefaultText =
+            confSrc.colorDefaultText || fallbackTheme.colorDefaultText;
+        this.colorInvertText =
+            confSrc.colorInvertText || fallbackTheme.colorInvertedSecondaryText;
+        this.colorSecondaryText =
+            confSrc.colorSecondaryText ||
+            fallbackTheme.colorInvertedSecondaryText;
+        this.colorLogoPink =
+            confSrc.colorLogoPink || fallbackTheme.colorLogoPink;
+        this.colorSuperlightGrey =
+            confSrc.colorSuperlightGrey || fallbackTheme.colorSuperlightGrey;
+        this.colorLogoBlueShining =
+            confSrc.colorLogoBlueShining || fallbackTheme.colorLogoBlueShining;
+        this.colorInvertedSecondaryText =
+            confSrc.colorInvertedSecondaryText ||
+            fallbackTheme.colorInvertedSecondaryText;
 
-        this.cssMediaMediumSize = confSrc.cssMediaMediumScreen || fallbackTheme.cssMediaMediumScreen;
-        this.cssMediaSmallSize = confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
+        this.cssMediaMediumSize =
+            confSrc.cssMediaMediumScreen || fallbackTheme.cssMediaMediumScreen;
+        this.cssMediaSmallSize =
+            confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
         this.svgIconsFilter = confSrc.svgIconsFilter;
-        this.svgLogoFilter = typeof confSrc.svgLogoFilter === 'string' ? confSrc.svgLogoFilter : confSrc.svgIconsFilter;
+        this.svgLogoFilter =
+            typeof confSrc.svgLogoFilter === 'string'
+                ? confSrc.svgLogoFilter
+                : confSrc.svgIconsFilter;
 
-        this.tileBorderStyle = confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
-        this.tileBorderRadius = confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
-
+        this.tileBorderStyle =
+            confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
+        this.tileBorderRadius =
+            confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
 
         this.catColors = confSrc.category || [];
         this.catColorsHighlighted = List.map(
-            color => pipe(
-                color,
-                Color.importColor(1),
-                Color.highlight(0.3),
-                Color.color2str(),
-            ),
+            (color) =>
+                pipe(
+                    color,
+                    Color.importColor(1),
+                    Color.highlight(0.3),
+                    Color.color2str()
+                ),
             this.catColors
         );
         this.lineChartColor1 = confSrc.lineChartColor1 || this.catColors[0];
-        this.lineConfidenceAreaColor1 = confSrc.lineConfidenceAreaColor1 || this.catColors[0];
+        this.lineConfidenceAreaColor1 =
+            confSrc.lineConfidenceAreaColor1 || this.catColors[0];
         this.lineChartColor2 = confSrc.lineChartColor2 || this.catColors[1];
-        this.lineConfidenceAreaColor2 = confSrc.lineConfidenceAreaColor2 || this.catColors[1];
+        this.lineConfidenceAreaColor2 =
+            confSrc.lineConfidenceAreaColor2 || this.catColors[1];
         this.cmpCategoryColors = confSrc.cmpCategory || [];
         this.cmpCategoryColorsHighlighted = List.map(
-            color => pipe(
-                color,
-                Color.importColor(1),
-                Color.highlight(0.3),
-                Color.color2str(),
-            ),
+            (color) =>
+                pipe(
+                    color,
+                    Color.importColor(1),
+                    Color.highlight(0.3),
+                    Color.color2str()
+                ),
             this.cmpCategoryColors
         );
         this.scaleColors = confSrc.scale || [];
@@ -255,40 +269,43 @@ export class Theme {
         this.unfinishedChartColorLight = '#eeeeee';
         this.infoGraphicsFont = 'Roboto Condensed';
         this.geoAreaSpotFillColor = confSrc.geoAreaSpotFillColor;
-        this.geoAreaSpotTextColor = confSrc.geoAreaSpotTextColor ?
-            conf.geoAreaSpotTextColor :
-            pipe(
-                this.geoAreaSpotFillColor,
-                Color.importColor(1),
-                Color.textColorFromBg(),
-                Color.color2str()
-            );
+        this.geoAreaSpotTextColor = confSrc.geoAreaSpotTextColor
+            ? conf.geoAreaSpotTextColor
+            : pipe(
+                  this.geoAreaSpotFillColor,
+                  Color.importColor(1),
+                  Color.textColorFromBg(),
+                  Color.color2str()
+              );
 
         this.chartTextColor = confSrc.chartTextColor || this.colorDefaultText;
     }
 
-    categoryPalette = (values:Array<string|number>):(ident:string|number)=>string => {
-        const mapping:{[key:string]:string} = {};
+    categoryPalette = (
+        values: Array<string | number>
+    ): ((ident: string | number) => string) => {
+        const mapping: { [key: string]: string } = {};
         values.forEach((v, i) => {
-            mapping[typeof v === 'string' ? v : v.toFixed()] = this.catColors[i % this.catColors.length];
+            mapping[typeof v === 'string' ? v : v.toFixed()] =
+                this.catColors[i % this.catColors.length];
         });
-        return v => mapping[typeof v === 'string' ? v : v.toFixed()];
-    }
+        return (v) => mapping[typeof v === 'string' ? v : v.toFixed()];
+    };
 
     /**
      * Generate category color out of catColors.
      * This is intended to be used for 'single' and 'translat'
      * modes.
      */
-    categoryColor(idx:number):string {
+    categoryColor(idx: number): string {
         return this.catColors[idx % this.catColors.length];
     }
 
-    numCategoryColors():number {
+    numCategoryColors(): number {
         return Array.isArray(this.catColors) ? this.catColors.length : 0;
     }
 
-    categoryColorHighlighted(idx:number):string {
+    categoryColorHighlighted(idx: number): string {
         return this.catColorsHighlighted[idx % this.catColors.length];
     }
 
@@ -301,16 +318,24 @@ export class Theme {
      * values) in case your themes do not contain predefined colors
      * for categories.
      */
-    cmpCategoryColor(idx:number, dynamicSize?:number):string {
+    cmpCategoryColor(idx: number, dynamicSize?: number): string {
         if (dynamicSize && this.cmpCategoryColors.length === 1) {
-            return this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
+            return this.getDynamicColor(
+                idx,
+                dynamicSize,
+                this.cmpCategoryColors[0]
+            );
         }
         return this.cmpCategoryColors[idx % this.cmpCategoryColors.length];
     }
 
-    cmpCategoryColorHighlighted(idx:number, dynamicSize?:number):string {
+    cmpCategoryColorHighlighted(idx: number, dynamicSize?: number): string {
         if (dynamicSize && this.cmpCategoryColors.length === 1) {
-            const ans = this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
+            const ans = this.getDynamicColor(
+                idx,
+                dynamicSize,
+                this.cmpCategoryColors[0]
+            );
             return pipe(
                 ans,
                 Color.importColor(1),
@@ -318,16 +343,18 @@ export class Theme {
                 Color.color2str()
             );
         }
-        return this.cmpCategoryColorsHighlighted[idx % this.cmpCategoryColors.length];
+        return this.cmpCategoryColorsHighlighted[
+            idx % this.cmpCategoryColors.length
+        ];
     }
 
     /**
      * Map linearly any range min...max to defined 'scaleColors'.
      */
-    scaleColor = (min:number, max:number):(v:number)=>string => {
+    scaleColor = (min: number, max: number): ((v: number) => string) => {
         const a = max !== min ? (this.scaleColors.length - 1) / (max - min) : 0;
         const b = -1 * a * min;
-        return (v:number) => this.scaleColors[Math.round(a * v + b)];
+        return (v: number) => this.scaleColors[Math.round(a * v + b)];
     };
 
     /**
@@ -335,8 +362,8 @@ export class Theme {
      * 'scaleColors'. Anything below or above is replaced by
      * a grey placeholder color.
      */
-    scaleColorIndexed = (min:number=0):(v:number)=>string => {
-        return (v:number) => {
+    scaleColorIndexed = (min: number = 0): ((v: number) => string) => {
+        return (v: number) => {
             const idx = Math.max(v - min, 0);
             return this.scaleColors[idx] || '#dddddd';
         };
@@ -349,32 +376,37 @@ export class Theme {
      * 4th color and individual values 'v' produce lighter
      * variants as 'v' increases.
      */
-    scaleColorCmpDerived = (barIdx:number, dynamicSize?:number) => (v:number) => {
-        return pipe(
-            this.cmpCategoryColor(barIdx, dynamicSize),
-            Color.importColor(1),
-            Color.luminosity(1 + .04 * v),
-            Color.color2str()
-        );
-    };
+    scaleColorCmpDerived =
+        (barIdx: number, dynamicSize?: number) => (v: number) => {
+            return pipe(
+                this.cmpCategoryColor(barIdx, dynamicSize),
+                Color.importColor(1),
+                Color.luminosity(1 + 0.04 * v),
+                Color.color2str()
+            );
+        };
 
     /**
      * Returns dynamically calculated color for item derived from base color
      * colors are positioned equally on hue circle in HSL color space
      * where color of index 0 is identical to provided base color
      */
-    private getDynamicColor(idx:number, size:number, baseColor:string) {
+    private getDynamicColor(idx: number, size: number, baseColor: string) {
         const hslBaseColor = pipe(
             baseColor,
             Color.importColor(1),
             Color.rgb2Hsl()
         );
 
-        const newHue = hslBaseColor[0] + idx/size;
+        const newHue = hslBaseColor[0] + idx / size;
         return pipe(
-            [newHue > 1 ? newHue - 1 : newHue, hslBaseColor[1], hslBaseColor[2]],
+            [
+                newHue > 1 ? newHue - 1 : newHue,
+                hslBaseColor[1],
+                hslBaseColor[2],
+            ],
             Color.hsl2Rgb(),
             Color.color2str()
-        )
+        );
     }
 }

@@ -20,35 +20,43 @@ import { List } from 'cnc-tskit';
 
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
-    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader,
-    TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile.js';
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileConf,
+    TileFactory,
+    TileFactoryArgs,
+} from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { MergeCorpFreqModel } from './model.js';
 import { init as viewInit } from './view.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { MergeFreqsApi } from './api.js';
-import { PosQueryGeneratorType, validatePosQueryGenerator } from '../../../conf/common.js';
-
+import {
+    PosQueryGeneratorType,
+    validatePosQueryGenerator,
+} from '../../../conf/common.js';
 
 export interface MergeCorpFreqTileConf extends TileConf {
-    apiURL:string;
-    apiType:string;
-    pixelsPerCategory?:number;
-    downloadLabel?:string;
-    sources:Array<{
+    apiURL: string;
+    apiType: string;
+    pixelsPerCategory?: number;
+    downloadLabel?: string;
+    sources: Array<{
+        corpname: string;
+        subcname?: string;
+        corpusSize: number;
+        fcrit: string;
+        posQueryGenerator: PosQueryGeneratorType;
+        freqType: 'tokens' | 'text-types';
+        flimit: number;
+        freqSort: string;
+        fpage: number;
+        fttIncludeEmpty: boolean;
 
-        corpname:string;
-        subcname?:string;
-        corpusSize:number;
-        fcrit:string;
-        posQueryGenerator:PosQueryGeneratorType;
-        freqType:'tokens'|'text-types';
-        flimit:number;
-        freqSort:string;
-        fpage:number;
-        fttIncludeEmpty:boolean;
-
-        viewInOtherWagUrl?:string;
+        viewInOtherWagUrl?: string;
 
         /**
          * If true, then WaG will colorize a respective
@@ -58,24 +66,24 @@ export interface MergeCorpFreqTileConf extends TileConf {
          *
          * Currently, this works only for the "single" mode.
          */
-        uniqueColor?:boolean;
+        uniqueColor?: boolean;
 
         /**
-          * In case 'fcrit' describes a positional
-          * attribute we have to replace the actual
-          * value returned by freq. distrib. function
-          * (which is equal to our query: e.g. for
-          * the query 'house' the value will be 'house')
-          * by something more specific (e.g. 'social media')
-          */
-        valuePlaceholder?:LocalizedConfMsg;
+         * In case 'fcrit' describes a positional
+         * attribute we have to replace the actual
+         * value returned by freq. distrib. function
+         * (which is equal to our query: e.g. for
+         * the query 'house' the value will be 'house')
+         * by something more specific (e.g. 'social media')
+         */
+        valuePlaceholder?: LocalizedConfMsg;
 
         /**
          * If true then the model will always consider possible
          * multiple values as some sub-categorization we are actually
          * not interested in merge all the values into one.
          */
-        isSingleCategory?:boolean;
+        isSingleCategory?: boolean;
     }>;
 }
 
@@ -88,25 +96,31 @@ export interface MergeCorpFreqTileConf extends TileConf {
  * as it depends typically on more than one other tile.
  */
 export class MergeCorpFreqTile implements ITileProvider {
+    private readonly dispatcher: IActionDispatcher;
 
-    private readonly dispatcher:IActionDispatcher;
+    private readonly ut: ViewUtils<GlobalComponents>;
 
-    private readonly ut:ViewUtils<GlobalComponents>;
+    private readonly model: MergeCorpFreqModel;
 
-    private readonly model:MergeCorpFreqModel;
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private view: TileComponent;
 
-    private view:TileComponent;
+    private readonly label: string;
 
-    private readonly label:string;
-
-    private readonly widthFract:number;
+    private readonly widthFract: number;
 
     constructor({
-        dispatcher, tileId, ut, theme, appServices, widthFract, conf, isBusy, queryMatches
-    }:TileFactoryArgs<MergeCorpFreqTileConf>) {
-
+        dispatcher,
+        tileId,
+        ut,
+        theme,
+        appServices,
+        widthFract,
+        conf,
+        isBusy,
+        queryMatches,
+    }: TileFactoryArgs<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -122,7 +136,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                 error: null,
                 data: [],
                 sources: List.map(
-                    src => ({
+                    (src) => ({
                         corpname: src.corpname,
                         corpusSize: src.corpusSize,
                         subcname: src.subcname || null,
@@ -132,9 +146,11 @@ export class MergeCorpFreqTile implements ITileProvider {
                         freqSort: src.freqSort,
                         fpage: src.fpage,
                         fttIncludeEmpty: src.fttIncludeEmpty,
-                        valuePlaceholder: src.valuePlaceholder ?
-                                appServices.importExternalMessage(src.valuePlaceholder) :
-                                null,
+                        valuePlaceholder: src.valuePlaceholder
+                            ? appServices.importExternalMessage(
+                                  src.valuePlaceholder
+                              )
+                            : null,
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
                         posQueryGenerator: src.posQueryGenerator,
@@ -142,92 +158,109 @@ export class MergeCorpFreqTile implements ITileProvider {
                     }),
                     conf.sources
                 ),
-                pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
+                pixelsPerCategory: conf.pixelsPerCategory
+                    ? conf.pixelsPerCategory
+                    : 30,
                 tooltipData: null,
-                backlinks: List.map(_ => List.map(_ => null, conf.sources), queryMatches),
-                queryMatches: List.map(match => findCurrQueryMatch(match), queryMatches),
+                backlinks: List.map(
+                    (_) => List.map((_) => null, conf.sources),
+                    queryMatches
+                ),
+                queryMatches: List.map(
+                    (match) => findCurrQueryMatch(match),
+                    queryMatches
+                ),
             },
             downloadLabel: conf.downloadLabel,
         });
-        this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
+        this.label = appServices.importExternalMessage(
+            conf.label || 'mergeCorpFreq__main_label'
+        );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
+        return (
+            qt === QueryType.SINGLE_QUERY ||
+            qt === QueryType.TRANSLAT_QUERY ||
+            qt === QueryType.CMP_QUERY
+        );
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return true;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
-    
-    hideOnNoData():boolean {
+
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<MergeCorpFreqTileConf>  = {
-
+export const init: TileFactory<MergeCorpFreqTileConf> = {
     sanityCheck: (args) => {
         const ans = [];
         for (let i = 0; i < args.conf.sources.length; i++) {
             const posQueryGenerator = args.conf.sources[i].posQueryGenerator;
             const message = validatePosQueryGenerator(posQueryGenerator);
             if (message) {
-                ans.push(new Error(`invalid posQueryGenerator in mergeCorpFreq tile source ${i}, ${message}`));
+                ans.push(
+                    new Error(
+                        `invalid posQueryGenerator in mergeCorpFreq tile source ${i}, ${message}`
+                    )
+                );
             }
         }
         return ans;
@@ -235,5 +268,5 @@ export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
     create: (args) => {
         return new MergeCorpFreqTile(args);
-    }
+    },
 };

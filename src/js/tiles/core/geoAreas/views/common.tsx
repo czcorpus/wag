@@ -18,59 +18,54 @@
 
 import * as React from 'react';
 
-export function createSVGElement(parent:Element, name:string, attrs:{[name:string]:string}):SVGElement {
+export function createSVGElement(
+    parent: Element,
+    name: string,
+    attrs: { [name: string]: string }
+): SVGElement {
     const elm = document.createElementNS('http://www.w3.org/2000/svg', name);
-    Object.keys(attrs).forEach(k => {
+    Object.keys(attrs).forEach((k) => {
         elm.setAttribute(k, attrs[k]);
     });
     parent.appendChild(elm);
     return elm;
 }
 
-export function createSVGEmptyCircle(parent:Element, radius:number):SVGElement {
+export function createSVGEmptyCircle(
+    parent: Element,
+    radius: number
+): SVGElement {
     const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     const circle = createSVGElement(chart, 'g', {});
 
-    const position = radius*Math.sqrt(2)/4
+    const position = (radius * Math.sqrt(2)) / 4;
 
-    createSVGElement(
-        circle,
-        'line',
-        {
-            'x1': (-position).toString(),
-            'y1': (-position).toString(),
-            'x2': position.toString(),
-            'y2': position.toString(),
-            'stroke-width': '2',
-            'stroke': 'black'
-        }
-    );
+    createSVGElement(circle, 'line', {
+        x1: (-position).toString(),
+        y1: (-position).toString(),
+        x2: position.toString(),
+        y2: position.toString(),
+        'stroke-width': '2',
+        stroke: 'black',
+    });
 
-    createSVGElement(
-        circle,
-        'line',
-        {
-            'x1': position.toString(),
-            'y1': (-position).toString(),
-            'x2': (-position).toString(),
-            'y2': position.toString(),
-            'stroke-width': '2',
-            'stroke': 'black'
-        }
-    );
+    createSVGElement(circle, 'line', {
+        x1: position.toString(),
+        y1: (-position).toString(),
+        x2: (-position).toString(),
+        y2: position.toString(),
+        'stroke-width': '2',
+        stroke: 'black',
+    });
 
-    createSVGElement(
-        circle,
-        'circle',
-        {
-            'cx': '0',
-            'cy': '0',
-            'r': radius.toString(),
-            'stroke': 'black',
-            'stroke-width': '2',
-            'fill-opacity': '0'
-        }
-    );
+    createSVGElement(circle, 'circle', {
+        cx: '0',
+        cy: '0',
+        r: radius.toString(),
+        stroke: 'black',
+        'stroke-width': '2',
+        'fill-opacity': '0',
+    });
 
     parent.appendChild(chart);
     return chart;
@@ -80,12 +75,19 @@ export function createSVGEmptyCircle(parent:Element, radius:number):SVGElement {
 // Having map as a separate separate class component prevents problematic re-rendering of the map
 // when tooltip is shown/hidden and cleaning labels in the process
 
-export class Map extends React.PureComponent<{mapSVG:string}> {
-    
+export class Map extends React.PureComponent<{ mapSVG: string }> {
     render() {
         return (
-            <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}}
-                dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
+            <div
+                style={{
+                    cursor: 'default',
+                    width: '100%',
+                    height: '100%',
+                    overflowX: 'auto',
+                    textAlign: 'center',
+                }}
+                dangerouslySetInnerHTML={{ __html: this.props.mapSVG }}
+            />
         );
     }
 }

@@ -18,30 +18,36 @@
 
 import { LocalizedConfMsg } from '../types.js';
 import { QueryType, RecognizedQueries } from '../query/index.js';
-import { ViewUtils, StatelessModel, StatefulModel, IFullActionControl } from 'kombo';
+import {
+    ViewUtils,
+    StatelessModel,
+    StatefulModel,
+    IFullActionControl,
+} from 'kombo';
 import { GlobalComponents } from '../views/common/index.js';
 import { Theme } from './theme.js';
 import { IAppServices } from '../appServices.js';
 import { MainPosAttrValues } from '../conf/index.js';
 import { List } from 'cnc-tskit';
 
-
 export interface BacklinkConf {
-    url:string;
-    label?:LocalizedConfMsg;
-    args?:{[k:string]:number|string};
+    url: string;
+    label?: LocalizedConfMsg;
+    args?: { [k: string]: number | string };
 }
 
 export interface Backlink {
-    queryId:number;
-    subqueryId?:number;
-    label:LocalizedConfMsg;
-    async?:boolean;
+    queryId: number;
+    subqueryId?: number;
+    label: LocalizedConfMsg;
+    async?: boolean;
 }
 
-export function backlinkIsValid(backlink:Backlink|null|Array<Backlink|null>):boolean {
+export function backlinkIsValid(
+    backlink: Backlink | null | Array<Backlink | null>
+): boolean {
     if (Array.isArray(backlink)) {
-        return List.some(x => !!x, backlink);
+        return List.some((x) => !!x, backlink);
     }
     return !Array.isArray(backlink) && !!backlink;
 }
@@ -51,11 +57,10 @@ export function backlinkIsValid(backlink:Backlink|null|Array<Backlink|null>):boo
  * provided by hosting page
  */
 export interface TileConf {
-
     /**
      * An identifier as defined by tiles configuration interface
      */
-    tileType:string;
+    tileType: string;
 
     /**
      * An address providing a raw text or an HTML which will be
@@ -63,7 +68,7 @@ export interface TileConf {
      * sources are used here as the HTML is injected "as is" to
      * the page.
      */
-    helpURL?:LocalizedConfMsg;
+    helpURL?: LocalizedConfMsg;
 
     /**
      * An optional link to an application the specific tile
@@ -71,7 +76,7 @@ export interface TileConf {
      * tile logic is able to pass proper arguments to the
      * page.
      */
-    backlink?:BacklinkConf;
+    backlink?: BacklinkConf;
 
     /**
      * Normally, any tile configured in the "tiles" section
@@ -85,32 +90,31 @@ export interface TileConf {
      * about invalid configuration.
      *
      */
-    isDisabled?:boolean;
+    isDisabled?: boolean;
 
     /**
      * A label used in the header of the tile
      */
-    label?:LocalizedConfMsg;
+    label?: LocalizedConfMsg;
 
     /**
      * If needed, a specific address for a resource information can be defined.
      * (e.g. you still want to use KonText as a corpus information provider
      * for a non-KonText service).
      */
-    srcInfoURL?:string;
+    srcInfoURL?: string;
 
     /**
      * Defines tile max height using a css value (e.g. '10em', '130px').
      * If other tiles in the row enforce more height, the value is ignored
      * (but a possible scrollbar is still applied if needed).
      */
-    maxTileHeight?:string;
+    maxTileHeight?: string;
 
     /**
      * Defines tiles which can be used as sources of subqueries
      */
-    compatibleSubqProviders?:Array<string>;
-
+    compatibleSubqProviders?: Array<string>;
 }
 
 /**
@@ -118,12 +122,11 @@ export interface TileConf {
  * directly accessing a single (sub)corpus (typically via KonText API).
  */
 export interface CorpSrchTileConf extends TileConf {
+    corpname: string;
 
-    corpname:string;
+    subcname?: string | Array<string>;
 
-    subcname?:string|Array<string>;
-
-    subcDesc?:LocalizedConfMsg;
+    subcDesc?: LocalizedConfMsg;
 }
 
 /**
@@ -134,45 +137,44 @@ export interface CorpSrchTileConf extends TileConf {
  * containers.
  */
 export interface TileFrameProps {
+    tileId: number;
 
-    tileId:number;
+    tileName: string; // a name used in the config to identify the instance
 
-    tileName:string; // a name used in the config to identify the instance
+    Component: TileComponent;
 
-    Component:TileComponent;
+    SourceInfoComponent: SourceInfoComponent;
 
-    SourceInfoComponent:SourceInfoComponent;
+    label: string;
 
-    label:string;
+    supportsTweakMode: boolean;
 
-    supportsTweakMode:boolean;
+    supportsCurrQuery: boolean;
 
-    supportsCurrQuery:boolean;
+    reasonTileDisabled?: string;
 
-    reasonTileDisabled?:string;
+    supportsHelpView: boolean;
 
-    supportsHelpView:boolean;
+    supportsAltView: boolean;
 
-    supportsAltView:boolean;
+    hideOnNoData: boolean;
 
-    hideOnNoData:boolean;
+    supportsSVGFigureSave: boolean;
 
-    supportsSVGFigureSave:boolean;
-
-    helpURL?:string;
+    helpURL?: string;
 
     /**
      * standard mode width in CSS grid fr units
      */
-    widthFract:number;
+    widthFract: number;
 
-    supportsReloadOnError:boolean;
+    supportsReloadOnError: boolean;
 
-    maxTileHeight:string;
+    maxTileHeight: string;
 
-    issueReportingUrl:string;
+    issueReportingUrl: string;
 
-    altViewIcon:AltViewIconProps;
+    altViewIcon: AltViewIconProps;
 }
 
 /**
@@ -180,26 +182,30 @@ export interface TileFrameProps {
  * core components expected them to have.
  */
 export interface CoreTileComponentProps {
-    tileId:number;
-    tileName:string;
-    isMobile:boolean;
-    widthFract:number;
-    supportsReloadOnError:boolean;
-    issueReportingUrl:string;
-    tileLabel:string;
+    tileId: number;
+    tileName: string;
+    isMobile: boolean;
+    widthFract: number;
+    supportsReloadOnError: boolean;
+    issueReportingUrl: string;
+    tileLabel: string;
 }
 
 /**
  * A general tile component.
  */
-export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.FC<CoreTileComponentProps>;
+export type TileComponent =
+    | React.ComponentClass<CoreTileComponentProps>
+    | React.FC<CoreTileComponentProps>;
 
-export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.FC<{}>;
+export type SourceInfoComponent =
+    | React.ComponentClass<{ data: {} }>
+    | React.FC<{}>;
 
 export interface AltViewIconProps {
-    baseImg:string;
-    highlightedImg:string;
-    inlineCss:{[k:string]:string};
+    baseImg: string;
+    highlightedImg: string;
+    inlineCss: { [k: string]: string };
 }
 
 /**
@@ -209,11 +215,10 @@ export interface AltViewIconProps {
  * for React components and states for models.
  */
 export interface ITileProvider {
-
     /**
      * Return localized tile label.
      */
-    getLabel():string;
+    getLabel(): string;
 
     /**
      * Return numeric identifier (automatically
@@ -221,21 +226,21 @@ export interface ITileProvider {
      * the configuration and passed to the tile via
      * factory method args).
      */
-    getIdent():number;
+    getIdent(): number;
 
     /**
      * Get tile view (there must be always a single root view)
      */
-    getView():TileComponent;
+    getView(): TileComponent;
 
-    getSourceInfoComponent():SourceInfoComponent|null;
+    getSourceInfoComponent(): SourceInfoComponent | null;
 
     /**
      */
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean;
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean;
 
     // TODO ??
-    disable():void;
+    disable(): void;
 
     /**
      * Get defined width in number of horizontal
@@ -244,13 +249,13 @@ export interface ITileProvider {
      * mode (i.e. in mobile mode where all the tiles are
      * 1 cell wide you can still get num > 1).
      */
-    getWidthFract():number;
+    getWidthFract(): number;
 
-    supportsTweakMode():boolean;
+    supportsTweakMode(): boolean;
 
-    supportsAltView():boolean;
+    supportsAltView(): boolean;
 
-    supportsSVGFigureSave():boolean;
+    supportsSVGFigureSave(): boolean;
 
     /**
      * Register tile reloading model for cases when
@@ -263,13 +268,13 @@ export interface ITileProvider {
      * must return true. Othewise, WaG won't be able
      * to recognize wich tiles to trigger.
      */
-    registerReloadModel(model:ITileReloader):boolean;
+    registerReloadModel(model: ITileReloader): boolean;
 
-    supportsMultiWordQueries():boolean;
+    supportsMultiWordQueries(): boolean;
 
-    getIssueReportingUrl():string|null;
+    getIssueReportingUrl(): string | null;
 
-    getAltViewIcon():AltViewIconProps;
+    getAltViewIcon(): AltViewIconProps;
 
     /**
      * A tile may share a data source with
@@ -277,7 +282,7 @@ export interface ITileProvider {
      * tile must declare its dependence
      * on the "primary" tile.
      */
-    getReadDataFrom():number|null;
+    getReadDataFrom(): number | null;
 
     /**
      * Method specifies whether WaG should hide the
@@ -289,7 +294,7 @@ export interface ITileProvider {
      * Removing them during such situations can improve
      * user experience.
      */
-    hideOnNoData():boolean;
+    hideOnNoData(): boolean;
 }
 
 /**
@@ -298,22 +303,21 @@ export interface ITileProvider {
  * of a respective tile.
  */
 export interface TileFactoryArgs<T> {
+    tileId: number;
 
-    tileId:number;
+    dispatcher: IFullActionControl;
 
-    dispatcher:IFullActionControl;
+    ut: ViewUtils<GlobalComponents>;
 
-    ut:ViewUtils<GlobalComponents>;
+    theme: Theme;
 
-    theme:Theme,
+    appServices: IAppServices;
 
-    appServices:IAppServices;
+    queryMatches: RecognizedQueries;
 
-    queryMatches:RecognizedQueries;
+    queryType: QueryType;
 
-    queryType:QueryType;
-
-    translatLanguage:string;
+    translatLanguage: string;
 
     /**
      * If specified, then the tile will not need
@@ -321,17 +325,17 @@ export interface TileFactoryArgs<T> {
      * using data from a different tile
      * (e.g. the conc tile from the coll tile)
      */
-    readDataFromTile?:number;
+    readDataFromTile?: number;
 
-    widthFract:number;
+    widthFract: number;
 
-    isBusy:boolean;
+    isBusy: boolean;
 
-    conf:T;
+    conf: T;
 
-    mainPosAttr:MainPosAttrValues;
+    mainPosAttr: MainPosAttrValues;
 
-    dependentTiles:Array<number>;
+    dependentTiles: Array<number>;
 }
 
 /**
@@ -339,28 +343,25 @@ export interface TileFactoryArgs<T> {
  * plus it should handle runtime assertions.
  */
 export interface TileFactory<T> {
-
     /**
      * The sanityCheck method provides runtime assertions.
      * Detected errors should not be thrown but rather returned.
      * In case an empty array is returned, WaG assumes the tile
      * is ready to run.
      */
-    sanityCheck(args:TileFactoryArgs<T>):Array<Error>;
+    sanityCheck(args: TileFactoryArgs<T>): Array<Error>;
 
     /**
      * Create a new tile instance
      */
-    create(args:TileFactoryArgs<T>):ITileProvider;
+    create(args: TileFactoryArgs<T>): ITileProvider;
 }
 
-
-export const DEFAULT_ALT_VIEW_ICON:AltViewIconProps = {
+export const DEFAULT_ALT_VIEW_ICON: AltViewIconProps = {
     baseImg: 'alt-view.svg',
     highlightedImg: 'alt-view_s.svg',
-    inlineCss: {}
+    inlineCss: {},
 };
-
 
 /**
  * ITileReloader represents a model which is able
@@ -368,5 +369,8 @@ export const DEFAULT_ALT_VIEW_ICON:AltViewIconProps = {
  * in case the tile fails to load data.
  */
 export interface ITileReloader {
-    registerModel(tile:ITileProvider, model:StatelessModel<{}>|StatefulModel<{}>):void;
+    registerModel(
+        tile: ITileProvider,
+        model: StatelessModel<{}> | StatefulModel<{}>
+    ): void;
 }

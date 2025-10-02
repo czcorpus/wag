@@ -26,26 +26,22 @@ import { Theme } from '../../../page/theme.js';
 import { List } from 'cnc-tskit';
 import { WordFormItem } from './common.js';
 
-
 export function init(
-    dispatcher:IActionDispatcher,
-    ut:ViewUtils<GlobalComponents>,
-    theme:Theme,
-    model:WordFormsModel
-):TileComponent {
-
+    dispatcher: IActionDispatcher,
+    ut: ViewUtils<GlobalComponents>,
+    theme: Theme,
+    model: WordFormsModel
+): TileComponent {
     const globalComponents = ut.getComponents();
     const WordCloud = wcloudViewInit<WordFormItem>(dispatcher, ut, theme);
 
-
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.FC<{
-        roundToPos:number;
-        data:Array<WordFormItem>;
-
+    const TableView: React.FC<{
+        roundToPos: number;
+        data: Array<WordFormItem>;
     }> = (props) => {
-        const extFormatNum = (x:number, pos:number) => {
+        const extFormatNum = (x: number, pos: number) => {
             if (x < 10 ** -props.roundToPos) {
                 return '~0';
             }
@@ -65,8 +61,12 @@ export function init(
                         (row, i) => (
                             <tr key={`${i}:${row.value}`}>
                                 <td>{row.value}</td>
-                                <td className="num">{ut.formatNumber(row.freq)}</td>
-                                <td className="num">{extFormatNum(row.ratio, props.roundToPos)}%</td>
+                                <td className="num">
+                                    {ut.formatNumber(row.freq)}
+                                </td>
+                                <td className="num">
+                                    {extFormatNum(row.ratio, props.roundToPos)}%
+                                </td>
                             </tr>
                         ),
                         props.data
@@ -76,38 +76,56 @@ export function init(
         );
     };
 
-    class WordFormsView extends React.PureComponent<WordFormsModelState & CoreTileComponentProps> {
-
+    class WordFormsView extends React.PureComponent<
+        WordFormsModelState & CoreTileComponentProps
+    > {
         render() {
-
-            const dataTransform = (v:WordFormItem) => ({
+            const dataTransform = (v: WordFormItem) => ({
                 text: v.value,
                 value: v.freq,
-                tooltip: [{
-                    label: ut.translate('wordforms__item_ratio'),
-                    value: v.ratio,
-                    unit: '%',
-                    round: this.props.roundToPos
-                }],
-                interactionId: null
+                tooltip: [
+                    {
+                        label: ut.translate('wordforms__item_ratio'),
+                        value: v.ratio,
+                        unit: '%',
+                        round: this.props.roundToPos,
+                    },
+                ],
+                interactionId: null,
             });
 
             return (
-                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.length > 0} sourceIdent={{corp: this.props.corpname}}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}
-                        backlink={this.props.backlink}>
-                    {this.props.isAltViewMode ?
-                            <TableView data={this.props.data} roundToPos={this.props.roundToPos} /> :
-                            <globalComponents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
-                                    widthFract={this.props.widthFract} render={(width:number, height:number) => (
-                                <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
-                                                font={theme.infoGraphicsFont}
-                                                dataTransform={dataTransform} />
-                                )} />
-                        }
-
+                <globalComponents.TileWrapper
+                    tileId={this.props.tileId}
+                    isBusy={this.props.isBusy}
+                    error={this.props.error}
+                    hasData={this.props.data.length > 0}
+                    sourceIdent={{ corp: this.props.corpname }}
+                    supportsTileReload={this.props.supportsReloadOnError}
+                    issueReportingUrl={this.props.issueReportingUrl}
+                    backlink={this.props.backlink}
+                >
+                    {this.props.isAltViewMode ? (
+                        <TableView
+                            data={this.props.data}
+                            roundToPos={this.props.roundToPos}
+                        />
+                    ) : (
+                        <globalComponents.ResponsiveWrapper
+                            minWidth={this.props.isMobile ? undefined : 250}
+                            widthFract={this.props.widthFract}
+                            render={(width: number, height: number) => (
+                                <WordCloud
+                                    width={width}
+                                    height={height}
+                                    data={this.props.data}
+                                    isMobile={this.props.isMobile}
+                                    font={theme.infoGraphicsFont}
+                                    dataTransform={dataTransform}
+                                />
+                            )}
+                        />
+                    )}
                 </globalComponents.TileWrapper>
             );
         }

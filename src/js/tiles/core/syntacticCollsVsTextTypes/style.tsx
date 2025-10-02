@@ -19,27 +19,23 @@
 import { styled } from 'styled-components';
 import { Theme } from '../../../page/theme.js';
 
-
 // ---------------- <View /> -------------------------------------
 
-export const View = styled.div`
-
-`;
-
+export const View = styled.div``;
 
 // ---------------- <SyntacticCollsTT /> --------------------------
 
-export const TableRow = styled.tr<{theme:Theme}>`
-
+export const TableRow = styled.tr<{ theme: Theme }>`
     &:hover {
-        background-color: ${props => props.theme.colorWhitelikeBlue};
+        background-color: ${(props) => props.theme.colorWhitelikeBlue};
     }
 
-    td, th {
+    td,
+    th {
         padding: 0.3em 0.6em;
         border-width: 0 1px 0 0;
         border-style: solid;
-        border-color: ${props => props.theme.colorLightText};
+        border-color: ${(props) => props.theme.colorLightText};
 
         strong {
             display: inline-block;
@@ -54,13 +50,11 @@ export const TableRow = styled.tr<{theme:Theme}>`
     td.last-cell {
         border: none;
     }
-
 `;
 
 // ---------------- <SingleTTTable /> ----------------------------
 
-export const SingleTTTable = styled.table<{theme:Theme}>`
-
+export const SingleTTTable = styled.table<{ theme: Theme }>`
     border: none;
     border-collapse: collapse;
 
@@ -73,21 +67,19 @@ export const SingleTTTable = styled.table<{theme:Theme}>`
         padding: 0.3em 0.5em;
         border-width: 0 1px 1px 0;
         border-style: solid;
-        border-color: ${props => props.theme.colorLightText};
+        border-color: ${(props) => props.theme.colorLightText};
     }
 
     thead th.last-cell {
         border-width: 0 0 1px 0;
     }
-
 `;
 
-
-export const Examples = styled.div<{theme:Theme}>`
+export const Examples = styled.div<{ theme: Theme }>`
     background-color: #fefefe;
-    border: ${props => props.theme.defaultBorderStyle};
-    border-radius: ${props => props.theme.defaultBorderRadius};
-    box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
+    border: ${(props) => props.theme.defaultBorderStyle};
+    border-radius: ${(props) => props.theme.defaultBorderRadius};
+    box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
     padding: 0.5em;
 
     > div.texts {
@@ -101,7 +93,7 @@ export const Examples = styled.div<{theme:Theme}>`
             padding: 0.5em 1em 0.5em 1em;
 
             strong {
-                color: ${props => props.theme.colorLogoPink};
+                color: ${(props) => props.theme.colorLogoPink};
             }
         }
 
@@ -111,7 +103,6 @@ export const Examples = styled.div<{theme:Theme}>`
     }
 
     .toolbar {
-
         display: flex;
         align-items: center;
         margin-bottom: 1em;
@@ -123,11 +114,11 @@ export const Examples = styled.div<{theme:Theme}>`
             padding-left: 1em;
 
             span.words {
-                color: ${props => props.theme.colorLogoPink};
+                color: ${(props) => props.theme.colorLogoPink};
                 font-weight: normal;
 
                 span.plus {
-                    color: ${props => props.theme.colorDefaultText};
+                    color: ${(props) => props.theme.colorDefaultText};
                 }
             }
         }
@@ -139,7 +130,6 @@ export const Examples = styled.div<{theme:Theme}>`
             flex-grow: 1;
 
             a.close {
-
                 cursor: pointer;
 
                 img {

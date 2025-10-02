@@ -18,49 +18,60 @@
 import { IAppServices } from '../../../appServices.js';
 import { QueryType } from '../../../query/index.js';
 import {
-    AltViewIconProps, DEFAULT_ALT_VIEW_ICON, ITileProvider, ITileReloader, TileComponent,
-    TileConf, TileFactory, TileFactoryArgs
+    AltViewIconProps,
+    DEFAULT_ALT_VIEW_ICON,
+    ITileProvider,
+    ITileReloader,
+    TileComponent,
+    TileConf,
+    TileFactory,
+    TileFactoryArgs,
 } from '../../../page/tile.js';
 import { SearchPackages, TreqAPI } from './api.js';
 import { TranslationsModel } from './model.js';
 import { init as viewInit } from './view.js';
 
-
 export interface TranslationsTileConf extends TileConf {
-    apiURL:string;
-    srchPackages:SearchPackages;
-    primaryPackage:string;
-    fetchExamplesFrom?:[string, string];
-    maxNumLines?:number;
-    minItemFreq?:number;
+    apiURL: string;
+    srchPackages: SearchPackages;
+    primaryPackage: string;
+    fetchExamplesFrom?: [string, string];
+    maxNumLines?: number;
+    minItemFreq?: number;
 }
 
 /**
  *
  */
 export class TranslationsTile implements ITileProvider {
+    private readonly tileId: number;
 
-    private readonly tileId:number;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly model: TranslationsModel;
 
-    private readonly model:TranslationsModel;
+    private readonly view: TileComponent;
 
-    private readonly view:TileComponent;
+    private readonly widthFract: number;
 
-    private readonly widthFract:number;
-
-    private readonly label:string;
+    private readonly label: string;
 
     private static readonly DEFAULT_MAX_NUM_LINES = 10;
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
-        tileId, dispatcher, appServices, ut, theme, queryMatches, translatLanguage, widthFract,
-        conf, isBusy
-    }:TileFactoryArgs<TranslationsTileConf>) {
-
+        tileId,
+        dispatcher,
+        appServices,
+        ut,
+        theme,
+        queryMatches,
+        translatLanguage,
+        widthFract,
+        conf,
+        isBusy,
+    }: TileFactoryArgs<TranslationsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -71,92 +82,100 @@ export class TranslationsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                searchPackages: (conf.srchPackages[translatLanguage] || []),
+                searchPackages: conf.srchPackages[translatLanguage] || [],
                 translations: [],
                 backlink: null,
-                maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
-                minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
+                maxNumLines:
+                    conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
+                minItemFreq:
+                    conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
                 lang1: conf.primaryPackage,
-                lang2: translatLanguage
+                lang2: translatLanguage,
             },
             tileId,
-            api: new TreqAPI(conf.apiURL, conf.fetchExamplesFrom, appServices, conf.backlink),
+            api: new TreqAPI(
+                conf.apiURL,
+                conf.fetchExamplesFrom,
+                appServices,
+                conf.backlink
+            ),
             queryMatches,
-            scaleColorGen: theme.scaleColorIndexed
+            scaleColorGen: theme.scaleColorIndexed,
         });
-        this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
+        this.label = appServices.importExternalMessage(
+            conf.label || 'treq__main_label'
+        );
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
-    getIdent():number {
+    getIdent(): number {
         return this.tileId;
     }
 
-    getLabel():string {
+    getLabel(): string {
         return this.label;
     }
 
-    getView():TileComponent {
+    getView(): TileComponent {
         return this.view;
     }
 
-    getSourceInfoComponent():null {
+    getSourceInfoComponent(): null {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, translatLang?:string):boolean {
+    supportsQueryType(qt: QueryType, translatLang?: string): boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 
-    disable():void {
-        this.model.waitForAction({}, (_, syncData)=>syncData);
+    disable(): void {
+        this.model.waitForAction({}, (_, syncData) => syncData);
     }
 
-    getWidthFract():number {
+    getWidthFract(): number {
         return this.widthFract;
     }
 
-    supportsTweakMode():boolean {
+    supportsTweakMode(): boolean {
         return false;
     }
 
-    supportsAltView():boolean {
+    supportsAltView(): boolean {
         return true;
     }
 
-    supportsSVGFigureSave():boolean {
+    supportsSVGFigureSave(): boolean {
         return false;
     }
 
-    getAltViewIcon():AltViewIconProps {
+    getAltViewIcon(): AltViewIconProps {
         return DEFAULT_ALT_VIEW_ICON;
     }
 
-    registerReloadModel(model:ITileReloader):boolean {
+    registerReloadModel(model: ITileReloader): boolean {
         model.registerModel(this, this.model);
         return true;
     }
 
-    supportsMultiWordQueries():boolean {
+    supportsMultiWordQueries(): boolean {
         return true;
     }
 
-    getIssueReportingUrl():null {
+    getIssueReportingUrl(): null {
         return null;
     }
 
-    getReadDataFrom():number|null {
+    getReadDataFrom(): number | null {
         return null;
     }
 
-    hideOnNoData():boolean {
+    hideOnNoData(): boolean {
         return false;
     }
 }
 
-export const init:TileFactory<TranslationsTileConf> = {
-
+export const init: TileFactory<TranslationsTileConf> = {
     sanityCheck: (args) => [],
 
-    create: (args) => new TranslationsTile(args)
+    create: (args) => new TranslationsTile(args),
 };

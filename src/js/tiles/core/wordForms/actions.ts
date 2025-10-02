@@ -21,14 +21,14 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Action } from 'kombo';
 import { WordFormItem } from './common.js';
 
-
 export interface DataLoadedPayload extends SubqueryPayload {
-    data:Array<WordFormItem>;
+    data: Array<WordFormItem>;
 }
 
 export class Actions {
-
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
-        name: GlobalActions.TileDataLoaded.name
+    static TileDataLoaded: Action<
+        typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload
+    > = {
+        name: GlobalActions.TileDataLoaded.name,
     };
 }

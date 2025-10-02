@@ -18,44 +18,38 @@
 
 import { Dict } from 'cnc-tskit';
 
-
 export interface ISimpleSessionStorage {
-    clear():void;
-    getItem(key:string):string|null;
-    removeItem(key:string):void;
-    setItem(key:string, value:string):void;
+    clear(): void;
+    getItem(key: string): string | null;
+    removeItem(key: string): void;
+    setItem(key: string, value: string): void;
 }
 
-
 export class DummySessionStorage {
-
-    private readonly data:{[key:string]:string};
+    private readonly data: { [key: string]: string };
 
     constructor() {
         this.data = {};
     }
 
-    clear():void {
-        Dict.forEach(
-            (_, k) => {
-                delete this.data[k];
-            },
-            this.data
-        );
+    clear(): void {
+        Dict.forEach((_, k) => {
+            delete this.data[k];
+        }, this.data);
     }
 
-    getItem(key:string):string|null {
+    getItem(key: string): string | null {
         if (this.data[key] !== undefined) {
             return this.data[key];
         }
         return null;
     }
 
-    removeItem(key:string):void {
+    removeItem(key: string): void {
         delete this.data[key];
     }
 
-    setItem(key:string, value:string):void {
+    setItem(key: string, value: string): void {
         this.data[key] = value;
     }
 }

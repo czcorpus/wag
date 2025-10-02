@@ -23,32 +23,32 @@ import { SystemMessageType } from '../types.js';
 import { Ident } from 'cnc-tskit';
 import { Actions } from '../models/actions.js';
 
-
-
 export interface SystemMessage {
-    ident:string;
-    type:SystemMessageType;
-    text:string;
-    ttl:number;
+    ident: string;
+    type: SystemMessageType;
+    text: string;
+    ttl: number;
 }
 
-export const importMessageType = (t:string):SystemMessageType => {
+export const importMessageType = (t: string): SystemMessageType => {
     switch (t) {
-        case 'info': return SystemMessageType.INFO;
-        case 'warning': return SystemMessageType.WARNING;
-        case 'error': return SystemMessageType.ERROR;
-        default: return SystemMessageType.INFO;
+        case 'info':
+            return SystemMessageType.INFO;
+        case 'warning':
+            return SystemMessageType.WARNING;
+        case 'error':
+            return SystemMessageType.ERROR;
+        default:
+            return SystemMessageType.INFO;
     }
-}
-
+};
 
 export interface ISystemNotifications {
-    showMessage(type:SystemMessageType, text:string|Error):void;
+    showMessage(type: SystemMessageType, text: string | Error): void;
 }
 
-
 export class ServerNotifications {
-    showMessage(type:SystemMessageType, text:string|Error):void {
+    showMessage(type: SystemMessageType, text: string | Error): void {
         switch (type) {
             case SystemMessageType.ERROR:
                 console.error(text);
@@ -61,49 +61,40 @@ export class ServerNotifications {
     }
 }
 
-
 export class SystemNotifications {
-
     private static DEFAULT_MESSAGE_TTL = 10;
 
-    private messageEvents:Subject<SystemMessage>;
+    private messageEvents: Subject<SystemMessage>;
 
-    constructor(dispatcher:IActionDispatcher) {
+    constructor(dispatcher: IActionDispatcher) {
         this.messageEvents = new Subject<SystemMessage>();
-        this.messageEvents.pipe(observeOn(asyncScheduler)).subscribe(
-            (data) => {
-                dispatcher.dispatch<typeof Actions.AddSystemMessage>({
-                    name: Actions.AddSystemMessage.name,
-                    payload: {
-                        ident: data.ident,
-                        type: data.type,
-                        text: data.text,
-                        ttl: data.ttl
-                    }
+        this.messageEvents.pipe(observeOn(asyncScheduler)).subscribe((data) => {
+            dispatcher.dispatch<typeof Actions.AddSystemMessage>({
+                name: Actions.AddSystemMessage.name,
+                payload: {
+                    ident: data.ident,
+                    type: data.type,
+                    text: data.text,
+                    ttl: data.ttl,
+                },
+            });
+            rxOf<typeof Actions.RemoveSystemMessage>({
+                name: Actions.RemoveSystemMessage.name,
+                payload: {
+                    ident: data.ident,
+                },
+            })
+                .pipe(delay(SystemNotifications.DEFAULT_MESSAGE_TTL * 1000))
+                .subscribe((data) => {
+                    dispatcher.dispatch(data);
                 });
-                rxOf<typeof Actions.RemoveSystemMessage>({
-                    name: Actions.RemoveSystemMessage.name,
-                    payload: {
-                        ident: data.ident
-                    }
-
-                }).pipe(
-                    delay(SystemNotifications.DEFAULT_MESSAGE_TTL * 1000)
-
-                ).subscribe(
-                    (data) => {
-                        dispatcher.dispatch(data);
-                    }
-                );
-            }
-        );
+        });
     }
 
-    showMessage(type:SystemMessageType, text:string|Error):void {
-        let msg:string;
+    showMessage(type: SystemMessageType, text: string | Error): void {
+        let msg: string;
         if (text instanceof Error) {
             msg = text.message;
-
         } else {
             msg = text;
         }
@@ -112,9 +103,7 @@ export class SystemNotifications {
             ident: Ident.puid(),
             type: type,
             text: msg,
-            ttl: SystemNotifications.DEFAULT_MESSAGE_TTL
+            ttl: SystemNotifications.DEFAULT_MESSAGE_TTL,
         });
     }
-
-
 }

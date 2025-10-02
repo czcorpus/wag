@@ -27,16 +27,15 @@ import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 import { IDataStreaming } from '../../../../page/streaming.js';
 
-
 export interface ConcApiArgs {
-    corpusName:string;
-    q:string;
-    queryIdx:number;
-    maxRows:number;
-    rowsOffset:number;
-    contextWidth:number;
-    contextStruct:string;
-    showTextProps?:'0'|'1';
+    corpusName: string;
+    q: string;
+    queryIdx: number;
+    maxRows: number;
+    rowsOffset: number;
+    contextWidth: number;
+    contextStruct: string;
+    showTextProps?: '0' | '1';
 }
 
 // ------------------------------
@@ -44,21 +43,26 @@ export interface ConcApiArgs {
 /**
  * @todo
  */
-export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number]> {
+export class MQueryConcApi
+    implements DataApi<ConcApiArgs, [ConcResponse, number]>
+{
+    private readonly apiUrl: string;
 
-    private readonly apiUrl:string;
+    private readonly appServices: IAppServices;
 
-    private readonly appServices:IAppServices;
+    private readonly backlinkConf: BacklinkConf;
 
-    private readonly backlinkConf:BacklinkConf;
-
-    constructor(apiUrl:string, appServices:IAppServices, backlinkConf:BacklinkConf) {
+    constructor(
+        apiUrl: string,
+        appServices: IAppServices,
+        backlinkConf: BacklinkConf
+    ) {
         this.apiUrl = apiUrl;
         this.appServices = appServices;
         this.backlinkConf = backlinkConf;
     }
 
-    getBacklink(queryId:number, subqueryId?:number):Backlink|null {
+    getBacklink(queryId: number, subqueryId?: number): Backlink | null {
         if (this.backlinkConf) {
             return {
                 queryId,
@@ -69,18 +73,18 @@ export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number
         return null;
     }
 
-    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+    mkMatchQuery(lvar: QueryMatch, generator: [string, string]): string {
         return '';
     }
 
     /**
      * Note: the first item will be set as an initial one
      */
-    getSupportedViewModes():Array<ViewMode> {
+    getSupportedViewModes(): Array<ViewMode> {
         return [ViewMode.KWIC, ViewMode.SENT];
     }
 
-    private prepareArgs(queryArgs:ConcApiArgs):string {
+    private prepareArgs(queryArgs: ConcApiArgs): string {
         return pipe(
             {
                 q: queryArgs.q,
@@ -88,34 +92,36 @@ export class MQueryConcApi implements DataApi<ConcApiArgs, [ConcResponse, number
                 rowsOffset: queryArgs.rowsOffset,
                 contextWidth: queryArgs.contextWidth,
                 contextStruct: queryArgs.contextStruct || undefined,
-                showTextProps: '1'
+                showTextProps: '1',
             },
-            Dict.filter((v,) => v !== undefined && v !== null),
+            Dict.filter((v) => v !== undefined && v !== null),
             Dict.toEntries(),
             List.map(([v0, v1]) => `${v0}=${encodeURIComponent(v1)}`)
-        ).join('&')
+        ).join('&');
     }
 
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:ConcApiArgs|null):Observable<[ConcResponse, number]> {
-        return streaming.registerTileRequest<ConcResponse>(
-            {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: ConcApiArgs | null
+    ): Observable<[ConcResponse, number]> {
+        return streaming
+            .registerTileRequest<ConcResponse>({
                 tileId,
                 queryIdx,
                 method: HTTP.Method.GET,
-                url: args ?
-                    urlJoin(this.apiUrl, 'concordance', args.corpusName) + `?${this.prepareArgs(args)}` :
-                    '',
+                url: args
+                    ? urlJoin(this.apiUrl, 'concordance', args.corpusName) +
+                      `?${this.prepareArgs(args)}`
+                    : '',
                 body: {},
                 contentType: 'application/json',
-            }
-        ).pipe(
-            map(
-                resp => tuple(resp, queryIdx)
-            )
-        );
+            })
+            .pipe(map((resp) => tuple(resp, queryIdx)));
     }
 
-    requestBacklink(args:ConcApiArgs):URL {
+    requestBacklink(args: ConcApiArgs): URL {
         const url = new URL(urlJoin(this.backlinkConf.url, 'create_view'));
         url.searchParams.set('corpname', args.corpusName);
         url.searchParams.set('q', `q${args.q}`);

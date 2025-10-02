@@ -22,94 +22,100 @@ import { map, Observable } from 'rxjs';
 import urlJoin from 'url-join';
 
 import { IDataStreaming } from '../../../page/streaming.js';
-import { RequestArgs, TreqAPICommon, Translation } from '../translations/api.js';
+import {
+    RequestArgs,
+    TreqAPICommon,
+    Translation,
+} from '../translations/api.js';
 import { ajax$, encodeArgs } from '../../../page/ajax.js';
 
-
 interface HTTPResponseLine {
-    freq:string;
-    perc:string;
-    from:string;
-    to:string;
+    freq: string;
+    perc: string;
+    from: string;
+    to: string;
 }
-
 
 interface HTTPResponse {
-    error?:string;
-    subsets:{[subsetId:string]:{sum:number; lines: Array<HTTPResponseLine>}};
+    error?: string;
+    subsets: {
+        [subsetId: string]: { sum: number; lines: Array<HTTPResponseLine> };
+    };
 }
 
-
 export interface WordEntry {
-    score:number;
-    freq:number; // TODO probably a candidate for removal
-    word:string;
-    firstTranslatLc:string;
-    translations:Array<Translation>;
-    interactionId:string;
-    color?:string;
+    score: number;
+    freq: number; // TODO probably a candidate for removal
+    word: string;
+    firstTranslatLc: string;
+    translations: Array<Translation>;
+    interactionId: string;
+    color?: string;
 }
 
 export interface TranslationResponse {
-    subsets:{[subsetId:string]:Array<WordEntry>};
+    subsets: { [subsetId: string]: Array<WordEntry> };
 }
 
-
-export function filterByMinFreq(data:{[subsetId:string]:Array<WordEntry>}, minFreq:number):{[subsetId:string]:Array<WordEntry>} {
+export function filterByMinFreq(
+    data: { [subsetId: string]: Array<WordEntry> },
+    minFreq: number
+): { [subsetId: string]: Array<WordEntry> } {
     return Dict.map(
-        (values, subsetId) => List.filter(
-            x => x.freq >= minFreq,
-            values
-        ),
+        (values, subsetId) => List.filter((x) => x.freq >= minFreq, values),
         data
     );
 }
 
-
 export class TreqSubsetsAPI extends TreqAPICommon {
-
-    call(streaming:IDataStreaming, tileId:number, queryIdx:number, args:{[subsetId:string]:RequestArgs}):Observable<TranslationResponse> {
+    call(
+        streaming: IDataStreaming,
+        tileId: number,
+        queryIdx: number,
+        args: { [subsetId: string]: RequestArgs }
+    ): Observable<TranslationResponse> {
         const headers = this.appServices.getApiHeaders(this.apiURL);
         headers['X-Is-Web-App'] = '1';
-        return streaming.registerTileRequest<HTTPResponse>({
-            isEventSource: true,
-            contentType: 'application/json',
-            body: args,
-            method: HTTP.Method.POST,
-            tileId,
-            url: urlJoin(this.apiURL, 'subsets') + '?' + encodeArgs({ tileId }),
-        }).pipe(
-            map(
-                resp => {
+        return streaming
+            .registerTileRequest<HTTPResponse>({
+                isEventSource: true,
+                contentType: 'application/json',
+                body: args,
+                method: HTTP.Method.POST,
+                tileId,
+                url:
+                    urlJoin(this.apiURL, 'subsets') +
+                    '?' +
+                    encodeArgs({ tileId }),
+            })
+            .pipe(
+                map((resp) => {
                     if (!resp) {
                         throw new Error('Empty response from Treq server');
                     }
                     return {
                         ...resp,
-                        subsets: Dict.map(
-                            (values, subsetId) => {
-                                return this.mergeByLowercase(
-                                    List.map(
-                                        v => ({
-                                            freq: parseInt(v.freq),
-                                            score: parseFloat(v.perc),
-                                            word: v.from,
-                                            firstTranslatLc: v.to.toLowerCase(),
-                                            translations: [{
-                                                word: v.to
-                                            }],
-                                            interactionId: ''
-                                        }),
-                                        values.lines
-                                    )
-                                ).slice(0, 10)
-                            },
-                            resp.subsets
-                        )
+                        subsets: Dict.map((values, subsetId) => {
+                            return this.mergeByLowercase(
+                                List.map(
+                                    (v) => ({
+                                        freq: parseInt(v.freq),
+                                        score: parseFloat(v.perc),
+                                        word: v.from,
+                                        firstTranslatLc: v.to.toLowerCase(),
+                                        translations: [
+                                            {
+                                                word: v.to,
+                                            },
+                                        ],
+                                        interactionId: '',
+                                    }),
+                                    values.lines
+                                )
+                            ).slice(0, 10);
+                        }, resp.subsets),
                     };
-                }
-            )
-        );
+                })
+            );
     }
-
 }

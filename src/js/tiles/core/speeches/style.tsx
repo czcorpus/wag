@@ -23,9 +23,8 @@ import { styled } from 'styled-components';
 
 // -------------- <SpeechesTile /> -----------------
 
-export const SpeechesTile = styled.div<{theme:Theme}>`
+export const SpeechesTile = styled.div<{ theme: Theme }>`
     tr.expand {
-
         th {
             text-align: right;
             padding-right: 0.2em;
@@ -47,8 +46,8 @@ export const SpeechesTile = styled.div<{theme:Theme}>`
         display: flex;
         align-content: flex-end;
 
-        .next, .expand {
-
+        .next,
+        .expand {
             margin-right: 2em;
 
             a {
@@ -70,7 +69,6 @@ export const SpeechesTile = styled.div<{theme:Theme}>`
     }
 
     div.play-all {
-
         text-align: right;
 
         a {
@@ -79,24 +77,24 @@ export const SpeechesTile = styled.div<{theme:Theme}>`
     }
 `;
 
-
 // -------------- <Speeches /> -----------------
 
-export const Speeches = styled.dl<{theme:Theme}>`
+export const Speeches = styled.dl<{ theme: Theme }>`
     border-spacing: 0;
 
-    dd, dt {
+    dd,
+    dt {
         margin: 0;
     }
 `;
 
 // -------------- <Speaker /> -----------------
 
-export const Speaker = styled.dt<{theme:Theme}>`
+export const Speaker = styled.dt<{ theme: Theme }>`
     text-align: left;
     strong {
-        border: 1px solid ${props => props.theme.colorLightText};
-        border-radius: ${props => props.theme.defaultBorderRadius};
+        border: 1px solid ${(props) => props.theme.colorLightText};
+        border-radius: ${(props) => props.theme.defaultBorderRadius};
         display: inline-block;
         vertical-align: middle;
         font-size: 0.8em;
@@ -121,7 +119,7 @@ export const Speech = styled.dd`
     }
 
     .speech-text.focus {
-        background-color: #FFFFFF;
+        background-color: #ffffff;
     }
 
     .plus {
@@ -135,14 +133,14 @@ export const Speech = styled.dd`
     }
 
     .coll {
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
         font-weight: bold;
     }
 `;
 
 // -------------- <PlayerIcon /> -----------------
 
-export const PlayerIcon = styled.a<{theme:Theme}>`
+export const PlayerIcon = styled.a<{ theme: Theme }>`
     display: inline-block;
     vertical-align: middle;
     margin-left: 1em;

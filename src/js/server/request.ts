@@ -23,25 +23,25 @@ import axios, { Method, AxiosError, AxiosResponse } from 'axios';
 /**
  *
  */
-export interface ServerHTTPRequestConf { // TODO make this parametrizable to prevent 'any' below
-    url:string;
-    method:HTTP.Method;
-    params?:{[k:string]:string|number|boolean};
-    data?:{[k:string]:string|number|boolean|any};
-    auth?:{username:string, password: string};
-    headers?:{[k:string]:string};
-    cookies?:{[k:string]:string};
+export interface ServerHTTPRequestConf {
+    // TODO make this parametrizable to prevent 'any' below
+    url: string;
+    method: HTTP.Method;
+    params?: { [k: string]: string | number | boolean };
+    data?: { [k: string]: string | number | boolean | any };
+    auth?: { username: string; password: string };
+    headers?: { [k: string]: string };
+    cookies?: { [k: string]: string };
 }
 
 export class ServerHTTPRequestError extends Error {
+    readonly message: string;
 
-    readonly message:string;
+    readonly status: HTTP.Status;
 
-    readonly status:HTTP.Status;
+    readonly statusText: string;
 
-    readonly statusText:string;
-
-    constructor(status:HTTP.Status, statusText:string, message?:string) {
+    constructor(status: HTTP.Status, statusText: string, message?: string) {
         super(message);
         this.status = status;
         this.statusText = statusText;
@@ -49,7 +49,10 @@ export class ServerHTTPRequestError extends Error {
     }
 }
 
-function upgradeHeadersWithCookies(headers:any, cookies:{[k:string]:string}):{[k:string]:string} {
+function upgradeHeadersWithCookies(
+    headers: any,
+    cookies: { [k: string]: string }
+): { [k: string]: string } {
     if (!headers) {
         headers = {};
     }
@@ -57,11 +60,11 @@ function upgradeHeadersWithCookies(headers:any, cookies:{[k:string]:string}):{[k
         cookies,
         Dict.toEntries(),
         List.map(([k, v]) => `${k}=${v};`),
-        x => x.join(' ')
+        (x) => x.join(' ')
     );
-    headers['Cookie'] = headers['Cookie'] ?
-        headers['Cookie'] + ' ' + rawCookies :
-        rawCookies;
+    headers['Cookie'] = headers['Cookie']
+        ? headers['Cookie'] + ' ' + rawCookies
+        : rawCookies;
     return headers;
 }
 
@@ -72,32 +75,36 @@ export function serverHttpRequest<T>({
     data,
     auth,
     headers,
-    cookies
-}:ServerHTTPRequestConf):Observable<T> {
-
+    cookies,
+}: ServerHTTPRequestConf): Observable<T> {
     return new Observable<T>((observer) => {
         const client = axios.create();
-        client.request<T>({
-            method: method as Method, // here we assume that HTTP.Method is a subset of Method
-            url,
-            params,
-            data,
-            auth,
-            headers: upgradeHeadersWithCookies(headers, cookies)
-
-        }).then(
-            (resp) => {
-                observer.next(resp.data);
-                observer.complete();
-            },
-            (err:AxiosError) => {
-                observer.error(new ServerHTTPRequestError(
-                    err.response ? err.response.status : 500,
-                    err.response ? err.response.statusText : 'Internal Server Error',
-                    `Request failed: ${err.message}`,
-                ));
-            }
-        );
+        client
+            .request<T>({
+                method: method as Method, // here we assume that HTTP.Method is a subset of Method
+                url,
+                params,
+                data,
+                auth,
+                headers: upgradeHeadersWithCookies(headers, cookies),
+            })
+            .then(
+                (resp) => {
+                    observer.next(resp.data);
+                    observer.complete();
+                },
+                (err: AxiosError) => {
+                    observer.error(
+                        new ServerHTTPRequestError(
+                            err.response ? err.response.status : 500,
+                            err.response
+                                ? err.response.statusText
+                                : 'Internal Server Error',
+                            `Request failed: ${err.message}`
+                        )
+                    );
+                }
+            );
     });
 }
 
@@ -109,30 +116,33 @@ export function fullServerHttpRequest<T>({
     data,
     auth,
     headers,
-    cookies
-}:ServerHTTPRequestConf):Observable<AxiosResponse<T>> {
+    cookies,
+}: ServerHTTPRequestConf): Observable<AxiosResponse<T>> {
     return new Observable<AxiosResponse<T>>((observer) => {
         const client = axios.create();
-        client.request<T>({
-            method: method as Method, // here we assume that HTTP.Method is a subset of Method
-            url,
-            params,
-            data,
-            auth,
-            headers: upgradeHeadersWithCookies(headers, cookies)
-
-        }).then(
-            (resp) => {
-                observer.next(resp);
-                observer.complete();
-            },
-            (err:AxiosError) => {
-                observer.error(new ServerHTTPRequestError(
-                    err.response ? err.response.status : -1,
-                    err.response ? err.response.statusText : '-',
-                    `Request failed: ${err.message}`,
-                ));
-            }
-        );
+        client
+            .request<T>({
+                method: method as Method, // here we assume that HTTP.Method is a subset of Method
+                url,
+                params,
+                data,
+                auth,
+                headers: upgradeHeadersWithCookies(headers, cookies),
+            })
+            .then(
+                (resp) => {
+                    observer.next(resp);
+                    observer.complete();
+                },
+                (err: AxiosError) => {
+                    observer.error(
+                        new ServerHTTPRequestError(
+                            err.response ? err.response.status : -1,
+                            err.response ? err.response.statusText : '-',
+                            `Request failed: ${err.message}`
+                        )
+                    );
+                }
+            );
     });
 }
