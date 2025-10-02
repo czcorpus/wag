@@ -123,6 +123,10 @@ export const WdglanceControls = styled.div<{theme:Theme}>`
         border-color: ${props => props.theme.colorLightText};
     }
 
+    .tabs.empty {
+        display: none;
+    }
+
     &.result-page-mode {
         padding-bottom: 0;
 

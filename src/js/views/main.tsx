@@ -532,11 +532,13 @@ export function init(
         };
 
         const state = useModel(formModel);
+        const numQTypes = pipe(state.queryTypesMenuItems, List.filter(x => x.isEnabled), List.size());
+        const numSubWags = List.size(state.instanceSwitchMenu);
 
         return (
             <S.WdglanceControls className={props.isAnswerMode ? 'result-page-mode' : null}>
                 <form className="cnc-form">
-                   <div className="tabs">
+                   <div className={`tabs ${numQTypes + numSubWags < 2 ? 'empty' : ''}`}>
                         <QueryTypeSelector isMobile={props.isMobile} onChange={handleQueryTypeChange}
                                 qeryTypes={state.queryTypesMenuItems} value={state.queryType} />
                         <OtherVariantsMenu instanceSwitchMenu={state.instanceSwitchMenu} />
