@@ -681,8 +681,8 @@ export function init(
                 className={props.isAnswerMode ? 'result-page-mode' : null}
             >
                 <form className="cnc-form">
-                    <div
-                        className={`tabs ${numQTypes + numSubWags < 2 ? 'empty' : ''}`}
+                    <S.MenuTabs
+                        className={numQTypes + numSubWags < 2 ? 'empty' : ''}
                     >
                         <QueryTypeSelector
                             isMobile={props.isMobile}
@@ -693,7 +693,7 @@ export function init(
                         <OtherVariantsMenu
                             instanceSwitchMenu={state.instanceSwitchMenu}
                         />
-                    </div>
+                    </S.MenuTabs>
                     <div className="main">
                         <QueryFields
                             wantsFocus={
@@ -717,19 +717,31 @@ export function init(
     // ------------- <OtherVariantsMenu /> -------------------------------
 
     const OtherVariantsMenu: React.FC<{
-        instanceSwitchMenu: Array<{ label: string; url: string }>;
+        instanceSwitchMenu: Array<{
+            label: string;
+            url: string;
+            current: boolean;
+        }>;
     }> = (props) => {
         return (
             <S.OtherVariantsMenu>
-                {List.map(
-                    (item, i) => (
-                        <React.Fragment key={item.label}>
-                            {i > 0 ? <span className="separ">|</span> : null}
-                            <a href={item.url}>{item.label}</a>
-                        </React.Fragment>
-                    ),
-                    props.instanceSwitchMenu
-                )}
+                <nav>
+                    {List.map(
+                        (item, i) => (
+                            <React.Fragment key={item.label}>
+                                {i > 0 ? (
+                                    <span className="separ">|</span>
+                                ) : null}
+                                <span
+                                    className={`item${item.current ? ' current' : ''}`}
+                                >
+                                    <a href={item.url}>{item.label}</a>
+                                </span>
+                            </React.Fragment>
+                        ),
+                        props.instanceSwitchMenu
+                    )}
+                </nav>
             </S.OtherVariantsMenu>
         );
     };

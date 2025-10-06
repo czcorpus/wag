@@ -42,7 +42,7 @@ export interface QueryFormModelState {
     queries: Array<Input>;
     initialQueryType: QueryType;
     multiWordQuerySupport: number;
-    instanceSwitchMenu: Array<{ label: string; url: string }>;
+    instanceSwitchMenu: Array<{ label: string; url: string; current: boolean }>;
     queryType: QueryType;
     availQueryTypes: Array<QueryType>;
     currTranslatLanguage: string;
@@ -336,7 +336,7 @@ export interface DefaultFactoryArgs {
     queryMatches: RecognizedQueries;
     isAnswerMode: boolean;
     uiLanguages: Array<AvailableLanguage>;
-    instanceSwitchMenu: Array<{ label: string; url: string }>;
+    instanceSwitchMenu: Array<{ label: string; url: string; current: boolean }>;
     layout: LayoutManager;
     maxCmpQueries: number;
     maxQueryWords: number;

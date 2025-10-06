@@ -112,18 +112,6 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
     justify-content: center;
     padding: 0.5em 0 1em 0;
 
-    .tabs {
-        display: flex;
-        margin-top: 2em;
-        border-width: 0 0 1px 0;
-        border-style: solid;
-        border-color: ${(props) => props.theme.colorLightText};
-    }
-
-    .tabs.empty {
-        display: none;
-    }
-
     &.result-page-mode {
         padding-bottom: 0;
 
@@ -328,35 +316,15 @@ export const SubmenuTile = styled.section`
     padding: 0;
 `;
 
-// --------------- <OtherVariantsMenu /> --------------------------------------
+// --------------- <MenuTabs /> --------------------------------------
 
-export const OtherVariantsMenu = styled.div<{ theme: Theme }>`
+export const MenuTabs = styled.div<{ theme: Theme }>`
     display: flex;
-    align-items: center;
+    margin-top: 2em;
 
-    a {
-        color: ${(props) => props.theme.colorDefaultText};
-        padding: 0.2em 0.8em;
-        display: inline-block;
-        padding-top: 0.4em;
-        cursor: pointer;
-        text-decoration: none;
+    &.empty {
+        display: none;
     }
-
-    a:hover {
-        color: ${(props) => props.theme.colorLogoBlue};
-    }
-
-    .separ {
-        color: ${(props) => props.theme.colorDefaultText};
-        font-size: 1.5em;
-    }
-`;
-
-// -------------- <QueryTypeSelector /> --------------------------------------
-
-export const QueryTypeSelector = styled.div<{ theme: Theme }>`
-    flex-grow: 1;
 
     nav {
         display: flex;
@@ -369,7 +337,7 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
 
             a {
                 display: inline-block;
-                padding-top: 0.4em;
+                padding-bottom: 0.4em;
                 cursor: pointer;
                 text-decoration: none;
                 color: ${(props) => props.theme.colorDefaultText};
@@ -388,7 +356,7 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
         .item.current a {
             border-style: solid;
             border-color: ${(props) => props.theme.colorLogoBlue};
-            border-width: 2px 0 0 0;
+            border-width: 0 0 2px 0;
         }
 
         ${(props) => props.theme.cssMediaMediumSize} {
@@ -427,6 +395,19 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
             margin-top: 0.2em;
         }
     }
+`;
+
+// --------------- <OtherVariantsMenu /> --------------------------------------
+
+export const OtherVariantsMenu = styled.div<{ theme: Theme }>`
+    display: flex;
+    align-items: center;
+`;
+
+// -------------- <QueryTypeSelector /> --------------------------------------
+
+export const QueryTypeSelector = styled.div<{ theme: Theme }>`
+    flex-grow: 1;
 `;
 
 // -------------- <SubmitButton /> -------------------------------------------

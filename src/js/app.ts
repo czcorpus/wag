@@ -171,7 +171,19 @@ export function createRootComponent({
             Dict.toEntries(),
             List.map(([code, label]) => ({ code, label }))
         ),
-        instanceSwitchMenu: config.instanceSwitchMenu,
+        instanceSwitchMenu: List.reduce(
+            (acc, v, i) => {
+                acc.push({
+                    ...v,
+                    current:
+                        v.url.startsWith(config.rootUrl) &&
+                        List.every((x) => !x.current, acc),
+                });
+                return acc;
+            },
+            [],
+            config.instanceSwitchMenu
+        ),
         layout: layoutManager,
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords,
