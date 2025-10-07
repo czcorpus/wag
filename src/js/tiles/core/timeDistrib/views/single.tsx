@@ -425,7 +425,10 @@ export function init(
                         }
                         onMouseUp={this.zoomMouseUp}
                     >
-                        <CartesianGrid strokeDasharray="1 1" />
+                        <CartesianGrid
+                            strokeDasharray="1 1"
+                            stroke={theme.chartGridColor}
+                        />
                         <XAxis
                             dataKey="datetime"
                             interval="preserveStartEnd"

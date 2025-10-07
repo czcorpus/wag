@@ -306,7 +306,7 @@ export function init(
                         })
                     }
                 >
-                    <CartesianGrid />
+                    <CartesianGrid stroke={theme.chartGridColor} />
                     {List.map((_, queryIdx) => {
                         const dfltFill = props.isPartial
                             ? theme.unfinishedChartColor

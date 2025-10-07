@@ -120,7 +120,10 @@ export function init(
                     layout="vertical"
                     barCategoryGap={props.barCategoryGap}
                 >
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke={theme.chartGridColor}
+                    />
                     <XAxis
                         type="number"
                         dataKey="ipm"
