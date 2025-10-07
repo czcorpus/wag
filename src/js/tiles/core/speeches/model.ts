@@ -171,7 +171,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
-                state.speakerColorsAttachments = {};
+                state.speakers = [];
                 state.leftRange = SpeechesModel.DEFAULT_LEFT_RANGE;
                 state.rightRange = SpeechesModel.DEFAULT_RIGHT_RANGE;
             },

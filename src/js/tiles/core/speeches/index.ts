@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { pipe, Color, List } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 
 import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
 import {
@@ -80,7 +80,6 @@ export class SpeechesTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        const colorGen = theme.categoryPalette(List.repeat((v) => v, 10));
         this.model = new SpeechesModel({
             dispatcher,
             tileId,
@@ -106,11 +105,7 @@ export class SpeechesTile implements ITileProvider {
                     conf.speechOverlapAttr[1],
                 ],
                 speechOverlapVal: conf.speechOverlapVal,
-                speakerColors: pipe(
-                    List.repeat((v) => v, 10),
-                    List.map((v) => Color.importColor(0.9, colorGen(v)))
-                ),
-                speakerColorsAttachments: {},
+                speakers: [],
                 spkOverlapMode: (conf.speechOverlapAttr || [])[1]
                     ? 'full'
                     : 'simple',
