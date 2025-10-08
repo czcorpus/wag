@@ -154,8 +154,8 @@ export function init(
                             height={height}
                         >
                             <CartesianGrid
-                                stroke="#eee"
                                 strokeDasharray="5 5"
+                                stroke={theme.chartGridColor}
                             />
                             <XAxis
                                 dataKey="flevel"

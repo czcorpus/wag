@@ -180,6 +180,8 @@ export class Theme {
 
     public readonly chartTextColor: string;
 
+    public readonly chartGridColor: string;
+
     constructor(conf?: ColorTheme) {
         const confSrc =
             conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
@@ -279,6 +281,7 @@ export class Theme {
               );
 
         this.chartTextColor = confSrc.chartTextColor || this.colorDefaultText;
+        this.chartGridColor = confSrc.chartGridColor || '#d9d9d9';
     }
 
     categoryPalette = (

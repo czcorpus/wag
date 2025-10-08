@@ -121,6 +121,7 @@ export interface ColorTheme extends ColorThemeIdent {
     geoAreaSpotTextColor?: string;
 
     chartTextColor?: string;
+    chartGridColor?: string;
 }
 
 export interface ColorsConf {

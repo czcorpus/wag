@@ -23,7 +23,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
 import { Speech, SpeechesModelState, SpeechLine, Segment } from './common.js';
 import { Actions } from './actions.js';
-import { List, pipe, Color } from 'cnc-tskit';
+import { List, pipe, Color, Dict } from 'cnc-tskit';
 
 import * as S from './style.js';
 import { SpeechToken } from './api.js';
@@ -80,14 +80,18 @@ export function init(
         speech: Speech;
         isPlaying: boolean;
         playbackEnabled: boolean;
+        color: string;
     }> = (props) => {
         const style = {
-            backgroundColor: Color.color2str(props.speech.colorCode),
-            color: pipe(
-                props.speech.colorCode,
-                Color.textColorFromBg(),
-                Color.color2str()
-            ),
+            backgroundColor: props.color,
+            color: props.color
+                ? pipe(
+                      props.color,
+                      Color.importColor(0.9),
+                      Color.textColorFromBg(),
+                      Color.color2str()
+                  )
+                : theme.colorDefaultText,
         };
         return (
             <>
@@ -115,9 +119,7 @@ export function init(
                         <SpeechText
                             data={props.speech.text}
                             key={props.idx}
-                            bulletColor={Color.color2str(
-                                props.speech.colorCode
-                            )}
+                            bulletColor={props.color}
                             isIncomplete={!props.speech.speakerId}
                         />
                     </div>
@@ -134,6 +136,7 @@ export function init(
         speeches: Array<Speech>;
         isPlaying: boolean;
         playbackEnabled: boolean;
+        colors: { [key: string]: string };
     }> = (props) => {
         const renderOverlappingSpeakersLabel = () => {
             return pipe(
@@ -149,10 +152,15 @@ export function init(
                         );
                     }
                     const css = {
-                        backgroundColor: Color.color2str(speech.colorCode),
-                        color: Color.color2str(
-                            Color.textColorFromBg(speech.colorCode)
-                        ),
+                        backgroundColor: props.colors[speech.speakerId],
+                        color: props.colors[speech.speakerId]
+                            ? pipe(
+                                  props.colors[speech.speakerId],
+                                  Color.importColor(0.9),
+                                  Color.textColorFromBg(),
+                                  Color.color2str()
+                              )
+                            : theme.colorDefaultText,
                     };
                     acc.push(
                         <strong
@@ -191,7 +199,7 @@ export function init(
                             <SpeechText
                                 data={speech.text}
                                 key={`${props.idx}:${i}`}
-                                bulletColor={Color.color2str(speech.colorCode)}
+                                bulletColor={props.colors[speech.speakerId]}
                                 isIncomplete={!speech.speakerId}
                             />
                         ))}
@@ -276,11 +284,17 @@ export function init(
         tileId: number;
         isTweakMode: boolean;
         data: Array<SpeechLine>;
+        speakers: Array<string>;
         hasExpandLeft: boolean;
         hasExpandRight: boolean;
         playingLineIdx: number;
         playbackEnabled: boolean;
     }> = (props) => {
+        const speakerColors = pipe(
+            props.speakers,
+            List.map((sp, i) => [sp, theme.scaleColorIndexed()(i)]),
+            Dict.fromEntries()
+        );
         const renderSpeechLines = () => {
             return (props.data || []).map((item, i) => {
                 if (item.length === 1) {
@@ -292,6 +306,7 @@ export function init(
                             speech={item[0]}
                             idx={i}
                             isPlaying={props.playingLineIdx === i}
+                            color={speakerColors[item[0].speakerId]}
                         />
                     );
                 } else if (item.length > 1) {
@@ -303,6 +318,7 @@ export function init(
                             playbackEnabled={props.playbackEnabled}
                             idx={i}
                             isPlaying={props.playingLineIdx === i}
+                            colors={speakerColors}
                         />
                     );
                 } else {
@@ -358,6 +374,7 @@ export function init(
                 <S.SpeechesTile>
                     <SpeechView
                         data={props.data}
+                        speakers={props.speakers}
                         hasExpandLeft={
                             props.leftRange < props.maxSingleSideRange
                         }

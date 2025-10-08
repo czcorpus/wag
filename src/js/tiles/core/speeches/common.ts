@@ -38,7 +38,6 @@ export interface Speech {
     text: Array<SpeechToken>;
     speakerId: string;
     segments: Array<Segment>;
-    colorCode: Color.RGBA;
     isOverlap: boolean;
     metadata: { [k: string]: string };
 }
@@ -69,8 +68,7 @@ export interface SpeechesModelState {
     speechSegment: [string, string];
     speechOverlapAttr: [string, string];
     speechOverlapVal: string;
-    speakerColors: Array<Color.RGBA>;
-    speakerColorsAttachments: { [k: string]: Color.RGBA };
+    speakers: Array<string>;
     spkOverlapMode: 'full' | 'simple';
     backlink: Backlink;
     maxNumSpeeches: number;
@@ -159,7 +157,6 @@ export function extractSpeeches(
             text: [],
             speakerId: '',
             segments: [],
-            colorCode: undefined,
             isOverlap: false,
             metadata: {},
         },
@@ -167,21 +164,13 @@ export function extractSpeeches(
     );
     let prevSpeech: Speech = null;
     const tmp: Array<Speech> = [];
-
     text.forEach((item) => {
         if (item.type === 'markup') {
             const attrs = item.attrs;
             if (!!attrs && attrs[state.speakerIdAttr[1]]) {
                 tmp.push(currSpeech);
                 const newSpeakerId = attrs[state.speakerIdAttr[1]];
-                if (
-                    !Dict.hasKey(newSpeakerId, state.speakerColorsAttachments)
-                ) {
-                    state.speakerColorsAttachments[newSpeakerId] =
-                        state.speakerColors[
-                            Dict.size(state.speakerColorsAttachments)
-                        ];
-                }
+                state.speakers = List.addUnique(newSpeakerId, state.speakers);
                 prevSpeech = currSpeech;
                 currSpeech = createNewSpeech(
                     state,
@@ -189,7 +178,6 @@ export function extractSpeeches(
                         text: [],
                         speakerId: newSpeakerId,
                         segments: [],
-                        colorCode: state.speakerColorsAttachments[newSpeakerId],
                         isOverlap:
                             item.attrs[state.speechOverlapAttr[1]] ===
                             state.speechOverlapVal,
@@ -217,7 +205,6 @@ export function extractSpeeches(
         (v, i) =>
             List.map(
                 (sp) => ({
-                    colorCode: sp.colorCode,
                     metadata: sp.metadata,
                     segments: List.map(
                         (seg) => ({ value: seg.value, lineIdx: i }),
