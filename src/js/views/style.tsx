@@ -141,7 +141,7 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
         margin-right: 0.3em;
         margin-left: 0;
         font-size: 1.5em;
-        color: rgba(0, 0, 0, 0.2);
+        color: ${(props) => props.theme.colorLightText};
     }
 
     .QueryInput {
@@ -359,38 +359,6 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
             border-width: 0 0 2px 0;
         }
 
-        ${(props) => props.theme.cssMediaMediumSize} {
-            margin-bottom: 0.7em;
-
-            span.item {
-                display: block;
-                margin-left: 0;
-                padding-top: 0.1em;
-                padding-bottom: 0.1em;
-
-                a:not(:first-child) {
-                    margin: 0;
-                }
-            }
-
-            .item.current {
-                border: none;
-                color: ${(props) => props.theme.colorLogoBlue};
-            }
-
-            .item.current a:after {
-                content: '\\00a0\\25AA';
-            }
-
-            .item.current a:before {
-                content: '\\25AA\\00a0';
-            }
-
-            span.separ {
-                display: none;
-            }
-        }
-
         ${(props) => props.theme.cssMediaSmallSize} {
             margin-top: 0.2em;
         }
@@ -450,10 +418,6 @@ export const TilesSections = styled.section<{ theme: Theme }>`
         left: calc(100% - 100px);
     }
 
-    ${(props) => props.theme.cssMediaMediumSize} {
-        padding: 0;
-    }
-
     ${(props) => props.theme.cssMediaSmallSize} {
         padding: 0;
     }
@@ -474,16 +438,6 @@ export const Group = styled.section<{ theme: Theme }>`
 
     ${TilesSections} > &:not(:first-child) {
         margin-top: 1.7em;
-    }
-
-    ${(props) => props.theme.cssMediaMediumSize} {
-        & > header {
-            display: block;
-
-            .description {
-                margin-top: 0.7em;
-            }
-        }
     }
 
     ${(props) => props.theme.cssMediaSmallSize} {
@@ -619,31 +573,6 @@ export const Tiles = styled.section<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaMediumSize} {
-        display: grid;
-        grid-gap: 1em;
-        grid-template-columns: 1fr;
-        color: #444;
-
-        .app-output.span1 {
-            grid-column: auto;
-        }
-
-        .app-output.span2 {
-            grid-column: auto;
-        }
-
-        .app-output.span3 {
-            grid-column: auto;
-        }
-
-        .app-output .panel {
-            .window-buttons span.bar-button button img {
-                width: 1.7em;
-            }
-        }
-    }
-
     ${(props) => props.theme.cssMediaSmallSize} {
         .app-output .panel h2 {
             font-size: 1.1em;
@@ -739,32 +668,6 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
                 border-width: 0 0 0 1px;
                 padding-left: 0.3em;
                 font-size: 1.1em;
-            }
-        }
-    }
-
-    ${(props) => props.theme.cssMediaMediumSize} {
-        white-space: normal;
-
-        & > * {
-            vertical-align: middle;
-        }
-
-        h2 {
-            display: block;
-
-            .flex {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-
-                a:hover {
-                    color: #ffffff;
-                }
-
-                .help {
-                    margin-left: auto;
-                }
             }
         }
     }

@@ -514,34 +514,6 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         color: rgba(0,0,0, .5);
     }
 
-
-    ${confTheme.cssMediaMediumSize} {
-
-        body {
-            > header.wdg-header {
-
-                text-align: center;
-                margin-top: 0.4em;
-                margin-bottom: 0.6em;
-
-                a {
-                    display: inline-block;
-                    margin: 0;
-                    text-decoration: none;
-
-                    img {
-                        width: 18em;
-                    }
-                }
-            }
-        }
-
-        .tile-body.text,
-        .cnc-tile-body.text {
-            max-width: 50em;
-        }
-    }
-
     ${confTheme.cssMediaSmallSize} {
 
         body > header.wdg-header a img {

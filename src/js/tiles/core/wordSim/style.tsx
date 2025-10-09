@@ -42,13 +42,6 @@ export const Boxes = styled.div<{ $isMobile: boolean; theme: Theme }>`
     & > div:not(:last-child) {
         margin-right: 0.7em;
     }
-
-    ${(props) => props.theme.cssMediaMediumSize} {
-        & > .chart {
-            min-width: initial;
-            width: 100%;
-        }
-    }
 `;
 
 export const SimCloud = styled.div<{ theme: Theme }>`

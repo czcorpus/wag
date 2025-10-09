@@ -39,6 +39,7 @@ const fallbackTheme: ColorTheme = {
     colorLightText: '#888888',
     colorSuperlightGrey: '#efefef',
     colorDefaultText: '#010101',
+    oddDataLineBackgroundColor: '#eff9fe',
 
     tileBorderStyle: 'solid 1px #dadada',
     tileBorderRadius: '0.25em',
@@ -131,7 +132,7 @@ export class Theme {
 
     public readonly colorInvertedSecondaryText: string;
 
-    public readonly cssMediaMediumSize: string;
+    public readonly oddDataLineBackgroundColor: string;
 
     public readonly cssMediaSmallSize: string;
 
@@ -223,8 +224,10 @@ export class Theme {
             confSrc.colorInvertedSecondaryText ||
             fallbackTheme.colorInvertedSecondaryText;
 
-        this.cssMediaMediumSize =
-            confSrc.cssMediaMediumScreen || fallbackTheme.cssMediaMediumScreen;
+        this.oddDataLineBackgroundColor =
+            confSrc.oddDataLineBackgroundColor ||
+            fallbackTheme.oddDataLineBackgroundColor;
+
         this.cssMediaSmallSize =
             confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
         this.svgIconsFilter = confSrc.svgIconsFilter;
