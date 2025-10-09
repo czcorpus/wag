@@ -102,6 +102,7 @@ export interface ColorTheme extends ColorThemeIdent {
     colorSuperlightGrey?: string;
     svgIconsFilter?: string;
     svgLogoFilter?: string;
+    oddDataLineBackgroundColor?: string;
 
     tileBorderStyle?: string;
     tileBorderRadius?: string;

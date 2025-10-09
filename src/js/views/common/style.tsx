@@ -230,53 +230,6 @@ export const ModalOverlay = styled.div<{ theme: Theme }>`
         font-size: 1rem;
     }
 
-    ${(props) => props.theme.cssMediaMediumSize} {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .box {
-            position: relative;
-            transform: none;
-            top: 0;
-            left: 0;
-            max-height: 100%;
-
-            header button.close img {
-                width: 1.7em;
-            }
-
-            .content {
-                height: 40em;
-                display: flex;
-                flex-direction: column;
-                overflow: auto;
-
-                .raw-html {
-                    height: 100%;
-                }
-            }
-
-            footer {
-                position: absolute;
-                z-index: 10001;
-                overflow: hidden;
-                margin-top: -3em;
-                width: 100%;
-                height: 3em;
-
-                .fcontent {
-                    height: 100%;
-                    background: linear-gradient(transparent 0%, white);
-                }
-
-                .fcontent:after {
-                    content: ' ';
-                }
-            }
-        }
-    }
-
     ${(props) => props.theme.cssMediaSmallSize} {
         background-color: hsla(0, 0%, 8%, 0.7);
 

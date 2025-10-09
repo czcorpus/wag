@@ -32,11 +32,6 @@ export const Boxes = styled.div<{ $isMobile: boolean; theme: Theme }>`
 
     & > .chart {
         min-width: 50%;
-
-        ${(props) => props.theme.cssMediaMediumSize} {
-            min-width: initial;
-            width: 100%;
-        }
     }
 
     & > div:not(:last-child) {

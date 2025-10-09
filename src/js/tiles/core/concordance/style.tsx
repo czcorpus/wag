@@ -21,6 +21,8 @@
 import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
 
+// ------------- <ConcordanceTileView /> ------------------
+
 export const ConcordanceTileView = styled.div`
     overflow: hidden;
 `;
@@ -110,14 +112,18 @@ export const LineMetadata = styled.div<{ theme: Theme }>`
 export const ConcLines = styled.div<{ theme: Theme }>`
     font-family: ${(props) => props.theme.condensedFontFamily};
     display: flex;
-    justify-content: center;
     border-spacing: 0;
     border-collapse: collapse;
+    overflow-x: auto;
+
+    table {
+        border-collapse: collapse;
+    }
 
     tr {
         td a.info-click {
             cursor: pointer;
-            display: inline-block;
+            display: flex;
             margin-right: 0.7em;
             vertical-align: middle;
 
@@ -177,12 +183,29 @@ export const ConcLines = styled.div<{ theme: Theme }>`
     }
 `;
 
+// ----------- <Row /> ---------------------------------
+
 export const Row = styled.tr<{ theme: Theme }>`
     white-space: nowrap;
+
+    &.odd {
+        background-color: ${(props) => props.theme.oddDataLineBackgroundColor};
+
+        td.meta.sticky {
+            background-color: ${(props) =>
+                props.theme.oddDataLineBackgroundColor};
+        }
+    }
 
     td {
         padding-top: 0.3em;
         padding-bottom: 0.3em;
+    }
+
+    td.meta.sticky {
+        position: sticky;
+        left: 0;
+        background-color: ${(props) => props.theme.tileBackgroundColor};
     }
 
     td.left {
@@ -214,11 +237,23 @@ export const SentRow = styled.tr<{ theme: Theme }>`
         background-color: ${(props) => props.theme.colorDataHighlightRow};
     }
 
+    &.odd {
+        background-color: ${(props) => props.theme.oddDataLineBackgroundColor};
+    }
+
     white-space: inherit;
 
     td {
-        padding-top: 0.2em;
-        padding-bottom: 0.2em;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+    }
+
+    td.meta {
+        padding-left: 0.4em;
+
+        a {
+            display: block;
+        }
     }
 
     td .coll {

@@ -241,6 +241,7 @@ export function init(
     // ------------------ <SentRow /> --------------------------------------------
 
     const SentRow: React.FC<{
+        idx: number;
         data: Line;
         isParallel: boolean;
         isFirstOfLinePair: boolean;
@@ -251,8 +252,8 @@ export function init(
         if (props.data.highlighted) {
             classes.push('highlighted');
         }
-        if (!props.isFirstOfLinePair) {
-            classes.push('separator');
+        if (props.idx % 2 == 1) {
+            classes.push('odd');
         }
         return (
             <S.SentRow className={classes.join(' ')}>
@@ -306,82 +307,85 @@ export function init(
     // ------------------ <KWICRow /> --------------------------------------------
 
     const KWICRow: React.FC<{
+        idx: number;
         data: Line;
         isParallel: boolean;
         hasVisibleMetadata: boolean;
         handleLineClick: (e: React.MouseEvent) => void;
     }> = (props) => {
+        const rowClass = [];
+        if (props.data.highlighted) {
+            rowClass.push('highlighted');
+        }
+        if (props.idx % 2 == 1) {
+            rowClass.push('odd');
+        }
+
         return (
-            <>
-                <S.Row
-                    className={props.data.highlighted ? 'highlighted' : null}
-                >
-                    <td>
-                        {props.hasVisibleMetadata ? (
-                            <LineMetadata data={props.data.props} />
-                        ) : null}
+            <S.Row className={rowClass.join(' ')}>
+                {!!props.data.props && !Dict.empty(props.data.props) ? (
+                    <td className="meta sticky">
+                        <a
+                            className="info-click"
+                            onClick={props.handleLineClick}
+                        >
+                            <img
+                                className="filtered"
+                                src={ut.createStaticUrl('info-icon.svg')}
+                                alt={ut.translate('global__img_alt_info_icon')}
+                            />
+                        </a>
                     </td>
-                    {!!props.data.props && !Dict.empty(props.data.props) ? (
-                        <td className="meta">
-                            <a
-                                className="info-click"
-                                onClick={props.handleLineClick}
-                            >
-                                <img
-                                    className="filtered"
-                                    src={ut.createStaticUrl('info-icon.svg')}
-                                    alt={ut.translate(
-                                        'global__img_alt_info_icon'
-                                    )}
-                                />
-                            </a>
-                        </td>
+                ) : null}
+                <td>
+                    {props.hasVisibleMetadata ? (
+                        <LineMetadata data={props.data.props} />
                     ) : null}
-                    <td className="left">
-                        {List.map(
-                            (s, i) => (
-                                <React.Fragment key={`${props.data.ref}:L${i}`}>
-                                    {i > 0 ? <span> </span> : null}
-                                    <RowItem
-                                        data={s}
-                                        isKwic={false}
-                                        isColl={s.matchType === 'coll'}
-                                    />
-                                </React.Fragment>
-                            ),
-                            getLineLeftCtx(props.data)
-                        )}
-                    </td>
-                    <td className="kwic">
-                        {List.map(
-                            (s, i) => (
+                </td>
+                <td className="left">
+                    {List.map(
+                        (s, i) => (
+                            <React.Fragment key={`${props.data.ref}:L${i}`}>
+                                {i > 0 ? <span> </span> : null}
                                 <RowItem
-                                    key={`${props.data.ref}:K${i}`}
                                     data={s}
-                                    isKwic={true}
-                                    isColl={false}
+                                    isKwic={false}
+                                    isColl={s.matchType === 'coll'}
                                 />
-                            ),
-                            getKwicCtx(props.data)
-                        )}
-                    </td>
-                    <td className="right">
-                        {List.map(
-                            (s, i) => (
-                                <React.Fragment key={`${props.data.ref}:R${i}`}>
-                                    {i > 0 ? <span> </span> : null}
-                                    <RowItem
-                                        data={s}
-                                        isKwic={false}
-                                        isColl={s.matchType === 'coll'}
-                                    />
-                                </React.Fragment>
-                            ),
-                            getLineRightCtx(props.data)
-                        )}
-                    </td>
-                </S.Row>
-            </>
+                            </React.Fragment>
+                        ),
+                        getLineLeftCtx(props.data)
+                    )}
+                </td>
+                <td className="kwic">
+                    {List.map(
+                        (s, i) => (
+                            <RowItem
+                                key={`${props.data.ref}:K${i}`}
+                                data={s}
+                                isKwic={true}
+                                isColl={false}
+                            />
+                        ),
+                        getKwicCtx(props.data)
+                    )}
+                </td>
+                <td className="right">
+                    {List.map(
+                        (s, i) => (
+                            <React.Fragment key={`${props.data.ref}:R${i}`}>
+                                {i > 0 ? <span> </span> : null}
+                                <RowItem
+                                    data={s}
+                                    isKwic={false}
+                                    isColl={s.matchType === 'coll'}
+                                />
+                            </React.Fragment>
+                        ),
+                        getLineRightCtx(props.data)
+                    )}
+                </td>
+            </S.Row>
         );
     };
 
@@ -389,6 +393,17 @@ export function init(
 
     const ConcordanceTileView: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
+
+        const scrollContainerRef = React.useRef(null);
+
+        React.useEffect(() => {
+            if (scrollContainerRef.current) {
+                setTimeout(() => {
+                    const box = scrollContainerRef.current;
+                    box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2;
+                }, 0);
+            }
+        }, [state.concordances]);
 
         const handleQueryVariantClick = () => {
             dispatcher.dispatch<typeof GlobalActions.EnableTileTweakMode>({
@@ -493,13 +508,14 @@ export function init(
                             ) : null}
                         </S.Summary>
                     )}
-                    <S.ConcLines>
+                    <S.ConcLines ref={scrollContainerRef}>
                         <table className={tableClasses.join(' ')}>
                             <tbody>
                                 {List.map(
                                     (line, i) =>
                                         state.viewMode === ViewMode.KWIC ? (
                                             <KWICRow
+                                                idx={i}
                                                 key={`${i}:${line.ref}`}
                                                 data={line}
                                                 isParallel={
@@ -518,6 +534,7 @@ export function init(
                                                 key={`${i}:${line.ref}`}
                                             >
                                                 <SentRow
+                                                    idx={i}
                                                     data={line}
                                                     isFirstOfLinePair={
                                                         !!state.otherCorpname
@@ -533,6 +550,7 @@ export function init(
                                                 />
                                                 {!!state.otherCorpname ? (
                                                     <SentRow
+                                                        idx={i}
                                                         data={line}
                                                         isFirstOfLinePair={
                                                             false

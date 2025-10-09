@@ -10,6 +10,7 @@
             "colorSecondaryText": "#444444",
             "colorInvertText": "#efefef",
             "colorInvertedSecondaryText": "#565656",
+            "oddDataLineBackgroundColor": "#eff9fe",
             "lineChartColor1": "#009ee0",
             "lineConfidenceAreaColor1": "#ddedf3",
             "lineChartColor2": "#E2007A",
@@ -58,12 +59,14 @@
             "colorLogoBlue": "#ce744a",
             "colorDefaultText": "#ddddee",
             "colorInvertedSecondaryText": "#333333",
+            "oddDataLineBackgroundColor": "#2d2d39",
             "textInputBackgroundColor": "#333355",
             "colorWhitelikeBlue": "#31313f",
             "pageBackgroundColor": "#333355",
             "tileBackgroundColor": "#24242e",
             "tileHeadingSeparColor": "#56568f",
             "svgIconsFilter": "filter: hue-rotate(-172deg) brightness(103%) contrast(101%)",
+            "chartGridColor": "#4a4a5e",
             "svgLogoFilter": "",
 
 
