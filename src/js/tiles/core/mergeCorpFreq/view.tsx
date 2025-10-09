@@ -33,7 +33,7 @@ import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
 import { QueryMatch } from '../../../query/index.js';
-import { List, pipe, Strings } from 'cnc-tskit';
+import { Color, List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions.js';
 
 import * as S from './style.js';
@@ -212,10 +212,12 @@ export function init(
                       )
                 : (idx: number) =>
                       transformedData[idx].uniqueColor
-                          ? theme.cmpCategoryColorHighlighted(
-                                idx + 1,
-                                List.size(transformedData) + 1
-                            )
+                          ? pipe(
+                                theme.cmpCategoryColor(idx, List.size(transformedData) + 1),
+                                Color.importColor(1),
+                                Color.luminosity(1.2),
+                                Color.color2str()
+                          )
                           : theme.categoryColorHighlighted(0);
 
         const [hoveredIndex, setHoveredIndex] = React.useState(null);
@@ -313,7 +315,7 @@ export function init(
                             : colorFn(queryIdx);
                         const hgltFill = props.isPartial
                             ? theme.unfinishedChartColor
-                            : colorHgltFn(queryIdx);
+                            : colorHgltFn(queryIdx)
                         return (
                             <Bar
                                 key={queryIdx}
