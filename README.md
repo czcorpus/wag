@@ -12,7 +12,7 @@ WaG integrates with the following backend services:
 * **[Frodo](https://github.com/czcorpus/frodo)** - Corpus-driven dictionaries
 * **[WSServer](https://github.com/czcorpus/wsserver)** - Syntax-based collocations and word similarities
 
-WaG operates in conjunction with APIGuard, our specialized proxy and virtual API endpoint provider server.
+WaG operates in conjunction with [APIGuard](https://github.com/czcorpus/apiguard), our specialized HTTP API proxy and virtual API endpoint provider.
 
 ## Features
 
