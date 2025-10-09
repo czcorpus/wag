@@ -139,9 +139,11 @@ export class CNCWSServerApi
                 contentType: 'application/json',
             })
             .pipe(
-                map((resp) => ({
-                    words: resp,
-                }))
+                map(
+                    resp => ({
+                        words: resp ? resp : [],
+                    })
+                )
             );
     }
 }

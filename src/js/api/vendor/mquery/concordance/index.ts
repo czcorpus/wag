@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { EMPTY, map, Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { QueryMatch } from '../../../../query/index.js';
 import { DataApi } from '../../../../types.js';
@@ -106,6 +106,7 @@ export class MQueryConcApi
         queryIdx: number,
         args: ConcApiArgs | null
     ): Observable<[ConcResponse, number]> {
+
         return streaming
             .registerTileRequest<ConcResponse>({
                 tileId,
@@ -118,12 +119,28 @@ export class MQueryConcApi
                 body: {},
                 contentType: 'application/json',
             })
-            .pipe(map((resp) => tuple(resp, queryIdx)));
+            .pipe(
+                map<ConcResponse, ConcResponse>(
+                    resp => resp ?
+                        resp :
+                        {
+                            concSize: 0,
+                            ipm: 0,
+                            lines: [],
+                            corpname: args ? args.corpusName : undefined,
+                            alignedCorpname: undefined,
+                            resultType:'concordance'
+                        }
+                ),
+                map(
+                    (resp) => tuple(resp, queryIdx)
+                )
+            );
     }
 
     requestBacklink(args: ConcApiArgs): URL {
         const url = new URL(urlJoin(this.backlinkConf.url, 'create_view'));
-        url.searchParams.set('corpname', args.corpusName);
+        url.searchParams.set('corpname', args ? args.corpusName : undefined);
         url.searchParams.set('q', `q${args.q}`);
         return url;
     }
