@@ -150,7 +150,14 @@ export function init(
                         :
                     </dt>
                     <dd>
-                        <strong>{props.data.lemma}</strong>
+                        <strong>
+                            {List.map(
+                                (lm, i) => i > 0 ?
+                                    <span><br />{lm}</span> :
+                                    <span>{lm}</span>,
+                                props.data.lemma.split('|')
+                            )}
+                        </strong>
                     </dd>
                     <dt>{ut.translate('wordfreq__pos')}:</dt>
                     <dd>
