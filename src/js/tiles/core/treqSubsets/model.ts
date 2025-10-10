@@ -18,14 +18,13 @@
 
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { mkInterctionId, RequestArgs } from '../translations/api.js';
+import { RequestArgs } from '../translations/api.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
-import { isTranslationsPayload } from '../translations/actions.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { filterByMinFreq, TreqSubsetsAPI, WordEntry } from './api.js';
 
@@ -33,7 +32,6 @@ export interface MultiSrcTranslationRow {
     idx: number;
     heading: string;
     cells: Array<MultiSrcTranslationCell>;
-    color: string;
 }
 
 export interface MultiSrcTranslationCell {
@@ -90,7 +88,6 @@ export const flipRowColMapper = <T>(
                     ? fitem.firstTranslatLc
                     : fitem.translations[0].word,
             cells: [...row],
-            color: subsets[0].translations[i].color,
         });
     }
     return pipe(
@@ -120,7 +117,6 @@ export interface TranslationsSubsetsModelState {
     subsets: Array<TranslationSubset>;
     highlightedRowIdx: number;
     maxNumLines: number;
-    colorMap: { [k: string]: string };
     backlinks: Array<Backlink>;
     backlinkConf: BacklinkConf;
 }
@@ -132,19 +128,14 @@ export interface TreqSubsetModelArgs {
     tileId: number;
     api: TreqSubsetsAPI;
     queryMatches: RecognizedQueries;
-    getColorsFromTile: number;
 }
 
 export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelState> {
-    public static readonly UNMATCHING_ITEM_COLOR = '#878787';
-
     private readonly tileId: number;
 
     private readonly api: TreqSubsetsAPI;
 
     private readonly queryMatches: RecognizedQueries;
-
-    private readonly getColorsFromTile: number;
 
     private readonly appServices: IAppServices;
 
@@ -155,13 +146,11 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
         tileId,
         api,
         queryMatches,
-        getColorsFromTile,
     }: TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
         this.queryMatches = queryMatches;
-        this.getColorsFromTile = getColorsFromTile;
         this.appServices = appServices;
 
         this.addActionHandler(
@@ -231,54 +220,24 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler(Actions.TileDataLoaded, (state, action) => {
-            if (action.payload.tileId === this.tileId) {
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            (action) => this.tileId === action.payload.tileId,
+            (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
                     state.error = this.appServices.normalizeHttpApiError(
                         action.error
                     );
                 }
-            } else if (action.payload.tileId === this.getColorsFromTile) {
-                const payload = action.payload;
-                if (isTranslationsPayload(payload)) {
-                    state.colorMap = pipe(
-                        payload.subqueries,
-                        List.map((sq) => tuple(sq.value.value, sq.color)),
-                        Dict.fromEntries()
-                    );
-                } else {
-                    state.colorMap = {};
-                }
-                state.subsets = pipe(
-                    state.subsets,
-                    List.map((subset) => ({
-                        ident: subset.ident,
-                        label: subset.label,
-                        packages: subset.packages,
-                        translations: List.map(
-                            (tran) => ({
-                                freq: tran.freq,
-                                score: tran.score,
-                                word: tran.word,
-                                translations: tran.translations,
-                                firstTranslatLc: tran.firstTranslatLc,
-                                interactionId: tran.interactionId,
-                                color:
-                                    state.colorMap[tran.firstTranslatLc] ||
-                                    TreqSubsetModel.UNMATCHING_ITEM_COLOR,
-                            }),
-                            subset.translations
-                        ),
-                    }))
-                );
             }
-        });
+        );
 
         this.addActionSubtypeHandler(
             Actions.PartialTileDataLoaded,
             (action) => this.tileId === action.payload.tileId,
             (state, action) => {
+                console.log(JSON.stringify(state.subsets));
                 Dict.forEach((translations, subsetId) => {
                     const srchIdx = List.findIndex(
                         (v) => v.ident === subsetId,
@@ -296,10 +255,6 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                 word: tran.word,
                                 translations: tran.translations,
                                 firstTranslatLc: tran.firstTranslatLc,
-                                interactionId: tran.interactionId,
-                                color:
-                                    state.colorMap[tran.firstTranslatLc] ||
-                                    TreqSubsetModel.UNMATCHING_ITEM_COLOR,
                             }),
                             translations
                         ),
@@ -323,30 +278,6 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             (action) => this.tileId === action.payload.ident,
             (state, action) => {
                 state.isAltViewMode = false;
-            }
-        );
-
-        this.addActionHandler(
-            GlobalActions.SubqItemHighlighted,
-            (state, action) => {
-                const srchIdx = state.subsets[0].translations.findIndex(
-                    (v) => v.interactionId === action.payload.interactionId
-                );
-                if (srchIdx > -1) {
-                    state.highlightedRowIdx = srchIdx;
-                }
-            }
-        );
-
-        this.addActionHandler(
-            GlobalActions.SubqItemDehighlighted,
-            (state, action) => {
-                const srchIdx = state.subsets[0].translations.findIndex(
-                    (v) => v.interactionId === action.payload.interactionId
-                );
-                if (srchIdx > -1) {
-                    state.highlightedRowIdx = -1;
-                }
             }
         );
 
@@ -481,12 +412,6 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                             word: srch.word,
                             translations: srch.translations,
                             firstTranslatLc: srch.firstTranslatLc,
-                            interactionId: srch.interactionId,
-                            color: Dict.get(
-                                srch.firstTranslatLc,
-                                TreqSubsetModel.UNMATCHING_ITEM_COLOR,
-                                state.colorMap
-                            ),
                         };
                     }
                     return {
@@ -495,12 +420,6 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                         word: '',
                         translations: [{ word: w }],
                         firstTranslatLc: w.toLowerCase(),
-                        color: Dict.get(
-                            w.toLowerCase(),
-                            TreqSubsetModel.UNMATCHING_ITEM_COLOR,
-                            state.colorMap
-                        ),
-                        interactionId: mkInterctionId(w.toLowerCase()),
                     };
                 }, allWords),
             }))

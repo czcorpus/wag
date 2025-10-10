@@ -76,15 +76,10 @@ export interface HTTPResponse {
     toCorp?: string;
 }
 
-export const mkInterctionId = (word: string): string => {
-    return `treqInteractionKey:${word}`;
-};
-
 export interface Translation {
     word: string;
     examples?: {
         text: Array<Line>;
-        interactionId: string;
         ref: string;
         props: { [name: string]: string };
     };
@@ -96,7 +91,6 @@ export interface WordTranslation {
     word: string;
     firstTranslatLc: string;
     translations: Array<Translation>;
-    interactionId: string;
     color?: string;
 }
 
@@ -224,7 +218,6 @@ export class TreqAPICommon {
                         word: curr.word,
                         translations: curr.translations,
                         firstTranslatLc: curr.firstTranslatLc,
-                        interactionId: mkInterctionId(curr.firstTranslatLc),
                     };
                 } else {
                     acc[curr.firstTranslatLc].freq += curr.freq;
@@ -322,7 +315,6 @@ export class TreqAPI extends TreqAPICommon {
                                             error: v.to.error,
                                         },
                                     ],
-                                    interactionId: '',
                                 })),
                                 (x) => x.slice(0, 10)
                             )

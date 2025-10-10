@@ -28,7 +28,6 @@ export interface DataLoadedPayload extends SubqueryPayload {
             value: string;
             context: [number, number];
         };
-        interactionId: string;
         color: string;
     }>;
 }
