@@ -49,8 +49,6 @@ export interface WordEntry {
     word: string;
     firstTranslatLc: string;
     translations: Array<Translation>;
-    interactionId: string;
-    color?: string;
 }
 
 export interface TranslationResponse {
@@ -108,7 +106,6 @@ export class TreqSubsetsAPI extends TreqAPICommon {
                                                 word: v.to,
                                             },
                                         ],
-                                        interactionId: '',
                                     }),
                                     values.lines
                                 )
