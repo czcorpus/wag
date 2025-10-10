@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import { CorpusDetails, ResourceApi } from '../../../../types.js';
 import { ajax$ } from '../../../../page/ajax.js';
@@ -54,33 +54,40 @@ export class MQueryWordFormsAPI
         queryIdx: number,
         args: RequestArgs
     ): Observable<Response> {
-        const url = urlJoin(this.apiURL, '/word-forms/', args.corpName);
+        const url = args.lemma ?
+            urlJoin(this.apiURL, '/word-forms/', args.corpName) + `?${this.prepareArgs(args)}` :
+            null;
         return streaming
             .registerTileRequest<Array<LemmaItem>>({
                 tileId,
                 method: HTTP.Method.GET,
-                url: url + `?${this.prepareArgs(args)}`,
+                url,
                 body: {},
                 contentType: 'application/json',
             })
             .pipe(
-                map((resp) => {
-                    const total = resp[0].forms.reduce(
-                        (acc, curr) => curr.freq + acc,
-                        0
-                    );
-                    return {
-                        forms: List.map(
-                            (item) => ({
-                                value: item.word,
-                                freq: item.freq,
-                                ratio: item.freq / total,
-                                interactionId: Ident.puid(),
-                            }),
-                            resp[0].forms
-                        ),
-                    };
-                })
+                map(
+                    resp => {
+                        if (!resp) {
+                            return { forms: [] }
+                        }
+                        const total = resp[0].forms.reduce(
+                            (acc, curr) => curr.freq + acc,
+                            0
+                        );
+                        return {
+                            forms: List.map(
+                                (item) => ({
+                                    value: item.word,
+                                    freq: item.freq,
+                                    ratio: item.freq / total,
+                                    interactionId: Ident.puid(),
+                                }),
+                                resp[0].forms
+                            ),
+                        };
+                    }
+                )
             );
     }
 
