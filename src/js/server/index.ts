@@ -36,6 +36,7 @@ import {
     DataReadabilityMapping,
     AllQueryTypesTileConf,
     LayoutsConfig,
+    InstanceLink,
 } from '../conf/index.js';
 import { validateTilesConf } from '../conf/validation.js';
 import {
@@ -67,6 +68,16 @@ function loadTilesConf(
         }
     } else {
         return rxOf(clientConf.tiles);
+    }
+}
+
+function loadInstanceSwitchMenuConf(
+    clientConf: ClientStaticConf
+): Observable<Array<InstanceLink>> {
+    if (typeof clientConf.instanceSwitchMenu === 'string') {
+        return parseJsonConfig(clientConf.instanceSwitchMenu);
+    } else {
+        return rxOf(clientConf.instanceSwitchMenu);
     }
 }
 
@@ -127,20 +138,29 @@ forkJoin([
                     loadTilesConf(clientConf),
                     loadColorsConf(clientConf),
                     loadDataReadabilityConf(clientConf),
+                    loadInstanceSwitchMenuConf(clientConf),
                 ]).pipe(
-                    map(([tiles, colors, dataReadability]) => {
-                        clientConf.tiles = pipe(
+                    map(
+                        ([
                             tiles,
-                            Dict.filter((tile) => !tile.isDisabled),
-                            (curr) => ({
-                                ...curr,
-                                ...generatePreviewTileConf(),
-                            })
-                        );
-                        clientConf.colors = colors;
-                        clientConf.dataReadability = dataReadability;
-                        return tuple(serverConf, clientConf, pkgInfo);
-                    }),
+                            colors,
+                            dataReadability,
+                            instanceSwitchMenu,
+                        ]) => {
+                            clientConf.tiles = pipe(
+                                tiles,
+                                Dict.filter((tile) => !tile.isDisabled),
+                                (curr) => ({
+                                    ...curr,
+                                    ...generatePreviewTileConf(),
+                                })
+                            );
+                            clientConf.colors = colors;
+                            clientConf.dataReadability = dataReadability;
+                            clientConf.instanceSwitchMenu = instanceSwitchMenu;
+                            return tuple(serverConf, clientConf, pkgInfo);
+                        }
+                    ),
                     tap(
                         // validate tiles
                         ([, clientConf]) => {
