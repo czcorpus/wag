@@ -333,11 +333,12 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
 
         .item {
             display: block;
+            position: relative;
             padding: 0.2em 0.8em;
 
             a {
-                display: inline-block;
-                padding-bottom: 0.4em;
+                display: flex;
+                align-items: center;
                 cursor: pointer;
                 text-decoration: none;
                 color: ${(props) => props.theme.colorDefaultText};
@@ -349,14 +350,21 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
         }
 
         .separ {
-            display: block;
+            display: flex;
+            align-items: center;
             font-size: 1.5em;
+            color: ${(props) => props.theme.colorLogoBlue};
         }
 
-        .item.current a {
-            border-style: solid;
-            border-color: ${(props) => props.theme.colorLogoBlue};
-            border-width: 0 0 2px 0;
+        .item.current a::after {
+            content: '';
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 0;
+            height: 2px;
+            background-color: ${(props) => props.theme.colorLogoBlue};
+            transform: translateY(3px);
         }
 
         ${(props) => props.theme.cssMediaSmallSize} {
