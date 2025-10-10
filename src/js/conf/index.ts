@@ -263,7 +263,7 @@ export interface ClientStaticConf {
     runtimeAssetsUrl: string;
     favicon?: FaviconConf;
     logo?: LogoStaticConf;
-    instanceSwitchMenu?: Array<InstanceLink>;
+    instanceSwitchMenu?: Array<InstanceLink> | string;
     corpInfoApiUrl: string;
     dataReadability?: DataReadabilityMapping | string;
     apiHeaders: { [urlPrefix: string]: HTTPHeaders };

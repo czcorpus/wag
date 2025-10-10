@@ -16,6 +16,9 @@
                 "categoryOther": {
                     "type": "string"
                 },
+                "chartGridColor": {
+                    "type": "string"
+                },
                 "chartTextColor": {
                     "type": "string"
                 },

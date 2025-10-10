@@ -55,6 +55,9 @@
                 "categoryOther": {
                     "type": "string"
                 },
+                "chartGridColor": {
+                    "type": "string"
+                },
                 "chartTextColor": {
                     "type": "string"
                 },
@@ -30581,10 +30584,17 @@
             "type": "string"
         },
         "instanceSwitchMenu": {
-            "items": {
-                "$ref": "#/definitions/InstanceLink"
-            },
-            "type": "array"
+            "anyOf": [
+                {
+                    "items": {
+                        "$ref": "#/definitions/InstanceLink"
+                    },
+                    "type": "array"
+                },
+                {
+                    "type": "string"
+                }
+            ]
         },
         "issueReportingUrl": {
             "type": "string"

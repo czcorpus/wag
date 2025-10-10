@@ -70,7 +70,6 @@ import { logAction } from '../actionLog/common.js';
 import { LayoutManager } from '../../page/layout.js';
 import { attachNumericTileIdents } from '../../page/index.js';
 import { createInstance, FreqDBType } from '../freqdb/factory.js';
-import urlJoin from 'url-join';
 import { TileConf } from '../../page/tile.js';
 import { queriesConf, previewLayoutConf } from '../../conf/preview.js';
 import { Theme } from '../../page/theme.js';
@@ -184,7 +183,9 @@ export function mkRuntimeClientConf({
                         url: item.url,
                         label: appServices.importExternalMessage(item.label),
                     }),
-                    conf.instanceSwitchMenu || []
+                    Array.isArray(conf.instanceSwitchMenu)
+                        ? conf.instanceSwitchMenu
+                        : []
                 ),
                 corpInfoApiUrl: conf.corpInfoApiUrl,
                 apiHeaders: conf.apiHeaders,
