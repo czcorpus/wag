@@ -49,6 +49,7 @@ export interface WordEntry {
     word: string;
     firstTranslatLc: string;
     translations: Array<Translation>;
+    color?: string;
 }
 
 export interface TranslationResponse {

@@ -106,6 +106,7 @@ export class TreqSubsetsTile implements ITileProvider {
             tileId,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
+            scaleColorGen: theme.scaleColorIndexed,
         });
         this.label = appServices.importExternalMessage(
             conf.label || 'treqsubsets__main_label'

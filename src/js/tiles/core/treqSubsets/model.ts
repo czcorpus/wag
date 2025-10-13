@@ -27,6 +27,7 @@ import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { filterByMinFreq, TreqSubsetsAPI, WordEntry } from './api.js';
+import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
 
 export interface MultiSrcTranslationRow {
     idx: number;
@@ -37,6 +38,7 @@ export interface MultiSrcTranslationRow {
 export interface MultiSrcTranslationCell {
     abs: number;
     perc: number;
+    color?: string;
 }
 
 /**
@@ -67,6 +69,7 @@ export const flipRowColMapper = <T>(
             row.push({
                 abs: t.freq,
                 perc: t.score,
+                color: t.color,
             });
         }
 
@@ -128,9 +131,12 @@ export interface TreqSubsetModelArgs {
     tileId: number;
     api: TreqSubsetsAPI;
     queryMatches: RecognizedQueries;
+    scaleColorGen: ColorScaleFunctionGenerator;
 }
 
 export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelState> {
+    public static readonly UNMATCHING_ITEM_COLOR = '#878787';
+
     private readonly tileId: number;
 
     private readonly api: TreqSubsetsAPI;
@@ -139,6 +145,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly appServices: IAppServices;
 
+    private readonly scaleColorGen: ColorScaleFunctionGenerator;
+
     constructor({
         dispatcher,
         appServices,
@@ -146,12 +154,14 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
         tileId,
         api,
         queryMatches,
+        scaleColorGen,
     }: TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
+        this.scaleColorGen = scaleColorGen;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -255,6 +265,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                 word: tran.word,
                                 translations: tran.translations,
                                 firstTranslatLc: tran.firstTranslatLc,
+                                color: TreqSubsetModel.UNMATCHING_ITEM_COLOR,
                             }),
                             translations
                         ),
@@ -384,14 +395,20 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             List.flatMap((subset) => subset.translations),
             List.groupBy((v) => v.firstTranslatLc),
             List.map(([translat, v]) => {
-                const ans: [string, number] = [
+                const ans: [string, number, number] = [
                     translat,
                     List.reduce((acc, curr) => acc + curr.score, 0, v),
+                    List.reduce((acc, curr) => acc + curr.freq, 0, v),
                 ];
                 return ans;
-            }),
-            List.sorted(([, v1], [, v2]) => v2 - v1),
-            List.map(([idx]) => idx)
+            })
+        );
+
+        const colorMap = pipe(
+            allWords,
+            List.sortedBy(([, , freq]) => -freq),
+            List.map(([word, ,], i) => tuple(word, this.scaleColorGen(0)(i))),
+            Dict.fromEntries()
         );
 
         state.subsets = pipe(
@@ -400,28 +417,34 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                 ident: subset.ident,
                 label: subset.label,
                 packages: subset.packages,
-                translations: List.map((w) => {
-                    const srch = List.find(
-                        (v) => v.firstTranslatLc === w,
-                        subset.translations
-                    );
-                    if (srch) {
+                translations: pipe(
+                    allWords,
+                    List.sortedBy(([, score]) => score),
+                    List.map(([word]) => {
+                        const srch = List.find(
+                            (v) => v.firstTranslatLc === word,
+                            subset.translations
+                        );
+                        if (srch) {
+                            return {
+                                freq: srch.freq,
+                                score: srch.score,
+                                word: srch.word,
+                                translations: srch.translations,
+                                firstTranslatLc: srch.firstTranslatLc,
+                                color: colorMap[word],
+                            };
+                        }
                         return {
-                            freq: srch.freq,
-                            score: srch.score,
-                            word: srch.word,
-                            translations: srch.translations,
-                            firstTranslatLc: srch.firstTranslatLc,
+                            freq: 0,
+                            score: 0,
+                            word: '',
+                            translations: [{ word }],
+                            firstTranslatLc: word.toLowerCase(),
+                            color: TreqSubsetModel.UNMATCHING_ITEM_COLOR,
                         };
-                    }
-                    return {
-                        freq: 0,
-                        score: 0,
-                        word: '',
-                        translations: [{ word: w }],
-                        firstTranslatLc: w.toLowerCase(),
-                    };
-                }, allWords),
+                    })
+                ),
             }))
         );
     }
