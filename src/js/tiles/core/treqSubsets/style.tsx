@@ -51,7 +51,7 @@ export const ChartLikeTable = styled.table<{ theme: Theme }>`
     border-collapse: collapse;
 
     td {
-        border: 1px solid #aaaaaa;
+        border: 1px solid ${(props) => props.theme.chartGridColor};
         padding: 0;
 
         svg {
@@ -64,10 +64,12 @@ export const ChartLikeTable = styled.table<{ theme: Theme }>`
         padding-right: 0.7em;
         padding-left: 0.7em;
         font-weight: normal;
+        color: ${(props) => props.theme.chartTextColor};
     }
 
     th.package {
         padding-bottom: 0.7em;
+        color: ${(props) => props.theme.chartTextColor};
     }
 
     tr.highlighted {
