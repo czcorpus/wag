@@ -164,9 +164,7 @@ export function init(
                                             perc={v.perc}
                                             abs={v.abs}
                                             maxValue={100}
-                                            color={theme.scaleColorIndexed()(
-                                                row.idx
-                                            )}
+                                            color={v.color}
                                             onMouseMove={props.onMouseMove}
                                             onMouseOut={props.onMouseOut}
                                         />
