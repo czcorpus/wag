@@ -227,7 +227,6 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
                           )
                 ).subscribe({
                     next: (data) => {
-                        console.log(data);
                         dispatch(Actions.ShowExampleWindow, {
                             tileId: this.tileId,
                             data,
