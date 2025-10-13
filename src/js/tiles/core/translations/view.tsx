@@ -115,7 +115,7 @@ export function init(
                     ),
                 },
             ],
-            interactionId: t.interactionId,
+            interactionId: `translat:${t.firstTranslatLc}`,
             color: t.color,
         });
 

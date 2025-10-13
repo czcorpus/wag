@@ -191,7 +191,6 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
                             word: line.word,
                             translations: line.translations,
                             firstTranslatLc: line.firstTranslatLc,
-                            interactionId: line.interactionId,
                             color: colors(i),
                         }))
                     );
@@ -213,7 +212,6 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
                                         value: v.firstTranslatLc,
                                         context: [0, 0],
                                     },
-                                    interactionId: v.interactionId,
                                     color: v.color,
                                 }),
                                 data

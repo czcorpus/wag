@@ -56,8 +56,6 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly label: string;
 
-    private readonly readDataFromTile: number;
-
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
@@ -67,7 +65,6 @@ export class TreqSubsetsTile implements ITileProvider {
         theme,
         ut,
         widthFract,
-        readDataFromTile,
         queryMatches,
         conf,
         isBusy,
@@ -75,7 +72,6 @@ export class TreqSubsetsTile implements ITileProvider {
     }: TileFactoryArgs<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this.readDataFromTile = readDataFromTile;
         this.model = new TreqSubsetModel({
             dispatcher,
             appServices,
@@ -99,7 +95,6 @@ export class TreqSubsetsTile implements ITileProvider {
                 ),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
-                colorMap: {},
                 minItemFreq:
                     conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ,
                 backlinkConf: conf.backlink,
@@ -111,7 +106,6 @@ export class TreqSubsetsTile implements ITileProvider {
             tileId,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
-            getColorsFromTile: readDataFromTile,
         });
         this.label = appServices.importExternalMessage(
             conf.label || 'treqsubsets__main_label'
@@ -179,7 +173,7 @@ export class TreqSubsetsTile implements ITileProvider {
     }
 
     getReadDataFrom(): number | null {
-        return this.readDataFromTile;
+        return null;
     }
 
     hideOnNoData(): boolean {
