@@ -79,7 +79,7 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         flex-direction: column;
 
         & > div.cell h3 {

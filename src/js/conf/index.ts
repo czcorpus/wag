@@ -107,8 +107,7 @@ export interface ColorTheme extends ColorThemeIdent {
     tileBorderStyle?: string;
     tileBorderRadius?: string;
 
-    cssMediaMediumScreen?: string;
-    cssMediaSmallScreen?: string;
+    cssMobileScreen?: string;
 
     lineChartColor1: string;
     lineConfidenceAreaColor1: string;

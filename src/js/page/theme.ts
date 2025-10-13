@@ -49,8 +49,7 @@ const fallbackTheme: ColorTheme = {
     pageBackgroundColor: '#ffffff',
     tileBackgroundColor: '#ffffff',
 
-    cssMediaMediumScreen: '@media screen and (max-width: 480px)',
-    cssMediaSmallScreen: '@media screen and (max-width: 480px)',
+    cssMobileScreen: '@media screen and (max-width: 480px)',
 
     // charts
 
@@ -134,7 +133,7 @@ export class Theme {
 
     public readonly oddDataLineBackgroundColor: string;
 
-    public readonly cssMediaSmallSize: string;
+    public readonly cssMobileScreen: string;
 
     public readonly svgIconsFilter: string | undefined;
 
@@ -228,8 +227,8 @@ export class Theme {
             confSrc.oddDataLineBackgroundColor ||
             fallbackTheme.oddDataLineBackgroundColor;
 
-        this.cssMediaSmallSize =
-            confSrc.cssMediaSmallScreen || fallbackTheme.cssMediaSmallScreen;
+        this.cssMobileScreen =
+            confSrc.cssMobileScreen || fallbackTheme.cssMobileScreen;
         this.svgIconsFilter = confSrc.svgIconsFilter;
         this.svgLogoFilter =
             typeof confSrc.svgLogoFilter === 'string'

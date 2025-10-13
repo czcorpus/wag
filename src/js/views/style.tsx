@@ -211,7 +211,7 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
         margin-bottom: 2em;
 
@@ -367,7 +367,7 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
             transform: translateY(3px);
         }
 
-        ${(props) => props.theme.cssMediaSmallSize} {
+        ${(props) => props.theme.cssMobileScreen} {
             margin-top: 0.2em;
         }
     }
@@ -389,7 +389,7 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
 // -------------- <SubmitButton /> -------------------------------------------
 
 export const SubmitButton = styled.span<{ theme: Theme }>`
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         button {
             padding: 0.5em 1.5em 0.5em 1.5em;
         }
@@ -426,7 +426,7 @@ export const TilesSections = styled.section<{ theme: Theme }>`
         left: calc(100% - 100px);
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
     }
 `;
@@ -448,7 +448,7 @@ export const Group = styled.section<{ theme: Theme }>`
         margin-top: 1.7em;
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         & > header {
             display: block;
 
@@ -581,7 +581,7 @@ export const Tiles = styled.section<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         .app-output .panel h2 {
             font-size: 1.1em;
         }
@@ -680,7 +680,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         width: 100%;
         white-space: normal;
 
