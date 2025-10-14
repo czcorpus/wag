@@ -100,10 +100,7 @@
                 "condensedFontFamily": {
                     "type": "string"
                 },
-                "cssMediaMediumScreen": {
-                    "type": "string"
-                },
-                "cssMediaSmallScreen": {
+                "cssMobileScreen": {
                     "type": "string"
                 },
                 "defaultFontFamily": {
@@ -141,6 +138,9 @@
                     "type": "string"
                 },
                 "lineConfidenceAreaColor2": {
+                    "type": "string"
+                },
+                "oddDataLineBackgroundColor": {
                     "type": "string"
                 },
                 "pageBackgroundColor": {
@@ -30567,6 +30567,9 @@
         },
         "favicon": {
             "$ref": "#/definitions/FaviconConf"
+        },
+        "hideUnavailableQueryTypes": {
+            "type": "boolean"
         },
         "homepage": {
             "$ref": "#/definitions/HomepageConfI18n"

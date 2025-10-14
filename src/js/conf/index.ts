@@ -107,8 +107,7 @@ export interface ColorTheme extends ColorThemeIdent {
     tileBorderStyle?: string;
     tileBorderRadius?: string;
 
-    cssMediaMediumScreen?: string;
-    cssMediaSmallScreen?: string;
+    cssMobileScreen?: string;
 
     lineChartColor1: string;
     lineConfidenceAreaColor1: string;
@@ -264,6 +263,7 @@ export interface ClientStaticConf {
     favicon?: FaviconConf;
     logo?: LogoStaticConf;
     instanceSwitchMenu?: Array<InstanceLink> | string;
+    hideUnavailableQueryTypes?: boolean;
     corpInfoApiUrl: string;
     dataReadability?: DataReadabilityMapping | string;
     apiHeaders: { [urlPrefix: string]: HTTPHeaders };
@@ -332,6 +332,7 @@ export interface ClientConf {
     dataReadability?: DataReadabilityMapping;
     logo?: LogoRuntimeConf;
     instanceSwitchMenu?: Array<{ label: string; url: string }>;
+    hideUnavailableQueryTypes?: boolean;
     colors?: ColorTheme;
     colorThemes: Array<ColorThemeIdent>;
     onLoadInit?: Array<string>;

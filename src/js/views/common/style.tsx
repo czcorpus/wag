@@ -230,7 +230,7 @@ export const ModalOverlay = styled.div<{ theme: Theme }>`
         font-size: 1rem;
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         background-color: hsla(0, 0%, 8%, 0.7);
 
         .box {

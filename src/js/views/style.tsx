@@ -211,13 +211,9 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
         margin-bottom: 2em;
-
-        .main .SubmitButton button {
-            padding: 0.5em 1.5em 0.5em 1.5em;
-        }
     }
 `;
 
@@ -316,11 +312,29 @@ export const SubmenuTile = styled.section`
     padding: 0;
 `;
 
+// --------------- <HamburgerButton /> --------------------------------------
+
+export const HamburgerButton = styled.button<{ theme: Theme }>`
+    display: none;
+    font-size: 2em;
+
+    .current-item {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        display: flex;
+    }
+`;
+
 // --------------- <MenuTabs /> --------------------------------------
 
 export const MenuTabs = styled.div<{ theme: Theme }>`
     display: flex;
+    justify-content: space-between;
     margin-top: 2em;
+    flex-grow: 1;
 
     &.empty {
         display: none;
@@ -366,30 +380,57 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
             background-color: ${(props) => props.theme.colorLogoBlue};
             transform: translateY(3px);
         }
+    }
 
-        ${(props) => props.theme.cssMediaSmallSize} {
-            margin-top: 0.2em;
+    ${(props) => props.theme.cssMobileScreen} {
+        flex-direction: column;
+        margin-top: 2em;
+
+        nav {
+            flex-direction: column;
+            border-style: solid;
+            border-color: ${(props) => props.theme.tileHeadingSeparColor};
+            border-width: 0 0 1px 0px;
+
+            .separ {
+                display: none;
+            }
+
+            .item.current {
+                display: none;
+            }
+        }
+
+        nav.collapsed {
+            overflow: hidden;
+            border-style: none;
+            height: 0em;
         }
     }
 `;
 
 // --------------- <OtherVariantsMenu /> --------------------------------------
 
-export const OtherVariantsMenu = styled.div<{ theme: Theme }>`
-    display: flex;
-    align-items: center;
-`;
+export const OtherVariantsMenu = styled.div<{ theme: Theme }>``;
 
 // -------------- <QueryTypeSelector /> --------------------------------------
 
 export const QueryTypeSelector = styled.div<{ theme: Theme }>`
-    flex-grow: 1;
+    &:only-child {
+        margin: 0 auto;
+    }
+
+    span.disabled {
+        color: ${(props) => props.theme.colorLightText};
+        opacity: 0.5;
+        cursor: default;
+    }
 `;
 
 // -------------- <SubmitButton /> -------------------------------------------
 
 export const SubmitButton = styled.span<{ theme: Theme }>`
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         button {
             padding: 0.5em 1.5em 0.5em 1.5em;
         }
@@ -426,7 +467,7 @@ export const TilesSections = styled.section<{ theme: Theme }>`
         left: calc(100% - 100px);
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
     }
 `;
@@ -448,7 +489,7 @@ export const Group = styled.section<{ theme: Theme }>`
         margin-top: 1.7em;
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         & > header {
             display: block;
 
@@ -490,15 +531,15 @@ export const Tiles = styled.section<{ theme: Theme }>`
     grid-template-columns: 1fr 1fr 1fr;
     color: #444;
 
-    .app-output.span1 {
+    .app-output.span-1 {
         grid-column: span 1;
     }
 
-    .app-output.span2 {
+    .app-output.span-2 {
         grid-column: span 2;
     }
 
-    .app-output.span3 {
+    .app-output.span-3 {
         grid-column: span 3;
     }
 
@@ -581,7 +622,10 @@ export const Tiles = styled.section<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
+        display: flex;
+        flex-direction: column;
+
         .app-output .panel h2 {
             font-size: 1.1em;
         }
@@ -680,7 +724,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
         }
     }
 
-    ${(props) => props.theme.cssMediaSmallSize} {
+    ${(props) => props.theme.cssMobileScreen} {
         width: 100%;
         white-space: normal;
 

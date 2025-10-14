@@ -100,6 +100,10 @@ export class Actions {
         name: 'MAIN_CHANGE_QUERY_TYPE',
     };
 
+    static ToggleMobileMenu: Action<{}> = {
+        name: 'MAIN_TOGGLE_MOBILE_MENU',
+    };
+
     static SetScreenMode: Action<{
         isMobile: boolean;
         innerWidth: number;

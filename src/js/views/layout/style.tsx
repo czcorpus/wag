@@ -514,7 +514,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         color: rgba(0,0,0, .5);
     }
 
-    ${confTheme.cssMediaSmallSize} {
+    ${confTheme.cssMobileScreen} {
 
         body > header.wdg-header a img {
             width: 15em;
