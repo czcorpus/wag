@@ -323,8 +323,7 @@ export const BacklinkButton = styled.button<{
     cursor: pointer;
     text-decoration: none;
     color: ${(props) => props.theme.colorLogoBlue};
-    background-image: url(${(props) =>
-        props.$createStaticUrl('external-link.svg')});
+    background-image: url(${(props) => props.$createStaticUrl('external-link.svg')});
     background-repeat: no-repeat;
     background-position: 99% 0;
 
