@@ -504,7 +504,7 @@ export const Group = styled.section<{ theme: Theme }>`
 // ---------------- <MinimizedGroup /> --------------------------------------
 
 export const MinimizedGroup = styled.ul<{ theme: Theme }>`
-    background-color: #ffffff;
+    background-color: ${props => props.theme.tileBackgroundColor};
     border-radius: 0.25em;
 
     list-style-type: none;
