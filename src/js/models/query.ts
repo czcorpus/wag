@@ -45,6 +45,7 @@ export interface QueryFormModelState {
     instanceSwitchMenu: Array<{ label: string; url: string; current: boolean }>;
     queryType: QueryType;
     availQueryTypes: Array<QueryType>;
+    hideUnavailableQueryTypes: boolean;
     currTranslatLanguage: string;
     translatLanguages: Array<TranslatLanguage>;
     queryTypesMenuItems: Array<QueryTypeMenuItem>;
@@ -333,6 +334,7 @@ export interface DefaultFactoryArgs {
     translatLanguage: string;
     queryType: QueryType;
     availQueryTypes: Array<QueryType>;
+    hideUnavailableQueryTypes: boolean;
     queryMatches: RecognizedQueries;
     isAnswerMode: boolean;
     uiLanguages: Array<AvailableLanguage>;
@@ -355,6 +357,7 @@ export const defaultFactory = ({
     layout,
     maxCmpQueries,
     maxQueryWords,
+    hideUnavailableQueryTypes,
 }: DefaultFactoryArgs) => {
     return new QueryFormModel(dispatcher, appServices, {
         queries: List.map(
@@ -363,6 +366,7 @@ export const defaultFactory = ({
         ),
         queryType,
         availQueryTypes,
+        hideUnavailableQueryTypes,
         initialQueryType: queryType,
         queryTypesMenuItems: layout.getQueryTypesMenuItems(),
         currTranslatLanguage: translatLanguage,

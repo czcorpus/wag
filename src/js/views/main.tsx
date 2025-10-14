@@ -243,6 +243,7 @@ export function init(
         qeryTypes: Array<QueryTypeMenuItem>;
         value: string;
         isMobile: boolean;
+        hideUnavailableQueryTypes: boolean;
         onChange: (v: string) => void;
     }> = (props) => (
         <S.QueryTypeSelector>
@@ -256,25 +257,34 @@ export function init(
                 <nav>
                     {pipe(
                         props.qeryTypes,
-                        List.filter((v) => v.isEnabled),
+                        List.filter(
+                            (v) =>
+                                v.isEnabled || !props.hideUnavailableQueryTypes
+                        ),
                         List.map((v, i) => (
                             <React.Fragment key={v.type}>
                                 {i > 0 && <span className="separ"> | </span>}
                                 <span
                                     className={`item${v.type === props.value ? ' current' : ''}`}
                                 >
-                                    <a
-                                        onClick={(
-                                            evt: React.MouseEvent<HTMLAnchorElement>
-                                        ) => props.onChange(v.type)}
-                                        aria-current={
-                                            v.type === props.value
-                                                ? 'page'
-                                                : null
-                                        }
-                                    >
-                                        {v.label}
-                                    </a>
+                                    {v.isEnabled ? (
+                                        <a
+                                            onClick={(
+                                                evt: React.MouseEvent<HTMLAnchorElement>
+                                            ) => props.onChange(v.type)}
+                                            aria-current={
+                                                v.type === props.value
+                                                    ? 'page'
+                                                    : null
+                                            }
+                                        >
+                                            {v.label}
+                                        </a>
+                                    ) : (
+                                        <span className="disabled">
+                                            {v.label}
+                                        </span>
+                                    )}
                                 </span>
                             </React.Fragment>
                         ))
@@ -688,11 +698,16 @@ export function init(
                             isMobile={props.isMobile}
                             onChange={handleQueryTypeChange}
                             qeryTypes={state.queryTypesMenuItems}
+                            hideUnavailableQueryTypes={
+                                state.hideUnavailableQueryTypes
+                            }
                             value={state.queryType}
                         />
-                        <OtherVariantsMenu
-                            instanceSwitchMenu={state.instanceSwitchMenu}
-                        />
+                        {state.instanceSwitchMenu.length > 0 ? (
+                            <OtherVariantsMenu
+                                instanceSwitchMenu={state.instanceSwitchMenu}
+                            />
+                        ) : null}
                     </S.MenuTabs>
                     <div className="main">
                         <QueryFields

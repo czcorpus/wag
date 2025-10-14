@@ -187,6 +187,7 @@ export function createRootComponent({
         layout: layoutManager,
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords,
+        hideUnavailableQueryTypes: !!config.hideUnavailableQueryTypes,
     });
 
     const factory = mkTileFactory(

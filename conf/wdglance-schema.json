@@ -30568,6 +30568,9 @@
         "favicon": {
             "$ref": "#/definitions/FaviconConf"
         },
+        "hideUnavailableQueryTypes": {
+            "type": "boolean"
+        },
         "homepage": {
             "$ref": "#/definitions/HomepageConfI18n"
         },

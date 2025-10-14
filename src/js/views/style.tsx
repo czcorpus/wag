@@ -214,10 +214,6 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
     ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
         margin-bottom: 2em;
-
-        .main .SubmitButton button {
-            padding: 0.5em 1.5em 0.5em 1.5em;
-        }
     }
 `;
 
@@ -320,6 +316,7 @@ export const SubmenuTile = styled.section`
 
 export const MenuTabs = styled.div<{ theme: Theme }>`
     display: flex;
+    justify-content: space-between;
     margin-top: 2em;
 
     &.empty {
@@ -375,15 +372,20 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
 
 // --------------- <OtherVariantsMenu /> --------------------------------------
 
-export const OtherVariantsMenu = styled.div<{ theme: Theme }>`
-    display: flex;
-    align-items: center;
-`;
+export const OtherVariantsMenu = styled.div<{ theme: Theme }>``;
 
 // -------------- <QueryTypeSelector /> --------------------------------------
 
 export const QueryTypeSelector = styled.div<{ theme: Theme }>`
-    flex-grow: 1;
+    &:only-child {
+        margin: 0 auto;
+    }
+
+    span.disabled {
+        color: ${(props) => props.theme.colorLightText};
+        opacity: 0.5;
+        cursor: default;
+    }
 `;
 
 // -------------- <SubmitButton /> -------------------------------------------
