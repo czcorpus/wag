@@ -153,8 +153,8 @@ export function init(
                         <strong>
                             {List.map(
                                 (lm, i) => i > 0 ?
-                                    <span><br />{lm}</span> :
-                                    <span>{lm}</span>,
+                                    <span key={`${i}:${lm}`}><br />{lm}</span> :
+                                    <span key={`${i}:${lm}`}>{lm}</span>,
                                 props.data.lemma.split('|')
                             )}
                         </strong>
