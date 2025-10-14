@@ -165,16 +165,6 @@ export function init(
                             isEnabled={props.viewModeEnabled}
                         />
                     </label>
-                    {props.queries.length > 1 ? (
-                        <label>
-                            {ut.translate('concordance__sel_query')}:{'\u00a0'}
-                            <QueryIdxSwitch
-                                tileId={props.tileId}
-                                values={props.queries}
-                                currIdx={props.currVisibleQueryIdx}
-                            />
-                        </label>
-                    ) : null}
                 </fieldset>
             </S.Controls>
         );
@@ -405,11 +395,12 @@ export function init(
             }
         }, [state.concordances]);
 
-        const handleQueryVariantClick = () => {
-            dispatcher.dispatch<typeof GlobalActions.EnableTileTweakMode>({
-                name: GlobalActions.EnableTileTweakMode.name,
+        const handleQueryVariantClick = (queryIdx:number) => () => {
+            dispatcher.dispatch<typeof Actions.SetVisibleQuery>({
+                name: Actions.SetVisibleQuery.name,
                 payload: {
-                    ident: props.tileId,
+                    tileId: props.tileId,
+                    queryIdx,
                 },
             });
         };
@@ -481,14 +472,24 @@ export function init(
                     ) : null}
                     {state.queries.length > 1 ? (
                         <S.QueryInfo>
-                            {ut.translate('concordance__showing_results_for')}:
-                            {'\u00a0'}
-                            <a
-                                className="variant"
-                                onClick={handleQueryVariantClick}
-                            >
-                                {`[${state.visibleQueryIdx + 1}] ${state.queries[state.visibleQueryIdx]}`}
-                            </a>
+                            {
+                                List.map(
+                                    (q, i) => {
+                                        const classes = ['variant'];
+                                        if (i === state.visibleQueryIdx) {
+                                            classes.push('current');
+                                        }
+                                        return (
+                                            <React.Fragment key={`${i}:${q}`}>
+                                                {i > 0 ? <span className="separ">|</span> : null}
+                                                {i === state.visibleQueryIdx ? <span className="dot">{'\u23FA'}</span> : null}
+                                                <a className={classes.join(' ')} onClick={handleQueryVariantClick(i)}>{q}</a>
+                                            </React.Fragment>
+                                        )
+                                    },
+                                    state.queries
+                                )
+                            }
                         </S.QueryInfo>
                     ) : null}
                     {state.isExamplesMode ? null : (

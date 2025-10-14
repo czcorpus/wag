@@ -122,6 +122,7 @@ export class CNCWSServerApi
         return streaming
             .registerTileRequest<WSServerResponse>({
                 tileId,
+                queryIdx,
                 method: HTTP.Method.GET,
                 url: args
                     ? urlJoin(
