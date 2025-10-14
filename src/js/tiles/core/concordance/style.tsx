@@ -27,20 +27,43 @@ export const ConcordanceTileView = styled.div`
     overflow: hidden;
 `;
 
+// ------------- <QueryInfo /> ---------------------------
+
 export const QueryInfo = styled.p<{ theme: Theme }>`
     font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+
+    .dot {
+        color: ${props => props.theme.colorLogoPink};
+        margin-left: 0.5em;
+    }
 
     a.variant {
         cursor: pointer;
         color: ${(props) => props.theme.colorDefaultText};
         font-weight: bold;
         text-decoration: none;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+        text-decoration: none;
+
+        &.current {
+            color: ${props => props.theme.colorLogoPink};
+            cursor: initial;
+        }
     }
 
     a.variant:hover {
         text-decoration: underline;
     }
+
+    a.variant.current:hover {
+        text-decoration: none;
+    }
 `;
+
+// ------------ <Summary /> -----------------------
 
 export const Summary = styled.dl<{ theme: Theme }>`
     margin-top: 0.7em;
@@ -72,6 +95,8 @@ export const Summary = styled.dl<{ theme: Theme }>`
         margin-left: 0.3em;
     }
 `;
+
+// ---------------- <LineMetadata /> ---------------------
 
 export const LineMetadata = styled.div<{ theme: Theme }>`
     max-width: 30em;
@@ -108,6 +133,9 @@ export const LineMetadata = styled.div<{ theme: Theme }>`
         }
     }
 `;
+
+
+// ---------------- <ConcLines /> ---------------------
 
 export const ConcLines = styled.div<{ theme: Theme }>`
     font-family: ${(props) => props.theme.condensedFontFamily};
@@ -232,6 +260,8 @@ export const Row = styled.tr<{ theme: Theme }>`
     }
 `;
 
+// ------------------ <SentRow /> ----------------------------------
+
 export const SentRow = styled.tr<{ theme: Theme }>`
     &.highlighted {
         background-color: ${(props) => props.theme.colorDataHighlightRow};
@@ -264,6 +294,8 @@ export const SentRow = styled.tr<{ theme: Theme }>`
         padding-right: 0.2em;
     }
 `;
+
+// ---------------- <Controls /> ----------------------------
 
 export const Controls = styled.form<{ theme: Theme }>`
     margin-bottom: 0.7em;
