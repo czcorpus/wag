@@ -1028,13 +1028,14 @@ export function init(
         altViewIcon: AltViewIconProps;
     }> = (props) => {
         const getHTMLClass = () => {
-            const ans = ['cnc-tile', 'app-output'];
+            const ans = [
+                'cnc-tile',
+                'app-output',
+                `span-${props.tile.widthFract}`,
+            ];
 
             if (props.isTweakMode) {
                 ans.push('expanded');
-            }
-            if (!props.isMobile) {
-                ans.push(`span${props.tile.widthFract}`);
             }
             if (props.isHighlighted) {
                 ans.push('highlighted');

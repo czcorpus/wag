@@ -490,15 +490,15 @@ export const Tiles = styled.section<{ theme: Theme }>`
     grid-template-columns: 1fr 1fr 1fr;
     color: #444;
 
-    .app-output.span1 {
+    .app-output.span-1 {
         grid-column: span 1;
     }
 
-    .app-output.span2 {
+    .app-output.span-2 {
         grid-column: span 2;
     }
 
-    .app-output.span3 {
+    .app-output.span-3 {
         grid-column: span 3;
     }
 
@@ -582,6 +582,9 @@ export const Tiles = styled.section<{ theme: Theme }>`
     }
 
     ${(props) => props.theme.cssMobileScreen} {
+        display: flex;
+        flex-direction: column;
+
         .app-output .panel h2 {
             font-size: 1.1em;
         }
