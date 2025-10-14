@@ -49,7 +49,7 @@ const fallbackTheme: ColorTheme = {
     pageBackgroundColor: '#ffffff',
     tileBackgroundColor: '#ffffff',
 
-    cssMobileScreen: '@media screen and (max-width: 480px)',
+    cssMobileScreen: '@media screen and (max-width: 600px)',
 
     // charts
 
