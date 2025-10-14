@@ -45,6 +45,7 @@ export interface QueryFormModelState {
     instanceSwitchMenu: Array<{ label: string; url: string; current: boolean }>;
     queryType: QueryType;
     availQueryTypes: Array<QueryType>;
+    expandMobileMenu: boolean;
     hideUnavailableQueryTypes: boolean;
     currTranslatLanguage: string;
     translatLanguages: Array<TranslatLanguage>;
@@ -130,6 +131,10 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 );
             }
         );
+
+        this.addActionHandler(Actions.ToggleMobileMenu, (state, action) => {
+            state.expandMobileMenu = !state.expandMobileMenu;
+        });
 
         this.addActionHandler(
             Actions.SubmitQuery,
@@ -384,5 +389,6 @@ export const defaultFactory = ({
             queryMatches
         ),
         mainPosAttr: layout.getLayoutMainPosAttr(),
+        expandMobileMenu: false,
     });
 };

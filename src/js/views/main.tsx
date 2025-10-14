@@ -242,8 +242,8 @@ export function init(
     const QueryTypeSelector: React.FC<{
         qeryTypes: Array<QueryTypeMenuItem>;
         value: string;
-        isMobile: boolean;
         hideUnavailableQueryTypes: boolean;
+        expandMobileMenu: boolean;
         onChange: (v: string) => void;
     }> = (props) => (
         <S.QueryTypeSelector>
@@ -254,7 +254,7 @@ export function init(
             ) < 2 ? (
                 <span></span>
             ) : (
-                <nav>
+                <nav className={!props.expandMobileMenu ? 'collapsed' : ''}>
                     {pipe(
                         props.qeryTypes,
                         List.filter(
@@ -665,7 +665,6 @@ export function init(
     // ------------------ <WdglanceControls /> ------------------------------
 
     const WdglanceControls: React.FC<{
-        isMobile: boolean;
         isAnswerMode: boolean;
     }> = (props) => {
         const handleSubmit = () => {
@@ -676,6 +675,10 @@ export function init(
 
         const handleQueryTypeChange = (queryType: QueryType) => {
             dispatcher.dispatch(Actions.ChangeQueryType, { queryType });
+        };
+
+        const handleToggleMobileMenu = () => {
+            dispatcher.dispatch(Actions.ToggleMobileMenu);
         };
 
         const state = useModel(formModel);
@@ -692,20 +695,41 @@ export function init(
             >
                 <form className="cnc-form">
                     <S.MenuTabs
-                        className={numQTypes + numSubWags < 2 ? 'empty' : ''}
+                        className={
+                            numQTypes + numSubWags < 2 &&
+                            state.hideUnavailableQueryTypes
+                                ? 'empty'
+                                : ''
+                        }
                     >
+                        <S.HamburgerButton
+                            className="cnc-button cnc-button-primary"
+                            type="button"
+                            onClick={handleToggleMobileMenu}
+                        >
+                            <span>{'\u2630'}</span>
+                            <span className="current-item">
+                                {
+                                    List.find(
+                                        (v) => v.type === state.queryType,
+                                        state.queryTypesMenuItems
+                                    ).label
+                                }
+                            </span>
+                        </S.HamburgerButton>
                         <QueryTypeSelector
-                            isMobile={props.isMobile}
                             onChange={handleQueryTypeChange}
                             qeryTypes={state.queryTypesMenuItems}
                             hideUnavailableQueryTypes={
                                 state.hideUnavailableQueryTypes
                             }
                             value={state.queryType}
+                            expandMobileMenu={state.expandMobileMenu}
                         />
                         {state.instanceSwitchMenu.length > 0 ? (
                             <OtherVariantsMenu
                                 instanceSwitchMenu={state.instanceSwitchMenu}
+                                expandMobileMenu={state.expandMobileMenu}
                             />
                         ) : null}
                     </S.MenuTabs>
@@ -737,10 +761,11 @@ export function init(
             url: string;
             current: boolean;
         }>;
+        expandMobileMenu: boolean;
     }> = (props) => {
         return (
             <S.OtherVariantsMenu>
-                <nav>
+                <nav className={!props.expandMobileMenu ? 'collapsed' : ''}>
                     {List.map(
                         (item, i) => (
                             <React.Fragment key={item.label}>
@@ -1856,10 +1881,7 @@ export function init(
                 />
                 <ThemeProvider theme={dynamicTheme}>
                     <BoundMessagesBox />
-                    <WdglanceControls
-                        isMobile={props.isMobile}
-                        isAnswerMode={props.isAnswerMode}
-                    />
+                    <WdglanceControls isAnswerMode={props.isAnswerMode} />
                     <TilesSections
                         layout={props.layout}
                         homepageSections={props.homepageSections}

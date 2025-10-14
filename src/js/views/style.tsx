@@ -312,12 +312,29 @@ export const SubmenuTile = styled.section`
     padding: 0;
 `;
 
+// --------------- <HamburgerButton /> --------------------------------------
+
+export const HamburgerButton = styled.button<{ theme: Theme }>`
+    display: none;
+    font-size: 2em;
+
+    .current-item {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        display: flex;
+    }
+`;
+
 // --------------- <MenuTabs /> --------------------------------------
 
 export const MenuTabs = styled.div<{ theme: Theme }>`
     display: flex;
     justify-content: space-between;
     margin-top: 2em;
+    flex-grow: 1;
 
     &.empty {
         display: none;
@@ -363,9 +380,31 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
             background-color: ${(props) => props.theme.colorLogoBlue};
             transform: translateY(3px);
         }
+    }
 
-        ${(props) => props.theme.cssMobileScreen} {
-            margin-top: 0.2em;
+    ${(props) => props.theme.cssMobileScreen} {
+        flex-direction: column;
+        margin-top: 2em;
+
+        nav {
+            flex-direction: column;
+            border-style: solid;
+            border-color: ${(props) => props.theme.tileHeadingSeparColor};
+            border-width: 0 0 1px 0px;
+
+            .separ {
+                display: none;
+            }
+
+            .item.current {
+                display: none;
+            }
+        }
+
+        nav.collapsed {
+            overflow: hidden;
+            border-style: none;
+            height: 0em;
         }
     }
 `;
