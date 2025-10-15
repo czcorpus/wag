@@ -703,19 +703,16 @@ export function init(
                         }
                     >
                         <S.HamburgerButton
-                            className="cnc-button cnc-button-primary"
                             type="button"
                             onClick={handleToggleMobileMenu}
                         >
-                            <span>{'\u2630'}</span>
-                            <span className="current-item">
-                                {
-                                    List.find(
-                                        (v) => v.type === state.queryType,
-                                        state.queryTypesMenuItems
-                                    ).label
-                                }
-                            </span>
+                            <span className="hamburger-icon">{'\u2630'}</span>
+                            {
+                                List.find(
+                                    (v) => v.type === state.queryType,
+                                    state.queryTypesMenuItems
+                                ).label
+                            }
                         </S.HamburgerButton>
                         <QueryTypeSelector
                             onChange={handleQueryTypeChange}
