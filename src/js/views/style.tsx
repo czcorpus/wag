@@ -316,7 +316,7 @@ export const SubmenuTile = styled.section`
 
 export const HamburgerButton = styled.button<{ theme: Theme }>`
     font-size: 2em;
-    display: flex;    
+    display: flex;
     padding: 0.4em 0.5em;
     border-radius: 0.3em;
     font-size: 1em;
@@ -340,13 +340,11 @@ export const HamburgerButton = styled.button<{ theme: Theme }>`
     .hamburger-icon {
         position: absolute;
         left: 0;
-        margin: 0 0.5em;
     }
 
     .current-item {
         flex-grow: 1;
         text-align: center;
-        margin-left: 1em;
     }
 `;
 
