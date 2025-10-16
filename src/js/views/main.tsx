@@ -667,7 +667,6 @@ export function init(
     const WdglanceControls: React.FC<{
         isAnswerMode: boolean;
     }> = (props) => {
-
         const handleSubmit = () => {
             dispatcher.dispatch<typeof Actions.SubmitQuery>({
                 name: Actions.SubmitQuery.name,
@@ -705,24 +704,23 @@ export function init(
                                 : ''
                         }
                     >
-                        {shouldShowHamburger ?
+                        {shouldShowHamburger ? (
                             <S.HamburgerButton
                                 className="cnc-button cnc-button-primary"
                                 type="button"
                                 onClick={handleToggleMobileMenu}
                             >
-                                <span>{'\u2630'}</span>
-                                <span className="current-item">
-                                    {
-                                        List.find(
-                                            (v) => v.type === state.queryType,
-                                            state.queryTypesMenuItems
-                                        ).label
-                                    }
+                                <span className="hamburger-icon">
+                                    {'\u2630'}
                                 </span>
-                            </S.HamburgerButton> :
-                            null
-                        }
+                                {
+                                    List.find(
+                                        (v) => v.type === state.queryType,
+                                        state.queryTypesMenuItems
+                                    ).label
+                                }
+                            </S.HamburgerButton>
+                        ) : null}
                         <QueryTypeSelector
                             onChange={handleQueryTypeChange}
                             qeryTypes={state.queryTypesMenuItems}
