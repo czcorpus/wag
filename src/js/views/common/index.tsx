@@ -541,7 +541,7 @@ export function init(
         if (props.isBusy && !props.hasData) {
             return (
                 <S.TileWrapper>
-                    <div className="cnc-tile-body content">
+                    <div className="wag-tile-body content">
                         <p>
                             <AjaxLoader htmlClass="centered" />
                         </p>
@@ -551,7 +551,7 @@ export function init(
         } else if (props.error) {
             return (
                 <S.TileWrapper>
-                    <div className="cnc-tile-body content error">
+                    <div className="wag-tile-body content error">
                         <div className="message">
                             <MessageStatusIcon
                                 statusType={SystemMessageType.ERROR}
@@ -588,7 +588,7 @@ export function init(
                         ) : null}
                     </div>
                     <div
-                        className={`cnc-tile-body content${props.hasData ? '' : ' empty'}`}
+                        className={`wag-tile-body content${props.hasData ? '' : ' empty'}`}
                     >
                         <div style={{ height: '100%' }}>
                             {props.hasData ? (
@@ -646,7 +646,7 @@ export function init(
         render() {
             if (this.state.error) {
                 return (
-                    <div className="cnc-tile-body error">
+                    <div className="wag-tile-body error">
                         <div className="message">
                             <MessageStatusIcon
                                 statusType={SystemMessageType.ERROR}
@@ -687,7 +687,7 @@ export function init(
         return (
             <S.ModalOverlay id="modal-overlay">
                 <div className="box">
-                    <header className="cnc-tile-header">
+                    <header className="wag-tile-header">
                         <span>{props.title}</span>
                         <button
                             className="close"
@@ -806,7 +806,7 @@ export function init(
 
         private calcAndSetSizes(): void {
             if (this.ref.current) {
-                const wrapper = this.ref.current.closest('.cnc-tile-body');
+                const wrapper = this.ref.current.closest('.wag-tile-body');
                 const cellWidthFract = this.props.widthFract ?? 1;
                 const maxHeightPortion = cellWidthFract > 2 ? 0.25 : 0.32;
                 const newWidth = wrapper.getBoundingClientRect().width;

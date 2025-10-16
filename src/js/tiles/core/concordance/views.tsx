@@ -140,7 +140,7 @@ export function init(
         };
 
         return (
-            <S.Controls className="cnc-form tile-tweak">
+            <S.Controls className="wag-form tile-tweak">
                 <fieldset>
                     <label>
                         {ut.translate('concordance__page')}:{'\u00a0'}

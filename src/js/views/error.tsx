@@ -30,8 +30,8 @@ export function init(ut: ViewUtils<GlobalComponents>): React.FC<ErrPageProps> {
     const ErrPage: React.FC<ErrPageProps> = (props) => {
         return (
             <S.ErrPage>
-                <div className="cnc-tile">
-                    <header className="cnc-tile-header panel err">
+                <div className="wag-tile">
+                    <header className="wag-tile-header panel err">
                         {ut.translate('global__server_error')}
                     </header>
                     <div className="tile-body text">

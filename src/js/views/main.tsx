@@ -226,7 +226,7 @@ export function init(
         return (
             <S.SubmitButton>
                 <button
-                    className="cnc-button cnc-button-primary"
+                    className="wag-button wag-button-primary"
                     type="button"
                     onClick={props.onClick}
                     aria-label={ut.translate('global__aria_search_btn')}
@@ -623,7 +623,7 @@ export function init(
                             )}
                             <p className="buttons">
                                 <button
-                                    className="cnc-button cnc-button-primary"
+                                    className="wag-button wag-button-primary"
                                     type="button"
                                     onClick={handleConfirmModalSelection}
                                     aria-label={ut.translate(
@@ -695,7 +695,7 @@ export function init(
             <S.WdglanceControls
                 className={props.isAnswerMode ? 'result-page-mode' : null}
             >
-                <form className="cnc-form">
+                <form className="wag-form">
                     <S.MenuTabs
                         className={
                             numQTypes + numSubWags < 2 &&
@@ -706,7 +706,7 @@ export function init(
                     >
                         {shouldShowHamburger ? (
                             <S.HamburgerButton
-                                className="cnc-button cnc-button-primary"
+                                className="wag-button wag-button-primary"
                                 type="button"
                                 onClick={handleToggleMobileMenu}
                             >
@@ -1019,8 +1019,8 @@ export function init(
         return (
             <>
                 {props.sections.map((sect, i) => (
-                    <section key={`${sect}:${i}`} className="cnc-tile help">
-                        <header className="cnc-tile-header panel">
+                    <section key={`${sect}:${i}`} className="wag-tile help">
+                        <header className="wag-tile-header panel">
                             {sect.label}
                         </header>
                         <InitialHelpTile html={sect.html} />
@@ -1037,7 +1037,7 @@ export function init(
     }> = (props) => (
         <CS.TileWrapper className="empty">
             <div className="loader-wrapper"></div>
-            <div className="cnc-tile-body content empty">
+            <div className="wag-tile-body content empty">
                 <div className="not-applicable-box">
                     <div className="message">
                         <globalComponents.MessageStatusIcon
@@ -1073,7 +1073,7 @@ export function init(
     }> = (props) => {
         const getHTMLClass = () => {
             const ans = [
-                'cnc-tile',
+                'wag-tile',
                 'app-output',
                 `span-${props.tile.widthFract}`,
             ];
@@ -1103,7 +1103,7 @@ export function init(
                 key={`tile-ident-${props.tile.tileId}`}
                 className={getHTMLClass()}
             >
-                <header className="cnc-tile-header panel">
+                <header className="wag-tile-header panel">
                     <h2>{currLabel}</h2>
                     <div className="window-buttons">
                         {props.tileResultFlag &&
@@ -1356,12 +1356,12 @@ export function init(
                 return (
                     <S.Tiles>
                         <section
-                            className="cnc-tile app-output"
+                            className="wag-tile app-output"
                             style={{ gridColumn: 'span 3' }}
                         >
                             <div className="provider">
                                 <CS.TileWrapper>
-                                    <div className="cnc-tile-body content empty">
+                                    <div className="wag-tile-body content empty">
                                         <div className="message">
                                             <globalComponents.MessageStatusIcon
                                                 statusType={
@@ -1460,10 +1460,10 @@ export function init(
         return (
             <S.Group>
                 <S.Tiles>
-                    <section className="cnc-tile app-output span3">
+                    <section className="wag-tile app-output span3">
                         <div className="provider">
                             <S.NothingFoundBox>
-                                <div className="cnc-tile-body content">
+                                <div className="wag-tile-body content">
                                     <p>
                                         {ut.translate(
                                             'global__nothing_found_msg'
@@ -1486,10 +1486,10 @@ export function init(
         return (
             <S.Group>
                 <S.Tiles>
-                    <section className="cnc-tile app-output span3">
+                    <section className="wag-tile app-output span3">
                         <div className="provider">
                             <S.TooManyErrorsBox>
-                                <div className="cnc-tile-body content">
+                                <div className="wag-tile-body content">
                                     {props.reportHref ? (
                                         <p
                                             dangerouslySetInnerHTML={{

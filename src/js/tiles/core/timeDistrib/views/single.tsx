@@ -253,7 +253,7 @@ export function init(
                             {'\u00a0'}
                             <button
                                 type="button"
-                                className="cnc-button cnc-button-primary"
+                                className="wag-button wag-button-primary"
                                 onClick={this.handleSubmit}
                             >
                                 {ut.translate('timeDistrib__cmp_submit')}
