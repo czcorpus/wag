@@ -1198,8 +1198,9 @@ export function init(
     };
 
     /**
-     *
-     * @returns
+     * useMobileComponent is a React hook providing information if the current
+     * environment is a mobile screen. The condition is equivalent to the CSS
+     * media query we use.
      */
     function useMobileComponent(): boolean {
 

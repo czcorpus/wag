@@ -25,10 +25,7 @@ import {
     LocalizedConfMsg,
     SystemMessageType,
 } from './types.js';
-import {
-    ISystemNotifications as ISystemNotifications,
-    SystemNotifications,
-} from './page/notifications.js';
+import { ISystemNotifications as ISystemNotifications } from './page/notifications.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
 import { DataReadabilityMapping, CommonTextStructures } from './conf/index.js';
@@ -38,9 +35,10 @@ import {
     ISimpleSessionStorage,
 } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
-import { DataStreaming, IDataStreaming } from './page/streaming.js';
+import { IDataStreaming } from './page/streaming.js';
 
 export interface IApiServices {
+
     getApiHeaders(apiUrl: string): HTTPHeaders;
 
     setApiKeyHeader(apiUrl: string, headerName: string, key: string): void;
@@ -160,6 +158,7 @@ export interface AppServicesArgs {
  *
  */
 export class AppServices implements IAppServices {
+
     private static SESSION_STORAGE_API_KEYS_ENTRY = 'api_keys';
 
     private readonly notifications: ISystemNotifications;
