@@ -316,7 +316,32 @@ export const SubmenuTile = styled.section`
 
 export const HamburgerButton = styled.button<{ theme: Theme }>`
     font-size: 2em;
-    display: flex;
+    display: flex;    
+    padding: 0.4em 0.5em;
+    border-radius: 0.3em;
+    font-size: 1em;
+    box-shadow: 0 -0.1em 0 0 rgba(0, 0, 0, 0.25) inset;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    background-color: ${(props) => props.theme.colorLogoBlue};
+    color: ${(props) => props.theme.colorInvertText};
+
+    &:hover {
+        background-color: #22ace6;
+        border-color: rgba(0, 0, 0, 0.35);
+        cursor: pointer;
+    }
+
+    &:focus,
+    &:active {
+        border-color: rgba(0, 0, 0, 0.75);
+    }
+
+    .hamburger-icon {
+        position: absolute;
+        left: 0;
+        margin: 0 0.5em;
+    }
 
     .current-item {
         flex-grow: 1;
@@ -501,7 +526,7 @@ export const Group = styled.section<{ theme: Theme }>`
 // ---------------- <MinimizedGroup /> --------------------------------------
 
 export const MinimizedGroup = styled.ul<{ theme: Theme }>`
-    background-color: ${props => props.theme.tileBackgroundColor};
+    background-color: ${(props) => props.theme.tileBackgroundColor};
     border-radius: 0.25em;
 
     list-style-type: none;

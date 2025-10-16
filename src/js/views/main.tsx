@@ -251,7 +251,7 @@ export function init(
                 props.qeryTypes,
                 List.filter((x) => x.isEnabled),
                 List.size()
-            ) < 2 ? (
+            ) < 2 && props.hideUnavailableQueryTypes ? (
                 <span></span>
             ) : (
                 <nav className={!props.expandMobileMenu ? 'collapsed' : ''}>
