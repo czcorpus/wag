@@ -144,6 +144,8 @@ export interface GlobalComponents {
         onPrev: () => void;
         onNext: () => void;
     }>;
+
+    useMobileComponent: () => boolean;
 }
 
 export function init(
@@ -1195,6 +1197,45 @@ export function init(
         );
     };
 
+    /**
+     *
+     * @returns
+     */
+    function useMobileComponent(): boolean {
+
+            const [shouldUseMobile, setShouldUseMobile] = React.useState(false);
+            const [isClient, setIsClient] = React.useState(false);
+            const testQuery = theme.cssMobileScreen.replace("@media", "");
+
+            React.useEffect(
+                () => {
+                    setIsClient(true);
+                },
+                []
+            );
+
+            React.useEffect(
+                () => {
+                    if (!isClient) {
+                        return;
+                    }
+                    const mediaQuery = window.matchMedia(testQuery);
+                    setShouldUseMobile(mediaQuery.matches);
+
+                    const handleChange = (e: MediaQueryListEvent) => {
+                        setShouldUseMobile(e.matches);
+                    };
+                    mediaQuery.addEventListener?.('change', handleChange);
+
+                    return () => {
+                        mediaQuery.removeEventListener?.('change', handleChange);
+                    };
+                },
+                [isClient]
+            );
+        return shouldUseMobile;
+    }
+
     // ===================
 
     return {
@@ -1211,5 +1252,6 @@ export function init(
         AlignedRechartsTooltip,
         Paginator,
         TileMinHeightContext: React.createContext(100),
+        useMobileComponent
     };
 }
