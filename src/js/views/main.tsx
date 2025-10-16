@@ -667,6 +667,7 @@ export function init(
     const WdglanceControls: React.FC<{
         isAnswerMode: boolean;
     }> = (props) => {
+
         const handleSubmit = () => {
             dispatcher.dispatch<typeof Actions.SubmitQuery>({
                 name: Actions.SubmitQuery.name,
@@ -682,6 +683,8 @@ export function init(
         };
 
         const state = useModel(formModel);
+        const shouldShowHamburger = globalComponents.useMobileComponent();
+
         const numQTypes = pipe(
             state.queryTypesMenuItems,
             List.filter((x) => x.isEnabled),
@@ -702,18 +705,24 @@ export function init(
                                 : ''
                         }
                     >
-                        <S.HamburgerButton
-                            type="button"
-                            onClick={handleToggleMobileMenu}
-                        >
-                            <span className="hamburger-icon">{'\u2630'}</span>
-                            {
-                                List.find(
-                                    (v) => v.type === state.queryType,
-                                    state.queryTypesMenuItems
-                                ).label
-                            }
-                        </S.HamburgerButton>
+                        {shouldShowHamburger ?
+                            <S.HamburgerButton
+                                className="cnc-button cnc-button-primary"
+                                type="button"
+                                onClick={handleToggleMobileMenu}
+                            >
+                                <span>{'\u2630'}</span>
+                                <span className="current-item">
+                                    {
+                                        List.find(
+                                            (v) => v.type === state.queryType,
+                                            state.queryTypesMenuItems
+                                        ).label
+                                    }
+                                </span>
+                            </S.HamburgerButton> :
+                            null
+                        }
                         <QueryTypeSelector
                             onChange={handleQueryTypeChange}
                             qeryTypes={state.queryTypesMenuItems}

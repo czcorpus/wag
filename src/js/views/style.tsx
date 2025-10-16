@@ -315,8 +315,8 @@ export const SubmenuTile = styled.section`
 // --------------- <HamburgerButton /> --------------------------------------
 
 export const HamburgerButton = styled.button<{ theme: Theme }>`
-    display: none;
-    position: relative;
+    font-size: 2em;
+    display: flex;    
     padding: 0.4em 0.5em;
     border-radius: 0.3em;
     font-size: 1em;
@@ -343,8 +343,10 @@ export const HamburgerButton = styled.button<{ theme: Theme }>`
         margin: 0 0.5em;
     }
 
-    ${(props) => props.theme.cssMobileScreen} {
-        display: block;
+    .current-item {
+        flex-grow: 1;
+        text-align: center;
+        margin-left: 1em;
     }
 `;
 
