@@ -54,7 +54,7 @@ export function init(
         };
 
         return (
-            <form className="Controls cnc-form tile-tweak">
+            <form className="Controls wag-form tile-tweak">
                 <label>
                     {ut.translate('collocations__search_in_context_label')}
                     :{' '}

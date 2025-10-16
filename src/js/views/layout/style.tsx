@@ -297,7 +297,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
     }
 
     .tile-body.text,
-    .cnc-tile-body.text {
+    .wag-tile-body.text {
 
         .raw-html {
 
@@ -322,14 +322,14 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         }
     }
 
-    #modal-overlay .cnc-tile-body.text .raw-html {
+    #modal-overlay .wag-tile-body.text .raw-html {
         font-size: 1.2em;
         max-width: 32em;
     }
 
     // -------
 
-    .cnc-tile {
+    .wag-tile {
         border-radius: .25em;
         box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
         background-color: ${confTheme.tileBackgroundColor};
@@ -337,30 +337,30 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         color: ${confTheme.colorSecondaryText};
     }
 
-    .cnc-tile.highlighted {
+    .wag-tile.highlighted {
         box-shadow: .09em .09em .15em .09em rgba(226, 0, 122, 0.7);
     }
 
-    .cnc-tile.hidden-no-data {
+    .wag-tile.hidden-no-data {
         display: none;
     }
 
-    .cnc-tile-body {
+    .wag-tile-body {
         padding: 1.25em;
         height: 100%;
     }
 
-    .cnc-tile-body a {
+    .wag-tile-body a {
         color: ${confTheme.colorLogoBlue};
         text-decoration: none;
     }
 
-    .cnc-tile-body a:hover {
+    .wag-tile-body a:hover {
         text-decoration: underline;
     }
 
-    .cnc-tile-body.error .message,
-    .cnc-tile-body.empty .message {
+    .wag-tile-body.error .message,
+    .wag-tile-body.empty .message {
         display: flex;
         align-items: center;
         align-content: center;
@@ -379,31 +379,31 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         }
     }
 
-    .cnc-tile-body.error .report {
+    .wag-tile-body.error .report {
         font-size: 1.2em;
         text-align: center;
     }
 
-    .cnc-tile-header {
+    .wag-tile-header {
         padding: .625em 1.25em;
         border-bottom: .1em solid ${confTheme.tileHeadingSeparColor};
     }
 
-    .cnc-form {
+    .wag-form {
         width: 100%;
     }
 
     /*
-    * cnc-form
-    * cnc-button
+    * wag-form
+    * wag-button
     */
-    .cnc-form fieldset {
+    .wag-form fieldset {
         margin: 0;
         padding: 1em 0;
         border: 0;
     }
 
-    .cnc-form legend {
+    .wag-form legend {
         border-bottom: .1em solid rgba(0,0,0, 0.1);
         display: block;
         width: 100%;
@@ -414,46 +414,46 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
 
     /*
     * We intentionally use specifictity hack here, so that this rule
-    * doesn't get overriden by e.g.: .cnc-tile a { ... }
+    * doesn't get overriden by e.g.: .wag-tile a { ... }
     * This is preferred over !important
     */
-    .cnc-button.cnc-button,
-    .cnc-form input[type=text],
-    .cnc-form input[type=password],
-    .cnc-form input[type=number],
-    .cnc-form input[type=email],
-    .cnc-form textarea,
-    .cnc-form select {
+    .wag-button.wag-button,
+    .wag-form input[type=text],
+    .wag-form input[type=password],
+    .wag-form input[type=number],
+    .wag-form input[type=email],
+    .wag-form textarea,
+    .wag-form select {
         padding: .4em .5em;
         border-radius: .3em;
         font-size: 1em;
     }
 
-    .cnc-form input[type=text],
-    .cnc-form input[type=password],
-    .cnc-form input[type=number],
-    .cnc-form input[type=email],
-    .cnc-form textarea,
-    .cnc-form select {
+    .wag-form input[type=text],
+    .wag-form input[type=password],
+    .wag-form input[type=number],
+    .wag-form input[type=email],
+    .wag-form textarea,
+    .wag-form select {
         background-color: ${confTheme.textInputBackgroundColor};
         color: ${confTheme.colorDefaultText};
         border: ${confTheme.tileBorderStyle};
     }
 
-    .cnc-form.cnc-form-spaced input[type=text],
-    .cnc-form.cnc-form-spaced input[type=password],
-    .cnc-form.cnc-form-spaced input[type=number],
-    .cnc-form.cnc-form-spaced input[type=email],
-    .cnc-form.cnc-form-spaced select {
+    .wag-form.wag-form-spaced input[type=text],
+    .wag-form.wag-form-spaced input[type=password],
+    .wag-form.wag-form-spaced input[type=number],
+    .wag-form.wag-form-spaced input[type=email],
+    .wag-form.wag-form-spaced select {
         margin-top: .3em;
         margin-bottom: .7em;
     }
 
-    .cnc-form.cnc-form-spaced label {
+    .wag-form.wag-form-spaced label {
         vertical-align: middle;
     }
 
-    .cnc-button.cnc-button {
+    .wag-button.wag-button {
         background-color: #E7E7E7;
         box-shadow: 0 -0.1em 0 0 rgba(0,0,0, .25) inset;
         padding-left: .7em;
@@ -461,56 +461,56 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         color: #333;
     }
 
-    .cnc-button.cnc-button:hover {
+    .wag-button.wag-button:hover {
         background-color: #EFEFEF;
         border-color: rgba(0,0,0, .35);
         cursor: pointer;
     }
 
-    .cnc-button.cnc-button:active,
-    .cnc-button.cnc-button:focus {
+    .wag-button.wag-button:active,
+    .wag-button.wag-button:focus {
 
     }
 
-    .cnc-form input[type=text]:focus,
-    .cnc-form input[type=password]:focus,
-    .cnc-form input[type=number]:focus,
-    .cnc-form input[type=email]:focus,
-    .cnc-form textarea:focus,
-    .cnc-form select:focus {
+    .wag-form input[type=text]:focus,
+    .wag-form input[type=password]:focus,
+    .wag-form input[type=number]:focus,
+    .wag-form input[type=email]:focus,
+    .wag-form textarea:focus,
+    .wag-form select:focus {
         background-color: ${confTheme.textInputBackgroundColor};
         color: ${confTheme.colorDefaultText};
         border-color: ${confTheme.colorLogoBlue};
     }
 
-    a.cnc-button.cnc-button {
+    a.wag-button.wag-button {
         display: inline-block;
     }
 
-    a.cnc-button.cnc-button,
-    a.cnc-button.cnc-button:hover {
+    a.wag-button.wag-button,
+    a.wag-button.wag-button:hover {
         text-decoration: none;
     }
 
-    .cnc-button.cnc-button-primary {
+    .wag-button.wag-button-primary {
         background-color: ${confTheme.colorLogoBlue};
         color: ${confTheme.colorInvertText};
     }
 
-    .cnc-button.cnc-button-primary:hover {
+    .wag-button.wag-button-primary:hover {
         background-color: #22ACE6;
     }
 
-    .cnc-button.cnc-button-primary:focus,
-    .cnc-button.cnc-button-primary:active {
+    .wag-button.wag-button-primary:focus,
+    .wag-button.wag-button-primary:active {
         border-color: rgba(0,0,0, .75);
     }
 
-    .cnc-button-text {
+    .wag-button-text {
         font-size: 1.2em;
     }
 
-    .cnc-button-desc {
+    .wag-button-desc {
         color: rgba(0,0,0, .5);
     }
 

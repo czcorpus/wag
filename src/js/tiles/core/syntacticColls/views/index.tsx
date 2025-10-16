@@ -95,7 +95,7 @@ export function init(
                 <h2>
                     {ut.translate('syntactic_colls__collocation_score_select')}
                 </h2>
-                <form className="Controls cnc-form tile-tweak">
+                <form className="Controls wag-form tile-tweak">
                     <fieldset>
                         <label>
                             <table>
