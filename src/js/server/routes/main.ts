@@ -164,14 +164,26 @@ export function mkRuntimeClientConf({
                 favicon: conf.favicon,
                 logo: {
                     url: appServices.importExternalMessage(conf.logo?.url),
-                    inlineStyle: conf.logo?.inlineStyle || {},
+                    inlineStyleDesktop: appServices.importExternalMessage(
+                        conf.logo?.inlineStyleDesktop
+                    ),
+                    inlineStyleMobile: appServices.importExternalMessage(
+                        conf.logo?.inlineStyleMobile
+                    ),
                     label: appServices.importExternalMessage(conf.logo?.label),
                     subWag: conf.logo?.subWag
                         ? {
                               url: appServices.importExternalMessage(
                                   conf.logo.subWag.url
                               ),
-                              inlineStyle: conf.logo.subWag?.inlineStyle || {},
+                              inlineStyleDesktop:
+                                  appServices.importExternalMessage(
+                                      conf.logo.subWag?.inlineStyleDesktop
+                                  ),
+                              inlineStyleMobile:
+                                  appServices.importExternalMessage(
+                                      conf.logo.subWag?.inlineStyleMobile
+                                  ),
                               label: appServices.importExternalMessage(
                                   conf.logo.subWag.label
                               ),
@@ -610,7 +622,8 @@ export function queryAction({
                     getAppliedThemeConf(
                         services.clientConf,
                         req.cookies[THEME_COOKIE_NAME]
-                    )
+                    ),
+                    runtimeConf.logo
                 );
 
                 const { HtmlHead, HtmlBody } = viewInit(viewUtils, currTheme);
@@ -676,11 +689,16 @@ export function queryAction({
                     error,
                     uiLang
                 );
+                const clientConfig = emptyClientConf(
+                    services.clientConf,
+                    req.cookies[THEME_COOKIE_NAME]
+                );
                 const currTheme = new Theme(
                     getAppliedThemeConf(
                         services.clientConf,
                         req.cookies[THEME_COOKIE_NAME]
-                    )
+                    ),
+                    clientConfig.logo
                 );
                 const { HtmlHead, HtmlBody } = viewInit(
                     viewUtils,
@@ -698,10 +716,7 @@ export function queryAction({
                         themes: [],
                         currTheme: currTheme.ident,
                         userConfig: userConf,
-                        clientConfig: emptyClientConf(
-                            services.clientConf,
-                            req.cookies[THEME_COOKIE_NAME]
-                        ),
+                        clientConfig,
                         returnUrl: mkPageReturnUrl(
                             req,
                             services.clientConf.rootUrl

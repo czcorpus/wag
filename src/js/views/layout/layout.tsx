@@ -206,7 +206,7 @@ export function init(
                 {props.config.logo ? (
                     <span>
                         <img
-                            className="logo-filtered logo"
+                            className="logo logo-filtered"
                             src={ut.createStaticUrl('logo-small.svg')}
                             alt="WaG installation logo"
                         />
@@ -348,29 +348,24 @@ export function init(
                 <header className="wdg-header">
                     <div className="logo-wrapper">
                         <a href={props.config.hostUrl} title={createLabel()}>
-                            {props.config.logo?.url ? (
-                                <img
-                                    className="logo-filtered"
-                                    src={props.config.logo.url}
-                                    alt="logo"
-                                    style={props.config.logo?.inlineStyle}
-                                />
-                            ) : (
-                                <img
-                                    className="logo-filtered"
-                                    src={ut.createStaticUrl(
-                                        ut.translate('global__logo_file')
-                                    )}
-                                    alt="logo"
-                                />
-                            )}
+                            <img
+                                className="main-logo logo-filtered"
+                                src={
+                                    props.config.logo?.url
+                                        ? props.config.logo.url
+                                        : ut.createStaticUrl(
+                                              ut.translate('global__logo_file')
+                                          )
+                                }
+                                alt="logo"
+                            />
                         </a>
                         {props.config.logo.subWag ? (
                             <a href={props.config.hostUrl}>
                                 <img
+                                    className="main-sublogo"
                                     src={props.config.logo.subWag.url}
                                     alt="logo"
-                                    style={props.config.logo.subWag.inlineStyle}
                                 />
                             </a>
                         ) : null}

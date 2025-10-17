@@ -331,7 +331,6 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
     justify-content: space-between;
     margin-top: 2em;
     flex-grow: 1;
-    flex-wrap: wrap;
 
     &.empty {
         display: none;

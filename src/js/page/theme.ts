@@ -15,11 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ColorTheme } from '../conf/index.js';
+import { RuleSet, css } from 'styled-components';
+import { ColorTheme, LogoRuntimeConf } from '../conf/index.js';
 import { Dict, Color, pipe, List } from 'cnc-tskit';
 
 export interface ColorScaleFunctionGenerator {
     (min?: number): (v: number) => string;
+}
+
+export interface LogoStyles {
+    logoDesktopStyle?: RuleSet;
+    logoMobileStyle?: RuleSet;
+    sublogoDesktopStyle?: RuleSet;
+    sublogoMobileStyle?: RuleSet;
 }
 
 const fallbackTheme: ColorTheme = {
@@ -182,7 +190,9 @@ export class Theme {
 
     public readonly chartGridColor: string;
 
-    constructor(conf?: ColorTheme) {
+    public readonly logoStyles: LogoStyles;
+
+    constructor(conf?: ColorTheme, logoConf?: LogoRuntimeConf) {
         const confSrc =
             conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
         this.ident = confSrc.themeId;
@@ -284,6 +294,28 @@ export class Theme {
 
         this.chartTextColor = confSrc.chartTextColor || this.colorDefaultText;
         this.chartGridColor = confSrc.chartGridColor || '#d9d9d9';
+        this.logoStyles = {
+            logoDesktopStyle: logoConf?.inlineStyleDesktop
+                ? css`
+                      ${logoConf.inlineStyleDesktop}
+                  `
+                : css``,
+            logoMobileStyle: logoConf?.inlineStyleMobile
+                ? css`
+                      ${logoConf.inlineStyleMobile}
+                  `
+                : css``,
+            sublogoDesktopStyle: logoConf?.subWag?.inlineStyleDesktop
+                ? css`
+                      ${logoConf.subWag.inlineStyleDesktop}
+                  `
+                : css``,
+            sublogoMobileStyle: logoConf?.subWag?.inlineStyleMobile
+                ? css`
+                      ${logoConf.subWag.inlineStyleMobile}
+                  `
+                : css``,
+        };
     }
 
     categoryPalette = (

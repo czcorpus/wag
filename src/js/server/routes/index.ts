@@ -87,7 +87,10 @@ export function errorPage({
         req.cookies[THEME_COOKIE_NAME]
     );
     clientConfig.colorThemes = [];
-    const { HtmlBody, HtmlHead } = viewInit(viewUtils, new Theme());
+    const { HtmlBody, HtmlHead } = viewInit(
+        viewUtils,
+        new Theme(undefined, clientConfig.logo)
+    );
     const errView = errPageInit(viewUtils);
     res.status(HTTP.Status.NotFound).send(
         renderResult({
