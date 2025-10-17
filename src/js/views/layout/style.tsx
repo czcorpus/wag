@@ -39,7 +39,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
             ${confTheme.svgIconsFilter};
         }
 
-        .logo-wrapper img.logo-filtered {
+        img.logo-filtered {
             ${confTheme.svgLogoFilter};
         }
 
@@ -50,16 +50,6 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
 
             margin-top: 1.2em;
 
-            a {
-                display: inline-block;
-                margin: 0;
-                text-decoration: none;
-
-                img {
-                    width: 25em;
-                }
-            }
-
             .parent-wag-link:hover {
                 text-decoration: none;
             }
@@ -69,6 +59,22 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
                 flex: 1 1 auto;
                 justify-content: center;
                 align-items: center;
+             
+                a {
+                    display: inline-block;
+                    margin: 0;
+                    text-decoration: none;
+
+                    img.main-logo {
+                        width: 25em;
+                        ${confTheme.logoStyles.logoDesktopStyle};
+                    }
+
+                    img.main-sublogo {
+                        width: 25em;
+                        ${confTheme.logoStyles.sublogoDesktopStyle};
+                    }
+                }
             }
         }
 
@@ -516,8 +522,16 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
 
     ${confTheme.cssMobileScreen} {
 
-        body > header.wdg-header a img {
-            width: 15em;
+        body > header.wdg-header .logo-wrapper a {
+            img.main-logo {
+                width: 15em;
+                ${confTheme.logoStyles.logoMobileStyle};
+            }
+
+            img.main-sublogo {
+                width: 15em;
+                ${confTheme.logoStyles.sublogoMobileStyle};
+            }
         }
     }
 
