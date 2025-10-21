@@ -45,6 +45,7 @@ export function initLogging(
                           size: '10m',
                           interval: '1d',
                           mkdir: true,
+                          symlink: true
                       },
                   },
                   customLevels,
