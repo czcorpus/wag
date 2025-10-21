@@ -44,7 +44,8 @@ export function initLogging(
                     file: serverConf.logging.path,
                     size: '10m',
                     interval: '1d',
-                    mkdir: true
+                    mkdir: true,
+                    symlink: true
                 }
             },
             customLevels,
