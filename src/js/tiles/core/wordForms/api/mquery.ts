@@ -82,7 +82,7 @@ export class MQueryWordFormsAPI
                             List.groupBy((item) => item.word),
                             List.map(([word, group]) => {
                                 const freq = List.reduce(
-                                    (a, v) => a + v.count,
+                                    (a, v) => a + v.freq,
                                     0,
                                     group
                                 );
