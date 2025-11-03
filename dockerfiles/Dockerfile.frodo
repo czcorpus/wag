@@ -1,0 +1,17 @@
+FROM ubuntu:noble
+
+RUN apt-get update && apt-get install git wget curl tar python3-pip -y \
+    && wget https://go.dev/dl/go1.23.6.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go1.23.6.linux-amd64.tar.gz \
+    && pip install pulp numpy --break-system-packages
+
+WORKDIR /opt
+RUN git clone https://github.com/czcorpus/frodo \
+    && cd frodo \
+    && PATH=$PATH:/usr/local/go/bin:/root/go/bin \
+    && make build
+
+WORKDIR /opt/frodo
+COPY ./install/docker/frodo.json ./conf.json
+
+CMD ["./frodo", "start", "conf.docker.json"]

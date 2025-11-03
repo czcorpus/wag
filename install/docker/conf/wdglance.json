@@ -1,0 +1,66 @@
+{
+    "$schema": "wdglance-schema.json",
+    "applicationId": "wag2",
+    "rootUrl": "/wag/",
+    "hostUrl": "/wag/",
+    "logo": {},
+    "runtimeAssetsUrl": "/wag/runtime-assets/",
+    "apiHeaders": {},
+    "externalStyles": [],
+    "homepage": {
+        "tiles": [
+            {
+                "label": {
+                    "cs-CZ": "Co je Slovo v kostce?",
+                    "en-US": "What is Word at a Glance?"
+                },
+                "contents": {
+                    "cs-CZ": "Slovo v kostce je aplikace, která vám umožní rychle získat přehled o slovech.",
+                    "en-US": "Word at a Glance is an application that allows you to quickly get an overview of words."
+                }
+            },
+            {
+                "label": {
+                    "cs-CZ": "Jak využívat Slovo v kostce?",
+                    "en-US": "How to use Word at a Glance?"
+                },
+                "contents": {
+                    "cs-CZ": "Vyberte dostupný typ hledání a zadejte slovo/slova, o kterém/kterých chcete získat informace.",
+                    "en-US": "Select the available search type and enter the word/words you want to get information about."
+                }
+            },
+            {
+                "label": {
+                    "cs-CZ": "Další zdroje",
+                    "en-US": "Other information"
+                },
+                "contents": {
+                    "cs-CZ": "Více naleznete na <a href=\"http://www.korpus.cz\">http://www.korpus.cz</a>",
+                    "en-US": "More available at <a href=\"http://www.korpus.cz\">http://www.korpus.cz</a>"
+                }
+            }
+        ]
+    },
+    "layouts": "./conf/layouts.json",
+    "tiles": "./conf/tiles.json",
+    "colors": "./conf/themes.json",
+    "dbValuesMapping": {
+        "syn2020": {
+            "FIC: beletrie": "Beletrie",
+            "NFC: oborová literatura": "Oborová literatura",
+            "NMG: publicistika": "Publicistika"
+        },
+        "oral_v1": {
+            "Z: žena": "Ženy",
+            "M: muž": "Muži",
+            "VŠ": "Vysokoškolské",
+            "SŠ": "Středoškolské",
+            "ZŠ": "Základní",
+            "I: do 35 let": "do 35 let",
+            "V: nad 35 let": "nad 35 let"
+        }
+    },
+    "maxTileErrors": 10,
+    "dataStreamingUrl": "/wag/stream",
+    "hideUnavailableQueryTypes": false
+}

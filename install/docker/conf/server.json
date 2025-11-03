@@ -1,0 +1,42 @@
+{
+    "$schema": "server-schema.json",
+    "address": "0.0.0.0",
+    "port": 3000,
+    "distFilesUrl": "/wag/dist/",
+    "theme": "default.less",
+    "langCookie": {
+        "name": "cs"
+    },
+    "languages": {
+        "en-US": "English",
+        "cs-CZ": "Čeština"
+    },
+    "toolbar": {
+        "type": "langSwitch",
+        "url": "https://www.korpus.cz/toolbar/toolbar"
+    },
+    "develServer": {
+        "host": "0.0.0.0",
+        "port": 9001,
+        "urlRootPath": "/wag/",
+        "webSocketURL": "ws://localhost:9001/ws"
+    },
+    "logging": {
+        "path": "/var/log/wag/app.log",
+        "rotation": false
+    },
+    "sessions": {
+        "ttl": 3600,
+        "path": "/opt/wag/sessions"
+    },
+    "freqDB": {
+        "maxQueryWords": 3,
+        "minLemmaFreq": 2,
+        "similarFreqWordsMaxCtx": 10,
+        "database": {
+            "path": "http://wag-frodo:8083/dictionary/susanne",
+            "corpusSize": 150426,
+            "dbType": "frodo"
+        }
+    }
+}

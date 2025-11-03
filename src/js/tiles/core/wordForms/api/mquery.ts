@@ -15,10 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { CorpusDetails, ResourceApi } from '../../../../types.js';
-import { ajax$ } from '../../../../page/ajax.js';
 import { FreqRowResponse } from '../../../../api/vendor/mquery/common.js';
 import { Dict, HTTP, Ident, List, pipe } from 'cnc-tskit';
 import { RequestArgs, Response } from '../common.js';
@@ -54,9 +53,10 @@ export class MQueryWordFormsAPI
         queryIdx: number,
         args: RequestArgs
     ): Observable<Response> {
-        const url = args.lemma ?
-            urlJoin(this.apiURL, '/word-forms/', args.corpName) + `?${this.prepareArgs(args)}` :
-            null;
+        const url = args.lemma
+            ? urlJoin(this.apiURL, '/word-forms/', args.corpName) +
+              `?${this.prepareArgs(args)}`
+            : null;
         return streaming
             .registerTileRequest<Array<LemmaItem>>({
                 tileId,
@@ -66,28 +66,36 @@ export class MQueryWordFormsAPI
                 contentType: 'application/json',
             })
             .pipe(
-                map(
-                    resp => {
-                        if (!resp) {
-                            return { forms: [] }
-                        }
-                        const total = resp[0].forms.reduce(
-                            (acc, curr) => curr.freq + acc,
-                            0
-                        );
-                        return {
-                            forms: List.map(
-                                (item) => ({
-                                    value: item.word,
-                                    freq: item.freq,
-                                    ratio: item.freq / total,
-                                    interactionId: Ident.puid(),
-                                }),
-                                resp[0].forms
-                            ),
-                        };
+                map((resp) => {
+                    if (!resp) {
+                        return { forms: [] };
                     }
-                )
+                    const totalCount = pipe(
+                        resp,
+                        List.flatMap((item) => item.forms),
+                        List.reduce((acc, curr) => acc + curr.freq, 0)
+                    );
+                    return {
+                        forms: pipe(
+                            resp,
+                            List.flatMap((match) => match.forms),
+                            List.groupBy((item) => item.word),
+                            List.map(([word, group]) => {
+                                const freq = List.reduce(
+                                    (a, v) => a + v.freq,
+                                    0,
+                                    group
+                                );
+                                return {
+                                    value: word,
+                                    freq,
+                                    ratio: freq / totalCount,
+                                    interactionId: Ident.puid(),
+                                };
+                            })
+                        ),
+                    };
+                })
             );
     }
 

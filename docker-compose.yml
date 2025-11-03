@@ -1,60 +1,116 @@
-version: '3.7'
-
 services:
   wag:
     build:
       context: .
-      dockerfile: dockerfiles/Dockerfile
+      dockerfile: dockerfiles/Dockerfile.wag
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
-      - runtime-assets:/opt/wag/assets
-      - dist-client:/opt/wag/dist
-      - dist-server:/opt/wag/dist-server
-      - ./install/docker/production-build-and-run.sh:/var/opt/install/production-build-and-run.sh
-      - ./build.js:/opt/wag/build.js
-      - ./webpack.dev.js:/opt/wag/webpack.dev.js
-      - ./package.json:/opt/wag/package.json
+      - wag-shared:/opt/wag-shared
     networks:
-      - wag
+      - nginx
+      - data
     # to access e.g. a non-docker database, use 'extra_hosts'
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
-    command: "npm start server"
+    command: bash -c "cp -r /opt/wag/dist /opt/wag/assets /opt/wag-shared && npm start server"
+  
+  apiguard:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.apiguard
+    volumes:
+      - ./install/docker/apiguard.json:/opt/apiguard/conf.docker.json
+    ports:
+      - "8081:8081"
+    networks:
+      - nginx
+      - data
+    hostname: wag-apiguard
+
+  mquery:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.mquery
+    volumes:
+      - ./install/docker/mquery.json:/opt/mquery/conf.docker.json
+      - ./install/docker/corpora:/opt/mquery/corpora
+      - corpora-data:/var/lib/manatee
+      - corpora-split:/var/lib/manatee/split
+    ports:
+      - "8082:8082"
+    networks:
+      - data
+    hostname: wag-mquery
+  
+  mquery-worker:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.mquery
+    command: "./mquery worker conf.docker.json"
+    volumes:
+      - ./install/docker/mquery.json:/opt/mquery/conf.docker.json
+      - ./install/docker/corpora:/opt/mquery/corpora
+      - corpora-data:/var/lib/manatee
+      - corpora-split:/var/lib/manatee/split
+    networks:
+      - data
+  
+  frodo:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.frodo
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./install/docker/frodo.json:/opt/frodo/conf.docker.json
+      - ./install/docker/vert-tagextract:/opt/frodo/vert-tagextract/conf
+      - ./install/docker/corpora:/opt/frodo/corpora
+      - corpora-data:/var/lib/manatee
+    networks:
+      - data
+    hostname: wag-frodo
 
   nginx:
     image: nginx:latest
-    ports:
-      - "8081:80"
     depends_on:
       - wag
     volumes:
       - ./install/docker/nginx.conf:/etc/nginx/conf.d/default.conf
-      - runtime-assets:/opt/wag/assets
-      - dist-client:/opt/wag/dist
-      - dist-server:/opt/wag/dist-server
-      - ./build.js:/opt/wag/build.js
-      - ./webpack.dev.js:/opt/wag/webpack.dev.js
-      - ./package.json:/opt/wag/package.json
+      - wag-shared:/opt/wag
+    ports:
+      - "8080:80"
     networks:
-      - wag
+      - nginx
 
   redis:
     image: redis:latest
+    volumes:
+      - redis-data:/data
     networks:
-      - wag
-
-  couchdb:
+      - data
+    hostname: wag-redis
+  
+  mariadb:
+    image: mariadb:latest
     environment:
-      COUCHDB_USER: user
-      COUCHDB_PASSWORD: password
-    image: couchdb:latest
+      MARIADB_ROOT_PASSWORD: root-secret
+      MARIADB_USER: liveattrs
+      MARIADB_PASSWORD: liveattrs-secret
+      MARIADB_DATABASE: liveattrs
+    volumes:
+      - ./install/docker/mariadb-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mariadb-data:/var/lib/mysql
     networks:
-      - wag
+      - data
+    hostname: wag-mariadb
 
 volumes:
-  runtime-assets: {}
-  dist-client: {}
-  dist-server: {}
+  wag-shared: {}
+  corpora-data: {}
+  corpora-split: {}
+  redis-data: {}
+  mariadb-data: {}
 
 networks:
-  wag: {}
+  nginx: {}
+  data: {}

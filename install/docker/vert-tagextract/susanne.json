@@ -1,0 +1,29 @@
+{
+  "corpus": "susanne",
+  "verticalFile": "/var/lib/manatee/vert/susanne.vert",
+  "encoding": "utf-8",
+  "atomStructure": "p",
+  "stackStructEval": false,
+  "structures": {
+    "doc": ["file", "n"],
+    "p": []
+  },
+  "ngrams":{
+    "ngramSize": 1,
+    "calcARF": true,
+    "vertColumns": [
+      {
+        "idx": 0,
+        "role": "word"
+      },
+      {
+        "idx": 1,
+        "role": "lemma"
+      },
+      {
+        "idx": 2,
+        "role": "tag"
+      }
+    ]
+  }
+}

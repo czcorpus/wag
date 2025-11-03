@@ -1,0 +1,63 @@
+{
+    "WordFreqProfile": {
+        "tileType": "WordFreqTile",
+        "label": {
+            "cs-CZ": "Základní charakteristika",
+            "en-US": "Basic characteristics"
+        },
+
+        "apiURL": "http://localhost:8081/service/1/frodo/",
+        "infoApiURL": "http://localhost:8081/service/0/mquery/",
+        "corpname": "susanne",
+        "corpusSize": 150426,
+        "sfwRowRange": 7
+    },
+    "WordFormsMain": {
+        "tileType": "WordFormsTile",
+        "apiType": "frodo",
+        "apiURL": "http://localhost:8081/service/1/frodo/",
+        "corpname": "susanne",
+        "corpusSize": 150426,
+        "freqFilterAlphaLevel": "0.05",
+        "posQueryGenerator": ["tag", "pennTreebank"]
+    },
+    "ConcordanceSynchronic": {
+        "tileType": "ConcordanceTile",
+        "apiType": "mquery",
+        "apiURL": "http://localhost:8081/service/0/mquery/",
+
+        "corpname": "susanne",
+        "posAttrs": ["word", "lemma", "tag"],
+        "sentenceStruct": "p",
+        "pageSize": 15,
+        "posQueryGenerator": ["tag", "pennTreebank"]
+    },
+    "CollocationsSynchronic": {
+        "tileType": "CollocTile",
+        "apiType": "with-examples",
+        "apiURL": "http://localhost:8081/service/0/mquery/",
+
+        "corpname": "susanne",
+        "minFreq": 5,
+        "minLocalFreq": 5,
+        "rangeSize": 3,
+
+        "posQueryGenerator": ["tag", "pennTreebank"],
+        "examplesPerColl": 5
+    },
+    "CollocationsExamples": {
+        "tileType": "ConcordanceTile",
+        "apiType": "mquery",
+        "apiURL": "http://localhost:8081/service/0/mquery/",
+        "label": {
+            "cs-CZ": "Příklady kolokací",
+            "en-US": "Collocation examples"
+        },
+
+        "corpname": "susanne",
+        "posAttrs": ["word", "lemma", "tag"],
+        "sentenceStruct": "p",
+        "pageSize": 15,
+        "posQueryGenerator": ["tag", "pennTreebank"]
+    }
+}

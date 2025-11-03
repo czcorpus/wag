@@ -14,7 +14,9 @@ COPY webpack.server.js ./webpack.server.js
 COPY tsconfig.json ./tsconfig.json
 COPY tsconfig.server.json ./tsconfig.server.json
 COPY ./package.json ./package-lock.json ./
+COPY install/docker/conf ./conf
 RUN npm ci
+RUN mkdir -p /opt/wag/dist/.compiled \
+    && mkdir /opt/wag-shared \
+    && mkdir /var/log/wag
 ENV NODE_ENV development
-RUN mkdir ./dist
-RUN mkdir ./dist/.compiled

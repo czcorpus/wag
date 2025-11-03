@@ -18,8 +18,7 @@
 import { Observable, map } from 'rxjs';
 
 import { CorpusDetails, ResourceApi } from '../../../../types.js';
-import { ajax$ } from '../../../../page/ajax.js';
-import { HTTP, Ident, List } from 'cnc-tskit';
+import { HTTP, Ident, List, pipe } from 'cnc-tskit';
 import { RequestArgs, Response } from '../common.js';
 import urlJoin from 'url-join';
 import { WordFormsBacklinkAPI } from './backlink.js';
@@ -74,15 +73,29 @@ export class FrodoWordFormsAPI
             })
             .pipe(
                 map((resp) => {
+                    const totalCount = List.reduce(
+                        (a, v) => (a = a + v.count),
+                        0,
+                        resp.matches
+                    );
                     return {
-                        forms: List.map(
-                            (item) => ({
-                                value: item.word,
-                                freq: item.count,
-                                ratio: item.count / resp.matches[0].count,
-                                interactionId: Ident.puid(),
-                            }),
-                            resp.matches[0].forms
+                        forms: pipe(
+                            resp.matches,
+                            List.flatMap((match) => match.forms),
+                            List.groupBy((item) => item.word),
+                            List.map(([word, group]) => {
+                                const freq = List.reduce(
+                                    (a, v) => a + v.count,
+                                    0,
+                                    group
+                                );
+                                return {
+                                    value: word,
+                                    freq,
+                                    ratio: freq / totalCount,
+                                    interactionId: Ident.puid(),
+                                };
+                            })
                         ),
                     };
                 })

@@ -1,0 +1,65 @@
+{
+    "serverHost": "0.0.0.0",
+    "serverPort": 8081,
+    "botwatch": {
+        "botDefsPath": "",
+        "watchedTimeWindowSecs": 30,
+        "numRequestsThreshold": 10,
+        "rsdThreshold": 0.2
+    },
+    "services": [
+        {
+          "type": "mquery",
+          "conf": {
+            "backendUrl": "http://wag-mquery:8082",
+            "frontendUrl": "http://localhost:8080/apiguard/mquery",
+            "limits": [
+              {
+                "reqPerTimeThreshold": 9,
+                "reqCheckingIntervalSecs": 10,
+                "burstLimit": 15
+              }
+            ],
+            "sessionValType": "none",
+            "guardType": "dflt"
+          }
+        },
+        {
+            "type": "frodo",
+            "conf": {
+              "backendUrl": "http://wag-frodo:8083",
+              "frontendUrl": "http://localhost:8080/apiguard/frodo",
+              "limits": [
+                {
+                  "reqPerTimeThreshold": 9,
+                  "reqCheckingIntervalSecs": 10,
+                  "burstLimit": 15
+                }
+              ],
+              "sessionValType": "none",
+              "guardType": "dflt"
+            }
+        }
+    ],
+    "cache": {
+        "redisAddr": "wag-redis:6379",
+        "redisDB": 0,
+        "ttlSecs": 7200
+    },
+    "mail": {
+        "sender": "apiguard@korpus.cz",
+        "smtpServer": "smtp.korpus.cz:587",
+        "smtpUsername": "some_user",
+        "smtpPassword": "********",
+        "confirmationBaseURL": "http://localhost:3010"
+    },
+    "monitoring": {
+        "delayLogCleanupMaxAgeDays": 100,
+        "statusDataDir": "/var/lib/apiguard/statusData",
+        "userReqCounterBufferSize": 1000,
+        "exceedingsBufferSize": 10,
+        "exceedingThreshold": 0.06
+    },
+    "operationMode": "streaming",
+    "disableStreamingModeCache": true
+}
