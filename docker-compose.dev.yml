@@ -19,6 +19,7 @@ services:
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
     command: bash -c "npm start build:server && npm start server"
+    hostname: wag-server
 
   wag-client:
     build:
@@ -39,6 +40,7 @@ services:
     networks:
       - nginx
     command: bash -c "npm start devel-server"
+    hostname: wag-client
   
   apiguard:
     build: ${APIGUARD_PATH}

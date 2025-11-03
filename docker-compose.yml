@@ -13,6 +13,7 @@ services:
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
     command: bash -c "cp -r /opt/wag/dist /opt/wag/assets /opt/wag-shared && npm start server"
+    hostname: wag-server
   
   apiguard:
     build:
