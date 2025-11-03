@@ -141,7 +141,7 @@ export function createRootComponent({
     tileGroups: Array<TileGroup>;
     mainPosAttr: MainPosAttrValues;
 } {
-    const theme = new Theme(config.colors);
+    const theme = new Theme(config.colors, config.logo);
     const globalComponents = globalCompInit(
         dispatcher,
         viewUtils,

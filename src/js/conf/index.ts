@@ -18,7 +18,6 @@
 import { HTTPHeaders, LocalizedConfMsg } from '../types.js';
 import { QueryType } from '../query/index.js';
 import { TileConf } from '../page/tile.js';
-import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
 
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
@@ -201,7 +200,8 @@ export interface InstanceLink {
 
 export interface LogoStaticConf {
     url: LocalizedConfMsg;
-    inlineStyle?: CSSProperties;
+    inlineStyleDesktop?: LocalizedConfMsg;
+    inlineStyleMobile?: LocalizedConfMsg;
     label?: LocalizedConfMsg;
 
     /**
@@ -211,7 +211,8 @@ export interface LogoStaticConf {
      */
     subWag?: {
         url: LocalizedConfMsg; // for different language versions, use object
-        inlineStyle?: CSSProperties;
+        inlineStyleDesktop?: LocalizedConfMsg;
+        inlineStyleMobile?: LocalizedConfMsg;
         label?: LocalizedConfMsg; // for different language versions, use object
     };
 }
@@ -222,7 +223,8 @@ export interface LogoStaticConf {
  */
 export interface LogoRuntimeConf {
     url: string;
-    inlineStyle: CSSProperties;
+    inlineStyleDesktop: string;
+    inlineStyleMobile: string;
     label: string;
 
     /**
@@ -232,7 +234,8 @@ export interface LogoRuntimeConf {
      */
     subWag?: {
         url: string;
-        inlineStyle: CSSProperties;
+        inlineStyleDesktop: string;
+        inlineStyleMobile: string;
         label: string;
     };
 }
@@ -422,7 +425,8 @@ export function emptyClientConf(
         favicon: conf.favicon,
         logo: {
             url: '',
-            inlineStyle: {},
+            inlineStyleDesktop: '',
+            inlineStyleMobile: '',
             label: '',
         },
         apiHeaders: conf.apiHeaders,
