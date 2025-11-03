@@ -1,0 +1,115 @@
+{
+    "default": "cnc-default",
+    "themes": [
+        {
+            "themeId": "cnc-default",
+            "themeLabel": "CNC default",
+            "pageBackgroundColor": "#eeebe6",
+            "tileHeadingSeparColor": "rgba(0, 0, 0, 0.1)",
+            "colorLightText": "#9a9a9a",
+            "colorSecondaryText": "#444444",
+            "colorInvertText": "#efefef",
+            "colorInvertedSecondaryText": "#565656",
+            "oddDataLineBackgroundColor": "#eff9fe",
+            "lineChartColor1": "#009ee0",
+            "lineConfidenceAreaColor1": "#ddedf3",
+            "lineChartColor2": "#E2007A",
+            "lineConfidenceAreaColor2": "#eed4e2",
+            "cmpCategory": [
+                "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
+            ],
+            "category": [
+               "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
+            ],
+           "categoryOther": "#494949",
+           "scale": [
+                "#009EE0",
+                "#66C5EC",
+                "#A93F9F",
+                "#D49FCF",
+                "#EA9358",
+                "#F5C9AB",
+                "#A5A94B",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5"
+           ],
+           "geoAreaSpotFillColor": "#009ee0",
+           "geoAreaSpotTextColor": "#FFFFFF"
+        },
+        {
+            "themeId": "cnc-dark",
+            "themeLabel": "CNC dark",
+            "colorDefaultText": "#ddddee",
+            "colorInvertedSecondaryText": "#333333",
+            "oddDataLineBackgroundColor": "#2d2d39",
+            "textInputBackgroundColor": "#333355",
+            "colorWhitelikeBlue": "#31313f",
+            "pageBackgroundColor": "#0f224c",
+            "tileBackgroundColor": "#061125",
+            "tileHeadingSeparColor": "#56568f",
+            "svgIconsFilter": "",
+            "chartGridColor": "#4a4a5e",
+            "svgLogoFilter": "",
+
+
+            "lineChartColor1": "#009ee0",
+            "lineConfidenceAreaColor1": "#113067",
+            "lineChartColor2": "#E2007A",
+            "lineConfidenceAreaColor2": "#4a1167",
+            "cmpCategory": [
+                "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
+            ],
+            "category": [
+                "#009EE0",
+                "#E2007A",
+                "#57AB27",
+                "#EA670C",
+                "#000075",
+                "#9A6324",
+                "#FFE119",
+                "#FABED4"
+            ],
+            "categoryOther": "#494949",
+            "scale": [
+                "#009EE0",
+                "#66C5EC",
+                "#A93F9F",
+                "#D49FCF",
+                "#EA9358",
+                "#F5C9AB",
+                "#A5A94B",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5",
+                "#D2D4A5"
+            ],
+            "geoAreaSpotFillColor": "#009ee0",
+            "geoAreaSpotTextColor": "#FFFFFF"
+        }
+    ]
+}

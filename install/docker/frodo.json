@@ -1,0 +1,29 @@
+{
+    "listenAddress" : "0.0.0.0",
+    "listenPort": 8083,
+    "serverReadTimeoutSecs": 120,
+    "logging": {
+        "level": "debug"
+    },
+    "corporaSetup": {
+        "registryDirPaths": ["/var/lib/manatee/registry"],
+        "registryTmpDir": "/tmp/registry",
+        "confFilesDir": "/opt/frodo/corpora"
+    },
+    "liveAttrs": {
+        "db": {
+            "type": "mysql",
+            "host": "wag-mariadb:3306",
+            "name": "liveattrs",
+            "user": "liveattrs",
+            "password": "liveattrs-secret",
+            "preconfSettings": []
+        },
+        "confDirPath": "/opt/frodo/vert-tagextract/conf"
+    },
+    "jobs": {
+        "statusDataPath": "/tmp/cnc-masm-data.bin",
+        "maxNumRestarts": 3,
+        "maxNumConcurrentJobs": 4
+    }
+}

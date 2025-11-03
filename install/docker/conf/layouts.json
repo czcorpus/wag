@@ -1,0 +1,86 @@
+{
+    "single": {
+        "mainPosAttr": "pos",
+        "groups": [
+            {
+                "groupLabel": {
+                    "cs-CZ": "Základní charakteristika",
+                    "en-US": "Basic characteristics"
+                },
+                "tiles": [
+                    {
+                        "tile": "WordFreqProfile",
+                        "width": 3
+                    },
+                    {
+                        "tile": "WordFormsMain",
+                        "width": 1
+                    },
+                    {
+                        "tile": "ConcordanceSynchronic",
+                        "width": 2
+                    }
+                ]
+            },
+            {
+                "groupLabel": {
+                    "cs-CZ": "Kolokace",
+                    "en-US": "Collocations"
+                },
+                "tiles": [
+                    {
+                        "tile": "CollocationsSynchronic",
+                        "width": 1
+                    },
+                    {
+                        "tile": "CollocationsExamples",
+                        "width": 2,
+                        "readDataFrom": "CollocationsSynchronic"
+                    }
+                ]
+            }
+        ]
+    },
+    "cmp": {
+        "mainPosAttr": "pos",
+        "groups": [
+            {
+                "groupLabel": {
+                    "cs-CZ": "Základní charakteristiky",
+                    "en-US": "Basic characteristics"
+                },
+                "tiles": [
+                    {
+                        "tile": "WordFreqProfile",
+                        "width": 2
+                    },
+                    {
+                        "tile": "WordFormsMain",
+                        "width": 1
+                    },
+                    {
+                        "tile": "ConcordanceSynchronic",
+                        "width": 2
+                    }
+                ]
+            },
+            {
+                "groupLabel": {
+                    "cs-CZ": "Kolokace",
+                    "en-US": "Collocations"
+                },
+                "tiles": [
+                    {
+                        "tile": "CollocationsSynchronic",
+                        "width": 3
+                    },
+                    {
+                        "tile": "CollocationsExamples",
+                        "width": 3,
+                        "readDataFrom": "CollocationsSynchronic"
+                    }
+                ]
+            }
+        ]
+    }
+}

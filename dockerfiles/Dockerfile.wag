@@ -13,9 +13,11 @@ COPY webpack.prod.js ./webpack.prod.js
 COPY webpack.server.js ./webpack.server.js
 COPY tsconfig.json ./tsconfig.json
 COPY tsconfig.server.json ./tsconfig.server.json
+COPY tsconfig.test.json ./tsconfig.test.json
 COPY ./package.json ./package-lock.json ./
 RUN npm ci
+RUN mkdir -p /opt/wag/dist/.compiled \
+    && mkdir /opt/wag-shared \
+    && mkdir /var/log/wag
 ENV NODE_ENV production
-RUN mkdir ./dist
-RUN mkdir ./dist/.compiled
 RUN npm start build:production

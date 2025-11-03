@@ -187,7 +187,6 @@ export function mkRuntimeClientConf({
                         ? conf.instanceSwitchMenu
                         : []
                 ),
-                corpInfoApiUrl: conf.corpInfoApiUrl,
                 apiHeaders: conf.apiHeaders,
                 onLoadInit: conf.onLoadInit,
                 dataReadability:

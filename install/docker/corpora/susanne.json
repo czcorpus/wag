@@ -1,0 +1,34 @@
+{
+    "id": "susanne",
+    "fullName": {
+        "en": "SUSANNE Corpus",
+        "cs": "Korpus SUSANNE"
+    },
+    "description": {
+        "cs": "Korpus SUSANNE je částečně anotovaný korpus psané angličtiny s morfosyntaktickým označováním slov a syntaktickou anotací.",
+        "en": "The SUSANNE Corpus is a part-of-speech tagged and syntactically annotated corpus of written English."
+    },
+    "syntaxConcordance": {
+        "parentAttr": "p",
+        "resultAttrs": ["word", "lemma", "tag"]
+    },
+    "posAttrs": [
+        {"name": "word"},
+        {"name": "lemma"},
+        {"name": "tag"}
+    ],
+    "viewContextStruct": "p",
+    "concMarkupStructures": [],
+    "concTextPropsAttrs": [],
+    "textProperties": {},
+    "maximumRecords": 1000000,
+    "MaximumTokenContextWindow": 50,
+    "subcorpora": {},
+    "srchKeywords": [],
+    "webUrl": "https://www.grsampson.net/RSue.html",
+    "hasPublicAudio": false,
+    "bibLabelAttr": "",
+    "bibIdAttr": "",
+    "tagsets": ["penn"],
+    "size": 150426
+}

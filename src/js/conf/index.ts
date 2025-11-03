@@ -264,7 +264,6 @@ export interface ClientStaticConf {
     logo?: LogoStaticConf;
     instanceSwitchMenu?: Array<InstanceLink> | string;
     hideUnavailableQueryTypes?: boolean;
-    corpInfoApiUrl: string;
     dataReadability?: DataReadabilityMapping | string;
     apiHeaders: { [urlPrefix: string]: HTTPHeaders };
     onLoadInit?: Array<string>;
@@ -328,7 +327,6 @@ export interface ClientConf {
     hostUrl: string;
     runtimeAssetsUrl: string;
     favicon?: FaviconConf;
-    corpInfoApiUrl: string;
     dataReadability?: DataReadabilityMapping;
     logo?: LogoRuntimeConf;
     instanceSwitchMenu?: Array<{ label: string; url: string }>;
@@ -427,7 +425,6 @@ export function emptyClientConf(
             inlineStyle: {},
             label: '',
         },
-        corpInfoApiUrl: conf.corpInfoApiUrl,
         apiHeaders: conf.apiHeaders,
         dataReadability: {
             metadataMapping: {},
@@ -485,13 +482,6 @@ export function getSupportedQueryTypes(
 export interface ToolbarDef {
     type: string;
     url?: string;
-}
-
-export interface LogQueueConf {
-    host: string;
-    port: number;
-    db: number;
-    key: string;
 }
 
 export interface FreqDbOptions {
@@ -562,7 +552,6 @@ export interface ServerConf {
         webSocketURL?: string;
     };
     freqDB: WordDbConf;
-    logQueue?: LogQueueConf;
     toolbar: ToolbarDef;
     langCookie?: LangCookieSetup;
     logging: {

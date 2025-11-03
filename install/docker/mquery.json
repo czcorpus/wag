@@ -1,0 +1,27 @@
+{
+    "listenAddress" : "0.0.0.0",
+    "listenPort": 8082,
+    "serverReadTimeoutSecs": 120,
+    "serverWriteTimeoutSecs": 120,
+    "corsAllowedOrigins": [],
+    "corpora": {
+        "registryDir": "/var/lib/manatee/registry",
+        "splitCorporaDir": "/var/lib/manatee/split",
+        "multiprocChunkSize": 50000000,
+        "mktokencovPath": "/usr/local/bin/mktokencov",
+        "confFilesDir": "/opt/mquery/corpora"
+    },
+    "redis": {
+        "host": "wag-redis",
+        "port": 6379,
+        "db": 1,
+        "channelQuery": "channel",
+        "channelResultPrefix": "res",
+        "queryAnswerTimeoutSecs": 600
+    },
+    "logging": {
+        "level": "debug"
+    },
+    "language": "en",
+    "timeZone": "UTC"
+}
