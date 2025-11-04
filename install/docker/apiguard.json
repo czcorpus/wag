@@ -12,7 +12,7 @@
           "type": "mquery",
           "conf": {
             "backendUrl": "http://wag-mquery:8082",
-            "frontendUrl": "http://localhost:8080/apiguard/mquery",
+            "frontendUrl": "http://localhost:8082",
             "limits": [
               {
                 "reqPerTimeThreshold": 9,
@@ -28,7 +28,7 @@
             "type": "frodo",
             "conf": {
               "backendUrl": "http://wag-frodo:8083",
-              "frontendUrl": "http://localhost:8080/apiguard/frodo",
+              "frontendUrl": "http://localhost:8083",
               "limits": [
                 {
                   "reqPerTimeThreshold": 9,

@@ -19,7 +19,7 @@
     ],
     "viewContextStruct": "p",
     "concMarkupStructures": [],
-    "concTextPropsAttrs": [],
+    "concTextPropsAttrs": ["doc", "p", "head", "g"],
     "textProperties": {},
     "maximumRecords": 1000000,
     "MaximumTokenContextWindow": 50,
