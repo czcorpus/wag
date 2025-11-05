@@ -22,7 +22,6 @@ import { Dict, List, pipe, Strings } from 'cnc-tskit';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { Actions } from './actions.js';
-import { Actions as GlobalActions } from '../../../models/actions.js';
 import { ConcordanceTileModel } from './model.js';
 
 import * as S from './style.js';
@@ -395,7 +394,7 @@ export function init(
             }
         }, [state.concordances]);
 
-        const handleQueryVariantClick = (queryIdx:number) => () => {
+        const handleQueryVariantClick = (queryIdx: number) => () => {
             dispatcher.dispatch<typeof Actions.SetVisibleQuery>({
                 name: Actions.SetVisibleQuery.name,
                 payload: {
@@ -472,24 +471,30 @@ export function init(
                     ) : null}
                     {state.queries.length > 1 ? (
                         <S.QueryInfo>
-                            {
-                                List.map(
-                                    (q, i) => {
-                                        const classes = ['variant'];
-                                        if (i === state.visibleQueryIdx) {
-                                            classes.push('current');
-                                        }
-                                        return (
-                                            <React.Fragment key={`${i}:${q}`}>
-                                                {i > 0 ? <span className="separ">|</span> : null}
-                                                {i === state.visibleQueryIdx ? <span className="dot">{'\u23FA'}</span> : null}
-                                                <a className={classes.join(' ')} onClick={handleQueryVariantClick(i)}>{q}</a>
-                                            </React.Fragment>
-                                        )
-                                    },
-                                    state.queries
-                                )
-                            }
+                            {List.map((q, i) => {
+                                const classes = ['variant'];
+                                if (i === state.visibleQueryIdx) {
+                                    classes.push('current');
+                                }
+                                return (
+                                    <React.Fragment key={`${i}:${q}`}>
+                                        {i > 0 ? (
+                                            <span className="separ">|</span>
+                                        ) : null}
+                                        {i === state.visibleQueryIdx ? (
+                                            <span className="dot">
+                                                {'\u23FA'}
+                                            </span>
+                                        ) : null}
+                                        <a
+                                            className={classes.join(' ')}
+                                            onClick={handleQueryVariantClick(i)}
+                                        >
+                                            {q}
+                                        </a>
+                                    </React.Fragment>
+                                );
+                            }, state.queries)}
                         </S.QueryInfo>
                     ) : null}
                     {state.isExamplesMode ? null : (

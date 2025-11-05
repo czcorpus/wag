@@ -47,6 +47,7 @@ export interface Line {
     props: { [name: string]: string };
     interactionId?: string;
     highlighted?: boolean;
+    errMsg?: string;
 }
 
 export function getLineLeftCtx(line: Line): Array<Token> {
@@ -69,6 +70,10 @@ export function getKwicCtx(line: Line): Array<Token> {
         (x) => (x > -1 ? List.size(line.text) - 1 - x : -1)
     );
     if (srchIdx1 === -1 || srchIdx2 === -1) {
+        if (line.errMsg) {
+            console.error(`Error in line ${line.ref}: ${line.errMsg}`);
+            return line.text;
+        }
         throw new Error('cannot find kwic/coll ctx');
     }
     return List.slice(srchIdx1, srchIdx2 + 1, line.text);
