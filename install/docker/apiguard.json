@@ -55,7 +55,7 @@
     },
     "monitoring": {
         "delayLogCleanupMaxAgeDays": 100,
-        "statusDataDir": "/var/lib/apiguard/statusData",
+        "statusDataDir": "/var/opt/apiguard/status",
         "userReqCounterBufferSize": 1000,
         "exceedingsBufferSize": 10,
         "exceedingThreshold": 0.06

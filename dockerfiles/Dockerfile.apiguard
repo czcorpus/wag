@@ -6,7 +6,8 @@ WORKDIR /opt
 RUN git clone https://github.com/czcorpus/apiguard
 
 WORKDIR /opt/apiguard
-RUN make build && mkdir /var/lib/apiguard/statusData -p
+RUN make build \
+    && mkdir /var/opt/apiguard/status -p
 
 COPY ./install/docker/apiguard.json ./conf.json
 
