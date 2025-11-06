@@ -227,25 +227,20 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
                     border: none;
                     background: none;
                     cursor: pointer;
-                    margin: 0 0.1em;
+                    margin: 0 0.2em;
                     padding: 0;
                     font-size: 1em;
                     color: ${confTheme.colorDefaultText};
-
-                    img {
-                        width: 0.9em;
-                        display: block;
-                        padding: 0.2em 0.3em 0.2em 0.2em;
-                    }
                 }
 
                 button:hover {
-                    text-decoration: underline;
+                    color: ${confTheme.colorLogoBlue};
                 }
 
                 button.current {
-                    color: ${confTheme.colorLogoBlue};
-                    cursor: default;
+                    border-color: ${confTheme.colorLogoBlue};
+                    border-style: solid;
+                    border-width: 0 0 2px 0;
                 }
 
                 .separ {

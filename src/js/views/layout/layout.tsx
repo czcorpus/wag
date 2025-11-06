@@ -98,16 +98,16 @@ export function init(
                                     <span className="separ">, </span>
                                 ) : null}
                                 <button
+                                    className={
+                                        v.themeId === props.currTheme
+                                            ? 'current'
+                                            : null
+                                    }
                                     type="submit"
                                     name="themeId"
                                     value={v.themeId}
                                     disabled={v.themeId === props.currTheme}
                                 >
-                                    {v.themeId === props.currTheme ? (
-                                        <img
-                                            src={ut.createStaticUrl('star.svg')}
-                                        />
-                                    ) : null}
                                     {typeof v.themeLabel === 'string'
                                         ? v.themeLabel
                                         : v.themeLabel['en-US']}
