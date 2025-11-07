@@ -19,6 +19,7 @@ services:
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
     command: bash -c "npm start build:server && npm start server"
+    hostname: wag-server
 
   wag-client:
     build:
@@ -39,22 +40,24 @@ services:
     networks:
       - nginx
     command: bash -c "npm start devel-server"
+    hostname: wag-client
   
   apiguard:
     build: ${APIGUARD_PATH}
     volumes:
-      - ./install/docker/apiguard.json:/opt/apiguard/conf.docker.json
+      - ${APIGUARD_CONF}:/opt/apiguard/conf.docker.json
     ports:
       - "8081:8081"
     networks:
       - nginx
       - data
+    hostname: wag-apiguard
 
   mquery:
     build: ${MQUERY_PATH}
     volumes:
-      - ./install/docker/mquery.json:/opt/mquery/conf.docker.json
-      - ./install/docker/corpora:/opt/mquery/corpora
+      - ${MQUERY_CONF}:/opt/mquery/conf.docker.json
+      - ${CORPORA_CONF}:/opt/mquery/corpora
       - corpora-data:/var/lib/manatee
       - corpora-split:/var/lib/manatee/split
     ports:
@@ -67,8 +70,8 @@ services:
     build: ${MQUERY_PATH}
     command: "./mquery worker conf.docker.json"
     volumes:
-      - ./install/docker/mquery.json:/opt/mquery/conf.docker.json
-      - ./install/docker/corpora:/opt/mquery/corpora
+      - ${MQUERY_CONF}:/opt/mquery/conf.docker.json
+      - ${CORPORA_CONF}:/opt/mquery/corpora
       - corpora-data:/var/lib/manatee
       - corpora-split:/var/lib/manatee/split
     networks:
@@ -79,9 +82,9 @@ services:
     ports:
       - "8083:8083"
     volumes:
-      - ./install/docker/frodo.json:/opt/frodo/conf.docker.json
-      - ./install/docker/vert-tagextract:/opt/frodo/vert-tagextract/conf
-      - ./install/docker/corpora:/opt/frodo/corpora
+      - ${FRODO_CONF}:/opt/frodo/conf.docker.json
+      - ${VERT_TAGEXTRACT_CONF}:/opt/frodo/vert-tagextract/conf
+      - ${CORPORA_CONF}:/opt/frodo/corpora
       - corpora-data:/var/lib/manatee
     networks:
       - data
