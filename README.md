@@ -4,6 +4,18 @@
 
 WaG is a highly configurable frontend for creating word profile portals based on corpus resources compatible with the Manatee-open search engine. It provides comprehensive visualizations of linguistic data through seamless integration with our API services.
 
+## Table of Contents
+
+- [Core Components](#core-components)
+- [Features](#features)
+- [Getting Started with Docker](#getting-started-with-docker)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start (Production)](#quick-start-production)
+  - [Development Setup](#development-setup)
+  - [Available Services](#available-services)
+  - [Docker Architecture](#docker-architecture)
+- [How to cite WaG](#how-to-cite-wag)
+
 ## Core Components
 
 WaG integrates with the following backend services:
