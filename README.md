@@ -69,19 +69,17 @@ The easiest way to run WaG is using Docker Compose, which sets up all required s
 
 For development with hot-reloading:
 
-1. **Set up environment variables** (same as production, plus development-specific paths):
+1. **Configure environment** (optional):
+
+   For development, you'll need to specify paths to local checkouts of the backend services. Add these to your [.env](.env) file:
 
    ```bash
-   export WAG_CONFIG_PATH=/path/to/wag/conf
-   export APIGUARD_PATH=/path/to/apiguard
-   export APIGUARD_CONF=/path/to/apiguard/conf.docker.json
-   export MQUERY_PATH=/path/to/mquery
-   export MQUERY_CONF=/path/to/mquery/conf.docker.json
-   export FRODO_PATH=/path/to/frodo
-   export FRODO_CONF=/path/to/frodo/conf.docker.json
-   export VERT_TAGEXTRACT_CONF=/path/to/vert-tagextract/conf
-   export CORPORA_CONF=/path/to/corpora
+   APIGUARD_PATH=/path/to/apiguard
+   MQUERY_PATH=/path/to/mquery
+   FRODO_PATH=/path/to/frodo
    ```
+
+   The other variables from the production setup are reused.
 
 2. **Start development environment:**
 
