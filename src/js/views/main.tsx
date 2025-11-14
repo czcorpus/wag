@@ -56,7 +56,7 @@ import { Theme } from '../page/theme.js';
 
 export interface WdglanceMainProps {
     layout: Array<TileGroup>;
-    homepageSections: Array<{ label: string; html: string }>;
+    homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
     queries: Array<UserQuery>;
     isMobile: boolean;
     isAnswerMode: boolean;
@@ -203,6 +203,7 @@ export function init(
             <>
                 <input
                     type="text"
+                    name="search-query"
                     ref={ref}
                     className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
                     aria-label={ut.translate('global__aria_searched_word')}
@@ -1014,18 +1015,22 @@ export function init(
     // ------------- <InitialHelp /> --------------------------------------
 
     const InitialHelp: React.FC<{
-        sections: Array<{ label: string; html: string }>;
+        sections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
     }> = (props) => {
         return (
             <>
-                {props.sections.map((sect, i) => (
-                    <section key={`${sect}:${i}`} className="wag-tile help">
-                        <header className="wag-tile-header panel">
-                            {sect.label}
-                        </header>
-                        <InitialHelpTile html={sect.html} />
-                    </section>
-                ))}
+                {pipe(
+                    props.sections,
+                    List.filter(sect => !sect.isFooterIntegrated),
+                    List.map((sect, i) => (
+                        <section key={`${sect}:${i}`} className="wag-tile help">
+                            <header className="wag-tile-header panel">
+                                {sect.label}
+                            </header>
+                            <InitialHelpTile html={sect.html} />
+                        </section>
+                    ))
+                )}
             </>
         );
     };
@@ -1654,7 +1659,7 @@ export function init(
 
     const TilesSections: React.FC<{
         layout: Array<TileGroup>;
-        homepageSections: Array<{ label: string; html: string }>;
+        homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
     }> = (props) => {
         const state = useModel(tilesModel);
 
@@ -1836,8 +1841,23 @@ export function init(
             }
         });
 
+        const handleAboutInfoClose = () => {
+            dispatcher.dispatch(Actions.AboutAppInfoClosed);
+        };
+
         return (
             <S.TilesSections>
+                {state.aboutInfo ?
+                    <globalComponents.ModalBox
+                        onCloseClick={handleAboutInfoClose}
+                        title={state.aboutInfo.label}
+                        tileClass="text">
+                        <S.AboutApp>
+                            {state.aboutInfo.body}
+                        </S.AboutApp>
+                    </globalComponents.ModalBox> :
+                    null
+                }
                 {state.isAnswerMode ? (
                     <globalComponents.TileMinHeightContext value={height}>
                         <SubmenuTile />

@@ -36,14 +36,14 @@ export interface HtmlBodyProps {
     hostPageEnv: HostPageEnv;
     queryMatches: RecognizedQueries;
     uiLanguages: Array<AvailableLanguage>;
-    homepageTiles: Array<{ label: string; html: string }>;
+    homepageTiles: Array<{ label: string; html: string; isFooterIntegrated: boolean}>;
     uiLang: string;
     returnUrl: string;
     themes: Array<ColorThemeIdent>;
     currTheme: string;
     RootComponent: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
     layout: Array<TileGroup>;
-    homepageSections: Array<{ label: string; html: string }>;
+    homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
     isMobile: boolean;
     isAnswerMode: boolean;
     error: [number, string];
@@ -121,14 +121,15 @@ export function init(
         );
     };
 
-    // --------- <ThemeMenu /> -------------------------
+    // --------- <ThemeAndHelpMenu /> -------------------------
 
-    const ThemeMenu: React.FC<{
+    const ThemeAndHelpMenu: React.FC<{
         themes: Array<ColorThemeIdent>;
         returnUrl: string;
         currTheme: string;
+        aboutAppLink: { label: string; html: string; isFooterIntegrated:boolean; } | undefined;
     }> = (props) => (
-        <section>
+        <section className="theme-and-help">
             {props.themes.length > 0 ? (
                 <ThemeSelection
                     returnUrl={props.returnUrl}
@@ -136,6 +137,11 @@ export function init(
                     currTheme={props.currTheme}
                 />
             ) : null}
+
+            {props.aboutAppLink ?
+                <span className="separ"><button className="other" id="app-about-link">{props.aboutAppLink.label}</button></span>:
+                null
+            }
         </section>
     );
 
@@ -155,10 +161,11 @@ export function init(
                     __html: props.config.homepage.footer,
                 }}
             />
-            <ThemeMenu
+            <ThemeAndHelpMenu
                 returnUrl={props.returnUrl}
                 themes={props.themes}
                 currTheme={props.currTheme}
+                aboutAppLink={undefined}
             />
             <section className="project-info">
                 <span>
@@ -185,12 +192,15 @@ export function init(
         repositoryUrl: string;
         version: string;
         issueReportingUrl: string;
+        clickableTile?: { label: string; html: string; isFooterIntegrated:boolean; };
     }> = (props) => (
+
         <>
-            <ThemeMenu
+            <ThemeAndHelpMenu
                 returnUrl={props.returnUrl}
                 themes={props.themes}
                 currTheme={props.currTheme}
+                aboutAppLink={props.clickableTile}
             />
             <section className="project-info">
                 <span className="copy">
@@ -298,9 +308,20 @@ export function init(
     // -------- <HtmlBody /> -----------------------------
 
     const HtmlBody: React.FC<HtmlBodyProps> = (props) => {
+
+        const clickableTiles = List.filter(
+            tile => tile.isFooterIntegrated,
+            props.homepageTiles
+        );
+        const clickableAboutContent = {
+            label: List.empty(clickableTiles) ? undefined : clickableTiles[0].label,
+            body: List.empty(clickableTiles) ? undefined : clickableTiles[0].html
+        };
+
         const createScriptStr = () => {
-            return `indexPage.initClient(document.querySelector('.wdglance-mount'),
+            return `const dispatcher = indexPage.initClient(document.querySelector('.wdglance-mount'),
                 ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.queryMatches)});
+                window.document.getElementById('app-about-link').addEventListener('click', () => { dispatcher.dispatch({name: 'MAIN_ABOUT_APP_LINK_CLICKED', payload: ${JSON.stringify(clickableAboutContent)}}); });
             `;
         };
 
@@ -401,6 +422,7 @@ export function init(
                             currTheme={props.currTheme}
                             version={props.version}
                             issueReportingUrl={props.issueReportingUrl}
+                            clickableTile={List.empty(clickableTiles) ? undefined : List.head(clickableTiles)}
                         />
                     )}
                 </footer>

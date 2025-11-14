@@ -268,6 +268,7 @@ export function createRootComponent({
             allTilesLoaded: false,
             showRedirectingModal: false,
             redirectingMessage: null,
+            aboutInfo: undefined
         },
         appServices
     );

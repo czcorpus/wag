@@ -144,6 +144,7 @@ export function mkRuntimeClientConf({
                                         item.label
                                     ),
                                     html: value,
+                                    isFooterIntegrated: item.isFooterIntegrated
                                 })
                             )
                         ),

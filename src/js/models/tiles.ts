@@ -63,6 +63,7 @@ export interface WdglanceTilesState {
     allTilesLoaded: boolean;
     showRedirectingModal: boolean;
     redirectingMessage: string;
+    aboutInfo: {label: string; body: string} | undefined;
 }
 
 /**
@@ -474,6 +475,20 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 } else {
                     state.showRedirectingModal = false;
                 }
+            }
+        );
+
+        this.addActionHandler(
+            Actions.AboutAppLinkClicked,
+            (state, action) => {
+                state.aboutInfo = {...action.payload};
+            }
+        );
+
+        this.addActionHandler(
+            Actions.AboutAppInfoClosed,
+            (state, action) => {
+                state.aboutInfo = undefined;
             }
         );
     }

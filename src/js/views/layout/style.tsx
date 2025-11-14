@@ -59,7 +59,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
                 flex: 1 1 auto;
                 justify-content: center;
                 align-items: center;
-             
+
                 a {
                     display: inline-block;
                     margin: 0;
@@ -197,6 +197,34 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         }
     }
 
+    .theme-and-help {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        button.other {
+            display: flex;
+            align-items: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            margin: 0 0.2em;
+            padding: 0;
+            font-size: 1em;
+            color: ${confTheme.colorDefaultText};
+
+        }
+
+        > span.separ {
+            border-style: solid;
+            border-color: ${confTheme.colorLightText};
+            border-width: 0 0 0 0.15em;
+            padding-left: 0.4em;
+            padding-right: 0.4em;
+            margin-left: 0.5em;
+        }
+    }
+
     .ThemeSelection {
         display: flex;
         justify-content: center;
@@ -238,13 +266,10 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
                 }
 
                 button.current {
-                    border-color: ${confTheme.colorLogoBlue};
-                    border-style: solid;
-                    border-width: 0 0 2px 0;
+                    box-shadow: 0 2px 0 0 ${confTheme.colorLogoBlue};
                 }
 
                 .separ {
-                    font-size: 1.3em;
                     font-weight: bold;
                 }
             }
