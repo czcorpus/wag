@@ -135,7 +135,7 @@ export function initClient(
     config: ClientConf,
     userSession: UserConf,
     queryMatches: RecognizedQueries
-) {
+): ActionDispatcher {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';
@@ -263,4 +263,5 @@ export function initClient(
         // here means the configuration is broken.
         console.error(e);
     }
+    return dispatcher;
 }

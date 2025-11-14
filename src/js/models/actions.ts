@@ -323,6 +323,18 @@ export class Actions {
     }> = {
         name: 'MAIN_SAVE_SVG_FIGURE',
     };
+
+    static AboutAppLinkClicked: Action<{
+        label: string;
+        body: string;
+    }> = {
+        name: 'MAIN_ABOUT_APP_LINK_CLICKED'
+    };
+
+    static AboutAppInfoClosed: Action<{
+    }> = {
+        name: 'MAIN_ABOUT_APP_INFO_CLOSED'
+    };
 }
 
 /**

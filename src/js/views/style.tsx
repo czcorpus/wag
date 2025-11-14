@@ -122,7 +122,7 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
     }
 
     .main {
-        margin-top: 3em;
+        margin-top: 5em;
         margin-bottom: 3em;
         display: flex;
         align-items: center;
@@ -147,6 +147,7 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
     .QueryInput {
         margin-right: 0.7em;
         margin-left: 1em;
+        width: 15em;
     }
 
     .QueryInput.invalid {
@@ -466,6 +467,12 @@ export const TilesSections = styled.section<{ theme: Theme }>`
     ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
     }
+`;
+
+// ---------------- <AboutApp /> -----------------------------------
+
+export const AboutApp = styled.div<{ theme: Theme }>`
+    padding: 1em;
 `;
 
 // ---------------- <Group /> --------------------------------------

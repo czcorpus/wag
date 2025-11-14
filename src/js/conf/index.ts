@@ -180,6 +180,7 @@ export interface LayoutsConfig {
 
 export interface HomePageTileConfI18n {
     label: { [lang: string]: string };
+    isFooterIntegrated?: boolean;
     contents: { [lang: string]: string | { file: string } };
 }
 
@@ -318,6 +319,7 @@ export function isTileDBConf(tiles: MultiSourceTileConf): tiles is TileDbConf {
 export interface HomepageTileConf {
     label: string;
     html: string;
+    isFooterIntegrated: boolean;
 }
 
 /**

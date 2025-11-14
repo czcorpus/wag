@@ -228,7 +228,7 @@ interface RenderResultArgs {
     themes: Array<ColorThemeIdent>;
     currTheme: string;
     rootView: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
-    homepageSections: Array<{ label: string; html: string }>;
+    homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
     htmlTitle?: string;
     layout: Array<TileGroup>;
     isMobile: boolean;
