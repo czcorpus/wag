@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { pipe, List } from 'cnc-tskit';
+import { pipe, List, Dict } from 'cnc-tskit';
 import { PosItem, posTagsEqual } from '../postag.js';
 import { MainPosAttrValues } from '../conf/index.js';
 import { HTTPAction } from '../page/actions.js';
@@ -206,11 +206,11 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
 }
 
 /**
- * Check whether all current queries are unique in terms of
+ * Check whether all current query matches are unique in terms of
  * lemma + pos + upos combination.
  */
-export function areUniqueQueries(queries: RecognizedQueries): boolean {
-    const seen = new Set<string>();
+export function findIdenticalMatches(queries: RecognizedQueries): string {
+    const seen = {};
     for (const query of queries) {
         for (const match of query) {
             if (match.isCurrent === false || !match.lemma) {
@@ -221,11 +221,11 @@ export function areUniqueQueries(queries: RecognizedQueries): boolean {
                 match.pos.map((v) => v.value).join(','),
                 match.upos.map((v) => v.value).join(','),
             ].join('|');
-            if (seen.has(key)) {
-                return false;
+            if (Dict.hasKey(key, seen)) {
+                return `${seen[key]}/${match.word}`;
             }
-            seen.add(key);
+            seen[key] = match.word;
         }
     }
-    return true;
+    return undefined;
 }

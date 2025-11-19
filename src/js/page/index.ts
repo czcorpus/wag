@@ -32,7 +32,7 @@ import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import {
-    areUniqueQueries,
+    findIdenticalMatches,
     QueryType,
     RecognizedQueries,
 } from '../query/index.js';
@@ -209,12 +209,16 @@ export function initClient(
         mobileModeTest: () => Client.isMobileTouchDevice(),
     });
 
-    if (!areUniqueQueries(queryMatches)) {
+    const identicalMatches = findIdenticalMatches(queryMatches);
+    if (identicalMatches !== undefined) {
         notifications.showMessage(
             SystemMessageType.WARNING,
-            'Some of the queries are not unique!'
+            appServices.translate(
+                'global__some_cmp_words_have_identical_lemma'
+            ) +
+                ': ' +
+                identicalMatches
         );
-        console.warn('Some of the queries are not unique!');
     }
 
     //appServices.forceMobileMode(); // DEBUG
