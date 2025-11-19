@@ -31,7 +31,11 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import { QueryType, RecognizedQueries } from '../query/index.js';
+import {
+    areUniqueQueries,
+    QueryType,
+    RecognizedQueries,
+} from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
@@ -53,7 +57,7 @@ import {
     DataStreamingPreview,
 } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
-import { DataApi } from '../types.js';
+import { DataApi, SystemMessageType } from '../types.js';
 
 interface MountArgs {
     userSession: UserConf;
@@ -204,6 +208,14 @@ export function initClient(
         dataStreaming,
         mobileModeTest: () => Client.isMobileTouchDevice(),
     });
+
+    if (!areUniqueQueries(queryMatches)) {
+        notifications.showMessage(
+            SystemMessageType.WARNING,
+            'Some of the queries are not unique!'
+        );
+        console.warn('Some of the queries are not unique!');
+    }
 
     //appServices.forceMobileMode(); // DEBUG
 

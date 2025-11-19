@@ -204,3 +204,28 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
         List.flatMap((v) => v)
     );
 }
+
+/**
+ * Check whether all current queries are unique in terms of
+ * lemma + pos + upos combination.
+ */
+export function areUniqueQueries(queries: RecognizedQueries): boolean {
+    const seen = new Set<string>();
+    for (const query of queries) {
+        for (const match of query) {
+            if (match.isCurrent === false || !match.lemma) {
+                continue;
+            }
+            const key = [
+                match.lemma,
+                match.pos.map((v) => v.value).join(','),
+                match.upos.map((v) => v.value).join(','),
+            ].join('|');
+            if (seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+        }
+    }
+    return true;
+}
