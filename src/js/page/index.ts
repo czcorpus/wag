@@ -31,7 +31,11 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import { QueryType, RecognizedQueries } from '../query/index.js';
+import {
+    findIdenticalMatches,
+    QueryType,
+    RecognizedQueries,
+} from '../query/index.js';
 import translations from 'translations';
 
 import { IAppServices, AppServices } from '../appServices.js';
@@ -53,7 +57,7 @@ import {
     DataStreamingPreview,
 } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
-import { DataApi } from '../types.js';
+import { DataApi, SystemMessageType } from '../types.js';
 
 interface MountArgs {
     userSession: UserConf;
@@ -204,6 +208,18 @@ export function initClient(
         dataStreaming,
         mobileModeTest: () => Client.isMobileTouchDevice(),
     });
+
+    const identicalMatches = findIdenticalMatches(queryMatches);
+    if (identicalMatches !== undefined) {
+        notifications.showMessage(
+            SystemMessageType.WARNING,
+            appServices.translate(
+                'global__some_cmp_words_have_identical_lemma'
+            ) +
+                ': ' +
+                identicalMatches
+        );
+    }
 
     //appServices.forceMobileMode(); // DEBUG
 
