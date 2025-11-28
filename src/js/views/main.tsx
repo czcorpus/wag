@@ -56,7 +56,11 @@ import { Theme } from '../page/theme.js';
 
 export interface WdglanceMainProps {
     layout: Array<TileGroup>;
-    homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
+    homepageSections: Array<{
+        label: string;
+        html: string;
+        isFooterIntegrated: boolean;
+    }>;
     queries: Array<UserQuery>;
     isMobile: boolean;
     isAnswerMode: boolean;
@@ -1015,13 +1019,17 @@ export function init(
     // ------------- <InitialHelp /> --------------------------------------
 
     const InitialHelp: React.FC<{
-        sections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
+        sections: Array<{
+            label: string;
+            html: string;
+            isFooterIntegrated: boolean;
+        }>;
     }> = (props) => {
         return (
             <>
                 {pipe(
                     props.sections,
-                    List.filter(sect => !sect.isFooterIntegrated),
+                    List.filter((sect) => !sect.isFooterIntegrated),
                     List.map((sect, i) => (
                         <section key={`${sect}:${i}`} className="wag-tile help">
                             <header className="wag-tile-header panel">
@@ -1102,47 +1110,57 @@ export function init(
             ? props.overwriteLabel
             : props.tile.label;
 
+        const headerNotEmpty =
+            !!currLabel ||
+            props.tile.supportsTweakMode ||
+            props.tile.supportsAltView ||
+            props.tile.supportsSVGFigureSave ||
+            props.tile.supportsHelpView ||
+            (props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult);
+
         return (
             <section
                 id={mkTileSectionId(props.tile.tileId)}
                 key={`tile-ident-${props.tile.tileId}`}
                 className={getHTMLClass()}
             >
-                <header className="wag-tile-header panel">
-                    <h2>{currLabel}</h2>
-                    <div className="window-buttons">
-                        {props.tileResultFlag &&
-                        props.tileResultFlag.canBeAmbiguousResult ? (
-                            <AmbiguousResultWarning />
-                        ) : null}
-                        {props.tile.supportsSVGFigureSave ? (
-                            <SaveButton
-                                tileId={props.tile.tileId}
-                                disabled={
-                                    !props.tileResultFlag ||
-                                    props.tileResultFlag.status !==
-                                        TileResultFlag.VALID_RESULT
-                                }
-                            />
-                        ) : null}
-                        {props.tile.supportsAltView ? (
-                            <AltViewButton
-                                tileId={props.tile.tileId}
-                                isAltView={props.isAltViewMode}
-                                altIconProps={props.altViewIcon}
-                            />
-                        ) : null}
-                        {props.tile.supportsTweakMode ? (
-                            <TweakButton
-                                tileId={props.tile.tileId}
-                                isExtended={props.isTweakMode}
-                            />
-                        ) : null}
-                        {props.tile.supportsHelpView ? (
-                            <HelpButton tileId={props.tile.tileId} />
-                        ) : null}
-                    </div>
-                </header>
+                {headerNotEmpty ? (
+                    <header className="wag-tile-header panel">
+                        <h2>{currLabel}</h2>
+                        <div className="window-buttons">
+                            {props.tileResultFlag &&
+                            props.tileResultFlag.canBeAmbiguousResult ? (
+                                <AmbiguousResultWarning />
+                            ) : null}
+                            {props.tile.supportsSVGFigureSave ? (
+                                <SaveButton
+                                    tileId={props.tile.tileId}
+                                    disabled={
+                                        !props.tileResultFlag ||
+                                        props.tileResultFlag.status !==
+                                            TileResultFlag.VALID_RESULT
+                                    }
+                                />
+                            ) : null}
+                            {props.tile.supportsAltView ? (
+                                <AltViewButton
+                                    tileId={props.tile.tileId}
+                                    isAltView={props.isAltViewMode}
+                                    altIconProps={props.altViewIcon}
+                                />
+                            ) : null}
+                            {props.tile.supportsTweakMode ? (
+                                <TweakButton
+                                    tileId={props.tile.tileId}
+                                    isExtended={props.isTweakMode}
+                                />
+                            ) : null}
+                            {props.tile.supportsHelpView ? (
+                                <HelpButton tileId={props.tile.tileId} />
+                            ) : null}
+                        </div>
+                    </header>
+                ) : null}
                 <div
                     className="provider"
                     style={{
@@ -1659,7 +1677,11 @@ export function init(
 
     const TilesSections: React.FC<{
         layout: Array<TileGroup>;
-        homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
+        homepageSections: Array<{
+            label: string;
+            html: string;
+            isFooterIntegrated: boolean;
+        }>;
     }> = (props) => {
         const state = useModel(tilesModel);
 
@@ -1847,17 +1869,15 @@ export function init(
 
         return (
             <S.TilesSections>
-                {state.aboutInfo ?
+                {state.aboutInfo ? (
                     <globalComponents.ModalBox
                         onCloseClick={handleAboutInfoClose}
                         title={state.aboutInfo.label}
-                        tileClass="text">
-                        <S.AboutApp>
-                            {state.aboutInfo.body}
-                        </S.AboutApp>
-                    </globalComponents.ModalBox> :
-                    null
-                }
+                        tileClass="text"
+                    >
+                        <S.AboutApp>{state.aboutInfo.body}</S.AboutApp>
+                    </globalComponents.ModalBox>
+                ) : null}
                 {state.isAnswerMode ? (
                     <globalComponents.TileMinHeightContext value={height}>
                         <SubmenuTile />
