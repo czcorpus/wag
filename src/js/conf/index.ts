@@ -241,17 +241,8 @@ export interface LogoRuntimeConf {
     };
 }
 
-export interface CommonTextStructures {
-    sentence?: string;
-    paragraph?: string;
-    document?: string;
-}
-
 export interface DataReadabilityMapping {
-    metadataMapping: {
-        [corp: string]: { [key: string]: LocalizedConfMsg };
-    };
-    commonStructures: { [corp: string]: CommonTextStructures };
+    [corp: string]: { [key: string]: LocalizedConfMsg };
 }
 
 /**

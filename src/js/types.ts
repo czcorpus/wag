@@ -84,9 +84,6 @@ export interface SourceDetails {
 export interface CorpusDetails extends SourceDetails {
     structure: {
         numTokens: number;
-        numSentences?: number;
-        numParagraphs?: number;
-        numDocuments?: number;
     };
 }
 

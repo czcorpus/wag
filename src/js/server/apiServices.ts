@@ -17,7 +17,7 @@
  */
 
 import { Dict } from 'cnc-tskit';
-import { ClientStaticConf, CommonTextStructures } from '../conf/index.js';
+import { ClientStaticConf } from '../conf/index.js';
 import { IApiServices } from '../appServices.js';
 import { DataStreaming } from '../page/streaming.js';
 
@@ -40,21 +40,8 @@ export class ApiServices implements IApiServices {
         return this.apiKeyStorage[apiUrl] || {};
     }
 
-    translateResourceMetadata(
-        corpname: string,
-        value: keyof CommonTextStructures
-    ) {
+    translateResourceMetadata(corpname: string, value: string) {
         return value;
-    }
-
-    getCommonResourceStructure(
-        corpname: string,
-        struct: keyof CommonTextStructures
-    ) {
-        return typeof this.clientConf.dataReadability === 'string'
-            ? struct
-            : (this.clientConf.dataReadability?.commonStructures[corpname] ||
-                  {})[struct];
     }
 
     importExternalMessage(label: string | { [lang: string]: string }) {
