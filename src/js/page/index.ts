@@ -158,6 +158,10 @@ export function initClient(
                 (argsStr.length > 0 ? '?' + argsStr : '')
             );
         },
+        runtimeValueTranslator: (corpusId: string, value: string) => {
+            const tmp = config.dataReadability[corpusId] || {};
+            return (tmp[value] || {})[userSession.uiLang];
+        },
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming =

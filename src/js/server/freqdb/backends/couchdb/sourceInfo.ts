@@ -134,27 +134,6 @@ export class CouchStoredSourceInfo {
                               },
                               structure: {
                                   numTokens: doc.data.size,
-                                  numSentences: findStructSize(
-                                      doc.data.structlist,
-                                      this.apiServices.getCommonResourceStructure(
-                                          doc.data.corpname,
-                                          'sentence'
-                                      )
-                                  ),
-                                  numParagraphs: findStructSize(
-                                      doc.data.structlist,
-                                      this.apiServices.getCommonResourceStructure(
-                                          doc.data.corpname,
-                                          'paragraph'
-                                      )
-                                  ),
-                                  numDocuments: findStructSize(
-                                      doc.data.structlist,
-                                      this.apiServices.getCommonResourceStructure(
-                                          doc.data.corpname,
-                                          'document'
-                                      )
-                                  ),
                               },
                               keywords: doc.data.keywords,
                           };

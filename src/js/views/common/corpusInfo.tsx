@@ -200,54 +200,6 @@ export function init(
                                                 )}
                                             </td>
                                         </tr>
-                                        {props.data.structure.numSentences ? (
-                                            <tr>
-                                                <th>
-                                                    {ut.translate(
-                                                        'global__num_sentences'
-                                                    )}
-                                                    :
-                                                </th>
-                                                <td className="num">
-                                                    {ut.formatNumber(
-                                                        props.data.structure
-                                                            .numSentences
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ) : null}
-                                        {props.data.structure.numParagraphs ? (
-                                            <tr>
-                                                <th>
-                                                    {ut.translate(
-                                                        'global__num_paragraphs'
-                                                    )}
-                                                    :
-                                                </th>
-                                                <td className="num">
-                                                    {ut.formatNumber(
-                                                        props.data.structure
-                                                            .numParagraphs
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ) : null}
-                                        {props.data.structure.numDocuments ? (
-                                            <tr>
-                                                <th>
-                                                    {ut.translate(
-                                                        'global__num_documents'
-                                                    )}
-                                                    :
-                                                </th>
-                                                <td className="num">
-                                                    {ut.formatNumber(
-                                                        props.data.structure
-                                                            .numDocuments
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ) : null}
                                     </tbody>
                                 </table>
                             </dd>

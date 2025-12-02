@@ -28,7 +28,7 @@ import {
 import { ISystemNotifications as ISystemNotifications } from './page/notifications.js';
 import { AudioPlayer } from './page/audioPlayer.js';
 import { MultiDict } from './multidict.js';
-import { DataReadabilityMapping, CommonTextStructures } from './conf/index.js';
+import { DataReadabilityMapping } from './conf/index.js';
 import { AjaxError } from 'rxjs/ajax';
 import {
     DummySessionStorage,
@@ -38,17 +38,11 @@ import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
 import { IDataStreaming } from './page/streaming.js';
 
 export interface IApiServices {
-
     getApiHeaders(apiUrl: string): HTTPHeaders;
 
     setApiKeyHeader(apiUrl: string, headerName: string, key: string): void;
 
     translateResourceMetadata(corpname: string, value: string): string;
-
-    getCommonResourceStructure(
-        corpname: string,
-        struct: keyof CommonTextStructures
-    ): string | undefined;
 
     importExternalMessage(label: LocalizedConfMsg): string;
 
@@ -158,7 +152,6 @@ export interface AppServicesArgs {
  *
  */
 export class AppServices implements IAppServices {
-
     private static SESSION_STORAGE_API_KEYS_ENTRY = 'api_keys';
 
     private readonly notifications: ISystemNotifications;
@@ -340,13 +333,6 @@ export class AppServices implements IAppServices {
                 (this.dataReadability.metadataMapping[corpname] || {})[value]
             ) || value
         );
-    }
-
-    getCommonResourceStructure(
-        corpname: string,
-        struct: keyof CommonTextStructures
-    ): string | undefined {
-        return (this.dataReadability.commonStructures[corpname] || {})[struct];
     }
 
     /**

@@ -111,27 +111,6 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
                     },
                     structure: {
                         numTokens: resp.corpus.data.size,
-                        numSentences: findStructSize(
-                            resp.corpus.data.structList,
-                            this.apiServices.getCommonResourceStructure(
-                                resp.corpus.data.corpname,
-                                'sentence'
-                            )
-                        ),
-                        numParagraphs: findStructSize(
-                            resp.corpus.data.structList,
-                            this.apiServices.getCommonResourceStructure(
-                                resp.corpus.data.corpname,
-                                'paragraph'
-                            )
-                        ),
-                        numDocuments: findStructSize(
-                            resp.corpus.data.structList,
-                            this.apiServices.getCommonResourceStructure(
-                                resp.corpus.data.corpname,
-                                'document'
-                            )
-                        ),
                     },
                     keywords: List.map(
                         (v) => ({ name: v, color: null }),
