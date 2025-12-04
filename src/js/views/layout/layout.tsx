@@ -321,7 +321,10 @@ export function init(
         const createScriptStr = () => {
             return `const dispatcher = indexPage.initClient(document.querySelector('.wdglance-mount'),
                 ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.queryMatches)});
-                window.document.getElementById('app-about-link').addEventListener('click', () => { dispatcher.dispatch({name: 'MAIN_ABOUT_APP_LINK_CLICKED', payload: ${JSON.stringify(clickableAboutContent)}}); });
+                const aboutLinkSrch = window.document.getElementById('app-about-link');
+                if (aboutLinkSrch) {
+                    aboutLinkSrch.addEventListener('click', () => { dispatcher.dispatch({name: 'MAIN_ABOUT_APP_LINK_CLICKED', payload: ${JSON.stringify(clickableAboutContent)}}); });
+                }
             `;
         };
 
