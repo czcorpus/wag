@@ -95,13 +95,19 @@ export class SimilarFreqWordsFrodoAPI {
                 map((data) =>
                     pipe(
                         data.matches,
-                        List.map((v) => ({
-                            lemma: v.lemma,
-                            pos: [{ value: v.pos, label: v.pos }], // TODO what about label?
-                            upos: [], // TODO UD support?
-                            ipm: v.ipm,
-                            flevel: calcFreqBand(v.ipm),
-                        })),
+                        List.flatMap((v) =>
+                            List.map(
+                                (sublemma) => ({
+                                    lemma: v.lemma,
+                                    sublemma: sublemma.value,
+                                    pos: [{ value: v.pos, label: v.pos }], // TODO what about label?
+                                    upos: [], // TODO UD support?
+                                    ipm: v.ipm,
+                                    flevel: calcFreqBand(v.ipm),
+                                }),
+                                v.sublemmas
+                            )
+                        ),
                         List.filter(
                             (item) =>
                                 item.lemma !== args.lemma ||
