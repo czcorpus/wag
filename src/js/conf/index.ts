@@ -19,6 +19,7 @@ import { HTTPHeaders, LocalizedConfMsg } from '../types.js';
 import { QueryType } from '../query/index.js';
 import { TileConf } from '../page/tile.js';
 import { List, pipe } from 'cnc-tskit';
+import { ColorsConf, ColorTheme, ColorThemeIdent } from './theme.js';
 
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 
@@ -67,65 +68,6 @@ export function errorUserConf(
         staticPage: false,
         error,
     };
-}
-
-export interface ColorThemeIdent {
-    themeId: string;
-    themeLabel: LocalizedConfMsg;
-    description?: LocalizedConfMsg;
-}
-
-/**
- * This specifies a 'theming' for
- * JavaScript generated stuff
- * (mainly chart colors).
- */
-export interface ColorTheme extends ColorThemeIdent {
-    defaultFontFamily?: string;
-    condensedFontFamily?: string;
-    defaultFontSize?: string;
-    backgroundImage?: string;
-    pageBackgroundColor?: string;
-    tileBackgroundColor?: string;
-    tileHeadingSeparColor?: string;
-    textInputBackgroundColor?: string;
-    colorLogoBlue?: string;
-    colorLogoBlueShining?: string;
-    colorWhitelikeBlue?: string;
-    colorLightText?: string;
-    colorDefaultText?: string;
-    colorInvertText?: string;
-    colorInvertedSecondaryText?: string;
-    colorSecondaryText?: string;
-    colorLogoPink?: string;
-    colorSuperlightGrey?: string;
-    svgIconsFilter?: string;
-    svgLogoFilter?: string;
-    oddDataLineBackgroundColor?: string;
-
-    tileBorderStyle?: string;
-    tileBorderRadius?: string;
-
-    cssMobileScreen?: string;
-
-    lineChartColor1: string;
-    lineConfidenceAreaColor1: string;
-    lineChartColor2: string;
-    lineConfidenceAreaColor2: string;
-    category: Array<string>;
-    categoryOther: string;
-    cmpCategory: Array<string>;
-    scale: Array<string>;
-    geoAreaSpotFillColor: string;
-    geoAreaSpotTextColor?: string;
-
-    chartTextColor?: string;
-    chartGridColor?: string;
-}
-
-export interface ColorsConf {
-    themes: Array<ColorTheme>;
-    default: string;
 }
 
 export interface LayoutVisibleTile {
