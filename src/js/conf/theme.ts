@@ -43,6 +43,7 @@ export interface ColorTheme extends ColorThemeIdent {
     tileBackgroundColor?: string;
     tileHeadingSeparColor?: string;
     textInputBackgroundColor?: string;
+    textInputBorderStyle?: string;
     colorLogoBlue?: string;
     colorLogoBlueShining?: string;
     colorWhitelikeBlue?: string;

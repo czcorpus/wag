@@ -463,7 +463,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
     .wag-form select {
         background-color: ${confTheme.textInputBackgroundColor};
         color: ${confTheme.colorDefaultText};
-        border: ${confTheme.tileBorderStyle};
+        border: ${confTheme.textInputBorderStyle};
     }
 
     .wag-form.wag-form-spaced input[type=text],

@@ -112,6 +112,8 @@ export class Theme {
 
     public readonly textInputBackgroundColor: string;
 
+    public readonly textInputBorderStyle: string;
+
     public readonly defaultFontFamily: string;
 
     public readonly condensedFontFamily: string;
@@ -211,6 +213,8 @@ export class Theme {
         this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
         this.textInputBackgroundColor =
             confSrc.textInputBackgroundColor || this.tileBackgroundColor;
+        this.textInputBorderStyle =
+            confSrc.textInputBorderStyle || this.tileBorderStyle;
         this.colorLogoBlue =
             confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
         this.colorWhitelikeBlue =
