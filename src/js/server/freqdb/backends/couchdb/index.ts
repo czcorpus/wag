@@ -228,6 +228,7 @@ export class CouchFreqDB implements IFreqDB {
             List.map<HTTPNgramDoc, QueryMatch>((v) => ({
                 word: word,
                 lemma: v.lemma,
+                sublemma: null,
                 pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                 upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
                 abs: v.count,
@@ -303,6 +304,7 @@ export class CouchFreqDB implements IFreqDB {
                 List.map(
                     (v) => ({
                         lemma: v.lemma,
+                        sublemma: null,
                         pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                         upos: importQueryPosWithLabel(
                             v.upos,
@@ -350,6 +352,7 @@ export class CouchFreqDB implements IFreqDB {
                     List.sortBy(([, , form]) => form.count),
                     List.map(([pos, upos, form]) => ({
                         lemma: lemma,
+                        sublemma: null,
                         pos: importQueryPosWithLabel(pos, 'pos', appServices),
                         upos: importQueryPosWithLabel(
                             upos,

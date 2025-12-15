@@ -106,7 +106,7 @@ export interface QueryMatchCore {
      *    combinations and the number of variants would grow too much)
      * 2) grouped (aka "wildcard") matches
      */
-    sublemma: string | undefined;
+    sublemma: string | null;
 
     /**
      * PoS of each word in a (possibly) multi-word query/match
@@ -156,7 +156,7 @@ export function findCurrQueryMatch(
         ? srch
         : {
               lemma: undefined,
-              sublemma: undefined,
+              sublemma: null,
               word: undefined,
               pos: [],
               upos: [],
@@ -214,7 +214,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
             if (matches.length > 1) {
                 const wildCard: QueryMatch = {
                     lemma: matches[0].lemma,
-                    sublemma: undefined,
+                    sublemma: null,
                     pos: [],
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),

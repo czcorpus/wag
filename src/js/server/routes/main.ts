@@ -144,7 +144,7 @@ export function mkRuntimeClientConf({
                                         item.label
                                     ),
                                     html: value,
-                                    isFooterIntegrated: item.isFooterIntegrated
+                                    isFooterIntegrated: item.isFooterIntegrated,
                                 })
                             )
                         ),
@@ -584,6 +584,7 @@ export function queryAction({
                             return [
                                 {
                                     lemma: null,
+                                    sublemma: null,
                                     word: userConf.queries[queryIdx].word,
                                     pos: [],
                                     upos: [],
