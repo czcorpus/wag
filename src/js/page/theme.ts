@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 import { RuleSet, css } from 'styled-components';
-import { ColorTheme, LogoRuntimeConf } from '../conf/index.js';
+import { LogoRuntimeConf } from '../conf/index.js';
 import { Dict, Color, pipe, List } from 'cnc-tskit';
+import { ColorTheme } from '../conf/theme.js';
 
 export interface ColorScaleFunctionGenerator {
     (min?: number): (v: number) => string;

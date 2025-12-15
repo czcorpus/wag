@@ -20,10 +20,11 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import session from 'express-session';
 import path from 'path';
+import * as fs from 'fs';
 import translations from 'translations';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Dict, Ident, pipe, tuple } from 'cnc-tskit';
+import { Dict, Ident, List, pipe, tuple } from 'cnc-tskit';
 import sessionFileStore from 'session-file-store';
 import { randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
@@ -32,7 +33,6 @@ import {
     ClientStaticConf,
     ServerConf,
     isTileDBConf,
-    ColorsConf,
     DataReadabilityMapping,
     AllQueryTypesTileConf,
     LayoutsConfig,
@@ -50,6 +50,7 @@ import { PackageInfo } from '../types.js';
 import { QueryActionWriter } from './actionLog/logWriter.js';
 import { initLogging } from './logging.js';
 import { generatePreviewTileConf } from '../conf/preview.js';
+import { ColorsConf, loadThemesFromFiles } from '../conf/theme.js';
 
 /**
  * Note: when calling this, clientConf must already contain
@@ -82,9 +83,23 @@ function loadInstanceSwitchMenuConf(
 }
 
 function loadColorsConf(clientConf: ClientStaticConf): Observable<ColorsConf> {
-    return typeof clientConf.colors === 'string'
-        ? parseJsonConfig(clientConf.colors)
-        : rxOf(clientConf.colors);
+    if (typeof clientConf.colors === 'string') {
+        if (fs.lstatSync(clientConf.colors).isDirectory()) {
+            return loadThemesFromFiles(clientConf.colors).pipe(
+                map((configs) => {
+                    const defaultSrch = List.find((v) => v.isDefault, configs);
+                    return {
+                        default: defaultSrch ? defaultSrch : configs[0].themeId,
+                        themes: configs,
+                    } as ColorsConf;
+                })
+            );
+        } else {
+            return parseJsonConfig(clientConf.colors);
+        }
+    } else {
+        return rxOf(clientConf.colors);
+    }
 }
 
 function loadDataReadabilityConf(

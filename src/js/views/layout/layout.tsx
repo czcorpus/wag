@@ -22,13 +22,14 @@ import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../../page/hostPage.js';
 import { RecognizedQueries } from '../../query/index.js';
-import { ClientConf, UserConf, ColorThemeIdent } from '../../conf/index.js';
+import { ClientConf, UserConf } from '../../conf/index.js';
 import { TileGroup } from '../../page/layout.js';
 import { GlobalComponents } from '../common/index.js';
 import { WdglanceMainProps } from '../main.js';
 import { ErrPageProps } from '../error.js';
 import { List, pipe } from 'cnc-tskit';
 import { Theme } from '../../page/theme.js';
+import { ColorThemeIdent } from '../../conf/theme.js';
 
 export interface HtmlBodyProps {
     config: ClientConf;
@@ -36,14 +37,22 @@ export interface HtmlBodyProps {
     hostPageEnv: HostPageEnv;
     queryMatches: RecognizedQueries;
     uiLanguages: Array<AvailableLanguage>;
-    homepageTiles: Array<{ label: string; html: string; isFooterIntegrated: boolean}>;
+    homepageTiles: Array<{
+        label: string;
+        html: string;
+        isFooterIntegrated: boolean;
+    }>;
     uiLang: string;
     returnUrl: string;
     themes: Array<ColorThemeIdent>;
     currTheme: string;
     RootComponent: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
     layout: Array<TileGroup>;
-    homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
+    homepageSections: Array<{
+        label: string;
+        html: string;
+        isFooterIntegrated: boolean;
+    }>;
     isMobile: boolean;
     isAnswerMode: boolean;
     error: [number, string];
@@ -127,7 +136,9 @@ export function init(
         themes: Array<ColorThemeIdent>;
         returnUrl: string;
         currTheme: string;
-        aboutAppLink: { label: string; html: string; isFooterIntegrated:boolean; } | undefined;
+        aboutAppLink:
+            | { label: string; html: string; isFooterIntegrated: boolean }
+            | undefined;
     }> = (props) => (
         <section className="theme-and-help">
             {props.themes.length > 0 ? (
@@ -138,10 +149,13 @@ export function init(
                 />
             ) : null}
 
-            {props.aboutAppLink ?
-                <span className="separ"><button className="other" id="app-about-link">{props.aboutAppLink.label}</button></span>:
-                null
-            }
+            {props.aboutAppLink ? (
+                <span className="separ">
+                    <button className="other" id="app-about-link">
+                        {props.aboutAppLink.label}
+                    </button>
+                </span>
+            ) : null}
         </section>
     );
 
@@ -192,9 +206,12 @@ export function init(
         repositoryUrl: string;
         version: string;
         issueReportingUrl: string;
-        clickableTile?: { label: string; html: string; isFooterIntegrated:boolean; };
+        clickableTile?: {
+            label: string;
+            html: string;
+            isFooterIntegrated: boolean;
+        };
     }> = (props) => (
-
         <>
             <ThemeAndHelpMenu
                 returnUrl={props.returnUrl}
@@ -308,14 +325,17 @@ export function init(
     // -------- <HtmlBody /> -----------------------------
 
     const HtmlBody: React.FC<HtmlBodyProps> = (props) => {
-
         const clickableTiles = List.filter(
-            tile => tile.isFooterIntegrated,
+            (tile) => tile.isFooterIntegrated,
             props.homepageTiles
         );
         const clickableAboutContent = {
-            label: List.empty(clickableTiles) ? undefined : clickableTiles[0].label,
-            body: List.empty(clickableTiles) ? undefined : clickableTiles[0].html
+            label: List.empty(clickableTiles)
+                ? undefined
+                : clickableTiles[0].label,
+            body: List.empty(clickableTiles)
+                ? undefined
+                : clickableTiles[0].html,
         };
 
         const createScriptStr = () => {
@@ -425,7 +445,11 @@ export function init(
                             currTheme={props.currTheme}
                             version={props.version}
                             issueReportingUrl={props.issueReportingUrl}
-                            clickableTile={List.empty(clickableTiles) ? undefined : List.head(clickableTiles)}
+                            clickableTile={
+                                List.empty(clickableTiles)
+                                    ? undefined
+                                    : List.head(clickableTiles)
+                            }
                         />
                     )}
                 </footer>

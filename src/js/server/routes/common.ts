@@ -17,12 +17,12 @@
  */
 import { renderToString } from 'react-dom/server';
 import * as React from 'react';
-import { pipe, Dict, List, tuple } from 'cnc-tskit';
+import { pipe, Dict, List } from 'cnc-tskit';
 import { ServerStyleSheet } from 'styled-components';
 import { Request } from 'express';
 import { ViewUtils } from 'kombo';
 
-import { UserConf, ClientConf, ColorThemeIdent } from '../../conf/index.js';
+import { UserConf, ClientConf } from '../../conf/index.js';
 import { encodeArgs } from '../../page/ajax.js';
 import { Services } from '../actionServices.js';
 import { GlobalComponents } from '../../views/common/index.js';
@@ -36,6 +36,7 @@ import { TileGroup } from '../../page/layout.js';
 import { DataStreaming, DataStreamingPreview } from '../../page/streaming.js';
 import { ServerNotifications } from '../../page/notifications.js';
 import { Observable } from 'rxjs';
+import { ColorThemeIdent } from '../../conf/theme.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -228,7 +229,11 @@ interface RenderResultArgs {
     themes: Array<ColorThemeIdent>;
     currTheme: string;
     rootView: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
-    homepageSections: Array<{ label: string; html: string; isFooterIntegrated: boolean; }>;
+    homepageSections: Array<{
+        label: string;
+        html: string;
+        isFooterIntegrated: boolean;
+    }>;
     htmlTitle?: string;
     layout: Array<TileGroup>;
     isMobile: boolean;
