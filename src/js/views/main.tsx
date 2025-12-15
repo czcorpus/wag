@@ -489,7 +489,12 @@ export function init(
             if (v[props.mainPosAttr].length === 0) {
                 return ut.translate('global__alt_expr_any');
             } else {
-                return List.map((v) => v.label, v[props.mainPosAttr]).join(' ');
+                const pos = List.map((v) => v.label, v[props.mainPosAttr]).join(
+                    ' '
+                );
+                return v.lemma != v.sublemma
+                    ? `${ut.translate('global__srch_variant')} "${v.sublemma}", ${pos}`
+                    : pos;
             }
         };
 

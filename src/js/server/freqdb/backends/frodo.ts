@@ -4,15 +4,21 @@ import { MainPosAttrValues } from '../../../conf/index.js';
 import { IFreqDB } from '../freqdb.js';
 import { calcFreqBand, QueryMatch } from '../../../query/index.js';
 import { serverHttpRequest } from '../../request.js';
-import { HTTP, List } from 'cnc-tskit';
+import { HTTP, List, pipe } from 'cnc-tskit';
 import { importQueryPosWithLabel } from '../../../postag.js';
 import { SourceDetails } from '../../../types.js';
 import urlJoin from 'url-join';
+
+interface Sublemma {
+    value: string;
+    count: number;
+}
 
 interface HTTPNgramDoc {
     _id: string;
     _rev: string;
     lemma: string;
+    sublemmas: Array<Sublemma>;
     pos: string;
     upos: string;
     count: number;
@@ -62,29 +68,41 @@ export class FrodoClient implements IFreqDB {
             params: {},
         }).pipe(
             map((resp) => {
-                return List.map<HTTPNgramDoc, QueryMatch>(
-                    (v) => ({
-                        word,
-                        lemma: v.lemma,
-                        pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
-                        upos: v.upos
-                            ? importQueryPosWithLabel(
-                                  v.upos,
-                                  'upos',
-                                  appServices
-                              )
-                            : importQueryPosWithLabel(
-                                  v.pos,
-                                  'upos',
-                                  appServices
-                              ),
-                        abs: v.count,
-                        ipm: (v.count / this.corpusSize) * 1e6,
-                        flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
-                        arf: v.arf,
-                        isCurrent: false,
-                    }),
-                    resp.matches
+                return pipe(
+                    resp.matches,
+                    List.flatMap((v) =>
+                        List.map(
+                            (subl) => ({
+                                word,
+                                lemma: v.lemma,
+                                sublemma: subl.value,
+                                pos: importQueryPosWithLabel(
+                                    v.pos,
+                                    'pos',
+                                    appServices
+                                ),
+                                upos: v.upos
+                                    ? importQueryPosWithLabel(
+                                          v.upos,
+                                          'upos',
+                                          appServices
+                                      )
+                                    : importQueryPosWithLabel(
+                                          v.pos,
+                                          'upos',
+                                          appServices
+                                      ),
+                                abs: v.count,
+                                ipm: (v.count / this.corpusSize) * 1e6,
+                                flevel: calcFreqBand(
+                                    (v.count / this.corpusSize) * 1e6
+                                ),
+                                arf: v.arf,
+                                isCurrent: false,
+                            }),
+                            v.sublemmas
+                        )
+                    )
                 );
             })
         );
@@ -108,22 +126,33 @@ export class FrodoClient implements IFreqDB {
             params: {},
         }).pipe(
             map((resp) => {
-                return List.map<HTTPNgramDoc, QueryMatch>(
-                    (v) => ({
-                        word: '-',
-                        lemma: v.lemma,
-                        pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
-                        upos: importQueryPosWithLabel(
-                            v.upos,
-                            'upos',
-                            appServices
+                return List.flatMap(
+                    (dictEntry) =>
+                        List.map(
+                            (sublemma) => ({
+                                word: '-',
+                                lemma: dictEntry.lemma,
+                                sublemma: sublemma.value,
+                                pos: importQueryPosWithLabel(
+                                    dictEntry.pos,
+                                    'pos',
+                                    appServices
+                                ),
+                                upos: importQueryPosWithLabel(
+                                    dictEntry.upos,
+                                    'upos',
+                                    appServices
+                                ),
+                                abs: dictEntry.count,
+                                ipm: (dictEntry.count / this.corpusSize) * 1e6,
+                                flevel: calcFreqBand(
+                                    (dictEntry.count / this.corpusSize) * 1e6
+                                ),
+                                arf: dictEntry.arf,
+                                isCurrent: false,
+                            }),
+                            dictEntry.sublemmas
                         ),
-                        abs: v.count,
-                        ipm: (v.count / this.corpusSize) * 1e6,
-                        flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
-                        arf: v.arf,
-                        isCurrent: false,
-                    }),
                     resp.matches
                 );
             })

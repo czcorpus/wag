@@ -198,6 +198,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                     state.queryMatches[idx] = state.queryMatches[idx].map(
                         (v, i2) => ({
                             lemma: v.lemma,
+                            sublemma: v.sublemma,
                             word: v.word,
                             pos: v.pos,
                             upos: v.upos,

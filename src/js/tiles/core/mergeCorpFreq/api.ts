@@ -28,7 +28,6 @@ import {
 } from '../../../api/vendor/mquery/freqs.js';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 import urlJoin from 'url-join';
-import { ajax$ } from '../../../page/ajax.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface APIArgs {}

@@ -112,7 +112,8 @@
         "global__api_error_502": "One of the services failed to provide required data. Please try again later. In case the problem persists, please report the error.",
         "global__api_error_503": "One of the services is temporarily down. Please try again later.",
         "global__redirecting_to_extrenal_page": "Redirecting to external page",
-        "global__kontext_login_required": "Displaying requires login in KonText application"
+        "global__kontext_login_required": "Displaying requires login in KonText application",
+        "global__srch_variant": "variant"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -227,6 +228,7 @@
         "global__api_error_502": "Jedna ze služeb selhala při poskytování dat. Zkuste prosím akci opakovat později. Pokud problém přetrvává, nahlašte nám prosím chybu.",
         "global__api_error_503": "Jedna ze služeb je dočasně mimo provoz. Zkuste prosím akci opakovat později.",
         "global__redirecting_to_extrenal_page": "Přesměrovávám na externí stránku",
-        "global__kontext_login_required": "Pro zobrazení je vyžadováno přihlášení v aplikace KonText"
+        "global__kontext_login_required": "Pro zobrazení je vyžadováno přihlášení v aplikace KonText",
+        "global__srch_variant": "varianta"
     }
 }

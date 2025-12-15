@@ -67,6 +67,7 @@ export class SimilarFreqWordsAPI {
                     data.result,
                     List.map((v) => ({
                         lemma: v.lemma,
+                        sublemma: v.sublemma,
                         pos: v.pos,
                         upos: v.upos,
                         ipm: v.ipm,

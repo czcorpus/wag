@@ -25,7 +25,11 @@ import { Observable, of as rxOf } from 'rxjs';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
-import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
+import {
+    MergeCorpFreqModelState,
+    ModelSourceArgs,
+    SourceMappedDataRow,
+} from './common.js';
 import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
@@ -109,9 +113,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 if (state.data[action.payload.queryId] === undefined) {
                     state.data[action.payload.queryId] = [];
                 }
-                state.data[action.payload.queryId] = state.data[
-                    action.payload.queryId
-                ].concat(action.payload.data);
+                state.data[action.payload.queryId] = pipe(
+                    state.data[action.payload.queryId],
+                    List.concat(action.payload.data),
+                    List.unique((v) => `${v.word}:${v.sourceIdx}`)
+                );
             }
         );
 

@@ -95,10 +95,37 @@ export function calcFreqBand(ipm: number): FreqBand {
 }
 
 export interface QueryMatchCore {
-    lemma: string; // space-based value for a multi-word query
-    pos: Array<PosItem>; // each word of a multi-word query
-    upos: Array<PosItem>; // each word of a multi-word query
+    /**
+     * note: space-based value for a multi-word query/match
+     */
+    lemma: string;
+
+    /**
+     * note: not used in case of:
+     * 1) multi-word queries (as we cannot handle all the sublemma
+     *    combinations and the number of variants would grow too much)
+     * 2) grouped (aka "wildcard") matches
+     */
+    sublemma: string | undefined;
+
+    /**
+     * PoS of each word in a (possibly) multi-word query/match
+     */
+    pos: Array<PosItem>;
+
+    /**
+     * UD PoS of each word in a (possibly) multi-word query/match
+     */
+    upos: Array<PosItem>;
+
+    /**
+     * Relative frequency
+     */
     ipm: number;
+
+    /**
+     *
+     */
     flevel: FreqBand | null;
 }
 
@@ -129,6 +156,7 @@ export function findCurrQueryMatch(
         ? srch
         : {
               lemma: undefined,
+              sublemma: undefined,
               word: undefined,
               pos: [],
               upos: [],
@@ -186,6 +214,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
             if (matches.length > 1) {
                 const wildCard: QueryMatch = {
                     lemma: matches[0].lemma,
+                    sublemma: undefined,
                     pos: [],
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
