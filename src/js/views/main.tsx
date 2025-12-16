@@ -363,6 +363,7 @@ export function init(
         translatLang: string;
         translatLanguages: Array<TranslatLanguage>;
         maxCmpQueries: number;
+        isAnswerMode: boolean;
     }> = (props) => {
         const handleQueryInput =
             (idx: number) =>
@@ -478,7 +479,7 @@ export function init(
                 props.queries.length < props.maxCmpQueries ? (
                     <AddCmpQueryField />
                 ) : null}
-                <SubmenuTile />
+                {props.isAnswerMode ? <SubmenuTile /> : null}
             </S.QueryFields>
         );
     };
@@ -774,6 +775,7 @@ export function init(
                                 !props.isAnswerMode ||
                                 state.initialQueryType !== state.queryType
                             }
+                            isAnswerMode={state.isAnswerMode}
                             queries={state.queries}
                             currQueryType={state.queryType}
                             translatLang={state.currTranslatLanguage}
