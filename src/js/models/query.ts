@@ -171,7 +171,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         );
 
         this.addActionHandler(Actions.RemoveCmpQueryInput, (state, action) => {
-            state.queries.splice(action.payload.queryIdx, 1);
+            if (List.size(state.queries) > 1) {
+                state.queries.splice(action.payload.queryIdx, 1);
+            }
         });
 
         this.addActionHandler(Actions.ShowQueryMatchModal, (state, action) => {

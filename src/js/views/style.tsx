@@ -125,8 +125,14 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
         margin-top: 5em;
         margin-bottom: 3em;
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
+        align-items: center;
+
+        .query {
+            display: flex;
+            align-items: center;
+        }
     }
 
     .translat-lang-selector {
@@ -218,6 +224,36 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
     }
 `;
 
+// -------------- <QueryFields /> --------------------------------------------
+
+export const QueryFields = styled.div`
+    display: flex;
+    flex-direction: column;
+
+    .input-and-submit {
+        display: flex;
+        align-items: center;
+    }
+`;
+
+// -------------- <AddCmpQueryField /> ---------------------------------------
+
+export const AddCmpQueryField = styled.div`
+    margin-top: 1em;
+    text-align: center;
+
+    button {
+        padding: 0;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+
+        img {
+            display: block;
+        }
+    }
+`;
+
 // -------------- <LemmaSelector /> ------------------------------------------
 
 export const LemmaSelector = styled.div`
@@ -257,16 +293,26 @@ export const LemmaSelector = styled.div`
         color: ${(props) => props.theme.colorLogoPink};
     }
 
-    &.multiple-queries {
+    .multiple-queries {
         font-size: 1.25em;
         text-align: left;
-        padding-top: 0;
+        padding: 0 1em 1em 1em;
 
         .variants {
+            text-align: left;
+
+            select {
+                padding: 0.4em 0.7em 0.4em 0;
+            }
+
+            .single {
+                padding-left: 0.3em;
+            }
+
             h2.query-num {
                 font-size: 1.1em;
-                margin: 1.1em 0 0.2em 0;
-                text-align: center;
+                margin-right: 1em;
+                display: inline-block;
                 letter-spacing: 0.1em;
             }
 
@@ -300,6 +346,7 @@ export const LemmaSelector = styled.div`
         }
 
         .buttons {
+            margin-top: 2em;
             text-align: center;
         }
     }
@@ -309,7 +356,7 @@ export const LemmaSelector = styled.div`
 
 export const SubmenuTile = styled.section`
     display: flex;
-    justify-content: center;
+    margin-left: 1.45em;
     padding: 0;
 `;
 
@@ -534,24 +581,24 @@ export const Tiles = styled.section<{ theme: Theme }>`
     grid-template-columns: 1fr 1fr 1fr;
     color: #444;
 
-    .app-output.span-1 {
-        grid-column: span 1;
-    }
-
-    .app-output.span-2 {
-        grid-column: span 2;
-    }
-
-    .app-output.span-3 {
-        grid-column: span 3;
-    }
-
     .app-output {
         border-color: ${(props) => props.theme.colorLogoBlue};
-        border-radius: ${(props) => props.theme.defaultBorderRadius};
+        border-radius: ${(props) => props.theme.tileBorderRadius};
         overflow: hidden;
         display: flex;
         flex-direction: column;
+
+        &.span-1 {
+            grid-column: span 1;
+        }
+
+        &.span-2 {
+            grid-column: span 2;
+        }
+
+        &.span-3 {
+            grid-column: span 3;
+        }
 
         .panel {
             display: flex;
