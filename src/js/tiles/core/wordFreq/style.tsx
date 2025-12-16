@@ -117,8 +117,7 @@ export const MultiWordProfile = styled.div<{ theme: Theme }>`
         }
 
         th.query-num {
-            background-color: ${(props) =>
-                props.theme.colorInvertedSecondaryText};
+            background-color: ${(props) => props.theme.tileHeadingSeparColor};
             color: ${(props) => props.theme.colorDefaultText};
             border-radius: 0.3em;
         }

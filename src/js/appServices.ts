@@ -36,6 +36,11 @@ import {
 } from './sessionStorage.js';
 import { ajax$, AjaxArgs, AjaxOptions } from './page/ajax.js';
 import { IDataStreaming } from './page/streaming.js';
+import {
+    FormatXMLElementFn,
+    IntlMessageFormat,
+    PrimitiveType,
+} from 'intl-messageformat';
 
 export interface IApiServices {
     getApiHeaders(apiUrl: string): HTTPHeaders;
@@ -53,6 +58,16 @@ export interface IAppServices extends IApiServices {
     showMessage(type: SystemMessageType, text: string | Error): void;
 
     translate(key: string, args?: { [key: string]: string | number }): string;
+
+    translateRich(
+        msg: string,
+        values?: Record<
+            string,
+            | PrimitiveType
+            | React.ReactNode
+            | FormatXMLElementFn<React.ReactNode>
+        >
+    ): string | React.ReactNode | Array<string | React.ReactNode>;
 
     externalMessageIsDefined(
         label: string | { [lang: string]: string }
@@ -222,6 +237,18 @@ export class AppServices implements IAppServices {
 
     translate(key: string, args?: { [key: string]: string | number }): string {
         return this.translator.translate(key, args);
+    }
+
+    translateRich(
+        msg: string,
+        values?: Record<
+            string,
+            | PrimitiveType
+            | React.ReactNode
+            | FormatXMLElementFn<React.ReactNode>
+        >
+    ): string | React.ReactNode | Array<string | React.ReactNode> {
+        return this.translator.translateRich(msg, values);
     }
 
     humanizeHttpApiError(err: Error | AjaxError): string {

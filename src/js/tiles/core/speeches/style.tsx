@@ -94,7 +94,7 @@ export const Speaker = styled.dt<{ theme: Theme }>`
     text-align: left;
     strong {
         border: 1px solid ${(props) => props.theme.colorLightText};
-        border-radius: ${(props) => props.theme.defaultBorderRadius};
+        border-radius: ${(props) => props.theme.tileBorderRadius};
         display: inline-block;
         vertical-align: middle;
         font-size: 0.8em;

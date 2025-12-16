@@ -309,7 +309,7 @@ export function init(
         };
 
         return (
-            <li className="AddCmpQueryField">
+            <S.AddCmpQueryField>
                 <button
                     type="button"
                     onClick={handleClick}
@@ -320,7 +320,7 @@ export function init(
                         alt={ut.translate('global__img_alt_plus_icon')}
                     />
                 </button>
-            </li>
+            </S.AddCmpQueryField>
         );
     };
 
@@ -363,7 +363,6 @@ export function init(
         translatLang: string;
         translatLanguages: Array<TranslatLanguage>;
         maxCmpQueries: number;
-        onEnterKey: () => void;
     }> = (props) => {
         const handleQueryInput =
             (idx: number) =>
@@ -386,80 +385,102 @@ export function init(
             });
         };
 
-        switch (props.currQueryType) {
-            case QueryType.SINGLE_QUERY:
-                return (
-                    <>
-                        <span className="input-row">
-                            <QueryInput
-                                idx={0}
-                                value={props.queries[0]}
-                                onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput(0)}
-                                wantsFocus={props.wantsFocus}
-                                allowRemoval={false}
+        const handleSubmit = () => {
+            dispatcher.dispatch<typeof Actions.SubmitQuery>({
+                name: Actions.SubmitQuery.name,
+            });
+        };
+
+        const renderFields = () => {
+            switch (props.currQueryType) {
+                case QueryType.SINGLE_QUERY:
+                    return (
+                        <>
+                            <span className="input-row">
+                                <QueryInput
+                                    idx={0}
+                                    value={props.queries[0]}
+                                    onEnter={handleSubmit}
+                                    onContentChange={handleQueryInput(0)}
+                                    wantsFocus={props.wantsFocus}
+                                    allowRemoval={false}
+                                />
+                            </span>
+                        </>
+                    );
+                case QueryType.CMP_QUERY:
+                    const focusOn = props.queries.findIndex(
+                        (query, index) =>
+                            query.value === '' ||
+                            index === props.queries.length - 1
+                    );
+                    return (
+                        <>
+                            <ul className="input-group">
+                                {props.queries.map((query, queryIdx) => (
+                                    <li
+                                        className="input-row"
+                                        key={`query:${queryIdx}`}
+                                    >
+                                        <QueryInput
+                                            idx={queryIdx}
+                                            value={query}
+                                            onEnter={handleSubmit}
+                                            onContentChange={handleQueryInput(
+                                                queryIdx
+                                            )}
+                                            wantsFocus={
+                                                props.wantsFocus &&
+                                                queryIdx === focusOn
+                                            }
+                                            allowRemoval={
+                                                List.size(props.queries) > 1
+                                            }
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    );
+                case QueryType.TRANSLAT_QUERY:
+                    return (
+                        <>
+                            <span className="input-row">
+                                <QueryInput
+                                    idx={0}
+                                    value={props.queries[0]}
+                                    onEnter={handleSubmit}
+                                    onContentChange={handleQueryInput(0)}
+                                    wantsFocus={props.wantsFocus}
+                                    allowRemoval={false}
+                                />
+                            </span>
+                            <span className="arrow">{'\u25B6'}</span>
+                            <TranslationLangSelector
+                                value={props.translatLang}
+                                translatLanguages={props.translatLanguages}
+                                htmlClass="secondary"
+                                onChange={handleTranslatLangChange}
+                                queryType={QueryType.TRANSLAT_QUERY}
                             />
-                        </span>
-                    </>
-                );
-            case QueryType.CMP_QUERY:
-                const focusOn = props.queries.findIndex(
-                    (query, index) =>
-                        query.value === '' || index === props.queries.length - 1
-                );
-                return (
-                    <>
-                        <ul className="input-group">
-                            {props.queries.map((query, queryIdx) => (
-                                <li
-                                    className="input-row"
-                                    key={`query:${queryIdx}`}
-                                >
-                                    <QueryInput
-                                        idx={queryIdx}
-                                        value={query}
-                                        onEnter={props.onEnterKey}
-                                        onContentChange={handleQueryInput(
-                                            queryIdx
-                                        )}
-                                        wantsFocus={
-                                            props.wantsFocus &&
-                                            queryIdx === focusOn
-                                        }
-                                        allowRemoval={true}
-                                    />
-                                </li>
-                            ))}
-                            {props.queries.length < props.maxCmpQueries ? (
-                                <AddCmpQueryField />
-                            ) : null}
-                        </ul>
-                    </>
-                );
-            case QueryType.TRANSLAT_QUERY:
-                return (
-                    <>
-                        <span className="input-row">
-                            <QueryInput
-                                idx={0}
-                                value={props.queries[0]}
-                                onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput(0)}
-                                wantsFocus={props.wantsFocus}
-                                allowRemoval={false}
-                            />
-                        </span>
-                        <span className="arrow">{'\u25B6'}</span>
-                        <TranslationLangSelector
-                            value={props.translatLang}
-                            translatLanguages={props.translatLanguages}
-                            htmlClass="secondary"
-                            onChange={handleTranslatLangChange}
-                            queryType={QueryType.TRANSLAT_QUERY}
-                        />
-                    </>
-                );
-        }
+                        </>
+                    );
+            }
+        };
+
+        return (
+            <S.QueryFields>
+                <div className="input-and-submit">
+                    {renderFields()}
+                    <SubmitButton onClick={handleSubmit} />
+                </div>
+                {props.currQueryType === QueryType.CMP_QUERY &&
+                props.queries.length < props.maxCmpQueries ? (
+                    <AddCmpQueryField />
+                ) : null}
+                <SubmenuTile />
+            </S.QueryFields>
+        );
     };
 
     // --------------- <LemmaSelector /> -------------------------------------------
@@ -511,12 +532,13 @@ export function init(
         };
 
         const handleModalLemmaSelection =
-            (queryIdx: number, variantIdx: number) => () => {
+            (queryIdx: number) =>
+            (evt: React.ChangeEvent<HTMLSelectElement>) => {
                 dispatcher.dispatch<typeof Actions.SelectModalQueryMatch>({
                     name: Actions.SelectModalQueryMatch.name,
                     payload: {
                         queryIdx: queryIdx,
-                        variantIdx: variantIdx,
+                        variantIdx: parseInt(evt.target.value),
                     },
                 });
             };
@@ -581,94 +603,99 @@ export function init(
                 return <S.LemmaSelector></S.LemmaSelector>;
             }
         } else {
-            if (props.lemmaSelectorModalVisible) {
-                return (
-                    <globalComponents.ModalBox
-                        onCloseClick={handleCloseModal}
-                        title={ut.translate('global__query_specification')}
-                        tileClass="text"
-                    >
-                        <div className="LemmaSelector multiple-queries">
-                            {List.map(
-                                (queryMatches, queryIdx) => (
-                                    <div
-                                        key={`varGroup${queryIdx}`}
-                                        className="variants"
-                                    >
-                                        <h2 className="query-num">
-                                            [{queryIdx + 1}]
-                                        </h2>
-                                        <ul>
-                                            {List.map(
-                                                (v, i) => (
-                                                    <li
-                                                        key={`${v.lemma}:${v[props.mainPosAttr]}:${i}`}
-                                                    >
-                                                        <label>
-                                                            <input
-                                                                type="radio"
-                                                                name={`lemma_${queryIdx}`}
-                                                                checked={
-                                                                    props
-                                                                        .modalSelections[
-                                                                        queryIdx
-                                                                    ] === i
-                                                                }
-                                                                onChange={handleModalLemmaSelection(
-                                                                    queryIdx,
-                                                                    i
-                                                                )}
-                                                            />
-                                                            <em>{v.lemma}</em> (
-                                                            {mkAltLabel(v)})
-                                                        </label>
-                                                    </li>
-                                                ),
-                                                queryMatches
+            const numAmbig = props.matches.reduce(
+                (acc, curr) => acc + (curr.length > 1 ? 1 : 0),
+                0
+            );
+            return (
+                <S.LemmaSelector>
+                    {props.lemmaSelectorModalVisible ? (
+                        <globalComponents.ModalBox
+                            onCloseClick={handleCloseModal}
+                            title={ut.translate('global__query_specification')}
+                            tileClass="text"
+                        >
+                            <div className="multiple-queries">
+                                {List.map(
+                                    (queryMatches, queryIdx) => (
+                                        <div
+                                            key={`varGroup${queryIdx}`}
+                                            className="variants"
+                                        >
+                                            <h2 className="query-num">
+                                                [{queryIdx + 1}]
+                                            </h2>
+                                            {List.size(queryMatches) > 1 ? (
+                                                <select
+                                                    value={
+                                                        props.modalSelections[
+                                                            queryIdx
+                                                        ]
+                                                    }
+                                                    onChange={handleModalLemmaSelection(
+                                                        queryIdx
+                                                    )}
+                                                >
+                                                    {List.map(
+                                                        (v, i) => (
+                                                            <option
+                                                                key={`${v.lemma}:${v[props.mainPosAttr]}:${i}`}
+                                                                value={i}
+                                                            >
+                                                                {v.lemma} (
+                                                                {mkAltLabel(v)})
+                                                            </option>
+                                                        ),
+                                                        queryMatches
+                                                    )}
+                                                </select>
+                                            ) : (
+                                                <span className="single">
+                                                    {
+                                                        List.head(queryMatches)
+                                                            .lemma
+                                                    }{' '}
+                                                    (
+                                                    {mkAltLabel(
+                                                        List.head(queryMatches)
+                                                    )}
+                                                    )
+                                                </span>
                                             )}
-                                        </ul>
-                                    </div>
-                                ),
-                                props.matches
-                            )}
-                            <p className="buttons">
-                                <button
-                                    className="wag-button wag-button-primary"
-                                    type="button"
-                                    onClick={handleConfirmModalSelection}
-                                    aria-label={ut.translate(
-                                        'global__aria_search_btn'
-                                    )}
-                                >
-                                    {ut.translate(
-                                        'global__modal_variants_confirm_btn'
-                                    )}
-                                </button>
-                            </p>
-                        </div>
-                    </globalComponents.ModalBox>
-                );
-            } else {
-                const numAmbig = props.matches.reduce(
-                    (acc, curr) => acc + (curr.length > 1 ? 1 : 0),
-                    0
-                );
-                return (
-                    <S.LemmaSelector>
-                        {numAmbig > 0 ? (
-                            <a
-                                className="modal-box-trigger"
-                                onClick={handleShowModal}
-                            >
-                                {ut.translate(
-                                    'global__some_results_ambiguous_msg_{num}',
-                                    { num: numAmbig.toFixed() }
+                                        </div>
+                                    ),
+                                    props.matches
                                 )}
-                            </a>
-                        ) : null}
-                    </S.LemmaSelector>
-                );
-            }
+                                <div className="buttons">
+                                    <button
+                                        className="wag-button wag-button-primary"
+                                        type="button"
+                                        onClick={handleConfirmModalSelection}
+                                        aria-label={ut.translate(
+                                            'global__aria_search_btn'
+                                        )}
+                                    >
+                                        {ut.translate(
+                                            'global__modal_variants_confirm_btn'
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </globalComponents.ModalBox>
+                    ) : null}
+                    {numAmbig > 0 ? (
+                        <a
+                            className="modal-box-trigger"
+                            onClick={handleShowModal}
+                        >
+                            {ut.translate(
+                                'global__some_results_ambiguous_msg_{num}',
+                                { num: numAmbig.toFixed() }
+                            )}
+                        </a>
+                    ) : null}
+                </S.LemmaSelector>
+            );
         }
     };
 
@@ -677,12 +704,6 @@ export function init(
     const WdglanceControls: React.FC<{
         isAnswerMode: boolean;
     }> = (props) => {
-        const handleSubmit = () => {
-            dispatcher.dispatch<typeof Actions.SubmitQuery>({
-                name: Actions.SubmitQuery.name,
-            });
-        };
-
         const handleQueryTypeChange = (queryType: QueryType) => {
             dispatcher.dispatch(Actions.ChangeQueryType, { queryType });
         };
@@ -757,10 +778,8 @@ export function init(
                             currQueryType={state.queryType}
                             translatLang={state.currTranslatLanguage}
                             translatLanguages={state.translatLanguages}
-                            onEnterKey={handleSubmit}
                             maxCmpQueries={state.maxCmpQueries}
                         />
-                        <SubmitButton onClick={handleSubmit} />
                     </div>
                 </form>
             </S.WdglanceControls>
@@ -1488,7 +1507,7 @@ export function init(
         return (
             <S.Group>
                 <S.Tiles>
-                    <section className="wag-tile app-output span3">
+                    <section className="wag-tile app-output span-3">
                         <div className="provider">
                             <S.NothingFoundBox>
                                 <div className="wag-tile-body content">
@@ -1514,19 +1533,29 @@ export function init(
         return (
             <S.Group>
                 <S.Tiles>
-                    <section className="wag-tile app-output span3">
+                    <section className="wag-tile app-output span-3">
                         <div className="provider">
                             <S.TooManyErrorsBox>
                                 <div className="wag-tile-body content">
                                     {props.reportHref ? (
-                                        <p
-                                            dangerouslySetInnerHTML={{
-                                                __html: ut.translate(
-                                                    'global__too_many_tile_errors_{href}',
-                                                    { href: props.reportHref }
-                                                ),
-                                            }}
-                                        />
+                                        <p>
+                                            {ut.translateRich(
+                                                'global__too_many_tile_errors_{href}',
+                                                {
+                                                    href: (chunks) => (
+                                                        <a
+                                                            target="_blank"
+                                                            href={
+                                                                props.reportHref
+                                                            }
+                                                            key="chunks"
+                                                        >
+                                                            {chunks}
+                                                        </a>
+                                                    ),
+                                                }
+                                            )}
+                                        </p>
                                     ) : (
                                         <p>
                                             {ut.translate(
@@ -1885,7 +1914,6 @@ export function init(
                 ) : null}
                 {state.isAnswerMode ? (
                     <globalComponents.TileMinHeightContext value={height}>
-                        <SubmenuTile />
                         {renderContents()}
                     </globalComponents.TileMinHeightContext>
                 ) : (

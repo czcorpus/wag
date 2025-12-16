@@ -1,8 +1,10 @@
 {
     "themeId": "cnc-dark-redux",
     "themeLabel": "CNC dark redux",
-    "colorDefaultText": "#b7b7b7",
-    "colorLightText": "#737373",
+    "colorLogoPink": "#e2508a",
+    "colorDefaultText": "#dadada",
+    "colorLightText": "#b7b7b7",
+    "colorInvertText": "#343434",
     "colorInvertedSecondaryText": "#333333",
     "oddDataLineBackgroundColor": "#2d2d39",
     "textInputBackgroundColor": "#004461",
