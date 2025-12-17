@@ -1911,7 +1911,13 @@ export function init(
                         title={state.aboutInfo.label}
                         tileClass="text"
                     >
-                        <S.AboutApp>{state.aboutInfo.body}</S.AboutApp>
+                        <S.AboutApp>
+                            <div
+                                dangerouslySetInnerHTML={{
+                                    __html: state.aboutInfo.body,
+                                }}
+                            />
+                        </S.AboutApp>
                     </globalComponents.ModalBox>
                 ) : null}
                 {state.isAnswerMode ? (
