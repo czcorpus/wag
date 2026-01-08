@@ -98,7 +98,7 @@ export class FrodoClient implements IFreqDB {
                                 abs: subl.count,
                                 ipm: (subl.count / this.corpusSize) * 1e6,
                                 flevel: calcFreqBand(
-                                    (v.count / this.corpusSize) * 1e6
+                                    (subl.count / this.corpusSize) * 1e6
                                 ),
                                 arf: v.arf, // TODO arf can be obtained just for lemma
                                 isCurrent: false,
