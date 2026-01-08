@@ -28,6 +28,10 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
     align-items: stretch;
     justify-content: space-between;
 
+    & > div {
+        width: 90%;
+    }
+
     .chart {
         h2 {
             margin: 0 0 0.7em 0;

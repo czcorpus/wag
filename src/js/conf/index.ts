@@ -33,6 +33,7 @@ export interface UserQuery {
     word: string;
     pos: Array<string>;
     lemma?: string;
+    sublemma?: string;
 }
 
 /**

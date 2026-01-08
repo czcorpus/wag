@@ -225,7 +225,8 @@ export class CouchFreqDB implements IFreqDB {
             List.map((v) => v.doc),
             List.groupBy((v) => v._id),
             List.map(([, v]) => v[0]),
-            List.map<HTTPNgramDoc, QueryMatch>((v) => ({
+            List.map<HTTPNgramDoc, QueryMatch>((v, i) => ({
+                localId: `${i}`,
                 word: word,
                 lemma: v.lemma,
                 sublemma: null,
@@ -302,7 +303,8 @@ export class CouchFreqDB implements IFreqDB {
             reduce((acc, v) => acc.concat(v), [] as Array<HTTPNgramDoc>),
             map((values) =>
                 List.map(
-                    (v) => ({
+                    (v, i) => ({
+                        localId: `${i}`,
                         lemma: v.lemma,
                         sublemma: null,
                         pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
@@ -350,7 +352,8 @@ export class CouchFreqDB implements IFreqDB {
                         )
                     ),
                     List.sortBy(([, , form]) => form.count),
-                    List.map(([pos, upos, form]) => ({
+                    List.map(([pos, upos, form], i) => ({
+                        localId: `${i}`,
                         lemma: lemma,
                         sublemma: null,
                         pos: importQueryPosWithLabel(pos, 'pos', appServices),

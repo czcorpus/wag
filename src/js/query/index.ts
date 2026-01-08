@@ -96,6 +96,18 @@ export function calcFreqBand(ipm: number): FreqBand {
 
 export interface QueryMatchCore {
     /**
+     * An identifier allowing us to distinguish between
+     * current multiple matches. I.e. it does not have to
+     * be some persistent database ID. Just some per-search
+     * generated identifiers like 'qm0', 'qm1', 'qm3'
+     * attached by a dictionary backend should do the job.
+     *
+     * We use this e.g. to be able to refer individual matches
+     * even if we filter, rerrange order of the original list.
+     */
+    localId: string;
+
+    /**
      * note: space-based value for a multi-word query/match
      */
     lemma: string;
@@ -155,6 +167,7 @@ export function findCurrQueryMatch(
     return srch
         ? srch
         : {
+              localId: '',
               lemma: undefined,
               sublemma: null,
               word: undefined,
@@ -209,12 +222,13 @@ export function matchesPos(
 export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
     return pipe(
         qm,
-        List.groupBy((match) => match.lemma),
-        List.map(([, matches]) => {
+        List.groupBy((match) => `${match.lemma}:${match.sublemma}`),
+        List.map(([lm, matches], i) => {
             if (matches.length > 1) {
                 const wildCard: QueryMatch = {
+                    localId: `wildcard:${lm}:${i}`,
                     lemma: matches[0].lemma,
-                    sublemma: null,
+                    sublemma: matches[0].sublemma,
                     pos: [],
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
@@ -236,7 +250,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
 
 /**
  * Check whether all current query matches are unique in terms of
- * lemma + pos + upos combination.
+ * lemma + sublemma + pos + upos combination.
  */
 export function findIdenticalMatches(queries: RecognizedQueries): string {
     const seen = {};
@@ -247,6 +261,7 @@ export function findIdenticalMatches(queries: RecognizedQueries): string {
             }
             const key = [
                 match.lemma,
+                match.sublemma,
                 match.pos.map((v) => v.value).join(','),
                 match.upos.map((v) => v.value).join(','),
             ].join('|');

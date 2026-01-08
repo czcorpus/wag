@@ -70,10 +70,13 @@ export class FrodoClient implements IFreqDB {
             map((resp) => {
                 return pipe(
                     resp.matches,
-                    List.flatMap((v) =>
+                    List.flatMap((v, i) =>
                         List.map(
                             (subl) => ({
-                                word,
+                                localId: `${i}:${subl.value}`,
+                                word: List.find((x) => x.word === word, v.forms)
+                                    ? word
+                                    : subl.value,
                                 lemma: v.lemma,
                                 sublemma: subl.value,
                                 pos: importQueryPosWithLabel(
@@ -127,10 +130,11 @@ export class FrodoClient implements IFreqDB {
         }).pipe(
             map((resp) => {
                 return List.flatMap(
-                    (dictEntry) =>
+                    (dictEntry, i) =>
                         List.map(
                             (sublemma) => ({
-                                word: '-',
+                                localId: `${i}:${sublemma.value}`,
+                                word: sublemma.value,
                                 lemma: dictEntry.lemma,
                                 sublemma: sublemma.value,
                                 pos: importQueryPosWithLabel(

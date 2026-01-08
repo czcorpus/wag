@@ -257,11 +257,21 @@ export function mkRuntimeClientConf({
 function compileQueries(
     q: Array<string>,
     pos: Array<Array<string>>,
-    lemma: Array<string>
+    lemma: Array<string>,
+    sublemma: Array<string>
 ): Array<UserQuery> {
     const ans: Array<UserQuery> = [];
-    for (let i = 0; i < Math.max(q.length, pos.length, lemma.length); i++) {
-        ans.push({ word: q[i], pos: pos[i], lemma: lemma[i] });
+    for (
+        let i = 0;
+        i < Math.max(q.length, pos.length, lemma.length, sublemma.length);
+        i++
+    ) {
+        ans.push({
+            word: q[i],
+            pos: pos[i],
+            lemma: lemma[i],
+            sublemma: sublemma[i],
+        });
     }
     return ans;
 }
@@ -376,7 +386,8 @@ export function importQueryRequest({
                                   (v) => List.filter((v) => !!v, v.split(' ')),
                                   fetchReqArgArray(req, 'pos', queries.length)
                               ),
-                              fetchReqArgArray(req, 'lemma', queries.length)
+                              fetchReqArgArray(req, 'lemma', queries.length),
+                              fetchReqArgArray(req, 'sublemma', queries.length)
                           ),
                 answerMode: answerMode,
             };
@@ -392,13 +403,26 @@ export function importQueryRequest({
 /**
  * note: functions expects availMatches sorted from highest ipm to lowest
  */
-export function markMatch(
+export function determineCurrentMatch(
     userQuery: UserQuery,
     posAttr: MainPosAttrValues,
     availMatches: Array<QueryMatch>
 ): Array<QueryMatch> {
     if (List.size(availMatches) === 0) {
         return availMatches;
+    }
+    if (userQuery.lemma && userQuery.sublemma && !List.empty(userQuery.pos)) {
+        const srch = List.findIndex(
+            (x) =>
+                matchesPos(x, posAttr, userQuery.pos) &&
+                userQuery.lemma === x.lemma &&
+                userQuery.sublemma === x.sublemma,
+            availMatches
+        );
+        if (srch > -1) {
+            availMatches[srch].isCurrent = true;
+            return availMatches;
+        }
     }
     if (userQuery.lemma && !List.empty(userQuery.pos)) {
         const srch = List.findIndex(
@@ -583,6 +607,7 @@ export function queryAction({
                         if (queryMatches.length === 0) {
                             return [
                                 {
+                                    localId: '',
                                     lemma: null,
                                     sublemma: null,
                                     word: userConf.queries[queryIdx].word,
@@ -596,7 +621,7 @@ export function queryAction({
                                 },
                             ];
                         }
-                        return markMatch(
+                        return determineCurrentMatch(
                             userConf.queries[queryIdx],
                             layoutManager.getLayoutMainPosAttr(),
                             List.sorted(

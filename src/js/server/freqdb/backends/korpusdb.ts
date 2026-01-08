@@ -299,7 +299,7 @@ export class KorpusFreqDB implements IFreqDB {
                     )
                 )
             ),
-            mergeMap(([rsc, [word, lemma, pos]]) =>
+            mergeMap(([rsc, [word, lemma, pos]], i) =>
                 this.getWordFormsUsingResources(
                     appServices,
                     lemma,
@@ -316,6 +316,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 return acc;
                             },
                             {
+                                localId: `kdbMatch:${i}`,
                                 word,
                                 lemma,
                                 sublemma: null, // TODO
@@ -370,7 +371,7 @@ export class KorpusFreqDB implements IFreqDB {
         return this.loadData(lemma, ':form:attr:cnc:w:lemma', false).pipe(
             map((data) =>
                 List.reduce(
-                    (acc, curr) => {
+                    (acc, curr, i) => {
                         if (curr[fcrit]) {
                             const wordPos = importQueryPosWithLabel(
                                 List.map(
@@ -411,6 +412,7 @@ export class KorpusFreqDB implements IFreqDB {
                                     return [
                                         ...acc,
                                         {
+                                            localId: `kdbMatch:${i}`,
                                             word: curr._name,
                                             lemma: lemma,
                                             sublemma: null, // TODO
