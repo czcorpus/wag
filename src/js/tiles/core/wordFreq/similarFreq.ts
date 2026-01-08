@@ -95,9 +95,10 @@ export class SimilarFreqWordsFrodoAPI {
                 map((data) =>
                     pipe(
                         data.matches,
-                        List.flatMap((v) =>
+                        List.flatMap((v, i) =>
                             List.map(
                                 (sublemma) => ({
+                                    localId: `sw:${i}:${sublemma.value}`,
                                     lemma: v.lemma,
                                     sublemma: sublemma.value,
                                     pos: [{ value: v.pos, label: v.pos }], // TODO what about label?

@@ -92,16 +92,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 state.queryMatches[action.payload.queryIdx] = List.map(
                     (v) => ({
                         ...v,
-                        isCurrent:
-                            matchesPos(
-                                v,
-                                state.mainPosAttr,
-                                action.payload[state.mainPosAttr]
-                            ) &&
-                            v.word == action.payload.word &&
-                            v.lemma === action.payload.lemma
-                                ? true
-                                : false,
+                        isCurrent: v.localId === action.payload.matchId,
                     }),
                     group
                 );
@@ -199,15 +190,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 state.modalSelections.forEach((sel, idx) => {
                     state.queryMatches[idx] = state.queryMatches[idx].map(
                         (v, i2) => ({
-                            lemma: v.lemma,
-                            sublemma: v.sublemma,
-                            word: v.word,
-                            pos: v.pos,
-                            upos: v.upos,
-                            abs: v.abs,
-                            ipm: v.ipm,
-                            arf: v.arf,
-                            flevel: v.flevel,
+                            ...v,
                             isCurrent: i2 === sel,
                         })
                     );
@@ -231,13 +214,13 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
     private submitCurrLemma(state: QueryFormModelState): void {
         const args = new MultiDict();
+        const currMatch = findCurrQueryMatch(state.queryMatches[0]);
         args.set(
             'pos',
-            findCurrQueryMatch(state.queryMatches[0])
-                [state.mainPosAttr].map((v) => v.value)
-                .join(' ')
+            currMatch[state.mainPosAttr].map((v) => v.value).join(' ')
         );
-        args.set('lemma', findCurrQueryMatch(state.queryMatches[0]).lemma);
+        args.set('lemma', currMatch.lemma);
+        args.set('sublemma', currMatch.sublemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:

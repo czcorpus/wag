@@ -499,10 +499,7 @@ export function init(
                     name: Actions.ChangeCurrQueryMatch.name,
                     payload: {
                         queryIdx: queryIdx,
-                        word: lemmaVar.word,
-                        lemma: lemmaVar.lemma,
-                        pos: List.map((p) => p.value, lemmaVar.pos),
-                        upos: List.map((p) => p.value, lemmaVar.upos),
+                        matchId: lemmaVar.localId,
                     },
                 });
             };

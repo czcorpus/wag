@@ -152,12 +152,25 @@ export function init(
                     <dd>
                         <strong>
                             {List.map(
-                                (lm, i) => i > 0 ?
-                                    <span key={`${i}:${lm}`}><br />{lm}</span> :
-                                    <span key={`${i}:${lm}`}>{lm}</span>,
+                                (lm, i) =>
+                                    i > 0 ? (
+                                        <span key={`${i}:${lm}`}>
+                                            <br />
+                                            {lm}
+                                        </span>
+                                    ) : (
+                                        <span key={`${i}:${lm}`}>{lm}</span>
+                                    ),
                                 props.data.lemma.split('|')
                             )}
                         </strong>
+                        {props.data.sublemma &&
+                        props.data.sublemma != props.data.lemma ? (
+                            <>
+                                <br />({ut.translate('global__srch_variant')}{' '}
+                                <strong>{props.data.sublemma}</strong>)
+                            </>
+                        ) : null}
                     </dd>
                     <dt>{ut.translate('wordfreq__pos')}:</dt>
                     <dd>

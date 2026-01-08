@@ -80,10 +80,7 @@ export class Actions {
 
     static ChangeCurrQueryMatch: Action<{
         queryIdx: number;
-        word: string;
-        lemma: string;
-        pos: Array<string>;
-        upos: Array<string>;
+        matchId: string;
     }> = {
         name: 'MAIN_CHANGE_CURR_QUERY_MATCH',
     };
@@ -328,12 +325,11 @@ export class Actions {
         label: string;
         body: string;
     }> = {
-        name: 'MAIN_ABOUT_APP_LINK_CLICKED'
+        name: 'MAIN_ABOUT_APP_LINK_CLICKED',
     };
 
-    static AboutAppInfoClosed: Action<{
-    }> = {
-        name: 'MAIN_ABOUT_APP_INFO_CLOSED'
+    static AboutAppInfoClosed: Action<{}> = {
+        name: 'MAIN_ABOUT_APP_INFO_CLOSED',
     };
 }
 
