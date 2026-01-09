@@ -17,7 +17,7 @@
  */
 
 import { StatelessModel, IActionQueue } from 'kombo';
-import { pipe, List, tuple } from 'cnc-tskit';
+import { pipe, List, tuple, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices.js';
 import { MultiDict } from '../multidict.js';
@@ -58,6 +58,11 @@ export interface QueryFormModelState {
     lemmaSelectorModalVisible: boolean;
     modalSelections: Array<number>;
     mainPosAttr: MainPosAttrValues;
+    hpKeywords: {
+        apiUrl: string;
+        label: string;
+        data: Array<{ value: string; score: number }>;
+    };
 }
 
 /**
@@ -200,6 +205,41 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 this.submitCurrLemma(state);
             }
         );
+
+        this.addActionHandler(
+            Actions.LoadHomepageWordCloud,
+            (state, action) => {},
+            (state, action, dispatch) => {
+                if (state.hpKeywords?.apiUrl) {
+                    this.appServices
+                        .ajax$<
+                            Array<{ value: string; score: number }>
+                        >(HTTP.Method.GET, state.hpKeywords.apiUrl, {})
+                        .subscribe({
+                            next: (data) => {
+                                dispatch(Actions.LoadHomepageWordCloudDone, {
+                                    data,
+                                });
+                            },
+                            error: (err) => {
+                                appServices.showMessage(
+                                    SystemMessageType.ERROR,
+                                    err
+                                );
+                            },
+                        });
+                }
+            }
+        );
+
+        this.addActionHandler(
+            Actions.LoadHomepageWordCloudDone,
+            (state, action) => {
+                if (!action.error) {
+                    state.hpKeywords.data = action.payload.data;
+                }
+            }
+        );
     }
 
     private normalizeQueries(state: QueryFormModelState): void {
@@ -333,6 +373,10 @@ export interface DefaultFactoryArgs {
     layout: LayoutManager;
     maxCmpQueries: number;
     maxQueryWords: number;
+    hpKeywords: {
+        apiUrl: string;
+        label: string;
+    };
 }
 
 export const defaultFactory = ({
@@ -349,6 +393,7 @@ export const defaultFactory = ({
     maxCmpQueries,
     maxQueryWords,
     hideUnavailableQueryTypes,
+    hpKeywords,
 }: DefaultFactoryArgs) => {
     return new QueryFormModel(dispatcher, appServices, {
         queries: List.map(
@@ -376,5 +421,6 @@ export const defaultFactory = ({
         ),
         mainPosAttr: layout.getLayoutMainPosAttr(),
         expandMobileMenu: false,
+        hpKeywords: { ...hpKeywords, data: [] },
     });
 };

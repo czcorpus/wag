@@ -188,6 +188,10 @@ export function createRootComponent({
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords,
         hideUnavailableQueryTypes: !!config.hideUnavailableQueryTypes,
+        hpKeywords: {
+            label: config.homepage.wordCloud?.label,
+            apiUrl: config.homepage.wordCloud?.url,
+        },
     });
 
     const factory = mkTileFactory(
@@ -268,7 +272,7 @@ export function createRootComponent({
             allTilesLoaded: false,
             showRedirectingModal: false,
             redirectingMessage: null,
-            aboutInfo: undefined
+            aboutInfo: undefined,
         },
         appServices
     );

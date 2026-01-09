@@ -89,6 +89,9 @@
                 "geoAreaSpotTextColor": {
                     "type": "string"
                 },
+                "isDefault": {
+                    "type": "boolean"
+                },
                 "lineChartColor1": {
                     "type": "string"
                 },
@@ -120,6 +123,9 @@
                     "type": "string"
                 },
                 "textInputBackgroundColor": {
+                    "type": "string"
+                },
+                "textInputBorderStyle": {
                     "type": "string"
                 },
                 "themeId": {

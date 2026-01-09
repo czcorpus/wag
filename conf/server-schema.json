@@ -82,29 +82,6 @@
             ],
             "type": "object"
         },
-        "LogQueueConf": {
-            "properties": {
-                "db": {
-                    "type": "number"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "db",
-                "host",
-                "key",
-                "port"
-            ],
-            "type": "object"
-        },
         "ToolbarDef": {
             "properties": {
                 "type": {
@@ -193,9 +170,6 @@
                 "type": "string"
             },
             "type": "object"
-        },
-        "logQueue": {
-            "$ref": "#/definitions/LogQueueConf"
         },
         "logging": {
             "properties": {

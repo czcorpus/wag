@@ -1,52 +1,21 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "definitions": {
-        "CommonTextStructures": {
-            "properties": {
-                "document": {
-                    "type": "string"
+    "additionalProperties": {
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
                 },
-                "paragraph": {
-                    "type": "string"
-                },
-                "sentence": {
+                {
                     "type": "string"
                 }
-            },
-            "type": "object"
-        }
-    },
-    "properties": {
-        "commonStructures": {
-            "additionalProperties": {
-                "$ref": "#/definitions/CommonTextStructures"
-            },
-            "type": "object"
+            ]
         },
-        "metadataMapping": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "anyOf": [
-                        {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
-                },
-                "type": "object"
-            },
-            "type": "object"
-        }
+        "type": "object"
     },
-    "required": [
-        "commonStructures",
-        "metadataMapping"
-    ],
     "type": "object"
 }
 
