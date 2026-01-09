@@ -245,6 +245,12 @@ export function mkRuntimeClientConf({
                 homepage: {
                     tiles: hpTiles,
                     footer,
+                    wordCloud: {
+                        url: conf.homepage?.wordCloud?.url,
+                        label: appServices.importExternalMessage(
+                            conf.homepage?.wordCloud?.label
+                        ),
+                    },
                 },
                 maxTileErrors: conf.maxTileErrors,
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
@@ -296,7 +302,7 @@ function determineTranslatLang(
     ) {
         return undefined;
     }
-    console.log('>>>>>> layoutsConf.preview: ', layoutsConf.preview);
+
     if (queryType === QueryType.PREVIEW) {
         // the preview mode has target languages hardcoded,
         // so we can be pretty sure about len > 0

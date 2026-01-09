@@ -127,9 +127,20 @@ export interface HomePageTileConfI18n {
     contents: { [lang: string]: string | { file: string } };
 }
 
+export interface HomePageWordCloudConfI18n {
+    label: { [lang: string]: string };
+    url: string;
+}
+
 export interface HomepageConfI18n {
     tiles: Array<HomePageTileConfI18n>;
     footer?: { [lang: string]: string | { file: string } };
+    wordCloud?: HomePageWordCloudConfI18n;
+}
+
+export interface HomepageWordCloudConf {
+    label: string;
+    url: string;
 }
 
 export interface FaviconConf {
@@ -277,6 +288,7 @@ export interface ClientConf {
     issueReportingUrl?: string;
     homepage: {
         tiles: Array<HomepageTileConf>;
+        wordCloud?: HomepageWordCloudConf;
         footer?: string;
     };
     tiles: { [ident: string]: TileConf };

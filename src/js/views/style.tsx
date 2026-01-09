@@ -514,6 +514,17 @@ export const TilesSections = styled.section<{ theme: Theme }>`
     ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
     }
+
+    .wordcloud {
+        h3 {
+            margin: 1em 0 1em 0;
+            font-size: 1rem;
+            font-weight: normal;
+            color: ${(props) => props.theme.colorDefaultText};
+        }
+
+        margin-bottom: 2em;
+    }
 `;
 
 // ---------------- <AboutApp /> -----------------------------------

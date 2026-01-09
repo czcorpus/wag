@@ -331,6 +331,16 @@ export class Actions {
     static AboutAppInfoClosed: Action<{}> = {
         name: 'MAIN_ABOUT_APP_INFO_CLOSED',
     };
+
+    static LoadHomepageWordCloud: Action<{}> = {
+        name: 'MAIN_LOAD_HOMEPAGE_WORD_CLOUD',
+    };
+
+    static LoadHomepageWordCloudDone: Action<{
+        data: Array<{ value: string; score: number }>;
+    }> = {
+        name: 'MAIN_LOAD_HOMEPAGE_WORD_CLOUD_DONE',
+    };
 }
 
 /**

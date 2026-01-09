@@ -53,6 +53,7 @@ import {
     UserQuery,
 } from '../conf/index.js';
 import { Theme } from '../page/theme.js';
+import { init as wcloudViewInit, WordCloudItem } from './wordCloud/index.js';
 
 export interface WdglanceMainProps {
     layout: Array<TileGroup>;
@@ -83,6 +84,11 @@ export function init(
     const globalComponents = ut.getComponents();
     const CorpusInfo = corpusInfoViewInit(dispatcher, ut);
     const GlobalStyleWithDynamicTheme = GlobalStyle(dynamicTheme);
+    const WordCloud = wcloudViewInit<{ value: string; score: number }>(
+        dispatcher,
+        ut,
+        dynamicTheme
+    );
 
     // ------------------ <SystemMessage /> ------------------------------
 
@@ -1715,8 +1721,10 @@ export function init(
             html: string;
             isFooterIntegrated: boolean;
         }>;
+        isMobile: boolean;
     }> = (props) => {
         const state = useModel(tilesModel);
+        const queryFormState = useModel(formModel);
 
         const handleCloseSourceInfo = () => {
             dispatcher.dispatch<typeof Actions.CloseSourceInfo>({
@@ -1872,6 +1880,10 @@ export function init(
 
             setHeight(window.innerHeight / props.layout.length);
 
+            dispatcher.dispatch<typeof Actions.LoadHomepageWordCloud>({
+                name: Actions.LoadHomepageWordCloud.name,
+            });
+
             return () => {
                 subsc.unsubscribe();
             };
@@ -1900,6 +1912,18 @@ export function init(
             dispatcher.dispatch(Actions.AboutAppInfoClosed);
         };
 
+        const wcDataTrans = (v: {
+            value: string;
+            score: number;
+        }): WordCloudItem => {
+            return {
+                text: v.value,
+                value: Math.exp(v.score),
+                tooltip: null,
+                interactionId: null,
+            };
+        };
+
         return (
             <S.TilesSections>
                 {state.aboutInfo ? (
@@ -1923,6 +1947,25 @@ export function init(
                     </globalComponents.TileMinHeightContext>
                 ) : (
                     <S.Tiles>
+                        {List.empty(queryFormState.hpKeywords.data) ? null : (
+                            <>
+                                <div></div>
+                                <div className="wordcloud">
+                                    <WordCloud
+                                        width={850}
+                                        height={400}
+                                        data={queryFormState.hpKeywords?.data}
+                                        isMobile={props.isMobile}
+                                        font={dynamicTheme.infoGraphicsFont}
+                                        dataTransform={wcDataTrans}
+                                        colors={(i) =>
+                                            dynamicTheme.scaleColor(1, 2)(1)
+                                        }
+                                    />
+                                </div>
+                                <div></div>
+                            </>
+                        )}
                         <InitialHelp sections={props.homepageSections} />
                     </S.Tiles>
                 )}
@@ -1967,6 +2010,7 @@ export function init(
                     <TilesSections
                         layout={props.layout}
                         homepageSections={props.homepageSections}
+                        isMobile={props.isMobile}
                     />
                 </ThemeProvider>
             </S.WdglanceMain>
