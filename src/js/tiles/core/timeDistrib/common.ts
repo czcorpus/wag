@@ -33,6 +33,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     posQueryGenerator: PosQueryGeneratorType;
 
+    supportsSublemma?: boolean;
+
     showMeasuredFreq?: boolean;
 }
 

@@ -50,6 +50,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     posAttrs: Array<string>;
     sentenceStruct: string;
     posQueryGenerator: PosQueryGeneratorType; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
+    supportsSublemma?: boolean;
     parallelLangMapping?: { [lang: string]: string };
     disableViewModes?: boolean;
     metadataAttrs?: Array<{ value: string; label: LocalizedConfMsg }>;
@@ -137,6 +138,7 @@ export class ConcordanceTile implements ITileProvider {
                 })),
                 backlinks: List.map((_) => null, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator,
+                supportsSublemma: !!conf.supportsSublemma,
                 disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,
                 queries: List.map(

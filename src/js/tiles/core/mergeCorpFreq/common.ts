@@ -39,6 +39,8 @@ export interface ModelSourceArgs {
 
     posQueryGenerator: PosQueryGeneratorType;
 
+    supportsSublemma: boolean;
+
     fttIncludeEmpty?: boolean;
 
     fmaxitems?: number;

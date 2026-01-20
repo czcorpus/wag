@@ -23,6 +23,7 @@ import { Observable } from 'rxjs';
 
 export interface RequestArgs {
     lemma: string;
+    sublemma?: string;
     pos: Array<string>;
     mainPosAttr: MainPosAttrValues;
     corpName: string;

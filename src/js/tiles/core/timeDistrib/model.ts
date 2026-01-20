@@ -68,6 +68,7 @@ export interface TimeDistribModelState {
     error: string;
     alphaLevel: Maths.AlphaLevel;
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma: boolean;
     mainPosAttr: MainPosAttrValues;
     isTweakMode: boolean;
     data: Array<Array<DataItemWithWCI>>;
@@ -622,7 +623,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 ? `[word="${state.wordCmp}"]`
                 : mkLemmaMatchQuery(
                       findCurrQueryMatch(this.queryMatches[queryIdx]),
-                      state.posQueryGenerator
+                      state.posQueryGenerator,
+                      state.supportsSublemma
                   ),
             subcorpName: undefined, // TODO
             fromYear: state.fromYear ? state.fromYear + '' : undefined,

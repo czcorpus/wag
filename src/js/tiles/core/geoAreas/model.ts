@@ -95,6 +95,7 @@ export interface GeoAreasModelState
     mapSVG: string;
     isAltViewMode: boolean;
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma: boolean;
     frequencyDisplayLimit: number;
     backlinks: Array<Backlink>;
 }
@@ -475,7 +476,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                q: mkLemmaMatchQuery(
+                    queryMatch,
+                    state.posQueryGenerator,
+                    state.supportsSublemma
+                ),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,

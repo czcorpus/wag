@@ -27,6 +27,7 @@ import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
+import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 export interface WordFormsModelState {
     isBusy: boolean;
@@ -39,6 +40,8 @@ export interface WordFormsModelState {
     data: Array<WordFormItem>;
     backlink: Backlink;
     mainPosAttr: MainPosAttrValues;
+    posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma?: boolean;
 }
 
 /**
@@ -154,6 +157,9 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     this.fetchWordForms(
                         {
                             lemma: variant.lemma,
+                            sublemma: state.supportsSublemma
+                                ? variant.sublemma
+                                : undefined,
                             pos: List.map((v) => v.value, variant.pos),
                             corpName: state.corpname,
                             mainPosAttr: state.mainPosAttr,
