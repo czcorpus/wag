@@ -194,6 +194,8 @@ export interface CollocModelState {
 
     posQueryGenerator: PosQueryGeneratorType;
 
+    supportsSublemma: boolean;
+
     examplesPerColl?: number;
 }
 

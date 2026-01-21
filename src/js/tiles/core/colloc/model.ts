@@ -319,7 +319,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             return {
                 corpusId: state.corpname,
                 cmpCorp: state.comparisonCorpname || undefined,
-                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                q: mkLemmaMatchQuery(
+                    queryMatch,
+                    state.posQueryGenerator,
+                    state.supportsSublemma
+                ),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],
                 srchLeft: Math.abs(cfromw),

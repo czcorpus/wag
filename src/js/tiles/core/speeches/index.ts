@@ -51,6 +51,7 @@ export interface SpeechesTileConf extends TileConf {
     maxNumSpeeches?: number;
     audioApiURL?: string;
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma?: boolean;
 }
 
 export class SpeechesTile implements ITileProvider {
@@ -121,6 +122,7 @@ export class SpeechesTile implements ITileProvider {
                     conf.maxNumSpeeches ||
                     SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
                 posQueryGenerator: conf.posQueryGenerator,
+                supportsSublemma: !!conf.supportsSublemma,
                 queryMatches: List.map(
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches

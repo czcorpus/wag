@@ -50,6 +50,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         corpusSize: number;
         fcrit: string;
         posQueryGenerator: PosQueryGeneratorType;
+        supportsSublema?: boolean;
         freqType: 'tokens' | 'text-types';
         flimit: number;
         freqSort: string;
@@ -154,6 +155,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
                         posQueryGenerator: src.posQueryGenerator,
+                        supportsSublemma: !!src.supportsSublema,
                         viewInOtherWagUrl: src.viewInOtherWagUrl || null,
                     }),
                     conf.sources

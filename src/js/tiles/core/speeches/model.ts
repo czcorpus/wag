@@ -349,7 +349,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 subcorpus: state.subcname,
                 query: mkLemmaMatchQuery(
                     state.queryMatches[0],
-                    state.posQueryGenerator
+                    state.posQueryGenerator,
+                    state.supportsSublemma
                 ),
                 // hitlen: kwicNumTokens,  TODO
                 struct: [

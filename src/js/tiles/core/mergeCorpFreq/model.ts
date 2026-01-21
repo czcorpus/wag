@@ -25,11 +25,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
-import {
-    MergeCorpFreqModelState,
-    ModelSourceArgs,
-    SourceMappedDataRow,
-} from './common.js';
+import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
@@ -358,7 +354,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q: mkLemmaMatchQuery(queryMatch, state.posQueryGenerator),
+                q: mkLemmaMatchQuery(
+                    queryMatch,
+                    state.posQueryGenerator,
+                    state.supportsSublemma
+                ),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,

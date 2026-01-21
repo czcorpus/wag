@@ -47,6 +47,7 @@ export interface FreqBarModelState {
     label: string;
     freqType: 'tokens' | 'text-types';
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma: boolean;
     flimit: number;
     fpage: number;
     fmaxitems?: number;
@@ -272,7 +273,8 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                 queryArgs: {
                     q: mkLemmaMatchQuery(
                         queryMatch,
-                        this.state.posQueryGenerator
+                        this.state.posQueryGenerator,
+                        this.state.supportsSublemma
                     ),
                     subcorpus: '', // TODO
                     attr: this.state.fcrit,

@@ -55,6 +55,7 @@ export interface GeoAreasTileConf extends TileConf {
      * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset]).
      */
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma?: boolean;
 }
 
 export class GeoAreasTile implements ITileProvider {
@@ -122,6 +123,7 @@ export class GeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
+                supportsSublemma: !!conf.supportsSublemma,
                 currQueryMatches: List.map(
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches

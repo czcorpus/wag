@@ -38,10 +38,11 @@ export class MQueryWordFormsAPI
     private prepareArgs(queryArgs: RequestArgs): string {
         return pipe(
             {
-                lemma: queryArgs.lemma,
+                sublemma: queryArgs.sublemma,
                 pos: queryArgs.pos.join(' '),
             },
             Dict.toEntries(),
+            List.filter(([_, v]) => v !== undefined),
             List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
             (x) => x.join('&')
         );
@@ -54,7 +55,7 @@ export class MQueryWordFormsAPI
         args: RequestArgs
     ): Observable<Response> {
         const url = args.lemma
-            ? urlJoin(this.apiURL, '/word-forms/', args.corpName) +
+            ? urlJoin(this.apiURL, '/word-forms/', args.corpName, args.lemma) +
               `?${this.prepareArgs(args)}`
             : null;
         return streaming

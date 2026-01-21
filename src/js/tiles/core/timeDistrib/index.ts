@@ -98,6 +98,7 @@ export class TimeDistTile implements ITileProvider {
                 data: List.map((_) => [], queryMatches),
                 dataCmp: [],
                 posQueryGenerator: conf.posQueryGenerator,
+                supportsSublemma: conf.supportsSublemma,
                 isTweakMode: false,
                 useAbsFreq: false,
                 displayObserved: conf.showMeasuredFreq || false,

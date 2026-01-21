@@ -42,16 +42,22 @@ function escapeDQuotes(v: string): string {
  */
 export function mkLemmaMatchQuery(
     lvar: QueryMatch,
-    generator: [string, string]
+    generator: [string, string],
+    sublemma?: boolean
 ): string {
     const fn = posQueryFactory(generator[1]);
     return pipe(
         lvar.lemma.split(' '),
-        List.map((lemma, i) =>
-            lvar.pos[i] !== undefined
-                ? `[lemma=="${escapeDQuotes(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]`
-                : `[lemma=="${escapeDQuotes(lemma)}"]`
-        )
+        List.map((lemma, i) => {
+            const expr = [`lemma=="${escapeDQuotes(lemma)}"`];
+            if (lvar.pos[i] !== undefined) {
+                expr.push(`${generator[0]}="${fn(lvar.pos[i].value)}"`);
+            }
+            if (lvar.sublemma && sublemma) {
+                expr.push(`sublemma=="${escapeDQuotes(lvar.sublemma)}"`);
+            }
+            return `[${expr.join(' & ')}]`;
+        })
     ).join(' ');
 }
 

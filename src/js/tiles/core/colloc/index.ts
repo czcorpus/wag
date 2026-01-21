@@ -54,6 +54,8 @@ export interface CollocationsTileConf extends TileConf {
      * A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).
      */
     posQueryGenerator: PosQueryGeneratorType;
+
+    supportsSublemma?: boolean;
 }
 
 /**
@@ -139,6 +141,7 @@ export class CollocationsTile implements ITileProvider {
                 ),
                 queryType,
                 posQueryGenerator: conf.posQueryGenerator,
+                supportsSublemma: !!conf.supportsSublemma,
                 examplesPerColl: conf.examplesPerColl,
             },
             queryMatches: List.map(findCurrQueryMatch, queryMatches),

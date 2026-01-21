@@ -67,6 +67,7 @@ export interface ConcordanceTileState {
     metadataAttrs: Array<{ value: string; label: string }>;
     attrs: Array<string>;
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma: boolean;
     concordances: Array<ConcData>;
     visibleQueryIdx: number;
     isBusy: boolean;
@@ -564,7 +565,11 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
     ): ConcApiArgs {
         return {
             corpusName: this.state.corpname,
-            q: mkLemmaMatchQuery(queryMatch, this.state.posQueryGenerator),
+            q: mkLemmaMatchQuery(
+                queryMatch,
+                this.state.posQueryGenerator,
+                this.state.supportsSublemma
+            ),
             rowsOffset:
                 (this.state.concordances[queryIdx].loadPage - 1) *
                 this.state.pageSize,

@@ -47,6 +47,7 @@ export interface WordFormsTileConf extends TileConf {
     corpusSize: number;
     freqFilterAlphaLevel: Maths.AlphaLevel;
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma?: boolean;
 }
 
 export class WordFormsTile implements ITileProvider {
@@ -93,6 +94,8 @@ export class WordFormsTile implements ITileProvider {
                 data: [],
                 backlink: null,
                 mainPosAttr,
+                posQueryGenerator: conf.posQueryGenerator,
+                supportsSublemma: !!conf.supportsSublemma,
             },
             tileId,
             api: this.createApi(conf, appServices),

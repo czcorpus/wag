@@ -81,6 +81,7 @@ export interface SpeechesModelState {
         currPlaybackSession: string | null;
     } | null;
     posQueryGenerator: PosQueryGeneratorType;
+    supportsSublemma: boolean;
     queryMatches: Array<QueryMatch>;
 }
 
