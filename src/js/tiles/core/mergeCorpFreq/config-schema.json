@@ -48,6 +48,9 @@
                         "minItems": 2,
                         "maxItems": 2
                     },
+                    "supportsSublema": {
+                        "type": "boolean"
+                    },
                     "freqType": {
                         "enum": [
                             "text-types",
