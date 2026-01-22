@@ -638,7 +638,6 @@ export function queryAction({
                     },
                     qMatchesEachQuery
                 );
-
                 const { component, tileGroups } = createRootComponent({
                     config: runtimeConf,
                     userSession: userConf,

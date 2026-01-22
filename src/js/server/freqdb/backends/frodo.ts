@@ -25,6 +25,7 @@ interface HTTPNgramDoc {
     arf: number;
     forms: Array<{
         word: string;
+        sublemma?: string;
         count: number;
         arf: number;
     }>;
@@ -71,10 +72,15 @@ export class FrodoClient implements IFreqDB {
                 return pipe(
                     resp.matches,
                     List.flatMap((v, i) =>
-                        List.map(
-                            (subl) => ({
+                        List.map((subl) => {
+                            return {
                                 localId: `${i}:${subl.value}`,
-                                word: List.find((x) => x.word === word, v.forms)
+                                word: List.find(
+                                    (x) =>
+                                        x.word === word &&
+                                        x.sublemma === subl.value,
+                                    v.forms
+                                )
                                     ? word
                                     : subl.value,
                                 lemma: v.lemma,
@@ -102,9 +108,8 @@ export class FrodoClient implements IFreqDB {
                                 ),
                                 arf: v.arf, // TODO arf can be obtained just for lemma
                                 isCurrent: false,
-                            }),
-                            v.sublemmas
-                        )
+                            };
+                        }, v.sublemmas)
                     )
                 );
             })

@@ -179,9 +179,7 @@ export function init(
                                   (pos, i) => (
                                       <React.Fragment key={`${i}:${pos.value}`}>
                                           {i > 0 ? '\u00a0' : ''}
-                                          <span className="squareb">[</span>
                                           {pos.label}
-                                          <span className="squareb">]</span>
                                       </React.Fragment>
                                   ),
                                   props.data[props.mainPosAttr]
