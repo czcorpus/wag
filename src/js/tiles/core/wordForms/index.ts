@@ -63,6 +63,8 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly view: TileComponent;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         tileId,
         dispatcher,
@@ -78,6 +80,7 @@ export class WordFormsTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this._supportsSublemma = !!conf.supportsSublemma;
         this.label = this.appServices.importExternalMessage(
             conf.label || 'wordforms__main_label'
         );
@@ -193,6 +196,10 @@ export class WordFormsTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

@@ -50,7 +50,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         corpusSize: number;
         fcrit: string;
         posQueryGenerator: PosQueryGeneratorType;
-        supportsSublema?: boolean;
+        supportsSublemma?: boolean;
         freqType: 'tokens' | 'text-types';
         flimit: number;
         freqSort: string;
@@ -111,6 +111,8 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract: number;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         dispatcher,
         tileId,
@@ -126,6 +128,13 @@ export class MergeCorpFreqTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
+        // below, we must test all the resources and if even a single one
+        // of them does not support sublemmas, we have to tell the user
+        // (that's the purpose of _supportsSublemma)
+        this._supportsSublemma = List.every(
+            (item) => !!item.supportsSublemma,
+            conf.sources
+        );
         this.model = new MergeCorpFreqModel({
             dispatcher: this.dispatcher,
             tileId,
@@ -155,7 +164,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
                         posQueryGenerator: src.posQueryGenerator,
-                        supportsSublemma: !!src.supportsSublema,
+                        supportsSublemma: !!src.supportsSublemma,
                         viewInOtherWagUrl: src.viewInOtherWagUrl || null,
                     }),
                     conf.sources
@@ -248,6 +257,10 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

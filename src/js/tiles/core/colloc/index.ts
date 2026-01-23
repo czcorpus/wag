@@ -80,6 +80,8 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly dependentTiles: Array<number>;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         tileId,
         dispatcher,
@@ -98,6 +100,7 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.dependentTiles = dependentTiles;
+        this._supportsSublemma = !!conf.supportsSublemma;
         this.api = new MQueryCollAPI(
             conf.apiURL,
             conf.apiType === 'with-examples',
@@ -219,6 +222,10 @@ export class CollocationsTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

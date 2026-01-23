@@ -82,6 +82,8 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly readDataFromTile: number;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         dispatcher,
         tileId,
@@ -100,6 +102,7 @@ export class FreqBarTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.readDataFromTile = readDataFromTile;
+        this._supportsSublemma = !!conf.supportsSublemma;
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new FreqBarModel({
             dispatcher,
@@ -222,6 +225,10 @@ export class FreqBarTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

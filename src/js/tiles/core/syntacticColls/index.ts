@@ -279,6 +279,10 @@ export class SyntacticCollsTile implements ITileProvider {
     hideOnNoData(): boolean {
         return this._hideOnNoData;
     }
+
+    supportsSublemma(): boolean {
+        return false;
+    }
 }
 
 export const init: TileFactory<SyntacticCollsTileConf> = {

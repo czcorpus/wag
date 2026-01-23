@@ -64,6 +64,8 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly label: string;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         dispatcher,
         tileId,
@@ -80,6 +82,7 @@ export class TimeDistTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
+        this._supportsSublemma = !!conf.supportsSublemma;
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
@@ -203,6 +206,10 @@ export class TimeDistTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

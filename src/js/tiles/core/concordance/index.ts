@@ -74,6 +74,8 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly readDataFromTile: number;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         tileId,
         dispatcher,
@@ -90,6 +92,7 @@ export class ConcordanceTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.readDataFromTile = readDataFromTile;
+        this._supportsSublemma = !!conf.supportsSublemma;
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
@@ -228,6 +231,10 @@ export class ConcordanceTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

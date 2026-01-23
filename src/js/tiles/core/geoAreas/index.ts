@@ -75,6 +75,8 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles: Array<number>;
 
+    private readonly _supportsSublemma: boolean;
+
     constructor({
         tileId,
         dispatcher,
@@ -92,6 +94,7 @@ export class GeoAreasTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this._supportsSublemma = !!conf.supportsSublemma;
         this.model = new GeoAreasModel({
             dispatcher,
             tileId,
@@ -210,6 +213,10 @@ export class GeoAreasTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

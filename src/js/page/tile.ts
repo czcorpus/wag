@@ -295,6 +295,8 @@ export interface ITileProvider {
      * user experience.
      */
     hideOnNoData(): boolean;
+
+    supportsSublemma(): boolean;
 }
 
 /**
