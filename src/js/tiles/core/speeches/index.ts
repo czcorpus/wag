@@ -65,6 +65,8 @@ export class SpeechesTile implements ITileProvider {
 
     private readonly widthFract: number;
 
+    private readonly _supportsSublemma: boolean;
+
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({
@@ -80,6 +82,7 @@ export class SpeechesTile implements ITileProvider {
     }: TileFactoryArgs<SpeechesTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
+        this._supportsSublemma = !!conf.supportsSublemma;
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new SpeechesModel({
             dispatcher,
@@ -197,6 +200,10 @@ export class SpeechesTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
+    }
+
+    supportsSublemma(): boolean {
+        return this._supportsSublemma;
     }
 }
 

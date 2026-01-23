@@ -186,6 +186,10 @@ export class WordFreqTile implements ITileProvider {
     hideOnNoData(): boolean {
         return false;
     }
+
+    supportsSublemma(): boolean {
+        return true;
+    }
 }
 
 export const init: TileFactory<WordFreqTileConf> = {
