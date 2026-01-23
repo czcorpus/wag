@@ -184,6 +184,10 @@ export class WordSimTile implements ITileProvider {
     hideOnNoData(): boolean {
         return false;
     }
+
+    supportsSublemma(): boolean {
+        return true;
+    }
 }
 
 export const init: TileFactory<WordSimTileConf> = {

@@ -99,4 +99,8 @@ export class EmptyTile implements ITileProvider {
     hideOnNoData(): boolean {
         return false;
     }
+
+    supportsSublemma(): boolean {
+        return false;
+    }
 }

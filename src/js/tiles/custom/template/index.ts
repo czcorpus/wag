@@ -158,6 +158,10 @@ export class __Template__Tile implements ITileProvider {
     hideOnNoData(): boolean {
         return false;
     }
+
+    supportsSublemma(): boolean {
+        return false;
+    }
 }
 
 export const init: TileFactory<__Template__TileConf> = {
