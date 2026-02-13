@@ -9,7 +9,8 @@
         "moduleResolution": "node16",
         "skipLibCheck": true,
         "baseUrl": ".",
-        "preserveSymlinks": true
+        "preserveSymlinks": true,
+        "strictNullChecks": false
     },
     "include": [
         "./src/js/**/*"
