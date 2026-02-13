@@ -14,7 +14,7 @@ services:
     #   - [required hostname]:[IP address of the host]
     command: bash -c "cp -r /opt/wag/dist /opt/wag/assets /opt/wag-shared && npm start server"
     hostname: wag-server
-  
+
   apiguard:
     build:
       context: .
@@ -42,7 +42,7 @@ services:
     networks:
       - data
     hostname: wag-mquery
-  
+
   mquery-worker:
     build:
       context: .
@@ -55,7 +55,7 @@ services:
       - corpora-split:/var/lib/manatee/split
     networks:
       - data
-  
+
   frodo:
     build:
       context: .
@@ -90,7 +90,7 @@ services:
     networks:
       - data
     hostname: wag-redis
-  
+
   mariadb:
     image: mariadb:latest
     environment:
@@ -100,6 +100,7 @@ services:
       MARIADB_DATABASE: liveattrs
     volumes:
       - ./install/docker/mariadb-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./install/freqdb/dictionary.sql:/docker-entrypoint-initdb.d/dictionary.sql
       - mariadb-data:/var/lib/mysql
     networks:
       - data
