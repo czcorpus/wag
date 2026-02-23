@@ -89,7 +89,9 @@ function loadColorsConf(clientConf: ClientStaticConf): Observable<ColorsConf> {
                 map((configs) => {
                     const defaultSrch = List.find((v) => v.isDefault, configs);
                     return {
-                        default: defaultSrch ? defaultSrch : configs[0].themeId,
+                        default: defaultSrch
+                            ? defaultSrch.themeId
+                            : configs[0].themeId,
                         themes: configs,
                     } as ColorsConf;
                 })
