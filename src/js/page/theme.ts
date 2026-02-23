@@ -124,6 +124,8 @@ export class Theme {
 
     public readonly colorLogoBlue: string;
 
+    public readonly colorLogoBlueHiContrast: string;
+
     public readonly colorWhitelikeBlue: string;
 
     public readonly colorDefaultText: string;
@@ -135,6 +137,8 @@ export class Theme {
     public readonly colorLightText: string;
 
     public readonly colorLogoPink: string;
+
+    public readonly colorLogoPinkHiContrast: string;
 
     public readonly colorSuperlightGrey: string;
 
@@ -217,6 +221,8 @@ export class Theme {
             confSrc.textInputBorderStyle || this.tileBorderStyle;
         this.colorLogoBlue =
             confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
+        this.colorLogoBlueHiContrast =
+            confSrc.colorLogoBlueHiContrast || this.colorLogoBlue;
         this.colorWhitelikeBlue =
             confSrc.colorWhitelikeBlue || fallbackTheme.colorWhitelikeBlue;
         this.colorLightText =
@@ -230,6 +236,8 @@ export class Theme {
             fallbackTheme.colorInvertedSecondaryText;
         this.colorLogoPink =
             confSrc.colorLogoPink || fallbackTheme.colorLogoPink;
+        this.colorLogoPinkHiContrast =
+            confSrc.colorLogoPinkHiContrast || this.colorLogoPink;
         this.colorSuperlightGrey =
             confSrc.colorSuperlightGrey || fallbackTheme.colorSuperlightGrey;
         this.colorLogoBlueShining =

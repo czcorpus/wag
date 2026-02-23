@@ -45,6 +45,7 @@ export interface ColorTheme extends ColorThemeIdent {
     textInputBackgroundColor?: string;
     textInputBorderStyle?: string;
     colorLogoBlue?: string;
+    colorLogoBlueHiContrast?: string;
     colorLogoBlueShining?: string;
     colorWhitelikeBlue?: string;
     colorLightText?: string;
@@ -53,6 +54,7 @@ export interface ColorTheme extends ColorThemeIdent {
     colorInvertedSecondaryText?: string;
     colorSecondaryText?: string;
     colorLogoPink?: string;
+    colorLogoPinkHiContrast?: string;
     colorSuperlightGrey?: string;
     svgIconsFilter?: string;
     svgLogoFilter?: string;
