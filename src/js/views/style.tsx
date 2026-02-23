@@ -256,14 +256,14 @@ export const AddCmpQueryField = styled.div`
 
 // -------------- <LemmaSelector /> ------------------------------------------
 
-export const LemmaSelector = styled.div`
+export const LemmaSelector = styled.div<{ theme: Theme }>`
     font-size: 80%;
     padding: 0.8em 0 0 0;
     color: ${(props) => props.theme.colorLightText};
 
     .curr {
         font-size: 125%;
-        color: ${(props) => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPinkHiContrast};
     }
 
     .variants > ul {
@@ -278,7 +278,7 @@ export const LemmaSelector = styled.div`
             display: inline-block;
 
             a {
-                color: ${(props) => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorLogoBlueHiContrast};
                 cursor: pointer;
             }
 
