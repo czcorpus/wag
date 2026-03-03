@@ -73,6 +73,14 @@ function mkTileSectionId(tileId: number): string {
     return `tile-${tileId}`;
 }
 
+function mkGroupId(groupLabel: string): string {
+    return groupLabel
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+}
+
 export function init(
     dispatcher: IActionDispatcher,
     ut: ViewUtils<GlobalComponents>,
@@ -713,7 +721,7 @@ export function init(
         };
 
         const state = useModel(formModel);
-        const shouldShowHamburger = globalComponents.useMobileComponent();
+        const useMobileComponent = globalComponents.useMobileComponent();
 
         const numQTypes = pipe(
             state.queryTypesMenuItems,
@@ -721,6 +729,11 @@ export function init(
             List.size()
         );
         const numSubWags = List.size(state.instanceSwitchMenu);
+        const indexItems = pipe(
+            props.layout,
+            List.map((v) => v.groupLabel),
+            List.filter((v) => !!v)
+        );
 
         return (
             <S.WdglanceControls
@@ -735,7 +748,7 @@ export function init(
                                 : ''
                         }
                     >
-                        {shouldShowHamburger ? (
+                        {useMobileComponent ? (
                             <S.HamburgerButton
                                 className="wag-button wag-button-primary"
                                 type="button"
@@ -768,9 +781,11 @@ export function init(
                             />
                         ) : null}
                     </S.MenuTabs>
-                    {props.isAnswerMode ? (
+                    {props.isAnswerMode &&
+                    indexItems.length > 0 &&
+                    !useMobileComponent ? (
                         <Index
-                            items={List.map((v) => v.groupLabel, props.layout)}
+                            items={indexItems}
                             extended={state.extendedIndex}
                         />
                     ) : null}
@@ -1390,7 +1405,7 @@ export function init(
                 onMouseLeave={() => handleIndexHover(false)}
             >
                 <div className="index-button">
-                    <span>Obsah</span>
+                    {ut.translate('global__index')}
                 </div>
                 <div
                     className={
@@ -1400,8 +1415,10 @@ export function init(
                     }
                 >
                     {List.map(
-                        (groupLabel, i) => (
-                            <a href={`#section-${i + 1}`}>{groupLabel}</a>
+                        (groupLabel) => (
+                            <a href={`#${mkGroupId(groupLabel)}`}>
+                                {groupLabel}
+                            </a>
                         ),
                         props.items
                     )}
@@ -1525,7 +1542,11 @@ export function init(
 
         return (
             <S.Group
-                id={`section-${props.idx + 1}`}
+                id={
+                    props.data.groupLabel
+                        ? mkGroupId(props.data.groupLabel)
+                        : `group-${props.idx}`
+                }
                 key={`group:${props.data.groupLabel ? props.data.groupLabel : props.idx}`}
             >
                 {props.data.groupLabel ? (

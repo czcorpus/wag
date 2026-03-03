@@ -839,7 +839,7 @@ export const Index = styled.div<{ theme: Theme }>`
     flex-direction: row;
     align-items: stretch;
     z-index: 1000;
-    background-color: white;
+    background-color: ${(props) => props.theme.tileBackgroundColor};
     border-radius: 0.25em;
     border-width: 1px;
     border-style: solid;
@@ -852,8 +852,8 @@ export const Index = styled.div<{ theme: Theme }>`
         text-align: center;
         padding: 0.5em;
         font-weight: bold;
-        color: ${(props) => props.theme.colorInvertText};
         background-color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorInvertText};
         cursor: default;
     }
 
@@ -864,7 +864,7 @@ export const Index = styled.div<{ theme: Theme }>`
 
         a {
             display: block;
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorDefaultText};
             cursor: pointer;
             text-decoration: none;
             margin: 0.2em 1em;
