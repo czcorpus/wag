@@ -828,3 +828,54 @@ export const ErrPage = styled.div<{ theme: Theme }>`
         color: ${(props) => props.theme.colorLogoBlue};
     }
 `;
+
+// ---------------- <Index /> --------------------------------------
+
+export const Index = styled.div<{ theme: Theme }>`
+    position: fixed;
+    right: 0;
+    margin-top: 1em;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 0.25em;
+    border-width: 1px;
+    border-style: solid;
+    border-color: ${(props) => props.theme.tileHeadingSeparColor};
+    overflow: hidden;
+
+    .index-button {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        text-align: center;
+        padding: 0.5em;
+        font-weight: bold;
+        color: ${(props) => props.theme.colorInvertText};
+        background-color: ${(props) => props.theme.colorLogoBlue};
+        cursor: default;
+    }
+
+    .index-content {
+        white-space: nowrap;
+        overflow: hidden;
+        width: 0;
+
+        a {
+            display: block;
+            color: ${(props) => props.theme.colorLogoBlue};
+            cursor: pointer;
+            text-decoration: none;
+            margin: 0.2em 1em;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .extended {
+        width: fit-content;
+    }
+`;

@@ -129,7 +129,6 @@ export const Examples = styled.div<{ theme: Theme }>`
 `;
 
 export const Controls = styled.div`
-
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -140,7 +139,6 @@ export const Controls = styled.div`
     }
 
     table {
-
         border-collapse: collapse;
 
         td {
@@ -149,4 +147,5 @@ export const Controls = styled.div`
             border-style: solid;
             border-color: ${(props) => props.theme.colorLightText};
         }
+    }
 `;

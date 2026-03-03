@@ -63,6 +63,7 @@ export interface QueryFormModelState {
         label: string;
         data: Array<{ value: string; score: number }>;
     };
+    extendedIndex: boolean;
 }
 
 /**
@@ -240,6 +241,10 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 }
             }
         );
+
+        this.addActionHandler(Actions.ExtendIndex, (state, action) => {
+            state.extendedIndex = action.payload.extend;
+        });
     }
 
     private normalizeQueries(state: QueryFormModelState): void {
@@ -422,5 +427,6 @@ export const defaultFactory = ({
         mainPosAttr: layout.getLayoutMainPosAttr(),
         expandMobileMenu: false,
         hpKeywords: { ...hpKeywords, data: [] },
+        extendedIndex: false,
     });
 };

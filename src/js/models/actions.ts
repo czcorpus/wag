@@ -341,6 +341,12 @@ export class Actions {
     }> = {
         name: 'MAIN_LOAD_HOMEPAGE_WORD_CLOUD_DONE',
     };
+
+    static ExtendIndex: Action<{
+        extend: boolean;
+    }> = {
+        name: 'MAIN_EXTEND_INDEX',
+    };
 }
 
 /**
