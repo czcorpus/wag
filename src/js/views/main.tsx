@@ -1399,6 +1399,14 @@ export function init(
             });
         };
 
+        const scrollToGroup = (groupLabel: string) => () => {
+            const groupId = mkGroupId(groupLabel);
+            const groupElem = document.getElementById(groupId);
+            if (groupElem) {
+                groupElem.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
         return (
             <S.Index
                 onMouseOver={() => handleIndexHover(true)}
@@ -1415,8 +1423,11 @@ export function init(
                     }
                 >
                     {List.map(
-                        (groupLabel) => (
-                            <a href={`#${mkGroupId(groupLabel)}`}>
+                        (groupLabel, i) => (
+                            <a
+                                onClick={scrollToGroup(groupLabel)}
+                                key={`index-${i}`}
+                            >
                                 {groupLabel}
                             </a>
                         ),
