@@ -1405,7 +1405,7 @@ export function init(
                 onMouseLeave={() => handleIndexHover(false)}
             >
                 <div className="index-button">
-                    {ut.translate('global__index')}
+                    <span>{ut.translate('global__index')}</span>
                 </div>
                 <div
                     className={
