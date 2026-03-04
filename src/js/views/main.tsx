@@ -73,6 +73,14 @@ function mkTileSectionId(tileId: number): string {
     return `tile-${tileId}`;
 }
 
+function mkGroupId(groupLabel: string): string {
+    return groupLabel
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+}
+
 export function init(
     dispatcher: IActionDispatcher,
     ut: ViewUtils<GlobalComponents>,
@@ -255,7 +263,7 @@ export function init(
         value: string;
         hideUnavailableQueryTypes: boolean;
         expandMobileMenu: boolean;
-        onChange: (v: string) => void;
+        onChange: (v: QueryType) => void;
     }> = (props) => (
         <S.QueryTypeSelector>
             {pipe(
@@ -702,6 +710,7 @@ export function init(
 
     const WdglanceControls: React.FC<{
         isAnswerMode: boolean;
+        layout: Array<TileGroup>;
     }> = (props) => {
         const handleQueryTypeChange = (queryType: QueryType) => {
             dispatcher.dispatch(Actions.ChangeQueryType, { queryType });
@@ -712,7 +721,7 @@ export function init(
         };
 
         const state = useModel(formModel);
-        const shouldShowHamburger = globalComponents.useMobileComponent();
+        const useMobileComponent = globalComponents.useMobileComponent();
 
         const numQTypes = pipe(
             state.queryTypesMenuItems,
@@ -720,6 +729,11 @@ export function init(
             List.size()
         );
         const numSubWags = List.size(state.instanceSwitchMenu);
+        const indexItems = pipe(
+            props.layout,
+            List.map((v) => v.groupLabel),
+            List.filter((v) => !!v)
+        );
 
         return (
             <S.WdglanceControls
@@ -734,7 +748,7 @@ export function init(
                                 : ''
                         }
                     >
-                        {shouldShowHamburger ? (
+                        {useMobileComponent ? (
                             <S.HamburgerButton
                                 className="wag-button wag-button-primary"
                                 type="button"
@@ -767,6 +781,14 @@ export function init(
                             />
                         ) : null}
                     </S.MenuTabs>
+                    {props.isAnswerMode &&
+                    indexItems.length > 0 &&
+                    !useMobileComponent ? (
+                        <Index
+                            items={indexItems}
+                            extended={state.extendedIndex}
+                        />
+                    ) : null}
                     <div className="main">
                         <QueryFields
                             wantsFocus={
@@ -1364,6 +1386,58 @@ export function init(
         );
     };
 
+    // -------------------- <Index /> -----------------------------
+
+    const Index: React.FC<{
+        items: Array<string>;
+        extended: boolean;
+    }> = (props) => {
+        const handleIndexHover = (extend: boolean): void => {
+            dispatcher.dispatch<typeof Actions.ExtendIndex>({
+                name: Actions.ExtendIndex.name,
+                payload: { extend },
+            });
+        };
+
+        const scrollToGroup = (groupLabel: string) => () => {
+            const groupId = mkGroupId(groupLabel);
+            const groupElem = document.getElementById(groupId);
+            if (groupElem) {
+                groupElem.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        return (
+            <S.Index
+                onMouseOver={() => handleIndexHover(true)}
+                onMouseLeave={() => handleIndexHover(false)}
+            >
+                <div className="index-button">
+                    <span>{ut.translate('global__index')}</span>
+                </div>
+                <div
+                    className={
+                        props.extended
+                            ? 'index-content extended'
+                            : 'index-content'
+                    }
+                >
+                    {List.map(
+                        (groupLabel, i) => (
+                            <a
+                                onClick={scrollToGroup(groupLabel)}
+                                key={`index-${i}`}
+                            >
+                                {groupLabel}
+                            </a>
+                        ),
+                        props.items
+                    )}
+                </div>
+            </S.Index>
+        );
+    };
+
     // -------------------- <TileGroupSection /> -----------------------------
 
     const TileGroupSection: React.FC<{
@@ -1479,6 +1553,11 @@ export function init(
 
         return (
             <S.Group
+                id={
+                    props.data.groupLabel
+                        ? mkGroupId(props.data.groupLabel)
+                        : `group-${props.idx}`
+                }
                 key={`group:${props.data.groupLabel ? props.data.groupLabel : props.idx}`}
             >
                 {props.data.groupLabel ? (
@@ -2001,7 +2080,10 @@ export function init(
                 />
                 <ThemeProvider theme={dynamicTheme}>
                     <BoundMessagesBox />
-                    <WdglanceControls isAnswerMode={props.isAnswerMode} />
+                    <WdglanceControls
+                        isAnswerMode={props.isAnswerMode}
+                        layout={props.layout}
+                    />
                     <TilesSections
                         layout={props.layout}
                         homepageSections={props.homepageSections}

@@ -399,7 +399,7 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
                 align-items: center;
                 cursor: pointer;
                 text-decoration: none;
-                color: ${(props) => props.theme.colorDefaultText};
+                color: ${(props) => props.theme.colorSecondaryText};
             }
 
             a:hover {
@@ -429,12 +429,11 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
     ${(props) => props.theme.cssMobileScreen} {
         flex-direction: column;
         margin-top: 2em;
+        background-color: ${(props) => props.theme.tileBackgroundColor};
+        border-radius: 0.25em;
 
         nav {
             flex-direction: column;
-            border-style: solid;
-            border-color: ${(props) => props.theme.tileHeadingSeparColor};
-            border-width: 0 0 1px 0px;
 
             .separ {
                 display: none;
@@ -455,7 +454,13 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
 
 // --------------- <OtherVariantsMenu /> --------------------------------------
 
-export const OtherVariantsMenu = styled.div<{ theme: Theme }>``;
+export const OtherVariantsMenu = styled.div<{ theme: Theme }>`
+    ${(props) => props.theme.cssMobileScreen} {
+        border-style: solid;
+        border-color: ${(props) => props.theme.tileHeadingSeparColor};
+        border-width: 1px 0 0 0;
+    }
+`;
 
 // -------------- <QueryTypeSelector /> --------------------------------------
 
@@ -826,5 +831,58 @@ export const ErrPage = styled.div<{ theme: Theme }>`
 
     a {
         color: ${(props) => props.theme.colorLogoBlue};
+    }
+`;
+
+// ---------------- <Index /> --------------------------------------
+
+export const Index = styled.div<{ theme: Theme }>`
+    position: fixed;
+    right: 0;
+    margin-top: 1em;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    z-index: 1000;
+    background-color: ${(props) => props.theme.tileBackgroundColor};
+    border: 1px solid ${(props) => props.theme.tileHeadingSeparColor};
+    border-radius: 0.25em;
+    overflow: hidden;
+
+    .index-button {
+        display: flex;
+        align-items: center;
+        padding: 0.5em;
+        background-color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorInvertText};
+        cursor: default;
+
+        span {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-weight: bold;
+        }
+    }
+
+    .index-content {
+        white-space: nowrap;
+        overflow: hidden;
+        width: 0;
+
+        a {
+            display: block;
+            color: ${(props) => props.theme.colorSecondaryText};
+            cursor: pointer;
+            text-decoration: none;
+            margin: 0.5em 2em 0.5em 1em;
+        }
+
+        a:hover {
+            color: ${(props) => props.theme.colorLogoBlue};
+        }
+    }
+
+    .extended {
+        width: fit-content;
     }
 `;
