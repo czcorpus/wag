@@ -34,6 +34,7 @@ import {
 } from './api/standard.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CNCWSServerApi } from './api/wss.js';
+import { MainPosAttrValues } from '../../../conf/index.js';
 
 export interface WordSimModelArgs {
     dispatcher: IActionDispatcher;
@@ -61,6 +62,7 @@ export interface WordSimModelState {
     corpus: string;
     model: string;
     queryMatches: Array<QueryMatch>;
+    mainPosAttr: MainPosAttrValues;
     selectedText: string;
 }
 
@@ -216,7 +218,14 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             corpus: state.corpus,
             model: state.model,
             word: queryMatch.lemma,
-            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0] : '', // TODO is the first zero OK? (i.e. we ignore other variants)
+            pos:
+                state.mainPosAttr === 'pos'
+                    ? queryMatch.pos.length > 0
+                        ? queryMatch.pos[0].value[0]
+                        : '' // TODO is the first zero OK? (i.e. we ignore other variants)
+                    : queryMatch.upos.length > 0
+                      ? queryMatch.upos[0].value
+                      : '',
             limit: state.maxResultItems,
             minScore: state.minScore,
         };

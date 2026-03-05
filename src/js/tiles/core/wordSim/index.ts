@@ -76,6 +76,7 @@ export class WordSimTile implements ITileProvider {
         theme,
         isBusy,
         queryMatches,
+        mainPosAttr,
     }: TileFactoryArgs<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -112,6 +113,7 @@ export class WordSimTile implements ITileProvider {
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches
                 ),
+                mainPosAttr,
                 selectedText: null,
             },
             tileId,
