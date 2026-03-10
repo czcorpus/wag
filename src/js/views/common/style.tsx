@@ -164,7 +164,9 @@ export const TileReloadControl = styled.p`
 export const ResponsiveWrapper = styled.div<{ $minWidth: number }>`
     width: 100%;
     height: 100%;
-    min-width: ${(props) => (props.$minWidth ? props.$minWidth : 'auto')};
+    min-height: 0;
+    box-sizing: border-box;
+    min-width: ${(props) => (props.$minWidth ? `${props.$minWidth}px` : '0')};
 `;
 
 // ---------------- <ModalOverlay /> --------------------------------------
@@ -323,7 +325,8 @@ export const BacklinkButton = styled.button<{
     cursor: pointer;
     text-decoration: none;
     color: ${(props) => props.theme.colorLogoBlue};
-    background-image: url(${(props) => props.$createStaticUrl('external-link.svg')});
+    background-image: url(${(props) =>
+        props.$createStaticUrl('external-link.svg')});
     background-repeat: no-repeat;
     background-position: 99% 0;
 
