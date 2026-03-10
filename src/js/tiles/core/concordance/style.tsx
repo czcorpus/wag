@@ -35,7 +35,7 @@ export const QueryInfo = styled.p<{ theme: Theme }>`
     justify-content: center;
 
     .dot {
-        color: ${props => props.theme.colorLogoPink};
+        color: ${(props) => props.theme.colorLogoPink};
         margin-left: 0.5em;
     }
 
@@ -49,7 +49,7 @@ export const QueryInfo = styled.p<{ theme: Theme }>`
         text-decoration: none;
 
         &.current {
-            color: ${props => props.theme.colorLogoPink};
+            color: ${(props) => props.theme.colorLogoPink};
             cursor: initial;
         }
     }
@@ -134,14 +134,12 @@ export const LineMetadata = styled.div<{ theme: Theme }>`
     }
 `;
 
-
 // ---------------- <ConcLines /> ---------------------
 
 export const ConcLines = styled.div<{ theme: Theme }>`
     font-family: ${(props) => props.theme.condensedFontFamily};
     display: flex;
-    border-spacing: 0;
-    border-collapse: collapse;
+    justify-content: center;
     overflow-x: auto;
 
     table {
