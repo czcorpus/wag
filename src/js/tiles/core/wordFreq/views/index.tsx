@@ -59,7 +59,7 @@ export function init(
 
         return (
             <div className="chart">
-                {isActive && !props.isMobile && props.widthFract > 1 ? (
+                {isActive ? (
                     <>
                         <h2>
                             {ut.translate('wordfreq__freqband_chart_label')}
@@ -104,12 +104,14 @@ export function init(
                         mainPosAttr={props.mainPosAttr}
                     />
                 )}
-                <AuxChart
-                    queryMatches={props.queryMatches}
-                    isMobile={props.isMobile}
-                    widthFract={props.widthFract}
-                    tileName={props.tileName}
-                />
+                {!props.isMobile && props.widthFract > 1 ? (
+                    <AuxChart
+                        queryMatches={props.queryMatches}
+                        isMobile={props.isMobile}
+                        widthFract={props.widthFract}
+                        tileName={props.tileName}
+                    />
+                ) : null}
             </S.WordFreqTileView>
         </globalComponents.TileWrapper>
     );
