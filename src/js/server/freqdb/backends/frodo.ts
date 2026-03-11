@@ -20,6 +20,7 @@ interface HTTPNgramDoc {
     lemma: string;
     sublemmas: Array<Sublemma>;
     pos: string;
+    datasetSize: number;
     upos: string;
     count: number;
     arf: number;
@@ -73,6 +74,7 @@ export class FrodoClient implements IFreqDB {
                     resp.matches,
                     List.flatMap((v, i) =>
                         List.map((subl) => {
+                            const corpusSize = v.datasetSize ?? this.corpusSize;
                             return {
                                 localId: `${i}:${subl.value}`,
                                 word: List.find(
@@ -102,9 +104,9 @@ export class FrodoClient implements IFreqDB {
                                           appServices
                                       ),
                                 abs: subl.count,
-                                ipm: (subl.count / this.corpusSize) * 1e6,
+                                ipm: (subl.count / corpusSize) * 1e6,
                                 flevel: calcFreqBand(
-                                    (subl.count / this.corpusSize) * 1e6
+                                    (subl.count / corpusSize) * 1e6
                                 ),
                                 arf: v.arf, // TODO arf can be obtained just for lemma
                                 isCurrent: false,
@@ -136,8 +138,10 @@ export class FrodoClient implements IFreqDB {
             map((resp) => {
                 return List.flatMap(
                     (dictEntry, i) =>
-                        List.map(
-                            (sublemma) => ({
+                        List.map((sublemma) => {
+                            const corpusSize =
+                                dictEntry.datasetSize ?? this.corpusSize;
+                            return {
                                 localId: `${i}:${sublemma.value}`,
                                 word: sublemma.value,
                                 lemma: dictEntry.lemma,
@@ -153,15 +157,14 @@ export class FrodoClient implements IFreqDB {
                                     appServices
                                 ),
                                 abs: dictEntry.count,
-                                ipm: (dictEntry.count / this.corpusSize) * 1e6,
+                                ipm: (dictEntry.count / corpusSize) * 1e6,
                                 flevel: calcFreqBand(
-                                    (dictEntry.count / this.corpusSize) * 1e6
+                                    (dictEntry.count / corpusSize) * 1e6
                                 ),
                                 arf: dictEntry.arf,
                                 isCurrent: false,
-                            }),
-                            dictEntry.sublemmas
-                        ),
+                            };
+                        }, dictEntry.sublemmas),
                     resp.matches
                 );
             })
