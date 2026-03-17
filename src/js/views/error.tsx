@@ -19,35 +19,40 @@
 import * as React from 'react';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './common/index.js';
-
 import * as S from './style.js';
+import { Theme } from '../page/theme.js';
+import { GlobalStyle } from './layout/style.js';
 
 export interface ErrPageProps {
     error: [number, string] | null;
 }
 
-export function init(ut: ViewUtils<GlobalComponents>): React.FC<ErrPageProps> {
-    const ErrPage: React.FC<ErrPageProps> = (props) => {
-        return (
-            <S.ErrPage>
-                <div className="wag-tile">
-                    <header className="wag-tile-header panel err">
-                        {ut.translate('global__server_error')}
-                    </header>
-                    <div className="tile-body text">
-                        <p>
-                            <strong>{props.error[0]}:</strong> {props.error[1]}
-                        </p>
-                        <p>
-                            <a href={ut.createActionUrl('/')}>
-                                {ut.translate('global__go_to_main_page')}
-                            </a>
-                        </p>
-                    </div>
+export function init(
+    ut: ViewUtils<GlobalComponents>,
+    dynamicTheme: Theme
+): React.FC<ErrPageProps> {
+    const GlobalStyleWithDynamicTheme = GlobalStyle(dynamicTheme);
+
+    const ErrPage: React.FC<ErrPageProps> = (props) => (
+        <S.ErrPage>
+            <GlobalStyleWithDynamicTheme createStaticUrl={ut.createStaticUrl} />
+            <div className="wag-tile">
+                <header className="wag-tile-header panel err">
+                    {ut.translate('global__server_error')}
+                </header>
+                <div className="tile-body text">
+                    <p>
+                        <strong>{props.error[0]}:</strong> {props.error[1]}
+                    </p>
+                    <p className="centered">
+                        <a href={ut.createActionUrl('/')}>
+                            {ut.translate('global__go_to_main_page')}
+                        </a>
+                    </p>
                 </div>
-            </S.ErrPage>
-        );
-    };
+            </div>
+        </S.ErrPage>
+    );
 
     return ErrPage;
 }

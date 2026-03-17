@@ -825,6 +825,14 @@ export const ErrPage = styled.div<{ theme: Theme }>`
     margin-bottom: 2em;
     max-width: 20em;
 
+    .wag-tile {
+        color: #000000;
+    }
+
+    .centered {
+        text-align: center;
+    }
+
     header.err {
         color: ${(props) => props.theme.colorLogoPink};
     }

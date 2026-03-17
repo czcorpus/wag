@@ -58,10 +58,12 @@ import {
 } from './streaming.js';
 import { callWithExtraVal } from '../api/util.js';
 import { DataApi, SystemMessageType } from '../types.js';
+import { init as errPageInit, ErrPageProps } from '../views/error.js';
+import { Theme } from './theme.js';
 
 interface MountArgs {
     userSession: UserConf;
-    component: React.FC<WdglanceMainProps>;
+    component: React.FC<WdglanceMainProps | ErrPageProps>;
     layout: Array<TileGroup>;
     appServices: IAppServices;
     mountElement: HTMLElement;
@@ -82,46 +84,48 @@ function mountReactComponent({
     homepage,
     userSession,
 }: MountArgs) {
-    if (!userSession.error || userSession.error[0] === 0) {
-        const onMount = () => {
-            if (userSession.error) {
-                dispatcher.dispatch<typeof Actions.SetEmptyResult>({
-                    name: Actions.SetEmptyResult.name,
-                    payload: {
-                        error: userSession.error,
-                    },
-                });
-            } else if (userSession.answerMode) {
-                if (queryMatches[0].find((v) => v.isCurrent)) {
-                    dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
-                        name: Actions.RequestQueryResponse.name,
-                        payload: {
-                            focusedTile:
-                                window.location.hash.replace('#', '') ||
-                                undefined,
-                        },
-                    });
-                } else {
-                    dispatcher.dispatch<typeof Actions.SetEmptyResult>({
-                        name: Actions.SetEmptyResult.name,
-                    });
-                }
-            }
-        };
+    const onMount =
+        !userSession.error || userSession.error[0] === 0
+            ? () => {
+                  if (userSession.error) {
+                      dispatcher.dispatch<typeof Actions.SetEmptyResult>({
+                          name: Actions.SetEmptyResult.name,
+                          payload: {
+                              error: userSession.error,
+                          },
+                      });
+                  } else if (userSession.answerMode) {
+                      if (queryMatches[0].find((v) => v.isCurrent)) {
+                          dispatcher.dispatch<
+                              typeof Actions.RequestQueryResponse
+                          >({
+                              name: Actions.RequestQueryResponse.name,
+                              payload: {
+                                  focusedTile:
+                                      window.location.hash.replace('#', '') ||
+                                      undefined,
+                              },
+                          });
+                      } else {
+                          dispatcher.dispatch<typeof Actions.SetEmptyResult>({
+                              name: Actions.SetEmptyResult.name,
+                          });
+                      }
+                  }
+              }
+            : () => undefined;
 
-        const rootComp = React.createElement(component, {
-            layout,
-            homepageSections: homepage,
-            isMobile: appServices.isMobileMode(),
-            isAnswerMode: userSession.answerMode,
-            error: userSession.error,
-            queries: userSession.queries,
-            onMount,
-        });
-
-        const root = hydrateRoot(mountElement, rootComp);
-        root.render(rootComp);
-    }
+    const rootComp = React.createElement(component, {
+        layout,
+        homepageSections: homepage,
+        isMobile: appServices.isMobileMode(),
+        isAnswerMode: userSession.answerMode,
+        error: userSession.error,
+        queries: userSession.queries,
+        onMount,
+    });
+    const root = hydrateRoot(mountElement, rootComp);
+    root.render(rootComp);
 }
 
 export const attachNumericTileIdents = (config: {
@@ -256,28 +260,44 @@ export function initClient(
             appServices,
             userSession.queryType
         );
-        const { component, tileGroups } = createRootComponent({
-            config,
-            userSession,
-            queryMatches,
-            appServices,
-            dispatcher,
-            onResize: windowResize$,
-            viewUtils,
-            layoutManager,
-        });
-        console.info('tile map: ', tileIdentMap); // DEBUG TODO
 
-        mountReactComponent({
-            userSession,
-            component,
-            mountElement,
-            layout: tileGroups,
-            dispatcher,
-            appServices,
-            queryMatches,
-            homepage: [...config.homepage.tiles],
-        });
+        if (userSession.error) {
+            const theme = new Theme(undefined, config.logo);
+            const component = errPageInit(viewUtils, theme);
+            mountReactComponent({
+                userSession,
+                component,
+                mountElement,
+                layout: [],
+                dispatcher,
+                appServices,
+                queryMatches,
+                homepage: [...config.homepage.tiles],
+            });
+        } else {
+            const { component, tileGroups } = createRootComponent({
+                config,
+                userSession,
+                queryMatches,
+                appServices,
+                dispatcher,
+                onResize: windowResize$,
+                viewUtils,
+                layoutManager,
+            });
+            console.info('tile map: ', tileIdentMap); // DEBUG TODO
+
+            mountReactComponent({
+                userSession,
+                component,
+                mountElement,
+                layout: tileGroups,
+                dispatcher,
+                appServices,
+                queryMatches,
+                homepage: [...config.homepage.tiles],
+            });
+        }
     } catch (e) {
         // No need to do anything more as being
         // here means the configuration is broken.
