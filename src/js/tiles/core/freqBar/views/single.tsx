@@ -132,7 +132,7 @@ export function init(
                     <YAxis
                         type="category"
                         dataKey="name"
-                        width={maxLabelLength * 6}
+                        width={maxLabelLength * 7}
                         tick={{ fill: theme.chartTextColor }}
                     />
                     <Legend
