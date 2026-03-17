@@ -55,7 +55,7 @@ const fallbackTheme: ColorTheme = {
 
     // text color
 
-    pageBackgroundColor: '#ffffff',
+    pageBackgroundColor: '#eeebe6',
     tileBackgroundColor: '#ffffff',
 
     cssMobileScreen: '@media screen and (max-width: 600px)',
@@ -203,7 +203,6 @@ export class Theme {
         const confSrc =
             conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
         this.ident = confSrc.themeId;
-
         this.defaultFontFamily =
             confSrc.defaultFontFamily || fallbackTheme.defaultFontFamily;
         this.condensedFontFamily =

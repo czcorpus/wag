@@ -32,8 +32,8 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
 
         font-family: ${confTheme.defaultFontFamily};
         font-size: ${confTheme.defaultFontSize};
-        background-image: ${confTheme.backgroundImage} !important;
-        background-color: ${confTheme.pageBackgroundColor} !important;
+        background-image: ${confTheme.backgroundImage ? confTheme.backgroundImage + ' !important' : undefined};
+        background-color: ${confTheme.pageBackgroundColor ? confTheme.pageBackgroundColor + ' !important' : undefined};
 
         img.filtered {
             ${confTheme.svgIconsFilter};

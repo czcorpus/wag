@@ -711,7 +711,7 @@ export function queryAction({
                     err,
                 });
                 const error: [number, string] = [
-                    HTTP.Status.BadRequest,
+                    HTTP.Status.InternalServerError,
                     err.message,
                 ];
                 const userConf = errorUserConf(
@@ -736,7 +736,8 @@ export function queryAction({
                     currTheme,
                     true
                 );
-                const errView = errPageInit(viewUtils);
+                const theme = new Theme();
+                const errView = errPageInit(viewUtils, theme);
                 res.send(
                     renderResult({
                         HtmlBody,
