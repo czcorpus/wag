@@ -213,11 +213,14 @@ export function init(
                 : (idx: number) =>
                       transformedData[idx].uniqueColor
                           ? pipe(
-                                theme.cmpCategoryColor(idx, List.size(transformedData) + 1),
+                                theme.cmpCategoryColor(
+                                    idx,
+                                    List.size(transformedData) + 1
+                                ),
                                 Color.importColor(1),
                                 Color.luminosity(1.2),
                                 Color.color2str()
-                          )
+                            )
                           : theme.categoryColorHighlighted(0);
 
         const [hoveredIndex, setHoveredIndex] = React.useState(null);
@@ -315,7 +318,7 @@ export function init(
                             : colorFn(queryIdx);
                         const hgltFill = props.isPartial
                             ? theme.unfinishedChartColor
-                            : colorHgltFn(queryIdx)
+                            : colorHgltFn(queryIdx);
                         return (
                             <Bar
                                 key={queryIdx}
@@ -376,7 +379,7 @@ export function init(
                     <YAxis
                         type="category"
                         dataKey="name"
-                        width={Math.max(60, maxLabelLength * 7)}
+                        width={Math.max(60, maxLabelLength * 8)}
                         tickFormatter={(value) =>
                             props.isMobile
                                 ? Strings.shortenText(
