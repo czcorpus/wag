@@ -18,7 +18,7 @@
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
-import * as domtoimage from 'dom-to-image-more';
+import domtoimage from 'dom-to-image-more';
 import { concatMap, map, mergeMap, tap } from 'rxjs/operators';
 import { Observable, of as rxOf } from 'rxjs';
 
