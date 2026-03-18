@@ -289,17 +289,16 @@ export function init(
                     layout="vertical"
                     barCategoryGap={props.barCategoryGap}
                     onMouseMove={(e) => {
-                        if (e && Array.isArray(e.activePayload)) {
+                        if (e && e.activeLabel) {
                             dispatcher.dispatch<typeof Actions.ShowTooltip>({
                                 name: Actions.ShowTooltip.name,
                                 payload: {
-                                    dataName: e.activeLabel,
+                                    dataName: e.activeLabel.toString(),
                                     tileId: props.tileId,
-                                    tooltipX: e.chartX,
-                                    tooltipY: e.chartY,
-                                    barIdx: e.activePayload[0]['payload'][
-                                        'sourceIdx'
-                                    ],
+                                    tooltipX: e.activeCoordinate.x,
+                                    tooltipY: e.activeCoordinate.y,
+                                    barIdx: transformedData[e.activeIndex]
+                                        .sourceIdx,
                                 },
                             });
                         }

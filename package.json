@@ -74,7 +74,7 @@
     "pino-roll": "~3.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "recharts": "^2.15.1",
+    "recharts": "^3.8.0",
     "rxjs": "^7.8.2",
     "sanitize-html": "2.14.0",
     "sax": "^1.4.1",
