@@ -269,7 +269,7 @@ export function init(
 
     const ChartLegend: React.FC<{
         rcData: {
-            payload?: Array<{
+            payload?: ReadonlyArray<{
                 color?: string;
                 payload?: { name?: string; strokeDasharray?: string | number };
             }>;

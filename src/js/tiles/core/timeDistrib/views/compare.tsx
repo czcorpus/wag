@@ -152,7 +152,7 @@ export function init(
 
     const ChartLegend: React.FC<{
         rcData: {
-            payload?: Array<{
+            payload?: ReadonlyArray<{
                 color?: string;
                 payload?: { name?: string; strokeDasharray?: string | number };
             }>;
@@ -178,10 +178,9 @@ export function init(
                             .slice(1)}
                 </span>
                 <div className="items">
-                    {pipe(
-                        props.rcData.payload,
-                        List.filter((pitem) => !!pitem.payload.name),
-                        List.map((pitem, i) => (
+                    {props.rcData.payload
+                        .filter((pitem) => !!pitem.payload.name)
+                        .map((pitem, i) => (
                             <span
                                 className="item"
                                 key={`${pitem.payload.name}:${i}`}
@@ -192,8 +191,7 @@ export function init(
                                 />
                                 {pitem.payload.name}
                             </span>
-                        ))
-                    )}
+                        ))}
                 </div>
                 <span>({props.metric})</span>
             </S.MultiWordChartLegend>

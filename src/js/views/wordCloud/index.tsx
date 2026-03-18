@@ -98,6 +98,7 @@ export function init<T>(
                 onMouseOut={handleMouseOut}
                 onMouseOver={handleMouseOver}
                 onMouseUp={handleMouseClick}
+                className={props.onMouseClick ? 'clickable' : null}
             >
                 <rect
                     x={props.rect.x}

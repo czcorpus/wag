@@ -528,6 +528,11 @@ export const TilesSections = styled.section<{ theme: Theme }>`
             color: ${(props) => props.theme.colorDefaultText};
         }
 
+        .clickable:hover {
+            filter: brightness(110%);
+            cursor: pointer;
+        }
+
         margin-bottom: 2em;
     }
 `;
