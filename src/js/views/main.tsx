@@ -2035,6 +2035,22 @@ export function init(
                                         colors={(i) =>
                                             dynamicTheme.scaleColor(1, 2)(1)
                                         }
+                                        onWordClick={(v) => {
+                                            dispatcher.dispatch(
+                                                Actions.ChangeQueryType,
+                                                {
+                                                    queryType:
+                                                        QueryType.SINGLE_QUERY,
+                                                }
+                                            );
+                                            dispatcher.dispatch(
+                                                Actions.ChangeQueryInput,
+                                                { value: v.text, queryIdx: 0 }
+                                            );
+                                            dispatcher.dispatch(
+                                                Actions.SubmitQuery
+                                            );
+                                        }}
                                     />
                                 </div>
                                 <div></div>

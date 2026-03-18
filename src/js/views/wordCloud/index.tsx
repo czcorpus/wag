@@ -41,6 +41,7 @@ export interface WordCloudProps<T> {
     font: string;
     data: Array<T>;
     dataTransform: (v: T) => WordCloudItem;
+    onWordClick?: (data: WordCloudItem) => void;
     colors?: (i: number) => string;
     selectedText?: string;
     underlineWords?: Array<string>;
@@ -60,6 +61,7 @@ export function init<T>(
         onMouseMove: (x: number, y: number, data: WordCloudItem) => void;
         onMouseOver: (x: number, y: number, data: WordCloudItem) => void;
         onMouseOut: (data: WordCloudItem) => void;
+        onMouseClick: (data: WordCloudItem) => void;
         selectedText?: string;
         underline?: boolean;
     }> = (props) => {
@@ -85,12 +87,17 @@ export function init<T>(
             props.onMouseOut(props.rect.data);
         };
 
+        const handleMouseClick = () => {
+            props.onMouseClick(props.rect.data);
+        };
+
         return (
             <g
                 pointerEvents="all"
                 onMouseMove={handleMouseMove}
                 onMouseOut={handleMouseOut}
                 onMouseOver={handleMouseOver}
+                onMouseUp={handleMouseClick}
             >
                 <rect
                     x={props.rect.x}
@@ -334,6 +341,7 @@ export function init<T>(
                                 onMouseMove={handleMouseMove}
                                 onMouseOut={handleMouseOut}
                                 onMouseOver={handleMouseOver}
+                                onMouseClick={props.onWordClick}
                                 font={props.font}
                                 selectedText={props.selectedText}
                                 underline={
