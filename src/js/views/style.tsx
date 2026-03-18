@@ -854,7 +854,7 @@ export const Index = styled.div<{ theme: Theme }>`
     z-index: 1000;
     background-color: ${(props) => props.theme.tileBackgroundColor};
     border: 1px solid ${(props) => props.theme.tileHeadingSeparColor};
-    border-radius: 0.25em;
+    border-radius: 0.25em 0 0 0.25em;
     overflow: hidden;
 
     .index-button {

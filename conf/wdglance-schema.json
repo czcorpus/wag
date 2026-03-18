@@ -82,10 +82,16 @@
                 "colorLogoBlue": {
                     "type": "string"
                 },
+                "colorLogoBlueHiContrast": {
+                    "type": "string"
+                },
                 "colorLogoBlueShining": {
                     "type": "string"
                 },
                 "colorLogoPink": {
+                    "type": "string"
+                },
+                "colorLogoPinkHiContrast": {
                     "type": "string"
                 },
                 "colorSecondaryText": {

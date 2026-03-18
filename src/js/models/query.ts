@@ -27,7 +27,6 @@ import { AvailableLanguage } from '../page/hostPage.js';
 import {
     QueryType,
     QueryTypeMenuItem,
-    matchesPos,
     RecognizedQueries,
     findCurrQueryMatch,
     queryTypeToAction,
