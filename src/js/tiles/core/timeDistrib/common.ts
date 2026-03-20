@@ -36,6 +36,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     supportsSublemma?: boolean;
 
     showMeasuredFreq?: boolean;
+
+    autobin?: boolean;
 }
 
 export interface DataLoadedPayload {

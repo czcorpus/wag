@@ -40,6 +40,9 @@
         "showMeasuredFreq": {
             "type": "boolean"
         },
+        "autobin": {
+            "type": "boolean"
+        },
         "corpname": {
             "type": "string"
         },
