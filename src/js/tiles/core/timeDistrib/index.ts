@@ -113,6 +113,7 @@ export class TimeDistTile implements ITileProvider {
                 fromYear: conf.fromYear,
                 toYear: conf.toYear,
                 maxItems: conf.maxItems,
+                autobin: conf.autobin,
                 fcrit: conf.fcrit,
                 mainBacklinks: List.map((_) => null, queryMatches),
                 cmpBacklink: null,

@@ -48,7 +48,7 @@
                         "minItems": 2,
                         "maxItems": 2
                     },
-                    "supportsSublema": {
+                    "supportsSublemma": {
                         "type": "boolean"
                     },
                     "freqType": {

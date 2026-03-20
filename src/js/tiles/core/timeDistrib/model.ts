@@ -89,6 +89,7 @@ export interface TimeDistribModelState {
     units: string;
     zoom: [number, number];
     loadingStatus: LoadingStatus;
+    autobin: boolean;
 }
 
 const roundFloat = (v: number): number => Math.round(v * 100) / 100;
@@ -631,6 +632,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             toYear: state.toYear ? state.toYear + '' : undefined,
             fcrit: state.fcrit,
             maxItems: state.maxItems,
+            autobin: state.autobin ? '1' : '0',
         };
     }
 }

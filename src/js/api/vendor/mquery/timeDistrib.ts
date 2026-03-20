@@ -41,6 +41,8 @@ export interface TimeDistribArgs {
     fromYear: string | undefined;
 
     toYear: string | undefined;
+
+    autobin: string | undefined;
 }
 
 export type CustomArgs = { [k: string]: string };
