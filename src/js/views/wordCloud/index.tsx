@@ -259,10 +259,12 @@ export function init<T>(
         const [currState, setState] = React.useState<{
             tooltipPos: [number, number];
             activeItem: WordCloudItem | undefined;
-        }>({ tooltipPos: [0, 0], activeItem: undefined });
+            wcloud: { rectangles: Array<Rect>; transform: string };
+        }>({ tooltipPos: [0, 0], activeItem: undefined, wcloud: undefined });
 
         const handleMouseMove = (x: number, y: number, data: WordCloudItem) => {
             setState({
+                ...currState,
                 tooltipPos: [x, y],
                 activeItem:
                     currState.activeItem !== data ? data : currState.activeItem,
@@ -272,6 +274,7 @@ export function init<T>(
         const handleMouseOver = (x: number, y: number, data: WordCloudItem) => {
             if (data !== currState.activeItem) {
                 setState({
+                    ...currState,
                     tooltipPos: [x, y],
                     activeItem: data,
                 });
@@ -287,6 +290,7 @@ export function init<T>(
 
         const handleMouseOut = (data: WordCloudItem) => {
             setState({
+                ...currState,
                 activeItem: null,
                 tooltipPos: [0, 0],
             });
@@ -302,13 +306,18 @@ export function init<T>(
             ? chartContainer.current.offsetWidth
             : 200;
         const vboxAspectRatio = props.width / props.height;
-        const wcloud = createWordCloud(
-            props.data.map(props.dataTransform),
-            boxWidth,
-            boxWidth / vboxAspectRatio,
-            props.isMobile,
-            props.font
-        );
+        React.useEffect(() => {
+            setState({
+                ...currState,
+                wcloud: createWordCloud(
+                    props.data.map(props.dataTransform),
+                    boxWidth,
+                    boxWidth / vboxAspectRatio,
+                    props.isMobile,
+                    props.font
+                ),
+            });
+        }, [boxWidth, vboxAspectRatio]);
 
         const style = { ...props.style, width: '100%', height: '100%' };
         style['minHeight'] =
@@ -329,29 +338,33 @@ export function init<T>(
                     preserveAspectRatio="xMinYMid meet"
                     viewBox={`0 0 ${boxWidth} ${(boxWidth / vboxAspectRatio).toFixed()}`}
                 >
-                    <g transform={wcloud.transform}>
-                        {wcloud.rectangles.map((r, i) => (
-                            <Word
-                                key={`${r.x}:${r.y}:${r.w}:${r.h}`}
-                                color={
-                                    r.data && r.data.color
-                                        ? r.data.color
-                                        : colors(i)
-                                }
-                                rect={r}
-                                onMouseMove={handleMouseMove}
-                                onMouseOut={handleMouseOut}
-                                onMouseOver={handleMouseOver}
-                                onMouseClick={props.onWordClick}
-                                font={props.font}
-                                selectedText={props.selectedText}
-                                underline={
-                                    props.underlineWords &&
-                                    props.underlineWords.includes(r.data.text)
-                                }
-                            />
-                        ))}
-                    </g>
+                    {currState.wcloud ? (
+                        <g transform={currState.wcloud.transform}>
+                            {currState.wcloud.rectangles.map((r, i) => (
+                                <Word
+                                    key={`${r.x}:${r.y}:${r.w}:${r.h}`}
+                                    color={
+                                        r.data && r.data.color
+                                            ? r.data.color
+                                            : colors(i)
+                                    }
+                                    rect={r}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseOut={handleMouseOut}
+                                    onMouseOver={handleMouseOver}
+                                    onMouseClick={props.onWordClick}
+                                    font={props.font}
+                                    selectedText={props.selectedText}
+                                    underline={
+                                        props.underlineWords &&
+                                        props.underlineWords.includes(
+                                            r.data.text
+                                        )
+                                    }
+                                />
+                            ))}
+                        </g>
+                    ) : null}
                 </svg>
             </div>
         );
