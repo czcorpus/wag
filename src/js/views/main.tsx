@@ -825,29 +825,20 @@ export function init(
         queries: Array<Input>;
         queryType: QueryType;
     }> = (props) => {
-        let path: string;
-        switch (props.queryType) {
-            case QueryType.SINGLE_QUERY:
-                path = 'search';
-                break;
-            case QueryType.CMP_QUERY:
-                path = 'compare';
-                break;
-            case QueryType.TRANSLAT_QUERY:
-                path = 'translate';
-                break;
-        }
-
-        const params = pipe(
-            props.queries,
-            List.map((v) => (props.isAnswerMode ? v.value : `q=${v.value}`))
-        ).join(props.isAnswerMode ? '--' : '&');
+        const paramString = pipe(props.queries, List.head(), (v) =>
+            props.isAnswerMode
+                ? encodeURIComponent(v.value)
+                : `?q=${encodeURIComponent(v.value)}`
+        );
 
         return (
             <S.OtherVariantsMenu>
                 <nav className={!props.expandMobileMenu ? 'collapsed' : ''}>
-                    {List.map(
-                        (item, i) => (
+                    {List.map((item, i) => {
+                        const srchPathSuff = /\/search\/?/.test(item.url)
+                            ? ''
+                            : '/search';
+                        return (
                             <React.Fragment key={item.label}>
                                 {i > 0 ? (
                                     <span className="separ">|</span>
@@ -858,19 +849,16 @@ export function init(
                                     <a
                                         href={urlJoin(
                                             item.url,
-                                            path,
-                                            props.isAnswerMode
-                                                ? params
-                                                : '?' + params
+                                            srchPathSuff,
+                                            paramString
                                         )}
                                     >
                                         {item.label}
                                     </a>
                                 </span>
                             </React.Fragment>
-                        ),
-                        props.instanceSwitchMenu
-                    )}
+                        );
+                    }, props.instanceSwitchMenu)}
                 </nav>
             </S.OtherVariantsMenu>
         );
