@@ -54,6 +54,7 @@ import {
 } from '../conf/index.js';
 import { Theme } from '../page/theme.js';
 import { init as wcloudViewInit, WordCloudItem } from './wordCloud/index.js';
+import urlJoin from 'url-join';
 
 export interface WdglanceMainProps {
     layout: Array<TileGroup>;
@@ -778,6 +779,9 @@ export function init(
                             <OtherVariantsMenu
                                 instanceSwitchMenu={state.instanceSwitchMenu}
                                 expandMobileMenu={state.expandMobileMenu}
+                                isAnswerMode={props.isAnswerMode}
+                                queries={state.queries}
+                                queryType={state.queryType}
                             />
                         ) : null}
                     </S.MenuTabs>
@@ -817,7 +821,28 @@ export function init(
             current: boolean;
         }>;
         expandMobileMenu: boolean;
+        isAnswerMode: boolean;
+        queries: Array<Input>;
+        queryType: QueryType;
     }> = (props) => {
+        let path: string;
+        switch (props.queryType) {
+            case QueryType.SINGLE_QUERY:
+                path = 'search';
+                break;
+            case QueryType.CMP_QUERY:
+                path = 'compare';
+                break;
+            case QueryType.TRANSLAT_QUERY:
+                path = 'translate';
+                break;
+        }
+
+        const params = pipe(
+            props.queries,
+            List.map((v) => (props.isAnswerMode ? v.value : `q=${v.value}`))
+        ).join(props.isAnswerMode ? '--' : '&');
+
         return (
             <S.OtherVariantsMenu>
                 <nav className={!props.expandMobileMenu ? 'collapsed' : ''}>
@@ -830,7 +855,17 @@ export function init(
                                 <span
                                     className={`item${item.current ? ' current' : ''}`}
                                 >
-                                    <a href={item.url}>{item.label}</a>
+                                    <a
+                                        href={urlJoin(
+                                            item.url,
+                                            path,
+                                            props.isAnswerMode
+                                                ? params
+                                                : '?' + params
+                                        )}
+                                    >
+                                        {item.label}
+                                    </a>
                                 </span>
                             </React.Fragment>
                         ),
