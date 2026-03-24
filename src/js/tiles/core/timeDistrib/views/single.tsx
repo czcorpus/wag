@@ -432,7 +432,7 @@ export function init(
                         <XAxis
                             dataKey="datetime"
                             interval="preserveStartEnd"
-                            minTickGap={0}
+                            minTickGap={10}
                             type="category"
                             tick={{ fill: theme.chartTextColor }}
                         />
