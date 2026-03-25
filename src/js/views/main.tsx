@@ -1415,6 +1415,18 @@ export function init(
         items: Array<string>;
         extended: boolean;
     }> = (props) => {
+        const [scrollY, setScrollY] = React.useState(0);
+
+        React.useEffect(() => {
+            const handleScroll = () => {
+                const y = window.scrollY;
+                setScrollY(y);
+            };
+
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            return () => window.removeEventListener('scroll', handleScroll);
+        }, []);
+
         const handleIndexHover = (extend: boolean): void => {
             dispatcher.dispatch<typeof Actions.ExtendIndex>({
                 name: Actions.ExtendIndex.name,
@@ -1440,7 +1452,7 @@ export function init(
                 </div>
                 <div
                     className={
-                        props.extended
+                        props.extended || scrollY < 5
                             ? 'index-content extended'
                             : 'index-content'
                     }
