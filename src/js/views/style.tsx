@@ -118,6 +118,10 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
         .main {
             margin-top: 1.5em;
             margin-bottom: 1em;
+
+            ${(props) => props.theme.cssMobileScreen} {
+                margin: 0.5em 0;
+            }
         }
     }
 
@@ -133,88 +137,9 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
             display: flex;
             align-items: center;
         }
-    }
 
-    .translat-lang-selector {
-        margin: 0 1em 0 0;
-    }
-
-    input.invalid {
-        border-color: red;
-    }
-
-    .arrow {
-        margin-right: 0.3em;
-        margin-left: 0;
-        font-size: 1.5em;
-        color: ${(props) => props.theme.colorLightText};
-    }
-
-    .QueryInput {
-        margin-right: 0.7em;
-        margin-left: 1em;
-        width: 15em;
-    }
-
-    .QueryInput.invalid {
-        border-color: ${(props) => props.theme.colorLogoOrange};
-    }
-
-    .input-group .input-row:not(:last-child) {
-        margin-bottom: 0.3em;
-    }
-
-    .input-group {
-        list-style-type: none;
-        text-align: left;
-        margin: 0 1.5em 0 0.5em;
-        padding: 0;
-
-        .input-row {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-
-            .RemoveCmpQueryField {
-                display: inline-block;
-                padding: 0;
-                margin: 0;
-
-                button {
-                    display: block;
-                    background: none;
-                    border: none;
-                    padding: 0;
-                    cursor: pointer;
-
-                    img {
-                        width: 1em;
-                        display: block;
-                    }
-                }
-            }
-        }
-
-        .AddCmpQueryField {
-            margin-top: 0.7em;
-            text-align: center;
-
-            button {
-                padding: 0;
-                margin: 0;
-                background: none;
-                border: none;
-                cursor: pointer;
-                display: inline-block;
-
-                img {
-                    display: block;
-                    margin: 0;
-                    padding: 0;
-                    width: 1.2em;
-                }
-            }
+        ${(props) => props.theme.cssMobileScreen} {
+            margin: 0.5em 0;
         }
     }
 
@@ -226,29 +151,111 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
 
 // -------------- <QueryFields /> --------------------------------------------
 
-export const QueryFields = styled.div`
+export const QueryFields = styled.div<{ theme: Theme }>`
     display: flex;
     flex-direction: column;
+
+    &.single {
+        width: 22.5em;
+    }
+
+    &.cmp {
+        width: 25em;
+    }
+
+    &.translat {
+        width: 30em;
+    }
 
     .input-and-submit {
         display: flex;
         align-items: center;
+
+        .input-row {
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            display: flex;
+            flex-grow: 2;
+        }
+
+        .QueryInput {
+            margin-right: 0.7em;
+            flex-grow: 2;
+
+            .invalid {
+                border-color: ${(props) => props.theme.colorLogoOrange};
+            }
+        }
+
+        .arrow {
+            margin-right: 0.3em;
+            margin-left: 0;
+            font-size: 1.5em;
+            color: ${(props) => props.theme.colorLightText};
+        }
+
+        .translat-lang-selector {
+            margin: 0 1em 0 0;
+        }
+    }
+
+    .input-group .input-row:not(:last-child) {
+        margin-bottom: 0.3em;
+    }
+
+    .input-group {
+        list-style-type: none;
+        text-align: left;
+        margin: 0 1.5em 0 0;
+        padding: 0;
+        flex-grow: 2;
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        width: 100% !important;
     }
 `;
 
 // -------------- <AddCmpQueryField /> ---------------------------------------
 
 export const AddCmpQueryField = styled.div`
-    margin-top: 1em;
+    margin-top: 0.7em;
     text-align: center;
 
     button {
         padding: 0;
+        margin: 0;
+        background: none;
         border: none;
-        border-radius: 3px;
+        cursor: pointer;
+        display: inline-block;
+
+        img {
+            display: block;
+            margin: 0;
+            padding: 0;
+            width: 1.2em;
+        }
+    }
+`;
+
+// -------------- <RemoveCmpQueryField /> ---------------------------------------
+
+export const RemoveCmpQueryField = styled.div`
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+
+    button {
+        display: block;
+        background: none;
+        border: none;
+        padding: 0;
         cursor: pointer;
 
         img {
+            width: 1em;
             display: block;
         }
     }
@@ -356,7 +363,6 @@ export const LemmaSelector = styled.div<{ theme: Theme }>`
 
 export const SubmenuTile = styled.section`
     display: flex;
-    margin-left: 1.45em;
     padding: 0;
 `;
 

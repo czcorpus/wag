@@ -354,7 +354,7 @@ export function init(
         };
 
         return (
-            <span className="RemoveCmpQueryField">
+            <S.RemoveCmpQueryField>
                 <button
                     type="button"
                     onClick={handleClick}
@@ -365,7 +365,7 @@ export function init(
                         alt={ut.translate('global__remove_query_field')}
                     />
                 </button>
-            </span>
+            </S.RemoveCmpQueryField>
         );
     };
 
@@ -485,7 +485,7 @@ export function init(
         };
 
         return (
-            <S.QueryFields>
+            <S.QueryFields className={props.currQueryType}>
                 <div className="input-and-submit">
                     {renderFields()}
                     <SubmitButton onClick={handleSubmit} />
