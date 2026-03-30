@@ -229,7 +229,7 @@ export function init(
                                                         ) <= -2 ? (
                                                             <>
                                                                 <span className="arrows">
-                                                                    {'\u2192'}
+                                                                    {'\u2190'}
                                                                 </span>
                                                                 <span className="syntax-node">
                                                                     {'\u25EF'}
@@ -237,7 +237,7 @@ export function init(
                                                             </>
                                                         ) : null}
                                                         <span className="arrows">
-                                                            {'\u2192'}
+                                                            {'\u2190'}
                                                         </span>
                                                         <span
                                                             className="syntax-node"
