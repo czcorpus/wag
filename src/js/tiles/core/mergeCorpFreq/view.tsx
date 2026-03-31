@@ -26,7 +26,6 @@ import {
     XAxis,
     YAxis,
     Legend,
-    ResponsiveContainer,
     Rectangle,
 } from 'recharts';
 import { GlobalComponents } from '../../../views/common/index.js';
