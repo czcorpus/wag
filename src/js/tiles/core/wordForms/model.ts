@@ -38,6 +38,7 @@ export interface WordFormsModelState {
     corpusSize: number;
     freqFilterAlphaLevel: Maths.AlphaLevel;
     data: Array<WordFormItem>;
+    rareVariantsRemoved: boolean;
     backlink: Backlink;
     mainPosAttr: MainPosAttrValues;
     posQueryGenerator: PosQueryGeneratorType;
@@ -184,11 +185,14 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         state.data = [];
                         state.backlink = null;
                     } else {
+                        const oldSize = List.size(action.payload.data);
                         state.data = filterRareVariants(
                             action.payload.data,
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
+                        state.rareVariantsRemoved =
+                            oldSize > List.size(state.data);
                         state.backlink = this.api.getBacklink(
                             action.payload.queryIdx
                         );

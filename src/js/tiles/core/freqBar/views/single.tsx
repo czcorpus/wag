@@ -85,6 +85,8 @@ export function init(
         tileId: number;
         barCategoryGap: number;
         data: Array<DataRow>;
+        width: number;
+        height: number;
         isMobile: boolean;
     }> = (props) => {
         const maxLabelLength = (
@@ -107,62 +109,55 @@ export function init(
         ).length;
 
         return (
-            // 100% height makes parent ResponsiveWrapper
-            // to change size gradually after rendering
-            <ResponsiveContainer
-                id={`${props.tileId}-download-figure`}
-                width="100%"
-                height="95%"
-                minHeight={300}
+            <BarChart
+                data={props.data}
+                layout="vertical"
+                barCategoryGap={props.barCategoryGap}
+                width={props.width}
+                height={props.height}
             >
-                <BarChart
-                    data={props.data}
-                    layout="vertical"
-                    barCategoryGap={props.barCategoryGap}
-                >
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke={theme.chartGridColor}
-                    />
-                    <XAxis
-                        type="number"
-                        dataKey="ipm"
-                        tick={{ fill: theme.chartTextColor }}
-                    />
-                    <YAxis
-                        type="category"
-                        dataKey="name"
-                        width={maxLabelLength * 7}
-                        tick={{ fill: theme.chartTextColor }}
-                    />
-                    <Legend
-                        formatter={(value) => (
-                            <span style={{ color: theme.chartTextColor }}>
-                                {value}
-                            </span>
-                        )}
-                    />
-                    <Tooltip
-                        cursor={false}
-                        isAnimationActive={false}
-                        content={
-                            <globComponents.AlignedRechartsTooltip
-                                payloadMapper={(payload) => [
-                                    {
-                                        name: ut.translate('freqBar__rel_freq'),
-                                        value: payload.ipm,
-                                    },
-                                    {
-                                        name: ut.translate('freqBar__abs_freq'),
-                                        value: payload.freq,
-                                    },
-                                ]}
-                            />
-                        }
-                    />
-                    <Bar dataKey="ipm" fill={theme.categoryColor(0)} />
-                </BarChart>
-            </ResponsiveContainer>
+                <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={theme.chartGridColor}
+                />
+                <XAxis
+                    type="number"
+                    dataKey="ipm"
+                    tick={{ fill: theme.chartTextColor }}
+                />
+                <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={maxLabelLength * 7}
+                    tick={{ fill: theme.chartTextColor }}
+                />
+                <Legend
+                    formatter={(value) => (
+                        <span style={{ color: theme.chartTextColor }}>
+                            {value}
+                        </span>
+                    )}
+                />
+                <Tooltip
+                    cursor={false}
+                    isAnimationActive={false}
+                    content={
+                        <globComponents.AlignedRechartsTooltip
+                            payloadMapper={(payload) => [
+                                {
+                                    name: ut.translate('freqBar__rel_freq'),
+                                    value: payload.ipm,
+                                },
+                                {
+                                    name: ut.translate('freqBar__abs_freq'),
+                                    value: payload.freq,
+                                },
+                            ]}
+                        />
+                    }
+                />
+                <Bar dataKey="ipm" fill={theme.categoryColor(0)} />
+            </BarChart>
         );
     };
 
@@ -174,8 +169,6 @@ export function init(
         const freqData = List.head(props.freqData);
         const numCats = freqData ? freqData.rows.length : 0;
         const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
-        const minHeight =
-            70 + numCats * (props.pixelsPerCategory + barCategoryGap);
 
         return (
             <globComponents.TileWrapper
@@ -188,47 +181,33 @@ export function init(
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
-                <globComponents.ResponsiveWrapper
-                    render={(width: number, height: number) => {
-                        return (
-                            <S.FreqBarTile
-                                style={{
-                                    minHeight: `${minHeight}px`,
-                                    height: '100%',
-                                }}
-                            >
-                                {props.isAltViewMode ? (
-                                    <S.Tables>
-                                        <h3 style={{ textAlign: 'center' }}>
-                                            {props.label}
-                                        </h3>
-                                        <TableView data={freqData.rows} />
-                                    </S.Tables>
-                                ) : (
-                                    <>
-                                        {freqData.rows.length > 0 ? (
-                                            <Chart
-                                                tileId={props.tileId}
-                                                data={freqData.rows}
-                                                barCategoryGap={barCategoryGap}
-                                                isMobile={props.isMobile}
-                                            />
-                                        ) : (
-                                            <p
-                                                className="note"
-                                                style={{ textAlign: 'center' }}
-                                            >
-                                                {ut.translate(
-                                                    'freqBar__no_result'
-                                                )}
-                                            </p>
-                                        )}
-                                    </>
-                                )}
-                            </S.FreqBarTile>
-                        );
-                    }}
-                />
+                <S.FreqBarTile>
+                    {props.isAltViewMode ? (
+                        <S.Tables>
+                            <h3 style={{ textAlign: 'center' }}>
+                                {props.label}
+                            </h3>
+                            <TableView data={freqData.rows} />
+                        </S.Tables>
+                    ) : (
+                        <globComponents.ResponsiveWrapper
+                            minWidth={props.isMobile ? undefined : 250}
+                            widthFract={props.widthFract}
+                            render={(width: number, height: number) => (
+                                <div id={`${props.tileId}-download-figure`}>
+                                    <Chart
+                                        tileId={props.tileId}
+                                        data={freqData.rows}
+                                        barCategoryGap={barCategoryGap}
+                                        isMobile={props.isMobile}
+                                        width={width * 0.9}
+                                        height={height}
+                                    />
+                                </div>
+                            )}
+                        />
+                    )}
+                </S.FreqBarTile>
             </globComponents.TileWrapper>
         );
     };
