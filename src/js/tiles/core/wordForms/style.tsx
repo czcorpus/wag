@@ -27,12 +27,14 @@ export const WordFormView = styled.div<{ theme: Theme }>`
 
     .data-view {
         flex-grow: 1;
+        margin-bottom: 1.4em;
     }
 
     .rare-items-warning {
         margin: 0;
         padding: 0;
         font-size: 0.8em;
+        text-align: center;
         color: ${(props) => props.theme.colorLightText};
     }
 `;

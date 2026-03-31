@@ -17,9 +17,9 @@
  */
 import * as React from 'react';
 
-import { IActionDispatcher, ViewUtils, BoundWithProps, useModel } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import { GlobalComponents } from '../../../views/common/index.js';
-import { WordFormsModel, WordFormsModelState } from './model.js';
+import { WordFormsModel } from './model.js';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
 import { Theme } from '../../../page/theme.js';
