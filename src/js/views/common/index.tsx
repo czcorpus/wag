@@ -670,7 +670,7 @@ export function init(
     // --------------- <ModalBox /> -------------------------------------------
 
     const ModalBox: GlobalComponents['ModalBox'] = (props) => {
-        const ref: React.RefObject<HTMLButtonElement> = React.createRef();
+        const ref: React.RefObject<HTMLButtonElement> = React.useRef(null);
 
         React.useEffect(() => {
             if (ref.current) {
@@ -781,7 +781,7 @@ export function init(
         minWidth?: number;
         widthFract?: number;
     }> = (props) => {
-        const ref: React.RefObject<HTMLDivElement> = React.createRef();
+        const ref = React.useRef<HTMLDivElement>(null);
 
         const [state, updateState] = React.useState<{
             width: number;
@@ -797,30 +797,36 @@ export function init(
 
         const calcAndSetSizes = (): void => {
             if (ref.current) {
-                const wrapper = ref.current.closest('.wag-tile-body');
+                const wrapper = ref.current.closest('.wag-tile  ');
                 const cellWidthFract = props.widthFract ?? 1;
-                const maxHeightPortion = cellWidthFract > 2 ? 0.25 : 0.32;
+                const maxHeightPortion = cellWidthFract > 2 ? 0.4 : 0.5;
                 const newWidth = wrapper.getBoundingClientRect().width;
                 const newHeight = wrapper.getBoundingClientRect().height;
+
                 updateState({
                     width: newWidth,
-                    height:
-                        newHeight < window.innerHeight * maxHeightPortion
-                            ? newHeight
-                            : window.innerHeight * maxHeightPortion,
+                    height: Math.min(
+                        window.innerHeight * maxHeightPortion,
+                        newHeight
+                    ),
                     frameWidth: window.innerWidth,
                     frameHeight: window.innerHeight,
                 });
             }
         };
 
-        React.useEffect(() => calcAndSetSizes(), []);
-
-        const handleWindowResize = (props: ScreenProps) => {
+        React.useEffect(() => {
             calcAndSetSizes();
-        };
+        }, []);
 
-        resize$.subscribe(handleWindowResize);
+        React.useEffect(() => {
+            const subscription = resize$.subscribe(() => {
+                calcAndSetSizes();
+            });
+            return () => {
+                subscription.unsubscribe();
+            };
+        }, []);
 
         return (
             <S.ResponsiveWrapper $minWidth={props.minWidth} ref={ref}>
