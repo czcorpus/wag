@@ -17,7 +17,7 @@
  */
 import * as React from 'react';
 
-import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
+import { IActionDispatcher, ViewUtils, BoundWithProps, useModel } from 'kombo';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { WordFormsModel, WordFormsModelState } from './model.js';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
@@ -25,6 +25,7 @@ import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
 import { Theme } from '../../../page/theme.js';
 import { List } from 'cnc-tskit';
 import { WordFormItem } from './common.js';
+import * as S from './style.js';
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -76,60 +77,69 @@ export function init(
         );
     };
 
-    class WordFormsView extends React.PureComponent<
-        WordFormsModelState & CoreTileComponentProps
-    > {
-        render() {
-            const dataTransform = (v: WordFormItem) => ({
-                text: v.value,
-                value: v.freq,
-                tooltip: [
-                    {
-                        label: ut.translate('wordforms__item_ratio'),
-                        value: v.ratio,
-                        unit: '%',
-                        round: this.props.roundToPos,
-                    },
-                ],
-                interactionId: null,
-            });
+    const WordFormsView: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
 
-            return (
-                <globalComponents.TileWrapper
-                    tileId={this.props.tileId}
-                    isBusy={this.props.isBusy}
-                    error={this.props.error}
-                    hasData={this.props.data.length > 0}
-                    sourceIdent={{ corp: this.props.corpname }}
-                    supportsTileReload={this.props.supportsReloadOnError}
-                    issueReportingUrl={this.props.issueReportingUrl}
-                    backlink={this.props.backlink}
-                >
-                    {this.props.isAltViewMode ? (
-                        <TableView
-                            data={this.props.data}
-                            roundToPos={this.props.roundToPos}
-                        />
-                    ) : (
-                        <globalComponents.ResponsiveWrapper
-                            minWidth={this.props.isMobile ? undefined : 250}
-                            widthFract={this.props.widthFract}
-                            render={(width: number, height: number) => (
-                                <WordCloud
-                                    width={width}
-                                    height={height}
-                                    data={this.props.data}
-                                    isMobile={this.props.isMobile}
-                                    font={theme.infoGraphicsFont}
-                                    dataTransform={dataTransform}
-                                />
-                            )}
-                        />
-                    )}
-                </globalComponents.TileWrapper>
-            );
-        }
-    }
+        const dataTransform = (v: WordFormItem) => ({
+            text: v.value,
+            value: v.freq,
+            tooltip: [
+                {
+                    label: ut.translate('wordforms__item_ratio'),
+                    value: v.ratio,
+                    unit: '%',
+                    round: state.roundToPos,
+                },
+            ],
+            interactionId: null,
+        });
 
-    return BoundWithProps(WordFormsView, model);
+        return (
+            <globalComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={state.data.length > 0}
+                sourceIdent={{ corp: state.corpname }}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+                backlink={state.backlink}
+            >
+                <S.WordFormView>
+                    <div className="data-view">
+                        {state.isAltViewMode ? (
+                            <TableView
+                                data={state.data}
+                                roundToPos={state.roundToPos}
+                            />
+                        ) : (
+                            <globalComponents.ResponsiveWrapper
+                                minWidth={props.isMobile ? undefined : 250}
+                                widthFract={props.widthFract}
+                                render={(width: number, height: number) => (
+                                    <WordCloud
+                                        width={width}
+                                        height={height}
+                                        data={state.data}
+                                        isMobile={props.isMobile}
+                                        font={theme.infoGraphicsFont}
+                                        dataTransform={dataTransform}
+                                    />
+                                )}
+                            />
+                        )}
+                    </div>
+                    {state.rareVariantsRemoved ? (
+                        <p className="rare-items-warning">
+                            (
+                            {ut.translate('wordforms__rare_items_were_removed')}
+                            )
+                        </p>
+                    ) : null}
+                </S.WordFormView>
+            </globalComponents.TileWrapper>
+        );
+    };
+
+    return WordFormsView;
 }

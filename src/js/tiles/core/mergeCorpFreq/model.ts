@@ -276,7 +276,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     filename = `${this.downloadLabel}-figure`;
                     ident = `${this.tileId}-download-figure`;
                 }
-
                 domtoimage
                     .toSvg(document.getElementById(ident), { bgcolor: 'white' })
                     .then(function (dataUrl) {

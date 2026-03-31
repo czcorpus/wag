@@ -95,6 +95,7 @@ export class WordFormsTile implements ITileProvider {
                 corpusSize: conf.corpusSize,
                 freqFilterAlphaLevel: conf.freqFilterAlphaLevel,
                 data: [],
+                rareVariantsRemoved: false,
                 backlink: null,
                 mainPosAttr,
                 posQueryGenerator: conf.posQueryGenerator,

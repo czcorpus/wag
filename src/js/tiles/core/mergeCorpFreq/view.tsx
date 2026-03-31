@@ -26,8 +26,8 @@ import {
     XAxis,
     YAxis,
     Legend,
-    Cell,
     ResponsiveContainer,
+    Rectangle,
 } from 'recharts';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
@@ -176,6 +176,8 @@ export function init(
         isPartial: boolean;
         isMobile: boolean;
         tileId: number;
+        width: number;
+        height: number;
         onBarClick: (barIdx: number, queryIdx: number) => () => void;
     }> = (props) => {
         const queries = props.queryMatches.length;
@@ -276,125 +278,112 @@ export function init(
         };
 
         return (
-            // 100% height makes parent ResponsiveWrapper
-            // to change size gradually after rendering
-            <ResponsiveContainer
-                id={`${props.tileId}-download-figure`}
-                width="100%"
-                height="95%"
-                minHeight={300}
-            >
-                <BarChart
-                    data={transformedData}
-                    layout="vertical"
-                    barCategoryGap={props.barCategoryGap}
-                    onMouseMove={(e) => {
-                        if (e && e.activeLabel) {
-                            dispatcher.dispatch<typeof Actions.ShowTooltip>({
-                                name: Actions.ShowTooltip.name,
-                                payload: {
-                                    dataName: e.activeLabel.toString(),
-                                    tileId: props.tileId,
-                                    tooltipX: e.activeCoordinate.x,
-                                    tooltipY: e.activeCoordinate.y,
-                                    barIdx: transformedData[e.activeIndex]
-                                        .sourceIdx,
-                                },
-                            });
-                        }
-                    }}
-                    onMouseLeave={(d) =>
-                        dispatcher.dispatch<typeof Actions.HideTooltip>({
-                            name: Actions.HideTooltip.name,
-                            payload: { tileId: props.tileId },
-                        })
+            <BarChart
+                width={props.width}
+                height={props.height}
+                data={transformedData}
+                layout="vertical"
+                barCategoryGap={props.barCategoryGap}
+                onMouseMove={(e) => {
+                    if (e && e.activeLabel) {
+                        dispatcher.dispatch<typeof Actions.ShowTooltip>({
+                            name: Actions.ShowTooltip.name,
+                            payload: {
+                                dataName: e.activeLabel.toString(),
+                                tileId: props.tileId,
+                                tooltipX: e.activeCoordinate.x,
+                                tooltipY: e.activeCoordinate.y,
+                                barIdx: transformedData[e.activeIndex]
+                                    .sourceIdx,
+                            },
+                        });
                     }
-                >
-                    <CartesianGrid stroke={theme.chartGridColor} />
-                    {List.map((_, queryIdx) => {
-                        const dfltFill = props.isPartial
-                            ? theme.unfinishedChartColor
-                            : colorFn(queryIdx);
-                        const hgltFill = props.isPartial
-                            ? theme.unfinishedChartColor
-                            : colorHgltFn(queryIdx);
-                        return (
-                            <Bar
-                                key={queryIdx}
-                                dataKey={(x) => x.ipm[queryIdx]}
-                                fill={dfltFill}
-                                isAnimationActive={false}
-                                name={
-                                    queries === 1
-                                        ? ut.translate(
-                                              'mergeCorpFreq__rel_freq'
-                                          )
-                                        : props.queryMatches[queryIdx].word
-                                }
-                                onMouseEnter={handleMouseEnter}
-                                onMouseLeave={handleMouseLeave}
-                            >
-                                {List.map(
-                                    (entry, i) => (
-                                        <Cell
-                                            key={`cell-${queryIdx}`}
-                                            cursor={
-                                                entry.isClickable
-                                                    ? 'pointer'
-                                                    : null
-                                            }
-                                            fill={
-                                                hoveredIndex === i &&
-                                                entry.isClickable
-                                                    ? hgltFill
-                                                    : dfltFill
-                                            }
-                                            onClick={
-                                                entry.isClickable
-                                                    ? props.onBarClick(
-                                                          entry.sourceIdx,
-                                                          queryIdx
-                                                      )
-                                                    : null
-                                            }
-                                        />
-                                    ),
-                                    transformedData
-                                )}
-                            </Bar>
-                        );
-                    }, props.queryMatches)}
-                    <XAxis
-                        type="number"
-                        label={{
-                            value:
-                                queries > 1
+                }}
+                onMouseLeave={(d) =>
+                    dispatcher.dispatch<typeof Actions.HideTooltip>({
+                        name: Actions.HideTooltip.name,
+                        payload: { tileId: props.tileId },
+                    })
+                }
+            >
+                <CartesianGrid stroke={theme.chartGridColor} />
+                {List.map((_, queryIdx) => {
+                    const dfltFill = props.isPartial
+                        ? theme.unfinishedChartColor
+                        : colorFn(queryIdx);
+                    const hgltFill = props.isPartial
+                        ? theme.unfinishedChartColor
+                        : colorHgltFn(queryIdx);
+                    return (
+                        <Bar
+                            key={queryIdx}
+                            dataKey={(x) => x.ipm[queryIdx]}
+                            fill={dfltFill}
+                            isAnimationActive={false}
+                            name={
+                                queries === 1
                                     ? ut.translate('mergeCorpFreq__rel_freq')
-                                    : null,
-                            dy: 15,
-                        }}
-                        tick={{ fill: theme.chartTextColor }}
-                    />
-                    <YAxis
-                        type="category"
-                        dataKey="name"
-                        width={Math.max(60, maxLabelLength * 8)}
-                        tickFormatter={(value) =>
-                            props.isMobile
-                                ? Strings.shortenText(
-                                      value,
-                                      CHART_LABEL_MAX_LEN
-                                  )
-                                : value
-                        }
-                        tick={CustomizedAxisTick}
-                    />
-                    <Legend
-                        wrapperStyle={{ paddingTop: queries > 1 ? 15 : 0 }}
-                        formatter={legendFormatter}
-                    />
-                </BarChart>
-            </ResponsiveContainer>
+                                    : props.queryMatches[queryIdx].word
+                            }
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            shape={(barProps) => {
+                                const entry = transformedData[barProps.index];
+                                const fill =
+                                    hoveredIndex === barProps.index &&
+                                    entry.isClickable
+                                        ? hgltFill
+                                        : dfltFill;
+                                return (
+                                    <Rectangle
+                                        {...barProps}
+                                        fill={fill}
+                                        cursor={
+                                            entry.isClickable
+                                                ? 'pointer'
+                                                : 'default'
+                                        }
+                                        onClick={
+                                            entry.isClickable
+                                                ? props.onBarClick(
+                                                      entry.sourceIdx,
+                                                      queryIdx
+                                                  )
+                                                : undefined
+                                        }
+                                    />
+                                );
+                            }}
+                        />
+                    );
+                }, props.queryMatches)}
+                <XAxis
+                    type="number"
+                    label={{
+                        value:
+                            queries > 1
+                                ? ut.translate('mergeCorpFreq__rel_freq')
+                                : null,
+                        dy: 15,
+                    }}
+                    tick={{ fill: theme.chartTextColor }}
+                />
+                <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={Math.max(60, maxLabelLength * 8)}
+                    tickFormatter={(value) =>
+                        props.isMobile
+                            ? Strings.shortenText(value, CHART_LABEL_MAX_LEN)
+                            : value
+                    }
+                    tick={CustomizedAxisTick}
+                />
+                <Legend
+                    wrapperStyle={{ paddingTop: queries > 1 ? 15 : 0 }}
+                    formatter={legendFormatter}
+                />
+            </BarChart>
         );
     };
 
@@ -487,15 +476,19 @@ export function init(
                                         />
                                     </S.Tables>
                                 ) : (
-                                    <Chart
-                                        tileId={props.tileId}
-                                        data={props.data}
-                                        barCategoryGap={barCategoryGap}
-                                        queryMatches={props.queryMatches}
-                                        isPartial={props.isBusy}
-                                        isMobile={props.isMobile}
-                                        onBarClick={handleBarClick}
-                                    />
+                                    <div id={`${props.tileId}-download-figure`}>
+                                        <Chart
+                                            tileId={props.tileId}
+                                            width={width * 0.9}
+                                            height={height}
+                                            data={props.data}
+                                            barCategoryGap={barCategoryGap}
+                                            queryMatches={props.queryMatches}
+                                            isPartial={props.isBusy}
+                                            isMobile={props.isMobile}
+                                            onBarClick={handleBarClick}
+                                        />
+                                    </div>
                                 )}
                             </S.MergeCorpFreqBarTile>
                         );

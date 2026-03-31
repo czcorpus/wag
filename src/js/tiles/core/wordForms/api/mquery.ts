@@ -80,7 +80,7 @@ export class MQueryWordFormsAPI
                         forms: pipe(
                             resp,
                             List.flatMap((match) => match.forms),
-                            List.groupBy((item) => item.word),
+                            List.groupBy((item) => item.word.toLowerCase()),
                             List.map(([word, group]) => {
                                 const freq = List.reduce(
                                     (a, v) => a + v.freq,

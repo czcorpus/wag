@@ -89,7 +89,7 @@ export interface GlobalComponents {
         htmlClass?: string;
     }>;
 
-    ResponsiveWrapper: React.ComponentClass<{
+    ResponsiveWrapper: React.FC<{
         render: (
             width: number,
             height: number
@@ -773,45 +773,36 @@ export function init(
 
     // --------- <ResponsiveWrapper /> ----------------------------------------------
 
-    class ResponsiveWrapper extends React.Component<
-        {
-            render: (
-                width: number,
-                height: number
-            ) => React.ReactElement<{ width: number; height: number } & {}>;
-            minWidth?: number;
-            widthFract?: number;
-        },
-        {
+    const ResponsiveWrapper: React.FC<{
+        render: (
+            width: number,
+            height: number
+        ) => React.ReactElement<{ width: number; height: number } & {}>;
+        minWidth?: number;
+        widthFract?: number;
+    }> = (props) => {
+        const ref: React.RefObject<HTMLDivElement> = React.createRef();
+
+        const [state, updateState] = React.useState<{
             width: number;
             height: number;
             frameWidth: number;
             frameHeight: number;
-        }
-    > {
-        private readonly ref: React.RefObject<HTMLDivElement>;
+        }>({
+            width: 1,
+            height: 1,
+            frameWidth: 1,
+            frameHeight: 1,
+        });
 
-        constructor(props) {
-            super(props);
-            this.state = {
-                width: 1,
-                height: 1,
-                frameWidth: 1,
-                frameHeight: 1,
-            };
-            this.ref = React.createRef();
-            this.handleWindowResize = this.handleWindowResize.bind(this);
-            resize$.subscribe(this.handleWindowResize);
-        }
-
-        private calcAndSetSizes(): void {
-            if (this.ref.current) {
-                const wrapper = this.ref.current.closest('.wag-tile-body');
-                const cellWidthFract = this.props.widthFract ?? 1;
+        const calcAndSetSizes = (): void => {
+            if (ref.current) {
+                const wrapper = ref.current.closest('.wag-tile-body');
+                const cellWidthFract = props.widthFract ?? 1;
                 const maxHeightPortion = cellWidthFract > 2 ? 0.25 : 0.32;
                 const newWidth = wrapper.getBoundingClientRect().width;
                 const newHeight = wrapper.getBoundingClientRect().height;
-                this.setState({
+                updateState({
                     width: newWidth,
                     height:
                         newHeight < window.innerHeight * maxHeightPortion
@@ -821,27 +812,22 @@ export function init(
                     frameHeight: window.innerHeight,
                 });
             }
-        }
+        };
 
-        componentDidMount() {
-            this.calcAndSetSizes();
-        }
+        React.useEffect(() => calcAndSetSizes(), []);
 
-        private handleWindowResize(props: ScreenProps) {
-            this.calcAndSetSizes();
-        }
+        const handleWindowResize = (props: ScreenProps) => {
+            calcAndSetSizes();
+        };
 
-        render() {
-            return (
-                <S.ResponsiveWrapper
-                    $minWidth={this.props.minWidth}
-                    ref={this.ref}
-                >
-                    {this.props.render(this.state.width, this.state.height)}
-                </S.ResponsiveWrapper>
-            );
-        }
-    }
+        resize$.subscribe(handleWindowResize);
+
+        return (
+            <S.ResponsiveWrapper $minWidth={props.minWidth} ref={ref}>
+                {props.render(state.width, state.height)}
+            </S.ResponsiveWrapper>
+        );
+    };
 
     // -------------------- <ElementTooltip /> ----------------------------------------------
 
@@ -1203,37 +1189,30 @@ export function init(
      * media query we use.
      */
     function useMobileComponent(): boolean {
+        const [shouldUseMobile, setShouldUseMobile] = React.useState(false);
+        const [isClient, setIsClient] = React.useState(false);
+        const testQuery = theme.cssMobileScreen.replace('@media', '');
 
-            const [shouldUseMobile, setShouldUseMobile] = React.useState(false);
-            const [isClient, setIsClient] = React.useState(false);
-            const testQuery = theme.cssMobileScreen.replace("@media", "");
+        React.useEffect(() => {
+            setIsClient(true);
+        }, []);
 
-            React.useEffect(
-                () => {
-                    setIsClient(true);
-                },
-                []
-            );
+        React.useEffect(() => {
+            if (!isClient) {
+                return;
+            }
+            const mediaQuery = window.matchMedia(testQuery);
+            setShouldUseMobile(mediaQuery.matches);
 
-            React.useEffect(
-                () => {
-                    if (!isClient) {
-                        return;
-                    }
-                    const mediaQuery = window.matchMedia(testQuery);
-                    setShouldUseMobile(mediaQuery.matches);
+            const handleChange = (e: MediaQueryListEvent) => {
+                setShouldUseMobile(e.matches);
+            };
+            mediaQuery.addEventListener?.('change', handleChange);
 
-                    const handleChange = (e: MediaQueryListEvent) => {
-                        setShouldUseMobile(e.matches);
-                    };
-                    mediaQuery.addEventListener?.('change', handleChange);
-
-                    return () => {
-                        mediaQuery.removeEventListener?.('change', handleChange);
-                    };
-                },
-                [isClient]
-            );
+            return () => {
+                mediaQuery.removeEventListener?.('change', handleChange);
+            };
+        }, [isClient]);
         return shouldUseMobile;
     }
 
@@ -1253,6 +1232,6 @@ export function init(
         AlignedRechartsTooltip,
         Paginator,
         TileMinHeightContext: React.createContext(100),
-        useMobileComponent
+        useMobileComponent,
     };
 }
