@@ -135,6 +135,10 @@ export interface GlobalComponents {
 
         multiWord?: boolean;
         colors?: (idx: number) => string;
+        labelFormatter?: (
+            label: string,
+            data: Array<{ [key: string]: any }>
+        ) => string;
     }>;
 
     Paginator: React.FC<{
@@ -957,19 +961,25 @@ export function init(
             payloadMapper,
             multiWord,
             colors,
+            labelFormatter,
         } = props;
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
+            const formatedLabel = labelFormatter
+                ? labelFormatter(label, payload)
+                : label;
             return (
                 <S.WdgTooltip $multiword={multiWord}>
                     <table>
-                        <thead>
-                            <tr>
-                                <th className="value" colSpan={4}>
-                                    {label}
-                                </th>
-                            </tr>
-                        </thead>
+                        {formatedLabel ? (
+                            <thead>
+                                <tr>
+                                    <th className="value" colSpan={4}>
+                                        {formatedLabel}
+                                    </th>
+                                </tr>
+                            </thead>
+                        ) : null}
                         <tbody>
                             {List.map(
                                 (data, index) => {
