@@ -66,8 +66,8 @@ function adjustFontSize(isMobile: boolean, v: number): number {
 function calcOverlap(rA: Rect, rB: Rect) {
     // Use dynamic margins based on font sizes for better visual spacing
     const avgFontSize = (rA.fontSize + rB.fontSize) / 2;
-    const dynamicMarginX = avgFontSize * 0.2;
-    const dynamicMarginY = avgFontSize * 0.15;
+    const dynamicMarginX = avgFontSize * 0.25;
+    const dynamicMarginY = avgFontSize * 0.2;
 
     return (
         Math.max(
