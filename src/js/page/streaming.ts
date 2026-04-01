@@ -17,7 +17,7 @@
  */
 
 import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, of as rxOf, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject } from 'rxjs';
 import {
     concatMap,
     filter,
@@ -30,8 +30,17 @@ import {
 } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
-import { UserConf, UserQuery } from '../conf/index.js';
-import { QueryType } from '../query/index.js';
+import { UserConf } from '../conf/index.js';
+
+export class TileResponseError extends Error {
+    status?: number;
+
+    constructor(message: string, status?: number) {
+        super(message);
+        this.name = 'TileResponseError';
+        this.status = status;
+    }
+}
 
 interface TileRequest {
     tileId: number;
@@ -94,6 +103,7 @@ interface EventItem<T = unknown> {
     queryIdx: number;
     data: T;
     error?: string;
+    status?: number;
 }
 
 export interface IDataStreaming {
@@ -269,6 +279,13 @@ export class DataStreaming implements IDataStreaming {
                                                               )
                                                                   ? tmp.error
                                                                   : undefined,
+                                                          status:
+                                                              !!tmp &&
+                                                              tmp.hasOwnProperty(
+                                                                  'code'
+                                                              )
+                                                                  ? tmp.code
+                                                                  : undefined,
                                                           tileId: val.tileId,
                                                           queryIdx:
                                                               val.queryIdx,
@@ -441,7 +458,10 @@ export class DataStreaming implements IDataStreaming {
             }),
             map((response) => {
                 if (response.error) {
-                    throw new Error(response.error);
+                    throw new TileResponseError(
+                        response.error,
+                        response.status
+                    );
                 }
                 return response.data as T;
             })

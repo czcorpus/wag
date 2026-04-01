@@ -33,7 +33,7 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { AjaxError } from 'rxjs/ajax';
+import { TileResponseError } from '../../../page/streaming.js';
 
 export interface FlevelDistribItem {
     rel: number;
@@ -158,7 +158,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 if (action.error) {
                     const err = action.error;
                     if (
-                        err instanceof AjaxError &&
+                        err instanceof TileResponseError &&
                         err.status === HTTP.Status.NotFound
                     ) {
                         state.similarFreqWords =
