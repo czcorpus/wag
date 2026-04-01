@@ -218,6 +218,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         action.payload.dataCmp,
                         state.alphaLevel
                     );
+                    this.alignCmpDataWithPrimary(state);
                     state.cmpBacklink = this.api.getBacklink(0, 1);
                 }
                 if (action.payload.wordMainLabel) {
@@ -475,6 +476,105 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             List.map(([, v]) => v),
             List.sortBy((x) => dateToSortNumber(x.datetime))
         );
+    }
+
+    private alignCmpDataWithPrimary(state: TimeDistribModelState) {
+        const sortedPrimaryDatetimes = pipe(
+            state.data[0], // works only for the single search
+            List.groupBy((v) => v.datetime),
+            List.map(([datetime]) => datetime),
+            List.sortedBy((x) => dateToSortNumber(x))
+        );
+
+        // Assign each dataCmp item to the appropriate bucket
+        const buckets: Array<Array<DataItemWithWCI>> =
+            sortedPrimaryDatetimes.map(() => []);
+
+        List.forEach((item) => {
+            const itemDateNum = dateToSortNumber(item.datetime);
+            let assignedBucket = -1;
+
+            // Find the appropriate bucket for this item
+            for (let i = 0; i < sortedPrimaryDatetimes.length; i++) {
+                const bucketDateNum = dateToSortNumber(
+                    sortedPrimaryDatetimes[i]
+                );
+
+                if (i === sortedPrimaryDatetimes.length - 1) {
+                    // Last bucket: assign if >= this bucket's datetime
+                    if (itemDateNum >= bucketDateNum) {
+                        assignedBucket = i;
+                    }
+                } else {
+                    const nextBucketDateNum = dateToSortNumber(
+                        sortedPrimaryDatetimes[i + 1]
+                    );
+                    // Assign to bucket i if item falls between current and next bucket
+                    if (
+                        itemDateNum >= bucketDateNum &&
+                        itemDateNum < nextBucketDateNum
+                    ) {
+                        assignedBucket = i;
+                        break;
+                    }
+                }
+            }
+
+            if (assignedBucket >= 0) {
+                buckets[assignedBucket].push(item);
+            }
+        }, state.dataCmp);
+
+        // Merge items in each bucket and create the aligned dataCmp
+        state.dataCmp = List.map((datetime, index) => {
+            const bucketItems = buckets[index];
+
+            if (bucketItems.length === 0) {
+                // Empty bucket - create zero-frequency item
+                return {
+                    datetime,
+                    freq: 0,
+                    norm: 0,
+                    ipm: 0,
+                    ipmInterval: [0, 0] as [number, number],
+                };
+            }
+
+            // Merge all items in this bucket
+            const totalFreq = List.reduce(
+                (sum, item) => sum + item.freq,
+                0,
+                bucketItems
+            );
+            const totalNorm = List.reduce(
+                (sum, item) => sum + item.norm,
+                0,
+                bucketItems
+            );
+
+            const confInt = Maths.wilsonConfInterval(
+                totalFreq,
+                totalNorm,
+                state.alphaLevel
+            );
+            const mergedItem: DataItemWithWCI = {
+                datetime,
+                freq: totalFreq,
+                norm: totalNorm,
+                ipm: 0,
+                ipmInterval: [0, 0],
+            };
+            return {
+                datetime,
+                freq: totalFreq,
+                norm: totalNorm,
+                ipm: calcIPM(mergedItem, totalNorm),
+                ipmInterval: [
+                    roundFloat(confInt[0] * 1e6),
+                    roundFloat(confInt[1] * 1e6),
+                ] as [number, number],
+            };
+        }, sortedPrimaryDatetimes);
     }
 
     private getFreqs(
