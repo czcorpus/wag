@@ -29,10 +29,11 @@ import {
     QueryType,
     findCurrQueryMatch,
 } from '../../../query/index.js';
-import { List, pipe } from 'cnc-tskit';
+import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
+import { AjaxError } from 'rxjs/ajax';
 
 export interface FlevelDistribItem {
     rel: number;
@@ -155,9 +156,18 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             (state, action) => {
                 state.isBusy = false;
                 if (action.error) {
-                    state.error = this.appServices.normalizeHttpApiError(
-                        action.error
-                    );
+                    const err = action.error;
+                    if (
+                        err instanceof AjaxError &&
+                        err.status === HTTP.Status.NotFound
+                    ) {
+                        state.similarFreqWords =
+                            mkEmptySimilarWords(queryMatches);
+                    } else {
+                        state.error = this.appServices.normalizeHttpApiError(
+                            action.error
+                        );
+                    }
                 } else if (action.payload.data.length === 0) {
                     state.similarFreqWords = mkEmptySimilarWords(queryMatches);
                 } else {
