@@ -44,15 +44,11 @@ const MIN_WC_FONT_SIZE_MOBILE = 23;
 
 const PLACE_NUM_SPIRAL_ITER = 8000;
 
-const SPIRAL_STEP = 3.1415927 / 41;
+const SPIRAL_STEP = 3.1415927 / 45;
 
 const SPIRAL_PARAM_A = 2;
 
-const SPIRAL_PARAM_B = 0.81;
-
-const WC_ITEM_MARGIN_X = 15;
-
-const WC_ITEM_MARGIN_Y = 10;
+const SPIRAL_PARAM_B = 0.75;
 
 export type TooltipData = Array<{
     label: string;
@@ -67,17 +63,26 @@ function adjustFontSize(isMobile: boolean, v: number): number {
         : Math.round(Math.min(MAX_WC_FONT_SIZE, v));
 }
 
-function calcOverlap(rA: Rect, rB: Rect, marginX: number, marginY: number) {
+function calcOverlap(rA: Rect, rB: Rect) {
+    // Use dynamic margins based on font sizes for better visual spacing
+    const avgFontSize = (rA.fontSize + rB.fontSize) / 2;
+    const dynamicMarginX = avgFontSize * 0.2;
+    const dynamicMarginY = avgFontSize * 0.15;
+
     return (
         Math.max(
             0,
-            Math.min(rA.x + rA.w + marginX, rB.x + rB.w + marginX) -
-                Math.max(rA.x - marginX, rB.x - marginX)
+            Math.min(
+                rA.x + rA.w + dynamicMarginX,
+                rB.x + rB.w + dynamicMarginX
+            ) - Math.max(rA.x - dynamicMarginX, rB.x - dynamicMarginX)
         ) *
         Math.max(
             0,
-            Math.min(rA.y + rA.h + marginY, rB.y + rB.h + marginY) -
-                Math.max(rA.y - marginY, rB.y - marginY)
+            Math.min(
+                rA.y + rA.h + dynamicMarginY,
+                rB.y + rB.h + dynamicMarginY
+            ) - Math.max(rA.y - dynamicMarginY, rB.y - dynamicMarginY)
         )
     );
 }
@@ -157,19 +162,16 @@ function placeRect(
     aspectRatio: number
 ): void {
     let overlap = 0;
-    const corrAspRatio = aspectRatio ** 0.4;
+    // Keep aspect ratio closer to original to maintain spiral flow
+    const corrAspRatio =
+        aspectRatio > 1 ? aspectRatio ** 0.6 : aspectRatio ** 0.5;
     for (let i = 0; i < PLACE_NUM_SPIRAL_ITER; i += 1) {
         const spiralPoint = mkSpiralPoint(initialX, initialY, i, corrAspRatio);
         rects[idx].x = spiralPoint[0];
         rects[idx].y = spiralPoint[1];
         overlap = 0;
         for (let j = 0; j < idx; j += 1) {
-            overlap = calcOverlap(
-                rects[idx],
-                rects[j],
-                WC_ITEM_MARGIN_X,
-                WC_ITEM_MARGIN_Y
-            );
+            overlap = calcOverlap(rects[idx], rects[j]);
             if (overlap > 0) {
                 break;
             }
@@ -200,22 +202,24 @@ function createRectangles(
     data.forEach((wcitem) => {
         const wcFontSizeRatio =
             scaledTotal > 0 ? (wcitem.value - minVal) / scaledTotal : 1;
+        // Use more aggressive exponential scaling to amplify differences
+        const amplifiedRatio = Math.pow(wcFontSizeRatio, 0.85);
         const fontSize = adjustFontSize(
             isMobile,
             isMobile
                 ? Math.max(
-                      (wcFontSizeRatio * 100) ** 1.85 / 10,
+                      (amplifiedRatio * 100) ** 2.0 / 10,
                       MIN_WC_FONT_SIZE_MOBILE
                   )
-                : Math.max(
-                      (wcFontSizeRatio * 100) ** 1.85 / 10,
-                      MIN_WC_FONT_SIZE
-                  )
+                : Math.max((amplifiedRatio * 100) ** 2.0 / 10, MIN_WC_FONT_SIZE)
         );
         const width = measure.getTextWidth(wcitem.text, font, fontSize);
         const height = fontSize * 1.1;
-        const x1 = frameWidth / 2 - width / 2; // TODO randomize?
-        const y1 = frameHeight / 2 - height / 2;
+        // Add small random offset to break symmetry
+        const randomOffsetX = (Math.random() - 0.5) * fontSize * 0.3;
+        const randomOffsetY = (Math.random() - 0.5) * fontSize * 0.3;
+        const x1 = frameWidth / 2 - width / 2 + randomOffsetX;
+        const y1 = frameHeight / 2 - height / 2 + randomOffsetY;
 
         ans.push({
             x: x1,
@@ -244,7 +248,14 @@ export const createWordCloud = (
         frameHeight,
         isMobile,
         font
-    ).sort((r1, r2) => r2.w * r2.h - r1.w * r1.h);
+    ).sort((r1, r2) => {
+        // Sort by combination of size (70%) and value (30%) for better visual hierarchy
+        const area1 = r1.w * r1.h;
+        const area2 = r2.w * r2.h;
+        const val1 = r1.data.value;
+        const val2 = r2.data.value;
+        return area2 * 0.7 + val2 * 0.3 - (area1 * 0.7 + val1 * 0.3);
+    });
     for (let i = 0; i < rectangles.length; i += 1) {
         placeRect(
             rectangles,
@@ -258,7 +269,11 @@ export const createWordCloud = (
         data.length > 0
             ? boundingBox(rectangles)
             : { x: 0, y: 0, w: frameWidth, h: frameHeight };
-    const scale = Math.min((frameWidth * 0.95) / bbox.w, frameHeight / bbox.h);
+    // More generous scaling to prevent cramping
+    const scale = Math.min(
+        (frameWidth * 0.98) / bbox.w,
+        (frameHeight * 0.95) / bbox.h
+    );
     return {
         rectangles: rectangles,
         transform: `translate(${-bbox.x * scale} ${-bbox.y * scale}) scale(${scale}, ${scale})`,
