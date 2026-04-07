@@ -286,7 +286,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                     args.add('lemma', findCurrQueryMatch(m).lemma);
                 });
         }
-
+        if (state.lemmatizationLevel === 'form') {
+            args.add('lemlevel', 'form');
+        }
         window.location.href = this.appServices.createActionUrl(
             this.buildQueryPath(state),
             args
@@ -299,7 +301,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         this.validateQuery(state);
         if (state.errors.length === 0) {
             window.location.href = this.appServices.createActionUrl(
-                this.buildQueryPath(state)
+                this.buildQueryPath(state),
+                { lemlevel: 'form' }
             );
         }
     }
@@ -317,10 +320,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 ? state.currTranslatLanguage
                 : '';
 
-        const url = urlJoin(action, translatChunk, queries.join('--'));
-        return state.lemmatizationLevel === 'form'
-            ? `${url}?lemlevel=form`
-            : url;
+        return urlJoin(action, translatChunk, queries.join('--'));
     }
 
     private validateNthQuery(state: QueryFormModelState, idx: number): boolean {

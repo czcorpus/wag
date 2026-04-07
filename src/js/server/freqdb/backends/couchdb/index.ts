@@ -20,7 +20,11 @@ import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
 import { IAppServices, IApiServices } from '../../../../appServices.js';
-import { QueryMatch, calcFreqBand } from '../../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    calcFreqBand,
+} from '../../../../query/index.js';
 import { IFreqDB } from '../../freqdb.js';
 import { FreqDbOptions, MainPosAttrValues } from '../../../../conf/index.js';
 import { serverHttpRequest } from '../../../request.js';
@@ -244,6 +248,7 @@ export class CouchFreqDB implements IFreqDB {
     findQueryMatches(
         appServices: IAppServices,
         word: string,
+        freqLemLevel: LemmatizationLevel,
         posAttr: MainPosAttrValues,
         minFreq: number
     ): Observable<Array<QueryMatch>> {

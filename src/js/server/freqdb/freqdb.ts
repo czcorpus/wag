@@ -17,7 +17,7 @@
  */
 import { Observable } from 'rxjs';
 
-import { QueryMatch } from '../../query/index.js';
+import { LemmatizationLevel, QueryMatch } from '../../query/index.js';
 import { IAppServices } from '../../appServices.js';
 import { SourceDetails } from '../../types.js';
 import { MainPosAttrValues } from '../../conf/index.js';
@@ -26,6 +26,7 @@ export interface IFreqDB {
     findQueryMatches(
         appServices: IAppServices,
         word: string,
+        freqLemLevel: LemmatizationLevel,
         posAttr: MainPosAttrValues,
         minFreq: number
     ): Observable<Array<QueryMatch>>;
