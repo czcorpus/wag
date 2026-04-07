@@ -20,6 +20,7 @@ import {
     SubqueryPayload,
     QueryMatch,
     QueryType,
+    LemmatizationLevel,
 } from '../../../query/index.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
@@ -146,6 +147,8 @@ export interface CollocModelState {
      * in the sanity check routine).
      */
     comparisonCorpname: string | undefined;
+
+    lemmatizationLevel: LemmatizationLevel;
 
     selectedText: string;
 

@@ -153,12 +153,14 @@ export function createRootComponent({
     const tiles: Array<TileFrameProps> = [];
 
     const qType = userSession.queryType as QueryType; // TODO validate
+    const lmLevel = userSession.lemmatizationLevel;
 
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
         translatLanguage: userSession.translatLanguage || '',
         queryType: qType,
+        lemmatizationLevel: lmLevel,
         availQueryTypes: pipe(
             layoutManager.getQueryTypesMenuItems(),
             List.filter((x) => x.isEnabled),
@@ -202,6 +204,7 @@ export function createRootComponent({
         theme,
         layoutManager,
         qType,
+        lmLevel,
         userSession.translatLanguage
     );
 

@@ -97,6 +97,12 @@ export class Actions {
         name: 'MAIN_CHANGE_QUERY_TYPE',
     };
 
+    static SetExactFormSearch: Action<{
+        value: boolean;
+    }> = {
+        name: 'MAIN_SET_EXACT_FORM_SEARCH',
+    };
+
     static ToggleMobileMenu: Action<{}> = {
         name: 'MAIN_TOGGLE_MOBILE_MENU',
     };

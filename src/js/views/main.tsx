@@ -27,6 +27,7 @@ import {
     QueryMatch,
     RecognizedQueries,
     QueryTypeMenuItem,
+    LemmatizationLevel,
 } from '../query/index.js';
 import { AltViewIconProps, TileFrameProps } from '../page/tile.js';
 import { TileGroup } from '../page/layout.js';
@@ -185,6 +186,29 @@ export function init(
                     props.translatLanguages
                 )}
             </select>
+        );
+    };
+
+    // ------------------ <ExactFormCheckbox /> -----------------------
+
+    const ExactFormCheckbox: React.FC<{
+        lemmatizationLevel: LemmatizationLevel;
+    }> = ({ lemmatizationLevel }) => {
+        const handleClick = () => {
+            dispatcher.dispatch(Actions.SetExactFormSearch, {
+                value: lemmatizationLevel !== 'form',
+            });
+        };
+
+        return (
+            <S.ExactFormCheckbox>
+                <span>{ut.translate('global__set_exact_form_search')}</span>
+                <input
+                    type="checkbox"
+                    checked={lemmatizationLevel === 'form'}
+                    onChange={handleClick}
+                />
+            </S.ExactFormCheckbox>
         );
     };
 
@@ -374,6 +398,7 @@ export function init(
     const QueryFields: React.FC<{
         queries: Array<Input>;
         currQueryType: QueryType;
+        lemmatizationLevel: LemmatizationLevel;
         wantsFocus: boolean;
         translatLang: string;
         translatLanguages: Array<TranslatLanguage>;
@@ -494,6 +519,9 @@ export function init(
                 props.queries.length < props.maxCmpQueries ? (
                     <AddCmpQueryField />
                 ) : null}
+                <ExactFormCheckbox
+                    lemmatizationLevel={props.lemmatizationLevel}
+                />
                 {props.isAnswerMode ? <SubmenuTile /> : null}
             </S.QueryFields>
         );
@@ -802,6 +830,7 @@ export function init(
                             isAnswerMode={state.isAnswerMode}
                             queries={state.queries}
                             currQueryType={state.queryType}
+                            lemmatizationLevel={state.lemmatizationLevel}
                             translatLang={state.currTranslatLanguage}
                             translatLanguages={state.translatLanguages}
                             maxCmpQueries={state.maxCmpQueries}

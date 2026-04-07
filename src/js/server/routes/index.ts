@@ -23,7 +23,10 @@ import { HTTP, List, Dict } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices.js';
 import { encodeArgs } from '../../page/ajax.js';
-import { QueryType } from '../../query/index.js';
+import {
+    importLemmatizationLevelOrError,
+    QueryType,
+} from '../../query/index.js';
 import { GlobalComponents } from '../../views/common/index.js';
 import { IFreqDB } from '../freqdb/freqdb.js';
 
@@ -274,6 +277,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: false,
             httpAction: HTTPAction.SEARCH,
             queryType: QueryType.SINGLE_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,
@@ -330,6 +336,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: true,
             httpAction: HTTPAction.SEARCH,
             queryType: QueryType.SINGLE_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,
@@ -348,6 +357,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             appServices,
             req,
             queryType: QueryType.SINGLE_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             answerMode: true,
         })
@@ -396,6 +408,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: false,
             httpAction: HTTPAction.COMPARE,
             queryType: QueryType.CMP_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,
@@ -410,6 +425,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: true,
             httpAction: HTTPAction.COMPARE,
             queryType: QueryType.CMP_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,
@@ -426,6 +444,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: false,
             httpAction: HTTPAction.TRANSLATE,
             queryType: QueryType.TRANSLAT_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,
@@ -443,6 +464,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: true,
             httpAction: HTTPAction.TRANSLATE,
             queryType: QueryType.TRANSLAT_QUERY,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,
@@ -648,6 +672,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             answerMode: true,
             httpAction: HTTPAction.PREVIEW,
             queryType: QueryType.PREVIEW,
+            lemmatizationLevel: importLemmatizationLevelOrError(
+                getQueryValue(req, 'lemlevel')[0]
+            ),
             uiLang,
             req,
             res,

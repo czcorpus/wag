@@ -30,6 +30,7 @@ import {
     QueryMatch,
     findCurrQueryMatch,
     testIsDictMatch,
+    LemmatizationLevel,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -46,7 +47,10 @@ import {
     ConcApiArgs,
     MQueryConcApi,
 } from '../../../api/vendor/mquery/concordance/index.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import { CollWithExamplesResponse } from '../colloc/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
@@ -56,6 +60,7 @@ import { PosQueryGeneratorType } from '../../../conf/common.js';
 export interface ConcordanceTileState {
     tileId: number;
     queries: Array<string>;
+    lemmatizationLevel: LemmatizationLevel;
     corpname: string;
     otherCorpname: string;
     subcname: string;
@@ -565,11 +570,18 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
     ): ConcApiArgs {
         return {
             corpusName: this.state.corpname,
-            q: mkLemmaMatchQuery(
-                queryMatch,
-                this.state.posQueryGenerator,
-                this.state.supportsSublemma
-            ),
+            q:
+                this.state.lemmatizationLevel === 'form'
+                    ? mkWordMatchQuery(
+                          queryMatch,
+                          this.state.posQueryGenerator,
+                          this.state.supportsSublemma
+                      )
+                    : mkLemmaMatchQuery(
+                          queryMatch,
+                          this.state.posQueryGenerator,
+                          this.state.supportsSublemma
+                      ),
             rowsOffset:
                 (this.state.concordances[queryIdx].loadPage - 1) *
                 this.state.pageSize,

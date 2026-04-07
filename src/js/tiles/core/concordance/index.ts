@@ -83,6 +83,7 @@ export class ConcordanceTile implements ITileProvider {
         ut,
         queryType,
         queryMatches,
+        lemmatizationLevel,
         widthFract,
         conf,
         isBusy,
@@ -148,6 +149,7 @@ export class ConcordanceTile implements ITileProvider {
                     (lemmaGroup) => findCurrQueryMatch(lemmaGroup).word,
                     queryMatches
                 ),
+                lemmatizationLevel,
                 isExamplesMode: typeof readDataFromTile === 'number',
             },
         });

@@ -29,7 +29,11 @@ import { GlobalComponents } from '../views/common/index.js';
 import { IAppServices } from '../appServices.js';
 import { Theme } from './theme.js';
 import { LayoutManager } from './layout.js';
-import { QueryType, RecognizedQueries } from '../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryType,
+    RecognizedQueries,
+} from '../query/index.js';
 import { EmptyTile } from '../tiles/core/empty.js';
 
 declare var require: any;
@@ -75,6 +79,7 @@ export const mkTileFactory = (
     theme: Theme,
     layoutManager: LayoutManager,
     queryType: QueryType,
+    lemmatizationLevel: LemmatizationLevel,
     translatLanguage: string
 ) => {
     const factoryObj = {
@@ -123,6 +128,7 @@ export const mkTileFactory = (
                     queryMatches: queryMatchesAppl,
                     appServices,
                     queryType,
+                    lemmatizationLevel,
                     translatLanguage,
                     readDataFromTile: layoutManager.getTileNumber(
                         tileLayoutConf.readDataFrom

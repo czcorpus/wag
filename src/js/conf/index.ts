@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { HTTPHeaders, LocalizedConfMsg } from '../types.js';
-import { QueryType } from '../query/index.js';
+import { LemmatizationLevel, QueryType } from '../query/index.js';
 import { TileConf } from '../page/tile.js';
 import { List, pipe } from 'cnc-tskit';
 import { ColorsConf, ColorTheme, ColorThemeIdent } from './theme.js';
@@ -46,6 +46,7 @@ export interface UserConf {
     uiLang: string;
     queries: Array<UserQuery>;
     queryType: QueryType;
+    lemmatizationLevel: LemmatizationLevel;
     translatLanguage: string | undefined;
     answerMode: boolean;
     staticPage?: boolean;
@@ -64,6 +65,7 @@ export function errorUserConf(
         uiLang,
         queries: [],
         queryType: QueryType.SINGLE_QUERY,
+        lemmatizationLevel: 'form',
         translatLanguage: '',
         answerMode: false, // ??
         staticPage: false,

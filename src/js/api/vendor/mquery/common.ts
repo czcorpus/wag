@@ -66,10 +66,31 @@ export function mkLemmaMatchQuery(
  *
  * @see mkLemmaMatchQuery
  */
-export function mkWordMatchQuery(lvar: QueryMatch): string {
-    return List.map(
-        (word) => `[word=="${escapeDQuotes(word)}"]`,
-        lvar.word.split(' ')
+export function mkWordMatchQuery(
+    lvar: QueryMatch,
+    generator: [string, string],
+    sublemma?: boolean
+): string {
+    const words = lvar.word.split(' ');
+    const lemmas = (lvar.lemma || '').split(' ');
+    const fn = posQueryFactory(generator[1]);
+
+    return pipe(
+        words,
+        List.map((word, i) => {
+            const expr = [];
+            if (lemmas[i]) {
+                expr.push(`lemma=="${escapeDQuotes(lemmas[i])}"`);
+                if (lvar.pos[i] !== undefined) {
+                    expr.push(`${generator[0]}="${fn(lvar.pos[i].value)}"`);
+                }
+            }
+            if (lvar.sublemma && sublemma) {
+                expr.push(`sublemma=="${escapeDQuotes(lvar.sublemma)}"`);
+            }
+            expr.push(`word=="${escapeDQuotes(word)}"`);
+            return `[${expr.join(' & ')}]`;
+        })
     ).join('');
 }
 
@@ -86,6 +107,6 @@ export function mkMatchQuery(
     if (lvar.pos.length > 0) {
         return mkLemmaMatchQuery(lvar, generator);
     } else if (lvar.word) {
-        return mkWordMatchQuery(lvar);
+        return mkWordMatchQuery(lvar, generator);
     }
 }
