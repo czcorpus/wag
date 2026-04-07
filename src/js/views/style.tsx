@@ -217,6 +217,16 @@ export const QueryFields = styled.div<{ theme: Theme }>`
     }
 `;
 
+// -------------- <ExactFormCheckbox /> --------------------------------------
+
+export const ExactFormCheckbox = styled.label<{ theme: Theme }>`
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+    margin-top: 0.3em;
+    color: ${(props) => props.theme.colorDefaultText};
+`;
+
 // -------------- <AddCmpQueryField /> ---------------------------------------
 
 export const AddCmpQueryField = styled.div`

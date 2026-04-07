@@ -60,6 +60,25 @@ export interface QueryTypeMenuItem {
     isEnabled: boolean;
 }
 
+export type LemmatizationLevel = 'form' | 'sublemma' | 'lemma';
+
+/**
+ * importLemmatizationLevelOrError converts a general string value
+ * to a respective LemmatizationLevel type. In case the value is empty,
+ * it defaults to 'sublemma' (to make things compatible with older WaG versions
+ * without the "lemmatization level" option). In case the value is unsupported,
+ * the function throws an error.
+ */
+export function importLemmatizationLevelOrError(v: string): LemmatizationLevel {
+    if (!v) {
+        return 'sublemma';
+    }
+    if (v === 'form' || v === 'sublemma' || v === 'lemma') {
+        return v as LemmatizationLevel;
+    }
+    throw new Error(`invalid value for LemmatizationLevel: ${v}`);
+}
+
 export interface SubQueryItem<T = string> {
     value: T;
     interactionId?: string;

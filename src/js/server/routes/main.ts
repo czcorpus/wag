@@ -27,6 +27,7 @@ import {
     matchesPos,
     addWildcardMatches,
     queryTypeToAction,
+    LemmatizationLevel,
 } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
@@ -80,6 +81,7 @@ interface MkRuntimeClientConfArgs {
     themeId: string;
     appServices: IAppServices;
     queryType: QueryType;
+    lemmatizationLevel: LemmatizationLevel;
 }
 
 /**
@@ -111,6 +113,7 @@ export function mkRuntimeClientConf({
     themeId,
     appServices,
     queryType,
+    lemmatizationLevel,
 }: MkRuntimeClientConfArgs): Observable<ClientConf> {
     const layouts: LayoutsConfig = {
         ...mergeToEmptyLayoutConf(
@@ -287,6 +290,7 @@ interface ImportQueryReqArgs {
     appServices: IAppServices;
     req: Request;
     queryType: QueryType;
+    lemmatizationLevel: LemmatizationLevel;
     uiLang: string;
     answerMode: boolean;
 }
@@ -328,6 +332,7 @@ export function importQueryRequest({
     appServices,
     req,
     queryType,
+    lemmatizationLevel,
     uiLang,
     answerMode,
 }: ImportQueryReqArgs): Observable<UserConf> {
@@ -383,6 +388,7 @@ export function importQueryRequest({
                 uiLanguages: services.serverConf.languages,
                 translatLanguage: undefined, // here we cannot determine the language yet!
                 queryType,
+                lemmatizationLevel,
                 queries:
                     queryType === QueryType.PREVIEW
                         ? queriesConf
@@ -461,6 +467,7 @@ export interface QueryActionArgs {
     answerMode: boolean;
     httpAction: HTTPAction;
     queryType: QueryType;
+    lemmatizationLevel: LemmatizationLevel;
     uiLang: string;
     req: Request;
     res: Response;
@@ -472,6 +479,7 @@ export function queryAction({
     answerMode,
     httpAction,
     queryType,
+    lemmatizationLevel,
     uiLang,
     req,
     res,
@@ -496,6 +504,7 @@ export function queryAction({
         appServices,
         req,
         queryType,
+        lemmatizationLevel,
         uiLang,
         answerMode,
     })
@@ -509,6 +518,7 @@ export function queryAction({
                         themeId: req.cookies[THEME_COOKIE_NAME] || '',
                         appServices,
                         queryType,
+                        lemmatizationLevel,
                     })
                 )
             ),

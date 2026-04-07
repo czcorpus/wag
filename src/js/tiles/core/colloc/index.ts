@@ -93,6 +93,7 @@ export class CollocationsTile implements ITileProvider {
         isBusy,
         queryMatches,
         queryType,
+        lemmatizationLevel,
         dependentTiles,
     }: TileFactoryArgs<CollocationsTileConf>) {
         this.tileId = tileId;
@@ -134,6 +135,7 @@ export class CollocationsTile implements ITileProvider {
                     CollocMetric.T_SCORE,
                 ],
                 sortByMetric: CollocMetric.LOG_DICE,
+                lemmatizationLevel,
                 data: List.map((_) => null, queryMatches),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,

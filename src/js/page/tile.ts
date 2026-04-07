@@ -17,7 +17,11 @@
  */
 
 import { LocalizedConfMsg } from '../types.js';
-import { QueryType, RecognizedQueries } from '../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryType,
+    RecognizedQueries,
+} from '../query/index.js';
 import {
     ViewUtils,
     StatelessModel,
@@ -318,6 +322,8 @@ export interface TileFactoryArgs<T> {
     queryMatches: RecognizedQueries;
 
     queryType: QueryType;
+
+    lemmatizationLevel: LemmatizationLevel;
 
     translatLanguage: string;
 

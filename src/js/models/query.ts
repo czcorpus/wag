@@ -25,6 +25,7 @@ import { Input, Forms } from '../page/forms.js';
 import { SystemMessageType } from '../types.js';
 import { AvailableLanguage } from '../page/hostPage.js';
 import {
+    LemmatizationLevel,
     QueryType,
     QueryTypeMenuItem,
     RecognizedQueries,
@@ -51,6 +52,7 @@ export interface QueryFormModelState {
     queryTypesMenuItems: Array<QueryTypeMenuItem>;
     errors: Array<Error>;
     queryMatches: RecognizedQueries;
+    lemmatizationLevel: LemmatizationLevel;
     isAnswerMode: boolean;
     uiLanguages: Array<AvailableLanguage>;
     maxCmpQueries: number;
@@ -127,6 +129,12 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 );
             }
         );
+
+        this.addActionHandler(Actions.SetExactFormSearch, (state, action) => {
+            state.lemmatizationLevel = action.payload.value
+                ? 'form'
+                : 'sublemma';
+        });
 
         this.addActionHandler(Actions.ToggleMobileMenu, (state, action) => {
             state.expandMobileMenu = !state.expandMobileMenu;
@@ -309,7 +317,10 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 ? state.currTranslatLanguage
                 : '';
 
-        return urlJoin(action, translatChunk, queries.join('--'));
+        const url = urlJoin(action, translatChunk, queries.join('--'));
+        return state.lemmatizationLevel === 'form'
+            ? `${url}?lemlevel=form`
+            : url;
     }
 
     private validateNthQuery(state: QueryFormModelState, idx: number): boolean {
@@ -368,6 +379,7 @@ export interface DefaultFactoryArgs {
     appServices: IAppServices;
     translatLanguage: string;
     queryType: QueryType;
+    lemmatizationLevel: LemmatizationLevel;
     availQueryTypes: Array<QueryType>;
     hideUnavailableQueryTypes: boolean;
     queryMatches: RecognizedQueries;
@@ -388,6 +400,7 @@ export const defaultFactory = ({
     appServices,
     translatLanguage,
     queryType,
+    lemmatizationLevel,
     availQueryTypes,
     queryMatches,
     isAnswerMode,
@@ -405,6 +418,7 @@ export const defaultFactory = ({
             queryMatches
         ),
         queryType,
+        lemmatizationLevel,
         availQueryTypes,
         hideUnavailableQueryTypes,
         initialQueryType: queryType,

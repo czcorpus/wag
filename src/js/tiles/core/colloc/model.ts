@@ -30,7 +30,10 @@ import {
     testIsDictMatch,
 } from '../../../query/index.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface CollocModelArgs {
@@ -319,11 +322,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             return {
                 corpusId: state.corpname,
                 cmpCorp: state.comparisonCorpname || undefined,
-                q: mkLemmaMatchQuery(
-                    queryMatch,
-                    state.posQueryGenerator,
-                    state.supportsSublemma
-                ),
+                q:
+                    state.lemmatizationLevel === 'form'
+                        ? mkWordMatchQuery(
+                              queryMatch,
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          )
+                        : mkLemmaMatchQuery(
+                              queryMatch,
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          ),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],
                 srchLeft: Math.abs(cfromw),

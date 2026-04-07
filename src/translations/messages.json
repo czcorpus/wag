@@ -114,7 +114,8 @@
         "global__redirecting_to_extrenal_page": "Redirecting to external page",
         "global__kontext_login_required": "Displaying requires login in KonText application",
         "global__srch_variant": "variant",
-        "global__index": "index"
+        "global__index": "index",
+        "global__set_exact_form_search": "search for the exact form"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -231,6 +232,7 @@
         "global__redirecting_to_extrenal_page": "Přesměrovávám na externí stránku",
         "global__kontext_login_required": "Pro zobrazení je vyžadováno přihlášení v aplikace KonText",
         "global__srch_variant": "varianta",
-        "global__index": "obsah"
+        "global__index": "obsah",
+        "global__set_exact_form_search": "hledat přesný tvar slova"
     }
 }
