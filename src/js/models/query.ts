@@ -103,6 +103,12 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                     }),
                     group
                 );
+                const currIdx = List.findIndex(
+                    (x) => x.isCurrent,
+                    state.queryMatches[action.payload.queryIdx]
+                );
+                state.queries[action.payload.queryIdx].value =
+                    state.queryMatches[action.payload.queryIdx][currIdx].word;
             },
             (state, action, dispatch) => {
                 this.submitCurrLemma(state);
@@ -302,7 +308,12 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         if (state.errors.length === 0) {
             window.location.href = this.appServices.createActionUrl(
                 this.buildQueryPath(state),
-                { lemlevel: 'form' }
+                {
+                    lemlevel:
+                        state.lemmatizationLevel === 'sublemma'
+                            ? undefined
+                            : state.lemmatizationLevel,
+                }
             );
         }
     }
@@ -310,17 +321,29 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     private buildQueryPath(state: QueryFormModelState): string {
         const action = queryTypeToAction(state.queryType);
 
-        const queries =
-            state.queryType === QueryType.CMP_QUERY
-                ? List.map((v) => v.value, state.queries)
-                : [state.queries[0].value];
-
-        const translatChunk =
-            state.queryType === QueryType.TRANSLAT_QUERY
-                ? state.currTranslatLanguage
-                : '';
-
-        return urlJoin(action, translatChunk, queries.join('--'));
+        switch (state.queryType) {
+            case QueryType.CMP_QUERY:
+                return urlJoin(
+                    action,
+                    List.map((v) => v.value, state.queries).join('--')
+                );
+            case QueryType.TRANSLAT_QUERY:
+                return urlJoin(
+                    action,
+                    state.currTranslatLanguage,
+                    state.queries[0].value
+                );
+            case QueryType.SINGLE_QUERY:
+                return urlJoin(
+                    action,
+                    state.currTranslatLanguage,
+                    state.queries[0].value
+                );
+            default:
+                throw new Error(
+                    `cannot build path - unkown query type: ${state.queryType}`
+                );
+        }
     }
 
     private validateNthQuery(state: QueryFormModelState, idx: number): boolean {
@@ -413,9 +436,13 @@ export const defaultFactory = ({
     hpKeywords,
 }: DefaultFactoryArgs) => {
     return new QueryFormModel(dispatcher, appServices, {
-        queries: List.map(
-            (v, i) => Forms.newFormValue(v[0].word || '', i === 0),
-            queryMatches
+        queries: pipe(
+            queryMatches,
+            List.map((v, i) => {
+                const currQueryMatch = List.find((x) => x.isCurrent, v);
+                const word = currQueryMatch ? currQueryMatch.word : v[0].word;
+                return Forms.newFormValue(word || '', i === 0);
+            })
         ),
         queryType,
         lemmatizationLevel,
