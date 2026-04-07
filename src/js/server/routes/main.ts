@@ -449,7 +449,6 @@ export function determineCurrentMatch(
         );
         if (srch > -1) {
             applicableMatches[srch].isCurrent = true;
-            console.log('mark 1');
             return applicableMatches;
         }
     }
