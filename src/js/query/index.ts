@@ -168,6 +168,7 @@ export interface QueryMatchCore {
  */
 export interface QueryMatch extends QueryMatchCore {
     word: string;
+    forms: Array<{ word: string; count: number }>;
     abs: number;
     arf: number;
     isCurrent: boolean;
@@ -190,6 +191,7 @@ export function findCurrQueryMatch(
               lemma: undefined,
               sublemma: null,
               word: undefined,
+              forms: [],
               pos: [],
               upos: [],
               abs: -1,
@@ -255,6 +257,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
                         List.foldl((acc, m) => acc + m.ipm, 0, matches)
                     ),
                     word: matches[0].word,
+                    forms: [],
                     abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
                     arf: -1,
                     isCurrent: false,

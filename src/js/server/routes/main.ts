@@ -417,23 +417,40 @@ export function importQueryRequest({
  */
 export function determineCurrentMatch(
     userQuery: UserQuery,
+    lemmatizationLevel: LemmatizationLevel,
     posAttr: MainPosAttrValues,
     availMatches: Array<QueryMatch>
 ): Array<QueryMatch> {
     if (List.size(availMatches) === 0) {
         return availMatches;
     }
+
+    const applicableMatches =
+        lemmatizationLevel === 'form'
+            ? pipe(
+                  availMatches,
+                  List.filter(
+                      (x) =>
+                          !!List.find(
+                              (x2) => x2.word === userQuery.word,
+                              x.forms
+                          )
+                  )
+              )
+            : availMatches;
+
     if (userQuery.lemma && userQuery.sublemma && !List.empty(userQuery.pos)) {
         const srch = List.findIndex(
             (x) =>
                 matchesPos(x, posAttr, userQuery.pos) &&
                 userQuery.lemma === x.lemma &&
                 userQuery.sublemma === x.sublemma,
-            availMatches
+            applicableMatches
         );
         if (srch > -1) {
-            availMatches[srch].isCurrent = true;
-            return availMatches;
+            applicableMatches[srch].isCurrent = true;
+            console.log('mark 1');
+            return applicableMatches;
         }
     }
     if (userQuery.lemma && !List.empty(userQuery.pos)) {
@@ -441,25 +458,26 @@ export function determineCurrentMatch(
             (x) =>
                 matchesPos(x, posAttr, userQuery.pos) &&
                 userQuery.lemma === x.lemma,
-            availMatches
+            applicableMatches
         );
         if (srch > -1) {
-            availMatches[srch].isCurrent = true;
-            return availMatches;
+            applicableMatches[srch].isCurrent = true;
+            return applicableMatches;
         }
     }
     if (userQuery.lemma) {
         const srch = List.findIndex(
             (x) => userQuery.lemma === x.lemma,
-            availMatches
+            applicableMatches
         );
         if (srch > -1) {
-            availMatches[srch].isCurrent = true;
-            return availMatches;
+            applicableMatches[srch].isCurrent = true;
+            return applicableMatches;
         }
     }
-    availMatches[0].isCurrent = true;
-    return availMatches;
+
+    applicableMatches[0].isCurrent = true;
+    return applicableMatches;
 }
 
 export interface QueryActionArgs {
@@ -572,6 +590,7 @@ export function queryAction({
                                     ? freqDb.findQueryMatches(
                                           appServices,
                                           query.word,
+                                          userConf.lemmatizationLevel,
                                           layoutManager.getLayoutMainPosAttr(),
                                           services.serverConf.freqDB
                                               .minLemmaFreq
@@ -627,6 +646,7 @@ export function queryAction({
                                     lemma: null,
                                     sublemma: null,
                                     word: userConf.queries[queryIdx].word,
+                                    forms: [],
                                     pos: [],
                                     upos: [],
                                     abs: 0,
@@ -639,6 +659,7 @@ export function queryAction({
                         }
                         return determineCurrentMatch(
                             userConf.queries[queryIdx],
+                            userConf.lemmatizationLevel,
                             layoutManager.getLayoutMainPosAttr(),
                             List.sorted(
                                 (v1, v2) => v2.ipm - v1.ipm,

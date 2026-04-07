@@ -203,6 +203,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                     return db.findQueryMatches(
                         appServices,
                         getQueryValue(req, 'q')[0],
+                        importLemmatizationLevelOrError(
+                            getQueryValue(req, 'lemlevel')[0]
+                        ),
                         getQueryValue(
                             req,
                             'mainPosAttr',

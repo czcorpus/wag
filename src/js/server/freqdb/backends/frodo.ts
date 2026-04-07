@@ -2,7 +2,11 @@ import { map, Observable, of as rxOf, tap } from 'rxjs';
 import { IApiServices, IAppServices } from '../../../appServices.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { IFreqDB } from '../freqdb.js';
-import { calcFreqBand, QueryMatch } from '../../../query/index.js';
+import {
+    calcFreqBand,
+    LemmatizationLevel,
+    QueryMatch,
+} from '../../../query/index.js';
 import { serverHttpRequest } from '../../request.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
 import { importQueryPosWithLabel } from '../../../postag.js';
@@ -61,6 +65,7 @@ export class FrodoClient implements IFreqDB {
     findQueryMatches(
         appServices: IAppServices,
         word: string,
+        freqLemLevel: LemmatizationLevel,
         posAttr: MainPosAttrValues,
         minFreq: number
     ): Observable<Array<QueryMatch>> {
@@ -73,45 +78,64 @@ export class FrodoClient implements IFreqDB {
                 return pipe(
                     resp.matches,
                     List.flatMap((v, i) =>
-                        List.map((subl) => {
-                            const corpusSize = v.datasetSize ?? this.corpusSize;
-                            return {
-                                localId: `${i}:${subl.value}`,
-                                word: List.find(
+                        pipe(
+                            v.forms,
+                            List.groupBy((v2, i) =>
+                                v2.sublemma ? v2.sublemma : v.lemma
+                            ),
+                            List.map(([subl, forms]) => {
+                                const corpusSize =
+                                    v.datasetSize ?? this.corpusSize;
+                                const srchForm = List.find(
                                     (x) =>
-                                        x.word === word &&
-                                        x.sublemma === subl.value,
+                                        x.word === word && x.sublemma === subl,
                                     v.forms
-                                )
-                                    ? word
-                                    : subl.value,
-                                lemma: v.lemma,
-                                sublemma: subl.value,
-                                pos: importQueryPosWithLabel(
-                                    v.pos,
-                                    'pos',
-                                    appServices
-                                ),
-                                upos: v.upos
-                                    ? importQueryPosWithLabel(
-                                          v.upos,
-                                          'upos',
-                                          appServices
-                                      )
-                                    : importQueryPosWithLabel(
-                                          v.pos,
-                                          'upos',
-                                          appServices
-                                      ),
-                                abs: subl.count,
-                                ipm: (subl.count / corpusSize) * 1e6,
-                                flevel: calcFreqBand(
-                                    (subl.count / corpusSize) * 1e6
-                                ),
-                                arf: v.arf, // TODO arf can be obtained just for lemma
-                                isCurrent: false,
-                            };
-                        }, v.sublemmas)
+                                );
+                                const sublProps = List.find(
+                                    (x) => x.value === subl,
+                                    v.sublemmas
+                                );
+                                if (!sublProps) {
+                                    throw new Error(
+                                        `invalid data for sublemma ${subl}`
+                                    );
+                                }
+
+                                return {
+                                    localId: `${i}:${subl}`,
+                                    word: srchForm ? word : subl,
+                                    forms: List.map(
+                                        ({ count, word }) => ({ count, word }),
+                                        forms
+                                    ),
+                                    lemma: v.lemma,
+                                    sublemma: subl,
+                                    pos: importQueryPosWithLabel(
+                                        v.pos,
+                                        'pos',
+                                        appServices
+                                    ),
+                                    upos: v.upos
+                                        ? importQueryPosWithLabel(
+                                              v.upos,
+                                              'upos',
+                                              appServices
+                                          )
+                                        : importQueryPosWithLabel(
+                                              v.pos,
+                                              'upos',
+                                              appServices
+                                          ),
+                                    abs: sublProps.count,
+                                    ipm: (sublProps.count / corpusSize) * 1e6,
+                                    flevel: calcFreqBand(
+                                        (sublProps.count / corpusSize) * 1e6
+                                    ),
+                                    arf: v.arf, // TODO arf can be obtained just for lemma
+                                    isCurrent: false,
+                                };
+                            })
+                        )
                     )
                 );
             })
@@ -144,6 +168,7 @@ export class FrodoClient implements IFreqDB {
                             return {
                                 localId: `${i}:${sublemma.value}`,
                                 word: sublemma.value,
+                                forms: [], // no need to set in this case
                                 lemma: dictEntry.lemma,
                                 sublemma: sublemma.value,
                                 pos: importQueryPosWithLabel(

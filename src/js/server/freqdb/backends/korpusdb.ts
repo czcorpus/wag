@@ -22,7 +22,11 @@ import { List, HTTP, tuple, pipe } from 'cnc-tskit';
 
 import { IFreqDB } from '../freqdb.js';
 import { IAppServices, IApiServices } from '../../../appServices.js';
-import { QueryMatch, calcFreqBand } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    calcFreqBand,
+} from '../../../query/index.js';
 import { FreqDbOptions, MainPosAttrValues } from '../../../conf/index.js';
 import {
     importQueryPosWithLabel,
@@ -239,6 +243,7 @@ export class KorpusFreqDB implements IFreqDB {
     findQueryMatches(
         appServices: IAppServices,
         word: string,
+        freqLemLevel: LemmatizationLevel,
         posAttr: MainPosAttrValues,
         minFreq: number
     ): Observable<Array<QueryMatch>> {
