@@ -21,6 +21,7 @@ import {
     AltViewIconProps,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -29,7 +30,11 @@ import {
 import { IAppServices } from '../../../appServices.js';
 import { SyntacticCollsVsTTModel } from './model.js';
 import { init as viewInit } from './view.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import { LocalizedConfMsg } from '../../../types.js';
 import { List } from 'cnc-tskit';
 import { WSServerSyntacticCollsTTAPI } from './api.js';
@@ -68,6 +73,8 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
 
     private view: TileComponent;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     constructor({
         tileId,
         dispatcher,
@@ -84,6 +91,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
 
         this.label = appServices.importExternalMessage(
             conf.label || 'syntactic_colls__main_label'
@@ -201,8 +209,8 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return false;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

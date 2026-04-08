@@ -232,6 +232,7 @@ export class CouchFreqDB implements IFreqDB {
             List.map<HTTPNgramDoc, QueryMatch>((v, i) => ({
                 localId: `${i}`,
                 word: word,
+                forms: [],
                 lemma: v.lemma,
                 sublemma: null,
                 pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
@@ -321,6 +322,7 @@ export class CouchFreqDB implements IFreqDB {
                         ipm: (v.count / this.corpusSize) * 1e6,
                         flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
                         word: lemma,
+                        forms: [],
                         abs: v.count,
                         arf: v.arf,
                         isCurrent: false,
@@ -372,6 +374,7 @@ export class CouchFreqDB implements IFreqDB {
                             (form.count / this.corpusSize) * 1e6
                         ),
                         word: form.word,
+                        forms: [],
                         abs: form.count,
                         arf: form.arf,
                         isCurrent: false,

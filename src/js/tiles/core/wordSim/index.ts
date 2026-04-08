@@ -26,11 +26,16 @@ import {
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 import { WordSimModel } from './model.js';
 import { IAppServices } from '../../../appServices.js';
 import { init as viewInit } from './view.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import { CNCWord2VecSimApi, OperationMode } from './api/standard.js';
 import { CNCWSServerApi } from './api/wss.js';
 
@@ -66,6 +71,8 @@ export class WordSimTile implements ITileProvider {
 
     private readonly api: CNCWord2VecSimApi | CNCWSServerApi;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     constructor({
         tileId,
         dispatcher,
@@ -85,6 +92,7 @@ export class WordSimTile implements ITileProvider {
         this.label = appServices.importExternalMessage(
             conf.label || 'wordsim__main_label'
         );
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.api =
             conf.apiType === 'wss'
                 ? new CNCWSServerApi(conf.apiURL, conf.srcInfoURL, appServices)
@@ -187,8 +195,8 @@ export class WordSimTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return true;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

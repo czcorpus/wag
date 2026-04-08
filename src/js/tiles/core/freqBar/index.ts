@@ -19,7 +19,11 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     TileComponent,
     TileConf,
@@ -29,6 +33,7 @@ import {
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { FreqBarModel } from './model.js';
@@ -82,7 +87,7 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly readDataFromTile: number;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         dispatcher,
@@ -102,7 +107,7 @@ export class FreqBarTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.readDataFromTile = readDataFromTile;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new FreqBarModel({
             dispatcher,
@@ -227,8 +232,8 @@ export class FreqBarTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

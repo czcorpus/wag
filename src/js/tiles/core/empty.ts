@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QueryType } from '../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
@@ -100,7 +100,7 @@ export class EmptyTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
         return false;
     }
 }

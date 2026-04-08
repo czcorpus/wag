@@ -18,7 +18,7 @@
 import { IActionDispatcher } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import { HtmlModel } from './model.js';
 import { init as viewInit } from './views.js';
 import {
@@ -30,6 +30,7 @@ import {
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { RawHtmlAPI } from './api.js';
@@ -64,6 +65,8 @@ export class HtmlTile implements ITileProvider {
 
     private view: TileComponent;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     constructor({
         tileId,
         dispatcher,
@@ -80,6 +83,7 @@ export class HtmlTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.api = new RawHtmlAPI(conf.apiURL, appServices, conf.backlink);
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new HtmlModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -169,8 +173,8 @@ export class HtmlTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return false;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

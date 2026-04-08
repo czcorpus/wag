@@ -18,12 +18,17 @@
 
 import { List } from 'cnc-tskit';
 
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -65,7 +70,7 @@ export class SpeechesTile implements ITileProvider {
 
     private readonly widthFract: number;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
@@ -82,7 +87,7 @@ export class SpeechesTile implements ITileProvider {
     }: TileFactoryArgs<SpeechesTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new SpeechesModel({
             dispatcher,
@@ -202,8 +207,8 @@ export class SpeechesTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

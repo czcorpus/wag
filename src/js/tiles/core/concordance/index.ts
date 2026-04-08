@@ -20,13 +20,18 @@ import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 
 import { LocalizedConfMsg } from '../../../types.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     AltViewIconProps,
     CorpSrchTileConf,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileFactory,
     TileFactoryArgs,
@@ -50,7 +55,6 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     posAttrs: Array<string>;
     sentenceStruct: string;
     posQueryGenerator: PosQueryGeneratorType; // a positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset'])
-    supportsSublemma?: boolean;
     parallelLangMapping?: { [lang: string]: string };
     disableViewModes?: boolean;
     metadataAttrs?: Array<{ value: string; label: LocalizedConfMsg }>;
@@ -74,7 +78,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly readDataFromTile: number;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         tileId,
@@ -93,7 +97,7 @@ export class ConcordanceTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.readDataFromTile = readDataFromTile;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
@@ -142,7 +146,10 @@ export class ConcordanceTile implements ITileProvider {
                 })),
                 backlinks: List.map((_) => null, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator,
-                supportsSublemma: !!conf.supportsSublemma,
+                supportsSublemma: lemLevelSupport(
+                    conf.lemmatizationLevels,
+                    'sublemma'
+                ),
                 disableViewModes: false, // TODO change in case aligned conc. are supported
                 visibleMetadataLine: -1,
                 queries: List.map(
@@ -235,8 +242,8 @@ export class ConcordanceTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

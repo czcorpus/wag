@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -70,6 +71,8 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view: TileComponent;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     constructor({
         tileId,
         dispatcher,
@@ -87,6 +90,7 @@ export class WordFreqTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.label = this.appServices.importExternalMessage(conf.label);
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new SummaryModel({
             dispatcher,
             initialState: {
@@ -187,8 +191,8 @@ export class WordFreqTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return true;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

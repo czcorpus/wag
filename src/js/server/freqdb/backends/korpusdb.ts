@@ -323,6 +323,7 @@ export class KorpusFreqDB implements IFreqDB {
                             {
                                 localId: `kdbMatch:${i}`,
                                 word,
+                                forms: [],
                                 lemma,
                                 sublemma: null, // TODO
                                 pos,

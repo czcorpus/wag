@@ -19,7 +19,11 @@ import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
 import { CorePosAttribute } from '../../../types.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import { CollocMetric, SrchContextType } from './common.js';
 import { CollocModel } from './model.js';
 import { init as viewInit } from './views.js';
@@ -32,6 +36,7 @@ import {
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 import { MQueryCollAPI } from './api/index.js';
 import {
@@ -54,8 +59,6 @@ export interface CollocationsTileConf extends TileConf {
      * A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).
      */
     posQueryGenerator: PosQueryGeneratorType;
-
-    supportsSublemma?: boolean;
 }
 
 /**
@@ -80,7 +83,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly dependentTiles: Array<number>;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         tileId,
@@ -101,7 +104,7 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.dependentTiles = dependentTiles;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.api = new MQueryCollAPI(
             conf.apiURL,
             conf.apiType === 'with-examples',
@@ -146,7 +149,10 @@ export class CollocationsTile implements ITileProvider {
                 ),
                 queryType,
                 posQueryGenerator: conf.posQueryGenerator,
-                supportsSublemma: !!conf.supportsSublemma,
+                supportsSublemma: lemLevelSupport(
+                    conf.lemmatizationLevels,
+                    'sublemma'
+                ),
                 examplesPerColl: conf.examplesPerColl,
             },
             queryMatches: List.map(findCurrQueryMatch, queryMatches),
@@ -179,6 +185,10 @@ export class CollocationsTile implements ITileProvider {
             qt === QueryType.CMP_QUERY ||
             qt === QueryType.TRANSLAT_QUERY
         );
+    }
+
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 
     disable(): void {
@@ -224,10 +234,6 @@ export class CollocationsTile implements ITileProvider {
 
     hideOnNoData(): boolean {
         return false;
-    }
-
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
     }
 }
 

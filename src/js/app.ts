@@ -28,6 +28,7 @@ import { List, pipe, Dict } from 'cnc-tskit';
 import { Theme } from './page/theme.js';
 import { ScreenProps } from './page/hostPage.js';
 import {
+    LemmatizationLevel,
     QueryType,
     RecognizedQueries,
     testIsMultiWordMode,
@@ -61,6 +62,7 @@ interface AttachTileArgs {
 const mkAttachTile =
     (
         queryType: QueryType,
+        lemmatizationLevel: LemmatizationLevel,
         isMultiWordQuery: boolean,
         translatLang: string,
         appServices: IAppServices
@@ -91,6 +93,12 @@ const mkAttachTile =
             }
         }
 
+        const shouldShowLemmaOnlyWarning =
+            (!tile.supportsLemmatizationLevel('form') &&
+                lemmatizationLevel == 'form') ||
+            (!tile.supportsLemmatizationLevel('sublemma') &&
+                lemmatizationLevel == 'lemma');
+
         data.push({
             tileId: tile.getIdent(),
             tileName: tileName,
@@ -98,6 +106,7 @@ const mkAttachTile =
             SourceInfoComponent: tile.getSourceInfoComponent(),
             label: tile.getLabel(),
             supportsTweakMode: tile.supportsTweakMode(),
+            supportsLemmaOnly: shouldShowLemmaOnlyWarning,
             issueReportingUrl: tile.getIssueReportingUrl() || issueReportingURL,
             supportsCurrQuery: support,
             reasonTileDisabled: reasonDisabled,
@@ -211,6 +220,7 @@ export function createRootComponent({
     const isMultiWordQuery = testIsMultiWordMode(queryMatches);
     const attachTile = mkAttachTile(
         qType,
+        lmLevel,
         isMultiWordQuery,
         userSession.translatLanguage,
         appServices
