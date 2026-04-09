@@ -23,10 +23,12 @@ import { Observable } from 'rxjs';
 
 export interface RequestArgs {
     lemma: string;
+    word?: string;
     sublemma?: string;
     pos: Array<string>;
     mainPosAttr: MainPosAttrValues;
     corpName: string;
+    initialCap: boolean;
 }
 
 export interface WordFormItem {

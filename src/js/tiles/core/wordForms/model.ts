@@ -163,12 +163,17 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     this.fetchWordForms(
                         {
                             lemma: variant.lemma,
+                            word:
+                                state.lemmatizationLevel === 'form'
+                                    ? variant.word
+                                    : undefined,
                             sublemma: state.supportsSublemma
                                 ? variant.sublemma
                                 : undefined,
                             pos: List.map((v) => v.value, variant.pos),
                             corpName: state.corpname,
                             mainPosAttr: state.mainPosAttr,
+                            initialCap: variant.initialCap,
                         },
                         dispatch
                     );
@@ -253,6 +258,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 const args = {
                     lemma: variant.lemma,
                     pos: List.map((v) => v.value, variant.pos),
+                    initialCap: variant.initialCap,
                     corpName: state.corpname,
                     mainPosAttr: state.mainPosAttr,
                 };

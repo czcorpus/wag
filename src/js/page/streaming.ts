@@ -221,13 +221,6 @@ export class DataStreaming implements IDataStreaming {
                               )
                           )
                       ),
-                      // TODO, remove when in production-ready quality
-                      tap((v) => {
-                          console.log('tile dispatching status:');
-                          v.forEach((v, k) => {
-                              console.log('   ', k, ': ', v);
-                          });
-                      }),
                       first((v) => {
                           for (const [key, value] of v) {
                               if (value === undefined) {

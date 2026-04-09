@@ -103,7 +103,6 @@ export class FrodoClient implements IFreqDB {
                                         `invalid data for sublemma ${subl}`
                                     );
                                 }
-
                                 return {
                                     localId: `${i}:${subl}`,
                                     word: srchForm ? word : subl,
