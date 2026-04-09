@@ -653,6 +653,7 @@ export function queryAction({
                                     arf: 0,
                                     flevel: null,
                                     isCurrent: true,
+                                    initialCap: false,
                                 },
                             ];
                         }

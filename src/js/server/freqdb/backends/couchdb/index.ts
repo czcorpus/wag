@@ -113,6 +113,7 @@ interface HTTPNgramDoc {
     upos: string;
     count: number;
     arf: number;
+    is_pname: boolean;
     forms: Array<{
         word: string;
         count: number;
@@ -241,6 +242,7 @@ export class CouchFreqDB implements IFreqDB {
                 ipm: (v.count / this.corpusSize) * 1e6,
                 flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
                 arf: v.arf,
+                initialCap: false,
                 isCurrent: false,
             }))
         );
@@ -326,6 +328,7 @@ export class CouchFreqDB implements IFreqDB {
                         abs: v.count,
                         arf: v.arf,
                         isCurrent: false,
+                        initialCap: v.is_pname,
                     }),
                     values
                 )
@@ -354,12 +357,18 @@ export class CouchFreqDB implements IFreqDB {
                     srch,
                     List.flatMap((v) =>
                         List.map(
-                            (form) => tuple(v.doc.pos, v.doc.upos, form),
+                            (form) =>
+                                tuple(
+                                    v.doc.pos,
+                                    v.doc.upos,
+                                    form,
+                                    v.doc.is_pname
+                                ),
                             v.doc.forms
                         )
                     ),
                     List.sortBy(([, , form]) => form.count),
-                    List.map(([pos, upos, form], i) => ({
+                    List.map(([pos, upos, form, is_pname], i) => ({
                         localId: `${i}`,
                         lemma: lemma,
                         sublemma: null,
@@ -378,6 +387,7 @@ export class CouchFreqDB implements IFreqDB {
                         abs: form.count,
                         arf: form.arf,
                         isCurrent: false,
+                        initialCap: is_pname,
                     }))
                 );
             })

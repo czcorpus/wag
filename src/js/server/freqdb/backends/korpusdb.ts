@@ -333,6 +333,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 abs: 0,
                                 arf: 0,
                                 isCurrent: false, // TODO
+                                initialCap: false,
                             },
                             wordForms
                         )

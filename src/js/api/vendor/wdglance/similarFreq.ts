@@ -73,6 +73,7 @@ export class SimilarFreqWordsAPI {
                         upos: v.upos,
                         ipm: v.ipm,
                         flevel: calcFreqBand(v.ipm),
+                        initialCap: v.initialCap,
                     })),
                     List.filter(
                         (item) =>

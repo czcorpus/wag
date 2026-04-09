@@ -28,6 +28,7 @@ import {
     RecognizedQueries,
     QueryType,
     findCurrQueryMatch,
+    LemmatizationLevel,
 } from '../../../query/index.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -52,6 +53,8 @@ export interface SummaryModelState {
     similarFreqWords: Array<Array<SimilarFreqWord>>;
 
     queryMatches: Array<QueryMatch>;
+
+    lemmatizationLevel: LemmatizationLevel;
 
     sfwRowRange: number;
 

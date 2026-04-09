@@ -85,6 +85,7 @@ export class WordFreqTile implements ITileProvider {
         queryType,
         mainPosAttr,
         theme,
+        lemmatizationLevel,
     }: TileFactoryArgs<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -106,6 +107,7 @@ export class WordFreqTile implements ITileProvider {
                     : defaultFlevelDistrib,
                 expandLemmaPos: null,
                 mainPosAttr,
+                lemmatizationLevel,
             },
             tileId,
             api: new SimilarFreqWordsFrodoAPI(

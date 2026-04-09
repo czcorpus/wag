@@ -76,6 +76,7 @@ export class WordFormsTile implements ITileProvider {
         isBusy,
         theme,
         mainPosAttr,
+        lemmatizationLevel,
     }: TileFactoryArgs<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -99,6 +100,7 @@ export class WordFormsTile implements ITileProvider {
                 backlink: null,
                 mainPosAttr,
                 posQueryGenerator: conf.posQueryGenerator,
+                lemmatizationLevel,
                 supportsSublemma: lemLevelSupport(
                     conf.lemmatizationLevels,
                     'sublemma'

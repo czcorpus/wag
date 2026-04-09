@@ -21,7 +21,11 @@ import { List, Maths } from 'cnc-tskit';
 import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    RecognizedQueries,
+} from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -42,6 +46,7 @@ export interface WordFormsModelState {
     backlink: Backlink;
     mainPosAttr: MainPosAttrValues;
     posQueryGenerator: PosQueryGeneratorType;
+    lemmatizationLevel: LemmatizationLevel;
     supportsSublemma?: boolean;
 }
 
