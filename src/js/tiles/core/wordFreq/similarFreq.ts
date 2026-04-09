@@ -105,6 +105,7 @@ export class SimilarFreqWordsFrodoAPI {
                                     upos: [], // TODO UD support?
                                     ipm: v.ipm,
                                     flevel: calcFreqBand(v.ipm),
+                                    initialCap: v.is_pname,
                                 }),
                                 v.sublemmas
                             )

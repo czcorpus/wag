@@ -1088,6 +1088,20 @@ export function init(
         );
     };
 
+    // ------------------ <LemmaOnlySupportWarning /> ----------------------
+
+    const LemmaOnlySupportWarning: React.FC<{}> = () => (
+        <S.LemmaOnlySupportWarning className="bar-button">
+            <img
+                src={ut.createStaticUrl('lemma-icon.svg')}
+                alt={ut.translate('global__tile_only_lemma_resolution_warning')}
+                title={ut.translate(
+                    'global__tile_only_lemma_resolution_warning'
+                )}
+            />
+        </S.LemmaOnlySupportWarning>
+    );
+
     // ------------- <InitialHelpTile /> --------------------------------------
 
     const InitialHelpTile: React.FC<{ html: string }> = (props) => {
@@ -1226,6 +1240,9 @@ export function init(
                     <header className="wag-tile-header panel">
                         <h2>{currLabel}</h2>
                         <div className="window-buttons">
+                            {props.tile.supportsLemmaOnly ? (
+                                <LemmaOnlySupportWarning />
+                            ) : null}
                             {props.tileResultFlag &&
                             props.tileResultFlag.canBeAmbiguousResult ? (
                                 <AmbiguousResultWarning />

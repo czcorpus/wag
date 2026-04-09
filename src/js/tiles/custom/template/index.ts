@@ -18,7 +18,7 @@
 import { IActionDispatcher } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import {
     TileConf,
     ITileProvider,
@@ -159,8 +159,8 @@ export class __Template__Tile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return false;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return true;
     }
 }
 

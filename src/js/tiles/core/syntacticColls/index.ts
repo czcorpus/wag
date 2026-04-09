@@ -20,6 +20,7 @@ import { IActionDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import {
     findCurrQueryMatch,
+    LemmatizationLevel,
     QueryMatch,
     QueryType,
 } from '../../../query/index.js';
@@ -33,6 +34,7 @@ import {
     TileFactoryArgs,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 import { ScollexSyntacticCollsAPI } from './api/scollex.js';
 import { WSServerSyntacticCollsAPI } from './api/wsserver.js';
@@ -131,6 +133,8 @@ export class SyntacticCollsTile implements ITileProvider {
 
     private readonly _hideOnNoData: boolean;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     private view: TileComponent;
 
     constructor({
@@ -155,6 +159,7 @@ export class SyntacticCollsTile implements ITileProvider {
 
         const currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         this.displayType = findQueryHandler(conf.displayTypes, currQueryMatch);
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
 
         this.model = new SyntacticCollsModel({
             dispatcher: dispatcher,
@@ -280,8 +285,8 @@ export class SyntacticCollsTile implements ITileProvider {
         return this._hideOnNoData;
     }
 
-    supportsSublemma(): boolean {
-        return false;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

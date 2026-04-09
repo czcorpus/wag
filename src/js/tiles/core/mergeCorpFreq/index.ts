@@ -18,12 +18,17 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { List } from 'cnc-tskit';
 
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -50,7 +55,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         corpusSize: number;
         fcrit: string;
         posQueryGenerator: PosQueryGeneratorType;
-        supportsSublemma?: boolean;
+        lemmatizationLevels?: Array<string>;
         freqType: 'tokens' | 'text-types';
         flimit: number;
         freqSort: string;
@@ -111,7 +116,7 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract: number;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         dispatcher,
@@ -128,13 +133,7 @@ export class MergeCorpFreqTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        // below, we must test all the resources and if even a single one
-        // of them does not support sublemmas, we have to tell the user
-        // (that's the purpose of _supportsSublemma)
-        this._supportsSublemma = List.every(
-            (item) => !!item.supportsSublemma,
-            conf.sources
-        );
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new MergeCorpFreqModel({
             dispatcher: this.dispatcher,
             tileId,
@@ -164,7 +163,10 @@ export class MergeCorpFreqTile implements ITileProvider {
                         isSingleCategory: !!src.isSingleCategory,
                         uniqueColor: !!src.uniqueColor,
                         posQueryGenerator: src.posQueryGenerator,
-                        supportsSublemma: !!src.supportsSublemma,
+                        supportsSublemma: lemLevelSupport(
+                            conf.lemmatizationLevels,
+                            'sublemma'
+                        ),
                         viewInOtherWagUrl: src.viewInOtherWagUrl || null,
                     }),
                     conf.sources
@@ -259,8 +261,8 @@ export class MergeCorpFreqTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

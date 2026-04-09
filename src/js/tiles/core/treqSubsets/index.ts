@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -56,6 +57,8 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly label: string;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({
@@ -72,6 +75,7 @@ export class TreqSubsetsTile implements ITileProvider {
     }: TileFactoryArgs<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new TreqSubsetModel({
             dispatcher,
             appServices,
@@ -181,8 +185,8 @@ export class TreqSubsetsTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return false;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

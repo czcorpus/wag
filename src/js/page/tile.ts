@@ -119,6 +119,13 @@ export interface TileConf {
      * Defines tiles which can be used as sources of subqueries
      */
     compatibleSubqProviders?: Array<string>;
+
+    /**
+     * In case a tile supports only some of the lemmatization levels,
+     * it should be configured. If empty, WaG assumes the tile supports
+     * all the types.
+     */
+    lemmatizationLevels?: Array<LemmatizationLevel>;
 }
 
 /**
@@ -164,6 +171,8 @@ export interface TileFrameProps {
     hideOnNoData: boolean;
 
     supportsSVGFigureSave: boolean;
+
+    supportsLemmaOnly: boolean;
 
     helpURL?: string;
 
@@ -213,6 +222,22 @@ export interface AltViewIconProps {
 }
 
 /**
+ * lemLevelSupport provides normalized way to determine
+ * whether a specific lemmatization level is supported
+ * based on tile's conf.
+ *
+ */
+export function lemLevelSupport(
+    conf: Array<LemmatizationLevel> | undefined,
+    ll: LemmatizationLevel
+): boolean {
+    if (!conf || List.empty(conf)) {
+        return true;
+    }
+    return List.findIndex((x) => x === ll, conf) > -1;
+}
+
+/**
  * ITileProvider specifes an object which encapsulates an implementation
  * of a tile as required by wdglance initialization process. Based on
  * values returned by these methods, wdglance will prepare all the properties
@@ -242,6 +267,11 @@ export interface ITileProvider {
     /**
      */
     supportsQueryType(qt: QueryType, translatLang?: string): boolean;
+
+    /**
+     *
+     */
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean;
 
     // TODO ??
     disable(): void;
@@ -299,8 +329,6 @@ export interface ITileProvider {
      * user experience.
      */
     hideOnNoData(): boolean;
-
-    supportsSublemma(): boolean;
 }
 
 /**

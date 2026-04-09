@@ -158,6 +158,8 @@ export interface QueryMatchCore {
      *
      */
     flevel: FreqBand | null;
+
+    initialCap: boolean;
 }
 
 /**
@@ -168,7 +170,7 @@ export interface QueryMatchCore {
  */
 export interface QueryMatch extends QueryMatchCore {
     word: string;
-    forms: Array<{ word: string; count: number }>;
+    forms: Array<{ word: string; count: number; ipm: number }>;
     abs: number;
     arf: number;
     isCurrent: boolean;
@@ -199,6 +201,7 @@ export function findCurrQueryMatch(
               arf: -1,
               flevel: null,
               isCurrent: true,
+              initialCap: false,
           };
 }
 
@@ -261,6 +264,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
                     abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
                     arf: -1,
                     isCurrent: false,
+                    initialCap: matches[0].initialCap,
                 };
                 return [...matches, wildCard];
             }

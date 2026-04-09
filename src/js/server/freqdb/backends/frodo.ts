@@ -28,10 +28,13 @@ interface HTTPNgramDoc {
     upos: string;
     count: number;
     arf: number;
+    ipm: number;
+    is_pname: boolean;
     forms: Array<{
         word: string;
         sublemma?: string;
         count: number;
+        ipm: number;
         arf: number;
     }>;
 }
@@ -100,12 +103,15 @@ export class FrodoClient implements IFreqDB {
                                         `invalid data for sublemma ${subl}`
                                     );
                                 }
-
                                 return {
                                     localId: `${i}:${subl}`,
                                     word: srchForm ? word : subl,
                                     forms: List.map(
-                                        ({ count, word }) => ({ count, word }),
+                                        ({ count, word, ipm }) => ({
+                                            count,
+                                            word,
+                                            ipm,
+                                        }),
                                         forms
                                     ),
                                     lemma: v.lemma,
@@ -133,6 +139,7 @@ export class FrodoClient implements IFreqDB {
                                     ),
                                     arf: v.arf, // TODO arf can be obtained just for lemma
                                     isCurrent: false,
+                                    initialCap: v.is_pname,
                                 };
                             })
                         )
@@ -188,6 +195,7 @@ export class FrodoClient implements IFreqDB {
                                 ),
                                 arf: dictEntry.arf,
                                 isCurrent: false,
+                                initialCap: dictEntry.is_pname,
                             };
                         }, dictEntry.sublemmas),
                     resp.matches

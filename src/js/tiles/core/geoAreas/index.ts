@@ -18,12 +18,17 @@
 import { IActionDispatcher } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices.js';
-import { findCurrQueryMatch, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -75,7 +80,7 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles: Array<number>;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         tileId,
@@ -94,7 +99,7 @@ export class GeoAreasTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new GeoAreasModel({
             dispatcher,
             tileId,
@@ -126,7 +131,10 @@ export class GeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
-                supportsSublemma: !!conf.supportsSublemma,
+                supportsSublemma: lemLevelSupport(
+                    conf.lemmatizationLevels,
+                    'sublemma'
+                ),
                 currQueryMatches: List.map(
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches
@@ -215,8 +223,8 @@ export class GeoAreasTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

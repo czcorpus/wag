@@ -26,10 +26,11 @@ import {
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import { init as viewInit } from './views.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
@@ -47,7 +48,6 @@ export interface WordFormsTileConf extends TileConf {
     corpusSize: number;
     freqFilterAlphaLevel: Maths.AlphaLevel;
     posQueryGenerator: PosQueryGeneratorType;
-    supportsSublemma?: boolean;
 }
 
 export class WordFormsTile implements ITileProvider {
@@ -63,7 +63,7 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly view: TileComponent;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         tileId,
@@ -76,11 +76,12 @@ export class WordFormsTile implements ITileProvider {
         isBusy,
         theme,
         mainPosAttr,
+        lemmatizationLevel,
     }: TileFactoryArgs<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.label = this.appServices.importExternalMessage(
             conf.label || 'wordforms__main_label'
         );
@@ -99,7 +100,11 @@ export class WordFormsTile implements ITileProvider {
                 backlink: null,
                 mainPosAttr,
                 posQueryGenerator: conf.posQueryGenerator,
-                supportsSublemma: !!conf.supportsSublemma,
+                lemmatizationLevel,
+                supportsSublemma: lemLevelSupport(
+                    conf.lemmatizationLevels,
+                    'sublemma'
+                ),
             },
             tileId,
             api: this.createApi(conf, appServices),
@@ -199,8 +204,8 @@ export class WordFormsTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

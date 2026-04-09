@@ -63,6 +63,15 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
             }
         }
 
+        dl {
+            font-size: 0.8em;
+            margin-top: 0.7em;
+
+            dt {
+                font-size: 0.9em;
+            }
+        }
+
         dd:not(:last-child) {
             margin-bottom: 0.7em;
         }

@@ -432,13 +432,16 @@ export function determineCurrentMatch(
                   List.filter(
                       (x) =>
                           !!List.find(
-                              (x2) => x2.word === userQuery.word,
+                              // we always compare forms lowercase; more precision in
+                              // matching is determined by comparing (sub)lemmas
+                              (x2) =>
+                                  x2.word.toLowerCase() ===
+                                  userQuery.word.toLowerCase(),
                               x.forms
                           )
                   )
               )
             : availMatches;
-
     if (userQuery.lemma && userQuery.sublemma && !List.empty(userQuery.pos)) {
         const srch = List.findIndex(
             (x) =>
@@ -653,6 +656,7 @@ export function queryAction({
                                     arf: 0,
                                     flevel: null,
                                     isCurrent: true,
+                                    initialCap: false,
                                 },
                             ];
                         }

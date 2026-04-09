@@ -222,8 +222,10 @@ export const QueryFields = styled.div<{ theme: Theme }>`
 export const ExactFormCheckbox = styled.label<{ theme: Theme }>`
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     font-size: 0.8em;
-    margin-top: 0.3em;
+    margin-top: 0.5em;
+    padding-left: 0.6em;
     color: ${(props) => props.theme.colorDefaultText};
 `;
 
@@ -649,15 +651,19 @@ export const Tiles = styled.section<{ theme: Theme }>`
                 align-items: center;
 
                 span.bar-button {
-                    vertical-align: middle;
-                    white-space: nowrap;
+                    display: flex;
+                    padding-left: 0.2em;
+                    padding-right: 0.2em;
 
                     button {
+                        display: block;
                         border: none;
                         background-color: transparent;
+                        padding: 0;
                         cursor: pointer;
 
                         img {
+                            display: block;
                             width: 1.2em;
                         }
                     }
@@ -913,5 +919,14 @@ export const Index = styled.div<{ theme: Theme }>`
 
     .extended {
         width: fit-content;
+    }
+`;
+
+// ----------- <LemmaOnlySupportWarning /> ----------------------------
+
+export const LemmaOnlySupportWarning = styled.span`
+    img {
+        display: block;
+        width: 1em;
     }
 `;

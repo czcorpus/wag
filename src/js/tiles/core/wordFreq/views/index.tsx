@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 
 import {
@@ -23,7 +23,7 @@ import {
     TileComponent,
 } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
-import { SummaryModel, SummaryModelState } from '../model.js';
+import { SummaryModel } from '../model.js';
 import { init as chartViewInit } from './chart.js';
 import { init as singleWordViewsInit } from './single.js';
 import { init as multiWordViewsInit } from './compare.js';
@@ -77,44 +77,47 @@ export function init(
 
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
-    const WordFreqTileView: React.FC<
-        SummaryModelState & CoreTileComponentProps
-    > = (props) => (
-        <globalComponents.TileWrapper
-            tileId={props.tileId}
-            isBusy={props.isBusy}
-            error={props.error}
-            hasData={props.queryMatches.length > 0}
-            sourceIdent={{ corp: props.corpname }}
-            supportsTileReload={props.supportsReloadOnError}
-            issueReportingUrl={props.issueReportingUrl}
-        >
-            <S.WordFreqTileView>
-                {props.queryMatches.length === 1 ? (
-                    <SingleWordProfile
-                        searchedWord={props.queryMatches[0]}
-                        similarFreqWords={props.similarFreqWords[0]}
-                        expandLemmaPos={props.expandLemmaPos}
-                        tileId={props.tileId}
-                        mainPosAttr={props.mainPosAttr}
-                    />
-                ) : (
-                    <MultiWordProfile
-                        matches={props.queryMatches}
-                        mainPosAttr={props.mainPosAttr}
-                    />
-                )}
-                {!props.isMobile && props.widthFract > 1 ? (
-                    <AuxChart
-                        queryMatches={props.queryMatches}
-                        isMobile={props.isMobile}
-                        widthFract={props.widthFract}
-                        tileName={props.tileName}
-                    />
-                ) : null}
-            </S.WordFreqTileView>
-        </globalComponents.TileWrapper>
-    );
+    const WordFreqTileView: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
 
-    return BoundWithProps(WordFreqTileView, model);
+        return (
+            <globalComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={state.queryMatches.length > 0}
+                sourceIdent={{ corp: state.corpname }}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+            >
+                <S.WordFreqTileView>
+                    {state.queryMatches.length === 1 ? (
+                        <SingleWordProfile
+                            searchedWord={state.queryMatches[0]}
+                            similarFreqWords={state.similarFreqWords[0]}
+                            expandLemmaPos={state.expandLemmaPos}
+                            tileId={props.tileId}
+                            mainPosAttr={state.mainPosAttr}
+                            lemmatizationLevel={state.lemmatizationLevel}
+                        />
+                    ) : (
+                        <MultiWordProfile
+                            matches={state.queryMatches}
+                            mainPosAttr={state.mainPosAttr}
+                        />
+                    )}
+                    {!props.isMobile && props.widthFract > 1 ? (
+                        <AuxChart
+                            queryMatches={state.queryMatches}
+                            isMobile={props.isMobile}
+                            widthFract={props.widthFract}
+                            tileName={props.tileName}
+                        />
+                    ) : null}
+                </S.WordFreqTileView>
+            </globalComponents.TileWrapper>
+        );
+    };
+
+    return WordFreqTileView;
 }

@@ -18,12 +18,13 @@
 import { IActionDispatcher } from 'kombo';
 import { List, Maths } from 'cnc-tskit';
 
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileFactory,
     TileFactoryArgs,
@@ -64,7 +65,7 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly label: string;
 
-    private readonly _supportsSublemma: boolean;
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         dispatcher,
@@ -82,7 +83,7 @@ export class TimeDistTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this._supportsSublemma = !!conf.supportsSublemma;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
@@ -209,8 +210,8 @@ export class TimeDistTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return this._supportsSublemma;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 

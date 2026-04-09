@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 import { IAppServices } from '../../../appServices.js';
-import { QueryType } from '../../../query/index.js';
+import { LemmatizationLevel, QueryType } from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
     ITileProvider,
     ITileReloader,
+    lemLevelSupport,
     TileComponent,
     TileConf,
     TileFactory,
@@ -56,6 +57,8 @@ export class TranslationsTile implements ITileProvider {
 
     private readonly label: string;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     private static readonly DEFAULT_MAX_NUM_LINES = 10;
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
@@ -75,6 +78,7 @@ export class TranslationsTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new TranslationsModel({
             dispatcher,
             appServices,
@@ -173,8 +177,8 @@ export class TranslationsTile implements ITileProvider {
         return false;
     }
 
-    supportsSublemma(): boolean {
-        return false;
+    supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 
