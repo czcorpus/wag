@@ -149,6 +149,23 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
     }
 `;
 
+// -------------- <StrictEqButton /> -----------------------------------------
+
+export const StrictEqButton = styled.div<{ theme: Theme }>`
+    color: ${(props) => props.theme.colorLogoBlue};
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+
+    &.on {
+        opacity: 0.9;
+    }
+
+    &.off {
+        opacity: 0.3;
+    }
+`;
+
 // -------------- <QueryFields /> --------------------------------------------
 
 export const QueryFields = styled.div<{ theme: Theme }>`
@@ -172,19 +189,31 @@ export const QueryFields = styled.div<{ theme: Theme }>`
         align-items: center;
 
         .input-row {
-            margin: 0;
-            padding: 0;
+            margin: 0 0.5rem 0 0;
+            padding: 0.2rem 0.7rem 0.2rem 0.7rem;
             align-items: center;
             display: flex;
             flex-grow: 2;
-        }
+            border: ${(props) => props.theme.textInputBorderStyle};
+            background-color: ${(props) =>
+                props.theme.textInputBackgroundColor};
+            border-radius: ${(props) => props.theme.tileBorderRadius};
 
-        .QueryInput {
-            margin-right: 0.7em;
-            flex-grow: 2;
+            .QueryInput {
+                &:focus {
+                    border: none;
+                    outline: none;
+                    background-color: ${(props) =>
+                        props.theme.textInputBackgroundColor};
+                }
 
-            .invalid {
-                border-color: ${(props) => props.theme.colorLogoOrange};
+                margin-right: 0.7em;
+                flex-grow: 2;
+                border: none;
+
+                .invalid {
+                    border-color: ${(props) => props.theme.colorLogoOrange};
+                }
             }
         }
 
@@ -219,7 +248,7 @@ export const QueryFields = styled.div<{ theme: Theme }>`
 
 // -------------- <ExactFormCheckbox /> --------------------------------------
 
-export const ExactFormCheckbox = styled.label<{ theme: Theme }>`
+export const ExactFormCheckbox = styled.span<{ theme: Theme }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;

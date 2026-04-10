@@ -88,7 +88,9 @@ export function init<T>(
         };
 
         const handleMouseClick = () => {
-            props.onMouseClick(props.rect.data);
+            if (props.onMouseClick) {
+                props.onMouseClick(props.rect.data);
+            }
         };
 
         return (

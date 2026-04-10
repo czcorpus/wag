@@ -189,6 +189,21 @@ export function init(
         );
     };
 
+    // ------------------ <StrictEqButton /> --------------------------
+
+    const StrictEqButton: React.FC<{
+        enabled: boolean;
+        onClick: () => void;
+    }> = ({ enabled, onClick }) => (
+        <S.StrictEqButton
+            onClick={onClick}
+            title={ut.translate('global__set_exact_form_search')}
+            className={enabled ? 'on' : 'off'}
+        >
+            {'\u2261'}
+        </S.StrictEqButton>
+    );
+
     // ------------------ <ExactFormCheckbox /> -----------------------
 
     const ExactFormCheckbox: React.FC<{
@@ -432,6 +447,12 @@ export function init(
             });
         };
 
+        const handleClick = () => {
+            dispatcher.dispatch(Actions.SetExactFormSearch, {
+                value: props.lemmatizationLevel !== 'form',
+            });
+        };
+
         const renderFields = () => {
             switch (props.currQueryType) {
                 case QueryType.SINGLE_QUERY:
@@ -445,6 +466,12 @@ export function init(
                                     onContentChange={handleQueryInput(0)}
                                     wantsFocus={props.wantsFocus}
                                     allowRemoval={false}
+                                />
+                                <StrictEqButton
+                                    enabled={
+                                        props.lemmatizationLevel === 'form'
+                                    }
+                                    onClick={() => handleClick()}
                                 />
                             </span>
                         </>
@@ -519,9 +546,6 @@ export function init(
                 props.queries.length < props.maxCmpQueries ? (
                     <AddCmpQueryField />
                 ) : null}
-                <ExactFormCheckbox
-                    lemmatizationLevel={props.lemmatizationLevel}
-                />
                 {props.isAnswerMode ? <SubmenuTile /> : null}
             </S.QueryFields>
         );

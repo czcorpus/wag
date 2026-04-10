@@ -376,31 +376,35 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     }
 
     validateQuery(state: QueryFormModelState): void {
-        if (state.queryType === QueryType.SINGLE_QUERY) {
-            this.validateNthQuery(state, 0);
-        } else if (state.queryType === QueryType.CMP_QUERY) {
-            if (state.queries.length < 2) {
-                state.errors.push(
-                    new Error(
-                        this.appServices.translate(
-                            'global__src_min_two_queries_required_for_cmp'
+        switch (state.queryType) {
+            case QueryType.SINGLE_QUERY:
+                this.validateNthQuery(state, 0);
+                break;
+            case QueryType.CMP_QUERY:
+                if (state.queries.length < 2) {
+                    state.errors.push(
+                        new Error(
+                            this.appServices.translate(
+                                'global__src_min_two_queries_required_for_cmp'
+                            )
                         )
-                    )
-                );
-            }
-            List.forEach((_, idx) => {
-                this.validateNthQuery(state, idx);
-            }, state.queries);
-            const eqQueries = this.findEqualQueries(state);
-            if (eqQueries.length > 0) {
-                state.errors.push(
-                    new Error(
-                        `${this.appServices.translate('global__some_cmp_queries_are_identical')} - ${eqQueries.map((v) => `"${v}"`).join(', ')}`
-                    )
-                );
-            }
-        } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
-            this.validateNthQuery(state, 0);
+                    );
+                }
+                List.forEach((_, idx) => {
+                    this.validateNthQuery(state, idx);
+                }, state.queries);
+                const eqQueries = this.findEqualQueries(state);
+                if (eqQueries.length > 0) {
+                    state.errors.push(
+                        new Error(
+                            `${this.appServices.translate('global__some_cmp_queries_are_identical')} - ${eqQueries.map((v) => `"${v}"`).join(', ')}`
+                        )
+                    );
+                }
+                break;
+            case QueryType.TRANSLAT_QUERY:
+                this.validateNthQuery(state, 0);
+                break;
         }
     }
 }

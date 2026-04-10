@@ -52,6 +52,7 @@ export class QueryValidator {
     validateQuery(q: string, maxNgramSize: number): Array<Error> {
         const ans: Array<Error> = [];
         if (!this.queryCheckRegexp.exec(q) && !this.hyphenChars.exec(q)) {
+            console.log('fuck');
             ans.push(
                 new Error(
                     this.appServices.translate(
