@@ -124,12 +124,20 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         this.addActionHandler(
             Actions.ChangeQueryType,
-            null,
+            (state, action) => {
+                if (
+                    typeof action.payload.closingQueryIdx === 'number' &&
+                    List.size(state.queries) > 1
+                ) {
+                    state.queries.splice(action.payload.closingQueryIdx, 1);
+                }
+            },
             (state, action, dispatch) => {
                 window.location.href = this.appServices.createActionUrl(
                     queryTypeToAction(action.payload.queryType),
                     pipe(
                         state.queries,
+                        List.filter((v) => !!v.value),
                         List.map((v) => tuple('q', v.value))
                     )
                 );
