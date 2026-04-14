@@ -37,6 +37,7 @@ interface HTTPNgramDoc {
         ipm: number;
         arf: number;
     }>;
+    extraData?: any;
 }
 
 interface HTTPNgramResponse {
@@ -140,6 +141,7 @@ export class FrodoClient implements IFreqDB {
                                     arf: v.arf, // TODO arf can be obtained just for lemma
                                     isCurrent: false,
                                     initialCap: v.is_pname,
+                                    extraData: v.extraData,
                                 };
                             })
                         )
@@ -196,6 +198,7 @@ export class FrodoClient implements IFreqDB {
                                 arf: dictEntry.arf,
                                 isCurrent: false,
                                 initialCap: dictEntry.is_pname,
+                                extraData: dictEntry.extraData,
                             };
                         }, dictEntry.sublemmas),
                     resp.matches
