@@ -40,6 +40,7 @@ import urlJoin from 'url-join';
 
 export interface QueryFormModelState {
     queries: Array<Input>;
+    supportedQueryTypes: { [qt: string]: boolean };
     initialQueryType: QueryType;
     multiWordQuerySupport: number;
     instanceSwitchMenu: Array<{ label: string; url: string; current: boolean }>;
@@ -289,7 +290,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         args.set('sublemma', currMatch.sublemma);
 
         switch (state.queryType) {
-            case QueryType.CMP_QUERY:
+            case 'cmp':
                 state.queryMatches.slice(1).forEach((m) => {
                     args.add(
                         'pos',
@@ -338,18 +339,18 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         const action = queryTypeToAction(state.queryType);
 
         switch (state.queryType) {
-            case QueryType.CMP_QUERY:
+            case 'cmp':
                 return urlJoin(
                     action,
                     List.map((v) => v.value, state.queries).join('--')
                 );
-            case QueryType.TRANSLAT_QUERY:
+            case 'translat':
                 return urlJoin(
                     action,
                     state.currTranslatLanguage,
                     state.queries[0].value
                 );
-            case QueryType.SINGLE_QUERY:
+            case 'single':
                 return urlJoin(
                     action,
                     state.currTranslatLanguage,
@@ -385,10 +386,10 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
     validateQuery(state: QueryFormModelState): void {
         switch (state.queryType) {
-            case QueryType.SINGLE_QUERY:
+            case 'single':
                 this.validateNthQuery(state, 0);
                 break;
-            case QueryType.CMP_QUERY:
+            case 'cmp':
                 if (state.queries.length < 2) {
                     state.errors.push(
                         new Error(
@@ -410,7 +411,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                     );
                 }
                 break;
-            case QueryType.TRANSLAT_QUERY:
+            case 'translat':
                 this.validateNthQuery(state, 0);
                 break;
         }
@@ -465,6 +466,7 @@ export const defaultFactory = ({
             })
         ),
         queryType,
+        supportedQueryTypes: layout.supportedQueryTypes(),
         lemmatizationLevel,
         availQueryTypes,
         hideUnavailableQueryTypes,

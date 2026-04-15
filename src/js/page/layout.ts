@@ -25,7 +25,7 @@ import {
     TranslatLanguage,
 } from '../conf/index.js';
 import { TileIdentMap } from '../types.js';
-import { List, pipe } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
 function itemIsGroupConf(
     v: string | GroupLayoutConfig
@@ -128,21 +128,21 @@ export class LayoutManager {
         queryType: QueryType
     ) {
         this.tileMap = tileMap;
-        if (queryType === QueryType.SINGLE_QUERY) {
+        if (queryType === 'single') {
             this.layout = importLayout(
                 layouts.single,
                 tileMap,
                 appServices,
                 'global__single_word_sel'
             );
-        } else if (queryType === QueryType.CMP_QUERY) {
+        } else if (queryType === 'cmp') {
             this.layout = importLayout(
                 layouts.cmp,
                 tileMap,
                 appServices,
                 'global__words_compare'
             );
-        } else if (queryType === QueryType.TRANSLAT_QUERY) {
+        } else if (queryType === 'translat') {
             this.layout = {
                 ...importLayout(
                     layouts.translat,
@@ -152,7 +152,7 @@ export class LayoutManager {
                 ),
                 targetLanguages: layouts.translat.targetLanguages || [],
             } as LayoutOfQueryTypeTranslat;
-        } else if (queryType === QueryType.PREVIEW) {
+        } else if (queryType === 'preview') {
             this.layout = {
                 ...importLayout(
                     layouts.preview,
@@ -166,11 +166,11 @@ export class LayoutManager {
 
         this.validateLayout();
         this.queryTypes =
-            queryType === QueryType.PREVIEW
+            queryType === 'preview'
                 ? []
                 : [
                       {
-                          type: QueryType.SINGLE_QUERY,
+                          type: 'single',
                           label: layouts.single?.label
                               ? appServices.importExternalMessage(
                                     layouts.single?.label
@@ -181,7 +181,7 @@ export class LayoutManager {
                           isEnabled: !layoutIsEmpty(layouts.single),
                       },
                       {
-                          type: QueryType.CMP_QUERY,
+                          type: 'cmp',
                           label: layouts.cmp?.label
                               ? appServices.importExternalMessage(
                                     layouts.cmp?.label
@@ -190,7 +190,7 @@ export class LayoutManager {
                           isEnabled: !layoutIsEmpty(layouts.cmp),
                       },
                       {
-                          type: QueryType.TRANSLAT_QUERY,
+                          type: 'translat',
                           label: layouts.translat?.label
                               ? appServices.importExternalMessage(
                                     layouts.translat?.label
@@ -249,6 +249,14 @@ export class LayoutManager {
             List.find((v) => v.tileId === tileId)
         );
         return srch ? srch : null;
+    }
+
+    supportedQueryTypes(): { [qt: string]: boolean } {
+        return pipe(
+            this.queryTypes,
+            List.map((item) => tuple(item.type, item.isEnabled)),
+            Dict.fromEntries()
+        );
     }
 
     getDependentTiles(tileId: number): Array<number> {

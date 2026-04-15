@@ -48,6 +48,7 @@ import {
     LayoutsConfig,
     HomepageTileConf,
     GroupLayoutConfig,
+    LayoutConfigCmpQuery,
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -229,20 +230,17 @@ export function mkRuntimeClientConf({
                     typeof conf.layouts !== 'string'
                         ? pipe(
                               [
-                                  tuple(conf.layouts.cmp, QueryType.CMP_QUERY),
-                                  tuple(
-                                      conf.layouts.single,
-                                      QueryType.SINGLE_QUERY
-                                  ),
-                                  tuple(
-                                      conf.layouts.translat,
-                                      QueryType.TRANSLAT_QUERY
-                                  ),
+                                  tuple(conf.layouts.cmp, 'cmp'),
+                                  tuple(conf.layouts.single, 'single'),
+                                  tuple(conf.layouts.translat, 'translat'),
                               ],
                               List.filter(([tst]) => !!tst),
-                              List.map(([, v]) => v)
+                              List.map<
+                                  [LayoutConfigCmpQuery, QueryType],
+                                  QueryType
+                              >(([, v]) => v)
                           )
-                        : [QueryType.SINGLE_QUERY],
+                        : ['single'],
                 externalStyles: conf.externalStyles || [],
                 issueReportingUrl: conf.issueReportingUrl,
                 homepage: {
@@ -300,14 +298,11 @@ function determineTranslatLang(
     queryType: QueryType,
     layoutsConf: LayoutsConfig
 ): string | undefined {
-    if (
-        queryType === QueryType.CMP_QUERY ||
-        queryType === QueryType.SINGLE_QUERY
-    ) {
+    if (queryType === 'cmp' || queryType === 'single') {
         return undefined;
     }
 
-    if (queryType === QueryType.PREVIEW) {
+    if (queryType === 'preview') {
         // the preview mode has target languages hardcoded,
         // so we can be pretty sure about len > 0
         return layoutsConf.preview.targetLanguages[0].code;
@@ -340,11 +335,7 @@ export function importQueryRequest({
     return new Observable<UserConf>((observer) => {
         try {
             const queries = answerMode
-                ? fetchUrlParamArray(
-                      req,
-                      'query',
-                      queryType === QueryType.CMP_QUERY ? 2 : 1
-                  )
+                ? fetchUrlParamArray(req, 'query', queryType === 'cmp' ? 2 : 1)
                 : pipe(
                       Array.isArray(req.query.q) ? req.query.q : [req.query.q],
                       List.map((v) => {
@@ -354,7 +345,7 @@ export function importQueryRequest({
                           return '';
                       }),
                       (items) =>
-                          queryType === QueryType.CMP_QUERY
+                          queryType === 'cmp'
                               ? List.concat(
                                     List.repeat((_) => '', 2 - items.length),
                                     items
@@ -363,7 +354,7 @@ export function importQueryRequest({
                   );
             const layouts = services.clientConf.layouts;
             if (
-                queryType !== QueryType.PREVIEW &&
+                queryType !== 'preview' &&
                 answerMode &&
                 typeof layouts !== 'string'
             ) {
@@ -390,7 +381,7 @@ export function importQueryRequest({
                 queryType,
                 lemmatizationLevel,
                 queries:
-                    queryType === QueryType.PREVIEW
+                    queryType === 'preview'
                         ? queriesConf
                         : compileQueries(
                               queries,

@@ -158,7 +158,7 @@ export class FreqBarTile implements ITileProvider {
             conf.label || 'freqBar__main_label'
         );
         this.view =
-            queryType === QueryType.CMP_QUERY
+            queryType === 'cmp'
                 ? compareViewInit(this.dispatcher, ut, theme, this.model)
                 : singleViewInit(this.dispatcher, ut, theme, this.model);
     }
@@ -180,11 +180,7 @@ export class FreqBarTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return (
-            qt === QueryType.SINGLE_QUERY ||
-            qt === QueryType.CMP_QUERY ||
-            qt === QueryType.TRANSLAT_QUERY
-        );
+        return qt === 'single' || qt === 'cmp' || qt === 'translat';
     }
 
     disable(): void {

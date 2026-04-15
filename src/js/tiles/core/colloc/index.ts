@@ -180,11 +180,7 @@ export class CollocationsTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return (
-            qt === QueryType.SINGLE_QUERY ||
-            qt === QueryType.CMP_QUERY ||
-            qt === QueryType.TRANSLAT_QUERY
-        );
+        return qt === 'single' || qt === 'cmp' || qt === 'translat';
     }
 
     supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
@@ -250,10 +246,7 @@ export const init: TileFactory<CollocationsTileConf> = {
                 )
             );
         }
-        if (
-            !!args.conf.comparisonCorpname &&
-            args.queryType === QueryType.CMP_QUERY
-        ) {
+        if (!!args.conf.comparisonCorpname && args.queryType === 'cmp') {
             ans.push(
                 new Error(
                     'collocation tile cannot work in both cmp and two corpora comparison mode at the same time'

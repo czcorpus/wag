@@ -211,11 +211,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return (
-            qt === QueryType.SINGLE_QUERY ||
-            qt === QueryType.TRANSLAT_QUERY ||
-            qt === QueryType.CMP_QUERY
-        );
+        return qt === 'single' || qt === 'translat' || qt === 'cmp';
     }
 
     disable(): void {

@@ -125,7 +125,7 @@ export class HtmlTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === 'single' || qt === 'translat';
     }
 
     disable(): void {

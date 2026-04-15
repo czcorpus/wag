@@ -160,7 +160,7 @@ export function createHelperServices(
             (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : ''),
     });
     const streaming =
-        queryType === QueryType.PREVIEW
+        queryType === 'preview'
             ? new DataStreamingPreview()
             : new DataStreaming(null, [], undefined, 1000, undefined);
 

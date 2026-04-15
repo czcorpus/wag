@@ -79,7 +79,7 @@ const mkAttachTile =
         const support =
             (tile.supportsQueryType(queryType, translatLang) &&
                 (!isMultiWordQuery || tile.supportsMultiWordQueries())) ||
-            queryType === QueryType.PREVIEW;
+            queryType === 'preview';
         let reasonDisabled = undefined;
         if (!support) {
             if (!tile.supportsQueryType(queryType, translatLang)) {

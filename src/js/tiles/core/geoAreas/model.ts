@@ -249,7 +249,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 let tooltipData, tooltipCaption;
-                if (this.queryType === QueryType.SINGLE_QUERY) {
+                if (this.queryType === 'single') {
                     const data = action.payload.areaData[0];
                     tooltipCaption = action.payload.areaName;
                     tooltipData =
@@ -341,7 +341,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     caption: tooltipCaption,
                     data: tooltipData,
                     multiWordMode:
-                        this.queryType === QueryType.CMP_QUERY &&
+                        this.queryType === 'cmp' &&
                         action.payload.areaData !== null,
                 };
             }

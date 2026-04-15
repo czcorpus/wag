@@ -117,7 +117,7 @@ export const mkTileFactory = (
                 // for the second (and more) we provide multiple queries. This all applies just for the
                 // preview mode and it is made to align with hardcoded layout of the preview result page.
                 const queryMatchesAppl =
-                    queryType === QueryType.PREVIEW &&
+                    queryType === 'preview' &&
                     !factoryObj.createdTiles.hasOwnProperty(conf.tileType)
                         ? [queryMatches[0]]
                         : queryMatches;

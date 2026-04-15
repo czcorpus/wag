@@ -159,10 +159,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             Actions.PartialTileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (
-                    state.queryType === QueryType.SINGLE_QUERY &&
-                    state.comparisonCorpname
-                ) {
+                if (state.queryType === 'single' && state.comparisonCorpname) {
                     state.data[action.payload.queryIdx] = action.payload.data;
                     state.data[action.payload.queryIdx + 1] = List.map(
                         (v) => ({

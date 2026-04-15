@@ -161,7 +161,7 @@ export class SpeechesTile implements ITileProvider {
     /**
      */
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.SINGLE_QUERY;
+        return qt === 'single';
     }
 
     disable(): void {

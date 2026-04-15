@@ -111,7 +111,7 @@ export class WordFreqTile implements ITileProvider {
             },
             tileId,
             api: new SimilarFreqWordsFrodoAPI(
-                queryType === QueryType.CMP_QUERY ? '' : conf.apiURL,
+                queryType === 'cmp' ? '' : conf.apiURL,
                 appServices
             ),
             sourceInfoApi: new CorpusInfoAPI(
@@ -145,7 +145,7 @@ export class WordFreqTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
+        return qt === 'single' || qt === 'cmp';
     }
 
     disable(): void {
