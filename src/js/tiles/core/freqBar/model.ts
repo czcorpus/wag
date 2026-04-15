@@ -20,8 +20,15 @@ import { IFullActionControl, StatefulModel } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    testIsDictMatch,
+} from '../../../query/index.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import {
     DataRow,
     MQueryFreqArgs,
@@ -46,8 +53,9 @@ export interface FreqBarModelState {
     matchCase: boolean;
     label: string;
     freqType: 'tokens' | 'text-types';
-    posQueryGenerator: PosQueryGeneratorType;
     supportsSublemma: boolean;
+    lemmatizationLevel: LemmatizationLevel;
+    posQueryGenerator: PosQueryGeneratorType;
     flimit: number;
     fpage: number;
     fmaxitems?: number;
@@ -271,11 +279,18 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                 corpname: this.state.corpname,
                 path: this.state.freqType === 'tokens' ? 'freqs' : 'text-types',
                 queryArgs: {
-                    q: mkLemmaMatchQuery(
-                        queryMatch,
-                        this.state.posQueryGenerator,
-                        this.state.supportsSublemma
-                    ),
+                    q:
+                        this.state.lemmatizationLevel === 'form'
+                            ? mkWordMatchQuery(
+                                  queryMatch,
+                                  this.state.posQueryGenerator,
+                                  this.state.supportsSublemma
+                              )
+                            : mkLemmaMatchQuery(
+                                  queryMatch,
+                                  this.state.posQueryGenerator,
+                                  this.state.supportsSublemma
+                              ),
                     subcorpus: '', // TODO
                     attr: this.state.fcrit,
                     matchCase: this.state.matchCase ? '1' : '0',

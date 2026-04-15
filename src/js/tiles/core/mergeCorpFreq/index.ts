@@ -128,6 +128,7 @@ export class MergeCorpFreqTile implements ITileProvider {
         conf,
         isBusy,
         queryMatches,
+        lemmatizationLevel,
     }: TileFactoryArgs<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
@@ -183,6 +184,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                     (match) => findCurrQueryMatch(match),
                     queryMatches
                 ),
+                lemmatizationLevel,
             },
             downloadLabel: conf.downloadLabel,
         });

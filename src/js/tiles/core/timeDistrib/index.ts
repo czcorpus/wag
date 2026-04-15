@@ -79,6 +79,7 @@ export class TimeDistTile implements ITileProvider {
         isBusy,
         mainPosAttr,
         queryType,
+        lemmatizationLevel,
     }: TileFactoryArgs<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
@@ -120,6 +121,7 @@ export class TimeDistTile implements ITileProvider {
                 cmpBacklink: null,
                 averagingYears: 0,
                 units: '%',
+                lemmatizationLevel,
             },
             api: new MQueryTimeDistribStreamApi(
                 conf.apiURL,

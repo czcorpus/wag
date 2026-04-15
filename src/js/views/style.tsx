@@ -260,6 +260,10 @@ export const SingleQueryInput = styled.span<{
             outline: none;
         }
 
+        input::placeholder {
+            opacity: 0.6;
+        }
+
         border: ${(props) => props.theme.textInputBorderStyle};
         border-radius: ${(props) =>
             props.$cmpContext ? 'none' : props.theme.tileBorderRadius};

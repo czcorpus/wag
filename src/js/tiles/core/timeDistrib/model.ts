@@ -26,6 +26,7 @@ import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
 import {
     findCurrQueryMatch,
+    LemmatizationLevel,
     RecognizedQueries,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -37,7 +38,10 @@ import {
     TimeDistribResponse,
 } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
@@ -69,6 +73,7 @@ export interface TimeDistribModelState {
     alphaLevel: Maths.AlphaLevel;
     posQueryGenerator: PosQueryGeneratorType;
     supportsSublemma: boolean;
+    lemmatizationLevel: LemmatizationLevel;
     mainPosAttr: MainPosAttrValues;
     isTweakMode: boolean;
     data: Array<Array<DataItemWithWCI>>;
@@ -718,15 +723,22 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         queryIdx: number,
         cmp?: boolean
     ): TimeDistribArgs {
+        const queryMatch = findCurrQueryMatch(this.queryMatches[queryIdx]);
         return {
             corpname: state.corpname,
             q: cmp
                 ? `[word="${state.wordCmp}"]`
-                : mkLemmaMatchQuery(
-                      findCurrQueryMatch(this.queryMatches[queryIdx]),
-                      state.posQueryGenerator,
-                      state.supportsSublemma
-                  ),
+                : state.lemmatizationLevel === 'form'
+                  ? mkWordMatchQuery(
+                        queryMatch,
+                        state.posQueryGenerator,
+                        state.supportsSublemma
+                    )
+                  : mkLemmaMatchQuery(
+                        queryMatch,
+                        state.posQueryGenerator,
+                        state.supportsSublemma
+                    ),
             subcorpName: undefined, // TODO
             fromYear: state.fromYear ? state.fromYear + '' : undefined,
             toYear: state.toYear ? state.toYear + '' : undefined,

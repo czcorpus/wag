@@ -84,6 +84,7 @@ export class SpeechesTile implements ITileProvider {
         conf,
         isBusy,
         queryMatches,
+        lemmatizationLevel,
     }: TileFactoryArgs<SpeechesTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -135,6 +136,7 @@ export class SpeechesTile implements ITileProvider {
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches
                 ),
+                lemmatizationLevel,
             },
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);

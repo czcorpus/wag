@@ -33,7 +33,10 @@ import { SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 /**
@@ -347,11 +350,18 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             return {
                 corpname: state.corpname,
                 subcorpus: state.subcname,
-                query: mkLemmaMatchQuery(
-                    state.queryMatches[0],
-                    state.posQueryGenerator,
-                    state.supportsSublemma
-                ),
+                query:
+                    state.lemmatizationLevel === 'form'
+                        ? mkWordMatchQuery(
+                              state.queryMatches[0],
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          )
+                        : mkLemmaMatchQuery(
+                              state.queryMatches[0],
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          ),
                 // hitlen: kwicNumTokens,  TODO
                 struct: [
                     state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],

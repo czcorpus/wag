@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { QueryMatch } from '../../../query/index.js';
+import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import { DataRow } from './api.js';
@@ -94,4 +94,5 @@ export interface MergeCorpFreqModelState {
     } | null;
     backlinks: Array<Array<Backlink>>;
     queryMatches: Array<QueryMatch>;
+    lemmatizationLevel: LemmatizationLevel;
 }

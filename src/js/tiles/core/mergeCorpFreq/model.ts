@@ -24,12 +24,19 @@ import { Observable, of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    testIsDictMatch,
+} from '../../../query/index.js';
 import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import urlJoin from 'url-join';
@@ -294,7 +301,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action, dispatch) => {
                 const args = this.stateToArgs(
                     state.sources[action.payload.backlink.subqueryId],
-                    state.queryMatches[action.payload.backlink.queryId]
+                    state.queryMatches[action.payload.backlink.queryId],
+                    state.lemmatizationLevel
                 );
                 this.freqApi.requestBacklink(args).subscribe({
                     next: (url) => {
@@ -337,7 +345,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         return List.map(
             (src) =>
                 testIsDictMatch(queryMatch)
-                    ? this.stateToArgs(src, queryMatch)
+                    ? this.stateToArgs(
+                          src,
+                          queryMatch,
+                          state.lemmatizationLevel
+                      )
                     : null,
             state.sources
         );
@@ -346,6 +358,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
     private stateToArgs(
         state: ModelSourceArgs,
         queryMatch: QueryMatch,
+        lemmatizationLevel: LemmatizationLevel,
         subcname?: string
     ): MQueryFreqArgs {
         return {
@@ -353,11 +366,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q: mkLemmaMatchQuery(
-                    queryMatch,
-                    state.posQueryGenerator,
-                    state.supportsSublemma
-                ),
+                q:
+                    lemmatizationLevel === 'form'
+                        ? mkWordMatchQuery(
+                              queryMatch,
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          )
+                        : mkLemmaMatchQuery(
+                              queryMatch,
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          ),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,
