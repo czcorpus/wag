@@ -189,6 +189,21 @@ export function init(
         );
     };
 
+    // ------------------ <AddCmpQueryField /> ------------------------------
+
+    const AddCmpQueryField: React.FC<{
+        onClick: () => void;
+    }> = ({ onClick }) => {
+        return (
+            <S.AddCmpQueryField
+                onClick={onClick}
+                title={ut.translate('global__add_query_field')}
+            >
+                {'\u002B'}
+            </S.AddCmpQueryField>
+        );
+    };
+
     // ------------------ <StrictEqButton /> --------------------------
 
     const StrictEqButton: React.FC<{
@@ -204,28 +219,18 @@ export function init(
         </S.StrictEqButton>
     );
 
-    // ------------------ <ExactFormCheckbox /> -----------------------
+    // ------------------ <CloseCmpInputButton /> --------------------------
 
-    const ExactFormCheckbox: React.FC<{
-        lemmatizationLevel: LemmatizationLevel;
-    }> = ({ lemmatizationLevel }) => {
-        const handleClick = () => {
-            dispatcher.dispatch(Actions.SetExactFormSearch, {
-                value: lemmatizationLevel !== 'form',
-            });
-        };
-
-        return (
-            <S.ExactFormCheckbox>
-                <span>{ut.translate('global__set_exact_form_search')}</span>
-                <input
-                    type="checkbox"
-                    checked={lemmatizationLevel === 'form'}
-                    onChange={handleClick}
-                />
-            </S.ExactFormCheckbox>
-        );
-    };
+    const CloseCmpInputButton: React.FC<{
+        onClick: () => void;
+    }> = ({ onClick }) => (
+        <S.CloseCmpInputButton
+            onClick={onClick}
+            title={ut.translate('global__remove_query_field')}
+        >
+            {'\u00D7'}
+        </S.CloseCmpInputButton>
+    );
 
     // ------------------ <QueryInput /> ------------------------------
 
@@ -233,8 +238,12 @@ export function init(
         idx: number;
         value: Input;
         wantsFocus: boolean;
-        allowRemoval: boolean;
+        lemmatizationLevel: LemmatizationLevel;
+        allowsRemove: boolean;
+        cmpContext: boolean;
+        showQueryNum: boolean;
         onContentChange: (s: string) => void;
+        onRmClick: () => void;
         onEnter: () => void;
     }> = (props) => {
         const ref = React.useRef(null);
@@ -257,23 +266,39 @@ export function init(
             }
         };
 
+        const handleSEQClick = () => {
+            dispatcher.dispatch(Actions.SetExactFormSearch, {
+                value: props.lemmatizationLevel !== 'form',
+            });
+        };
+
         return (
-            <>
+            <S.SingleQueryInput $cmpContext={props.cmpContext}>
+                {props.showQueryNum ? (
+                    <span className="num">{props.idx + 1}.</span>
+                ) : null}
                 <input
                     type="text"
                     name="search-query"
                     ref={ref}
-                    className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
+                    className={props.value.isValid ? null : 'invalid'}
                     aria-label={ut.translate('global__aria_searched_word')}
                     onChange={handleInput}
                     value={props.value.value}
                     onKeyDown={handleKeyDown}
                     tabIndex={props.idx + 1}
+                    autoComplete="off"
                 />
-                {props.allowRemoval ? (
-                    <RemoveCmpQueryField queryIdx={props.idx} />
-                ) : null}
-            </>
+                <span className="controls">
+                    <StrictEqButton
+                        enabled={props.lemmatizationLevel === 'form'}
+                        onClick={() => handleSEQClick()}
+                    />
+                    {props.allowsRemove ? (
+                        <CloseCmpInputButton onClick={props.onRmClick} />
+                    ) : null}
+                </span>
+            </S.SingleQueryInput>
         );
     };
 
@@ -281,6 +306,7 @@ export function init(
 
     const SubmitButton: React.FC<{
         onClick: () => void;
+        cmpMode: boolean;
     }> = (props) => {
         return (
             <S.SubmitButton>
@@ -290,7 +316,9 @@ export function init(
                     onClick={props.onClick}
                     aria-label={ut.translate('global__aria_search_btn')}
                 >
-                    {ut.translate('global__search')}
+                    {props.cmpMode
+                        ? ut.translate('global__cmp_button')
+                        : ut.translate('global__search')}
                 </button>
             </S.SubmitButton>
         );
@@ -353,58 +381,92 @@ export function init(
         </S.QueryTypeSelector>
     );
 
-    // ------------------ <AddCmpQueryField /> ------------------------------
+    // --------------- <MultiQueryField /> ------------------------------
 
-    const AddCmpQueryField: React.FC<{}> = (_) => {
-        const handleClick = () => {
+    const MultiQueryField: React.FC<{
+        queries: Array<Input>;
+        wantsFocus: boolean;
+        lemmatizationLevel: LemmatizationLevel;
+        maxCmpQueries: number;
+        handleQueryInput: (idx: number) => (s: string) => void;
+        handleSubmit: () => void;
+    }> = (props) => {
+        const focusOn = props.queries.findIndex(
+            (query, index) =>
+                query.value === '' || index === props.queries.length - 1
+        );
+
+        const addCmpQuery = () => {
             dispatcher.dispatch<typeof Actions.AddCmpQueryInput>({
                 name: Actions.AddCmpQueryInput.name,
             });
         };
 
-        return (
-            <S.AddCmpQueryField>
-                <button
-                    type="button"
-                    onClick={handleClick}
-                    title={ut.translate('global__add_query_field')}
-                >
-                    <globalComponents.ImageWithMouseover
-                        file={'plus-icon.svg'}
-                        alt={ut.translate('global__img_alt_plus_icon')}
-                    />
-                </button>
-            </S.AddCmpQueryField>
-        );
-    };
+        const switchToCmpMode = () => {
+            dispatcher.dispatch(Actions.ChangeQueryType, {
+                queryType: QueryType.CMP_QUERY,
+            });
+        };
 
-    // ------------------ <RemoveCmpQueryField /> ------------------------------
-
-    const RemoveCmpQueryField: React.FC<{
-        queryIdx: number;
-    }> = (props) => {
-        const handleClick = () => {
+        const handleRMClickCmp = (queryIdx: number) => () => {
             dispatcher.dispatch<typeof Actions.RemoveCmpQueryInput>({
                 name: Actions.RemoveCmpQueryInput.name,
                 payload: {
-                    queryIdx: props.queryIdx,
+                    queryIdx,
+                },
+            });
+        };
+
+        const handleRMClickSwitchToSingle = (queryIdx: number) => () => {
+            dispatcher.dispatch<typeof Actions.ChangeQueryType>({
+                name: Actions.ChangeQueryType.name,
+                payload: {
+                    queryType: QueryType.SINGLE_QUERY,
+                    closingQueryIdx: queryIdx,
                 },
             });
         };
 
         return (
-            <S.RemoveCmpQueryField>
-                <button
-                    type="button"
-                    onClick={handleClick}
-                    title={ut.translate('global__remove_query_field')}
-                >
-                    <globalComponents.ImageWithMouseover
-                        file={'close-icon.svg'}
-                        alt={ut.translate('global__remove_query_field')}
+            <S.MultiQueryField>
+                {List.map(
+                    (query, queryIdx) => (
+                        <li className="input-row" key={`query:${queryIdx}`}>
+                            <QueryInput
+                                idx={queryIdx}
+                                value={query}
+                                onEnter={props.handleSubmit}
+                                onContentChange={props.handleQueryInput(
+                                    queryIdx
+                                )}
+                                wantsFocus={
+                                    props.wantsFocus && queryIdx === focusOn
+                                }
+                                lemmatizationLevel={props.lemmatizationLevel}
+                                cmpContext={true}
+                                allowsRemove={List.size(props.queries) > 1}
+                                showQueryNum={List.size(props.queries) > 1}
+                                onRmClick={
+                                    props.maxCmpQueries > 1 &&
+                                    List.size(props.queries) > 2
+                                        ? handleRMClickCmp(queryIdx)
+                                        : handleRMClickSwitchToSingle(queryIdx)
+                                }
+                            />
+                        </li>
+                    ),
+                    props.queries
+                )}
+                <li>
+                    <AddCmpQueryField
+                        onClick={
+                            props.maxCmpQueries === 1
+                                ? switchToCmpMode
+                                : addCmpQuery
+                        }
                     />
-                </button>
-            </S.RemoveCmpQueryField>
+                </li>
+            </S.MultiQueryField>
         );
     };
 
@@ -447,68 +509,29 @@ export function init(
             });
         };
 
-        const handleClick = () => {
-            dispatcher.dispatch(Actions.SetExactFormSearch, {
-                value: props.lemmatizationLevel !== 'form',
-            });
-        };
-
         const renderFields = () => {
             switch (props.currQueryType) {
                 case QueryType.SINGLE_QUERY:
                     return (
-                        <>
-                            <span className="input-row">
-                                <QueryInput
-                                    idx={0}
-                                    value={props.queries[0]}
-                                    onEnter={handleSubmit}
-                                    onContentChange={handleQueryInput(0)}
-                                    wantsFocus={props.wantsFocus}
-                                    allowRemoval={false}
-                                />
-                                <StrictEqButton
-                                    enabled={
-                                        props.lemmatizationLevel === 'form'
-                                    }
-                                    onClick={() => handleClick()}
-                                />
-                            </span>
-                        </>
+                        <MultiQueryField
+                            handleQueryInput={handleQueryInput}
+                            handleSubmit={handleSubmit}
+                            queries={props.queries.slice(0, 1)}
+                            wantsFocus={props.wantsFocus}
+                            lemmatizationLevel={props.lemmatizationLevel}
+                            maxCmpQueries={1}
+                        />
                     );
                 case QueryType.CMP_QUERY:
-                    const focusOn = props.queries.findIndex(
-                        (query, index) =>
-                            query.value === '' ||
-                            index === props.queries.length - 1
-                    );
                     return (
-                        <>
-                            <ul className="input-group">
-                                {props.queries.map((query, queryIdx) => (
-                                    <li
-                                        className="input-row"
-                                        key={`query:${queryIdx}`}
-                                    >
-                                        <QueryInput
-                                            idx={queryIdx}
-                                            value={query}
-                                            onEnter={handleSubmit}
-                                            onContentChange={handleQueryInput(
-                                                queryIdx
-                                            )}
-                                            wantsFocus={
-                                                props.wantsFocus &&
-                                                queryIdx === focusOn
-                                            }
-                                            allowRemoval={
-                                                List.size(props.queries) > 1
-                                            }
-                                        />
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
+                        <MultiQueryField
+                            handleQueryInput={handleQueryInput}
+                            handleSubmit={handleSubmit}
+                            queries={props.queries}
+                            wantsFocus={props.wantsFocus}
+                            lemmatizationLevel={props.lemmatizationLevel}
+                            maxCmpQueries={props.maxCmpQueries}
+                        />
                     );
                 case QueryType.TRANSLAT_QUERY:
                     return (
@@ -520,7 +543,13 @@ export function init(
                                     onEnter={handleSubmit}
                                     onContentChange={handleQueryInput(0)}
                                     wantsFocus={props.wantsFocus}
-                                    allowRemoval={false}
+                                    lemmatizationLevel={
+                                        props.lemmatizationLevel
+                                    }
+                                    allowsRemove={false}
+                                    cmpContext={false}
+                                    showQueryNum={false}
+                                    onRmClick={undefined}
                                 />
                             </span>
                             <span className="arrow">{'\u25B6'}</span>
@@ -540,12 +569,11 @@ export function init(
             <S.QueryFields className={props.currQueryType}>
                 <div className="input-and-submit">
                     {renderFields()}
-                    <SubmitButton onClick={handleSubmit} />
+                    <SubmitButton
+                        onClick={handleSubmit}
+                        cmpMode={props.currQueryType === QueryType.CMP_QUERY}
+                    />
                 </div>
-                {props.currQueryType === QueryType.CMP_QUERY &&
-                props.queries.length < props.maxCmpQueries ? (
-                    <AddCmpQueryField />
-                ) : null}
                 {props.isAnswerMode ? <SubmenuTile /> : null}
             </S.QueryFields>
         );

@@ -93,6 +93,7 @@ export class Actions {
 
     static ChangeQueryType: Action<{
         queryType: QueryType;
+        closingQueryIdx?: number;
     }> = {
         name: 'MAIN_CHANGE_QUERY_TYPE',
     };

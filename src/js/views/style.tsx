@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { styled } from 'styled-components';
+import { styled, css } from 'styled-components';
 import { Theme } from '../page/theme.js';
 
 // ---------------- <WdglanceMain /> --------------------------------------
@@ -166,6 +166,43 @@ export const StrictEqButton = styled.div<{ theme: Theme }>`
     }
 `;
 
+// --------------- <CloseCmpInputButton /> ---------------------------------
+
+export const CloseCmpInputButton = styled.div<{ theme: Theme }>`
+    color: ${(props) => props.theme.colorLogoPink};
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+
+    &.on {
+        opacity: 0.9;
+    }
+
+    &.off {
+        opacity: 0.3;
+    }
+`;
+
+// -------------- <AddCmpQueryField /> ---------------------------------------
+
+export const AddCmpQueryField = styled.div<{ theme: Theme }>`
+    color: ${(props) => props.theme.colorLogoBlue};
+    font-size: 1.5rem;
+    margin-top: 0.1rem;
+    font-weight: bold;
+    cursor: pointer;
+`;
+
+// ------------------------------
+
+const virtualInput = css`
+    margin: 0 0.5rem 0 0;
+    align-items: center;
+    display: flex;
+    flex-grow: 2;
+    background-color: ${(props) => props.theme.textInputBackgroundColor};
+`;
+
 // -------------- <QueryFields /> --------------------------------------------
 
 export const QueryFields = styled.div<{ theme: Theme }>`
@@ -188,35 +225,6 @@ export const QueryFields = styled.div<{ theme: Theme }>`
         display: flex;
         align-items: center;
 
-        .input-row {
-            margin: 0 0.5rem 0 0;
-            padding: 0.2rem 0.7rem 0.2rem 0.7rem;
-            align-items: center;
-            display: flex;
-            flex-grow: 2;
-            border: ${(props) => props.theme.textInputBorderStyle};
-            background-color: ${(props) =>
-                props.theme.textInputBackgroundColor};
-            border-radius: ${(props) => props.theme.tileBorderRadius};
-
-            .QueryInput {
-                &:focus {
-                    border: none;
-                    outline: none;
-                    background-color: ${(props) =>
-                        props.theme.textInputBackgroundColor};
-                }
-
-                margin-right: 0.7em;
-                flex-grow: 2;
-                border: none;
-
-                .invalid {
-                    border-color: ${(props) => props.theme.colorLogoOrange};
-                }
-            }
-        }
-
         .arrow {
             margin-right: 0.3em;
             margin-left: 0;
@@ -229,9 +237,70 @@ export const QueryFields = styled.div<{ theme: Theme }>`
         }
     }
 
-    .input-group .input-row:not(:last-child) {
-        margin-bottom: 0.3em;
+    ${(props) => props.theme.cssMobileScreen} {
+        width: 100% !important;
     }
+`;
+
+// -------------- <SingleQueryInput /> ---------------------------------------
+
+export const SingleQueryInput = styled.span<{
+    theme: Theme;
+    $cmpContext: boolean;
+}>`
+    &&& {
+        margin-right: 0.7em;
+        padding: 0.2rem 0.7rem 0.2rem 0.7rem;
+
+        ${virtualInput};
+
+        input {
+            flex-grow: 2;
+            border: none;
+            outline: none;
+        }
+
+        border: ${(props) => props.theme.textInputBorderStyle};
+        border-radius: ${(props) =>
+            props.$cmpContext ? 'none' : props.theme.tileBorderRadius};
+        border-width: ${(props) =>
+            props.$cmpContext ? '0 0 1px 0' : undefined};
+    }
+
+    .num {
+        color: ${(props) => props.theme.colorDefaultText};
+        font-weight: bold;
+    }
+
+    &&:focus {
+        border: none;
+        outline: none;
+        background-color: ${(props) => props.theme.textInputBackgroundColor};
+    }
+
+    &&.invalid {
+        border-color: ${(props) => props.theme.colorLogoOrange};
+    }
+
+    .controls {
+        display: flex;
+        flex-direction: row;
+
+        > *:not(:last-child) {
+            margin-right: 0.5rem;
+        }
+    }
+`;
+
+// -------------- <MultiQueryField /> --------------------------------------
+
+export const MultiQueryField = styled.ul<{ theme: Theme }>`
+    display: flex;
+    flex-direction: column;
+    ${virtualInput};
+    padding: 0.7em 0 0 0;
+    margin-right: 1.5rem;
+    border-radius: ${(props) => props.theme.tileBorderRadius};
 
     .input-group {
         list-style-type: none;
@@ -241,8 +310,12 @@ export const QueryFields = styled.div<{ theme: Theme }>`
         flex-grow: 2;
     }
 
-    ${(props) => props.theme.cssMobileScreen} {
-        width: 100% !important;
+    li {
+        display: flex;
+    }
+
+    input[type='text'] {
+        border-width: 0 0 1px 0;
     }
 `;
 
@@ -256,29 +329,6 @@ export const ExactFormCheckbox = styled.span<{ theme: Theme }>`
     margin-top: 0.5em;
     padding-left: 0.6em;
     color: ${(props) => props.theme.colorDefaultText};
-`;
-
-// -------------- <AddCmpQueryField /> ---------------------------------------
-
-export const AddCmpQueryField = styled.div`
-    margin-top: 0.7em;
-    text-align: center;
-
-    button {
-        padding: 0;
-        margin: 0;
-        background: none;
-        border: none;
-        cursor: pointer;
-        display: inline-block;
-
-        img {
-            display: block;
-            margin: 0;
-            padding: 0;
-            width: 1.2em;
-        }
-    }
 `;
 
 // -------------- <RemoveCmpQueryField /> ---------------------------------------
@@ -526,6 +576,12 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
 // -------------- <SubmitButton /> -------------------------------------------
 
 export const SubmitButton = styled.span<{ theme: Theme }>`
+    && {
+        button {
+            padding: 0.5rem 1.1rem;
+        }
+    }
+
     ${(props) => props.theme.cssMobileScreen} {
         button {
             padding: 0.5em 1.5em 0.5em 1.5em;
