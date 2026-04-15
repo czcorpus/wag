@@ -28,6 +28,7 @@ import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import {
     findCurrQueryMatch,
+    LemmatizationLevel,
     QueryMatch,
     QueryType,
     RecognizedQueries,
@@ -40,7 +41,10 @@ import {
     MQueryFreqArgs,
     MQueryFreqDistribAPI,
 } from '../../../api/vendor/mquery/freqs.js';
-import { mkLemmaMatchQuery } from '../../../api/vendor/mquery/common.js';
+import {
+    mkLemmaMatchQuery,
+    mkWordMatchQuery,
+} from '../../../api/vendor/mquery/common.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 /*
@@ -96,6 +100,7 @@ export interface GeoAreasModelState
     isAltViewMode: boolean;
     posQueryGenerator: PosQueryGeneratorType;
     supportsSublemma: boolean;
+    lemmatizationLevel: LemmatizationLevel;
     frequencyDisplayLimit: number;
     backlinks: Array<Backlink>;
 }
@@ -476,11 +481,18 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q: mkLemmaMatchQuery(
-                    queryMatch,
-                    state.posQueryGenerator,
-                    state.supportsSublemma
-                ),
+                q:
+                    state.lemmatizationLevel === 'form'
+                        ? mkWordMatchQuery(
+                              queryMatch,
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          )
+                        : mkLemmaMatchQuery(
+                              queryMatch,
+                              state.posQueryGenerator,
+                              state.supportsSublemma
+                          ),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,

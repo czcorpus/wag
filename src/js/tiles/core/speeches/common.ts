@@ -18,7 +18,7 @@
 
 import { pipe, Dict, List, Color } from 'cnc-tskit';
 import { MarkupToken, SpeechToken } from './api.js';
-import { QueryMatch } from '../../../query/index.js';
+import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
 import urlJoin from 'url-join';
 import { Backlink } from '../../../page/tile.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
@@ -82,6 +82,7 @@ export interface SpeechesModelState {
     } | null;
     posQueryGenerator: PosQueryGeneratorType;
     supportsSublemma: boolean;
+    lemmatizationLevel: LemmatizationLevel;
     queryMatches: Array<QueryMatch>;
 }
 

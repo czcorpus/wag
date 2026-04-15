@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Maths } from 'cnc-tskit';
+import { List, Maths } from 'cnc-tskit';
 
 import {
     ITileProvider,
@@ -205,6 +205,9 @@ export class WordFormsTile implements ITileProvider {
     }
 
     supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
+        if (List.empty(this.configuredLemLevels) && ll === 'form') {
+            return false;
+        }
         return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
@@ -216,6 +219,16 @@ export const init: TileFactory<WordFormsTileConf> = {
             return [
                 new Error(
                     `invalid posQueryGenerator in wordForms tile, ${message}`
+                ),
+            ];
+        }
+        if (
+            Array.isArray(args.conf.lemmatizationLevels) &&
+            List.find((x) => x === 'form', args.conf.lemmatizationLevels)
+        ) {
+            return [
+                new Error(
+                    'Word form tile cannot declare lemmatization level "form" support.'
                 ),
             ];
         }

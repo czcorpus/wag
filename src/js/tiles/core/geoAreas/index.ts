@@ -93,6 +93,7 @@ export class GeoAreasTile implements ITileProvider {
         isBusy,
         queryMatches,
         queryType,
+        lemmatizationLevel,
     }: TileFactoryArgs<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
@@ -131,6 +132,7 @@ export class GeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
+                lemmatizationLevel,
                 supportsSublemma: lemLevelSupport(
                     conf.lemmatizationLevels,
                     'sublemma'

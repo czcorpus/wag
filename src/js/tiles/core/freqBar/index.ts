@@ -63,7 +63,6 @@ export interface FreqBarTileConf extends TileConf {
      * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset']).
      */
     posQueryGenerator: PosQueryGeneratorType;
-    supportsSublemma?: boolean;
 }
 
 export class FreqBarTile implements ITileProvider {
@@ -101,6 +100,7 @@ export class FreqBarTile implements ITileProvider {
         readDataFromTile,
         queryMatches,
         queryType,
+        lemmatizationLevel,
     }: TileFactoryArgs<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
@@ -136,7 +136,11 @@ export class FreqBarTile implements ITileProvider {
                 subcname: conf.subcname,
                 concId: null,
                 posQueryGenerator: conf.posQueryGenerator,
-                supportsSublemma: !!conf.supportsSublemma,
+                supportsSublemma: lemLevelSupport(
+                    conf.lemmatizationLevels,
+                    'sublemma'
+                ),
+                lemmatizationLevel,
                 fcrit: conf.fcrit,
                 matchCase: !!conf.matchCase,
                 label: this.appServices.importExternalMessage(conf.label),
