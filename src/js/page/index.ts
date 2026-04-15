@@ -169,7 +169,7 @@ export function initClient(
     });
     const tileIdentMap = attachNumericTileIdents(config.tiles);
     const dataStreaming =
-        userSession.queryType === QueryType.PREVIEW
+        userSession.queryType === 'preview'
             ? new DataStreamingPreview()
             : new DataStreaming(
                   null,

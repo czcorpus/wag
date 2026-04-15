@@ -64,7 +64,7 @@ export function errorUserConf(
         uiLanguages,
         uiLang,
         queries: [],
-        queryType: QueryType.SINGLE_QUERY,
+        queryType: 'single',
         lemmatizationLevel: 'form',
         translatLanguage: '',
         answerMode: false, // ??
@@ -414,21 +414,21 @@ export function getSupportedQueryTypes(
         Array.isArray(layout.single.groups) &&
         layout.single.groups.length > 0
     ) {
-        ans.push(QueryType.SINGLE_QUERY);
+        ans.push('single');
     }
     if (
         layout.translat &&
         Array.isArray(layout.translat.groups) &&
         layout.translat.groups.length > 0
     ) {
-        ans.push(QueryType.TRANSLAT_QUERY);
+        ans.push('translat');
     }
     if (
         layout.cmp &&
         Array.isArray(layout.cmp.groups) &&
         layout.cmp.groups.length > 0
     ) {
-        ans.push(QueryType.CMP_QUERY);
+        ans.push('cmp');
     }
     return ans;
 }

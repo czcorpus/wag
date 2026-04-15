@@ -250,7 +250,10 @@ export const SingleQueryInput = styled.span<{
 }>`
     &&& {
         margin-right: 0.7em;
-        padding: 0.2rem 0.7rem 0.2rem 0.7rem;
+        padding: ${(props) =>
+            props.$cmpContext
+                ? '0.2rem 0.7rem 0.2rem 0.7rem'
+                : '0.2rem 0.7rem 0.5rem 0.7rem'};
 
         ${virtualInput};
 
@@ -264,7 +267,8 @@ export const SingleQueryInput = styled.span<{
             opacity: 0.6;
         }
 
-        border: ${(props) => props.theme.textInputBorderStyle};
+        border: ${(props) =>
+            props.$cmpContext ? props.theme.textInputBorderStyle : 'none'};
         border-radius: ${(props) =>
             props.$cmpContext ? 'none' : props.theme.tileBorderRadius};
         border-width: ${(props) =>

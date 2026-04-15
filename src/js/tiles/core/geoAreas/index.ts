@@ -148,8 +148,8 @@ export class GeoAreasTile implements ITileProvider {
             conf.label || 'geolocations__main_label'
         );
         this.view =
-            queryType === QueryType.CMP_QUERY ||
-            (queryType === QueryType.PREVIEW && queryMatches.length > 1)
+            queryType === 'cmp' ||
+            (queryType === 'preview' && queryMatches.length > 1)
                 ? compareViewInit(this.dispatcher, ut, theme, this.model)
                 : singleViewInit(this.dispatcher, ut, theme, this.model);
     }
@@ -173,7 +173,7 @@ export class GeoAreasTile implements ITileProvider {
     /**
      */
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
+        return qt === 'single' || qt === 'cmp';
     }
 
     disable(): void {

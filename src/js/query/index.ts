@@ -21,20 +21,15 @@ import { PosItem, posTagsEqual } from '../postag.js';
 import { MainPosAttrValues } from '../conf/index.js';
 import { HTTPAction } from '../page/actions.js';
 
-export enum QueryType {
-    SINGLE_QUERY = 'single',
-    CMP_QUERY = 'cmp',
-    TRANSLAT_QUERY = 'translat',
-    PREVIEW = 'preview',
-}
+export type QueryType = 'single' | 'cmp' | 'translat' | 'preview';
 
 export function queryTypeToAction(qt: QueryType): HTTPAction | undefined {
     switch (qt) {
-        case QueryType.CMP_QUERY:
+        case 'cmp':
             return HTTPAction.COMPARE;
-        case QueryType.SINGLE_QUERY:
+        case 'single':
             return HTTPAction.SEARCH;
-        case QueryType.TRANSLAT_QUERY:
+        case 'translat':
             return HTTPAction.TRANSLATE;
         default:
             return undefined;
@@ -42,11 +37,7 @@ export function queryTypeToAction(qt: QueryType): HTTPAction | undefined {
 }
 
 export function importQueryTypeString(v: string, dflt: QueryType): QueryType {
-    if (
-        v === QueryType.SINGLE_QUERY ||
-        v === QueryType.CMP_QUERY ||
-        v === QueryType.TRANSLAT_QUERY
-    ) {
+    if (v === 'single' || v === 'cmp' || v === 'translat') {
         return v as QueryType;
     } else if (!v) {
         return dflt;

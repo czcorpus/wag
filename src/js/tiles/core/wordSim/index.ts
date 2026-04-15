@@ -147,7 +147,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
+        return qt === 'single' || qt === 'cmp';
     }
 
     disable(): void {

@@ -393,6 +393,7 @@ export function init(
         wantsFocus: boolean;
         lemmatizationLevel: LemmatizationLevel;
         maxCmpQueries: number;
+        supportsCmpQuery: boolean;
         handleQueryInput: (idx: number) => (s: string) => void;
         handleSubmit: () => void;
     }> = (props) => {
@@ -409,7 +410,7 @@ export function init(
 
         const switchToCmpMode = () => {
             dispatcher.dispatch(Actions.ChangeQueryType, {
-                queryType: QueryType.CMP_QUERY,
+                queryType: 'cmp',
             });
         };
 
@@ -426,7 +427,7 @@ export function init(
             dispatcher.dispatch<typeof Actions.ChangeQueryType>({
                 name: Actions.ChangeQueryType.name,
                 payload: {
-                    queryType: QueryType.SINGLE_QUERY,
+                    queryType: 'single',
                     closingQueryIdx: queryIdx,
                 },
             });
@@ -448,7 +449,7 @@ export function init(
                                     props.wantsFocus && queryIdx === focusOn
                                 }
                                 lemmatizationLevel={props.lemmatizationLevel}
-                                cmpContext={true}
+                                cmpContext={props.supportsCmpQuery}
                                 allowsRemove={List.size(props.queries) > 1}
                                 showQueryNum={List.size(props.queries) > 1}
                                 onRmClick={
@@ -462,15 +463,17 @@ export function init(
                     ),
                     props.queries
                 )}
-                <li>
-                    <AddCmpQueryField
-                        onClick={
-                            props.maxCmpQueries === 1
-                                ? switchToCmpMode
-                                : addCmpQuery
-                        }
-                    />
-                </li>
+                {props.supportsCmpQuery ? (
+                    <li>
+                        <AddCmpQueryField
+                            onClick={
+                                props.maxCmpQueries === 1
+                                    ? switchToCmpMode
+                                    : addCmpQuery
+                            }
+                        />
+                    </li>
+                ) : null}
             </S.MultiQueryField>
         );
     };
@@ -486,6 +489,7 @@ export function init(
         translatLanguages: Array<TranslatLanguage>;
         maxCmpQueries: number;
         isAnswerMode: boolean;
+        supportsCmpQuery: boolean;
     }> = (props) => {
         const handleQueryInput =
             (idx: number) =>
@@ -516,7 +520,7 @@ export function init(
 
         const renderFields = () => {
             switch (props.currQueryType) {
-                case QueryType.SINGLE_QUERY:
+                case 'single':
                     return (
                         <MultiQueryField
                             handleQueryInput={handleQueryInput}
@@ -525,9 +529,10 @@ export function init(
                             wantsFocus={props.wantsFocus}
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={1}
+                            supportsCmpQuery={props.supportsCmpQuery}
                         />
                     );
-                case QueryType.CMP_QUERY:
+                case 'cmp':
                     return (
                         <MultiQueryField
                             handleQueryInput={handleQueryInput}
@@ -536,9 +541,10 @@ export function init(
                             wantsFocus={props.wantsFocus}
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={props.maxCmpQueries}
+                            supportsCmpQuery={props.supportsCmpQuery}
                         />
                     );
-                case QueryType.TRANSLAT_QUERY:
+                case 'translat':
                     return (
                         <>
                             <span className="input-row">
@@ -563,7 +569,7 @@ export function init(
                                 translatLanguages={props.translatLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTranslatLangChange}
-                                queryType={QueryType.TRANSLAT_QUERY}
+                                queryType={'translat'}
                             />
                         </>
                     );
@@ -576,7 +582,7 @@ export function init(
                     {renderFields()}
                     <SubmitButton
                         onClick={handleSubmit}
-                        cmpMode={props.currQueryType === QueryType.CMP_QUERY}
+                        cmpMode={props.currQueryType === 'cmp'}
                     />
                 </div>
                 {props.isAnswerMode ? <SubmenuTile /> : null}
@@ -891,6 +897,7 @@ export function init(
                             translatLang={state.currTranslatLanguage}
                             translatLanguages={state.translatLanguages}
                             maxCmpQueries={state.maxCmpQueries}
+                            supportsCmpQuery={state.supportedQueryTypes['cmp']}
                         />
                     </div>
                 </form>
@@ -2177,8 +2184,7 @@ export function init(
                                             dispatcher.dispatch(
                                                 Actions.ChangeQueryType,
                                                 {
-                                                    queryType:
-                                                        QueryType.SINGLE_QUERY,
+                                                    queryType: 'single',
                                                 }
                                             );
                                             dispatcher.dispatch(

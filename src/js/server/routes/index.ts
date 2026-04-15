@@ -209,8 +209,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                         getQueryValue(
                             req,
                             'mainPosAttr',
-                            services.clientConf.layouts[QueryType.SINGLE_QUERY]
-                                .mainPosAttr
+                            services.clientConf.layouts['single'].mainPosAttr
                         )[0] as MainPosAttrValues, // TODO validate
                         1
                     );
@@ -279,7 +278,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: false,
             httpAction: HTTPAction.SEARCH,
-            queryType: QueryType.SINGLE_QUERY,
+            queryType: 'single',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -338,7 +337,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: true,
             httpAction: HTTPAction.SEARCH,
-            queryType: QueryType.SINGLE_QUERY,
+            queryType: 'single',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -359,7 +358,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             appServices,
             req,
-            queryType: QueryType.SINGLE_QUERY,
+            queryType: 'single',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -410,7 +409,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: false,
             httpAction: HTTPAction.COMPARE,
-            queryType: QueryType.CMP_QUERY,
+            queryType: 'cmp',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -427,7 +426,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: true,
             httpAction: HTTPAction.COMPARE,
-            queryType: QueryType.CMP_QUERY,
+            queryType: 'cmp',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -446,7 +445,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: false,
             httpAction: HTTPAction.TRANSLATE,
-            queryType: QueryType.TRANSLAT_QUERY,
+            queryType: 'translat',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -466,7 +465,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: true,
             httpAction: HTTPAction.TRANSLATE,
-            queryType: QueryType.TRANSLAT_QUERY,
+            queryType: 'translat',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),
@@ -674,7 +673,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             services,
             answerMode: true,
             httpAction: HTTPAction.PREVIEW,
-            queryType: QueryType.PREVIEW,
+            queryType: 'preview',
             lemmatizationLevel: importLemmatizationLevelOrError(
                 getQueryValue(req, 'lemlevel')[0]
             ),

@@ -129,7 +129,7 @@ export class TranslationsTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.TRANSLAT_QUERY;
+        return qt === 'translat';
     }
 
     disable(): void {

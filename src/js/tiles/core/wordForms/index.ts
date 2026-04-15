@@ -156,7 +156,7 @@ export class WordFormsTile implements ITileProvider {
     }
 
     supportsQueryType(qt: QueryType, translatLang?: string): boolean {
-        return qt === QueryType.SINGLE_QUERY;
+        return qt === 'single';
     }
 
     disable(): void {

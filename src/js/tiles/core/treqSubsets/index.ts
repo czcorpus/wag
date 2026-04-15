@@ -137,7 +137,7 @@ export class TreqSubsetsTile implements ITileProvider {
     /**
      */
     supportsQueryType(qt: QueryType, translatLanguage?: string): boolean {
-        return qt === QueryType.TRANSLAT_QUERY;
+        return qt === 'translat';
     }
 
     disable(): void {

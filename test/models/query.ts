@@ -60,13 +60,13 @@ describe('QueryFormModel', function () {
         return new TestModelWrapper(
             (dispatcher, appServices) =>
                 new QueryFormModel(dispatcher, appServices, {
-                    initialQueryType: QueryType.SINGLE_QUERY,
+                    initialQueryType: 'single',
                     queries: List.map(
                         (v, i) => Forms.newFormValue(v[0].word || '', i === 0),
                         initialQueryMatches
                     ),
                     queryTypesMenuItems: [],
-                    queryType: QueryType.SINGLE_QUERY,
+                    queryType: 'single',
                     errors: [],
                     uiLanguages: [],
                     maxCmpQueries: 10,
@@ -76,11 +76,7 @@ describe('QueryFormModel', function () {
                     isAnswerMode: false,
                     multiWordQuerySupport: 1,
                     mainPosAttr: 'pos',
-                    availQueryTypes: [
-                        QueryType.SINGLE_QUERY,
-                        QueryType.CMP_QUERY,
-                        QueryType.TRANSLAT_QUERY,
-                    ],
+                    availQueryTypes: ['single', 'cmp', 'translat'],
                     currTranslatLanguage: 'en',
                     translatLanguages: [{ code: 'en', label: 'English' }],
                     ...initialStateOverrides,
@@ -102,14 +98,14 @@ describe('QueryFormModel', function () {
 
     describe('query input', function () {
         it('changes query type', function (done) {
-            setupModel({ queryType: QueryType.SINGLE_QUERY }).checkState(
+            setupModel({ queryType: 'single' }).checkState(
                 {
                     name: Actions.ChangeQueryType.name,
-                    payload: { queryType: QueryType.CMP_QUERY },
+                    payload: { queryType: 'cmp' },
                 },
                 Actions.ChangeQueryType.name,
                 (state) => {
-                    assert.equal(state.queryType, QueryType.CMP_QUERY);
+                    assert.equal(state.queryType, 'cmp');
                     done();
                 }
             );
@@ -199,7 +195,7 @@ describe('QueryFormModel', function () {
             describe('query validation', function () {
                 it('has unsupported character', function (done) {
                     setupModel({
-                        queryType: QueryType.SINGLE_QUERY,
+                        queryType: 'single',
                         queries: [{ value: '*', isValid: true }],
                     }).checkState(
                         { name: Actions.SubmitQuery.name },
@@ -220,7 +216,7 @@ describe('QueryFormModel', function () {
 
                 it('has not multiword support', function (done) {
                     setupModel({
-                        queryType: QueryType.SINGLE_QUERY,
+                        queryType: 'single',
                         queries: [{ value: 'two words', isValid: true }],
                         multiWordQuerySupport: 1,
                     }).checkState(
@@ -242,7 +238,7 @@ describe('QueryFormModel', function () {
 
                 it('has multiword support', function (done) {
                     setupModel({
-                        queryType: QueryType.SINGLE_QUERY,
+                        queryType: 'single',
                         queries: [{ value: 'two words', isValid: true }],
                         multiWordQuerySupport: 2,
                     }).checkState(
@@ -262,7 +258,7 @@ describe('QueryFormModel', function () {
 
                 it('has identical queries (cmp)', function (done) {
                     setupModel({
-                        queryType: QueryType.CMP_QUERY,
+                        queryType: 'cmp',
                         queries: [
                             { value: 'word', isValid: true },
                             { value: 'word', isValid: true },
@@ -285,7 +281,7 @@ describe('QueryFormModel', function () {
 
                 it('has identical domains (translat)', function (done) {
                     setupModel({
-                        queryType: QueryType.TRANSLAT_QUERY,
+                        queryType: 'translat',
                     }).checkState(
                         { name: Actions.SubmitQuery.name },
                         Actions.SubmitQuery.name,
