@@ -28,6 +28,7 @@ import {
     DEFAULT_ALT_VIEW_ICON,
     ITileReloader,
     AltViewIconProps,
+    lemLevelSupport,
 } from '../../../page/tile.js';
 
 import { __Template__Model } from './model.js';
@@ -55,6 +56,8 @@ export class __Template__Tile implements ITileProvider {
 
     private view: TileComponent;
 
+    private readonly configuredLemLevels: Array<LemmatizationLevel>;
+
     constructor({
         tileId,
         dispatcher,
@@ -70,6 +73,7 @@ export class __Template__Tile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new __Template__Model({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -160,7 +164,7 @@ export class __Template__Tile implements ITileProvider {
     }
 
     supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
-        return true;
+        return lemLevelSupport(this.configuredLemLevels, ll);
     }
 }
 
