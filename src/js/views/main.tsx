@@ -288,6 +288,11 @@ export function init(
                     onKeyDown={handleKeyDown}
                     tabIndex={props.idx + 1}
                     autoComplete="off"
+                    placeholder={
+                        props.lemmatizationLevel === 'form'
+                            ? ut.translate('global__exact_form_placeholder')
+                            : ut.translate('global__any_form_placeholder')
+                    }
                 />
                 <span className="controls">
                     <StrictEqButton
