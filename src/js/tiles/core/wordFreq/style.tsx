@@ -118,11 +118,6 @@ export const MultiWordProfile = styled.div<{ theme: Theme }>`
     & > table {
         border-spacing: 2px 4px;
 
-        thead th {
-            color: ${(props) => props.theme.colorLightText};
-            text-align: right;
-        }
-
         td,
         th {
             padding: 0.4em 0.7em;
@@ -135,36 +130,29 @@ export const MultiWordProfile = styled.div<{ theme: Theme }>`
             border-radius: 0.3em;
         }
 
-        td.ipm {
-            padding-left: 2.5em;
-            vertical-align: middle;
-        }
-
-        td.band {
-            vertical-align: middle;
-            text-align: right;
-        }
-
-        td.word {
-            font-weight: normal;
+        th.property {
             text-align: left;
-            padding-right: 2.4em;
+            vertical-align: middle;
+            margin-bottom: 0.4em;
+            color: ${(props) => props.theme.colorLightText};
+            font-family: ${(props) => props.theme.condensedFontFamily};
+        }
 
-            dl.info {
-                margin-top: 0;
+        td.value {
+            font-size: 1.3rem;
+            vertical-align: middle;
+        }
 
-                dd:not(:last-child) {
-                    margin-bottom: 0.3em;
-                }
+        td.freq-info,
+        th.freq-info {
+            padding-left: 1.5em;
+        }
 
-                dt {
-                    margin-bottom: 0.2em;
-                }
-
-                dd {
-                    font-size: 1.3em;
-                }
-            }
+        th.freq-info::before {
+            content: '\\25CF ';
+            display: inline-block;
+            width: 1.1rem;
+            padding-right: 0.4rem;
         }
     }
 `;

@@ -104,6 +104,7 @@ export function init(
                         <MultiWordProfile
                             matches={state.queryMatches}
                             mainPosAttr={state.mainPosAttr}
+                            lemmatizationLevel={state.lemmatizationLevel}
                         />
                     )}
                     {!props.isMobile && props.widthFract > 1 ? (
