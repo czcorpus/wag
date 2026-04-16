@@ -20,11 +20,18 @@ import * as React from 'react';
 
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { init as commonViewInit } from './common.js';
-import { QueryMatch } from '../../../../query/index.js';
+import {
+    calcFreqBand,
+    LemmatizationLevel,
+    QueryMatch,
+} from '../../../../query/index.js';
 import { List } from 'cnc-tskit';
 
 import * as S from '../style.js';
 import { MainPosAttrValues } from '../../../../conf/index.js';
+
+const asStrongIfTrue = (elm: React.ReactNode, cond: boolean) =>
+    cond ? <strong>{elm}</strong> : <span>{elm}</span>;
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -36,139 +43,170 @@ export function init(
 
     const MultiWordProfile: React.FC<{
         matches: Array<QueryMatch>;
+        lemmatizationLevel: LemmatizationLevel;
         mainPosAttr: MainPosAttrValues;
     }> = (props) => {
         return (
             <S.MultiWordProfile>
                 <table>
-                    <thead>
-                        <tr>
-                            <th />
-                            <th colSpan={2}>
-                                {ut.translate('wordfreq__ipm_condensed')}
-                            </th>
-                            <th>
-                                {ut.translate('wordfreq__freq_bands_condensed')}
-                            </th>
-                        </tr>
-                    </thead>
                     <tbody>
-                        {List.map(
-                            (w, i) => (
+                        {List.map((w, i) => {
+                            const ipmFreq =
+                                props.lemmatizationLevel === 'form'
+                                    ? (
+                                          List.find(
+                                              (x) => x.word === w.word,
+                                              w.forms
+                                          ) || { ipm: 0 }
+                                      ).ipm
+                                    : w.ipm;
+
+                            const freqBand =
+                                props.lemmatizationLevel === 'form'
+                                    ? calcFreqBand(
+                                          (
+                                              List.find(
+                                                  (x) => x.word === w.word,
+                                                  w.forms
+                                              ) || { ipm: 0 }
+                                          ).ipm
+                                      )
+                                    : w.flevel;
+
+                            return (
                                 <React.Fragment
                                     key={`${w.word}:${w.lemma}:${w.pos.map((v) => v.value).join('_')}`}
                                 >
                                     <tr>
-                                        <th className="query-num">{i + 1}.</th>
-                                        <td className="word">
-                                            <dl className="info">
-                                                <dt>
-                                                    {ut.translate(
-                                                        'wordfreq_searched_form'
-                                                    )}
-                                                    :
-                                                </dt>
-                                                <dd>{w.word}</dd>
-                                                {w.lemma ? (
-                                                    <>
-                                                        <dt>
-                                                            {w.lemma.split(' ')
-                                                                .length > 1
-                                                                ? ut.translate(
-                                                                      'wordfreq__lemmatized_variant'
-                                                                  )
-                                                                : 'lemma'}
-                                                            :
-                                                        </dt>
-                                                        <dd>
-                                                            <strong>
-                                                                {w.lemma}
-                                                            </strong>
-                                                        </dd>
-                                                        <dt>
-                                                            {ut.translate(
-                                                                'wordfreq__pos'
-                                                            )}
-                                                            :
-                                                        </dt>
-                                                        <dd>
-                                                            {w.pos.length > 0
-                                                                ? List.map(
-                                                                      (
-                                                                          pos,
-                                                                          i
-                                                                      ) => (
-                                                                          <React.Fragment
-                                                                              key={
-                                                                                  pos.value
-                                                                              }
-                                                                          >
-                                                                              {i >
-                                                                              0
-                                                                                  ? '\u00a0'
-                                                                                  : ''}
-                                                                              <span className="squareb">
-                                                                                  [
-                                                                              </span>
-                                                                              {
-                                                                                  pos.label
-                                                                              }
-                                                                              <span className="squareb">
-                                                                                  ]
-                                                                              </span>
-                                                                          </React.Fragment>
-                                                                      ),
-                                                                      w.pos
-                                                                  )
-                                                                : ut.translate(
-                                                                      'wordfreq__pos_not_specified'
-                                                                  )}
-                                                        </dd>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <dt>
-                                                            {ut.translate(
-                                                                'wordfreq__note'
-                                                            )}
-                                                            :
-                                                        </dt>
-                                                        <dd>
-                                                            {ut.translate(
-                                                                'wordfreq__not_in_dict'
-                                                            )}
-                                                        </dd>
-                                                    </>
-                                                )}
-                                            </dl>
-                                        </td>
-                                        <td className="num ipm">
-                                            {w.ipm > 0 ? (
-                                                ut.formatNumber(w.ipm, 2)
-                                            ) : (
-                                                <span
-                                                    style={{
-                                                        whiteSpace: 'nowrap',
-                                                    }}
-                                                >
-                                                    --
-                                                </span>
+                                        <th rowSpan={4} className="query-num">
+                                            {i + 1}.
+                                        </th>
+                                        <th className="property">
+                                            {ut.translate(
+                                                'wordfreq_searched_form'
                                             )}
-                                        </td>
-                                        <td className="band">
-                                            {w.ipm > 0 ? (
-                                                <commonViews.Stars
-                                                    freqBand={w.flevel}
-                                                />
-                                            ) : (
-                                                <div>--</div>
+                                            :
+                                        </th>
+                                        <td className="value">
+                                            {asStrongIfTrue(
+                                                w.word,
+                                                props.lemmatizationLevel ===
+                                                    'form'
                                             )}
                                         </td>
                                     </tr>
+                                    {props.lemmatizationLevel === 'form' ? (
+                                        <>
+                                            <tr>
+                                                <th className="property freq-info">
+                                                    {ut.translate(
+                                                        'wordfreq__ipm_condensed'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="value freq-info">
+                                                    {ipmFreq > 0 ? (
+                                                        ut.formatNumber(
+                                                            ipmFreq,
+                                                            2
+                                                        )
+                                                    ) : (
+                                                        <span
+                                                            style={{
+                                                                whiteSpace:
+                                                                    'nowrap',
+                                                            }}
+                                                        >
+                                                            --
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th className="property freq-info">
+                                                    {ut.translate(
+                                                        'wordfreq__freq_bands_condensed'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="value freq-info">
+                                                    {ipmFreq > 0 ? (
+                                                        <commonViews.Stars
+                                                            freqBand={freqBand}
+                                                        />
+                                                    ) : (
+                                                        <div>--</div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        </>
+                                    ) : null}
+                                    <tr>
+                                        <th className="property">
+                                            {w.lemma.split(' ').length > 1
+                                                ? ut.translate(
+                                                      'wordfreq__lemmatized_variant'
+                                                  )
+                                                : 'lemma'}
+                                            :
+                                        </th>
+                                        <td className="value">
+                                            {asStrongIfTrue(
+                                                w.lemma,
+                                                props.lemmatizationLevel !==
+                                                    'form'
+                                            )}
+                                        </td>
+                                    </tr>
+                                    {props.lemmatizationLevel !== 'form' ? (
+                                        <>
+                                            <tr>
+                                                <th className="property freq-info">
+                                                    {ut.translate(
+                                                        'wordfreq__ipm_condensed'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="value freq-info">
+                                                    {ipmFreq > 0 ? (
+                                                        ut.formatNumber(
+                                                            ipmFreq,
+                                                            2
+                                                        )
+                                                    ) : (
+                                                        <span
+                                                            style={{
+                                                                whiteSpace:
+                                                                    'nowrap',
+                                                            }}
+                                                        >
+                                                            --
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th className="property freq-info">
+                                                    {ut.translate(
+                                                        'wordfreq__freq_bands_condensed'
+                                                    )}
+                                                    :
+                                                </th>
+                                                <td className="value freq-info">
+                                                    {ipmFreq > 0 ? (
+                                                        <commonViews.Stars
+                                                            freqBand={freqBand}
+                                                        />
+                                                    ) : (
+                                                        <div>--</div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        </>
+                                    ) : null}
                                 </React.Fragment>
-                            ),
-                            props.matches
-                        )}
+                            );
+                        }, props.matches)}
                     </tbody>
                 </table>
             </S.MultiWordProfile>
