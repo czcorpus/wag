@@ -583,8 +583,24 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
 
 export const SubmitButton = styled.span<{ theme: Theme }>`
     && {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+
         button {
-            padding: 0.5rem 1.1rem;
+            display: flex;
+            justify-content: center;
+            width: 5rem;
+            background-color: ${(props) => props.theme.colorLogoBlue};
+            padding: 0.3rem 0 0.3rem 0;
+            border: 1px solid rgba(0, 0, 0, 0.8);
+
+            img {
+                width: 1rem;
+                height: 1rem;
+            }
         }
     }
 
