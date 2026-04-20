@@ -208,16 +208,28 @@ export function init(
 
     const StrictEqButton: React.FC<{
         enabled: boolean;
-        onClick: () => void;
-    }> = ({ enabled, onClick }) => (
-        <S.StrictEqButton
-            onClick={onClick}
-            title={ut.translate('global__set_exact_form_search')}
-            className={enabled ? 'on' : 'off'}
-        >
-            {'\u2261'}
-        </S.StrictEqButton>
-    );
+    }> = ({ enabled }) => {
+        const handleSEQClick = (value: boolean) => {
+            dispatcher.dispatch(Actions.SetExactFormSearch, {
+                value,
+            });
+        };
+
+        return (
+            <S.StrictEqButton>
+                <span
+                    className="label"
+                    aria-label={ut.translate('global__exact_form_placeholder')}
+                >
+                    {ut.translate('global__exact_form_placeholder')}:
+                </span>
+                <globalComponents.ToggleButton
+                    checked={enabled}
+                    onChange={handleSEQClick}
+                />
+            </S.StrictEqButton>
+        );
+    };
 
     // ------------------ <CloseCmpInputButton /> --------------------------
 
@@ -266,17 +278,8 @@ export function init(
             }
         };
 
-        const handleSEQClick = () => {
-            dispatcher.dispatch(Actions.SetExactFormSearch, {
-                value: props.lemmatizationLevel !== 'form',
-            });
-        };
-
         return (
             <S.SingleQueryInput $cmpContext={props.cmpContext}>
-                {props.showQueryNum ? (
-                    <span className="num">{props.idx + 1}.</span>
-                ) : null}
                 <input
                     type="text"
                     name="search-query"
@@ -294,15 +297,11 @@ export function init(
                             : ut.translate('global__any_form_placeholder')
                     }
                 />
-                <span className="controls">
-                    <StrictEqButton
-                        enabled={props.lemmatizationLevel === 'form'}
-                        onClick={() => handleSEQClick()}
-                    />
-                    {props.allowsRemove ? (
+                {props.allowsRemove ? (
+                    <span className="controls">
                         <CloseCmpInputButton onClick={props.onRmClick} />
-                    ) : null}
-                </span>
+                    </span>
+                ) : null}
             </S.SingleQueryInput>
         );
     };
@@ -463,8 +462,8 @@ export function init(
                     ),
                     props.queries
                 )}
-                {props.supportsCmpQuery ? (
-                    <li>
+                <li className="controls">
+                    {props.supportsCmpQuery ? (
                         <AddCmpQueryField
                             onClick={
                                 props.maxCmpQueries === 1
@@ -472,8 +471,11 @@ export function init(
                                     : addCmpQuery
                             }
                         />
-                    </li>
-                ) : null}
+                    ) : null}
+                    <StrictEqButton
+                        enabled={props.lemmatizationLevel === 'form'}
+                    />
+                </li>
             </S.MultiQueryField>
         );
     };

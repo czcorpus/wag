@@ -13,6 +13,7 @@
     "textInputBorderStyle": "1px solid #737373",
     "colorWhitelikeBlue": "#31313f",
     "pageBackgroundColor": "#122939",
+    "fieldsetBackgroundColor": "#094360",
     "tileBackgroundColor": "#004461",
     "tileHeadingSeparColor": "#737373",
     "svgIconsFilter": "",

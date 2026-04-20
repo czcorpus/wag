@@ -207,9 +207,7 @@ export interface CoreTileComponentProps {
 /**
  * A general tile component.
  */
-export type TileComponent =
-    | React.ComponentClass<CoreTileComponentProps>
-    | React.FC<CoreTileComponentProps>;
+export type TileComponent = React.FC<CoreTileComponentProps>;
 
 export type SourceInfoComponent =
     | React.ComponentClass<{ data: {} }>
