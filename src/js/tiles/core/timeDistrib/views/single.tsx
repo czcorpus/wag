@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import {
     Area,
@@ -36,11 +36,7 @@ import {
 } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { DataItemWithWCI, Actions } from '../common.js';
-import {
-    TimeDistribModel,
-    TimeDistribModelState,
-    LoadingStatus,
-} from '../model.js';
+import { TimeDistribModel, LoadingStatus } from '../model.js';
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
 import * as S from '../style.js';
@@ -691,58 +687,58 @@ export function init(
 
     // -------------- <TimeDistribTile /> ------------------------------------------------------
 
-    const TimeDistribTile: React.FC<
-        TimeDistribModelState & CoreTileComponentProps
-    > = (props) => {
+    const TimeDistribTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+
         return (
             <globComponents.TileWrapper
                 tileId={props.tileId}
-                isBusy={props.loadingStatus !== LoadingStatus.IDLE}
-                error={props.error}
-                hasData={List.head(props.data).length >= MIN_DATA_ITEMS_TO_SHOW}
-                sourceIdent={{ corp: props.corpname, subcorp: props.subcDesc }}
+                isBusy={state.loadingStatus !== LoadingStatus.IDLE}
+                error={state.error}
+                hasData={List.head(state.data).length >= MIN_DATA_ITEMS_TO_SHOW}
+                sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
                 supportsTileReload={props.supportsReloadOnError}
-                backlink={[List.head(props.mainBacklinks), props.cmpBacklink]}
+                backlink={[List.head(state.mainBacklinks), state.cmpBacklink]}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.TimeDistribTile>
-                    {props.isTweakMode ? (
+                    {state.isTweakMode ? (
                         <div className="tweak-box">
                             <TweakControls
-                                displayObserved={props.displayObserved}
-                                useAbsFreq={props.useAbsFreq}
-                                wordCmp={props.wordCmpInput}
+                                displayObserved={state.displayObserved}
+                                useAbsFreq={state.useAbsFreq}
+                                wordCmp={state.wordCmpInput}
                                 tileId={props.tileId}
                             />
                         </div>
                     ) : null}
-                    {props.wordCmp &&
-                    props.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW &&
-                    props.loadingStatus === LoadingStatus.IDLE ? (
+                    {state.wordCmp &&
+                    state.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW &&
+                    state.loadingStatus === LoadingStatus.IDLE ? (
                         <p
                             className="message"
                             style={{ color: theme.categoryColor(1) }}
                         >
                             {ut.translate(
                                 'timeDistrib__no_data_found_for_{word}',
-                                { word: props.wordCmp }
+                                { word: state.wordCmp }
                             )}
                         </p>
                     ) : (
                         ''
                     )}
                     <Chart
-                        data1={List.head(props.data)}
-                        data2={props.dataCmp}
+                        data1={List.head(state.data)}
+                        data2={state.dataCmp}
                         size={[300, 300]}
-                        loadingStatus={props.loadingStatus}
-                        word={List.head(props.wordMainLabels)}
-                        displayFreq={props.useAbsFreq}
-                        displayObserved={props.displayObserved}
-                        wordCmp={props.wordCmp}
+                        loadingStatus={state.loadingStatus}
+                        word={List.head(state.wordMainLabels)}
+                        displayFreq={state.useAbsFreq}
+                        displayObserved={state.displayObserved}
+                        wordCmp={state.wordCmp}
                         isSmallWidth={props.isMobile || props.widthFract < 2}
-                        zoom={props.zoom}
-                        refArea={props.refArea}
+                        zoom={state.zoom}
+                        refArea={state.refArea}
                         tileId={props.tileId}
                     />
                 </S.TimeDistribTile>
@@ -750,5 +746,5 @@ export function init(
         );
     };
 
-    return BoundWithProps(TimeDistribTile, model);
+    return TimeDistribTile;
 }

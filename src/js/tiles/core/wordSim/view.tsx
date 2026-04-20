@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { Theme } from '../../../page/theme.js';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile.js';
-import { WordSimModel, WordSimModelState } from './model.js';
+import { WordSimModel } from './model.js';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index.js';
 import { Actions } from './actions.js';
 import { List, pipe } from 'cnc-tskit';
@@ -107,9 +107,9 @@ export function init(
 
     // ------------------ <WordSimView /> --------------------------------------------
 
-    const WordSimView: React.FC<WordSimModelState & CoreTileComponentProps> = (
-        props
-    ) => {
+    const WordSimView: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+
         const dataTransform = (v: WordSimEntry) => ({
             text: v.word,
             value: v.score,
@@ -120,29 +120,29 @@ export function init(
         });
 
         const colorGen =
-            props.data.length > 1
+            state.data.length > 1
                 ? (idx: number) =>
-                      theme.scaleColorCmpDerived(idx, props.data.length)
+                      theme.scaleColorCmpDerived(idx, state.data.length)
                 : (_: number) => theme.scaleColorIndexed();
 
         return (
             <globalCompontents.TileWrapper
                 tileId={props.tileId}
-                isBusy={props.isBusy}
-                error={props.error}
+                isBusy={state.isBusy}
+                error={state.error}
                 hasData={pipe(
-                    props.data,
+                    state.data,
                     List.some((d) => d.length > 0)
                 )}
-                sourceIdent={{ corp: props.corpus }}
+                sourceIdent={{ corp: state.corpus }}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.WordSimView>
-                    {props.isTweakMode ? (
+                    {state.isTweakMode ? (
                         <Controls
                             tileId={props.tileId}
-                            operationMode={props.operationMode}
+                            operationMode={state.operationMode}
                         />
                     ) : null}
                     <S.Boxes $isMobile={props.isMobile}>
@@ -152,16 +152,16 @@ export function init(
                                     matchIdx === i
                                         ? []
                                         : List.map((u) => u.word, v),
-                                props.data
+                                state.data
                             );
 
-                            return props.isAltViewMode ? (
+                            return state.isAltViewMode ? (
                                 <TableView
                                     key={`match:${matchIdx}`}
                                     data={data}
                                     caption={
-                                        props.data.length > 1
-                                            ? props.queryMatches[matchIdx].word
+                                        state.data.length > 1
+                                            ? state.queryMatches[matchIdx].word
                                             : null
                                     }
                                 />
@@ -172,10 +172,10 @@ export function init(
                                     key={`${matchIdx}non-empty`}
                                     render={(width: number, height: number) => (
                                         <S.SimCloud>
-                                            {props.data.length > 1 ? (
+                                            {state.data.length > 1 ? (
                                                 <h2>
                                                     {
-                                                        props.queryMatches[
+                                                        state.queryMatches[
                                                             matchIdx
                                                         ].word
                                                     }
@@ -189,8 +189,8 @@ export function init(
                                                 font={theme.infoGraphicsFont}
                                                 dataTransform={dataTransform}
                                                 selectedText={
-                                                    props.data.length > 1
-                                                        ? props.selectedText
+                                                    state.data.length > 1
+                                                        ? state.selectedText
                                                         : null
                                                 }
                                                 colors={colorGen(matchIdx)}
@@ -216,15 +216,12 @@ export function init(
                                     }
                                 />
                             );
-                        }, props.data)}
+                        }, state.data)}
                     </S.Boxes>
                 </S.WordSimView>
             </globalCompontents.TileWrapper>
         );
     };
 
-    return BoundWithProps<CoreTileComponentProps, WordSimModelState>(
-        WordSimView,
-        model
-    );
+    return WordSimView;
 }

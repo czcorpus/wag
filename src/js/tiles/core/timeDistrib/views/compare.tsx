@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import {
     Area,
@@ -45,11 +45,7 @@ import {
     NameType,
     ValueType,
 } from 'recharts/types/component/DefaultTooltipContent.js';
-import {
-    LoadingStatus,
-    TimeDistribModel,
-    TimeDistribModelState,
-} from '../model.js';
+import { LoadingStatus, TimeDistribModel } from '../model.js';
 
 interface ChartDataPoint {
     year: number;
@@ -588,46 +584,51 @@ export function init(
 
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
-    const MultiWordTimeDistribTile: React.FC<
-        TimeDistribModelState & CoreTileComponentProps
-    > = (props) => (
-        <globComponents.TileWrapper
-            tileId={props.tileId}
-            isBusy={props.loadingStatus !== LoadingStatus.IDLE}
-            error={props.error}
-            hasData={List.some((v) => v.length > 0, props.data)}
-            sourceIdent={{ corp: props.corpname, subcorp: props.subcDesc }}
-            supportsTileReload={props.supportsReloadOnError}
-            issueReportingUrl={props.issueReportingUrl}
-            backlink={props.mainBacklinks}
-        >
-            <S.MultiWordTimeDistribTile>
-                {props.isTweakMode ? (
-                    <div className="tweak-box">
-                        <TweakControls
-                            averagingYears={props.averagingYears}
-                            tileId={props.tileId}
-                            units={props.units}
-                        />
-                    </div>
-                ) : null}
-                <Chart
-                    data={props.data}
-                    size={[300, 300]}
-                    isPartial={
-                        props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN
-                    }
-                    words={props.wordMainLabels}
-                    isSmallWidth={props.isMobile || props.widthFract < 2}
-                    averagingYears={props.averagingYears}
-                    units={props.units}
-                    zoom={props.zoom}
-                    refArea={props.refArea}
-                    tileId={props.tileId}
-                />
-            </S.MultiWordTimeDistribTile>
-        </globComponents.TileWrapper>
-    );
+    const MultiWordTimeDistribTile: React.FC<CoreTileComponentProps> = (
+        props
+    ) => {
+        const state = useModel(model);
 
-    return BoundWithProps(MultiWordTimeDistribTile, model);
+        return (
+            <globComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.loadingStatus !== LoadingStatus.IDLE}
+                error={state.error}
+                hasData={List.some((v) => v.length > 0, state.data)}
+                sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+                backlink={state.mainBacklinks}
+            >
+                <S.MultiWordTimeDistribTile>
+                    {state.isTweakMode ? (
+                        <div className="tweak-box">
+                            <TweakControls
+                                averagingYears={state.averagingYears}
+                                tileId={props.tileId}
+                                units={state.units}
+                            />
+                        </div>
+                    ) : null}
+                    <Chart
+                        data={state.data}
+                        size={[300, 300]}
+                        isPartial={
+                            state.loadingStatus ===
+                            LoadingStatus.BUSY_LOADING_MAIN
+                        }
+                        words={state.wordMainLabels}
+                        isSmallWidth={props.isMobile || props.widthFract < 2}
+                        averagingYears={state.averagingYears}
+                        units={state.units}
+                        zoom={state.zoom}
+                        refArea={state.refArea}
+                        tileId={props.tileId}
+                    />
+                </S.MultiWordTimeDistribTile>
+            </globComponents.TileWrapper>
+        );
+    };
+
+    return MultiWordTimeDistribTile;
 }

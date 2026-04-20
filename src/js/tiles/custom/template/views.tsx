@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 
 import { Theme } from '../../../page/theme.js';
@@ -38,57 +38,48 @@ export function init(
 
     // -------------- <__Template__Tile /> -------------------------------------
 
-    class __Template__Tile extends React.PureComponent<
-        __Template__ModelState & CoreTileComponentProps
-    > {
-        constructor(props) {
-            super(props);
-        }
+    const __Template__Tile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
 
-        render() {
-            return (
-                <globalCompontents.TileWrapper
-                    tileId={this.props.tileId}
-                    isBusy={this.props.isBusy}
-                    error={this.props.error}
-                    hasData={Boolean(this.props.data)}
-                    sourceIdent={null}
-                    supportsTileReload={this.props.supportsReloadOnError}
-                    issueReportingUrl={this.props.issueReportingUrl}
-                >
-                    {this.props.isTileTweakMode ? (
+        return (
+            <globalCompontents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={Boolean(state.data)}
+                sourceIdent={null}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+            >
+                {state.isTileTweakMode ? (
+                    <div>
+                        <p>{ut.translate('template__tweak_panel')}</p>
+                        <hr />
+                    </div>
+                ) : null}
+                <S.__Template__Tile>
+                    {state.isAltViewMode ? (
                         <div>
-                            <p>{ut.translate('template__tweak_panel')}</p>
-                            <hr />
+                            <p>{ut.translate('template__alt_view')}</p>
+                            <ul>
+                                {List.map(
+                                    (word) => (
+                                        <li>{word}</li>
+                                    ),
+                                    state.data
+                                )}
+                            </ul>
                         </div>
-                    ) : null}
-                    <S.__Template__Tile>
-                        {this.props.isAltViewMode ? (
-                            <div>
-                                <p>{ut.translate('template__alt_view')}</p>
-                                <ul>
-                                    {List.map(
-                                        (word) => (
-                                            <li>{word}</li>
-                                        ),
-                                        this.props.data
-                                    )}
-                                </ul>
-                            </div>
-                        ) : (
-                            <div>
-                                <p>{ut.translate('template__main_view')}</p>
-                                <p>{this.props.data.join(', ')}</p>
-                            </div>
-                        )}
-                    </S.__Template__Tile>
-                </globalCompontents.TileWrapper>
-            );
-        }
-    }
+                    ) : (
+                        <div>
+                            <p>{ut.translate('template__main_view')}</p>
+                            <p>{state.data.join(', ')}</p>
+                        </div>
+                    )}
+                </S.__Template__Tile>
+            </globalCompontents.TileWrapper>
+        );
+    };
 
-    return BoundWithProps<CoreTileComponentProps, __Template__ModelState>(
-        __Template__Tile,
-        model
-    );
+    return __Template__Tile;
 }

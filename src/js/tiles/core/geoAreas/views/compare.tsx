@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 
@@ -26,7 +26,7 @@ import {
 } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { Actions } from '../actions.js';
-import { GeoAreasModel, GeoAreasModelState } from '../model.js';
+import { GeoAreasModel } from '../model.js';
 import { QueryMatch } from '../../../../query/index.js';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { createSVGElement, createSVGEmptyCircle, Map } from './common.js';
@@ -428,100 +428,84 @@ export function init(
 
     // -------------- <MultiWordGeoAreasTileView /> ---------------------------------------------
 
-    class MultiWordGeoAreasTileView extends React.PureComponent<
-        GeoAreasModelState & CoreTileComponentProps
-    > {
-        componentDidMount() {
-            if (
-                this.props.data.some((v) => v.length > 0) &&
-                !this.props.isAltViewMode
-            ) {
+    const MultiWordGeoAreasTileView: React.FC<CoreTileComponentProps> = (
+        props
+    ) => {
+        const state = useModel(model);
+
+        React.useEffect(() => {
+            if (state.data.some((v) => v.length > 0) && !state.isAltViewMode) {
                 drawLabels(
-                    this.props.tileId,
-                    this.props.areaCodeMapping,
-                    this.props.currQueryMatches,
-                    this.props.data,
-                    this.props.frequencyDisplayLimit
+                    props.tileId,
+                    state.areaCodeMapping,
+                    state.currQueryMatches,
+                    state.data,
+                    state.frequencyDisplayLimit
                 );
             }
-        }
+        }, []);
 
-        componentDidUpdate(prevProps) {
-            if (
-                this.props.data.some((v) => v.length > 0) &&
-                !this.props.isAltViewMode &&
-                (prevProps.data !== this.props.data ||
-                    prevProps.isAltViewMode !== this.props.isAltViewMode)
-            ) {
+        React.useEffect(() => {
+            if (state.data.some((v) => v.length > 0) && !state.isAltViewMode) {
                 drawLabels(
-                    this.props.tileId,
-                    this.props.areaCodeMapping,
-                    this.props.currQueryMatches,
-                    this.props.data,
-                    this.props.frequencyDisplayLimit
+                    props.tileId,
+                    state.areaCodeMapping,
+                    state.currQueryMatches,
+                    state.data,
+                    state.frequencyDisplayLimit
                 );
             }
-        }
+        }, [state.data, state.isAltViewMode]);
 
-        render() {
-            const areaWidth =
-                this.props.widthFract > 2 && !this.props.isMobile
-                    ? '90%'
-                    : '100%';
-            return (
-                <globComponents.TileWrapper
-                    tileId={this.props.tileId}
-                    isBusy={this.props.isBusy}
-                    error={this.props.error}
-                    hasData={this.props.data.some((v) => v.length > 0)}
-                    sourceIdent={{ corp: this.props.corpname }}
-                    supportsTileReload={this.props.supportsReloadOnError}
-                    issueReportingUrl={this.props.issueReportingUrl}
-                    backlink={this.props.backlinks}
-                >
-                    <S.GeoAreasTileView>
-                        {this.props.isAltViewMode ? (
-                            <div style={{ overflowX: 'auto' }}>
-                                <DataTable
-                                    data={this.props.data}
-                                    queryMatches={this.props.currQueryMatches}
+        const areaWidth =
+            props.widthFract > 2 && !props.isMobile ? '90%' : '100%';
+        return (
+            <globComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={state.data.some((v) => v.length > 0)}
+                sourceIdent={{ corp: state.corpname }}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+                backlink={state.backlinks}
+            >
+                <S.GeoAreasTileView>
+                    {state.isAltViewMode ? (
+                        <div style={{ overflowX: 'auto' }}>
+                            <DataTable
+                                data={state.data}
+                                queryMatches={state.currQueryMatches}
+                            />
+                        </div>
+                    ) : (
+                        <div
+                            className="flex-item"
+                            style={{ width: areaWidth, height: '80%' }}
+                        >
+                            <Map mapSVG={state.mapSVG} />
+                            {state.tooltipArea !== null ? (
+                                <globComponents.ElementTooltip
+                                    x={state.tooltipArea.tooltipX}
+                                    y={state.tooltipArea.tooltipY}
+                                    visible={true}
+                                    caption={state.tooltipArea.caption}
+                                    values={state.tooltipArea.data}
+                                    multiWord={state.tooltipArea.multiWordMode}
+                                    colors={(idx) =>
+                                        theme.cmpCategoryColor(
+                                            idx,
+                                            state.currQueryMatches.length
+                                        )
+                                    }
                                 />
-                            </div>
-                        ) : (
-                            <div
-                                className="flex-item"
-                                style={{ width: areaWidth, height: '80%' }}
-                            >
-                                <Map mapSVG={this.props.mapSVG} />
-                                {this.props.tooltipArea !== null ? (
-                                    <globComponents.ElementTooltip
-                                        x={this.props.tooltipArea.tooltipX}
-                                        y={this.props.tooltipArea.tooltipY}
-                                        visible={true}
-                                        caption={this.props.tooltipArea.caption}
-                                        values={this.props.tooltipArea.data}
-                                        multiWord={
-                                            this.props.tooltipArea.multiWordMode
-                                        }
-                                        colors={(idx) =>
-                                            theme.cmpCategoryColor(
-                                                idx,
-                                                this.props.currQueryMatches
-                                                    .length
-                                            )
-                                        }
-                                    />
-                                ) : null}
-                            </div>
-                        )}
-                    </S.GeoAreasTileView>
-                </globComponents.TileWrapper>
-            );
-        }
-    }
+                            ) : null}
+                        </div>
+                    )}
+                </S.GeoAreasTileView>
+            </globComponents.TileWrapper>
+        );
+    };
 
-    return BoundWithProps<CoreTileComponentProps, GeoAreasModelState>(
-        MultiWordGeoAreasTileView,
-        model
-    );
+    return MultiWordGeoAreasTileView;
 }

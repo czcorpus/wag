@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import { SpeechesModel } from './model.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
-import { Speech, SpeechesModelState, SpeechLine, Segment } from './common.js';
+import { Speech, SpeechLine, Segment } from './common.js';
 import { Actions } from './actions.js';
 import { List, pipe, Color, Dict } from 'cnc-tskit';
 
@@ -357,35 +357,35 @@ export function init(
 
     // -------------------------- <SpeechesTile /> --------------------------------------
 
-    const SpeechesTile: React.FC<
-        SpeechesModelState & CoreTileComponentProps
-    > = (props) => {
+    const SpeechesTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+
         return (
             <globComponents.TileWrapper
                 tileId={props.tileId}
-                isBusy={props.isBusy}
-                error={props.error}
-                hasData={props.data.length > 0}
-                sourceIdent={{ corp: props.corpname, subcorp: props.subcDesc }}
-                backlink={props.backlink}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={state.data.length > 0}
+                sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
+                backlink={state.backlink}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.SpeechesTile>
                     <SpeechView
-                        data={props.data}
-                        speakers={props.speakers}
+                        data={state.data}
+                        speakers={state.speakers}
                         hasExpandLeft={
-                            props.leftRange < props.maxSingleSideRange
+                            state.leftRange < state.maxSingleSideRange
                         }
                         hasExpandRight={
-                            props.rightRange < props.maxSingleSideRange
+                            state.rightRange < state.maxSingleSideRange
                         }
                         tileId={props.tileId}
-                        isTweakMode={props.isTweakMode}
-                        playbackEnabled={props.playbackEnabled}
+                        isTweakMode={state.isTweakMode}
+                        playbackEnabled={state.playbackEnabled}
                         playingLineIdx={
-                            props.playback ? props.playback.currLineIdx : -1
+                            state.playback ? state.playback.currLineIdx : -1
                         }
                     />
                 </S.SpeechesTile>
@@ -393,8 +393,5 @@ export function init(
         );
     };
 
-    return BoundWithProps<CoreTileComponentProps, SpeechesModelState>(
-        SpeechesTile,
-        model
-    );
+    return SpeechesTile;
 }

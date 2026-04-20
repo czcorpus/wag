@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import {
     Bar,
@@ -35,7 +35,7 @@ import {
     NameType,
     ValueType,
 } from 'recharts/types/component/DefaultTooltipContent.js';
-import { FreqBarModel, FreqBarModelState, FreqDataBlock } from '../model.js';
+import { FreqBarModel, FreqDataBlock } from '../model.js';
 import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import {
@@ -362,25 +362,25 @@ export function init(
 
     // -------------------------- <FreqBarTile /> --------------------------------------
 
-    const FreqBarTile: React.FC<FreqBarModelState & CoreTileComponentProps> = (
-        props
-    ) => {
+    const FreqBarTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+
         const numCats = Math.max(
             0,
-            ...props.freqData.map((v) => (v ? v.rows.length : 0))
+            ...state.freqData.map((v) => (v ? v.rows.length : 0))
         );
-        const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
+        const barCategoryGap = Math.max(10, 40 - state.pixelsPerCategory);
         const minHeight =
-            70 + numCats * (props.pixelsPerCategory + barCategoryGap);
+            70 + numCats * (state.pixelsPerCategory + barCategoryGap);
 
         return (
             <globComponents.TileWrapper
                 tileId={props.tileId}
-                isBusy={props.isBusy}
-                error={props.error}
-                hasData={List.some((item) => item.isReady, props.freqData)}
-                sourceIdent={{ corp: props.corpname }}
-                backlink={props.backlinks}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={List.some((item) => item.isReady, state.freqData)}
+                sourceIdent={{ corp: state.corpname }}
+                backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
@@ -393,10 +393,10 @@ export function init(
                                     height: '100%',
                                 }}
                             >
-                                {props.isAltViewMode ? (
+                                {state.isAltViewMode ? (
                                     <S.Tables>
                                         {pipe(
-                                            props.freqData,
+                                            state.freqData,
                                             List.map((block) => (
                                                 <>
                                                     <h3
@@ -407,7 +407,7 @@ export function init(
                                                         {block.word}
                                                     </h3>
                                                     <DataTable
-                                                        data={props.freqData}
+                                                        data={state.freqData}
                                                     />
                                                 </>
                                             ))
@@ -415,10 +415,10 @@ export function init(
                                     </S.Tables>
                                 ) : (
                                     <>
-                                        {props.freqData.length > 0 ? (
+                                        {state.freqData.length > 0 ? (
                                             <Chart
                                                 tileId={props.tileId}
-                                                data={props.freqData}
+                                                data={state.freqData}
                                                 widthFract={props.widthFract}
                                                 barCategoryGap={barCategoryGap}
                                                 isMobile={props.isMobile}
@@ -443,8 +443,5 @@ export function init(
         );
     };
 
-    return BoundWithProps<CoreTileComponentProps, FreqBarModelState>(
-        FreqBarTile,
-        model
-    );
+    return FreqBarTile;
 }
