@@ -152,17 +152,17 @@ export const WdglanceControls = styled.div<{ theme: Theme }>`
 // -------------- <StrictEqButton /> -----------------------------------------
 
 export const StrictEqButton = styled.div<{ theme: Theme }>`
-    color: ${(props) => props.theme.colorLogoBlue};
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: flex-end;
+    font-size: 0.7rem;
+    color: ${(props) => props.theme.colorLightText};
 
-    &.on {
-        opacity: 0.9;
-    }
-
-    &.off {
-        opacity: 0.3;
+    span.label {
+        display: flex;
+        align-items: center;
+        margin-right: 0.4rem;
     }
 `;
 
@@ -196,11 +196,10 @@ export const AddCmpQueryField = styled.div<{ theme: Theme }>`
 // ------------------------------
 
 const virtualInput = css`
-    margin: 0 0.5rem 0 0;
+    margin: 0;
     align-items: center;
     display: flex;
     flex-grow: 2;
-    background-color: ${(props) => props.theme.textInputBackgroundColor};
 `;
 
 // -------------- <QueryFields /> --------------------------------------------
@@ -249,41 +248,36 @@ export const SingleQueryInput = styled.span<{
     $cmpContext: boolean;
 }>`
     &&& {
-        margin-right: 0.7em;
         padding: ${(props) =>
-            props.$cmpContext
-                ? '0.2rem 0.7rem 0.2rem 0.7rem'
-                : '0.2rem 0.7rem 0.5rem 0.7rem'};
+            props.$cmpContext ? '0.2rem 0 0.2rem 0' : '0.2rem 0 0.5rem 0'};
 
         ${virtualInput};
 
         input {
             flex-grow: 2;
-            border: none;
+            border: ${(props) => props.theme.textInputBorderStyle};
             outline: none;
+            border-radius: ${(props) => props.theme.tileBorderRadius};
+            background-color: ${(props) =>
+                props.theme.textInputBackgroundColor};
+        }
+
+        input:focus {
+            border: ${(props) => props.theme.textInputBorderStyle};
+            border-color: ${(props) => props.theme.colorLogoBlue};
+            outline: none;
+            background-color: ${(props) =>
+                props.theme.textInputBackgroundColor};
         }
 
         input::placeholder {
             opacity: 0.6;
         }
-
-        border: ${(props) =>
-            props.$cmpContext ? props.theme.textInputBorderStyle : 'none'};
-        border-radius: ${(props) =>
-            props.$cmpContext ? 'none' : props.theme.tileBorderRadius};
-        border-width: ${(props) =>
-            props.$cmpContext ? '0 0 1px 0' : undefined};
     }
 
     .num {
         color: ${(props) => props.theme.colorDefaultText};
         font-weight: bold;
-    }
-
-    &&:focus {
-        border: none;
-        outline: none;
-        background-color: ${(props) => props.theme.textInputBackgroundColor};
     }
 
     &&.invalid {
@@ -293,10 +287,7 @@ export const SingleQueryInput = styled.span<{
     .controls {
         display: flex;
         flex-direction: row;
-
-        > *:not(:last-child) {
-            margin-right: 0.5rem;
-        }
+        margin-left: 0.3rem;
     }
 `;
 
@@ -306,24 +297,31 @@ export const MultiQueryField = styled.ul<{ theme: Theme }>`
     display: flex;
     flex-direction: column;
     ${virtualInput};
-    padding: 0.7em 0 0 0;
-    margin-right: 1.5rem;
+    padding: 0.7em 0.5rem 0 0.5rem;
+    margin-right: 1rem;
     border-radius: ${(props) => props.theme.tileBorderRadius};
+    background-color: ${(props) => props.theme.fieldsetBackgroundColor};
+    list-style-type: none;
 
     .input-group {
         list-style-type: none;
         text-align: left;
-        margin: 0 1.5em 0 0;
+        margin: 0;
         padding: 0;
         flex-grow: 2;
     }
 
     li {
         display: flex;
+        width: 100%;
+        box-sizing: content-box;
     }
 
-    input[type='text'] {
-        border-width: 0 0 1px 0;
+    > .controls {
+        display: flex;
+        align-items: center;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
     }
 `;
 

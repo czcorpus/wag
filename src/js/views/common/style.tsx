@@ -462,3 +462,52 @@ export const Paginator = styled.span`
         margin-right: 0.3em;
     }
 `;
+
+// ---------------- <ToggleButton /> --------------------------------------
+
+export const ToggleButton = styled.div<{
+    $checked: boolean;
+    $disabled?: boolean;
+    theme: Theme;
+}>`
+    position: relative;
+    display: inline-block;
+    width: 3em;
+    height: 1.5em;
+    background-color: ${(props) =>
+        props.$checked
+            ? props.theme.colorLogoBlue
+            : props.theme.pageBackgroundColor};
+    border-radius: 0.75em;
+    cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+    transition: background-color 0.3s ease;
+    opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
+
+    &:hover {
+        background-color: ${(props) =>
+            props.$disabled
+                ? props.$checked
+                    ? props.theme.pageBackgroundColor
+                    : props.theme.pageBackgroundColor
+                : props.$checked
+                  ? props.theme.colorLogoBlue
+                  : props.theme.pageBackgroundColor};
+    }
+
+    .toggle-circle {
+        position: absolute;
+        top: 0.15em;
+        left: ${(props) => (props.$checked ? '1.5em' : '0.15em')};
+        width: 1.2em;
+        height: 1.2em;
+        background-color: ${(props) => props.theme.pageBackgroundColor};
+        border-radius: 50%;
+        transition: left 0.3s ease;
+        box-shadow: 0 2px 4px
+            color-mix(
+                in srgb,
+                ${(props) => props.theme.pageBackgroundColor} 20%,
+                black
+            );
+    }
+`;

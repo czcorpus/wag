@@ -106,6 +106,8 @@ export class Theme {
 
     public readonly pageBackgroundColor: string | undefined;
 
+    public readonly fieldsetBackgroundColor: string | undefined;
+
     public readonly tileBackgroundColor: string | undefined;
 
     public readonly tileHeadingSeparColor: string;
@@ -211,11 +213,17 @@ export class Theme {
         this.backgroundImage = confSrc.backgroundImage || undefined;
         this.pageBackgroundColor =
             confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
+        this.fieldsetBackgroundColor =
+            confSrc.fieldsetBackgroundColor || this.pageBackgroundColor;
         this.tileBackgroundColor =
             confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
         this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
         this.textInputBackgroundColor =
             confSrc.textInputBackgroundColor || this.tileBackgroundColor;
+        this.tileBorderStyle =
+            confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
+        this.tileBorderRadius =
+            confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
         this.textInputBorderStyle =
             confSrc.textInputBorderStyle || this.tileBorderStyle;
         this.colorLogoBlue =
@@ -256,11 +264,6 @@ export class Theme {
             typeof confSrc.svgLogoFilter === 'string'
                 ? confSrc.svgLogoFilter
                 : confSrc.svgIconsFilter;
-
-        this.tileBorderStyle =
-            confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
-        this.tileBorderRadius =
-            confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
 
         this.catColors = confSrc.category || [];
         this.catColorsHighlighted = List.map(

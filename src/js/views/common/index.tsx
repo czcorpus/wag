@@ -149,6 +149,12 @@ export interface GlobalComponents {
         onNext: () => void;
     }>;
 
+    ToggleButton: React.FC<{
+        checked: boolean;
+        onChange: (checked: boolean) => void;
+        disabled?: boolean;
+    }>;
+
     useMobileComponent: () => boolean;
 }
 
@@ -1150,6 +1156,30 @@ export function init(
         return null;
     };
 
+    // ------------------ <ToggleButton /> -----------------------------------------
+
+    const ToggleButton: GlobalComponents['ToggleButton'] = (props) => {
+        const handleClick = () => {
+            if (!props.disabled) {
+                props.onChange(!props.checked);
+            }
+        };
+
+        return (
+            <S.ToggleButton
+                onClick={handleClick}
+                $checked={props.checked}
+                $disabled={props.disabled}
+                role="switch"
+                aria-checked={props.checked}
+                aria-disabled={props.disabled}
+                tabIndex={props.disabled ? -1 : 0}
+            >
+                <div className="toggle-circle" />
+            </S.ToggleButton>
+        );
+    };
+
     // ------------------ <Paginator /> --------------------------------------------
 
     const Paginator: React.FC<{
@@ -1248,6 +1278,7 @@ export function init(
         AlignedRechartsTooltip,
         Paginator,
         TileMinHeightContext: React.createContext(100),
+        ToggleButton,
         useMobileComponent,
     };
 }

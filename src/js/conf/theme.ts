@@ -40,6 +40,7 @@ export interface ColorTheme extends ColorThemeIdent {
     defaultFontSize?: string;
     backgroundImage?: string;
     pageBackgroundColor?: string;
+    fieldsetBackgroundColor?: string;
     tileBackgroundColor?: string;
     tileHeadingSeparColor?: string;
     textInputBackgroundColor?: string;
