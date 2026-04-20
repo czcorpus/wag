@@ -201,6 +201,8 @@ export class Theme {
 
     public readonly logoStyles: LogoStyles;
 
+    public readonly toggleButtonCircleColor: string;
+
     constructor(conf?: ColorTheme, logoConf?: LogoRuntimeConf) {
         const confSrc =
             conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
@@ -331,6 +333,9 @@ export class Theme {
                   `
                 : css``,
         };
+        this.toggleButtonCircleColor = confSrc.toggleButtonCircleColor
+            ? confSrc.toggleButtonCircleColor
+            : this.pageBackgroundColor;
     }
 
     categoryPalette = (

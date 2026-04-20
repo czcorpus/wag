@@ -79,6 +79,13 @@ export interface ColorTheme extends ColorThemeIdent {
 
     chartTextColor?: string;
     chartGridColor?: string;
+
+    /**
+     * For some themes (e.g. dark ones, the circle's default
+     * color - page background) may not be most readable.
+     * For those cases, a custom color can be set.
+     */
+    toggleButtonCircleColor?: string;
 }
 
 export interface ColorsConf {
