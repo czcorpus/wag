@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import {
     Bar,
     BarChart,
     CartesianGrid,
     Legend,
-    ResponsiveContainer,
     Tooltip,
     XAxis,
     YAxis,
@@ -35,7 +34,7 @@ import {
     TileComponent,
 } from '../../../../page/tile.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
-import { FreqBarModel, FreqBarModelState } from '../model.js';
+import { FreqBarModel } from '../model.js';
 import { DataRow } from '../../../../api/vendor/mquery/freqs.js';
 
 import * as S from '../style.js';
@@ -163,29 +162,28 @@ export function init(
 
     // -------------------------- <FreqBarTile /> --------------------------------------
 
-    const FreqBarTile: React.FC<FreqBarModelState & CoreTileComponentProps> = (
-        props
-    ) => {
-        const freqData = List.head(props.freqData);
+    const FreqBarTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+        const freqData = List.head(state.freqData);
         const numCats = freqData ? freqData.rows.length : 0;
-        const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
+        const barCategoryGap = Math.max(10, 40 - state.pixelsPerCategory);
 
         return (
             <globComponents.TileWrapper
                 tileId={props.tileId}
-                isBusy={props.isBusy}
-                error={props.error}
+                isBusy={state.isBusy}
+                error={state.error}
                 hasData={freqData && !List.empty(freqData.rows)}
-                sourceIdent={{ corp: props.corpname }}
-                backlink={props.backlinks}
+                sourceIdent={{ corp: state.corpname }}
+                backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.FreqBarTile>
-                    {props.isAltViewMode ? (
+                    {state.isAltViewMode ? (
                         <S.Tables>
                             <h3 style={{ textAlign: 'center' }}>
-                                {props.label}
+                                {state.label}
                             </h3>
                             <TableView data={freqData.rows} />
                         </S.Tables>
@@ -212,8 +210,5 @@ export function init(
         );
     };
 
-    return BoundWithProps<CoreTileComponentProps, FreqBarModelState>(
-        FreqBarTile,
-        model
-    );
+    return FreqBarTile;
 }

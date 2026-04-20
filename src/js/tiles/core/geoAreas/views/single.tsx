@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 
@@ -201,84 +201,62 @@ export function init(
 
     // -------------- <GeoAreasTileView /> ---------------------------------------------
 
-    class GeoAreasTileView extends React.PureComponent<
-        GeoAreasModelState & CoreTileComponentProps
-    > {
-        componentDidMount() {
-            if (this.props.data[0].length > 0) {
-                drawLabels(
-                    this.props,
-                    this.props.tileId,
-                    theme.geoAreaSpotFillColor
-                );
+    const GeoAreasTileView: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+
+        React.useEffect(() => {
+            if (state.data[0].length > 0) {
+                drawLabels(state, props.tileId, theme.geoAreaSpotFillColor);
             }
-        }
+        }, []);
 
-        componentDidUpdate(prevProps) {
-            if (
-                this.props.data[0].length > 0 &&
-                !this.props.isAltViewMode &&
-                (prevProps.data[0] !== this.props.data[0] ||
-                    prevProps.isAltViewMode !== this.props.isAltViewMode)
-            ) {
-                drawLabels(
-                    this.props,
-                    this.props.tileId,
-                    theme.geoAreaSpotFillColor
-                );
-            }
-        }
+        React.useEffect(() => {
+            drawLabels(state, props.tileId, theme.geoAreaSpotFillColor);
+        });
 
-        render() {
-            const areaWidth =
-                this.props.widthFract > 2 && !this.props.isMobile
-                    ? '70%'
-                    : '100%';
-            return (
-                <globComponents.TileWrapper
-                    tileId={this.props.tileId}
-                    isBusy={this.props.isBusy}
-                    error={this.props.error}
-                    hasData={this.props.data[0].length > 0}
-                    sourceIdent={{ corp: this.props.corpname }}
-                    supportsTileReload={this.props.supportsReloadOnError}
-                    issueReportingUrl={this.props.issueReportingUrl}
-                    backlink={this.props.backlinks[0]}
-                >
-                    <S.GeoAreasTileView>
-                        {this.props.isAltViewMode ? (
-                            <DataTable rows={this.props.data[0]} />
-                        ) : (
-                            <div
-                                className="flex-item"
-                                style={{ width: areaWidth, height: '80%' }}
-                            >
-                                <Map mapSVG={this.props.mapSVG} />
-                                <S.Legend>
-                                    {ut.translate(
-                                        'geolocations__single_ipm_map_legend'
-                                    )}
-                                </S.Legend>
+        const areaWidth =
+            props.widthFract > 2 && !props.isMobile ? '70%' : '100%';
+        return (
+            <globComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={state.data[0].length > 0}
+                sourceIdent={{ corp: state.corpname }}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+                backlink={state.backlinks[0]}
+            >
+                <S.GeoAreasTileView>
+                    {state.isAltViewMode ? (
+                        <DataTable rows={state.data[0]} />
+                    ) : (
+                        <div
+                            className="flex-item"
+                            style={{ width: areaWidth, height: '80%' }}
+                        >
+                            <Map mapSVG={state.mapSVG} />
+                            <S.Legend>
+                                {ut.translate(
+                                    'geolocations__single_ipm_map_legend'
+                                )}
+                            </S.Legend>
 
-                                {this.props.tooltipArea !== null ? (
-                                    <globComponents.ElementTooltip
-                                        x={this.props.tooltipArea.tooltipX}
-                                        y={this.props.tooltipArea.tooltipY}
-                                        visible={true}
-                                        caption={this.props.tooltipArea.caption}
-                                        values={this.props.tooltipArea.data}
-                                    />
-                                ) : null}
-                            </div>
-                        )}
-                    </S.GeoAreasTileView>
-                </globComponents.TileWrapper>
-            );
-        }
-    }
+                            {state.tooltipArea !== null ? (
+                                <globComponents.ElementTooltip
+                                    x={state.tooltipArea.tooltipX}
+                                    y={state.tooltipArea.tooltipY}
+                                    visible={true}
+                                    caption={state.tooltipArea.caption}
+                                    values={state.tooltipArea.data}
+                                />
+                            ) : null}
+                        </div>
+                    )}
+                </S.GeoAreasTileView>
+            </globComponents.TileWrapper>
+        );
+    };
 
-    return BoundWithProps<CoreTileComponentProps, GeoAreasModelState>(
-        GeoAreasTileView,
-        model
-    );
+    return GeoAreasTileView;
 }

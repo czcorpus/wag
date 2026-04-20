@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import { MergeCorpFreqModel } from './model.js';
 import {
     BarChart,
@@ -36,7 +36,7 @@ import { Color, List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions.js';
 
 import * as S from './style.js';
-import { MergeCorpFreqModelState, SourceMappedDataRow } from './common.js';
+import { SourceMappedDataRow } from './common.js';
 
 // @ts-ignore
 import SVGLink from '../../../../../assets/external-link.svg?inline';
@@ -388,16 +388,16 @@ export function init(
 
     // -------------------------- <MergeCorpFreqBarTile /> --------------------------------------
 
-    const MergeCorpFreqBarTile: React.FC<
-        MergeCorpFreqModelState & CoreTileComponentProps
-    > = (props) => {
+    const MergeCorpFreqBarTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+
         const numCats = Math.max(
             0,
-            ...props.data.map((v) => (v ? v.length : 0))
+            ...state.data.map((v) => (v ? v.length : 0))
         );
-        const barCategoryGap = Math.max(10, 40 - props.pixelsPerCategory);
+        const barCategoryGap = Math.max(10, 40 - state.pixelsPerCategory);
         const minHeight =
-            70 + numCats * (props.pixelsPerCategory + barCategoryGap);
+            70 + numCats * (state.pixelsPerCategory + barCategoryGap);
 
         const handleBarClick = (barIdx: number, queryIdx: number) => () => {
             dispatcher.dispatch(Actions.ViewInOtherWag, {
@@ -410,42 +410,42 @@ export function init(
         return (
             <globComponents.TileWrapper
                 tileId={props.tileId}
-                isBusy={props.isBusy}
-                error={props.error}
+                isBusy={state.isBusy}
+                error={state.error}
                 hasData={List.some(
                     (v) => v && List.some((f) => f.freq > 0, v),
-                    props.data
+                    state.data
                 )}
                 sourceIdent={pipe(
-                    props.sources,
+                    state.sources,
                     List.groupBy((v) => v.corpname),
                     List.flatMap(([, v]) => v),
                     List.map((v) => ({ corp: v.corpname, subcorp: v.subcname }))
                 )}
-                backlink={List.flatMap((v) => v, props.backlinks)}
+                backlink={List.flatMap((v) => v, state.backlinks)}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <div style={{ position: 'relative' }}>
-                    {props.tooltipData !== null ? (
+                    {state.tooltipData !== null ? (
                         <globComponents.ElementTooltip
-                            x={props.tooltipData.tooltipX}
-                            y={props.tooltipData.tooltipY}
+                            x={state.tooltipData.tooltipX}
+                            y={state.tooltipData.tooltipY}
                             visible={true}
-                            caption={props.tooltipData.caption}
-                            values={props.tooltipData.data}
-                            multiWord={props.queryMatches.length > 1}
+                            caption={state.tooltipData.caption}
+                            values={state.tooltipData.data}
+                            multiWord={state.queryMatches.length > 1}
                             colors={
-                                props.queryMatches.length > 1
+                                state.queryMatches.length > 1
                                     ? (idx) =>
                                           theme.cmpCategoryColor(
                                               idx,
-                                              props.queryMatches.length
+                                              state.queryMatches.length
                                           )
                                     : null
                             }
                             customFooter={
-                                props.tooltipData.showClickTip ? (
+                                state.tooltipData.showClickTip ? (
                                     <strong style={{ fontSize: '1.2em' }}>
                                         {ut.translate(
                                             'mergeCorpFreq__click_to_see_details'
@@ -466,12 +466,12 @@ export function init(
                                     height: '100%',
                                 }}
                             >
-                                {props.isAltViewMode ? (
+                                {state.isAltViewMode ? (
                                     <S.Tables>
                                         <TableView
                                             tileId={props.tileId}
-                                            data={props.data}
-                                            queryMatches={props.queryMatches}
+                                            data={state.data}
+                                            queryMatches={state.queryMatches}
                                         />
                                     </S.Tables>
                                 ) : (
@@ -480,10 +480,10 @@ export function init(
                                             tileId={props.tileId}
                                             width={width * 0.9}
                                             height={height}
-                                            data={props.data}
+                                            data={state.data}
                                             barCategoryGap={barCategoryGap}
-                                            queryMatches={props.queryMatches}
-                                            isPartial={props.isBusy}
+                                            queryMatches={state.queryMatches}
+                                            isPartial={state.isBusy}
                                             isMobile={props.isMobile}
                                             onBarClick={handleBarClick}
                                         />
@@ -497,8 +497,5 @@ export function init(
         );
     };
 
-    return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(
-        MergeCorpFreqBarTile,
-        model
-    );
+    return MergeCorpFreqBarTile;
 }

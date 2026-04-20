@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 
 import { Theme } from '../../../page/theme.js';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { GlobalComponents } from '../../../views/common/index.js';
 import { HtmlModel } from './model.js';
-import { HtmlModelState } from './common.js';
 
 import * as S from './style.js';
 
@@ -36,36 +35,27 @@ export function init(
 
     // -------------- <HtmlTile /> -------------------------------------
 
-    class HtmlTile extends React.PureComponent<
-        HtmlModelState & CoreTileComponentProps
-    > {
-        constructor(props) {
-            super(props);
-        }
+    const HtmlTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
 
-        render() {
-            return (
-                <globalCompontents.TileWrapper
-                    tileId={this.props.tileId}
-                    isBusy={this.props.isBusy}
-                    error={this.props.error}
-                    htmlClass={`HtmlTile${this.props.tileName}`}
-                    hasData={Boolean(this.props.data)}
-                    sourceIdent={null}
-                    supportsTileReload={this.props.supportsReloadOnError}
-                    issueReportingUrl={this.props.issueReportingUrl}
-                    backlink={this.props.backlink}
-                >
-                    <S.HtmlFrame
-                        dangerouslySetInnerHTML={{ __html: this.props.data }}
-                    />
-                </globalCompontents.TileWrapper>
-            );
-        }
-    }
+        return (
+            <globalCompontents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                htmlClass={`HtmlTile${props.tileName}`}
+                hasData={Boolean(state.data)}
+                sourceIdent={null}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+                backlink={state.backlink}
+            >
+                <S.HtmlFrame
+                    dangerouslySetInnerHTML={{ __html: this.props.data }}
+                />
+            </globalCompontents.TileWrapper>
+        );
+    };
 
-    return BoundWithProps<CoreTileComponentProps, HtmlModelState>(
-        HtmlTile,
-        model
-    );
+    return HtmlTile;
 }

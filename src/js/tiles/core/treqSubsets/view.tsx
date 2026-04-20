@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils, useModel } from 'kombo';
 import * as React from 'react';
 import { List } from 'cnc-tskit';
 
@@ -26,7 +26,6 @@ import {
 } from '../../../views/common/index.js';
 import {
     TranslationSubset,
-    TranslationsSubsetsModelState,
     TreqSubsetModel,
     flipRowColMapper,
 } from './model.js';
@@ -314,47 +313,43 @@ export function init(
 
     // --------------------- <TreqSubsetsView /> ----------------------------
 
-    class TreqSubsetsView extends React.PureComponent<
-        TranslationsSubsetsModelState & CoreTileComponentProps
-    > {
-        render() {
-            return (
-                <globalComponents.TileWrapper
-                    tileId={this.props.tileId}
-                    isBusy={this.props.isBusy}
-                    error={this.props.error}
-                    hasData={
-                        List.flatMap((v) => v.translations, this.props.subsets)
-                            .length > 0
-                    }
-                    backlink={this.props.backlinks}
-                    sourceIdent={{ corp: 'InterCorp' }}
-                    supportsTileReload={this.props.supportsReloadOnError}
-                    issueReportingUrl={this.props.issueReportingUrl}
-                >
-                    <S.TreqSubsetsView>
-                        <div className="data">
-                            {this.props.isAltViewMode ? (
-                                <AltViewTable
-                                    subsets={this.props.subsets}
-                                    maxNumLines={this.props.maxNumLines}
-                                />
-                            ) : (
-                                <ResultChart
-                                    subsets={this.props.subsets}
-                                    maxNumLines={this.props.maxNumLines}
-                                    chartWidthPx={130}
-                                    highlightedRowIdx={
-                                        this.props.highlightedRowIdx
-                                    }
-                                />
-                            )}
-                        </div>
-                    </S.TreqSubsetsView>
-                </globalComponents.TileWrapper>
-            );
-        }
-    }
+    const TreqSubsetsView: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
 
-    return BoundWithProps<any, any>(TreqSubsetsView, model);
+        return (
+            <globalComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={
+                    List.flatMap((v) => v.translations, state.subsets).length >
+                    0
+                }
+                backlink={state.backlinks}
+                sourceIdent={{ corp: 'InterCorp' }}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+            >
+                <S.TreqSubsetsView>
+                    <div className="data">
+                        {state.isAltViewMode ? (
+                            <AltViewTable
+                                subsets={state.subsets}
+                                maxNumLines={state.maxNumLines}
+                            />
+                        ) : (
+                            <ResultChart
+                                subsets={state.subsets}
+                                maxNumLines={state.maxNumLines}
+                                chartWidthPx={130}
+                                highlightedRowIdx={state.highlightedRowIdx}
+                            />
+                        )}
+                    </div>
+                </S.TreqSubsetsView>
+            </globalComponents.TileWrapper>
+        );
+    };
+
+    return TreqSubsetsView;
 }
