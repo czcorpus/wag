@@ -392,13 +392,59 @@ export function init(
         maxCmpQueries: number;
         supportsCmpQuery: boolean;
         submitComponent: React.ReactElement;
+        isAnswerMode: boolean;
         handleQueryInput: (idx: number) => (s: string) => void;
         handleSubmit: () => void;
     }> = (props) => {
+        const [isExpanded, setIsExpanded] = React.useState(!props.isAnswerMode);
+        const containerRef = React.useRef<HTMLUListElement>(null);
+
         const focusOn = props.queries.findIndex(
             (query, index) =>
                 query.value === '' || index === props.queries.length - 1
         );
+
+        React.useEffect(() => {
+            if (!props.isAnswerMode) {
+                return;
+            }
+
+            const handleClickOutside = (evt: MouseEvent) => {
+                if (
+                    containerRef.current &&
+                    !containerRef.current.contains(evt.target as Node)
+                ) {
+                    setIsExpanded(false);
+                }
+            };
+
+            const handleFocusOut = (evt: FocusEvent) => {
+                const relatedTarget = evt.relatedTarget as Node;
+                // Only collapse if focus is moving to an element outside the container
+                // (relatedTarget null means clicking on non-focusable element, handled by mousedown)
+                if (
+                    relatedTarget &&
+                    containerRef.current &&
+                    !containerRef.current.contains(relatedTarget)
+                ) {
+                    setIsExpanded(false);
+                }
+            };
+
+            const container = containerRef.current;
+            if (container) {
+                document.addEventListener('mousedown', handleClickOutside);
+                container.addEventListener('focusout', handleFocusOut);
+
+                return () => {
+                    document.removeEventListener(
+                        'mousedown',
+                        handleClickOutside
+                    );
+                    container.removeEventListener('focusout', handleFocusOut);
+                };
+            }
+        }, [props.isAnswerMode]);
 
         const addCmpQuery = () => {
             dispatcher.dispatch<typeof Actions.AddCmpQueryInput>({
@@ -431,8 +477,14 @@ export function init(
             });
         };
 
+        const handleFocus = () => {
+            if (props.isAnswerMode && !isExpanded) {
+                setIsExpanded(true);
+            }
+        };
+
         return (
-            <S.MultiQueryField>
+            <S.MultiQueryField ref={containerRef} onFocus={handleFocus}>
                 {List.map(
                     (query, queryIdx) => (
                         <li className="input-row" key={`query:${queryIdx}`}>
@@ -461,21 +513,25 @@ export function init(
                     ),
                     props.queries
                 )}
-                <li className="controls">
-                    {props.supportsCmpQuery ? (
-                        <AddCmpQueryField
-                            onClick={
-                                props.maxCmpQueries === 1
-                                    ? switchToCmpMode
-                                    : addCmpQuery
-                            }
+                {(!props.isAnswerMode || isExpanded) && (
+                    <li className="controls">
+                        {props.supportsCmpQuery ? (
+                            <AddCmpQueryField
+                                onClick={
+                                    props.maxCmpQueries === 1
+                                        ? switchToCmpMode
+                                        : addCmpQuery
+                                }
+                            />
+                        ) : null}
+                        <StrictEqButton
+                            enabled={props.lemmatizationLevel === 'form'}
                         />
-                    ) : null}
-                    <StrictEqButton
-                        enabled={props.lemmatizationLevel === 'form'}
-                    />
-                </li>
-                <li>{props.submitComponent}</li>
+                    </li>
+                )}
+                {(!props.isAnswerMode || isExpanded) && (
+                    <li>{props.submitComponent}</li>
+                )}
             </S.MultiQueryField>
         );
     };
@@ -532,6 +588,7 @@ export function init(
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={1}
                             supportsCmpQuery={props.supportsCmpQuery}
+                            isAnswerMode={props.isAnswerMode}
                             submitComponent={
                                 <SubmitButton
                                     onClick={handleSubmit}
@@ -550,6 +607,7 @@ export function init(
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={props.maxCmpQueries}
                             supportsCmpQuery={props.supportsCmpQuery}
+                            isAnswerMode={props.isAnswerMode}
                             submitComponent={
                                 <SubmitButton
                                     onClick={handleSubmit}
