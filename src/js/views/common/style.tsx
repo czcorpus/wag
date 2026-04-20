@@ -468,6 +468,7 @@ export const Paginator = styled.span`
 export const ToggleButton = styled.div<{
     $checked: boolean;
     $disabled?: boolean;
+    $higherContractCircle?: boolean;
     theme: Theme;
 }>`
     position: relative;
@@ -500,13 +501,13 @@ export const ToggleButton = styled.div<{
         left: ${(props) => (props.$checked ? '1.5em' : '0.15em')};
         width: 1.2em;
         height: 1.2em;
-        background-color: ${(props) => props.theme.pageBackgroundColor};
+        background-color: ${(props) => props.theme.toggleButtonCircleColor};
         border-radius: 50%;
         transition: left 0.3s ease;
         box-shadow: 0 2px 4px
             color-mix(
                 in srgb,
-                ${(props) => props.theme.pageBackgroundColor} 20%,
+                ${(props) => props.theme.toggleButtonCircleColor} 20%,
                 black
             );
     }
