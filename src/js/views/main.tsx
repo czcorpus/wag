@@ -320,9 +320,7 @@ export function init(
                     onClick={props.onClick}
                     aria-label={ut.translate('global__aria_search_btn')}
                 >
-                    {props.cmpMode
-                        ? ut.translate('global__cmp_button')
-                        : ut.translate('global__search')}
+                    <img src={ut.createStaticUrl('mglass.svg')} />
                 </button>
             </S.SubmitButton>
         );
@@ -393,6 +391,7 @@ export function init(
         lemmatizationLevel: LemmatizationLevel;
         maxCmpQueries: number;
         supportsCmpQuery: boolean;
+        submitComponent: React.ReactElement;
         handleQueryInput: (idx: number) => (s: string) => void;
         handleSubmit: () => void;
     }> = (props) => {
@@ -476,6 +475,7 @@ export function init(
                         enabled={props.lemmatizationLevel === 'form'}
                     />
                 </li>
+                <li>{props.submitComponent}</li>
             </S.MultiQueryField>
         );
     };
@@ -532,6 +532,12 @@ export function init(
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={1}
                             supportsCmpQuery={props.supportsCmpQuery}
+                            submitComponent={
+                                <SubmitButton
+                                    onClick={handleSubmit}
+                                    cmpMode={false}
+                                />
+                            }
                         />
                     );
                 case 'cmp':
@@ -544,6 +550,12 @@ export function init(
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={props.maxCmpQueries}
                             supportsCmpQuery={props.supportsCmpQuery}
+                            submitComponent={
+                                <SubmitButton
+                                    onClick={handleSubmit}
+                                    cmpMode={false}
+                                />
+                            }
                         />
                     );
                 case 'translat':
@@ -580,13 +592,7 @@ export function init(
 
         return (
             <S.QueryFields className={props.currQueryType}>
-                <div className="input-and-submit">
-                    {renderFields()}
-                    <SubmitButton
-                        onClick={handleSubmit}
-                        cmpMode={props.currQueryType === 'cmp'}
-                    />
-                </div>
+                <div className="input-and-submit">{renderFields()}</div>
                 {props.isAnswerMode ? <SubmenuTile /> : null}
             </S.QueryFields>
         );
