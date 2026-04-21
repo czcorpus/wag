@@ -93,6 +93,8 @@ const fallbackTheme: ColorTheme = {
         '#e2007a',
     ],
     geoAreaSpotFillColor: '#212F3C',
+
+    formElementsBorderRadius: '6px',
 };
 
 /**
@@ -106,7 +108,9 @@ export class Theme {
 
     public readonly pageBackgroundColor: string | undefined;
 
-    public readonly fieldsetBackgroundColor: string | undefined;
+    public readonly queryFormBackgroundColor: string | undefined;
+
+    public readonly queryFormBorderColor: string | undefined;
 
     public readonly tileBackgroundColor: string | undefined;
 
@@ -203,6 +207,8 @@ export class Theme {
 
     public readonly toggleButtonCircleColor: string;
 
+    public readonly formElementsBorderRadius: string;
+
     constructor(conf?: ColorTheme, logoConf?: LogoRuntimeConf) {
         const confSrc =
             conf && Dict.size<any, string>(conf) > 0 ? conf : fallbackTheme;
@@ -215,8 +221,10 @@ export class Theme {
         this.backgroundImage = confSrc.backgroundImage || undefined;
         this.pageBackgroundColor =
             confSrc.pageBackgroundColor || fallbackTheme.pageBackgroundColor;
-        this.fieldsetBackgroundColor =
-            confSrc.fieldsetBackgroundColor || this.pageBackgroundColor;
+        this.queryFormBackgroundColor =
+            confSrc.queryFormBackgroundColor || this.pageBackgroundColor;
+        this.queryFormBorderColor =
+            confSrc.queryFormBorderColor || this.pageBackgroundColor;
         this.tileBackgroundColor =
             confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
         this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
@@ -336,6 +344,8 @@ export class Theme {
         this.toggleButtonCircleColor = confSrc.toggleButtonCircleColor
             ? confSrc.toggleButtonCircleColor
             : this.pageBackgroundColor;
+
+        this.formElementsBorderRadius = fallbackTheme.formElementsBorderRadius; // TODO configurable
     }
 
     categoryPalette = (

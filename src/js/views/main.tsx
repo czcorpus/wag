@@ -316,7 +316,6 @@ export function init(
         return (
             <S.SubmitButton>
                 <button
-                    className="wag-button wag-button-primary"
                     type="button"
                     onClick={props.onClick}
                     aria-label={ut.translate('global__aria_search_btn')}
@@ -486,7 +485,11 @@ export function init(
         };
 
         return (
-            <S.MultiQueryField ref={containerRef} onFocus={handleFocus}>
+            <S.MultiQueryField
+                ref={containerRef}
+                onFocus={handleFocus}
+                $isCollapsed={!isExpanded}
+            >
                 {List.map(
                     (query, queryIdx) => (
                         <li className="input-row" key={`query:${queryIdx}`}>
