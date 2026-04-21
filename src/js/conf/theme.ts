@@ -40,7 +40,8 @@ export interface ColorTheme extends ColorThemeIdent {
     defaultFontSize?: string;
     backgroundImage?: string;
     pageBackgroundColor?: string;
-    fieldsetBackgroundColor?: string;
+    queryFormBackgroundColor?: string;
+    queryFormBorderColor?: string;
     tileBackgroundColor?: string;
     tileHeadingSeparColor?: string;
     textInputBackgroundColor?: string;
@@ -86,6 +87,8 @@ export interface ColorTheme extends ColorThemeIdent {
      * For those cases, a custom color can be set.
      */
     toggleButtonCircleColor?: string;
+
+    formElementsBorderRadius?: string;
 }
 
 export interface ColorsConf {

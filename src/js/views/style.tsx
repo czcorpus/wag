@@ -187,9 +187,14 @@ export const CloseCmpInputButton = styled.div<{ theme: Theme }>`
 
 export const AddCmpQueryField = styled.div<{ theme: Theme }>`
     color: ${(props) => props.theme.colorLogoBlue};
-    font-size: 1.5rem;
-    margin-top: 0.1rem;
+    font-size: 2rem;
     font-weight: bold;
+    text-shadow: 0 1px 3px
+        color-mix(
+            in srgb,
+            ${(props) => props.theme.colorLogoBlue} 40%,
+            transparent
+        );
     cursor: pointer;
 `;
 
@@ -222,6 +227,7 @@ export const QueryFields = styled.div<{ theme: Theme }>`
 
     .input-and-submit {
         display: flex;
+        justify-content: center;
         align-items: center;
 
         .arrow {
@@ -293,14 +299,23 @@ export const SingleQueryInput = styled.span<{
 
 // -------------- <MultiQueryField /> --------------------------------------
 
-export const MultiQueryField = styled.ul<{ theme: Theme }>`
+export const MultiQueryField = styled.ul<{
+    theme: Theme;
+    $isCollapsed: boolean;
+}>`
     display: flex;
     flex-direction: column;
-    ${virtualInput};
-    padding: 0.7em 0.5rem 0 0.5rem;
-    margin-right: 1rem;
-    border-radius: ${(props) => props.theme.tileBorderRadius};
-    background-color: ${(props) => props.theme.fieldsetBackgroundColor};
+    align-items: center;
+    display: flex;
+    margin: 0;
+    padding: ${(props) =>
+        props.$isCollapsed ? '0.1rem 0.3rem' : '1.4rem 1.4rem 0 1.4rem'};
+    width: 15rem;
+    border-color: ${(props) => props.theme.queryFormBorderColor};
+    border-width: 1.5px;
+    border-style: solid;
+    border-radius: ${(props) => props.theme.formElementsBorderRadius};
+    background-color: ${(props) => props.theme.queryFormBackgroundColor};
     list-style-type: none;
 
     .input-group {
@@ -593,9 +608,14 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
             display: flex;
             justify-content: center;
             width: 5rem;
+            border: none;
             background-color: ${(props) => props.theme.colorLogoBlue};
             padding: 0.3rem 0 0.3rem 0;
-            border: 1px solid rgba(0, 0, 0, 0.8);
+            //border: 1px solid rgba(0, 0, 0, 0.8);
+            box-shadow:
+                0 4px 14px rgba(0, 0, 0, 0.25),
+                0 2px 4px rgba(0, 0, 0, 0.15);
+            border-radius: ${(props) => props.theme.formElementsBorderRadius};
 
             img {
                 width: 1rem;
@@ -860,7 +880,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
     h2 {
         background-color: ${(props) => props.theme.colorLogoBlue};
         color: ${(props) => props.theme.colorInvertText};
-        border-radius: 0.25em;
+        border-radius: 6px;
         font-weight: 400;
         font-size: 1.3em;
         box-shadow: 0 -0.1em 0 0 rgba(0, 0, 0, 0.25) inset;
