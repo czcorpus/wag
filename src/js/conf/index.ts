@@ -227,6 +227,8 @@ export interface ClientStaticConf {
     // A list of URLs used to style specific content (e.g. HTML tiles)
     externalStyles?: Array<string>;
 
+    disableExactFormSearchOption?: boolean;
+
     /**
      * This specifies an URL used by the DataStreaming class
      * to start an EventSource stream. The fact whether it will
@@ -295,7 +297,7 @@ export interface ClientConf {
     };
     tiles: { [ident: string]: TileConf };
     dataStreamingUrl: string;
-
+    supportsExactFormSearch: boolean;
     layouts: LayoutsConfig;
     queryTypes: Array<QueryType>;
     externalStyles: Array<string>;
@@ -397,6 +399,7 @@ export function emptyClientConf(
         externalStyles: [],
         maxTileErrors: 0,
         maxQueryWords: 1,
+        supportsExactFormSearch: true,
     };
 }
 

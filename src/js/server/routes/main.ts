@@ -256,6 +256,7 @@ export function mkRuntimeClientConf({
                 maxTileErrors: conf.maxTileErrors,
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
                 hideUnavailableQueryTypes: conf.hideUnavailableQueryTypes,
+                supportsExactFormSearch: !conf.disableExactFormSearchOption,
             };
         })
     );
