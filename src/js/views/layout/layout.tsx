@@ -422,6 +422,9 @@ export function init(
                         isMobile={props.isMobile}
                         isAnswerMode={props.isAnswerMode}
                         queries={props.userConfig.queries}
+                        supportsExactFormSearch={
+                            props.config.supportsExactFormSearch
+                        }
                         error={props.error}
                         onMount={() => undefined}
                     />

@@ -67,6 +67,7 @@ export interface WdglanceMainProps {
     queries: Array<UserQuery>;
     isMobile: boolean;
     isAnswerMode: boolean;
+    supportsExactFormSearch: boolean;
     error: [number, string] | null;
     onMount: () => void;
 }
@@ -391,6 +392,7 @@ export function init(
         lemmatizationLevel: LemmatizationLevel;
         maxCmpQueries: number;
         supportsCmpQuery: boolean;
+        supportsExactFormSearch: boolean;
         submitComponent: React.ReactElement;
         isAnswerMode: boolean;
         handleQueryInput: (idx: number) => (s: string) => void;
@@ -524,9 +526,11 @@ export function init(
                                 }
                             />
                         ) : null}
-                        <StrictEqButton
-                            enabled={props.lemmatizationLevel === 'form'}
-                        />
+                        {props.supportsExactFormSearch ? (
+                            <StrictEqButton
+                                enabled={props.lemmatizationLevel === 'form'}
+                            />
+                        ) : null}
                     </li>
                 )}
                 {(!props.isAnswerMode || isExpanded) && (
@@ -548,6 +552,7 @@ export function init(
         maxCmpQueries: number;
         isAnswerMode: boolean;
         supportsCmpQuery: boolean;
+        supportsExactFormSearch: boolean;
     }> = (props) => {
         const handleQueryInput =
             (idx: number) =>
@@ -588,6 +593,9 @@ export function init(
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={1}
                             supportsCmpQuery={props.supportsCmpQuery}
+                            supportsExactFormSearch={
+                                props.supportsExactFormSearch
+                            }
                             isAnswerMode={props.isAnswerMode}
                             submitComponent={
                                 <SubmitButton
@@ -607,6 +615,9 @@ export function init(
                             lemmatizationLevel={props.lemmatizationLevel}
                             maxCmpQueries={props.maxCmpQueries}
                             supportsCmpQuery={props.supportsCmpQuery}
+                            supportsExactFormSearch={
+                                props.supportsExactFormSearch
+                            }
                             isAnswerMode={props.isAnswerMode}
                             submitComponent={
                                 <SubmitButton
@@ -868,6 +879,7 @@ export function init(
 
     const WdglanceControls: React.FC<{
         isAnswerMode: boolean;
+        supportsExactFormSearch: boolean;
         layout: Array<TileGroup>;
     }> = (props) => {
         const handleQueryTypeChange = (queryType: QueryType) => {
@@ -964,6 +976,9 @@ export function init(
                             translatLanguages={state.translatLanguages}
                             maxCmpQueries={state.maxCmpQueries}
                             supportsCmpQuery={state.supportedQueryTypes['cmp']}
+                            supportsExactFormSearch={
+                                props.supportsExactFormSearch
+                            }
                         />
                     </div>
                 </form>
@@ -2309,6 +2324,7 @@ export function init(
                     <WdglanceControls
                         isAnswerMode={props.isAnswerMode}
                         layout={props.layout}
+                        supportsExactFormSearch={props.supportsExactFormSearch}
                     />
                     <TilesSections
                         layout={props.layout}

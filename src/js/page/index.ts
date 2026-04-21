@@ -70,6 +70,7 @@ interface MountArgs {
     dispatcher: ActionDispatcher;
     homepage: Array<HomepageTileConf>;
     queryMatches: RecognizedQueries;
+    supportsExactFormSearch: boolean;
 }
 
 const DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS = 10;
@@ -83,6 +84,7 @@ function mountReactComponent({
     queryMatches,
     homepage,
     userSession,
+    supportsExactFormSearch,
 }: MountArgs) {
     const onMount =
         !userSession.error || userSession.error[0] === 0
@@ -122,6 +124,7 @@ function mountReactComponent({
         isAnswerMode: userSession.answerMode,
         error: userSession.error,
         queries: userSession.queries,
+        supportsExactFormSearch,
         onMount,
     });
     const root = hydrateRoot(mountElement, rootComp);
@@ -273,6 +276,7 @@ export function initClient(
                 appServices,
                 queryMatches,
                 homepage: [...config.homepage.tiles],
+                supportsExactFormSearch: config.supportsExactFormSearch,
             });
         } else {
             const { component, tileGroups } = createRootComponent({
@@ -296,6 +300,7 @@ export function initClient(
                 appServices,
                 queryMatches,
                 homepage: [...config.homepage.tiles],
+                supportsExactFormSearch: config.supportsExactFormSearch,
             });
         }
     } catch (e) {
