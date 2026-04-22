@@ -318,14 +318,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             window.location.href = this.appServices.createActionUrl(
                 this.buildQueryPath(state),
                 {
-                    lemma: List.map(
-                        (x, i) => List.find((v) => v.isCurrent, x).lemma,
-                        state.queryMatches
-                    ),
-                    sublemma: List.map(
-                        (x, i) => List.find((v) => v.isCurrent, x).sublemma,
-                        state.queryMatches
-                    ),
                     lemlevel:
                         state.lemmatizationLevel === 'sublemma'
                             ? undefined
@@ -398,7 +390,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     }
 
     validateQuery(state: QueryFormModelState): void {
-        switch (state.queryType) {
+        const queryType = this.determineSubmitQueryType(state);
+        switch (queryType) {
             case 'single':
                 this.validateNthQuery(state, 0);
                 break;
