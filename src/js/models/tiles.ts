@@ -63,7 +63,8 @@ export interface WdglanceTilesState {
     allTilesLoaded: boolean;
     showRedirectingModal: boolean;
     redirectingMessage: string;
-    aboutInfo: {label: string; body: string} | undefined;
+    aboutInfo: { label: string; body: string } | undefined;
+    lemmaOnlySupportedHelpVisible: boolean;
 }
 
 /**
@@ -478,17 +479,18 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             }
         );
 
-        this.addActionHandler(
-            Actions.AboutAppLinkClicked,
-            (state, action) => {
-                state.aboutInfo = {...action.payload};
-            }
-        );
+        this.addActionHandler(Actions.AboutAppLinkClicked, (state, action) => {
+            state.aboutInfo = { ...action.payload };
+        });
+
+        this.addActionHandler(Actions.AboutAppInfoClosed, (state, action) => {
+            state.aboutInfo = undefined;
+        });
 
         this.addActionHandler(
-            Actions.AboutAppInfoClosed,
+            Actions.SetLemmaOnlyHelpVisibility,
             (state, action) => {
-                state.aboutInfo = undefined;
+                state.lemmaOnlySupportedHelpVisible = action.payload.visible;
             }
         );
     }

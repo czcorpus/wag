@@ -99,6 +99,32 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
             margin-top: 1em;
         }
     }
+
+    && {
+        .freq-highlight {
+            border-width: 0 0 0 10px;
+            border-style: solid;
+            border-color: ${(props) => props.theme.colorLogoBlue};
+            padding: 1rem 1rem 1rem 1.5rem;
+
+            dt,
+            dd {
+                margin-left: 0;
+            }
+
+            strong,
+            dd.ipm {
+                color: ${(props) => props.theme.colorLogoBlue};
+            }
+        }
+
+        .general-info {
+            border-width: 0 0 0 10px;
+            border-style: solid;
+            border-color: ${(props) => props.theme.pageBackgroundColor};
+            padding: 1rem 1rem 1rem 1.5rem;
+        }
+    }
 `;
 
 // ------------- <Stars /> -----------------------------

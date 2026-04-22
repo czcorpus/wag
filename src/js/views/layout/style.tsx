@@ -363,6 +363,13 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         color: ${confTheme.colorSecondaryText};
     }
 
+    ${confTheme.cssMobileScreen} {
+        .wag-tile {
+            scroll-snap-align: start;
+            scroll-margin-top: 1em;
+        }
+    }
+
     .wag-tile.highlighted {
         box-shadow: .09em .09em .15em .09em rgba(226, 0, 122, 0.7);
     }

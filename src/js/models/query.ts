@@ -335,10 +335,23 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         }
     }
 
-    private buildQueryPath(state: QueryFormModelState): string {
-        const action = queryTypeToAction(state.queryType);
+    private determineSubmitQueryType(state: QueryFormModelState): QueryType {
+        if (state.isAnswerMode) {
+            if (List.size(state.queries) > 1) {
+                return 'cmp';
+            } else {
+                return 'single';
+            }
+        } else {
+            return state.queryType;
+        }
+    }
 
-        switch (state.queryType) {
+    private buildQueryPath(state: QueryFormModelState): string {
+        const queryType = this.determineSubmitQueryType(state);
+        const action = queryTypeToAction(queryType);
+
+        switch (queryType) {
             case 'cmp':
                 return urlJoin(
                     action,

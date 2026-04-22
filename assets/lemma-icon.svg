@@ -28,8 +28,8 @@
    inkscape:deskcolor="#d1d1d1"
    showgrid="false"
    inkscape:zoom="24.981259"
-   inkscape:cx="14.871148"
-   inkscape:cy="8.786587"
+   inkscape:cx="11.528642"
+   inkscape:cy="8.8266168"
    inkscape:window-width="2560"
    inkscape:window-height="1358"
    inkscape:window-x="1280"
@@ -43,7 +43,8 @@
 		<path
    fill="#EA670C"
    d="M5.669,0C5.669,0,0,0,0,5.669v11.339c0,0,0,5.669,5.669,5.669h11.338c0,0,5.67,0,5.67-5.669V5.669    c0,0,0-5.669-5.67-5.669H5.669z"
-   id="path254" />
+   id="path254"
+   style="fill:#e1257a;fill-opacity:1" />
 		
 	<text
    xml:space="preserve"
@@ -56,7 +57,7 @@
      x="3.0360236"
      y="10.884832" /></text><text
    xml:space="preserve"
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:21.3333px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#fbe1ce;fill-opacity:1"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:21.3333px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#fbe1e3;fill-opacity:1"
    x="6.2480521"
    y="18.589245"
    id="text925"><tspan
@@ -64,6 +65,6 @@
      id="tspan923"
      x="6.2480521"
      y="18.589245"
-     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.3333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold'">L</tspan></text></g>
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.3333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#fbe1e3;fill-opacity:1">L</tspan></text></g>
 </g>
 </svg>

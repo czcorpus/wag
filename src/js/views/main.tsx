@@ -200,7 +200,7 @@ export function init(
                 onClick={onClick}
                 title={ut.translate('global__add_query_field')}
             >
-                {'\u002B'}
+                <img src={ut.createStaticUrl('add-query.svg')} />
             </S.AddCmpQueryField>
         );
     };
@@ -591,10 +591,16 @@ export function init(
                         <MultiQueryField
                             handleQueryInput={handleQueryInput}
                             handleSubmit={handleSubmit}
-                            queries={props.queries.slice(0, 1)}
+                            queries={
+                                props.isAnswerMode
+                                    ? props.queries
+                                    : props.queries.slice(0, 1)
+                            }
                             wantsFocus={props.wantsFocus}
                             lemmatizationLevel={props.lemmatizationLevel}
-                            maxCmpQueries={1}
+                            maxCmpQueries={
+                                props.isAnswerMode ? props.maxCmpQueries : 1
+                            }
                             supportsCmpQuery={props.supportsCmpQuery}
                             supportsExactFormSearch={
                                 props.supportsExactFormSearch
@@ -758,9 +764,6 @@ export function init(
                                                 <li
                                                     key={`${v.lemma}:${v[props.mainPosAttr]}:${i}`}
                                                 >
-                                                    {i > 0 ? (
-                                                        <span>, </span>
-                                                    ) : null}
                                                     <a
                                                         onClick={mkHandleClick(
                                                             0,
@@ -770,6 +773,13 @@ export function init(
                                                         {v.sublemma} (
                                                         {mkAltLabel(v)})
                                                     </a>
+                                                    {i <
+                                                    props.matches[0].filter(
+                                                        (v) => !v.isCurrent
+                                                    ).length -
+                                                        1 ? (
+                                                        <span>, </span>
+                                                    ) : null}
                                                 </li>
                                             ))
                                         )}
@@ -1238,17 +1248,29 @@ export function init(
 
     // ------------------ <LemmaOnlySupportWarning /> ----------------------
 
-    const LemmaOnlySupportWarning: React.FC<{}> = () => (
-        <S.LemmaOnlySupportWarning className="bar-button">
-            <img
-                src={ut.createStaticUrl('lemma-icon.svg')}
-                alt={ut.translate('global__tile_only_lemma_resolution_warning')}
-                title={ut.translate(
-                    'global__tile_only_lemma_resolution_warning'
-                )}
-            />
-        </S.LemmaOnlySupportWarning>
-    );
+    const LemmaOnlySupportWarning: React.FC<{}> = () => {
+        const handleClick = () => {
+            dispatcher.dispatch(Actions.SetLemmaOnlyHelpVisibility, {
+                visible: true,
+            });
+        };
+
+        return (
+            <S.LemmaOnlySupportWarning className="bar-button">
+                <a onClick={handleClick}>
+                    <img
+                        src={ut.createStaticUrl('lemma-icon.svg')}
+                        alt={ut.translate(
+                            'global__tile_only_lemma_resolution_warning'
+                        )}
+                        title={ut.translate(
+                            'global__tile_only_lemma_resolution_warning'
+                        )}
+                    />
+                </a>
+            </S.LemmaOnlySupportWarning>
+        );
+    };
 
     // ------------- <InitialHelpTile /> --------------------------------------
 
@@ -2059,6 +2081,12 @@ export function init(
             });
         };
 
+        const handleCloseLemmaOnlyHelp = () => {
+            dispatcher.dispatch(Actions.SetLemmaOnlyHelpVisibility, {
+                visible: false,
+            });
+        };
+
         const renderModal = () => {
             if (state.activeSourceInfo !== null) {
                 return (
@@ -2127,6 +2155,23 @@ export function init(
                         )}
                         content={state.redirectingMessage}
                     />
+                );
+            } else if (state.lemmaOnlySupportedHelpVisible) {
+                return (
+                    <globalComponents.ModalBox
+                        onCloseClick={handleCloseLemmaOnlyHelp}
+                        title={ut.translate(
+                            'global__lemma_only_supporting_tile_help_label'
+                        )}
+                    >
+                        <S.ModalTextContentContainer>
+                            <p>
+                                {ut.translate(
+                                    'global__lemma_only_supporting_tile_help_content'
+                                )}
+                            </p>
+                        </S.ModalTextContentContainer>
+                    </globalComponents.ModalBox>
                 );
             } else {
                 return null;
