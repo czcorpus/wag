@@ -255,6 +255,7 @@ export function init(
         allowsRemove: boolean;
         cmpContext: boolean;
         showQueryNum: boolean;
+        isCollapsed: boolean;
         onContentChange: (s: string) => void;
         onRmClick: () => void;
         onEnter: () => void;
@@ -298,7 +299,7 @@ export function init(
                             : ut.translate('global__any_form_placeholder')
                     }
                 />
-                {props.allowsRemove ? (
+                {props.allowsRemove && !props.isCollapsed ? (
                     <span className="controls">
                         <CloseCmpInputButton onClick={props.onRmClick} />
                     </span>
@@ -508,11 +509,13 @@ export function init(
                                 allowsRemove={List.size(props.queries) > 1}
                                 showQueryNum={List.size(props.queries) > 1}
                                 onRmClick={
-                                    props.maxCmpQueries > 1 &&
-                                    List.size(props.queries) > 2
+                                    (props.maxCmpQueries > 1 &&
+                                        List.size(props.queries) > 2) ||
+                                    props.isAnswerMode
                                         ? handleRMClickCmp(queryIdx)
                                         : handleRMClickSwitchToSingle(queryIdx)
                                 }
+                                isCollapsed={!isExpanded}
                             />
                         </li>
                     ),
@@ -653,6 +656,7 @@ export function init(
                                     cmpContext={false}
                                     showQueryNum={false}
                                     onRmClick={undefined}
+                                    isCollapsed={false}
                                 />
                             </span>
                             <span className="arrow">{'\u25B6'}</span>
