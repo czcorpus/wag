@@ -384,6 +384,61 @@ export function init(
         </S.QueryTypeSelector>
     );
 
+    // --------------- <TranslatQueryField /> ---------------------------
+
+    const TranslatQueryField: React.FC<{
+        queries: Array<Input>;
+        lemmatizationLevel: LemmatizationLevel;
+        wantsFocus: boolean;
+        translatLang: string;
+        translatLanguages: Array<TranslatLanguage>;
+        handleSubmit: () => void;
+        handleQueryInput: (s: string) => void;
+    }> = (props) => {
+        const handleTranslatLangChange = (lang: string) => {
+            dispatcher.dispatch<typeof Actions.ChangeTranslatLanguage>({
+                name: Actions.ChangeTranslatLanguage.name,
+                payload: {
+                    lang,
+                },
+            });
+        };
+
+        return (
+            <S.TranslatQueryField>
+                <div className="inputs">
+                    <QueryInput
+                        idx={0}
+                        value={props.queries[0]}
+                        onEnter={props.handleSubmit}
+                        onContentChange={props.handleQueryInput}
+                        wantsFocus={props.wantsFocus}
+                        lemmatizationLevel={props.lemmatizationLevel}
+                        allowsRemove={false}
+                        cmpContext={false}
+                        showQueryNum={false}
+                        onRmClick={undefined}
+                        isCollapsed={false}
+                    />
+                    <span className="arrow">{'\u25B6'}</span>
+                    <TranslationLangSelector
+                        value={props.translatLang}
+                        translatLanguages={props.translatLanguages}
+                        htmlClass="secondary"
+                        onChange={handleTranslatLangChange}
+                        queryType={'translat'}
+                    />
+                </div>
+                <div>
+                    <SubmitButton
+                        onClick={props.handleSubmit}
+                        cmpMode={false}
+                    />
+                </div>
+            </S.TranslatQueryField>
+        );
+    };
+
     // --------------- <MultiQueryField /> ------------------------------
 
     const MultiQueryField: React.FC<{
@@ -572,15 +627,6 @@ export function init(
                 });
             };
 
-        const handleTranslatLangChange = (lang: string) => {
-            dispatcher.dispatch<typeof Actions.ChangeTranslatLanguage>({
-                name: Actions.ChangeTranslatLanguage.name,
-                payload: {
-                    lang,
-                },
-            });
-        };
-
         const handleSubmit = () => {
             dispatcher.dispatch<typeof Actions.SubmitQuery>({
                 name: Actions.SubmitQuery.name,
@@ -641,33 +687,15 @@ export function init(
                     );
                 case 'translat':
                     return (
-                        <>
-                            <span className="input-row">
-                                <QueryInput
-                                    idx={0}
-                                    value={props.queries[0]}
-                                    onEnter={handleSubmit}
-                                    onContentChange={handleQueryInput(0)}
-                                    wantsFocus={props.wantsFocus}
-                                    lemmatizationLevel={
-                                        props.lemmatizationLevel
-                                    }
-                                    allowsRemove={false}
-                                    cmpContext={false}
-                                    showQueryNum={false}
-                                    onRmClick={undefined}
-                                    isCollapsed={false}
-                                />
-                            </span>
-                            <span className="arrow">{'\u25B6'}</span>
-                            <TranslationLangSelector
-                                value={props.translatLang}
-                                translatLanguages={props.translatLanguages}
-                                htmlClass="secondary"
-                                onChange={handleTranslatLangChange}
-                                queryType={'translat'}
-                            />
-                        </>
+                        <TranslatQueryField
+                            queries={props.queries}
+                            translatLang={props.translatLang}
+                            translatLanguages={props.translatLanguages}
+                            wantsFocus={props.wantsFocus}
+                            lemmatizationLevel={props.lemmatizationLevel}
+                            handleSubmit={handleSubmit}
+                            handleQueryInput={handleQueryInput(0)}
+                        />
                     );
             }
         };
