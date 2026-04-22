@@ -286,6 +286,7 @@ export function createRootComponent({
             showRedirectingModal: false,
             redirectingMessage: null,
             aboutInfo: undefined,
+            lemmaOnlySupportedHelpVisible: false,
         },
         appServices
     );
