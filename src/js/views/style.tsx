@@ -199,15 +199,6 @@ export const AddCmpQueryField = styled.div<{ theme: Theme }>`
     }
 `;
 
-// ------------------------------
-
-const virtualInput = css`
-    margin: 0;
-    align-items: center;
-    display: flex;
-    flex-grow: 2;
-`;
-
 // -------------- <QueryFields /> --------------------------------------------
 
 export const QueryFields = styled.div<{ theme: Theme }>`
@@ -230,17 +221,6 @@ export const QueryFields = styled.div<{ theme: Theme }>`
         display: flex;
         justify-content: center;
         align-items: center;
-
-        .arrow {
-            margin-right: 0.3em;
-            margin-left: 0;
-            font-size: 1.5em;
-            color: ${(props) => props.theme.colorLightText};
-        }
-
-        .translat-lang-selector {
-            margin: 0 1em 0 0;
-        }
     }
 
     ${(props) => props.theme.cssMobileScreen} {
@@ -255,10 +235,11 @@ export const SingleQueryInput = styled.span<{
     $cmpContext: boolean;
 }>`
     &&& {
-        padding: ${(props) =>
-            props.$cmpContext ? '0.2rem 0 0.2rem 0' : '0.2rem 0 0.5rem 0'};
-
-        ${virtualInput};
+        padding: 0.2rem 0 0.2rem 0;
+        margin: 0;
+        align-items: center;
+        display: flex;
+        flex-grow: 2;
 
         input {
             flex-grow: 2;
@@ -298,6 +279,16 @@ export const SingleQueryInput = styled.span<{
     }
 `;
 
+// ------
+
+const generalQueryFieldProps = css`
+    border-color: ${(props) => props.theme.queryFormBorderColor};
+    border-width: 1.5px;
+    border-style: solid;
+    border-radius: ${(props) => props.theme.formElementsBorderRadius};
+    background-color: ${(props) => props.theme.queryFormBackgroundColor};
+`;
+
 // -------------- <MultiQueryField /> --------------------------------------
 
 export const MultiQueryField = styled.ul<{
@@ -307,16 +298,11 @@ export const MultiQueryField = styled.ul<{
     display: flex;
     flex-direction: column;
     align-items: center;
-    display: flex;
     margin: 0;
     padding: ${(props) =>
         props.$isCollapsed ? '0.1rem 0.3rem' : '1.4rem 1.4rem 0 1.4rem'};
     width: 15rem;
-    border-color: ${(props) => props.theme.queryFormBorderColor};
-    border-width: 1.5px;
-    border-style: solid;
-    border-radius: ${(props) => props.theme.formElementsBorderRadius};
-    background-color: ${(props) => props.theme.queryFormBackgroundColor};
+    ${generalQueryFieldProps}
     list-style-type: none;
 
     .input-group {
@@ -338,7 +324,7 @@ export const MultiQueryField = styled.ul<{
         align-items: center;
         padding-left: 0.5rem;
         padding-right: 0.5rem;
-        margin-top: 0.2rem;
+        margin-top: 0.4rem;
     }
 `;
 
@@ -1076,4 +1062,32 @@ export const LemmaOnlySupportWarning = styled.span`
 
 export const ModalTextContentContainer = styled.div`
     padding: 1rem;
+`;
+
+// -------------- <TranslatQueryField /> --------------------------------------
+
+export const TranslatQueryField = styled.div`
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 1.4rem 1.4rem 0 1.4rem;
+
+    ${generalQueryFieldProps}
+
+    .inputs {
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.5rem;
+
+        .arrow {
+            margin-right: 0.7rem;
+            margin-left: 0.7rem;
+            font-size: 1.5rem;
+            color: ${(props) => props.theme.colorLightText};
+        }
+    }
+
+    .translat-lang-selector {
+        margin: 0 1em 0 0;
+    }
 `;
