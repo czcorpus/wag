@@ -354,6 +354,12 @@ export class Actions {
     }> = {
         name: 'MAIN_EXTEND_INDEX',
     };
+
+    static SetLemmaOnlyHelpVisibility: Action<{
+        visible: boolean;
+    }> = {
+        name: 'MAIN_SET_LEMMA_ONLY_HELP_VISIBILITY',
+    };
 }
 
 /**

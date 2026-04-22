@@ -187,15 +187,16 @@ export const CloseCmpInputButton = styled.div<{ theme: Theme }>`
 
 export const AddCmpQueryField = styled.div<{ theme: Theme }>`
     color: ${(props) => props.theme.colorLogoBlue};
-    font-size: 2rem;
-    font-weight: bold;
-    text-shadow: 0 1px 3px
-        color-mix(
-            in srgb,
-            ${(props) => props.theme.colorLogoBlue} 40%,
-            transparent
-        );
+    width: 1.2rem;
+    height: 1.2rem;
     cursor: pointer;
+    display: flex;
+
+    img {
+        display: block;
+        width: 1.2rem;
+        height: 1.2rem;
+    }
 `;
 
 // ------------------------------
@@ -337,6 +338,7 @@ export const MultiQueryField = styled.ul<{
         align-items: center;
         padding-left: 0.5rem;
         padding-right: 0.5rem;
+        margin-top: 0.2rem;
     }
 `;
 
@@ -378,6 +380,7 @@ export const RemoveCmpQueryField = styled.div`
 export const LemmaSelector = styled.div<{ theme: Theme }>`
     font-size: 80%;
     padding: 0.8em 0 0 0;
+    text-align: center;
     color: ${(props) => props.theme.colorLightText};
 
     .curr {
@@ -403,6 +406,10 @@ export const LemmaSelector = styled.div<{ theme: Theme }>`
 
             a:hover {
                 text-decoration: underline;
+            }
+
+            span {
+                white-space: pre;
             }
         }
     }
@@ -476,6 +483,7 @@ export const LemmaSelector = styled.div<{ theme: Theme }>`
 export const SubmenuTile = styled.section`
     display: flex;
     padding: 0;
+    justify-content: center;
 `;
 
 // --------------- <HamburgerButton /> --------------------------------------
@@ -663,6 +671,8 @@ export const TilesSections = styled.section<{ theme: Theme }>`
 
     ${(props) => props.theme.cssMobileScreen} {
         padding: 0;
+        scroll-snap-type: y proximity;
+        overflow-y: auto;
     }
 
     .wordcloud {
@@ -1052,8 +1062,18 @@ export const Index = styled.div<{ theme: Theme }>`
 // ----------- <LemmaOnlySupportWarning /> ----------------------------
 
 export const LemmaOnlySupportWarning = styled.span`
-    img {
-        display: block;
-        width: 1em;
+    a {
+        cursor: pointer;
+
+        img {
+            display: block;
+            width: 1em;
+        }
     }
+`;
+
+// -------------- <ModalTextContentContainer /> -------------------------------
+
+export const ModalTextContentContainer = styled.div`
+    padding: 1rem;
 `;

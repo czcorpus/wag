@@ -82,7 +82,7 @@
         "global__click_for_details": "Click for details",
         "global__not_using_lemmatized_query_title": "Not using a lemmatized query",
         "global__not_using_lemmatized_query_msg": "The tile does not have a lemmatized version of the query (e.g. 'went' -> 'go'). The search is performed using exact word form match.",
-        "global__add_query_field": "Add query field",
+        "global__add_query_field": "Add a word to compare with",
         "global__remove_query_field": "Remove this query field",
         "global__maximum_limit_of_compared_queries": "Max. limit of compared queries reached.",
         "global__report_the_problem": "report the problem",
@@ -119,7 +119,9 @@
         "global__set_exact_form_search": "search for the exact form",
         "global__tile_only_lemma_resolution_warning": "the tile shows only data for the lemmatized variant",
         "global__any_form_placeholder": "any form",
-        "global__exact_form_placeholder": "exact form"
+        "global__exact_form_placeholder": "exact form",
+        "global__lemma_only_supporting_tile_help_label": "Lemma-only supporting tile",
+        "global__lemma_only_supporting_tile_help_content": "This tile provides only a general overview of the base form of the search term (lemma). The results therefore correspond to occurrences of the word in any form—not just the exact form entered."
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -204,7 +206,7 @@
         "global__click_for_details": "Klikněte pro podrobné informace",
         "global__not_using_lemmatized_query_title": "Hledání nevyužívá lemmatizovanou verzi dotazu",
         "global__not_using_lemmatized_query_msg": "Dlaždice nemá k dispozici lemmatizovanou verzi dotazu (např. 'šla' -> 'jít') a hledá pouze podle přesné shody zadaného slovního tvaru. Možná homonyma tedy nejsou rozlišena.",
-        "global__add_query_field": "Přidat pole pro dotaz",
+        "global__add_query_field": "Přidat slovo k porovnání",
         "global__remove_query_field": "Odstranit toto pole dotazu",
         "global__maximum_limit_of_compared_queries": "Byl dosažen max. počet dotazů ke srovnání.",
         "global__report_the_problem": "ohlásit problém",
@@ -241,6 +243,8 @@
         "global__set_exact_form_search": "hledat přesný tvar slova",
         "global__tile_only_lemma_resolution_warning": "the tile shows only data for the lemmatized variant",
         "global__any_form_placeholder": "libovolný tvar",
-        "global__exact_form_placeholder": "přesný tvar"
+        "global__exact_form_placeholder": "přesný tvar",
+        "global__lemma_only_supporting_tile_help_label": "Dlaždice podporující pouze lemmatizovanou variantu",
+        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze obecnější pohled na základní variantu hledaného slova (lemma). Výsledky tedy odpovídají výskytům slova v libovolném tvaru - nikoliv pouze tvaru zadanému."
     }
 }
