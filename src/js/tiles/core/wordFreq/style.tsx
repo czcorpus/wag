@@ -29,7 +29,7 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
     justify-content: space-between;
 
     & > div {
-        width: 90%;
+        width: 95%;
     }
 
     .chart {
@@ -90,27 +90,12 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
                 text-decoration: underline;
             }
         }
-    }
 
-    ${(props) => props.theme.cssMobileScreen} {
-        flex-direction: column;
-
-        & > div.cell h3 {
-            margin-top: 1em;
-        }
-    }
-
-    && {
         .freq-highlight {
             border-width: 0 0 0 10px;
             border-style: solid;
             border-color: ${(props) => props.theme.colorLogoBlue};
             padding: 1rem 1rem 1rem 1.5rem;
-
-            dt,
-            dd {
-                margin-left: 0;
-            }
 
             strong,
             dd.ipm {
@@ -123,6 +108,19 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
             border-style: solid;
             border-color: ${(props) => props.theme.pageBackgroundColor};
             padding: 1rem 1rem 1rem 1.5rem;
+        }
+
+        .pos-info {
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        flex-direction: column;
+
+        & > div.cell h3 {
+            margin-top: 1em;
         }
     }
 `;
@@ -141,44 +139,75 @@ export const Stars = styled.span<{ theme: Theme }>`
 // ------------- <MultiWordProfile /> -----------------------------
 
 export const MultiWordProfile = styled.div<{ theme: Theme }>`
-    & > table {
-        border-spacing: 2px 4px;
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto 1fr auto;
 
-        td,
-        th {
+        & > div {
             padding: 0.4em 0.7em;
             vertical-align: top;
         }
 
-        th.query-num {
+        .query-num {
             background-color: ${(props) => props.theme.tileHeadingSeparColor};
             color: ${(props) => props.theme.colorDefaultText};
-            border-radius: 0.3em;
+            border-radius: 0.3em 0 0 0.3em;
+            grid-row: span 5;
+            display: flex;
+            align-items: flex-start;
         }
 
-        th.property {
+        .property {
             text-align: left;
             vertical-align: middle;
             margin-bottom: 0.4em;
             color: ${(props) => props.theme.colorLightText};
             font-family: ${(props) => props.theme.condensedFontFamily};
+            display: flex;
+            align-items: center;
         }
 
-        td.value {
+        .highlighted-info.color-tile {
+            width: 0.5rem;
+            padding: 0;
+            background-color: ${(props) => props.theme.colorLogoBlue};
+        }
+
+        .highlighted-info.value strong,
+        .highlighted-info.freq-info.value {
+            color: ${(props) => props.theme.colorLogoBlue};
+        }
+
+        .general-info.color-tile {
+            width: 0.5rem;
+            padding: 0;
+            background-color: ${(props) => props.theme.tileHeadingSeparColor};
+        }
+
+        .value {
             font-size: 1.3rem;
             vertical-align: middle;
+            display: flex;
+            align-items: center;
         }
 
-        td.freq-info,
-        th.freq-info {
-            padding-left: 1.5em;
+        .rowspan-2 {
+            grid-row: span 2;
         }
 
-        th.freq-info::before {
-            content: '\\25CF ';
-            display: inline-block;
-            width: 1.1rem;
-            padding-right: 0.4rem;
+        .rowspan-3 {
+            grid-row: span 3;
+        }
+
+        .separ {
+            grid-column: 1 / -1;
+            height: 0.4rem;
+            padding: 0;
+        }
+
+        .pos-info {
+            font-style: italic;
+            font-size: 1.1rem;
         }
     }
 `;

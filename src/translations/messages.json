@@ -121,7 +121,7 @@
         "global__any_form_placeholder": "any form",
         "global__exact_form_placeholder": "exact form",
         "global__lemma_only_supporting_tile_help_label": "Lemma-only supporting tile",
-        "global__lemma_only_supporting_tile_help_content": "This tile provides only a general overview of the base form of the search term (lemma). The results therefore correspond to occurrences of the word in any form—not just the exact form entered."
+        "global__lemma_only_supporting_tile_help_content": "This tile provides only a general overview of the base form of the search term (lemma). The results therefore correspond to occurrences of the word in any form or variant - not just the one entered."
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -245,6 +245,6 @@
         "global__any_form_placeholder": "libovolný tvar",
         "global__exact_form_placeholder": "přesný tvar",
         "global__lemma_only_supporting_tile_help_label": "Dlaždice podporující pouze lemmatizovanou variantu",
-        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze obecnější pohled na základní variantu hledaného slova (lemma). Výsledky tedy odpovídají výskytům slova v libovolném tvaru - nikoliv pouze tvaru zadanému."
+        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze obecnější pohled na základní podobu hledaného slova (lemma). Výsledky tedy odpovídají výskytům slova v libovolném tvaru či variantě - nikoliv pouze k té zadané."
     }
 }
