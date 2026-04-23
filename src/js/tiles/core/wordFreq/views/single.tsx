@@ -260,7 +260,7 @@ export function init(
                         </HighlightedIfTrue>
                         <div className="general-info">
                             <dt>{ut.translate('wordfreq__pos')}:</dt>
-                            <dd>
+                            <dd className="pos-info">
                                 {props.data[props.mainPosAttr].length > 0
                                     ? List.map(
                                           (pos, i) => (
