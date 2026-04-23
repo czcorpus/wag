@@ -238,7 +238,9 @@ export function init(
                                         <div className="color-tile general-info"></div>
                                         <div className="separ"></div>
                                     </>
-                                ) : null}
+                                ) : (
+                                    <div className="separ"></div>
+                                )}
                             </React.Fragment>
                         );
                     }, props.matches)}
