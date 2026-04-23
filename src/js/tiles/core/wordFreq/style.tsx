@@ -201,7 +201,7 @@ export const MultiWordProfile = styled.div<{ theme: Theme }>`
 
         .separ {
             grid-column: 1 / -1;
-            height: 0.4rem;
+            height: 1.5rem;
             padding: 0;
         }
 
