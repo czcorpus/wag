@@ -34,7 +34,7 @@ import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
@@ -373,7 +373,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                               state.posQueryGenerator,
                               state.supportsSublemma
                           )
-                        : mkLemmaMatchQuery(
+                        : mkSublemmaMatchQuery(
                               queryMatch,
                               state.posQueryGenerator,
                               state.supportsSublemma

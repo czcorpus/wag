@@ -19,7 +19,7 @@ import { catchError, concatMap, map, Observable } from 'rxjs';
 import { RequestArgs } from '../common.js';
 import { ajax$ } from '../../../../page/ajax.js';
 import urlJoin from 'url-join';
-import { mkLemmaMatchQuery } from '../../../../api/vendor/mquery/common.js';
+import { mkSublemmaMatchQuery } from '../../../../api/vendor/mquery/common.js';
 import { QueryMatch } from '../../../../query/index.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { IApiServices } from '../../../../appServices.js';
@@ -56,7 +56,7 @@ export class WordFormsBacklinkAPI {
     ): Observable<URL> {
         const concArgs = {
             corpname: args.corpName,
-            q: `q${mkLemmaMatchQuery(queryMatch, this.posQueryGenerator)}`,
+            q: `q${mkSublemmaMatchQuery(queryMatch, this.posQueryGenerator)}`,
             format: 'json',
         };
         return ajax$<{ conc_persistence_op_id: string }>(

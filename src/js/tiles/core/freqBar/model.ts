@@ -26,7 +26,7 @@ import {
     testIsDictMatch,
 } from '../../../query/index.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import {
@@ -286,7 +286,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                                   this.state.posQueryGenerator,
                                   this.state.supportsSublemma
                               )
-                            : mkLemmaMatchQuery(
+                            : mkSublemmaMatchQuery(
                                   queryMatch,
                                   this.state.posQueryGenerator,
                                   this.state.supportsSublemma

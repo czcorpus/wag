@@ -42,7 +42,7 @@ import {
     MQueryFreqDistribAPI,
 } from '../../../api/vendor/mquery/freqs.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
@@ -488,7 +488,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                               state.posQueryGenerator,
                               state.supportsSublemma
                           )
-                        : mkLemmaMatchQuery(
+                        : mkSublemmaMatchQuery(
                               queryMatch,
                               state.posQueryGenerator,
                               state.supportsSublemma

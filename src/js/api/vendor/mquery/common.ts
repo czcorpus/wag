@@ -40,7 +40,7 @@ function escapeDQuotes(v: string): string {
  * b) lemma without a PoS information, e.g.: lemma='foo bar'
  * is transformed into: [lemma=="foo"] [lemma=="bar"]
  */
-export function mkLemmaMatchQuery(
+export function mkSublemmaMatchQuery(
     lvar: QueryMatch,
     generator: [string, string],
     sublemma?: boolean
@@ -64,7 +64,7 @@ export function mkLemmaMatchQuery(
 /**
  * Creates a 'word' matching query based on the provided QueryMatch.
  *
- * @see mkLemmaMatchQuery
+ * @see mkSublemmaMatchQuery
  */
 export function mkWordMatchQuery(
     lvar: QueryMatch,
@@ -97,7 +97,7 @@ export function mkWordMatchQuery(
 /**
  * Create either lemma (preferably) or word matching CQL query.
  *
- * @see mkLemmaMatchQuery
+ * @see mkSublemmaMatchQuery
  * @see mkWordMatchQuery
  */
 export function mkMatchQuery(
@@ -105,7 +105,7 @@ export function mkMatchQuery(
     generator: [string, string]
 ): string {
     if (lvar.pos.length > 0) {
-        return mkLemmaMatchQuery(lvar, generator);
+        return mkSublemmaMatchQuery(lvar, generator);
     } else if (lvar.word) {
         return mkWordMatchQuery(lvar, generator);
     }

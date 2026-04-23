@@ -34,7 +34,7 @@ import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -357,7 +357,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                               state.posQueryGenerator,
                               state.supportsSublemma
                           )
-                        : mkLemmaMatchQuery(
+                        : mkSublemmaMatchQuery(
                               state.queryMatches[0],
                               state.posQueryGenerator,
                               state.supportsSublemma

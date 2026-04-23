@@ -48,7 +48,7 @@ import {
     MQueryConcApi,
 } from '../../../api/vendor/mquery/concordance/index.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import { CollWithExamplesResponse } from '../colloc/common.js';
@@ -577,7 +577,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
                           this.state.posQueryGenerator,
                           this.state.supportsSublemma
                       )
-                    : mkLemmaMatchQuery(
+                    : mkSublemmaMatchQuery(
                           queryMatch,
                           this.state.posQueryGenerator,
                           this.state.supportsSublemma

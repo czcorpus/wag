@@ -39,7 +39,7 @@ import {
 } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
@@ -734,7 +734,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state.posQueryGenerator,
                         state.supportsSublemma
                     )
-                  : mkLemmaMatchQuery(
+                  : mkSublemmaMatchQuery(
                         queryMatch,
                         state.posQueryGenerator,
                         state.supportsSublemma

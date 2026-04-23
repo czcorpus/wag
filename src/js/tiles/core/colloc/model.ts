@@ -31,7 +31,7 @@ import {
 } from '../../../query/index.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
 import {
-    mkLemmaMatchQuery,
+    mkSublemmaMatchQuery,
     mkWordMatchQuery,
 } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -326,7 +326,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                               state.posQueryGenerator,
                               state.supportsSublemma
                           )
-                        : mkLemmaMatchQuery(
+                        : mkSublemmaMatchQuery(
                               queryMatch,
                               state.posQueryGenerator,
                               state.supportsSublemma
