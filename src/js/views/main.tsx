@@ -728,12 +728,25 @@ export function init(
                 });
             };
 
-        const mkAltLabel = (v: QueryMatch) => {
+        const mkAltLabelPosInfo = (v: QueryMatch) => {
             if (v[props.mainPosAttr].length === 0) {
                 return ut.translate('global__alt_expr_any');
             } else {
                 return List.map((v) => v.label, v[props.mainPosAttr]).join(' ');
             }
+        };
+
+        const mkAltLabelWord = (v: QueryMatch) => {
+            if (!v.lemma) {
+                return v.word;
+            }
+            if (v.lemma === v.sublemma || !v.sublemma) {
+                return `${v.lemma} (${mkAltLabelPosInfo(v)})`;
+            }
+            if (v.lemma !== v.sublemma) {
+                return `${v.sublemma} (${mkAltLabelPosInfo(v)})`;
+            }
+            return `${v.word} (${mkAltLabelPosInfo(v)})`;
         };
 
         const handleCloseModal = () => {
@@ -777,10 +790,7 @@ export function init(
                         <S.LemmaSelector>
                             {ut.translate('global__searching_by_pos')}:
                             {'\u00a0'}
-                            <span className="curr">
-                                {curr.lemma ? curr.lemma : curr.word} (
-                                {mkAltLabel(curr)})
-                            </span>
+                            <span className="curr">{mkAltLabelWord(curr)}</span>
                             <br />
                             {props.matches[0].length > 1 ? (
                                 <div className="variants">
@@ -803,7 +813,7 @@ export function init(
                                                         )}
                                                     >
                                                         {v.sublemma} (
-                                                        {mkAltLabel(v)})
+                                                        {mkAltLabelPosInfo(v)})
                                                     </a>
                                                     {i <
                                                     props.matches[0].filter(
@@ -864,7 +874,10 @@ export function init(
                                                                 value={i}
                                                             >
                                                                 {v.lemma} (
-                                                                {mkAltLabel(v)})
+                                                                {mkAltLabelPosInfo(
+                                                                    v
+                                                                )}
+                                                                )
                                                             </option>
                                                         ),
                                                         queryMatches
@@ -877,7 +890,7 @@ export function init(
                                                             .lemma
                                                     }{' '}
                                                     (
-                                                    {mkAltLabel(
+                                                    {mkAltLabelPosInfo(
                                                         List.head(queryMatches)
                                                     )}
                                                     )

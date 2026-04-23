@@ -405,7 +405,14 @@ export function importQueryRequest({
 }
 
 /**
- * note: functions expects availMatches sorted from highest ipm to lowest
+ * Based on user query and dictionary backend's response (availMatches),
+ * the function determines, which of availMatches is the one we should
+ * present as "current". This typically mostly depends on whether there
+ * are additional user query args (e.g. PoS). In case it is impossible
+ * to determine the match precisely, the most frequent one is returned.
+ *
+ * Please note that the function expects availMatches sorted from highest
+ * ipm to lowest.
  */
 export function determineCurrentMatch(
     userQuery: UserQuery,
@@ -469,7 +476,16 @@ export function determineCurrentMatch(
             return applicableMatches;
         }
     }
-
+    // request represents a very general query, so let's try first
+    // if user's the query matches a variant/sublemma:
+    const sublMatchIdx = List.findIndex(
+        (v) => v.sublemma === userQuery.word,
+        availMatches
+    );
+    if (sublMatchIdx > -1) {
+        availMatches[sublMatchIdx].isCurrent = true;
+        return applicableMatches;
+    }
     applicableMatches[0].isCurrent = true;
     return applicableMatches;
 }
