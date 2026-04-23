@@ -97,7 +97,7 @@ const mkAttachTile =
             (!tile.supportsLemmatizationLevel('form') &&
                 lemmatizationLevel == 'form') ||
             (!tile.supportsLemmatizationLevel('sublemma') &&
-                lemmatizationLevel == 'lemma');
+                lemmatizationLevel == 'sublemma');
 
         data.push({
             tileId: tile.getIdent(),
