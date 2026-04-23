@@ -107,11 +107,6 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
             border-color: ${(props) => props.theme.colorLogoBlue};
             padding: 1rem 1rem 1rem 1.5rem;
 
-            dt,
-            dd {
-                margin-left: 0;
-            }
-
             strong,
             dd.ipm {
                 color: ${(props) => props.theme.colorLogoBlue};
