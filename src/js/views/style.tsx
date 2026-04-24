@@ -289,6 +289,11 @@ const generalQueryFieldProps = css`
     background-color: ${(props) => props.theme.queryFormBackgroundColor};
 `;
 
+const collapsedQueryFieldProps = css`
+    border-radius: ${(props) => props.theme.formElementsBorderRadius};
+    background-color: ${(props) => props.theme.queryFormBackgroundColor};
+`;
+
 // -------------- <MultiQueryField /> --------------------------------------
 
 export const MultiQueryField = styled.ul<{
@@ -302,7 +307,8 @@ export const MultiQueryField = styled.ul<{
     padding: ${(props) =>
         props.$isCollapsed ? '0.1rem 0.3rem' : '1.4rem 1.4rem 0 1.4rem'};
     width: 15rem;
-    ${generalQueryFieldProps}
+    ${(props) =>
+        props.$isCollapsed ? collapsedQueryFieldProps : generalQueryFieldProps}
     list-style-type: none;
 
     .input-group {
