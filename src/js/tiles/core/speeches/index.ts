@@ -98,6 +98,7 @@ export class SpeechesTile implements ITileProvider {
             audioLinkGenerator: conf.audioApiURL
                 ? new AudioLinkGenerator(conf.audioApiURL)
                 : null,
+            lemlevelSupp: (ll) => this.supportsLemmatizationLevel(ll),
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

@@ -156,6 +156,7 @@ export class CollocationsTile implements ITileProvider {
                 examplesPerColl: conf.examplesPerColl,
             },
             queryMatches: List.map(findCurrQueryMatch, queryMatches),
+            lemlevelTest: (ll) => this.supportsLemmatizationLevel(ll),
         });
         this.label = appServices.importExternalMessage(
             conf.label || 'collocations__main_label'

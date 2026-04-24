@@ -25,15 +25,12 @@ import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
 import {
+    LemmatizationLevelTest,
     QueryMatch,
-    QueryType,
     testIsDictMatch,
 } from '../../../query/index.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
-import {
-    mkSublemmaMatchQuery,
-    mkWordMatchQuery,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface CollocModelArgs {
@@ -44,10 +41,14 @@ export interface CollocModelArgs {
     service: MQueryCollAPI;
     initState: CollocModelState;
     queryMatches: Array<QueryMatch>;
+    lemlevelTest: LemmatizationLevelTest;
 }
 
 type FreqRequestArgs = [number, QueryMatch];
 
+/**
+ *
+ */
 export class CollocModel extends StatelessModel<CollocModelState> {
     private readonly collApi: MQueryCollAPI;
 
@@ -56,6 +57,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private readonly tileId: number;
 
     private readonly queryMatches: Array<QueryMatch>;
+
+    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     private readonly measureMap = {
         t: 'T-score',
@@ -76,12 +79,14 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         initState,
         dependentTiles,
         queryMatches,
+        lemlevelTest,
     }: CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.collApi = service;
         this.queryMatches = queryMatches;
+        this.lemlevelSupp = lemlevelTest;
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -319,18 +324,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             return {
                 corpusId: state.corpname,
                 cmpCorp: state.comparisonCorpname || undefined,
-                q:
-                    state.lemmatizationLevel === 'form'
-                        ? mkWordMatchQuery(
-                              queryMatch,
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          )
-                        : mkSublemmaMatchQuery(
-                              queryMatch,
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          ),
+                q: queryMatchToCQL(
+                    queryMatch,
+                    state.posQueryGenerator,
+                    state.lemmatizationLevel,
+                    this.lemlevelSupp
+                ),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],
                 srchLeft: Math.abs(cfromw),

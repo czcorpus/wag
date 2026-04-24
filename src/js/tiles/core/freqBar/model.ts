@@ -22,13 +22,11 @@ import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     LemmatizationLevel,
+    LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';
-import {
-    mkSublemmaMatchQuery,
-    mkWordMatchQuery,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import {
     DataRow,
     MQueryFreqArgs,
@@ -77,6 +75,7 @@ export interface FreqBarModelArgs {
     appServices: IAppServices;
     api: MQueryFreqDistribAPI;
     initState: FreqBarModelState;
+    lemlevelSupp: LemmatizationLevelTest;
 }
 
 export class FreqBarModel extends StatefulModel<FreqBarModelState> {
@@ -90,6 +89,8 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
 
     private readonly queryMatches: Array<QueryMatch>;
 
+    private readonly lemlevelSupp: LemmatizationLevelTest;
+
     constructor({
         dispatcher,
         tileId,
@@ -97,12 +98,14 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
         api,
         queryMatches,
         initState,
+        lemlevelSupp,
     }: FreqBarModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.api = api;
+        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
             console.log('SET SCREEN MODE: ', action.payload);
@@ -279,18 +282,12 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                 corpname: this.state.corpname,
                 path: this.state.freqType === 'tokens' ? 'freqs' : 'text-types',
                 queryArgs: {
-                    q:
-                        this.state.lemmatizationLevel === 'form'
-                            ? mkWordMatchQuery(
-                                  queryMatch,
-                                  this.state.posQueryGenerator,
-                                  this.state.supportsSublemma
-                              )
-                            : mkSublemmaMatchQuery(
-                                  queryMatch,
-                                  this.state.posQueryGenerator,
-                                  this.state.supportsSublemma
-                              ),
+                    q: queryMatchToCQL(
+                        queryMatch,
+                        this.state.posQueryGenerator,
+                        this.state.lemmatizationLevel,
+                        this.lemlevelSupp
+                    ),
                     subcorpus: '', // TODO
                     attr: this.state.fcrit,
                     matchCase: this.state.matchCase ? '1' : '0',

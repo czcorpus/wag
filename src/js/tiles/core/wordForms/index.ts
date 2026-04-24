@@ -87,6 +87,7 @@ export class WordFormsTile implements ITileProvider {
         );
         this.model = new WordFormsModel({
             dispatcher,
+            lemlevelSupp: (ll) => this.supportsLemmatizationLevel(ll),
             initialState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
@@ -124,6 +125,7 @@ export class WordFormsTile implements ITileProvider {
                     conf.apiURL,
                     appServices,
                     conf.posQueryGenerator,
+                    (ll) => this.supportsLemmatizationLevel(ll),
                     conf.backlink
                 );
             case CoreApiGroup.FRODO:
@@ -131,6 +133,7 @@ export class WordFormsTile implements ITileProvider {
                     conf.apiURL,
                     appServices,
                     conf.posQueryGenerator,
+                    (ll) => this.supportsLemmatizationLevel(ll),
                     conf.backlink
                 );
             case CoreApiGroup.KORPUS_DB:

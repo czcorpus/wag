@@ -27,6 +27,7 @@ import { Actions } from './common.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    LemmatizationLevelTest,
     RecognizedQueries,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -39,8 +40,9 @@ import {
 } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import {
-    mkSublemmaMatchQuery,
+    mkLemmaMatchQuery,
     mkWordMatchQuery,
+    queryMatchToCQL,
 } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -116,6 +118,7 @@ export interface TimeDistribModelArgs {
     infoApi: CorpusInfoAPI;
     appServices: IAppServices;
     queryMatches: RecognizedQueries;
+    lemlevelSupp: LemmatizationLevelTest;
 }
 
 function dateToSortNumber(s: string): number {
@@ -147,6 +150,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly infoApi: CorpusInfoAPI;
 
+    private readonly lemlevelSupp: LemmatizationLevelTest;
+
     constructor({
         dispatcher,
         initState,
@@ -155,6 +160,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         infoApi,
         appServices,
         queryMatches,
+        lemlevelSupp,
     }: TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -162,6 +168,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryMatches = queryMatches;
         this.api = api;
         this.infoApi = infoApi;
+        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -727,18 +734,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         return {
             corpname: state.corpname,
             q: cmp
-                ? `[word="${state.wordCmp}"]`
-                : state.lemmatizationLevel === 'form'
-                  ? mkWordMatchQuery(
-                        queryMatch,
-                        state.posQueryGenerator,
-                        state.supportsSublemma
-                    )
-                  : mkSublemmaMatchQuery(
-                        queryMatch,
-                        state.posQueryGenerator,
-                        state.supportsSublemma
-                    ),
+                ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
+                : queryMatchToCQL(
+                      queryMatch,
+                      state.posQueryGenerator,
+                      state.lemmatizationLevel,
+                      this.lemlevelSupp
+                  ),
             subcorpName: undefined, // TODO
             fromYear: state.fromYear ? state.fromYear + '' : undefined,
             toYear: state.toYear ? state.toYear + '' : undefined,

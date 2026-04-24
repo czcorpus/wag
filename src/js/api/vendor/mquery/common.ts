@@ -18,7 +18,7 @@
 
 import { List, pipe } from 'cnc-tskit';
 import { posQueryFactory } from '../../../postag.js';
-import { QueryMatch } from '../../../query/index.js';
+import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
 
 export interface FreqRowResponse {
     word: string;
@@ -33,14 +33,46 @@ function escapeDQuotes(v: string): string {
 }
 
 /**
- * Transform a provided QueryMatch into a valid CQL query.
+ * Transform a provided QueryMatch into a valid CQL query
+ * based on QueryMatch properties and required lemlevel.
+ *
+ * The `generator` argument contains information
  *
  * a) lemma with a PoS information like e.g.: lemma='foo bar', tag=['A', 'B']
  * is transformed into: [lemma=="foo" & tag="A"] [lemma=="bar" & tag="B"].
  * b) lemma without a PoS information, e.g.: lemma='foo bar'
  * is transformed into: [lemma=="foo"] [lemma=="bar"]
  */
-export function mkSublemmaMatchQuery(
+export function queryMatchToCQL(
+    qm: QueryMatch,
+    generator: [string, string],
+    lemlevel: LemmatizationLevel,
+    llSupport: (ll: LemmatizationLevel) => boolean
+): string {
+    const levels: Array<LemmatizationLevel> = ['form', 'sublemma', 'lemma'];
+    const idx = List.findIndex((v) => v === lemlevel, levels);
+    if (idx === -1) {
+        throw new Error(`unsupported lemmatization level ${lemlevel}`);
+    }
+    const trueLL = pipe(
+        levels,
+        List.slice(idx, List.size(levels)),
+        List.find((v) => llSupport(v))
+    );
+
+    switch (trueLL) {
+        case 'form':
+            return mkWordMatchQuery(qm, generator);
+        case 'sublemma':
+            return mkLemmaMatchQuery(qm, generator, true);
+        case 'lemma':
+            return mkLemmaMatchQuery(qm, generator, false);
+        default:
+            throw new Error(`unsupported lemmatization level ${lemlevel}`);
+    }
+}
+
+export function mkLemmaMatchQuery(
     lvar: QueryMatch,
     generator: [string, string],
     sublemma?: boolean
@@ -64,7 +96,7 @@ export function mkSublemmaMatchQuery(
 /**
  * Creates a 'word' matching query based on the provided QueryMatch.
  *
- * @see mkSublemmaMatchQuery
+ * @see mkLemmaMatchQuery
  */
 export function mkWordMatchQuery(
     lvar: QueryMatch,
@@ -97,7 +129,7 @@ export function mkWordMatchQuery(
 /**
  * Create either lemma (preferably) or word matching CQL query.
  *
- * @see mkSublemmaMatchQuery
+ * @see mkLemmaMatchQuery
  * @see mkWordMatchQuery
  */
 export function mkMatchQuery(
@@ -105,7 +137,7 @@ export function mkMatchQuery(
     generator: [string, string]
 ): string {
     if (lvar.pos.length > 0) {
-        return mkSublemmaMatchQuery(lvar, generator);
+        return mkLemmaMatchQuery(lvar, generator);
     } else if (lvar.word) {
         return mkWordMatchQuery(lvar, generator);
     }

@@ -20,7 +20,10 @@ import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SubqueryPayload } from '../../../query/index.js';
+import {
+    LemmatizationLevelTest,
+    SubqueryPayload,
+} from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
 import {
     SpeechesModelState,
@@ -33,10 +36,7 @@ import { SystemMessageType } from '../../../types.js';
 import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
-import {
-    mkSublemmaMatchQuery,
-    mkWordMatchQuery,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
 /**
@@ -55,6 +55,7 @@ export interface SpeechesModelArgs {
     api: SpeechesApi;
     initState: SpeechesModelState;
     audioLinkGenerator: AudioLinkGenerator;
+    lemlevelSupp: LemmatizationLevelTest;
 }
 
 interface ReloadDataArgs {
@@ -77,6 +78,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly audioLinkGenerator: AudioLinkGenerator | null;
 
+    private readonly lemlevelSupp: LemmatizationLevelTest;
+
     constructor({
         dispatcher,
         tileId,
@@ -84,12 +87,14 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         api,
         initState,
         audioLinkGenerator,
+        lemlevelSupp,
     }: SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
         this.audioLinkGenerator = audioLinkGenerator;
+        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -350,18 +355,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             return {
                 corpname: state.corpname,
                 subcorpus: state.subcname,
-                query:
-                    state.lemmatizationLevel === 'form'
-                        ? mkWordMatchQuery(
-                              state.queryMatches[0],
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          )
-                        : mkSublemmaMatchQuery(
-                              state.queryMatches[0],
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          ),
+                query: queryMatchToCQL(
+                    state.queryMatches[0],
+                    state.posQueryGenerator,
+                    state.lemmatizationLevel,
+                    this.lemlevelSupp
+                ),
                 // hitlen: kwicNumTokens,  TODO
                 struct: [
                     state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
