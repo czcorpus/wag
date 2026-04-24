@@ -53,6 +53,8 @@ export interface QueryTypeMenuItem {
 
 export type LemmatizationLevel = 'form' | 'sublemma' | 'lemma';
 
+export type LemmatizationLevelTest = (ll: LemmatizationLevel) => boolean;
+
 /**
  * importLemmatizationLevelOrError converts a general string value
  * to a respective LemmatizationLevel type. In case the value is empty,

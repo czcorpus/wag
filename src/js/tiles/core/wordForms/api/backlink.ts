@@ -19,8 +19,12 @@ import { catchError, concatMap, map, Observable } from 'rxjs';
 import { RequestArgs } from '../common.js';
 import { ajax$ } from '../../../../page/ajax.js';
 import urlJoin from 'url-join';
-import { mkLemmaMatchQuery } from '../../../../api/vendor/mquery/common.js';
-import { QueryMatch } from '../../../../query/index.js';
+import { queryMatchToCQL } from '../../../../api/vendor/mquery/common.js';
+import {
+    LemmatizationLevel,
+    LemmatizationLevelTest,
+    QueryMatch,
+} from '../../../../query/index.js';
 import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { IApiServices } from '../../../../appServices.js';
 import { CorpusInfoAPI } from '../../../../api/vendor/mquery/corpusInfo.js';
@@ -37,10 +41,13 @@ export class WordFormsBacklinkAPI {
 
     protected readonly posQueryGenerator: PosQueryGeneratorType;
 
+    protected readonly lemlevelTest: LemmatizationLevelTest;
+
     constructor(
         apiURL: string,
         apiServices: IApiServices,
         posQueryGenerator: PosQueryGeneratorType,
+        llTest: LemmatizationLevelTest,
         backlinkConf: BacklinkConf
     ) {
         this.apiURL = apiURL;
@@ -48,15 +55,22 @@ export class WordFormsBacklinkAPI {
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.backlinkConf = backlinkConf;
         this.posQueryGenerator = posQueryGenerator;
+        this.lemlevelTest = llTest;
     }
 
     requestBacklink(
         args: RequestArgs,
-        queryMatch: QueryMatch
+        queryMatch: QueryMatch,
+        lemlevel: LemmatizationLevel
     ): Observable<URL> {
         const concArgs = {
             corpname: args.corpName,
-            q: `q${mkLemmaMatchQuery(queryMatch, this.posQueryGenerator)}`,
+            q: `q${queryMatchToCQL(
+                queryMatch,
+                this.posQueryGenerator,
+                lemlevel,
+                this.lemlevelTest
+            )}`,
             format: 'json',
         };
         return ajax$<{ conc_persistence_op_id: string }>(

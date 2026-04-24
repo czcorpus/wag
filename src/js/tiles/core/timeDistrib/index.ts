@@ -88,6 +88,7 @@ export class TimeDistTile implements ITileProvider {
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
+            lemlevelSupp: (ll) => this.supportsLemmatizationLevel(ll),
             initState: {
                 loadingStatus: isBusy
                     ? LoadingStatus.BUSY_LOADING_MAIN

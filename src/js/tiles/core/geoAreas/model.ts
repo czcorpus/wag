@@ -29,6 +29,7 @@ import { TooltipValues } from '../../../views/common/index.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    LemmatizationLevelTest,
     QueryMatch,
     QueryType,
     RecognizedQueries,
@@ -41,10 +42,7 @@ import {
     MQueryFreqArgs,
     MQueryFreqDistribAPI,
 } from '../../../api/vendor/mquery/freqs.js';
-import {
-    mkLemmaMatchQuery,
-    mkWordMatchQuery,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 
 /*
@@ -114,6 +112,7 @@ interface GeoAreasModelArgs {
     mapLoader: DataApi<string, string>;
     initState: GeoAreasModelState;
     queryType: QueryType;
+    lemlevelSupp: LemmatizationLevelTest;
 }
 
 export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
@@ -129,6 +128,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly queryType: QueryType;
 
+    private readonly lemlevelSupp: LemmatizationLevelTest;
+
     constructor({
         dispatcher,
         tileId,
@@ -138,6 +139,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         mapLoader,
         initState,
         queryType,
+        lemlevelSupp,
     }: GeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -146,6 +148,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryType = queryType;
+        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler(
             GlobalActions.RequestQueryResponse,
@@ -481,18 +484,12 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q:
-                    state.lemmatizationLevel === 'form'
-                        ? mkWordMatchQuery(
-                              queryMatch,
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          )
-                        : mkLemmaMatchQuery(
-                              queryMatch,
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          ),
+                q: queryMatchToCQL(
+                    queryMatch,
+                    state.posQueryGenerator,
+                    state.lemmatizationLevel,
+                    this.lemlevelSupp
+                ),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,

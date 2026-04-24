@@ -26,6 +26,7 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     LemmatizationLevel,
+    LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -33,10 +34,7 @@ import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
 import { DataRow, MergeFreqsApi } from './api.js';
 import { MQueryFreqArgs } from '../../../api/vendor/mquery/freqs.js';
-import {
-    mkLemmaMatchQuery,
-    mkWordMatchQuery,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import urlJoin from 'url-join';
@@ -49,6 +47,7 @@ export interface MergeCorpFreqModelArgs {
     freqApi: MergeFreqsApi;
     initState: MergeCorpFreqModelState;
     downloadLabel: string;
+    lemlevelSupp: LemmatizationLevelTest;
 }
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
@@ -60,6 +59,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly downloadLabel: string;
 
+    private readonly lemlevelSupp: LemmatizationLevelTest;
+
     constructor({
         dispatcher,
         tileId,
@@ -67,12 +68,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         freqApi,
         initState,
         downloadLabel,
+        lemlevelSupp,
     }: MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
+        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -366,18 +369,12 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             path: state.freqType === 'text-types' ? 'text-types' : 'freqs',
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
-                q:
-                    lemmatizationLevel === 'form'
-                        ? mkWordMatchQuery(
-                              queryMatch,
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          )
-                        : mkLemmaMatchQuery(
-                              queryMatch,
-                              state.posQueryGenerator,
-                              state.supportsSublemma
-                          ),
+                q: queryMatchToCQL(
+                    queryMatch,
+                    state.posQueryGenerator,
+                    lemmatizationLevel,
+                    this.lemlevelSupp
+                ),
                 flimit: state.flimit,
                 matchCase: '0',
                 attr: state.fcrit,

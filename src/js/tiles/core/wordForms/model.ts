@@ -24,6 +24,7 @@ import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    LemmatizationLevelTest,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -86,6 +87,7 @@ export interface WordFormsModelArgs {
     api: IWordFormsApi;
     queryMatches: RecognizedQueries;
     appServices: IAppServices;
+    lemlevelSupp: LemmatizationLevelTest;
 }
 
 export class WordFormsModel extends StatelessModel<WordFormsModelState> {
@@ -99,6 +101,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly backlink: BacklinkConf;
 
+    private readonly lemlevelSupp: LemmatizationLevelTest;
+
     constructor({
         dispatcher,
         initialState,
@@ -106,12 +110,14 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         api,
         queryMatches,
         appServices,
+        lemlevelSupp,
     }: WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
+        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -262,19 +268,24 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     corpName: state.corpname,
                     mainPosAttr: state.mainPosAttr,
                 };
-                this.api.requestBacklink(args, variant).subscribe({
-                    next: (url) => {
-                        dispatch(GlobalActions.BacklinkPreparationDone);
-                        window.open(url.toString(), '_blank');
-                    },
-                    error: (err) => {
-                        dispatch(GlobalActions.BacklinkPreparationDone, err);
-                        this.appServices.showMessage(
-                            SystemMessageType.ERROR,
-                            err
-                        );
-                    },
-                });
+                this.api
+                    .requestBacklink(args, variant, state.lemmatizationLevel)
+                    .subscribe({
+                        next: (url) => {
+                            dispatch(GlobalActions.BacklinkPreparationDone);
+                            window.open(url.toString(), '_blank');
+                        },
+                        error: (err) => {
+                            dispatch(
+                                GlobalActions.BacklinkPreparationDone,
+                                err
+                            );
+                            this.appServices.showMessage(
+                                SystemMessageType.ERROR,
+                                err
+                            );
+                        },
+                    });
             }
         );
     }

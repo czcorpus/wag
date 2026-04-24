@@ -31,6 +31,7 @@ import {
     findCurrQueryMatch,
     testIsDictMatch,
     LemmatizationLevel,
+    LemmatizationLevelTest,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -47,10 +48,7 @@ import {
     ConcApiArgs,
     MQueryConcApi,
 } from '../../../api/vendor/mquery/concordance/index.js';
-import {
-    mkLemmaMatchQuery,
-    mkWordMatchQuery,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { CollWithExamplesResponse } from '../colloc/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
@@ -106,6 +104,7 @@ export interface ConcordanceTileModelArgs {
     queryMatches: RecognizedQueries;
     initState: ConcordanceTileState;
     queryType: QueryType;
+    lemlevelSupport: LemmatizationLevelTest;
 }
 
 export type SupportedForeignResponses =
@@ -196,6 +195,8 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
 
     private readonly infoApi: CorpusInfoAPI | undefined;
 
+    private readonly lemlevelSupport: LemmatizationLevelTest;
+
     public static readonly CTX_SIZES = [8, 10, 18, 28];
 
     constructor({
@@ -208,6 +209,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
         initState,
         queryType,
         readDataFromTile,
+        lemlevelSupport,
     }: ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.concApi = api;
@@ -217,6 +219,7 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
         this.tileId = tileId;
         this.queryType = queryType;
         this.readDataFromTile = readDataFromTile;
+        this.lemlevelSupport = lemlevelSupport;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
             if (action.payload.isMobile !== this.state.isMobile) {
@@ -570,18 +573,12 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
     ): ConcApiArgs {
         return {
             corpusName: this.state.corpname,
-            q:
-                this.state.lemmatizationLevel === 'form'
-                    ? mkWordMatchQuery(
-                          queryMatch,
-                          this.state.posQueryGenerator,
-                          this.state.supportsSublemma
-                      )
-                    : mkLemmaMatchQuery(
-                          queryMatch,
-                          this.state.posQueryGenerator,
-                          this.state.supportsSublemma
-                      ),
+            q: queryMatchToCQL(
+                queryMatch,
+                this.state.posQueryGenerator,
+                this.state.lemmatizationLevel,
+                this.lemlevelSupport
+            ),
             rowsOffset:
                 (this.state.concordances[queryIdx].loadPage - 1) *
                 this.state.pageSize,
