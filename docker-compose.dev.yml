@@ -44,7 +44,9 @@ services:
   
   apiguard:
     build: ${APIGUARD_PATH}
+    command: bash -c "export PATH=$PATH:/usr/local/go/bin:/root/go/bin && curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b /usr/local/go/bin && air"
     volumes:
+      - ${APIGUARD_PATH}:/opt/apiguard
       - ${APIGUARD_CONF}:/opt/apiguard/conf.docker.json
     ports:
       - "8081:8081"
