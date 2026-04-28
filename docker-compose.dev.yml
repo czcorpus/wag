@@ -44,7 +44,9 @@ services:
   
   apiguard:
     build: ${APIGUARD_PATH}
+    command: bash -c "export PATH=$PATH:/usr/local/go/bin:/root/go/bin && curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b /usr/local/go/bin && air"
     volumes:
+      - ${APIGUARD_PATH}:/opt/apiguard
       - ${APIGUARD_CONF}:/opt/apiguard/conf.docker.json
     ports:
       - "8081:8081"
@@ -79,9 +81,11 @@ services:
   
   frodo:
     build: ${FRODO_PATH}
+    command: bash -c "export PATH=$PATH:/usr/local/go/bin:/root/go/bin && curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b /usr/local/go/bin && air"
     ports:
       - "8083:8083"
     volumes:
+      - ${FRODO_PATH}:/opt/frodo
       - ${FRODO_CONF}:/opt/frodo/conf.docker.json
       - ${VERT_TAGEXTRACT_CONF}:/opt/frodo/vert-tagextract/conf
       - ${CORPORA_CONF}:/opt/frodo/corpora

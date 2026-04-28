@@ -161,12 +161,13 @@ export interface QueryMatchCore {
  * frequency database. The value can be ambiguous in
  * terms of part of speech (see 'pos' as an Array).
  */
-export interface QueryMatch extends QueryMatchCore {
+export interface QueryMatch<T = any> extends QueryMatchCore {
     word: string;
     forms: Array<{ word: string; count: number; ipm: number }>;
     abs: number;
     arf: number;
     isCurrent: boolean;
+    extraData?: T;
 }
 
 /**
