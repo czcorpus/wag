@@ -12,6 +12,7 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { importQueryPosWithLabel } from '../../../postag.js';
 import { SourceDetails } from '../../../types.js';
 import urlJoin from 'url-join';
+import { group } from 'd3';
 
 interface Sublemma {
     value: string;
@@ -116,6 +117,11 @@ export class FrodoClient implements IFreqDB {
                                     ),
                                     lemma: v.lemma,
                                     sublemma: subl,
+                                    otherSublemmas: pipe(
+                                        v.sublemmas,
+                                        List.filter((v) => v.value !== subl),
+                                        List.map((v) => v.value)
+                                    ),
                                     pos: importQueryPosWithLabel(
                                         v.pos,
                                         'pos',
@@ -178,6 +184,7 @@ export class FrodoClient implements IFreqDB {
                                 forms: [], // no need to set in this case
                                 lemma: dictEntry.lemma,
                                 sublemma: sublemma.value,
+                                otherSublemmas: [],
                                 pos: importQueryPosWithLabel(
                                     dictEntry.pos,
                                     'pos',

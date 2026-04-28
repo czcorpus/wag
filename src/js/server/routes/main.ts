@@ -655,6 +655,7 @@ export function queryAction({
                                     localId: '',
                                     lemma: null,
                                     sublemma: null,
+                                    otherSublemmas: [],
                                     word: userConf.queries[queryIdx].word,
                                     forms: [],
                                     pos: [],

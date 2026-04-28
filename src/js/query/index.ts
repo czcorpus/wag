@@ -132,6 +132,8 @@ export interface QueryMatchCore {
      */
     sublemma: string | null;
 
+    otherSublemmas: Array<string>;
+
     /**
      * PoS of each word in a (possibly) multi-word query/match
      */
@@ -148,7 +150,7 @@ export interface QueryMatchCore {
     ipm: number;
 
     /**
-     *
+     *global__srch_variant
      */
     flevel: FreqBand | null;
 
@@ -185,6 +187,7 @@ export function findCurrQueryMatch(
               localId: '',
               lemma: undefined,
               sublemma: null,
+              otherSublemmas: [],
               word: undefined,
               forms: [],
               pos: [],
@@ -246,6 +249,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
                     localId: `wildcard:${lm}:${i}`,
                     lemma: matches[0].lemma,
                     sublemma: matches[0].sublemma,
+                    otherSublemmas: matches[0].otherSublemmas,
                     pos: [],
                     upos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),

@@ -326,6 +326,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 forms: [],
                                 lemma,
                                 sublemma: null, // TODO
+                                otherSublemmas: [],
                                 pos,
                                 upos: [], // TODO
                                 ipm: 0,

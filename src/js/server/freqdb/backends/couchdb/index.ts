@@ -236,6 +236,7 @@ export class CouchFreqDB implements IFreqDB {
                 forms: [],
                 lemma: v.lemma,
                 sublemma: null,
+                otherSublemmas: [],
                 pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                 upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
                 abs: v.count,
@@ -315,6 +316,7 @@ export class CouchFreqDB implements IFreqDB {
                         localId: `${i}`,
                         lemma: v.lemma,
                         sublemma: null,
+                        otherSublemmas: [],
                         pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                         upos: importQueryPosWithLabel(
                             v.upos,
@@ -372,6 +374,7 @@ export class CouchFreqDB implements IFreqDB {
                         localId: `${i}`,
                         lemma: lemma,
                         sublemma: null,
+                        otherSublemmas: [],
                         pos: importQueryPosWithLabel(pos, 'pos', appServices),
                         upos: importQueryPosWithLabel(
                             upos,

@@ -244,16 +244,28 @@ export function init(
                                     ),
                                     props.lemmatizationLevel !== 'form'
                                 )}
-                                {props.data.sublemma &&
-                                props.data.sublemma != props.data.lemma ? (
-                                    <>
-                                        <br />(
-                                        {ut.translate('global__srch_variant')}{' '}
-                                        <strong>{props.data.sublemma}</strong>)
-                                    </>
-                                ) : null}
                             </dd>
-
+                            {props.data.sublemma ? (
+                                <>
+                                    <dt>
+                                        {ut.translate('global__srch_variant')}:
+                                    </dt>
+                                    <dd>{props.data.sublemma}</dd>
+                                </>
+                            ) : null}
+                            {!List.empty(props.data.otherSublemmas) ? (
+                                <>
+                                    <dt>
+                                        {ut.translate(
+                                            'global__srch_other_variants'
+                                        )}
+                                        :
+                                    </dt>
+                                    <dd>
+                                        {props.data.otherSublemmas.join(', ')}
+                                    </dd>
+                                </>
+                            ) : null}
                             {props.lemmatizationLevel !== 'form'
                                 ? renderFreq()
                                 : null}
