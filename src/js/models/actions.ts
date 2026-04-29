@@ -41,6 +41,16 @@ export class Actions {
         name: 'MAIN_TILE_SUBGROUP_READY',
     };
 
+    static isTileSubgroupReady(
+        a: Action
+    ): a is typeof Actions.TileSubgroupReady {
+        return (
+            a.name === Actions.TileSubgroupReady.name &&
+            typeof a.payload['mainTileId'] === 'number' &&
+            typeof a.payload['subgroupId'] === 'string'
+        );
+    }
+
     static SetEmptyResult: Action<{
         error: [number, string];
     }> = {
