@@ -101,6 +101,7 @@ export class SimilarFreqWordsFrodoAPI {
                                     localId: `sw:${i}:${sublemma.value}`,
                                     lemma: v.lemma,
                                     sublemma: sublemma.value,
+                                    otherSublemmas: [],
                                     pos: [{ value: v.pos, label: v.pos }], // TODO what about label?
                                     upos: [], // TODO UD support?
                                     ipm: v.ipm,

@@ -135,6 +135,10 @@ export class Actions {
         name: 'MAIN_SUBMIT_QUERY',
     };
 
+    static SwitchToLemmaAndSubmitQuery: Action<{}> = {
+        name: 'MAIN_SWITCH_TO_LEMMA_AND_SUBMIT_QUERY',
+    };
+
     static EnableAltViewMode: Action<{
         ident: number;
     }> = {

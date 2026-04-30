@@ -69,6 +69,7 @@ export class SimilarFreqWordsAPI {
                         localId: `sw:${i}`,
                         lemma: v.lemma,
                         sublemma: v.sublemma,
+                        otherSublemmas: v.otherSublemmas,
                         pos: v.pos,
                         upos: v.upos,
                         ipm: v.ipm,

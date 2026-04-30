@@ -114,6 +114,15 @@ export const WordFreqTileView = styled.div<{ theme: Theme }>`
             font-size: 1.1rem;
             font-style: italic;
         }
+
+        .alternatives {
+            font-size: 0.8em;
+            color: ${(props) => props.theme.colorLightText};
+        }
+
+        .as-lemma {
+            font-size: 0.7em;
+        }
     }
 
     ${(props) => props.theme.cssMobileScreen} {
@@ -209,5 +218,28 @@ export const MultiWordProfile = styled.div<{ theme: Theme }>`
             font-style: italic;
             font-size: 1.1rem;
         }
+    }
+`;
+
+// ----------------------
+
+export const SrchButton = styled.button`
+    display: inline-flex;
+    margin-left: 0.7em;
+    justify-content: center;
+    width: 2rem;
+    border: none;
+    cursor: pointer;
+    background-color: ${(props) => props.theme.colorLogoBlue};
+    padding: 0.3rem 0 0.3rem 0;
+    //border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.25),
+        0 2px 4px rgba(0, 0, 0, 0.15);
+    border-radius: ${(props) => props.theme.formElementsBorderRadius};
+
+    img {
+        width: 1rem;
+        height: 1rem;
     }
 `;

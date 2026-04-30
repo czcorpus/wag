@@ -30,6 +30,10 @@ import {
 import { List, pipe } from 'cnc-tskit';
 import { Actions } from '../actions.js';
 import { MainPosAttrValues } from '../../../../conf/index.js';
+import * as S from '../style.js';
+
+const asStrongIfTrue = (elm: React.ReactNode, cond: boolean) =>
+    cond ? <strong>{elm}</strong> : <span>{elm}</span>;
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -149,58 +153,56 @@ export function init(
         );
     };
 
-    // -------------------- <SrchWordInfo /> ---------------------------------------------------
+    // -------------------- <FreqInfo /> ---------------------------------------
 
-    const SrchWordInfo: React.FC<{
-        data: QueryMatch;
-        mainPosAttr: MainPosAttrValues;
+    const FreqInfo: React.FC<{
         lemmatizationLevel: LemmatizationLevel;
-    }> = (props) => {
-        const asStrongIfTrue = (elm: React.ReactNode, cond: boolean) =>
-            cond ? <strong>{elm}</strong> : <span>{elm}</span>;
+        data: QueryMatch;
+    }> = ({ lemmatizationLevel, data }) => {
+        const ipmFreq =
+            lemmatizationLevel === 'form'
+                ? (
+                      List.find((x) => x.word === data.word, data.forms) || {
+                          ipm: 0,
+                      }
+                  ).ipm
+                : data.ipm;
 
-        const renderFreq = () => {
-            const ipmFreq =
-                props.lemmatizationLevel === 'form'
-                    ? (
+        const freqBand =
+            lemmatizationLevel === 'form'
+                ? calcFreqBand(
+                      (
                           List.find(
-                              (x) => x.word === props.data.word,
-                              props.data.forms
+                              (x) => x.word === data.word,
+                              data.forms
                           ) || { ipm: 0 }
                       ).ipm
-                    : props.data.ipm;
+                  )
+                : data.flevel;
 
-            const freqBand =
-                props.lemmatizationLevel === 'form'
-                    ? calcFreqBand(
-                          (
-                              List.find(
-                                  (x) => x.word === props.data.word,
-                                  props.data.forms
-                              ) || { ipm: 0 }
-                          ).ipm
-                      )
-                    : props.data.flevel;
+        return data.abs > 0 ? (
+            <>
+                <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
+                <dd>
+                    <commonViews.Stars freqBand={freqBand} />
+                </dd>
+                <dt>{ut.translate('wordfreq__ipm')}:</dt>
+                <dd className="ipm">{ut.formatNumber(ipmFreq, 2)}</dd>
+            </>
+        ) : (
+            <>
+                <dt>{ut.translate('wordfreq__note')}:</dt>
+                <dd>{ut.translate('wordfreq__word_known_but_nothing_more')}</dd>
+            </>
+        );
+    };
 
-            return props.data.abs > 0 ? (
-                <>
-                    <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
-                    <dd>
-                        <commonViews.Stars freqBand={freqBand} />
-                    </dd>
-                    <dt>{ut.translate('wordfreq__ipm')}:</dt>
-                    <dd className="ipm">{ut.formatNumber(ipmFreq, 2)}</dd>
-                </>
-            ) : (
-                <>
-                    <dt>{ut.translate('wordfreq__note')}:</dt>
-                    <dd>
-                        {ut.translate('wordfreq__word_known_but_nothing_more')}
-                    </dd>
-                </>
-            );
-        };
+    // -------------------- <WordFormInfoBlock /> ------------------------------
 
+    const WordFormInfoBlock: React.FC<{
+        data: QueryMatch;
+        lemmatizationLevel: LemmatizationLevel;
+    }> = (props) => {
         return (
             <>
                 <HighlightedIfTrue cond={props.lemmatizationLevel === 'form'}>
@@ -211,83 +213,172 @@ export function init(
                             props.lemmatizationLevel === 'form'
                         )}
                     </dd>
-                    {props.lemmatizationLevel === 'form' ? renderFreq() : null}
+                    {props.lemmatizationLevel === 'form' ? (
+                        <FreqInfo
+                            data={props.data}
+                            lemmatizationLevel={props.lemmatizationLevel}
+                        />
+                    ) : null}
                 </HighlightedIfTrue>
-                {props.data.lemma ? (
-                    <>
-                        <HighlightedIfTrue
-                            cond={props.lemmatizationLevel !== 'form'}
-                        >
-                            <dt>
-                                {props.data.lemma.split(' ').length > 1
-                                    ? ut.translate(
-                                          'wordfreq__lemmatized_variant'
-                                      )
-                                    : 'lemma'}
-                                :
-                            </dt>
-                            <dd>
-                                {asStrongIfTrue(
-                                    List.map(
-                                        (lm, i) =>
-                                            i > 0 ? (
-                                                <span key={`${i}:${lm}`}>
-                                                    <br />
-                                                    {lm}
-                                                </span>
-                                            ) : (
-                                                <span key={`${i}:${lm}`}>
-                                                    {lm}
-                                                </span>
-                                            ),
-                                        props.data.lemma.split('|')
-                                    ),
-                                    props.lemmatizationLevel !== 'form'
-                                )}
-                                {props.data.sublemma &&
-                                props.data.sublemma != props.data.lemma ? (
-                                    <>
-                                        <br />(
-                                        {ut.translate('global__srch_variant')}{' '}
-                                        <strong>{props.data.sublemma}</strong>)
-                                    </>
-                                ) : null}
-                            </dd>
-
-                            {props.lemmatizationLevel !== 'form'
-                                ? renderFreq()
-                                : null}
-                        </HighlightedIfTrue>
-                        <div className="general-info">
-                            <dt>{ut.translate('wordfreq__pos')}:</dt>
-                            <dd className="pos-info">
-                                {props.data[props.mainPosAttr].length > 0
-                                    ? List.map(
-                                          (pos, i) => (
-                                              <React.Fragment
-                                                  key={`${i}:${pos.value}`}
-                                              >
-                                                  {i > 0 ? '\u00a0' : ''}
-                                                  {pos.label}
-                                              </React.Fragment>
-                                          ),
-                                          props.data[props.mainPosAttr]
-                                      )
-                                    : ut.translate(
-                                          'wordfreq__pos_not_specified'
-                                      )}
-                            </dd>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <dt>{ut.translate('wordfreq__note')}:</dt>
-                        <dd>{ut.translate('wordfreq__not_in_dict')}</dd>
-                    </>
-                )}
             </>
         );
     };
+
+    // -------------------- <WordVariantInfoBlock /> ------------------------------
+
+    const WordVariantInfoBlock: React.FC<{
+        data: QueryMatch;
+        lemmatizationLevel: LemmatizationLevel;
+    }> = (props) => {
+        const isHighlighted =
+            props.lemmatizationLevel === 'sublemma' &&
+            !List.empty(props.data.otherSublemmas);
+
+        const submitAsLemma = () => {
+            dispatcher.dispatch(GlobalActions.SwitchToLemmaAndSubmitQuery);
+        };
+
+        return props.data.sublemma && !List.empty(props.data.otherSublemmas) ? (
+            <HighlightedIfTrue cond={isHighlighted}>
+                <dt>{ut.translate('global__srch_variant')}:</dt>
+                <dd>
+                    {asStrongIfTrue(
+                        props.data.sublemma,
+                        props.lemmatizationLevel === 'sublemma'
+                    )}
+                    {!List.empty(props.data.otherSublemmas) ? (
+                        <>
+                            {'\u00a0'}(
+                            <span className="alternatives">
+                                {ut.translate('global__srch_other_variants')}:
+                            </span>
+                            {'\u00a0' + props.data.otherSublemmas.join(', ')})
+                            {props.lemmatizationLevel !== 'lemma' &&
+                            !List.empty(props.data.otherSublemmas) ? (
+                                <p className="as-lemma">
+                                    {ut.translate('wordfreq__show_as_lemma')}
+                                    <S.SrchButton
+                                        type="button"
+                                        onClick={submitAsLemma}
+                                    >
+                                        <img
+                                            src={ut.createStaticUrl(
+                                                'mglass.svg'
+                                            )}
+                                        />
+                                    </S.SrchButton>
+                                </p>
+                            ) : null}
+                        </>
+                    ) : null}
+                </dd>
+                {isHighlighted ? (
+                    <FreqInfo
+                        data={props.data}
+                        lemmatizationLevel={props.lemmatizationLevel}
+                    />
+                ) : null}
+            </HighlightedIfTrue>
+        ) : null;
+    };
+
+    // -------------------- <WordLemmaInfoBlock /> ------------------------------
+
+    const WordLemmaInfoBlock: React.FC<{
+        data: QueryMatch;
+        mainPosAttr: MainPosAttrValues;
+        lemmatizationLevel: LemmatizationLevel;
+    }> = (props) => {
+        const isHighlighted =
+            props.lemmatizationLevel === 'lemma' ||
+            (props.lemmatizationLevel === 'sublemma' &&
+                List.empty(props.data.otherSublemmas));
+
+        return props.data.lemma ? (
+            <>
+                <HighlightedIfTrue cond={isHighlighted}>
+                    <dt>
+                        {props.data.lemma.split(' ').length > 1
+                            ? ut.translate('wordfreq__lemmatized_variant')
+                            : 'lemma'}
+                        :
+                    </dt>
+                    <dd>
+                        {asStrongIfTrue(
+                            List.map(
+                                (lm, i) =>
+                                    i > 0 ? (
+                                        <span key={`${i}:${lm}`}>
+                                            <br />
+                                            {lm}
+                                        </span>
+                                    ) : (
+                                        <span key={`${i}:${lm}`}>{lm}</span>
+                                    ),
+                                props.data.lemma.split('|')
+                            ),
+                            isHighlighted
+                        )}
+                        {List.empty(props.data.otherSublemmas) ? null : (
+                            <span></span>
+                        )}
+                    </dd>
+
+                    {isHighlighted ? (
+                        <FreqInfo
+                            data={props.data}
+                            lemmatizationLevel={props.lemmatizationLevel}
+                        />
+                    ) : null}
+                </HighlightedIfTrue>
+                <div className="general-info">
+                    <dt>{ut.translate('wordfreq__pos')}:</dt>
+                    <dd className="pos-info">
+                        {props.data[props.mainPosAttr].length > 0
+                            ? List.map(
+                                  (pos, i) => (
+                                      <React.Fragment key={`${i}:${pos.value}`}>
+                                          {i > 0 ? '\u00a0' : ''}
+                                          {pos.label}
+                                      </React.Fragment>
+                                  ),
+                                  props.data[props.mainPosAttr]
+                              )
+                            : ut.translate('wordfreq__pos_not_specified')}
+                    </dd>
+                </div>
+            </>
+        ) : (
+            <div className="general-info">
+                <dt>{ut.translate('wordfreq__note')}:</dt>
+                <dd>{ut.translate('wordfreq__not_in_dict')}</dd>
+            </div>
+        );
+    };
+
+    // -------------------- <SrchWordInfo /> ---------------------------------------------------
+
+    const SrchWordInfo: React.FC<{
+        data: QueryMatch;
+        mainPosAttr: MainPosAttrValues;
+        lemmatizationLevel: LemmatizationLevel;
+    }> = (props) => (
+        <>
+            <WordFormInfoBlock
+                data={props.data}
+                lemmatizationLevel={props.lemmatizationLevel}
+            />
+            <WordVariantInfoBlock
+                data={props.data}
+                lemmatizationLevel={props.lemmatizationLevel}
+            />
+            <WordLemmaInfoBlock
+                data={props.data}
+                mainPosAttr={props.mainPosAttr}
+                lemmatizationLevel={props.lemmatizationLevel}
+            />
+        </>
+    );
 
     // -------------------- <SingleWordProfile /> ---------------------------------------------------
 

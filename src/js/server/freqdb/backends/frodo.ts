@@ -12,6 +12,7 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { importQueryPosWithLabel } from '../../../postag.js';
 import { SourceDetails } from '../../../types.js';
 import urlJoin from 'url-join';
+import { group } from 'd3';
 
 interface Sublemma {
     value: string;
@@ -117,6 +118,11 @@ export class FrodoClient implements IFreqDB {
                                     ),
                                     lemma: v.lemma,
                                     sublemma: subl,
+                                    otherSublemmas: pipe(
+                                        v.sublemmas,
+                                        List.filter((v) => v.value !== subl),
+                                        List.map((v) => v.value)
+                                    ),
                                     pos: importQueryPosWithLabel(
                                         v.pos,
                                         'pos',
@@ -133,11 +139,25 @@ export class FrodoClient implements IFreqDB {
                                               'upos',
                                               appServices
                                           ),
-                                    abs: sublProps.count,
-                                    ipm: (sublProps.count / corpusSize) * 1e6,
-                                    flevel: calcFreqBand(
-                                        (sublProps.count / corpusSize) * 1e6
-                                    ),
+                                    abs:
+                                        freqLemLevel === 'sublemma'
+                                            ? sublProps.count
+                                            : v.count,
+                                    ipm:
+                                        freqLemLevel === 'sublemma'
+                                            ? (sublProps.count / corpusSize) *
+                                              1e6
+                                            : (v.count / corpusSize) * 1e6,
+                                    flevel:
+                                        freqLemLevel === 'sublemma'
+                                            ? calcFreqBand(
+                                                  (sublProps.count /
+                                                      corpusSize) *
+                                                      1e6
+                                              )
+                                            : calcFreqBand(
+                                                  (v.count / corpusSize) * 1e6
+                                              ),
                                     arf: v.arf, // TODO arf can be obtained just for lemma
                                     isCurrent: false,
                                     initialCap: v.is_pname,
@@ -180,6 +200,7 @@ export class FrodoClient implements IFreqDB {
                                 forms: [], // no need to set in this case
                                 lemma: dictEntry.lemma,
                                 sublemma: sublemma.value,
+                                otherSublemmas: [],
                                 pos: importQueryPosWithLabel(
                                     dictEntry.pos,
                                     'pos',

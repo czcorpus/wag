@@ -115,13 +115,15 @@
         "global__redirecting_to_extrenal_page": "Redirecting to external page",
         "global__kontext_login_required": "Displaying requires login in KonText application",
         "global__srch_variant": "variant",
+        "global__srch_other_variants": "alternatives",
         "global__index": "index",
         "global__set_exact_form_search": "search for the exact form",
         "global__tile_only_lemma_resolution_warning": "the tile shows only data for the lemmatized variant",
         "global__any_form_placeholder": "any form",
         "global__exact_form_placeholder": "exact form",
         "global__lemma_only_supporting_tile_help_label": "Lemma-only supporting tile",
-        "global__lemma_only_supporting_tile_help_content": "This tile provides only a general overview of the base form of the search term (lemma). The results therefore correspond to occurrences of the word in any form or variant - not just the one entered."
+        "global__lemma_only_supporting_tile_help_content": "This tile provides only a general overview of the base form of the search term (lemma). The results therefore correspond to occurrences of the word in any form or variant - not just the one entered.",
+        "global__variants_combined_label": "variants combined"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -239,12 +241,14 @@
         "global__redirecting_to_extrenal_page": "Přesměrovávám na externí stránku",
         "global__kontext_login_required": "Pro zobrazení je vyžadováno přihlášení v aplikace KonText",
         "global__srch_variant": "varianta",
+        "global__srch_other_variants": "alternativy",
         "global__index": "obsah",
         "global__set_exact_form_search": "hledat přesný tvar slova",
         "global__tile_only_lemma_resolution_warning": "the tile shows only data for the lemmatized variant",
         "global__any_form_placeholder": "libovolný tvar",
         "global__exact_form_placeholder": "přesný tvar",
         "global__lemma_only_supporting_tile_help_label": "Dlaždice podporující pouze lemmatizovanou variantu",
-        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze obecnější pohled na základní podobu hledaného slova (lemma). Výsledky tedy odpovídají výskytům slova v libovolném tvaru či variantě - nikoliv pouze k té zadané."
+        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze obecnější pohled na základní podobu hledaného slova (lemma). Výsledky tedy odpovídají výskytům slova v libovolném tvaru či variantě - nikoliv pouze k té zadané.",
+        "global__variants_combined_label": "všechny varianty"
     }
 }
