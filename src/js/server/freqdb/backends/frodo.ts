@@ -138,11 +138,25 @@ export class FrodoClient implements IFreqDB {
                                               'upos',
                                               appServices
                                           ),
-                                    abs: sublProps.count,
-                                    ipm: (sublProps.count / corpusSize) * 1e6,
-                                    flevel: calcFreqBand(
-                                        (sublProps.count / corpusSize) * 1e6
-                                    ),
+                                    abs:
+                                        freqLemLevel === 'sublemma'
+                                            ? sublProps.count
+                                            : v.count,
+                                    ipm:
+                                        freqLemLevel === 'sublemma'
+                                            ? (sublProps.count / corpusSize) *
+                                              1e6
+                                            : (v.count / corpusSize) * 1e6,
+                                    flevel:
+                                        freqLemLevel === 'sublemma'
+                                            ? calcFreqBand(
+                                                  (sublProps.count /
+                                                      corpusSize) *
+                                                      1e6
+                                              )
+                                            : calcFreqBand(
+                                                  (v.count / corpusSize) * 1e6
+                                              ),
                                     arf: v.arf, // TODO arf can be obtained just for lemma
                                     isCurrent: false,
                                     initialCap: v.is_pname,

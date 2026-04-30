@@ -17,7 +17,7 @@
  */
 import { Bound, IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Keyboard, pipe, List } from 'cnc-tskit';
+import { Keyboard, pipe, List, tuple } from 'cnc-tskit';
 import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { Input } from '../page/forms.js';
@@ -716,6 +716,7 @@ export function init(
         lemmaSelectorModalVisible: boolean;
         modalSelections: Array<number>;
         mainPosAttr: MainPosAttrValues;
+        lemlevel: LemmatizationLevel;
     }> = (props) => {
         const mkHandleClick =
             (queryIdx: number, lemmaVar: QueryMatch) => () => {
@@ -736,17 +737,28 @@ export function init(
             }
         };
 
-        const mkAltLabelWord = (v: QueryMatch) => {
-            if (!v.lemma) {
-                return v.word;
+        const mkAltLabelWord = (
+            v: QueryMatch,
+            lemlevel: LemmatizationLevel
+        ) => {
+            switch (lemlevel) {
+                case 'lemma':
+                    return v.lemma
+                        ? `${v.lemma} (${mkAltLabelPosInfo(v)}, ${ut.translate('global__variants_combined_label')})`
+                        : v.word;
+                case 'sublemma':
+                    if (!v.sublemma) {
+                        return v.word;
+                    }
+                    if (v.lemma === v.sublemma || !v.sublemma) {
+                        return `${v.lemma} (${mkAltLabelPosInfo(v)})`;
+                    }
+                    if (v.lemma !== v.sublemma) {
+                        return `${v.sublemma} (${mkAltLabelPosInfo(v)})`;
+                    }
+                default:
+                    return `${v.word} (${mkAltLabelPosInfo(v)})`;
             }
-            if (v.lemma === v.sublemma || !v.sublemma) {
-                return `${v.lemma} (${mkAltLabelPosInfo(v)})`;
-            }
-            if (v.lemma !== v.sublemma) {
-                return `${v.sublemma} (${mkAltLabelPosInfo(v)})`;
-            }
-            return `${v.word} (${mkAltLabelPosInfo(v)})`;
         };
 
         const handleCloseModal = () => {
@@ -790,7 +802,9 @@ export function init(
                         <S.LemmaSelector>
                             {ut.translate('global__searching_by_pos')}:
                             {'\u00a0'}
-                            <span className="curr">{mkAltLabelWord(curr)}</span>
+                            <span className="curr">
+                                {mkAltLabelWord(curr, props.lemlevel)}
+                            </span>
                             <br />
                             {props.matches[0].length > 1 ? (
                                 <div className="variants">
@@ -801,8 +815,21 @@ export function init(
                                     <ul>
                                         {pipe(
                                             props.matches[0],
-                                            List.filter((v) => !v.isCurrent),
-                                            List.map((v, i) => (
+                                            List.filter(
+                                                (v) =>
+                                                    !v.isCurrent ||
+                                                    props.lemlevel === 'lemma'
+                                            ),
+                                            (items) =>
+                                                List.map(
+                                                    (v) =>
+                                                        tuple(
+                                                            v,
+                                                            List.size(items)
+                                                        ),
+                                                    items
+                                                ),
+                                            List.map(([v, numItems], i) => (
                                                 <li
                                                     key={`${v.lemma}:${v[props.mainPosAttr]}:${i}`}
                                                 >
@@ -815,11 +842,7 @@ export function init(
                                                         {v.sublemma} (
                                                         {mkAltLabelPosInfo(v)})
                                                     </a>
-                                                    {i <
-                                                    props.matches[0].filter(
-                                                        (v) => !v.isCurrent
-                                                    ).length -
-                                                        1 ? (
+                                                    {i < numItems - 1 ? (
                                                         <span>, </span>
                                                     ) : null}
                                                 </li>
@@ -2395,6 +2418,7 @@ export function init(
                     lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
                     modalSelections={state.modalSelections}
                     mainPosAttr={state.mainPosAttr}
+                    lemlevel={state.lemmatizationLevel}
                 />
             </S.SubmenuTile>
         );

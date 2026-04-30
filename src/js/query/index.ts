@@ -150,7 +150,9 @@ export interface QueryMatchCore {
     ipm: number;
 
     /**
-     *global__srch_variant
+     * Freq. band is just an ipm value scaled logarithmically
+     * (up to 1, 10, 100, 1000, 1000000 with the last
+     * category as "catch the rest")
      */
     flevel: FreqBand | null;
 

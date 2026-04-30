@@ -171,6 +171,22 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         );
 
         this.addActionHandler(
+            Actions.SwitchToLemmaAndSubmitQuery,
+            (state, action) => {
+                state.lemmatizationLevel = 'lemma';
+                this.checkAndSubmitUserQuery(state);
+            },
+            (state, action, dispatch) => {
+                state.errors.forEach((err) => {
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        err.message
+                    );
+                });
+            }
+        );
+
+        this.addActionHandler(
             Actions.AddCmpQueryInput,
             (state, action) => {
                 if (state.queries.length < state.maxCmpQueries) {
