@@ -238,7 +238,9 @@ export function init(
             dispatcher.dispatch(GlobalActions.SwitchToLemmaAndSubmitQuery);
         };
 
-        return props.data.sublemma && !List.empty(props.data.otherSublemmas) ? (
+        return props.data.sublemma &&
+            !List.empty(props.data.otherSublemmas) &&
+            props.lemmatizationLevel !== 'lemma' ? (
             <HighlightedIfTrue cond={isHighlighted}>
                 <dt>{ut.translate('global__srch_variant')}:</dt>
                 <dd>
@@ -253,22 +255,17 @@ export function init(
                                 {ut.translate('global__srch_other_variants')}:
                             </span>
                             {'\u00a0' + props.data.otherSublemmas.join(', ')})
-                            {props.lemmatizationLevel !== 'lemma' &&
-                            !List.empty(props.data.otherSublemmas) ? (
-                                <p className="as-lemma">
-                                    {ut.translate('wordfreq__show_as_lemma')}
-                                    <S.SrchButton
-                                        type="button"
-                                        onClick={submitAsLemma}
-                                    >
-                                        <img
-                                            src={ut.createStaticUrl(
-                                                'mglass.svg'
-                                            )}
-                                        />
-                                    </S.SrchButton>
-                                </p>
-                            ) : null}
+                            <p className="as-lemma">
+                                {ut.translate('wordfreq__show_as_lemma')}
+                                <S.SrchButton
+                                    type="button"
+                                    onClick={submitAsLemma}
+                                >
+                                    <img
+                                        src={ut.createStaticUrl('mglass.svg')}
+                                    />
+                                </S.SrchButton>
+                            </p>
                         </>
                     ) : null}
                 </dd>
