@@ -37,7 +37,7 @@ import { Actions } from './actions.js';
 import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
-import { IDataStreaming } from '../../../page/streaming.js';
+import { IDataStreaming, TileResponseError } from '../../../page/streaming.js';
 
 /**
  * A general action notifying about single query
@@ -398,18 +398,34 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     });
                 },
                 error: (error) => {
-                    console.error(error);
-                    dispatch<typeof Actions.TileDataLoaded>({
-                        name: Actions.TileDataLoaded.name,
-                        error,
-                        payload: {
-                            tileId: this.tileId,
-                            kwicNumTokens: 1,
-                            kwicTokenIdx: -1,
-                            isEmpty: true,
-                            data: null,
-                        },
-                    });
+                    if (
+                        error instanceof TileResponseError &&
+                        error.status === 404
+                    ) {
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: true,
+                                data: [],
+                                kwicNumTokens: 1,
+                                kwicTokenIdx: -1,
+                            },
+                        });
+                    } else {
+                        console.error(error);
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            error,
+                            payload: {
+                                tileId: this.tileId,
+                                kwicNumTokens: 1,
+                                kwicTokenIdx: -1,
+                                isEmpty: true,
+                                data: null,
+                            },
+                        });
+                    }
                 },
             });
     }
