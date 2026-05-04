@@ -436,7 +436,7 @@ export class DataStreaming implements IDataStreaming {
                 : this.prepareTileRequest(normEntry)
         );
         return this.responseStream.pipe(
-            filter((response: EventItem<T>) => {
+            filter((response: EventItem<unknown>) => {
                 if (isOtherTileRequest(normEntry)) {
                     return (
                         response.tileId === normEntry.otherTileId &&
