@@ -2234,8 +2234,9 @@ export function init(
                     >
                         <S.ModalTextContentContainer>
                             <p>
-                                {ut.translate(
-                                    'global__lemma_only_supporting_tile_help_content'
+                                {ut.translateRich(
+                                    'global__lemma_only_supporting_tile_help_content',
+                                    { em: (chunks) => <em>{chunks}</em> }
                                 )}
                             </p>
                         </S.ModalTextContentContainer>

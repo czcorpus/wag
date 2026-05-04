@@ -122,7 +122,7 @@
         "global__any_form_placeholder": "any form",
         "global__exact_form_placeholder": "exact form",
         "global__lemma_only_supporting_tile_help_label": "Lemma-only supporting tile",
-        "global__lemma_only_supporting_tile_help_content": "This tile provides only a general overview of the base form of the search term (lemma). The results therefore correspond to occurrences of the word in any form or variant - not just the one entered.",
+        "global__lemma_only_supporting_tile_help_content": "This tile provides only consolidated information for all forms and variants (e.g., <em>sekera</em>, <em>sekyra</em>) belonging to the given base form (lemma) of the searched word.",
         "global__variants_combined_label": "variants combined"
     },
     "cs-CZ": {
@@ -248,7 +248,7 @@
         "global__any_form_placeholder": "libovolný tvar",
         "global__exact_form_placeholder": "přesný tvar",
         "global__lemma_only_supporting_tile_help_label": "Dlaždice podporující pouze lemmatizovanou variantu",
-        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze obecnější pohled na základní podobu hledaného slova (lemma). Výsledky tedy odpovídají výskytům slova v libovolném tvaru či variantě - nikoliv pouze k té zadané.",
+        "global__lemma_only_supporting_tile_help_content": "Tato dlaždice poskytuje pouze sjednocené informace pro všechny tvary a varianty (např. <em>sekera</em>, <em>sekyra</em>) náležící k dané základní podobě (lemmatu) hledaného slova.",
         "global__variants_combined_label": "všechny varianty"
     }
 }
