@@ -484,15 +484,6 @@ export interface LangCookieSetup {
     domain?: string;
 }
 
-export interface GroupedAuth {
-    ident: string;
-    preflightUrl?: string;
-    authenticateUrl: string;
-    token: string;
-    cookieName: string;
-    cookieDomain: string;
-}
-
 /**
  * Server side app configuration.
  */
