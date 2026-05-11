@@ -74,6 +74,10 @@
         "conf_name": "GeoAreasTileConf"
       },
       {
+        "path": "core/gramatikat",
+        "conf_name": "GramatikatTileConf"
+      },
+      {
         "path": "core/html",
         "conf_name": "HtmlTileConf"
       },
