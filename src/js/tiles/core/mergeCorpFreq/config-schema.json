@@ -48,8 +48,11 @@
                         "minItems": 2,
                         "maxItems": 2
                     },
-                    "supportsSublemma": {
-                        "type": "boolean"
+                    "lemmatizationLevels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "freqType": {
                         "enum": [
@@ -161,6 +164,18 @@
             "description": "Defines tiles which can be used as sources of subqueries",
             "type": "array",
             "items": {
+                "type": "string"
+            }
+        },
+        "lemmatizationLevels": {
+            "description": "In case a tile supports only some of the lemmatization levels,\nit should be configured. If empty, WaG assumes the tile supports\nall the types.",
+            "type": "array",
+            "items": {
+                "enum": [
+                    "form",
+                    "lemma",
+                    "sublemma"
+                ],
                 "type": "string"
             }
         }

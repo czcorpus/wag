@@ -1,64 +1,8 @@
 {
     "type": "object",
     "properties": {
-        "apiURL": {
+        "apiUrl": {
             "type": "string"
-        },
-        "apiType": {
-            "type": "string"
-        },
-        "corpname": {
-            "type": "string"
-        },
-        "fcrit": {
-            "type": "string"
-        },
-        "freqType": {
-            "enum": [
-                "text-types",
-                "tokens"
-            ],
-            "type": "string"
-        },
-        "freqSort": {
-            "type": "string"
-        },
-        "fpage": {
-            "type": "number"
-        },
-        "fttIncludeEmpty": {
-            "type": "boolean"
-        },
-        "areaCodeMapping": {
-            "type": "object",
-            "additionalProperties": {
-                "type": "string"
-            }
-        },
-        "frequencyDisplayLimit": {
-            "type": "number"
-        },
-        "posQueryGenerator": {
-            "description": "A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset]).",
-            "type": "array",
-            "items": [
-                {
-                    "type": "string"
-                },
-                {
-                    "enum": [
-                        "directPos",
-                        "pennTreebank",
-                        "ppTagset"
-                    ],
-                    "type": "string"
-                }
-            ],
-            "minItems": 2,
-            "maxItems": 2
-        },
-        "supportsSublemma": {
-            "type": "boolean"
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -129,17 +73,7 @@
         }
     },
     "required": [
-        "apiType",
-        "apiURL",
-        "areaCodeMapping",
-        "corpname",
-        "fcrit",
-        "fpage",
-        "freqSort",
-        "freqType",
-        "frequencyDisplayLimit",
-        "fttIncludeEmpty",
-        "posQueryGenerator",
+        "apiUrl",
         "tileType"
     ],
     "definitions": {
