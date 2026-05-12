@@ -22,8 +22,11 @@ import { Backlink } from '../../../page/tile.js';
 import {
     GramatikatAPI,
     GramatikatAPIArgs,
-    GramatikatAPIResponse,
+    LemmaResponse,
     GramatikatFreq,
+    LemmaProfileResponse,
+    Histogram,
+    GramatikatCatSet,
 } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -39,13 +42,19 @@ import {
 import { mergeMap, Observable } from 'rxjs';
 import { List, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
+import { SystemMessageType } from '../../../types.js';
 
 export interface GramatikatState {
     corpname: string;
-    data: {
+    lemmaData: Array<{
         totalFreq: number;
         variants: Array<GramatikatFreq>;
-    };
+    }>;
+    catSet: [GramatikatCatSet, GramatikatCatSet];
+    posData: Array<{
+        binEdges: Array<number>;
+        histograms: Array<Histogram>;
+    }>;
     isBusy: boolean;
     backlinks: Array<Backlink>;
     error: string | undefined;
@@ -97,17 +106,33 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
             Actions.TileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (action) => {
-                this.changeState((state) => {
-                    state.isBusy = false;
-                });
                 if (!action.error) {
-                    console.log('>>>>> ', action.payload.resp);
                     this.changeState((state) => {
-                        state.data = {
-                            totalFreq: action.payload.resp.freq,
-                            variants: action.payload.resp.proportions,
-                        };
+                        state.isBusy = false;
+                        state.lemmaData = List.map(
+                            (item) => ({
+                                totalFreq: item.freq,
+                                variants: item.proportions,
+                            }),
+                            action.payload.resp.lemmaInfo
+                        );
+                        state.posData = List.map(
+                            (item) => ({
+                                binEdges: item.binEdges,
+                                histograms: item.histograms,
+                            }),
+                            action.payload.resp.posInfo
+                        );
                     });
+                } else {
+                    this.changeState((state) => {
+                        state.isBusy = false;
+                        state.error = `${action.error}`;
+                    });
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        action.error
+                    );
                 }
             }
         );
@@ -116,11 +141,13 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
     private stateToArgs(m: QueryMatch, queryIdx: number): GramatikatAPIArgs {
         return {
             lemma: m.lemma,
+            catSet: this.state.catSet,
+            corpus: this.state.corpname,
         };
     }
 
     private processResponse(
-        resp: Observable<[GramatikatAPIResponse, number]>
+        resp: Observable<[LemmaProfileResponse, number]>
     ): void {
         resp.subscribe({
             next: ([resp]) => {
@@ -149,8 +176,7 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
 
     private loadData(
         streaming: IDataStreaming
-    ): Observable<[GramatikatAPIResponse, number]> {
-        console.log('******************* LOAD_DATA');
+    ): Observable<[LemmaProfileResponse, number]> {
         return new Observable<[GramatikatAPIArgs | null, number]>(
             (observer) => {
                 try {
