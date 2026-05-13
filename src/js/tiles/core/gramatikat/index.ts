@@ -70,6 +70,9 @@ export class GramatikatTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.label = this.appServices.importExternalMessage(
+            conf.label || 'gramatikat__main_label'
+        );
         this.model = new GramatikatModel({
             dispatcher,
             initState: {
