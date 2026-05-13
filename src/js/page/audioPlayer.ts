@@ -55,7 +55,8 @@ export class AudioPlayer {
     }
 
     play<T extends { url: string; format: string }>(
-        items: Array<T>
+        items: Array<T>,
+        html5?: boolean
     ): Observable<ChunkPlayback<T>> {
         const sessionId = `playback:${Ident.puid()}`;
         const itemsToPlay: Array<ItemToPlay<T>> = items.map((v, i) => ({
@@ -67,7 +68,7 @@ export class AudioPlayer {
             concatMap(
                 (item) =>
                     new Observable<ChunkPlayback<T>>((observer) => {
-                        this.sound = new Howl({
+                        const args = {
                             src: [item.item.url],
                             volume: 1.0,
                             autoplay: false,
@@ -106,7 +107,14 @@ export class AudioPlayer {
                                     new Error(`Error during playback: ${err}`)
                                 );
                             },
-                        });
+                        };
+                        if (html5) {
+                            args['html5'] = true;
+                            args['xhr'] = {
+                                withCredentials: false, // Ensure no credentials are sent with the request
+                            };
+                        }
+                        this.sound = new Howl(args);
                         this.sound.play();
                     })
             )
