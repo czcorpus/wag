@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { EMPTY, map, Observable, of as rxOf, tap } from 'rxjs';
+import { EMPTY, map, Observable } from 'rxjs';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { Backlink } from '../../../page/tile.js';
@@ -25,28 +25,79 @@ import urlJoin from 'url-join';
 
 export interface GramatikatAPIArgs {
     lemma: string;
+    catSet: [GramatikatCatSet, GramatikatCatSet];
+    corpus: string;
 }
 
-type GramatikatNumber = 'S' | 'P';
+export type GramatikatNumber = 'S' | 'P';
 
-type GramatikatCase = '1' | '2' | '3' | '4' | '5' | '6' | '7';
+export type GramatikatCase = '1' | '2' | '3' | '4' | '5' | '6' | '7';
 
-type GramatikatSlot = `${GramatikatNumber}${GramatikatCase}`;
+export type GramatikatCatSet =
+    | 'gender'
+    | 'number'
+    | 'case'
+    | 'degree'
+    | 'polarity'
+    | 'mood'
+    | 'tense'
+    | 'person'
+    | 'voice'
+    | 'aspect';
+
+export type GramatikatPoS = 'nouns' | 'adjectives' | 'verbs';
+
+interface LemmaArgs {
+    lemma: string;
+
+    pos: GramatikatPoS;
+
+    /**
+     * Set of grammatical categories.
+     */
+    catSet: [GramatikatCatSet, GramatikatCatSet];
+
+    /**
+     * If given, proportions of instances of values of catSet are computed
+     * separately within instances of each value of frameCatSet
+     */
+    frameCatSet?: GramatikatCatSet;
+
+    corpus: string;
+}
 
 export interface GramatikatFreq {
-    value: GramatikatSlot;
+    valSet: [GramatikatNumber, GramatikatCase];
     proportion: number;
 }
 
-export interface GramatikatAPIResponse {
+export interface LemmaResponse {
     freq: number;
     proportions: Array<GramatikatFreq>;
 }
 
+export interface Histogram {
+    valSet: [GramatikatNumber, GramatikatCase];
+    histogram: Array<number>;
+}
+
+export interface Histograms {
+    binEdges: Array<number>;
+    histograms: Array<Histogram>;
+}
+
+export interface LemmaProfileResponse {
+    lemmaInfo: Array<LemmaResponse>;
+    posInfo: Array<Histograms>;
+}
+
 export interface GramatikatSourceDetail extends SourceDetails {}
 
+/**
+ *
+ */
 export class GramatikatAPI
-    implements ResourceApi<GramatikatAPIArgs, [GramatikatAPIResponse, number]>
+    implements ResourceApi<GramatikatAPIArgs, [LemmaProfileResponse, number]>
 {
     private readonly apiUrl: string;
 
@@ -72,33 +123,35 @@ export class GramatikatAPI
         tileId: number,
         queryIdx: number,
         args: GramatikatAPIArgs | null
-    ): Observable<[GramatikatAPIResponse, number]> {
-        console.log('Gramatikat API - ', this.apiUrl);
+    ): Observable<[LemmaProfileResponse, number]> {
+        const reqArgs: LemmaArgs = {
+            lemma: args.lemma,
+            pos: 'nouns',
+            catSet: args.catSet,
+            corpus: args.corpus,
+        };
         return streaming
-            .registerTileRequest<GramatikatAPIResponse>({
+            .registerTileRequest<LemmaProfileResponse>({
                 tileId,
                 queryIdx,
                 method: HTTP.Method.POST,
-                url: args ? urlJoin(this.apiUrl, 'lemma') : '',
-                body: {
-                    lemma: args.lemma,
-                    pos: 'nouns',
-                    category: 'numbercase',
-                    corpus: 'syn2015_20_25',
-                },
+                url: args ? urlJoin(this.apiUrl, 'lemma-profile') : '',
+                body: reqArgs,
                 isEventSource: false,
                 contentType: 'application/json',
             })
             .pipe(
-                tap((v) => {
-                    console.log('we have response: ', v);
-                }),
-                map<GramatikatAPIResponse, GramatikatAPIResponse>((resp) =>
+                map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
                     resp
                         ? resp
                         : {
-                              freq: 0,
-                              proportions: [],
+                              lemmaInfo: [
+                                  {
+                                      freq: 0,
+                                      proportions: [],
+                                  },
+                              ],
+                              posInfo: [{ binEdges: [], histograms: [] }],
                           }
                 ),
                 map((resp) => tuple(resp, queryIdx))

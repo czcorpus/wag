@@ -32,6 +32,7 @@ import {
 import { GramatikatModel } from './model.js';
 import { GramatikatAPI } from './api.js';
 import { init as viewInit } from './views.js';
+import { tuple } from 'cnc-tskit';
 
 export interface GramatikatTileConf extends TileConf {
     apiUrl: string;
@@ -73,11 +74,20 @@ export class GramatikatTile implements ITileProvider {
             dispatcher,
             initState: {
                 backlinks: [],
-                corpname: '',
-                data: {
-                    totalFreq: 0,
-                    variants: [],
-                },
+                corpname: 'syn2015_20_25', // TODO configurable
+                catSet: tuple('number', 'case'),
+                lemmaData: [
+                    {
+                        totalFreq: 0,
+                        variants: [],
+                    },
+                ],
+                posData: [
+                    {
+                        binEdges: [],
+                        histograms: [],
+                    },
+                ],
                 error: undefined,
                 isBusy,
             },

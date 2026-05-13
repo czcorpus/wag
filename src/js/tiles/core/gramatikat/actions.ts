@@ -18,13 +18,12 @@
 import { Action } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { SubqueryPayload } from '../../../query/index.js';
-import { GramatikatAPIResponse } from './api.js';
+import { LemmaProfileResponse } from './api.js';
 
 export class Actions {
     static TileDataLoaded: Action<
         typeof GlobalActions.TileDataLoaded.payload & {
-            resp: GramatikatAPIResponse;
+            resp: LemmaProfileResponse;
         }
     > = {
         name: GlobalActions.TileDataLoaded.name,
