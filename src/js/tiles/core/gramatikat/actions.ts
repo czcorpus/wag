@@ -19,13 +19,19 @@ import { Action } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { LemmaProfileResponse } from './api.js';
+import { SubqueryPayload } from '../../../query/index.js';
+
+export interface PartialDataPayload extends SubqueryPayload {
+    resp: LemmaProfileResponse;
+}
 
 export class Actions {
-    static TileDataLoaded: Action<
-        typeof GlobalActions.TileDataLoaded.payload & {
-            resp: LemmaProfileResponse;
-        }
-    > = {
-        name: GlobalActions.TileDataLoaded.name,
+    static PartialTileDataLoaded: Action<PartialDataPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name,
     };
+
+    static TileDataLoaded: Action<typeof GlobalActions.TileDataLoaded.payload> =
+        {
+            name: GlobalActions.TileDataLoaded.name,
+        };
 }

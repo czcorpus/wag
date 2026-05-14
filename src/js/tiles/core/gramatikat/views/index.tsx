@@ -17,10 +17,13 @@
  */
 
 import { IActionDispatcher, useModel, ViewUtils } from 'kombo';
-import { Theme } from '../../../page/theme.js';
-import { GlobalComponents } from '../../../views/common/index.js';
-import { GramatikatModel } from './model.js';
-import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
+import { Theme } from '../../../../page/theme.js';
+import { GlobalComponents } from '../../../../views/common/index.js';
+import { GramatikatModel } from '../model.js';
+import {
+    CoreTileComponentProps,
+    TileComponent,
+} from '../../../../page/tile.js';
 import * as React from 'react';
 import { List, Maths, Dict, pipe, tuple } from 'cnc-tskit';
 import {
@@ -34,7 +37,19 @@ import {
     YAxis,
 } from 'recharts';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
-import { GramatikatCase, GramatikatNumber, Histogram } from './api.js';
+import {
+    GramatikatCase,
+    GramatikatFreq,
+    GramatikatNumber,
+    Histogram,
+} from '../api.js';
+import { init as multiWordViewInit } from './cmp.js';
+
+interface ChartData {
+    case: string;
+    singular: number;
+    plural: number;
+}
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -43,6 +58,7 @@ export function init(
     model: GramatikatModel
 ): TileComponent {
     const globalComponents = ut.getComponents();
+    const MultiWordView = multiWordViewInit(dispatcher, ut, theme);
 
     // Convert case number to grammatical case name
     const getCaseName = (caseNum: string): string => {
@@ -87,7 +103,7 @@ export function init(
             valSet: [GramatikatNumber, GramatikatCase];
             proportion: number;
         }>
-    ) => {
+    ): Array<ChartData> => {
         const dataMap = Dict.fromEntries(
             List.map(
                 (item) => [item.valSet.join(''), item.proportion],
@@ -205,14 +221,19 @@ export function init(
         );
     };
 
-    const GramatikatTile: React.FC<CoreTileComponentProps> = (props) => {
-        const state = useModel(model);
-        // TODO - currently we only work with the first dataset item (i.e. no frameCatSet)
+    // ------------------- <SingleWordView /> ------------------------
 
-        const lemmaData = List.head(state.lemmaData);
-        const posData = List.head(state.posData);
-        const chartData = transformDataForChart(lemmaData.variants);
-
+    const SingleWordView: React.FC<{
+        chartData: Array<ChartData>;
+        posData: {
+            binEdges: Array<number>;
+            histograms: Array<Histogram>;
+        };
+        lemmaData: {
+            totalFreq: number;
+            variants: Array<GramatikatFreq>;
+        };
+    }> = ({ chartData, posData, lemmaData }) => {
         const proportionMap = Dict.fromEntries(
             List.map(
                 (v) => tuple(v.valSet.join(''), v.proportion),
@@ -221,16 +242,7 @@ export function init(
         );
 
         return (
-            <globalComponents.TileWrapper
-                tileId={props.tileId}
-                isBusy={state.isBusy}
-                error={state.error}
-                hasData={!List.empty(lemmaData.variants)}
-                sourceIdent={{ corp: state.corpname }}
-                backlink={state.backlinks}
-                supportsTileReload={props.supportsReloadOnError}
-                issueReportingUrl={props.issueReportingUrl}
-            >
+            <div>
                 <div style={{ width: '100%', height: 450 }}>
                     <ResponsiveContainer>
                         <BarChart
@@ -327,6 +339,50 @@ export function init(
                         )}
                     </div>
                 )}
+            </div>
+        );
+    };
+
+    // ---------------- <GramatikatTile /> ---------------------------------
+
+    const GramatikatTile: React.FC<CoreTileComponentProps> = (props) => {
+        const state = useModel(model);
+        // TODO - currently we only work with the first dataset item (i.e. no frameCatSet)
+        console.log('data: ', state.data);
+
+        const posInfoSrch = List.find((v) => v !== undefined, state.data);
+        const posInfo = posInfoSrch
+            ? posInfoSrch.posData
+            : { binEdges: [], histograms: [] };
+
+        return (
+            <globalComponents.TileWrapper
+                tileId={props.tileId}
+                isBusy={state.isBusy}
+                error={state.error}
+                hasData={!List.empty(state.data)}
+                sourceIdent={{ corp: state.corpname }}
+                backlink={state.backlinks}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}
+            >
+                {!List.empty(state.data) ? (
+                    List.size(state.data) === 1 ? (
+                        <SingleWordView
+                            lemmaData={List.head(state.data).lemmaData}
+                            chartData={transformDataForChart(
+                                List.head(state.data).lemmaData.variants
+                            )}
+                            posData={List.head(state.data).posData}
+                        />
+                    ) : (
+                        <MultiWordView
+                            lemmaData={List.map((v) => v.lemmaData, state.data)}
+                            posData={posInfo}
+                            words={state.words}
+                        />
+                    )
+                ) : null}
             </globalComponents.TileWrapper>
         );
     };

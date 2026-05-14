@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
-import { IFullActionControl, StatefulModel, StatelessModel } from 'kombo';
-import { AppServices, IAppServices } from '../../../appServices.js';
+import { IFullActionControl, StatefulModel } from 'kombo';
+import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import {
     GramatikatAPI,
     GramatikatAPIArgs,
-    LemmaResponse,
     GramatikatFreq,
     LemmaProfileResponse,
     Histogram,
@@ -32,32 +31,36 @@ import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     RecognizedQueries,
-    QueryType,
     QueryMatch,
     findCurrQueryMatch,
     testIsDictMatch,
-    LemmatizationLevel,
-    LemmatizationLevelTest,
 } from '../../../query/index.js';
-import { mergeMap, Observable } from 'rxjs';
+import { mergeMap, Observable, reduce, tap } from 'rxjs';
 import { List, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
 import { SystemMessageType } from '../../../types.js';
 
 export interface GramatikatState {
     corpname: string;
-    lemmaData: Array<{
-        totalFreq: number;
-        variants: Array<GramatikatFreq>;
+
+    /**
+     * For each queryIdx, we keep data about a lemma and its PoS
+     */
+    data: Array<{
+        lemmaData: {
+            totalFreq: number;
+            variants: Array<GramatikatFreq>;
+        };
+        posData: {
+            binEdges: Array<number>;
+            histograms: Array<Histogram>;
+        };
     }>;
     catSet: [GramatikatCatSet, GramatikatCatSet];
-    posData: Array<{
-        binEdges: Array<number>;
-        histograms: Array<Histogram>;
-    }>;
     isBusy: boolean;
     backlinks: Array<Backlink>;
     error: string | undefined;
+    words: Array<string>;
 }
 
 export interface ConcordanceTileModelArgs {
@@ -106,24 +109,36 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
             Actions.TileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (action) => {
+                this.changeState((state) => {
+                    state.isBusy = false;
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.PartialTileDataLoaded,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
                 if (!action.error) {
                     this.changeState((state) => {
                         state.isBusy = false;
-                        state.lemmaData = List.map(
-                            (item) => ({
-                                totalFreq: item.freq,
-                                variants: item.proportions,
-                            }),
-                            action.payload.resp.lemmaInfo
-                        );
-                        state.posData = List.map(
-                            (item) => ({
-                                binEdges: item.binEdges,
-                                histograms: item.histograms,
-                            }),
-                            action.payload.resp.posInfo
-                        );
+                        state.data[action.payload.queryIdx] = {
+                            lemmaData: {
+                                totalFreq:
+                                    action.payload.resp.lemmaInfo[0].freq,
+                                variants:
+                                    action.payload.resp.lemmaInfo[0]
+                                        .proportions,
+                            },
+                            posData: {
+                                binEdges:
+                                    action.payload.resp.posInfo[0].binEdges,
+                                histograms:
+                                    action.payload.resp.posInfo[0].histograms,
+                            },
+                        };
                     });
+                    console.log('new state data: ', this.state.data);
                 } else {
                     this.changeState((state) => {
                         state.isBusy = false;
@@ -138,7 +153,7 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
         );
     }
 
-    private stateToArgs(m: QueryMatch, queryIdx: number): GramatikatAPIArgs {
+    private stateToArgs(m: QueryMatch): GramatikatAPIArgs {
         return {
             lemma: m.lemma,
             catSet: this.state.catSet,
@@ -149,14 +164,33 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
     private processResponse(
         resp: Observable<[LemmaProfileResponse, number]>
     ): void {
-        resp.subscribe({
-            next: ([resp]) => {
+        resp.pipe(
+            tap(([resp, queryIdx]) => {
+                console.log('partial data for ', queryIdx, ' => ', resp);
+                this.dispatchSideEffect<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
+                    payload: {
+                        tileId: this.tileId,
+                        queryIdx,
+                        resp,
+                    },
+                });
+            }),
+            reduce(
+                (acc, [resp]) => {
+                    return {
+                        isEmpty: acc.isEmpty && List.empty(resp.lemmaInfo),
+                    };
+                },
+                { isEmpty: true }
+            )
+        ).subscribe({
+            next: ({ isEmpty }) => {
                 this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: false,
-                        resp,
+                        isEmpty,
                     },
                 });
             },
@@ -167,7 +201,6 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,
-                        resp: undefined,
                     },
                 });
             },
@@ -186,7 +219,7 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                         List.map((currMatch, queryIdx) =>
                             tuple(
                                 testIsDictMatch(currMatch)
-                                    ? this.stateToArgs(currMatch, queryIdx)
+                                    ? this.stateToArgs(currMatch)
                                     : null,
                                 queryIdx
                             )
@@ -201,6 +234,9 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                 }
             }
         ).pipe(
+            tap(([data, idx]) => {
+                console.log('request query response for ', idx, ' => ', data);
+            }),
             mergeMap(([args, queryIdx]) =>
                 this.appServices.callAPI(
                     this.api,

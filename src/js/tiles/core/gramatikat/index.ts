@@ -31,8 +31,9 @@ import {
 } from '../../../page/tile.js';
 import { GramatikatModel } from './model.js';
 import { GramatikatAPI } from './api.js';
-import { init as viewInit } from './views.js';
-import { tuple } from 'cnc-tskit';
+import { init as viewInit } from './views/index.js';
+import { List, tuple } from 'cnc-tskit';
+import { findCurrentMatches } from '../wordFreq/model.js';
 
 export interface GramatikatTileConf extends TileConf {
     apiUrl: string;
@@ -73,25 +74,19 @@ export class GramatikatTile implements ITileProvider {
         this.label = this.appServices.importExternalMessage(
             conf.label || 'gramatikat__main_label'
         );
+
         this.model = new GramatikatModel({
             dispatcher,
             initState: {
                 backlinks: [],
                 corpname: 'syn2015_20_25', // TODO configurable
                 catSet: tuple('number', 'case'),
-                lemmaData: [
-                    {
-                        totalFreq: 0,
-                        variants: [],
-                    },
-                ],
-                posData: [
-                    {
-                        binEdges: [],
-                        histograms: [],
-                    },
-                ],
+                data: [],
                 error: undefined,
+                words: List.map(
+                    (v) => v.word,
+                    findCurrentMatches(queryMatches)
+                ),
                 isBusy,
             },
             tileId,
