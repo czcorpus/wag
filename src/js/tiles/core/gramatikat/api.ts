@@ -25,6 +25,14 @@ import urlJoin from 'url-join';
 
 export interface GramatikatAPIArgs {
     lemma: string;
+
+    /**
+     * Part of Speech. In case it is undefined, the API
+     * skips firing request to GramatiKat and responses
+     * giving the information that it requires PoS to be
+     * able to provide information.
+     */
+    pos: string | undefined;
     catSet: [GramatikatCatSet, GramatikatCatSet];
     corpus: string;
 }
@@ -46,6 +54,19 @@ export type GramatikatCatSet =
     | 'aspect';
 
 export type GramatikatPoS = 'nouns' | 'adjectives' | 'verbs';
+
+const wagPosToGramatikat = (pos: string): GramatikatPoS | undefined => {
+    switch (pos) {
+        case 'N':
+            return 'nouns';
+        case 'A':
+            return 'adjectives';
+        case 'V':
+            return 'verbs';
+        default:
+            return undefined;
+    }
+};
 
 interface LemmaArgs {
     lemma: string;
@@ -87,6 +108,7 @@ export interface Histograms {
 }
 
 export interface LemmaProfileResponse {
+    isAmbiguousPos: boolean;
     lemmaInfo: Array<LemmaResponse>;
     posInfo: Array<Histograms>;
 }
@@ -126,7 +148,7 @@ export class GramatikatAPI
     ): Observable<[LemmaProfileResponse, number]> {
         const reqArgs: LemmaArgs = {
             lemma: args.lemma,
-            pos: 'nouns',
+            pos: wagPosToGramatikat(args.pos),
             catSet: args.catSet,
             corpus: args.corpus,
         };
@@ -135,7 +157,10 @@ export class GramatikatAPI
                 tileId,
                 queryIdx,
                 method: HTTP.Method.POST,
-                url: args ? urlJoin(this.apiUrl, 'lemma-profile') : '',
+                url:
+                    args && args.pos
+                        ? urlJoin(this.apiUrl, 'lemma-profile')
+                        : '',
                 body: reqArgs,
                 isEventSource: false,
                 contentType: 'application/json',
@@ -143,7 +168,7 @@ export class GramatikatAPI
             .pipe(
                 map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
                     resp
-                        ? resp
+                        ? { ...resp, isAmbiguousPos: !args.pos }
                         : {
                               lemmaInfo: [
                                   {
@@ -152,6 +177,7 @@ export class GramatikatAPI
                                   },
                               ],
                               posInfo: [{ binEdges: [], histograms: [] }],
+                              isAmbiguousPos: !args.pos,
                           }
                 ),
                 map((resp) => tuple(resp, queryIdx))

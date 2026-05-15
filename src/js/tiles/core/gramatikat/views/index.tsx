@@ -233,13 +233,23 @@ export function init(
             totalFreq: number;
             variants: Array<GramatikatFreq>;
         };
-    }> = ({ chartData, posData, lemmaData }) => {
+        missingPos: boolean;
+    }> = ({ chartData, posData, lemmaData, missingPos }) => {
         const proportionMap = Dict.fromEntries(
             List.map(
                 (v) => tuple(v.valSet.join(''), v.proportion),
                 lemmaData.variants
             )
         );
+
+        if (missingPos) {
+            return (
+                <div>
+                    Please specify a concrete Part of Speech of the searched
+                    word you want to get information about.
+                </div>
+            );
+        }
 
         return (
             <div>
@@ -374,12 +384,17 @@ export function init(
                                 List.head(state.data).lemmaData.variants
                             )}
                             posData={List.head(state.data).posData}
+                            missingPos={List.head(state.data).missingPos}
                         />
                     ) : (
                         <MultiWordView
                             lemmaData={List.map((v) => v.lemmaData, state.data)}
                             posData={posInfo}
                             words={state.words}
+                            missingPos={List.map(
+                                (v) => v.missingPos,
+                                state.data
+                            )}
                         />
                     )
                 ) : null}

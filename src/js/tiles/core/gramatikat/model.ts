@@ -55,6 +55,7 @@ export interface GramatikatState {
             binEdges: Array<number>;
             histograms: Array<Histogram>;
         };
+        missingPos: boolean;
     }>;
     catSet: [GramatikatCatSet, GramatikatCatSet];
     isBusy: boolean;
@@ -136,9 +137,9 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                                 histograms:
                                     action.payload.resp.posInfo[0].histograms,
                             },
+                            missingPos: action.payload.resp.isAmbiguousPos,
                         };
                     });
-                    console.log('new state data: ', this.state.data);
                 } else {
                     this.changeState((state) => {
                         state.isBusy = false;
@@ -158,6 +159,10 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
             lemma: m.lemma,
             catSet: this.state.catSet,
             corpus: this.state.corpname,
+            pos:
+                Array.isArray(m.pos) && !List.empty(m.pos)
+                    ? m.pos[0].value
+                    : undefined,
         };
     }
 
@@ -166,7 +171,6 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
     ): void {
         resp.pipe(
             tap(([resp, queryIdx]) => {
-                console.log('partial data for ', queryIdx, ' => ', resp);
                 this.dispatchSideEffect<typeof Actions.PartialTileDataLoaded>({
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
@@ -234,9 +238,6 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                 }
             }
         ).pipe(
-            tap(([data, idx]) => {
-                console.log('request query response for ', idx, ' => ', data);
-            }),
             mergeMap(([args, queryIdx]) =>
                 this.appServices.callAPI(
                     this.api,
