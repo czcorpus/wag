@@ -58,6 +58,7 @@ interface MultiWordViewProps {
         variants: Array<GramatikatFreq>;
     }>;
     words: Array<string>;
+    missingPos: Array<boolean>;
 }
 
 export function init(
@@ -266,6 +267,7 @@ export function init(
         lemmaData,
         words,
         posData,
+        missingPos,
     }) => {
         const radarData = transformDataForRadar(lemmaData);
         const wordCount = List.size(lemmaData);
@@ -297,8 +299,26 @@ export function init(
             lemmaData
         );
 
+        const missingPosWords = pipe(
+            missingPos,
+            List.map((v, i) => tuple(v, i)),
+            List.filter(([v]) => v),
+            List.map(([v, i]) => words[i])
+        );
+
         return (
             <div>
+                {!List.empty(missingPos) ? (
+                    <p>
+                        {ut.translate(
+                            'gramatikat__missing_pos_words_{numWords}{words}',
+                            {
+                                numWords: List.size(missingPosWords),
+                                words: missingPosWords.join(', '),
+                            }
+                        )}
+                    </p>
+                ) : null}
                 <div style={{ width: '100%', height: 500 }}>
                     <ResponsiveContainer>
                         <RadarChart data={radarData}>

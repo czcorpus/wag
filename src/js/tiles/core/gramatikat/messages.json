@@ -1,8 +1,10 @@
 {
     "en-US": {
-        "gramatikat__main_label": "Grammatical Categories"
+        "gramatikat__main_label": "Grammatical Categories",
+        "gramatikat__missing_pos_words_{numWords}{words}": "The following {numWords, plural, one{# word has} other{# words have}} unspecified Part of Speech: {words}. Please select an exact Part of Speech to get full grammatical profile of the word."
     },
     "cs-CZ": {
-        "gramatikat__main_label": "Gramatické kategorie"
+        "gramatikat__main_label": "Gramatické kategorie",
+        "gramatikat__missing_pos_words_{numWords}{words}": "Následující {numWords, plural, one{# slovo nemá} other{# slova nemají}} specifikovaný slovní druh: {words}. Zvolte prosím konkrétní slovní druh, aby bylo možno zobrazit příslušný gramatický profil slova."
     }
 }
