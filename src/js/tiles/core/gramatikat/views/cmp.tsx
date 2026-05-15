@@ -305,16 +305,16 @@ export function init(
             List.filter(([v]) => v),
             List.map(([v, i]) => words[i])
         );
-
         return (
             <div>
-                {!List.empty(missingPos) ? (
+                {!List.empty(missingPosWords) ? (
                     <p>
-                        {ut.translate(
+                        {ut.translateRich(
                             'gramatikat__missing_pos_words_{numWords}{words}',
                             {
                                 numWords: List.size(missingPosWords),
                                 words: missingPosWords.join(', '),
+                                strong: (chunks) => <strong>{chunks}</strong>,
                             }
                         )}
                     </p>
