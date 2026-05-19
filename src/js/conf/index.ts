@@ -305,6 +305,10 @@ export interface ClientConf {
     error?: Error;
     redirect?: [number, string];
     maxQueryWords: number;
+    apiReporting?: {
+        headerName: string;
+        headerValue: string;
+    };
 }
 
 export function emptyLayoutConf(): LayoutsConfig {
@@ -512,4 +516,17 @@ export interface ServerConf {
         secret?: string;
     };
     CSPDomains?: Array<string>;
+
+    /**
+     * A secret key for generating client identifier
+     * in api requests. This is intended only for roughly
+     * proper stats about API use. An "attacker" may steal
+     * the public header value but it gives them no authentication,
+     * no advantages in limits etc. and it will be valid just
+     * for a short time period.
+     */
+    apiReporting?: {
+        secretKey: string;
+        headerName: string;
+    };
 }
