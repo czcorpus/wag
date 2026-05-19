@@ -19,6 +19,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, defaultIfEmpty, map, reduce, tap } from 'rxjs/operators';
 import { pipe, HTTP, List, Rx, tuple, Dict } from 'cnc-tskit';
+import { createHmac } from 'crypto';
 
 import { IAppServices } from '../../appServices.js';
 import {
@@ -102,6 +103,33 @@ function filterTilesByQueryType(
         List.map((x) => tuple(x.tile, tiles[x.tile])),
         Dict.fromEntries()
     );
+}
+
+/**
+ *
+ * @param secret
+ * @returns
+ *
+ * note, to implement a proper check in python:
+ * import hmac
+ * import hashlib
+ * from datetime import date, timedelta, datetime, timezone
+ *
+ * def generate(secret: str, current_date: date) -> str:
+ *   msg = current_date.isoformat()[:13]
+ *   return hmac.new(secret.encode(), f'wag:{msg}'.encode(), hashlib.sha256).hexdigest()
+ *
+ * def validate(key: str, secret: str, current_date: date, skew_days: int = 1) -> bool:
+ *   candidates = [current_date + timedelta(days=d) for d in range(-skew_days, skew_days + 1)]
+ *   return any(hmac.compare_digest(key, generate(secret, d)) for d in candidates)
+ *
+ *
+ */
+function generateReportingToken(secret: string) {
+    const dateAndHour = new Date().toISOString().slice(0, 13);
+    return createHmac('sha256', secret)
+        .update(`wag:${dateAndHour}`)
+        .digest('hex');
 }
 
 /**
@@ -257,6 +285,14 @@ export function mkRuntimeClientConf({
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
                 hideUnavailableQueryTypes: conf.hideUnavailableQueryTypes,
                 supportsExactFormSearch: !conf.disableExactFormSearchOption,
+                apiReporting: serverConf.apiReporting
+                    ? {
+                          headerName: serverConf.apiReporting.headerName,
+                          headerValue: generateReportingToken(
+                              serverConf.apiReporting.secretKey
+                          ),
+                      }
+                    : undefined,
             };
         })
     );
