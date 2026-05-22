@@ -271,6 +271,16 @@ export interface HomepageTileConf {
     isFooterIntegrated: boolean;
 }
 
+export type APIReportingRefreshInterval = '1d' | '10h' | '1h' | '10m' | '1m';
+
+/**
+ * APIReporting represents an already generated key for client identification
+ */
+export interface APIReporting {
+    headerName: string;
+    headerValue: string;
+}
+
 /**
  * Client side app configuration as generated
  * for a specific session (e.g. with tiles for
@@ -305,10 +315,7 @@ export interface ClientConf {
     error?: Error;
     redirect?: [number, string];
     maxQueryWords: number;
-    apiReporting?: {
-        headerName: string;
-        headerValue: string;
-    };
+    apiReporting?: APIReporting;
 }
 
 export function emptyLayoutConf(): LayoutsConfig {
@@ -528,5 +535,7 @@ export interface ServerConf {
     apiReporting?: {
         secretKey: string;
         headerName: string;
+        appId: string;
+        refreshInterval: APIReportingRefreshInterval;
     };
 }

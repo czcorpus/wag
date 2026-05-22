@@ -517,7 +517,14 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                         });
                     }),
             },
-            dataStreaming: new DataStreaming(null, [], null, 1000, null),
+            dataStreaming: new DataStreaming({
+                id: null,
+                tileIds: [],
+                rootUrl: null,
+                tilesReadyTimeoutSecs: 1000,
+                userSession: null,
+                apiReporting: null,
+            }),
             mobileModeTest: () => false,
         });
 

@@ -30,7 +30,7 @@ import {
 } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
-import { UserConf } from '../conf/index.js';
+import { APIReporting, UserConf } from '../conf/index.js';
 
 export class TileResponseError extends Error {
     status?: number;
@@ -144,6 +144,15 @@ export class EmptyDataStreaming implements IDataStreaming {
     }
 }
 
+interface DataStreamingArgs {
+    id: string | null;
+    tileIds: Array<string | number>;
+    rootUrl: string | null;
+    tilesReadyTimeoutSecs: number;
+    userSession: UserConf | null;
+    apiReporting: APIReporting | null;
+}
+
 /**
  * DataStreaming serves as a controller for EventSource-based communication
  * between EventSource-capable server (APIGuard in case of the CNC) and individual
@@ -168,19 +177,25 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly userSession: UserConf;
 
+    private readonly apiReporting: APIReporting;
+
     static readonly ID_GLOBAL = '__global__';
 
-    constructor(
-        id: string | null,
-        tileIds: Array<string | number>,
-        rootUrl: string | null,
-        tilesReadyTimeoutSecs: number,
-        userSession: UserConf
-    ) {
+    constructor({
+        id,
+        tileIds,
+        rootUrl,
+        tilesReadyTimeoutSecs,
+        userSession,
+        apiReporting,
+    }: DataStreamingArgs) {
         this.id = id ? id : DataStreaming.ID_GLOBAL;
         this.userSession = userSession;
         this.rootUrl = rootUrl;
-        this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
+        ((this.apiReporting = apiReporting
+            ? apiReporting
+            : { headerName: undefined, headerValue: undefined }),
+            (this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs));
         this.tilesDataStreams = {};
         this.requestSubject = new Subject<TileRequest | OtherTileRequest>();
         this.responseStream =
@@ -243,6 +258,12 @@ export class DataStreaming implements IDataStreaming {
                               },
                               {
                                   contentType: 'application/json',
+                                  headers: this.apiReporting.headerName
+                                      ? {
+                                            [this.apiReporting.headerName]:
+                                                this.apiReporting.headerValue,
+                                        }
+                                      : undefined,
                               }
                           ).pipe(map((resp) => tuple(tileReqMap, resp)))
                       ),
@@ -373,13 +394,14 @@ export class DataStreaming implements IDataStreaming {
         ...dependentTiles: Array<number>
     ): DataStreaming {
         const groupId = Ident.puid();
-        this.tilesDataStreams[groupId] = new DataStreaming(
-            groupId,
-            [mainTileId, ...dependentTiles],
-            this.rootUrl,
-            this.tilesReadyTimeoutSecs,
-            this.userSession
-        );
+        this.tilesDataStreams[groupId] = new DataStreaming({
+            id: groupId,
+            tileIds: [mainTileId, ...dependentTiles],
+            rootUrl: this.rootUrl,
+            tilesReadyTimeoutSecs: this.tilesReadyTimeoutSecs,
+            userSession: this.userSession,
+            apiReporting: this.apiReporting,
+        });
         return this.tilesDataStreams[groupId];
     }
 
