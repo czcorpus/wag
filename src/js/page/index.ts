@@ -174,17 +174,19 @@ export function initClient(
     const dataStreaming =
         userSession.queryType === 'preview'
             ? new DataStreamingPreview()
-            : new DataStreaming(
-                  null,
-                  pipe(
+            : new DataStreaming({
+                  id: null,
+                  tileIds: pipe(
                       config.tiles,
                       Dict.keys(),
                       List.map((v) => tileIdentMap[v])
                   ),
-                  config.dataStreamingUrl,
-                  DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
-                  userSession
-              );
+                  rootUrl: config.dataStreamingUrl,
+                  tilesReadyTimeoutSecs:
+                      DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
+                  userSession,
+                  apiReporting: config.apiReporting,
+              });
     const appServices = new AppServices({
         notifications,
         uiLang: userSession.uiLang,

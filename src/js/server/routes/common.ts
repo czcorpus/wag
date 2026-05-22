@@ -162,7 +162,14 @@ export function createHelperServices(
     const streaming =
         queryType === 'preview'
             ? new DataStreamingPreview()
-            : new DataStreaming(null, [], undefined, 1000, undefined);
+            : new DataStreaming({
+                  id: null,
+                  tileIds: [],
+                  rootUrl: null,
+                  tilesReadyTimeoutSecs: 1000,
+                  userSession: null,
+                  apiReporting: null,
+              });
 
     return [
         viewUtils,

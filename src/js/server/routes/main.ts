@@ -50,6 +50,7 @@ import {
     HomepageTileConf,
     GroupLayoutConfig,
     LayoutConfigCmpQuery,
+    APIReportingRefreshInterval,
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
 import { init as errPageInit } from '../../views/error.js';
@@ -125,10 +126,31 @@ function filterTilesByQueryType(
  *
  *
  */
-function generateReportingToken(secret: string) {
-    const dateAndHour = new Date().toISOString().slice(0, 13);
+function generateReportingToken(
+    secret: string,
+    appId: string,
+    refreshInterval: APIReportingRefreshInterval
+) {
+    const prefixLen = (() => {
+        switch (refreshInterval) {
+            case '1d':
+                return 10;
+            case '10h':
+                return 12;
+            case '1h':
+                return 13;
+            case '10m':
+                return 15;
+            case '1m':
+                return 16;
+            default:
+                return 0;
+        }
+    })();
+    const datePrefix = new Date().toISOString().slice(0, prefixLen);
+    console.log('>>>>> GENERATING FROM KEY: ', `${appId || ''}:${datePrefix}`);
     return createHmac('sha256', secret)
-        .update(`wag:${dateAndHour}`)
+        .update(`${appId || ''}:${datePrefix}`)
         .digest('hex');
 }
 
@@ -289,7 +311,9 @@ export function mkRuntimeClientConf({
                     ? {
                           headerName: serverConf.apiReporting.headerName,
                           headerValue: generateReportingToken(
-                              serverConf.apiReporting.secretKey
+                              serverConf.apiReporting.secretKey,
+                              serverConf.apiReporting.appId,
+                              serverConf.apiReporting.refreshInterval
                           ),
                       }
                     : undefined,
