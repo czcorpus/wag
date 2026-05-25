@@ -83,6 +83,8 @@ export const TileWrapper = styled.div`
                 align-items: center;
 
                 span {
+                    cursor: default;
+                    user-select: none;
                 }
             }
         }

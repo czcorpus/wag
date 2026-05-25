@@ -62,6 +62,7 @@ export interface GlobalComponents {
         backlink?: Backlink | Array<Backlink>;
         htmlClass?: string;
         error?: string;
+        noDataMessage?: string;
         children: React.ReactNode;
     }>;
 
@@ -613,9 +614,10 @@ export function init(
                                             isInline={false}
                                         />
                                         <p>
-                                            {ut.translate(
-                                                'global__not_enough_data_to_show_result'
-                                            )}
+                                            {props.noDataMessage ||
+                                                ut.translate(
+                                                    'global__not_enough_data_to_show_result'
+                                                )}
                                         </p>
                                     </div>
                                     <p className="not-applicable">
