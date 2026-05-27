@@ -19,19 +19,19 @@
 import { IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
-import { GramatikatModel } from '../model.js';
+import { GramatikatModel, WordData } from '../model.js';
 import {
     CoreTileComponentProps,
     TileComponent,
 } from '../../../../page/tile.js';
 import * as React from 'react';
-import { List, Maths, Dict, pipe, tuple } from 'cnc-tskit';
+import { List, Dict, pipe, tuple, Maths } from 'cnc-tskit';
 import {
-    Bar,
-    BarChart,
     CartesianGrid,
+    ComposedChart,
     Legend,
     ResponsiveContainer,
+    Scatter,
     Tooltip,
     XAxis,
     YAxis,
@@ -41,15 +41,12 @@ import {
     GramatikatCase,
     GramatikatFreq,
     GramatikatNumber,
-    Histogram,
+    GramatikatPoS,
+    Summary,
+    Tag,
+    tagCodeToHuman,
 } from '../api.js';
 import { init as multiWordViewInit } from './cmp.js';
-
-interface ChartData {
-    case: string;
-    singular: number;
-    plural: number;
-}
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -59,20 +56,6 @@ export function init(
 ): TileComponent {
     const globalComponents = ut.getComponents();
     const MultiWordView = multiWordViewInit(dispatcher, ut, theme);
-
-    // Convert case number to grammatical case name
-    const getCaseName = (caseNum: string): string => {
-        const caseNames: { [key: string]: string } = {
-            '1': 'Nominative',
-            '2': 'Genitive',
-            '3': 'Dative',
-            '4': 'Accusative',
-            '5': 'Vocative',
-            '6': 'Locative',
-            '7': 'Instrumental',
-        };
-        return caseNames[caseNum] || `Case ${caseNum}`;
-    };
 
     const casenumToCzech = (v: string) => {
         return (
@@ -96,259 +79,115 @@ export function init(
         );
     };
 
-    // Transform data into format suitable for stacked bar chart
-    // Pairs singular (S) and plural (P) forms for each case (1-7)
-    const transformDataForChart = (
-        variants: Array<{
-            valSet: [GramatikatNumber, GramatikatCase];
-            proportion: number;
-        }>
-    ): Array<ChartData> => {
-        const dataMap = Dict.fromEntries(
-            List.map(
-                (item) => [item.valSet.join(''), item.proportion],
-                variants
-            )
-        );
-
-        return List.map(
-            (caseNum) => ({
-                case: getCaseName(caseNum),
-                singular: dataMap[`S${caseNum}`] || 0,
-                plural: dataMap[`P${caseNum}`] || 0,
-            }),
-            ['1', '2', '3', '4', '5', '6', '7']
-        );
-    };
-
-    const SlotHistogram: React.FC<{
-        hist: Histogram;
-        binEdges: Array<number>;
-        proportion: number;
-    }> = ({ hist, binEdges, proportion }) => {
-        const data = List.map(
-            (count, i) => ({
-                pos: binEdges[i],
-                count,
-            }),
-            hist.histogram
-        );
-
-        // Find which bin the actual proportion value falls into
-        const proportionBinIdx = List.findIndex(
-            (edge, i) =>
-                i < binEdges.length - 1 &&
-                proportion >= edge &&
-                proportion < binEdges[i + 1],
-            binEdges
-        );
-
-        const CustomBar = (props: any) => {
-            const { x, y, width, height, index } = props;
-            const shouldShowCircle = index === proportionBinIdx;
-
-            return (
-                <g>
-                    <rect
-                        x={x}
-                        y={y}
-                        width={width}
-                        height={height}
-                        fill={theme.categoryColor(0)}
-                    />
-                    {shouldShowCircle && (
-                        <circle
-                            cx={x + width / 2}
-                            cy={y - 4}
-                            r={2}
-                            fill={theme.colorLogoPink}
-                        />
-                    )}
-                </g>
-            );
-        };
-
-        return (
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontWeight: 'normal', fontSize: '0.75em' }}>
-                    {casenumToCzech(hist.valSet.join(''))}
-                </div>
-                <BarChart
-                    width={160}
-                    height={110}
-                    data={data}
-                    margin={{ top: 14, right: 4, left: -10, bottom: 2 }}
-                >
-                    <XAxis
-                        dataKey="pos"
-                        tick={{ fontSize: 8 }}
-                        interval="preserveStartEnd"
-                        tickFormatter={(value) =>
-                            typeof value === 'number'
-                                ? Maths.roundToPos(value, 2).toString()
-                                : value
-                        }
-                        label={{
-                            value: 'position',
-                            offset: -2,
-                            position: 'insideBottom',
-                            fontSize: 8,
-                        }}
-                    />
-                    <YAxis
-                        tick={{ fontSize: 8 }}
-                        width={50}
-                        tickFormatter={(value) =>
-                            typeof value === 'number'
-                                ? String(Math.round(value * 10) / 10)
-                                : value
-                        }
-                    />
-                    <Tooltip
-                        formatter={(value: ValueType) =>
-                            typeof value === 'number'
-                                ? Maths.roundToPos(value, 3)
-                                : value
-                        }
-                    />
-                    <Bar
-                        dataKey="count"
-                        fill={theme.categoryColor(0)}
-                        shape={CustomBar}
-                    />
-                </BarChart>
-            </div>
-        );
-    };
-
     // ------------------- <SingleWordView /> ------------------------
 
-    const SingleWordView: React.FC<{
-        chartData: Array<ChartData>;
-        posData: {
-            binEdges: Array<number>;
-            histograms: Array<Histogram>;
-        };
-        lemmaData: {
-            totalFreq: number;
-            variants: Array<GramatikatFreq>;
-        };
-        missingPos: boolean;
-    }> = ({ chartData, posData, lemmaData, missingPos }) => {
-        const proportionMap = Dict.fromEntries(
-            List.map(
-                (v) => tuple(v.valSet.join(''), v.proportion),
-                lemmaData.variants
-            )
-        );
-
-        if (missingPos) {
-            return (
-                <div>
-                    Please specify a concrete Part of Speech of the searched
-                    word you want to get information about.
-                </div>
-            );
-        }
+    const SingleWordView: React.FC<WordData & { alpha: number }> = ({
+        lemmaData,
+        posData,
+        chartData,
+        missingPos,
+        pos,
+        alpha,
+    }) => {
+        const message = chartData.hasSignificantDeviations
+            ? ut.translate('gramatikat__showing_stat_signif_values')
+            : ut.translate('gramatikat__there_are_no_stat_signif_values');
 
         return (
             <div>
-                <div style={{ width: '100%', height: 450 }}>
+                <p>{message}</p>
+                <div style={{ width: '80%', height: 600 }}>
                     <ResponsiveContainer>
-                        <BarChart
-                            data={chartData}
+                        <ComposedChart
                             layout="vertical"
+                            data={chartData.items}
                             margin={{
-                                top: 20,
-                                right: 30,
+                                top: 35,
+                                right: 50,
                                 left: 100,
-                                bottom: 50,
+                                bottom: 10,
                             }}
                         >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                                type="number"
-                                label={{
-                                    value: 'Proportion',
-                                    position: 'insideBottom',
-                                    offset: -10,
-                                }}
+                            <XAxis type="number" domain={[0, 'auto']} />
+                            <YAxis
+                                type="category"
+                                dataKey="tag"
+                                width={150}
+                                padding={{ top: 20, bottom: 20 }}
                             />
-                            <YAxis type="category" dataKey="case" />
                             <Tooltip
                                 formatter={(value: ValueType) =>
                                     typeof value === 'number'
-                                        ? Maths.roundToPos(value, 3)
+                                        ? value.toFixed(4)
                                         : value
                                 }
                             />
                             <Legend
-                                verticalAlign="bottom"
-                                wrapperStyle={{ paddingTop: '20px' }}
+                                content={() => (
+                                    <div
+                                        style={{
+                                            textAlign: 'center',
+                                            marginBottom: '10px',
+                                        }}
+                                    >
+                                        <span style={{ marginRight: '20px' }}>
+                                            <span
+                                                style={{
+                                                    display: 'inline-block',
+                                                    width: '30px',
+                                                    height: '3px',
+                                                    backgroundColor: '#8884d8',
+                                                    verticalAlign: 'middle',
+                                                    marginRight: '5px',
+                                                }}
+                                            ></span>
+                                            mean frequency in the category
+                                        </span>
+                                        <span>
+                                            <span
+                                                style={{
+                                                    display: 'inline-block',
+                                                    width: '10px',
+                                                    height: '10px',
+                                                    backgroundColor: '#ff7300',
+                                                    borderRadius: '50%',
+                                                    verticalAlign: 'middle',
+                                                    marginRight: '5px',
+                                                }}
+                                            ></span>
+                                            form observed frequency
+                                        </span>
+                                    </div>
+                                )}
                             />
-                            <Bar
-                                dataKey="singular"
-                                stackId="a"
-                                fill={theme.categoryColor(0)}
-                                name="Singular"
+                            {/* Line for mean value */}
+                            <Scatter
+                                dataKey="mean"
+                                fill="#8884d8"
+                                shape={(props: any) => {
+                                    const { cx, cy } = props;
+                                    return (
+                                        <line
+                                            x1={cx}
+                                            y1={cy - 15}
+                                            x2={cx}
+                                            y2={cy + 15}
+                                            stroke="#8884d8"
+                                            strokeWidth={5}
+                                        />
+                                    );
+                                }}
                             />
-                            <Bar
-                                dataKey="plural"
-                                stackId="a"
-                                fill={theme.categoryColor(1)}
-                                name="Plural"
+                            {/* Dot for actual frequency */}
+                            <Scatter
+                                dataKey="value"
+                                fill="#ff7300"
+                                shape="circle"
                             />
-                        </BarChart>
+                        </ComposedChart>
                     </ResponsiveContainer>
                 </div>
-                {!List.empty(posData.histograms) && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: '8px',
-                            justifyContent: 'center',
-                            marginTop: '1.5em',
-                            padding: '0 8px',
-                        }}
-                    >
-                        {pipe(
-                            posData.histograms,
-                            List.map((v) =>
-                                tuple(v, proportionMap[v.valSet.join('')] || 0)
-                            ),
-                            List.filter(([hist, proportion]) => {
-                                // Find the bin with maximum count
-                                const maxIdx = List.empty(hist.histogram)
-                                    ? -1
-                                    : List.reduce(
-                                          (best, count, i) =>
-                                              count > hist.histogram[best]
-                                                  ? i
-                                                  : best,
-                                          0,
-                                          hist.histogram
-                                      );
-                                // Find which bin the actual proportion falls into
-                                const actualBinIdx = List.findIndex(
-                                    (edge, i) =>
-                                        proportion >= edge &&
-                                        proportion < posData.binEdges[i + 1],
-                                    posData.binEdges
-                                );
-                                return actualBinIdx !== maxIdx;
-                            }),
-                            List.map(([hist, proportion]) => (
-                                <SlotHistogram
-                                    key={hist.valSet.join('')}
-                                    hist={hist}
-                                    binEdges={posData.binEdges}
-                                    proportion={proportion}
-                                />
-                            ))
-                        )}
-                    </div>
-                )}
             </div>
         );
     };
@@ -358,12 +197,9 @@ export function init(
     const GramatikatTile: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
         // TODO - currently we only work with the first dataset item (i.e. no frameCatSet)
-        console.log('data: ', state.data);
 
         const posInfoSrch = List.find((v) => v !== undefined, state.data);
-        const posInfo = posInfoSrch
-            ? posInfoSrch.posData
-            : { binEdges: [], histograms: [] };
+        const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
 
         return (
             <globalComponents.TileWrapper
@@ -380,11 +216,11 @@ export function init(
                     List.size(state.data) === 1 ? (
                         <SingleWordView
                             lemmaData={List.head(state.data).lemmaData}
-                            chartData={transformDataForChart(
-                                List.head(state.data).lemmaData.variants
-                            )}
                             posData={List.head(state.data).posData}
                             missingPos={List.head(state.data).missingPos}
+                            alpha={state.statTestAlpha}
+                            pos={List.head(state.data).pos}
+                            chartData={List.head(state.data).chartData}
                         />
                     ) : (
                         <MultiWordView

@@ -45,13 +45,12 @@ import {
     GramatikatCase,
     GramatikatFreq,
     GramatikatNumber,
-    Histogram,
+    Summary,
 } from '../api.js';
 
 interface MultiWordViewProps {
     posData: {
-        binEdges: Array<number>;
-        histograms: Array<Histogram>;
+        summaries: Array<Summary>;
     };
     lemmaData: Array<{
         totalFreq: number;

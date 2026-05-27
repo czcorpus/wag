@@ -1,10 +1,14 @@
 {
     "en-US": {
         "gramatikat__main_label": "Grammatical Categories",
-        "gramatikat__missing_pos_words_{numWords}{words}": "The following {numWords, plural, one{# word has} other{# words have}} unspecified Part of Speech: <strong>{words}</strong>. Please select an exact Part of Speech to get full grammatical profile of the word."
+        "gramatikat__missing_pos_words_{numWords}{words}": "The following {numWords, plural, one{# word has} other{# words have}} unspecified Part of Speech: <strong>{words}</strong>. Please select an exact Part of Speech to get full grammatical profile of the word.",
+        "gramatikat__showing_stat_signif_values": "Word forms showing a statistically significant difference in frequency compared to the average of their grammatical category (based on the \u03C7\u00B2 test)",
+        "gramatikat__there_are_no_stat_signif_values": "Word forms with the highest relative frequency within the grammatical category (values above the 75th percentile without statistically significant deviation)."
     },
     "cs-CZ": {
         "gramatikat__main_label": "Gramatické kategorie",
-        "gramatikat__missing_pos_words_{numWords}{words}": "Následující {numWords, plural, one{# slovo nemá} other{# slova nemají}} specifikovaný slovní druh: <strong>{words}</strong>. Zvolte prosím konkrétní slovní druh, aby bylo možno zobrazit příslušný gramatický profil slova."
+        "gramatikat__missing_pos_words_{numWords}{words}": "Následující {numWords, plural, one{# slovo nemá} other{# slova nemají}} specifikovaný slovní druh: <strong>{words}</strong>. Zvolte prosím konkrétní slovní druh, aby bylo možno zobrazit příslušný gramatický profil slova.",
+        "gramatikat__showing_stat_signif_values": "Slovní tvary vykazující statisticky významný rozdíl ve frekvenci oproti průměru své gramatické třídy (na základě \u03C7\u00B2 testu)",
+        "gramatikat__there_are_no_stat_signif_values": "Slovní tvary s nejvyšším relativním zastoupením v rámci dané gramatické třídy (hodnoty nad 75. percentilem bez statisticky významné odchylky)."
     }
 }

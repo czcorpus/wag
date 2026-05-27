@@ -33,13 +33,41 @@ export interface GramatikatAPIArgs {
      * able to provide information.
      */
     pos: string | undefined;
-    catSet: [GramatikatCatSet, GramatikatCatSet];
+    catSet: Array<GramatikatCatSet>;
     corpus: string;
 }
 
-export type GramatikatNumber = 'S' | 'P';
+type Subset<T extends readonly unknown[]> = T extends readonly [
+    infer Head,
+    ...infer Tail,
+]
+    ? readonly [Head, ...Subset<Tail>] | Subset<Tail>
+    : T;
+
+export type GramatikatNumber = 'D' | 'P' | 'S';
 
 export type GramatikatCase = '1' | '2' | '3' | '4' | '5' | '6' | '7';
+
+export type GramatikatGender = 'F' | 'I' | 'M' | 'N';
+
+export type GramatikatDegree = '1' | '2' | '3';
+
+export type GramatikatPolarity = 'P' | 'N';
+
+export type GramatikatTense = 'F' | 'P' | 'R';
+
+// "gender" "number" "case" "degree" "polarity" "mood" "tense" "person" "voice" "aspect"
+
+export type Tag = Subset<
+    [
+        GramatikatGender,
+        GramatikatNumber,
+        GramatikatCase,
+        GramatikatDegree,
+        GramatikatPolarity,
+        GramatikatTense,
+    ]
+>;
 
 export type GramatikatCatSet =
     | 'gender'
@@ -58,13 +86,110 @@ export type GramatikatPoS = 'nouns' | 'adjectives' | 'verbs';
 const wagPosToGramatikat = (pos: string): GramatikatPoS | undefined => {
     switch (pos) {
         case 'N':
+        case 'NOUN':
+        case 'PROPN':
             return 'nouns';
         case 'A':
+        case 'ADJ':
             return 'adjectives';
         case 'V':
+        case 'VERB':
+        case 'AUX':
             return 'verbs';
         default:
             return undefined;
+    }
+};
+
+export const tagCodeToHuman = (pos: GramatikatPoS, tc: string): string => {
+    const ans: Array<string> = [];
+    switch (pos) {
+        case 'nouns':
+            switch (tc[0]) {
+                case 'F':
+                    ans.push('ženský rod');
+                    break;
+                case 'I':
+                    ans.push('mužský neživotný rod');
+                    break;
+                case 'M':
+                    ans.push('mužský životný rod');
+                    break;
+                case 'N':
+                    ans.push('střední rod');
+                    break;
+            }
+            switch (tc[1]) {
+                case 'D':
+                    ans.push('dvojné číslo');
+                    break;
+                case 'P':
+                    ans.push('množné číslo');
+                    break;
+                case 'S':
+                    ans.push('jednotné číslo');
+                    break;
+            }
+            ans.push(`${tc[2]}. pád`);
+            break;
+        case 'verbs':
+            switch (tc[0]) {
+                case 'P':
+                    ans.push('přítomný čas');
+                    break;
+                case 'R':
+                    ans.push('minulý čas');
+                    break;
+                case 'F':
+                    ans.push('budoucí čas');
+                    break;
+            }
+            switch (tc[1]) {
+                case 'D':
+                    ans.push('dvojné číslo');
+                    break;
+                case 'P':
+                    ans.push('množné číslo');
+                    break;
+                case 'S':
+                    ans.push('jednotné číslo');
+                    break;
+            }
+            switch (tc[2]) {
+                case 'I':
+                    ans.push('nedokonavý vid');
+                    break;
+                case 'P':
+                    ans.push('dokonavý vid');
+                    break;
+                case 'B':
+                    ans.push('obouvidé');
+            }
+            switch (tc[3]) {
+                case 'N':
+                    ans.push('negace');
+                    break;
+                case 'A':
+                    ans.push('afirmativ');
+                    break;
+            }
+            break;
+        default:
+            ans.push(tc);
+    }
+    return ans.join(', ');
+};
+
+const posToCatSet = (cs: GramatikatPoS): Array<GramatikatCatSet> => {
+    switch (cs) {
+        case 'adjectives':
+            return ['case', 'degree', 'polarity'];
+        case 'nouns':
+            return ['gender', 'number', 'case'];
+        case 'verbs':
+            return ['tense', 'number', 'polarity', 'aspect'];
+        default:
+            return [];
     }
 };
 
@@ -76,7 +201,7 @@ interface LemmaArgs {
     /**
      * Set of grammatical categories.
      */
-    catSet: [GramatikatCatSet, GramatikatCatSet];
+    catSet: Array<GramatikatCatSet>;
 
     /**
      * If given, proportions of instances of values of catSet are computed
@@ -88,7 +213,7 @@ interface LemmaArgs {
 }
 
 export interface GramatikatFreq {
-    valSet: [GramatikatNumber, GramatikatCase];
+    valSet: Tag;
     proportion: number;
 }
 
@@ -97,20 +222,26 @@ export interface LemmaResponse {
     proportions: Array<GramatikatFreq>;
 }
 
-export interface Histogram {
-    valSet: [GramatikatNumber, GramatikatCase];
-    histogram: Array<number>;
+export interface Summary {
+    lowerWhisker: number;
+    max: number;
+    min: number;
+    mean: number;
+    quartiles: [number, number, number];
+    upperWhisker: number;
+    valSet: Tag;
 }
 
-export interface Histograms {
-    binEdges: Array<number>;
-    histograms: Array<Histogram>;
+export interface PosInfoResponse {
+    frameValSet: unknown;
+    summaries: Array<Summary>;
 }
 
 export interface LemmaProfileResponse {
     isAmbiguousPos: boolean;
     lemmaInfo: Array<LemmaResponse>;
-    posInfo: Array<Histograms>;
+    posInfo: Array<PosInfoResponse>;
+    pos: GramatikatPoS;
 }
 
 export interface GramatikatSourceDetail extends SourceDetails {}
@@ -146,10 +277,13 @@ export class GramatikatAPI
         queryIdx: number,
         args: GramatikatAPIArgs | null
     ): Observable<[LemmaProfileResponse, number]> {
+        const pos = wagPosToGramatikat(args.pos);
+        const catSet = posToCatSet(pos);
+
         const reqArgs: LemmaArgs = {
             lemma: args.lemma,
-            pos: wagPosToGramatikat(args.pos),
-            catSet: args.catSet,
+            pos,
+            catSet,
             corpus: args.corpus,
         };
         return streaming
@@ -168,7 +302,7 @@ export class GramatikatAPI
             .pipe(
                 map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
                     resp
-                        ? { ...resp, isAmbiguousPos: !args.pos }
+                        ? { ...resp, pos, isAmbiguousPos: !args.pos }
                         : {
                               lemmaInfo: [
                                   {
@@ -176,7 +310,13 @@ export class GramatikatAPI
                                       proportions: [],
                                   },
                               ],
-                              posInfo: [{ binEdges: [], histograms: [] }],
+                              posInfo: [
+                                  {
+                                      frameValSet: undefined,
+                                      summaries: [],
+                                  },
+                              ],
+                              pos,
                               isAmbiguousPos: !args.pos,
                           }
                 ),

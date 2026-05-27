@@ -23,9 +23,10 @@ import {
     GramatikatAPI,
     GramatikatAPIArgs,
     GramatikatFreq,
+    GramatikatPoS,
     LemmaProfileResponse,
-    Histogram,
-    GramatikatCatSet,
+    Summary,
+    tagCodeToHuman,
 } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -36,9 +37,25 @@ import {
     testIsDictMatch,
 } from '../../../query/index.js';
 import { mergeMap, Observable, reduce, tap } from 'rxjs';
-import { List, pipe, tuple } from 'cnc-tskit';
+import { List, Maths, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
 import { SystemMessageType } from '../../../types.js';
+
+export interface WordData {
+    lemmaData: {
+        totalFreq: number;
+        variants: Array<GramatikatFreq>;
+    };
+    posData: {
+        summaries: Array<Summary>;
+    };
+    chartData: {
+        items: Array<ChartData>;
+        hasSignificantDeviations: boolean;
+    };
+    pos: GramatikatPoS;
+    missingPos: boolean;
+}
 
 export interface GramatikatState {
     corpname: string;
@@ -46,23 +63,89 @@ export interface GramatikatState {
     /**
      * For each queryIdx, we keep data about a lemma and its PoS
      */
-    data: Array<{
-        lemmaData: {
-            totalFreq: number;
-            variants: Array<GramatikatFreq>;
-        };
-        posData: {
-            binEdges: Array<number>;
-            histograms: Array<Histogram>;
-        };
-        missingPos: boolean;
-    }>;
-    catSet: [GramatikatCatSet, GramatikatCatSet];
+    data: Array<WordData>;
+    statTestAlpha: number;
     isBusy: boolean;
     backlinks: Array<Backlink>;
     error: string | undefined;
     words: Array<string>;
 }
+
+export interface ChartData {
+    tag: string;
+    value: number;
+    mean: number;
+    pValue: number;
+    isSignificant: boolean;
+}
+
+const attachCalcStats = (
+    wordData: WordData,
+    pos: GramatikatPoS,
+    alpha: number
+) => {
+    wordData.chartData = pipe(
+        wordData.lemmaData.variants,
+        List.filter((v) => v.proportion > 0),
+        List.map((variant) => {
+            const tag = variant.valSet.join(' ');
+            const summary = List.find(
+                (s) => s.valSet.join(' ') === tag,
+                wordData.posData.summaries
+            );
+
+            if (!summary || summary.mean === undefined) {
+                throw new Error('missing summary data for the word');
+            }
+
+            // Calculate chi-square test if we have POS data
+            let pValue = 1;
+            let isSignificant = false;
+            // For chi-square test, we need absolute frequencies
+            // Calculate absolute frequency from proportion
+            const variantFreq = Math.round(
+                variant.proportion * wordData.lemmaData.totalFreq
+            );
+            // observed: actual frequency for this variant and others
+            const observed = [
+                variantFreq,
+                wordData.lemmaData.totalFreq - variantFreq,
+            ];
+            // expected: based on mean proportion from POS data
+            const expectedProps = [summary.mean, 1 - summary.mean];
+            const chiTest = Maths.chiSquareTest(observed, expectedProps, alpha);
+            pValue = chiTest.pValue;
+            isSignificant = chiTest.isSignificant;
+
+            return tuple(summary, {
+                tag: tagCodeToHuman(pos, variant.valSet.join('')),
+                value: variant.proportion,
+                pValue,
+                isSignificant,
+                mean: summary.mean,
+            });
+        }),
+        (values) => ({
+            items: List.some(([, v]) => v.isSignificant, values)
+                ? pipe(
+                      values,
+                      List.filter(([, v]) => v.isSignificant),
+                      List.map(([, v]) => v)
+                  )
+                : pipe(
+                      values,
+                      List.filter(
+                          ([summary, v]) => v.mean > summary.quartiles[2]
+                      ),
+                      List.map(([, v]) => v)
+                  ),
+            hasSignificantDeviations: List.some(
+                ([, v]) => v.isSignificant,
+                values
+            ),
+        })
+    );
+};
 
 export interface ConcordanceTileModelArgs {
     dispatcher: IFullActionControl;
@@ -123,7 +206,7 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                 if (!action.error) {
                     this.changeState((state) => {
                         state.isBusy = false;
-                        state.data[action.payload.queryIdx] = {
+                        const tmp = {
                             lemmaData: {
                                 totalFreq:
                                     action.payload.resp.lemmaInfo[0].freq,
@@ -132,13 +215,19 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                                         .proportions,
                             },
                             posData: {
-                                binEdges:
-                                    action.payload.resp.posInfo[0].binEdges,
-                                histograms:
-                                    action.payload.resp.posInfo[0].histograms,
+                                summaries:
+                                    action.payload.resp.posInfo[0].summaries,
                             },
+                            pos: action.payload.resp.pos,
                             missingPos: action.payload.resp.isAmbiguousPos,
+                            chartData: undefined,
                         };
+                        attachCalcStats(
+                            tmp,
+                            action.payload.resp.pos,
+                            this.state.statTestAlpha
+                        );
+                        state.data[action.payload.queryIdx] = tmp;
                     });
                 } else {
                     this.changeState((state) => {
@@ -157,7 +246,7 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
     private stateToArgs(m: QueryMatch): GramatikatAPIArgs {
         return {
             lemma: m.lemma,
-            catSet: this.state.catSet,
+            catSet: [], // will be added later
             corpus: this.state.corpname,
             pos:
                 Array.isArray(m.pos) && !List.empty(m.pos)
