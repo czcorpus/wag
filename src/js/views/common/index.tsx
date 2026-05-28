@@ -616,7 +616,7 @@ export function init(
                                         <p>
                                             {props.noDataMessage ||
                                                 ut.translate(
-                                                    'global__not_enough_data_to_show_result'
+                                                    'global__no_data_for_current_query'
                                                 )}
                                         </p>
                                     </div>

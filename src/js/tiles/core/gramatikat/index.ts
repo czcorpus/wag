@@ -78,10 +78,11 @@ export class GramatikatTile implements ITileProvider {
         this.model = new GramatikatModel({
             dispatcher,
             initState: {
+                isAltViewMode: false,
                 backlinks: [],
                 corpname: 'syn2015_20_25', // TODO configurable
-                catSet: tuple('number', 'case'),
                 data: [],
+                statTestAlpha: 0.01,
                 error: undefined,
                 words: List.map(
                     (v) => v.word,

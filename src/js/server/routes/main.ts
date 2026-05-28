@@ -148,7 +148,6 @@ function generateReportingToken(
         }
     })();
     const datePrefix = new Date().toISOString().slice(0, prefixLen);
-    console.log('>>>>> GENERATING FROM KEY: ', `${appId || ''}:${datePrefix}`);
     return createHmac('sha256', secret)
         .update(`${appId || ''}:${datePrefix}`)
         .digest('hex');

@@ -19,37 +19,27 @@
 import { IActionDispatcher, useModel, ViewUtils } from 'kombo';
 import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
-import { GramatikatModel } from '../model.js';
+import { init as altViewSingleInit } from './advanced.js';
+import { GramatikatModel, WordData } from '../model.js';
 import {
     CoreTileComponentProps,
     TileComponent,
 } from '../../../../page/tile.js';
 import * as React from 'react';
-import { List, Maths, Dict, pipe, tuple } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 import {
-    Bar,
-    BarChart,
     CartesianGrid,
+    ComposedChart,
     Legend,
     ResponsiveContainer,
+    Scatter,
     Tooltip,
     XAxis,
     YAxis,
 } from 'recharts';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
-import {
-    GramatikatCase,
-    GramatikatFreq,
-    GramatikatNumber,
-    Histogram,
-} from '../api.js';
 import { init as multiWordViewInit } from './cmp.js';
-
-interface ChartData {
-    case: string;
-    singular: number;
-    plural: number;
-}
+import * as S from './style.js';
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -59,297 +49,52 @@ export function init(
 ): TileComponent {
     const globalComponents = ut.getComponents();
     const MultiWordView = multiWordViewInit(dispatcher, ut, theme);
-
-    // Convert case number to grammatical case name
-    const getCaseName = (caseNum: string): string => {
-        const caseNames: { [key: string]: string } = {
-            '1': 'Nominative',
-            '2': 'Genitive',
-            '3': 'Dative',
-            '4': 'Accusative',
-            '5': 'Vocative',
-            '6': 'Locative',
-            '7': 'Instrumental',
-        };
-        return caseNames[caseNum] || `Case ${caseNum}`;
-    };
-
-    const casenumToCzech = (v: string) => {
-        return (
-            {
-                S1: '1. pád j. č.',
-                S2: '2. pád j. č.',
-                S3: '3. pád j. č.',
-                S4: '4. pád j. č.',
-                S5: '5. pád j. č.',
-                S6: '6. pád j. č.',
-                S7: '7. pád j. č.',
-
-                P1: '1. pád mn. č.',
-                P2: '2. pád mn. č.',
-                P3: '3. pád mn. č.',
-                P4: '4. pád mn. č.',
-                P5: '5. pád mn. č.',
-                P6: '6. pád mn. č.',
-                P7: '7. pád mn. č.',
-            }[v] || '-'
-        );
-    };
-
-    // Transform data into format suitable for stacked bar chart
-    // Pairs singular (S) and plural (P) forms for each case (1-7)
-    const transformDataForChart = (
-        variants: Array<{
-            valSet: [GramatikatNumber, GramatikatCase];
-            proportion: number;
-        }>
-    ): Array<ChartData> => {
-        const dataMap = Dict.fromEntries(
-            List.map(
-                (item) => [item.valSet.join(''), item.proportion],
-                variants
-            )
-        );
-
-        return List.map(
-            (caseNum) => ({
-                case: getCaseName(caseNum),
-                singular: dataMap[`S${caseNum}`] || 0,
-                plural: dataMap[`P${caseNum}`] || 0,
-            }),
-            ['1', '2', '3', '4', '5', '6', '7']
-        );
-    };
-
-    const SlotHistogram: React.FC<{
-        hist: Histogram;
-        binEdges: Array<number>;
-        proportion: number;
-    }> = ({ hist, binEdges, proportion }) => {
-        const data = List.map(
-            (count, i) => ({
-                pos: binEdges[i],
-                count,
-            }),
-            hist.histogram
-        );
-
-        // Find which bin the actual proportion value falls into
-        const proportionBinIdx = List.findIndex(
-            (edge, i) =>
-                i < binEdges.length - 1 &&
-                proportion >= edge &&
-                proportion < binEdges[i + 1],
-            binEdges
-        );
-
-        const CustomBar = (props: any) => {
-            const { x, y, width, height, index } = props;
-            const shouldShowCircle = index === proportionBinIdx;
-
-            return (
-                <g>
-                    <rect
-                        x={x}
-                        y={y}
-                        width={width}
-                        height={height}
-                        fill={theme.categoryColor(0)}
-                    />
-                    {shouldShowCircle && (
-                        <circle
-                            cx={x + width / 2}
-                            cy={y - 4}
-                            r={2}
-                            fill={theme.colorLogoPink}
-                        />
-                    )}
-                </g>
-            );
-        };
-
-        return (
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontWeight: 'normal', fontSize: '0.75em' }}>
-                    {casenumToCzech(hist.valSet.join(''))}
-                </div>
-                <BarChart
-                    width={160}
-                    height={110}
-                    data={data}
-                    margin={{ top: 14, right: 4, left: -10, bottom: 2 }}
-                >
-                    <XAxis
-                        dataKey="pos"
-                        tick={{ fontSize: 8 }}
-                        interval="preserveStartEnd"
-                        tickFormatter={(value) =>
-                            typeof value === 'number'
-                                ? Maths.roundToPos(value, 2).toString()
-                                : value
-                        }
-                        label={{
-                            value: 'position',
-                            offset: -2,
-                            position: 'insideBottom',
-                            fontSize: 8,
-                        }}
-                    />
-                    <YAxis
-                        tick={{ fontSize: 8 }}
-                        width={50}
-                        tickFormatter={(value) =>
-                            typeof value === 'number'
-                                ? String(Math.round(value * 10) / 10)
-                                : value
-                        }
-                    />
-                    <Tooltip
-                        formatter={(value: ValueType) =>
-                            typeof value === 'number'
-                                ? Maths.roundToPos(value, 3)
-                                : value
-                        }
-                    />
-                    <Bar
-                        dataKey="count"
-                        fill={theme.categoryColor(0)}
-                        shape={CustomBar}
-                    />
-                </BarChart>
-            </div>
-        );
-    };
+    const AltViewSingle = altViewSingleInit(dispatcher, ut, theme, model);
 
     // ------------------- <SingleWordView /> ------------------------
 
-    const SingleWordView: React.FC<{
-        chartData: Array<ChartData>;
-        posData: {
-            binEdges: Array<number>;
-            histograms: Array<Histogram>;
-        };
-        lemmaData: {
-            totalFreq: number;
-            variants: Array<GramatikatFreq>;
-        };
-        missingPos: boolean;
-    }> = ({ chartData, posData, lemmaData, missingPos }) => {
-        const proportionMap = Dict.fromEntries(
-            List.map(
-                (v) => tuple(v.valSet.join(''), v.proportion),
-                lemmaData.variants
-            )
-        );
-
-        if (missingPos) {
-            return (
-                <div>
-                    Please specify a concrete Part of Speech of the searched
-                    word you want to get information about.
-                </div>
-            );
-        }
+    const SingleWordView: React.FC<WordData & { alpha: number }> = ({
+        lemmaData,
+        posData,
+        chartData,
+        missingPos,
+        pos,
+        alpha,
+    }) => {
+        const message = chartData.hasSignificantDeviations
+            ? ut.translate('gramatikat__showing_stat_signif_values')
+            : ut.translate('gramatikat__there_are_no_stat_signif_values');
 
         return (
-            <div>
-                <div style={{ width: '100%', height: 450 }}>
-                    <ResponsiveContainer>
-                        <BarChart
-                            data={chartData}
-                            layout="vertical"
-                            margin={{
-                                top: 20,
-                                right: 30,
-                                left: 100,
-                                bottom: 50,
-                            }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                                type="number"
-                                label={{
-                                    value: 'Proportion',
-                                    position: 'insideBottom',
-                                    offset: -10,
-                                }}
-                            />
-                            <YAxis type="category" dataKey="case" />
-                            <Tooltip
-                                formatter={(value: ValueType) =>
-                                    typeof value === 'number'
-                                        ? Maths.roundToPos(value, 3)
-                                        : value
-                                }
-                            />
-                            <Legend
-                                verticalAlign="bottom"
-                                wrapperStyle={{ paddingTop: '20px' }}
-                            />
-                            <Bar
-                                dataKey="singular"
-                                stackId="a"
-                                fill={theme.categoryColor(0)}
-                                name="Singular"
-                            />
-                            <Bar
-                                dataKey="plural"
-                                stackId="a"
-                                fill={theme.categoryColor(1)}
-                                name="Plural"
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-                {!List.empty(posData.histograms) && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: '8px',
-                            justifyContent: 'center',
-                            marginTop: '1.5em',
-                            padding: '0 8px',
-                        }}
-                    >
-                        {pipe(
-                            posData.histograms,
-                            List.map((v) =>
-                                tuple(v, proportionMap[v.valSet.join('')] || 0)
+            <S.SingleWordView>
+                <h2>
+                    {ut.translate('gramatikat__significant_deviations_heading')}
+                </h2>
+                <table className="data">
+                    <tbody>
+                        {List.map(
+                            (item) => (
+                                <tr>
+                                    <td>{item.tag}</td>
+                                    <td className="icon">
+                                        {item.value > item.mean ? (
+                                            <span className="up">
+                                                {'\u25B2'}
+                                            </span>
+                                        ) : (
+                                            <span className="down">
+                                                {'\u25BC'}
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
                             ),
-                            List.filter(([hist, proportion]) => {
-                                // Find the bin with maximum count
-                                const maxIdx = List.empty(hist.histogram)
-                                    ? -1
-                                    : List.reduce(
-                                          (best, count, i) =>
-                                              count > hist.histogram[best]
-                                                  ? i
-                                                  : best,
-                                          0,
-                                          hist.histogram
-                                      );
-                                // Find which bin the actual proportion falls into
-                                const actualBinIdx = List.findIndex(
-                                    (edge, i) =>
-                                        proportion >= edge &&
-                                        proportion < posData.binEdges[i + 1],
-                                    posData.binEdges
-                                );
-                                return actualBinIdx !== maxIdx;
-                            }),
-                            List.map(([hist, proportion]) => (
-                                <SlotHistogram
-                                    key={hist.valSet.join('')}
-                                    hist={hist}
-                                    binEdges={posData.binEdges}
-                                    proportion={proportion}
-                                />
-                            ))
+                            chartData.items
                         )}
-                    </div>
-                )}
-            </div>
+                    </tbody>
+                </table>
+                <p>{message}</p>
+            </S.SingleWordView>
         );
     };
 
@@ -358,12 +103,9 @@ export function init(
     const GramatikatTile: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
         // TODO - currently we only work with the first dataset item (i.e. no frameCatSet)
-        console.log('data: ', state.data);
 
         const posInfoSrch = List.find((v) => v !== undefined, state.data);
-        const posInfo = posInfoSrch
-            ? posInfoSrch.posData
-            : { binEdges: [], histograms: [] };
+        const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
 
         return (
             <globalComponents.TileWrapper
@@ -376,28 +118,49 @@ export function init(
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >
-                {!List.empty(state.data) ? (
-                    List.size(state.data) === 1 ? (
-                        <SingleWordView
-                            lemmaData={List.head(state.data).lemmaData}
-                            chartData={transformDataForChart(
-                                List.head(state.data).lemmaData.variants
-                            )}
-                            posData={List.head(state.data).posData}
-                            missingPos={List.head(state.data).missingPos}
-                        />
-                    ) : (
-                        <MultiWordView
-                            lemmaData={List.map((v) => v.lemmaData, state.data)}
-                            posData={posInfo}
-                            words={state.words}
-                            missingPos={List.map(
-                                (v) => v.missingPos,
-                                state.data
-                            )}
-                        />
-                    )
-                ) : null}
+                {(() => {
+                    if (List.empty(state.data)) {
+                        return null;
+                    }
+                    if (List.size(state.data) === 1) {
+                        return state.isAltViewMode ? (
+                            <AltViewSingle
+                                lemmaData={List.head(state.data).lemmaData}
+                                posData={List.head(state.data).posData}
+                                missingPos={List.head(state.data).missingPos}
+                                alpha={state.statTestAlpha}
+                                pos={List.head(state.data).pos}
+                                chartData={List.head(state.data).chartData}
+                            />
+                        ) : (
+                            <SingleWordView
+                                lemmaData={List.head(state.data).lemmaData}
+                                posData={List.head(state.data).posData}
+                                missingPos={List.head(state.data).missingPos}
+                                alpha={state.statTestAlpha}
+                                pos={List.head(state.data).pos}
+                                chartData={List.head(state.data).chartData}
+                            />
+                        );
+                    } else {
+                        return state.isAltViewMode ? (
+                            <div>advanced view multi-word - TODO</div>
+                        ) : (
+                            <MultiWordView
+                                lemmaData={List.map(
+                                    (v) => v.lemmaData,
+                                    state.data
+                                )}
+                                posData={posInfo}
+                                words={state.words}
+                                missingPos={List.map(
+                                    (v) => v.missingPos,
+                                    state.data
+                                )}
+                            />
+                        );
+                    }
+                })()}
             </globalComponents.TileWrapper>
         );
     };
