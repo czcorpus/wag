@@ -11,6 +11,6 @@
         "gramatikat__missing_pos_words_{numWords}{words}": "Následující {numWords, plural, one{# slovo nemá} other{# slova nemají}} specifikovaný slovní druh: <strong>{words}</strong>. Zvolte prosím konkrétní slovní druh, aby bylo možno zobrazit příslušný gramatický profil slova.",
         "gramatikat__showing_stat_signif_values": "Slovní tvary vykazující statisticky významný rozdíl ve frekvenci oproti průměru své gramatické třídy (na základě \u03C7\u00B2 testu)",
         "gramatikat__there_are_no_stat_signif_values": "Slovní tvary s nejvyšším relativním zastoupením v rámci dané gramatické třídy (hodnoty nad 75. percentilem bez statisticky významné odchylky).",
-        "gramatikat__significant_deviations_heading": "Významné distribuční odchylky lemmatu"
+        "gramatikat__significant_deviations_heading": "Významné distribuční odchylky v paradigmatu"
     }
 }
