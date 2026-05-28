@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { EMPTY, map, Observable } from 'rxjs';
+import { EMPTY, map, Observable, tap } from 'rxjs';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { Backlink } from '../../../page/tile.js';
@@ -174,10 +174,22 @@ export const tagCodeToHuman = (pos: GramatikatPoS, tc: string): string => {
                     break;
             }
             break;
+        case 'adjectives':
+            ans.push(`${tc[0]}. pád`);
+            ans.push(`${tc[1]}. stupeň`);
+            switch (tc[2]) {
+                case 'N':
+                    ans.push('negace');
+                    break;
+                case 'A':
+                    ans.push('afirmativ');
+                    break;
+            }
+            break;
         default:
             ans.push(tc);
     }
-    return ans.join(', ');
+    return `${ans.join(', ')} (${tc})`;
 };
 
 const posToCatSet = (cs: GramatikatPoS): Array<GramatikatCatSet> => {
@@ -300,6 +312,9 @@ export class GramatikatAPI
                 contentType: 'application/json',
             })
             .pipe(
+                tap((resp) => {
+                    console.log('Gramatikat resp: ', resp);
+                }),
                 map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
                     resp
                         ? { ...resp, pos, isAmbiguousPos: !args.pos }

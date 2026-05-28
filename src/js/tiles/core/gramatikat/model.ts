@@ -69,6 +69,7 @@ export interface GramatikatState {
     backlinks: Array<Backlink>;
     error: string | undefined;
     words: Array<string>;
+    isAltViewMode: boolean;
 }
 
 export interface ChartData {
@@ -86,18 +87,19 @@ const attachCalcStats = (
 ) => {
     wordData.chartData = pipe(
         wordData.lemmaData.variants,
-        List.filter((v) => v.proportion > 0),
-        List.map((variant) => {
-            const tag = variant.valSet.join(' ');
+        List.filter((v) => v.proportion * wordData.lemmaData.totalFreq > 10), // TODO configurable threshold
+        List.map((v) => {
+            const tag = v.valSet.join(' ');
             const summary = List.find(
                 (s) => s.valSet.join(' ') === tag,
                 wordData.posData.summaries
             );
-
             if (!summary || summary.mean === undefined) {
                 throw new Error('missing summary data for the word');
             }
-
+            return tuple(v, summary);
+        }),
+        List.map(([variant, summary]) => {
             // Calculate chi-square test if we have POS data
             let pValue = 1;
             let isSignificant = false;
@@ -195,6 +197,26 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
             (action) => {
                 this.changeState((state) => {
                     state.isBusy = false;
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.EnableAltViewMode,
+            (action) => action.payload.ident === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isAltViewMode = true;
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableAltViewMode,
+            (action) => action.payload.ident === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isAltViewMode = false;
                 });
             }
         );

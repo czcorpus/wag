@@ -78,6 +78,7 @@ export class GramatikatTile implements ITileProvider {
         this.model = new GramatikatModel({
             dispatcher,
             initState: {
+                isAltViewMode: false,
                 backlinks: [],
                 corpname: 'syn2015_20_25', // TODO configurable
                 data: [],
