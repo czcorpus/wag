@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { EMPTY, map, Observable, tap } from 'rxjs';
+import { EMPTY, map, Observable } from 'rxjs';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { Backlink } from '../../../page/tile.js';
-import { HTTP, tuple } from 'cnc-tskit';
+import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
 export interface GramatikatAPIArgs {
@@ -101,105 +101,136 @@ const wagPosToGramatikat = (pos: string): GramatikatPoS | undefined => {
     }
 };
 
-export const tagCodeToHuman = (pos: GramatikatPoS, tc: string): string => {
+export const tagCodeToHuman = (
+    pos: GramatikatPoS,
+    tc: string,
+    itemTypes: 'fixed' | 'mutable' | 'all' = 'mutable'
+): string => {
     const ans: Array<string> = [];
     switch (pos) {
         case 'nouns':
-            switch (tc[0]) {
-                case 'F':
-                    ans.push('ženský rod');
-                    break;
-                case 'I':
-                    ans.push('mužský neživotný rod');
-                    break;
-                case 'M':
-                    ans.push('mužský životný rod');
-                    break;
-                case 'N':
-                    ans.push('střední rod');
-                    break;
+            if (itemTypes === 'fixed' || itemTypes === 'all') {
+                switch (tc[0]) {
+                    case 'F':
+                        ans.push('ženský rod');
+                        break;
+                    case 'I':
+                        ans.push('mužský neživotný rod');
+                        break;
+                    case 'M':
+                        ans.push('mužský životný rod');
+                        break;
+                    case 'N':
+                        ans.push('střední rod');
+                        break;
+                }
             }
-            switch (tc[1]) {
-                case 'D':
-                    ans.push('dvojné číslo');
-                    break;
-                case 'P':
-                    ans.push('množné číslo');
-                    break;
-                case 'S':
-                    ans.push('jednotné číslo');
-                    break;
+            if (itemTypes === 'mutable' || itemTypes === 'all') {
+                switch (tc[1]) {
+                    case 'D':
+                        ans.push('dvojné číslo');
+                        break;
+                    case 'P':
+                        ans.push('množné číslo');
+                        break;
+                    case 'S':
+                        ans.push('jednotné číslo');
+                        break;
+                }
+                ans.push(`${tc[2]}. pád`);
             }
-            ans.push(`${tc[2]}. pád`);
             break;
         case 'verbs':
-            switch (tc[0]) {
-                case 'P':
-                    ans.push('přítomný čas');
-                    break;
-                case 'R':
-                    ans.push('minulý čas');
-                    break;
-                case 'F':
-                    ans.push('budoucí čas');
-                    break;
+            if (itemTypes === 'mutable' || itemTypes === 'all') {
+                switch (tc[0]) {
+                    case 'P':
+                        ans.push('přítomný čas');
+                        break;
+                    case 'R':
+                        ans.push('minulý čas');
+                        break;
+                    case 'F':
+                        ans.push('budoucí čas');
+                        break;
+                }
+                switch (tc[1]) {
+                    case 'D':
+                        ans.push('dvojné číslo');
+                        break;
+                    case 'P':
+                        ans.push('množné číslo');
+                        break;
+                    case 'S':
+                        ans.push('jednotné číslo');
+                        break;
+                }
             }
-            switch (tc[1]) {
-                case 'D':
-                    ans.push('dvojné číslo');
-                    break;
-                case 'P':
-                    ans.push('množné číslo');
-                    break;
-                case 'S':
-                    ans.push('jednotné číslo');
-                    break;
+            if (itemTypes === 'fixed' || itemTypes === 'all') {
+                switch (tc[2]) {
+                    case 'I':
+                        ans.push('nedokonavý vid');
+                        break;
+                    case 'P':
+                        ans.push('dokonavý vid');
+                        break;
+                    case 'B':
+                        ans.push('obouvidé');
+                }
             }
-            switch (tc[2]) {
-                case 'I':
-                    ans.push('nedokonavý vid');
-                    break;
-                case 'P':
-                    ans.push('dokonavý vid');
-                    break;
-                case 'B':
-                    ans.push('obouvidé');
-            }
-            switch (tc[3]) {
-                case 'N':
-                    ans.push('negace');
-                    break;
-                case 'A':
-                    ans.push('afirmativ');
-                    break;
+            if (itemTypes === 'mutable' || itemTypes === 'all') {
+                switch (tc[3]) {
+                    case 'N':
+                        ans.push('negace');
+                        break;
+                    case 'A':
+                        ans.push('afirmativ');
+                        break;
+                }
             }
             break;
         case 'adjectives':
-            ans.push(`${tc[0]}. pád`);
-            ans.push(`${tc[1]}. stupeň`);
-            switch (tc[2]) {
-                case 'N':
-                    ans.push('negace');
-                    break;
-                case 'A':
-                    ans.push('afirmativ');
-                    break;
+            if (itemTypes === 'mutable' || itemTypes === 'all') {
+                ans.push(`${tc[0]}. pád`);
+                ans.push(`${tc[1]}. stupeň`);
+                switch (tc[2]) {
+                    case 'N':
+                        ans.push('negace');
+                        break;
+                    case 'A':
+                        ans.push('afirmativ');
+                        break;
+                }
             }
             break;
         default:
             ans.push(tc);
     }
-    return `${ans.join(', ')} (${tc})`;
+    return ans.join(', ');
 };
 
-const posToCatSet = (cs: GramatikatPoS): Array<GramatikatCatSet> => {
+export const posToCatSet = (
+    cs: GramatikatPoS
+): Array<{ value: GramatikatCatSet; isFixed: boolean }> => {
     switch (cs) {
         case 'adjectives':
-            return ['case', 'degree', 'polarity'];
+            return [
+                { value: 'case', isFixed: false },
+                { value: 'degree', isFixed: false },
+                { value: 'polarity', isFixed: false },
+            ];
         case 'nouns':
-            return ['gender', 'number', 'case'];
+            return [
+                { value: 'gender', isFixed: true },
+                { value: 'number', isFixed: false },
+                { value: 'case', isFixed: false },
+            ];
         case 'verbs':
-            return ['tense', 'number', 'polarity', 'aspect'];
+            return [
+                { value: 'tense', isFixed: false },
+                { value: 'number', isFixed: false },
+                { value: 'aspect', isFixed: true },
+                { value: 'polarity', isFixed: false },
+            ];
         default:
             return [];
     }
@@ -227,6 +258,7 @@ interface LemmaArgs {
 export interface GramatikatFreq {
     valSet: Tag;
     proportion: number;
+    deviatesFromMean?: 'over' | 'under';
 }
 
 export interface LemmaResponse {
@@ -290,7 +322,10 @@ export class GramatikatAPI
         args: GramatikatAPIArgs | null
     ): Observable<[LemmaProfileResponse, number]> {
         const pos = wagPosToGramatikat(args.pos);
-        const catSet = posToCatSet(pos);
+        const catSet = pipe(
+            posToCatSet(pos),
+            List.map(({ value, isFixed }) => value)
+        );
 
         const reqArgs: LemmaArgs = {
             lemma: args.lemma,
@@ -312,9 +347,6 @@ export class GramatikatAPI
                 contentType: 'application/json',
             })
             .pipe(
-                tap((resp) => {
-                    console.log('Gramatikat resp: ', resp);
-                }),
                 map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
                     resp
                         ? { ...resp, pos, isAmbiguousPos: !args.pos }

@@ -94,7 +94,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         border-collapse: collapse;
 
         tbody tr:nth-child(odd):not(.heading) {
-            background-color: ${confTheme.colorWhitelikeBlue};
+            background-color: ${confTheme.oddDataLineBackgroundColor};
         }
 
         tr.top-grouped th {
@@ -112,7 +112,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         }
 
         td:not(:last-child), th:not(:last-child) {
-            border-color: ${confTheme.colorWhitelikeBlue};
+            border-color: ${confTheme.oddDataLineBackgroundColor};
             border-width: 0 2px 0 0;
             border-style: solid;
         }

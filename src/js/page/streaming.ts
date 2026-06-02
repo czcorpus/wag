@@ -207,7 +207,6 @@ export class DataStreaming implements IDataStreaming {
                               if (acc.get(key) === undefined) {
                                   acc.set(key, value);
                               }
-                              console.log('scan item: ', key);
                               return acc;
                           },
                           new Map(

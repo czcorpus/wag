@@ -25,6 +25,7 @@ import {
     GramatikatFreq,
     GramatikatPoS,
     LemmaProfileResponse,
+    posToCatSet,
     Summary,
     tagCodeToHuman,
 } from './api.js';
@@ -37,7 +38,7 @@ import {
     testIsDictMatch,
 } from '../../../query/index.js';
 import { mergeMap, Observable, reduce, tap } from 'rxjs';
-import { List, Maths, pipe, tuple } from 'cnc-tskit';
+import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
 import { SystemMessageType } from '../../../types.js';
 
@@ -70,10 +71,12 @@ export interface GramatikatState {
     error: string | undefined;
     words: Array<string>;
     isAltViewMode: boolean;
+    isTweakMode: boolean;
 }
 
 export interface ChartData {
     tag: string;
+    tagReadable: string;
     value: number;
     mean: number;
     pValue: number;
@@ -85,6 +88,12 @@ const attachCalcStats = (
     pos: GramatikatPoS,
     alpha: number
 ) => {
+    const tagAttrs = pipe(
+        posToCatSet(pos),
+        List.map(({ value, isFixed }) => tuple(value, isFixed)),
+        Dict.fromEntries()
+    );
+
     wordData.chartData = pipe(
         wordData.lemmaData.variants,
         List.filter((v) => v.proportion * wordData.lemmaData.totalFreq > 10), // TODO configurable threshold
@@ -118,9 +127,18 @@ const attachCalcStats = (
             const chiTest = Maths.chiSquareTest(observed, expectedProps, alpha);
             pValue = chiTest.pValue;
             isSignificant = chiTest.isSignificant;
-
+            if (isSignificant) {
+                // TODO this block is a side effect
+                variant.deviatesFromMean =
+                    variant.proportion > summary.mean ? 'over' : 'under';
+            }
             return tuple(summary, {
-                tag: tagCodeToHuman(pos, variant.valSet.join('')),
+                tag: variant.valSet.join(''),
+                tagReadable: tagCodeToHuman(
+                    pos,
+                    variant.valSet.join(''),
+                    'mutable'
+                ),
                 value: variant.proportion,
                 pValue,
                 isSignificant,
@@ -222,6 +240,26 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
         );
 
         this.addActionSubtypeHandler(
+            GlobalActions.EnableTileTweakMode,
+            (action) => action.payload.ident === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isTweakMode = true;
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            GlobalActions.DisableTileTweakMode,
+            (action) => action.payload.ident === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isTweakMode = false;
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
             Actions.PartialTileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (action) => {
@@ -261,6 +299,19 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                         action.error
                     );
                 }
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.SetStatTestAlpha,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.statTestAlpha = action.payload.value;
+                    const data = List.head(state.data);
+                    attachCalcStats(data, data.pos, state.statTestAlpha);
+                    state.data[0] = data;
+                });
             }
         );
     }
