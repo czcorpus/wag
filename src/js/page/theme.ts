@@ -436,6 +436,42 @@ export class Theme {
         };
     };
 
+    scaleColorSuperfine = (
+        min: number,
+        max: number,
+        subdivisions: number = 3,
+        maxUsedScaleColors: number = undefined
+    ): ((v: number) => string) => {
+        const colors = pipe(
+            this.scaleColors,
+            List.slice(
+                0,
+                maxUsedScaleColors
+                    ? maxUsedScaleColors
+                    : List.size(this.scaleColors)
+            ),
+            List.map((baseColor) => {
+                const superfineColors = [];
+                for (let i = subdivisions - 1; i > 0; i--) {
+                    const luminosityFactor =
+                        1 + (i / subdivisions) * 0.5 - 0.25;
+                    const variant = pipe(
+                        baseColor,
+                        Color.importColor(1),
+                        Color.luminosity(luminosityFactor),
+                        Color.color2str()
+                    );
+                    superfineColors.push(variant);
+                }
+                return superfineColors;
+            }),
+            List.flatMap((v) => v)
+        );
+        const a = max !== min ? (colors.length - 1) / (max - min) : 0;
+        const b = -1 * a * min;
+        return (v: number) => colors[Math.round(a * v + b)];
+    };
+
     /**
      * Produce a function which generates variants with
      * different luminosity based on a color selected

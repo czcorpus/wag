@@ -79,6 +79,7 @@ export class GramatikatTile implements ITileProvider {
             dispatcher,
             initState: {
                 isAltViewMode: false,
+                isTweakMode: false,
                 backlinks: [],
                 corpname: 'syn2015_20_25', // TODO configurable
                 data: [],
@@ -128,7 +129,7 @@ export class GramatikatTile implements ITileProvider {
     }
 
     supportsTweakMode(): boolean {
-        return false;
+        return true;
     }
 
     supportsAltView(): boolean {

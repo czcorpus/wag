@@ -37,18 +37,14 @@
             ],
            "categoryOther": "#494949",
            "scale": [
-                "#009EE0",
-                "#66C5EC",
-                "#A93F9F",
-                "#D49FCF",
-                "#EA9358",
-                "#F5C9AB",
+                "#D2D4A5",
                 "#A5A94B",
-                "#D2D4A5",
-                "#D2D4A5",
-                "#D2D4A5",
-                "#D2D4A5",
-                "#D2D4A5"
+                "#F5C9AB",
+                "#EA9358",
+                "#66C5EC",
+                "#009EE0",
+                "#D49FCF",
+                "#A93F9F"
            ],
            "geoAreaSpotFillColor": "#009ee0",
            "geoAreaSpotTextColor": "#FFFFFF"
@@ -95,18 +91,15 @@
             ],
             "categoryOther": "#494949",
             "scale": [
-                "#009EE0",
-                "#66C5EC",
-                "#A93F9F",
-                "#D49FCF",
-                "#EA9358",
-                "#F5C9AB",
+                "#D2D4A5",
                 "#A5A94B",
-                "#D2D4A5",
-                "#D2D4A5",
-                "#D2D4A5",
-                "#D2D4A5",
-                "#D2D4A5"
+                "#F5C9AB",
+                "#EA9358",
+                "#66C5EC",
+                "#009EE0",
+                "#D49FCF",
+                "#A93F9F"
+
             ],
             "geoAreaSpotFillColor": "#009ee0",
             "geoAreaSpotTextColor": "#FFFFFF"

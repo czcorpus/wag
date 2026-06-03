@@ -325,6 +325,7 @@ export function init<T>(
         style['minHeight'] =
             `${2 * (props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
         const colors = props.colors ? props.colors : theme.scaleColorIndexed();
+
         return (
             <div ref={chartContainer} style={style}>
                 <Tooltip

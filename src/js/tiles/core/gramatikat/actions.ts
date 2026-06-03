@@ -34,4 +34,11 @@ export class Actions {
         {
             name: GlobalActions.TileDataLoaded.name,
         };
+
+    static SetStatTestAlpha: Action<{
+        tileId: number;
+        value: number;
+    }> = {
+        name: 'GRAMATIKAT_SET_STAT_TEST_ALPHA',
+    };
 }
