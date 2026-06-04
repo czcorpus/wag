@@ -153,7 +153,7 @@ export class FCS1ExplainAPI
         queryIdx: number,
         args: FCS1ExplainArgs
     ): Observable<FCS1ExplainResponse> {
-        return ajax$(
+        return ajax$<string>(
             HTTP.Method.GET,
             this.url,
             {

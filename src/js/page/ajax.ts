@@ -175,7 +175,7 @@ export const ajax$ = <T>(
             }
         });
     }
-    return ajax({
+    return ajax<T>({
         url: callArgs.url,
         body: callArgs.requestBody,
         method: callArgs.method,

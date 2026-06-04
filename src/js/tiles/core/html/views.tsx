@@ -50,9 +50,7 @@ export function init(
                 issueReportingUrl={props.issueReportingUrl}
                 backlink={state.backlink}
             >
-                <S.HtmlFrame
-                    dangerouslySetInnerHTML={{ __html: this.props.data }}
-                />
+                <S.HtmlFrame dangerouslySetInnerHTML={{ __html: state.data }} />
             </globalCompontents.TileWrapper>
         );
     };

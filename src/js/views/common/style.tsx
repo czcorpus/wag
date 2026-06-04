@@ -100,7 +100,7 @@ export const TileWrapper = styled.div`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TitleLoaderBar = styled.div`
+export const TitleLoaderBar = styled.div<{ theme: Theme }>`
     @keyframes slidein {
         0% {
             transform: translate(0);

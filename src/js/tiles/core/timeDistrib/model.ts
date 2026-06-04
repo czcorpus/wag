@@ -439,7 +439,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     ): Array<DataItemWithWCI> {
         return pipe(
             newChunk,
-            List.foldl(
+            List.foldl<DataItemWithWCI, { [k: string]: DataItemWithWCI }>(
                 (acc, curr) => {
                     if (acc[curr.datetime] !== undefined) {
                         const tmp = acc[curr.datetime];

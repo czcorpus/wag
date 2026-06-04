@@ -63,7 +63,7 @@ import { Theme } from './theme.js';
 
 interface MountArgs {
     userSession: UserConf;
-    component: React.FC<WdglanceMainProps | ErrPageProps>;
+    component: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
     layout: Array<TileGroup>;
     appServices: IAppServices;
     mountElement: HTMLElement;

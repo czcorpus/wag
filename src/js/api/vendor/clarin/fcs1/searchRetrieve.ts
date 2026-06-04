@@ -105,7 +105,7 @@ export class FCS1SearchRetrieveAPI
         queryIdx: number,
         args: FCS1Args
     ): Observable<ConcResponse> {
-        return ajax$(HTTP.Method.GET, this.url, args, {
+        return ajax$<string>(HTTP.Method.GET, this.url, args, {
             headers: this.apiServices.getApiHeaders(this.url),
             withCredentials: true,
             responseType: ResponseType.TEXT,

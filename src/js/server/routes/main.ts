@@ -191,21 +191,17 @@ export function mkRuntimeClientConf({
                     appServices
                         .importExternalText(item.contents, loadFile)
                         .pipe(
-                            map<string, { label: string; html: string }>(
-                                (value) => ({
-                                    label: appServices.importExternalMessage(
-                                        item.label
-                                    ),
-                                    html: value,
-                                    isFooterIntegrated: item.isFooterIntegrated,
-                                })
-                            )
+                            map<string, HomepageTileConf>((value) => ({
+                                label: appServices.importExternalMessage(
+                                    item.label
+                                ),
+                                html: value,
+                                isFooterIntegrated: item.isFooterIntegrated,
+                            }))
                         ),
                 conf.homepage.tiles
             )
-        ).pipe(
-            defaultIfEmpty<Array<HomepageTileConf>, Array<HomepageTileConf>>([])
-        ),
+        ).pipe(defaultIfEmpty([])),
         conf.homepage.footer
             ? appServices.importExternalText(conf.homepage.footer, loadFile)
             : rxOf(undefined),
@@ -284,10 +280,7 @@ export function mkRuntimeClientConf({
                                   tuple(conf.layouts.translat, 'translat'),
                               ],
                               List.filter(([tst]) => !!tst),
-                              List.map<
-                                  [LayoutConfigCmpQuery, QueryType],
-                                  QueryType
-                              >(([, v]) => v)
+                              List.map(([, v]) => v as QueryType)
                           )
                         : ['single'],
                 externalStyles: conf.externalStyles || [],

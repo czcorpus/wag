@@ -31,14 +31,14 @@
       "webpack --config webpack.server.js"
     ],
     "typecheck:client": [
-      "node_modules/typescript/bin/tsc --project ./tsconfig.json --noEmit",
+      "node_modules/@typescript/native-preview/bin/tsgo.js --project ./tsconfig.json --noEmit",
       {
         "condition": "$?",
         "sequential-then": "echo 'Client-side TypeScript types: OK'"
       }
     ],
     "typecheck:server": [
-      "node_modules/typescript/bin/tsc --project ./tsconfig.server.json --noEmit",
+      "node_modules/@typescript/native-preview/bin/tsgo.js --project ./tsconfig.server.json --noEmit",
       {
         "condition": "$?",
         "sequential-then": "echo 'Server-side TypeScript types: OK'"

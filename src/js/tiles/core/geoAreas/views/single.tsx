@@ -169,23 +169,25 @@ export function init(
                     });
                 }
 
-                fromEvent(label, 'mousemove').subscribe((e: MouseEvent) => {
-                    dispatcher.dispatch<typeof Actions.ShowAreaTooltip>({
-                        name: Actions.ShowAreaTooltip.name,
-                        payload: {
-                            areaName: areaName,
-                            areaIpmNorm:
-                                areaData === undefined ? 0 : areaData.norm,
-                            areaData:
-                                areaData === undefined
-                                    ? null
-                                    : [{ ...areaData, target: 0 }],
-                            tileId: tileId,
-                            tooltipX: e.pageX,
-                            tooltipY: e.pageY,
-                        },
-                    });
-                });
+                fromEvent<MouseEvent>(label, 'mousemove').subscribe(
+                    (e: MouseEvent) => {
+                        dispatcher.dispatch<typeof Actions.ShowAreaTooltip>({
+                            name: Actions.ShowAreaTooltip.name,
+                            payload: {
+                                areaName: areaName,
+                                areaIpmNorm:
+                                    areaData === undefined ? 0 : areaData.norm,
+                                areaData:
+                                    areaData === undefined
+                                        ? null
+                                        : [{ ...areaData, target: 0 }],
+                                tileId: tileId,
+                                tooltipX: e.pageX,
+                                tooltipY: e.pageY,
+                            },
+                        });
+                    }
+                );
 
                 fromEvent(label, 'mouseout').subscribe(() => {
                     dispatcher.dispatch<typeof Actions.HideAreaTooltip>({
