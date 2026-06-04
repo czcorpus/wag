@@ -27,7 +27,7 @@ import {
     TileComponent,
 } from '../../../../page/tile.js';
 import * as React from 'react';
-import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
+import { List, pipe, tuple } from 'cnc-tskit';
 import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
 import {
@@ -89,6 +89,8 @@ export function init(
         '3': ut.translate('gramatikat__degree_3'),
     };
 
+    // ---------------- <PropertiesForVerbs /> ----------------------
+
     const PropertiesForVerbs: React.FC<{
         lemmaData: {
             totalFreq: number;
@@ -147,14 +149,17 @@ export function init(
         ];
         const xLabels = List.map((item) => {
             const letters = item.split('-');
-            return (
-                <span>
-                    {tenseLabels[letters[0]]}
-                    <br />
-                    {polarityLabels[letters[1]]}
-                </span>
-            );
+            return <span>{tenseLabels[letters[0]]}</span>;
         }, tenseAndNegationOrder);
+        const xGroupedLabels = pipe(
+            tenseAndNegationOrder,
+            List.map((v) => v.split('-')),
+            List.groupBy((v) => v[1]),
+            List.map(([v, grouped]) => ({
+                v: polarityLabels[v],
+                span: List.size(grouped),
+            }))
+        );
         const numberOrder = ['S', 'P', 'D'];
         const yLabels = List.map((item) => numberLabels[item], numberOrder);
 
@@ -186,6 +191,7 @@ export function init(
                         <Heatmap
                             data={data}
                             xLabels={xLabels}
+                            xGroupLabels={xGroupedLabels}
                             yLabels={yLabels}
                             colorMapping={theme.scaleColorSuperfine(
                                 minVal * 100,
@@ -261,14 +267,17 @@ export function init(
         ];
         const xLabels = List.map((item) => {
             const letters = item.split('-');
-            return (
-                <span>
-                    {numberLabels[letters[0]]}
-                    <br />
-                    {genderLabels[letters[1]]}
-                </span>
-            );
+            return <span>{genderLabels[letters[1]]}</span>;
         }, numberAndGenderOrder);
+        const xGroupedLabels = pipe(
+            numberAndGenderOrder,
+            List.map((v) => v.split('-')),
+            List.groupBy((v) => v[0]),
+            List.map(([v, grouped]) => ({
+                v: numberLabels[v],
+                span: List.size(grouped),
+            }))
+        );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
         const yLabels = List.map((item) => caseLabels[item], caseOrder);
 
@@ -292,7 +301,6 @@ export function init(
                 }, numberAndGenderOrder),
             caseOrder
         );
-
         return (
             <globalComponents.ResponsiveWrapper
                 render={(width: number, height: number) => (
@@ -300,6 +308,7 @@ export function init(
                         data={data}
                         xLabels={xLabels}
                         yLabels={yLabels}
+                        xGroupLabels={xGroupedLabels}
                         colorMapping={theme.scaleColor(
                             minVal * 100,
                             maxVal * 100
@@ -365,14 +374,17 @@ export function init(
         ];
         const xLabels = List.map((item) => {
             const letters = item.split('-');
-            return (
-                <span>
-                    {degreeLabels[letters[0]]}
-                    <br />
-                    {polarityLabels[letters[1]]}
-                </span>
-            );
+            return <span>{degreeLabels[letters[0]]}</span>;
         }, degreeAndPolarityOrder);
+        const xGroupedLabels = pipe(
+            degreeAndPolarityOrder,
+            List.map((v) => v.split('-')),
+            List.groupBy((v) => v[1]),
+            List.map(([v, grouped]) => ({
+                v: polarityLabels[v],
+                span: List.size(grouped),
+            }))
+        );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
         const yLabels = List.map((item) => caseLabels[item], caseOrder);
 
@@ -403,6 +415,7 @@ export function init(
                     <Heatmap
                         data={data}
                         xLabels={xLabels}
+                        xGroupLabels={xGroupedLabels}
                         yLabels={yLabels}
                         colorMapping={theme.scaleColor(
                             minVal * 100,

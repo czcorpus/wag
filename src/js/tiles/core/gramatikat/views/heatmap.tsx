@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Color, List, Maths } from 'cnc-tskit';
+import { Color, List, Maths, pipe, tuple } from 'cnc-tskit';
 import * as S from './style.js';
 import * as React from 'react';
 
@@ -25,12 +25,18 @@ export interface HeatmapCell {
     icon?: 'up' | 'down';
 }
 
+interface GroupedLabel {
+    v: string | React.ReactElement;
+    span: number;
+}
+
 export const Heatmap: React.FC<{
     data: Array<Array<HeatmapCell>>;
     xLabels: Array<string | React.ReactElement>;
+    xGroupLabels?: Array<GroupedLabel>;
     yLabels: Array<string | React.ReactElement>;
     colorMapping: (v: number) => string;
-}> = ({ data, xLabels, yLabels, colorMapping }) => {
+}> = ({ data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
     const iconIdToElm = (v: HeatmapCell['icon']): React.ReactElement => {
         if (v === 'up') {
             return <span className="up">{'\u25B2'}</span>;
@@ -44,14 +50,16 @@ export const Heatmap: React.FC<{
     const filterZeroColumnsAndRows = (
         data: Array<Array<HeatmapCell>>,
         xLabels: Array<string | React.ReactElement>,
+        xGroupLabels: Array<GroupedLabel>,
         yLabels: Array<string | React.ReactElement>
     ): [
         Array<Array<HeatmapCell>>,
         Array<string | React.ReactElement>,
+        Array<GroupedLabel>,
         Array<string | React.ReactElement>,
     ] => {
         if (data.length === 0) {
-            return [data, xLabels, yLabels];
+            return [data, xLabels, xGroupLabels || [], yLabels];
         }
 
         const numCols = data[0].length;
@@ -88,17 +96,71 @@ export const Heatmap: React.FC<{
         }
 
         // Filter data, xLabels, and yLabels
-        const filteredData = nonZeroRows.map((rowIdx) =>
-            nonZeroCols.map((colIdx) => data[rowIdx][colIdx])
+        const filteredData = List.map(
+            (rowIdx) => List.map((colIdx) => data[rowIdx][colIdx], nonZeroCols),
+            nonZeroRows
         );
-        const filteredXLabels = nonZeroCols.map((colIdx) => xLabels[colIdx]);
-        const filteredYLabels = nonZeroRows.map((rowIdx) => yLabels[rowIdx]);
+        const filteredXLabels = List.map(
+            (colIdx) => xLabels[colIdx],
+            nonZeroCols
+        );
 
-        return [filteredData, filteredXLabels, filteredYLabels];
+        const filteredXGroupedLabels = pipe(
+            xGroupLabels || [],
+            List.foldl<
+                GroupedLabel,
+                {
+                    values: Array<{ v: GroupedLabel; offset: number }>;
+                    lastOffset: number;
+                }
+            >(
+                (acc, curr) => ({
+                    values: [
+                        ...acc.values,
+                        { v: curr, offset: acc.lastOffset },
+                    ],
+                    lastOffset: acc.lastOffset + curr.span,
+                }),
+                {
+                    values: [],
+                    lastOffset: 0,
+                }
+            ),
+            ({ values }) => values,
+            List.map<{ v: GroupedLabel; offset: number }, GroupedLabel>(
+                (item) => {
+                    const numMatch = pipe(
+                        nonZeroCols,
+                        List.filter(
+                            (col) =>
+                                col >= item.offset &&
+                                col < item.offset + item.v.span
+                        ),
+                        List.size()
+                    );
+                    return { ...item.v, span: numMatch };
+                }
+            ),
+            List.filter((v) => v.span > 0)
+        );
+        const filteredYLabels = List.map(
+            (rowIdx) => yLabels[rowIdx],
+            nonZeroRows
+        );
+        return [
+            filteredData,
+            filteredXLabels,
+            filteredXGroupedLabels,
+            filteredYLabels,
+        ];
     };
 
-    const [filteredData, filteredXLabels, filteredYLabels] =
-        filterZeroColumnsAndRows(data, xLabels, yLabels);
+    const [
+        filteredData,
+        filteredXLabels,
+        filteredXGroupedLabels,
+        filteredYLabels,
+    ] = filterZeroColumnsAndRows(data, xLabels, xGroupLabels, yLabels);
 
     return (
         <S.Heatmap>
@@ -108,13 +170,26 @@ export const Heatmap: React.FC<{
                         <th />
                         {List.map(
                             (lab, i) => (
-                                <th key={`${lab}:${i}`}>
+                                <th key={`${lab}:${i}`} className="vertical">
                                     <div>{lab}</div>
                                 </th>
                             ),
                             filteredXLabels
                         )}
                     </tr>
+                    {Array.isArray(xGroupLabels) ? (
+                        <tr>
+                            <th />
+                            {List.map(
+                                (item) => (
+                                    <th colSpan={item.span} className="grouped">
+                                        {item.v}
+                                    </th>
+                                ),
+                                filteredXGroupedLabels
+                            )}
+                        </tr>
+                    ) : null}
                 </thead>
                 <tbody>
                     {List.map(

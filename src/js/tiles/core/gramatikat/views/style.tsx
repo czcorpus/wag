@@ -21,6 +21,8 @@
 import { Theme } from '../../../../page/theme.js';
 import { styled } from 'styled-components';
 
+// ------------------- <SingleWordView /> --------------------------------
+
 export const SingleWordView = styled.div<{ theme: Theme }>`
     padding-top: 3em;
     display: flex;
@@ -77,12 +79,21 @@ export const SingleWordView = styled.div<{ theme: Theme }>`
     }
 `;
 
-export const Heatmap = styled.div`
+// ---------------- <Heatmap /> -----------------------------------
+
+export const Heatmap = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: center;
     justify-content: center;
 
     table {
+        border-collapse: collapse;
+
+        td {
+            border: 2px solid
+                ${(props) => props.theme.oddDataLineBackgroundColor};
+        }
+
         td {
             width: 3rem;
             padding: 0.2rem 0.4rem;
@@ -92,6 +103,12 @@ export const Heatmap = styled.div`
         th {
             font-weight: normal;
             font-size: 0.8rem;
+        }
+
+        th.grouped:not(:last-child) {
+            border-style: solid;
+            border-width: 0 2px 0 0;
+            border-color: ${(props) => props.theme.oddDataLineBackgroundColor};
         }
 
         th.row {
@@ -108,10 +125,13 @@ export const Heatmap = styled.div`
             color: red;
         }
 
+        th.vertical {
+            padding-bottom: 0.5rem;
+        }
+
         thead th {
             white-space: nowrap;
             vertical-align: bottom;
-            padding-bottom: 0.5rem;
 
             > div {
                 transform: rotate(-60deg);
