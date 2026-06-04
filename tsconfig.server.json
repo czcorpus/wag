@@ -8,7 +8,8 @@
         "jsx": "react-jsx",
         "moduleResolution": "node16",
         "skipLibCheck": true,
-        "preserveSymlinks": true
+        "preserveSymlinks": true,
+        "strictNullChecks": false
     },
     "include": [
         "./src/js/**/*"

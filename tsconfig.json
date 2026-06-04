@@ -8,7 +8,7 @@
         "jsx": "react-jsx",
         "moduleResolution": "node16",
         "skipLibCheck": true,
-        "baseUrl": ".",
+        "paths": {"*": ["./*"]},
         "preserveSymlinks": true,
         "strictNullChecks": false
     },

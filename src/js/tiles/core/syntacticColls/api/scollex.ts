@@ -136,7 +136,9 @@ export class ScollexSyntacticCollsAPI
     private prepareArgs(queryArgs: SCollsRequest): string {
         return pipe(
             {
-                ...queryArgs.args,
+                w: queryArgs.args.w,
+                textType: queryArgs.args.textType || null,
+                deprel: queryArgs.args.deprel || null,
                 pos: queryArgs.args.pos || null,
             },
             Dict.toEntries(),

@@ -23,7 +23,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../page/tile.js';
 import { Theme } from '../../../page/theme.js';
 import { Speech, SpeechLine, Segment } from './common.js';
 import { Actions } from './actions.js';
-import { List, pipe, Color, Dict } from 'cnc-tskit';
+import { List, pipe, Color, Dict, tuple } from 'cnc-tskit';
 
 import * as S from './style.js';
 import { SpeechToken } from './api.js';
@@ -292,7 +292,7 @@ export function init(
     }> = (props) => {
         const speakerColors = pipe(
             props.speakers,
-            List.map((sp, i) => [sp, theme.scaleColorIndexed()(i)]),
+            List.map((sp, i) => tuple(sp, theme.scaleColorIndexed()(i))),
             Dict.fromEntries()
         );
         const renderSpeechLines = () => {

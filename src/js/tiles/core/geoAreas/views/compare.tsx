@@ -394,19 +394,21 @@ export function init(
                     'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));'
                 );
 
-                fromEvent(pieChart, 'mousemove').subscribe((e: MouseEvent) => {
-                    dispatcher.dispatch<typeof Actions.ShowAreaTooltip>({
-                        name: Actions.ShowAreaTooltip.name,
-                        payload: {
-                            areaName: areaName,
-                            areaIpmNorm: areaIpmNorm,
-                            areaData: notEnoughData ? null : areaData,
-                            tileId: tileId,
-                            tooltipX: e.pageX,
-                            tooltipY: e.pageY,
-                        },
-                    });
-                });
+                fromEvent<MouseEvent>(pieChart, 'mousemove').subscribe(
+                    (e: MouseEvent) => {
+                        dispatcher.dispatch<typeof Actions.ShowAreaTooltip>({
+                            name: Actions.ShowAreaTooltip.name,
+                            payload: {
+                                areaName: areaName,
+                                areaIpmNorm: areaIpmNorm,
+                                areaData: notEnoughData ? null : areaData,
+                                tileId: tileId,
+                                tooltipX: e.pageX,
+                                tooltipY: e.pageY,
+                            },
+                        });
+                    }
+                );
 
                 fromEvent(pieChart, 'mouseout').subscribe(() => {
                     dispatcher.dispatch<typeof Actions.HideAreaTooltip>({
