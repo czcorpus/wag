@@ -85,29 +85,30 @@ export const Heatmap = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.2rem;
 
     table {
         border-collapse: collapse;
 
         td {
-            border: 2px solid
+            border: 4px solid
                 ${(props) => props.theme.oddDataLineBackgroundColor};
         }
 
         td {
             width: 3rem;
-            padding: 0.2rem 0.4rem;
+            padding: 0.4rem 0.6rem;
             text-align: right;
         }
 
         th {
             font-weight: normal;
-            font-size: 0.8rem;
+            padding: 0.4rem 0.6rem;
         }
 
         th.grouped:not(:last-child) {
             border-style: solid;
-            border-width: 0 2px 0 0;
+            border-width: 0 4px 0 0;
             border-color: ${(props) => props.theme.oddDataLineBackgroundColor};
         }
 
@@ -117,16 +118,16 @@ export const Heatmap = styled.div<{ theme: Theme }>`
 
         span.up {
             padding-right: 0.3rem;
-            color: green;
+            color: #036b03;
         }
 
         span.down {
             padding-right: 0.3rem;
-            color: red;
+            color: #ff0000b5;
         }
 
         th.vertical {
-            padding-bottom: 0.5rem;
+            padding-bottom: 1rem;
         }
 
         thead th {
