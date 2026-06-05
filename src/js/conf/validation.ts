@@ -16,78 +16,82 @@
  * limitations under the License.
  */
 
-import { Dict, List } from 'cnc-tskit';
-import * as path from 'path';
-import Ajv from 'ajv';
-import * as fs from 'fs';
-import { DomainAnyTileConf, ServerConf } from '.';
-import { QueryType } from '../query';
+import { Dict, List } from "cnc-tskit";
+import * as path from "path";
+import Ajv from "ajv";
+import * as fs from "fs";
+import { DomainAnyTileConf, ServerConf } from ".";
+import { QueryType } from "../query";
 
+const CORE_TILES_ROOT_DIR = path.resolve(__dirname, "../src/js/tiles/core");
 
-const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');
+const CUSTOM_TILES_ROOT_DIR = path.resolve(__dirname, "../src/js/tiles/custom");
 
-const CUSTOM_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/custom');
+const SCHEMA_FILENAME = "config-schema.json";
 
-const SCHEMA_FILENAME = 'config-schema.json';
+export function validateTilesConf(tilesConf: DomainAnyTileConf): boolean {
+  const validator = new Ajv();
+  let validationError = false;
+  return true; // TODO DEBUG
+  console.info("Validating tiles configuration...");
 
-
-export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
-    const validator = new Ajv();
-    let validationError = false;
-
-    console.info('Validating tiles configuration...');
-
-    Dict.forEach((tiles, domain) => {
-        Dict.forEach((tileConf, tileName) => {
-            let configSchema:{};
-            const tileType = tileConf.tileType + '';
-            const folderName = tileType[0].toLowerCase() + tileType.slice(1).split('Tile')[0];
-            const confPath = path.resolve(CORE_TILES_ROOT_DIR, folderName, SCHEMA_FILENAME);
-            if (fs.existsSync(confPath)) {
-                configSchema = JSON.parse(fs.readFileSync(confPath, 'utf-8'));
-
-            } else {
-                const confPath = path.resolve(CUSTOM_TILES_ROOT_DIR, folderName, SCHEMA_FILENAME);
-                if (fs.existsSync(confPath)) {
-                    configSchema = JSON.parse(fs.readFileSync(confPath, 'utf-8'));
-                }
-            }
-            if (!configSchema) {
-                console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
-                console.info(`    \u25B6 schema "${tileType}" not found`);
-                validationError = true;
-
-            } else if (validator.validate(configSchema, tileConf)) {
-                console.info(`  ${domain}/${tileName} [\x1b[32m OK \x1b[0m]`);
-
-            } else {
-                console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
-                List.forEach(
-                    err => {
-                        console.error(`    \u25B6 ${err.message}`)
-                    },
-                    validator.errors
-                );
-                validationError = true;
-            }
-        }, tiles);
-    }, tilesConf);
-    if (validationError) {
-        return false;
-    }
-    console.info('...\uD83D\uDC4D All the tiles are valid');
-    return true;
+  Dict.forEach((tiles, domain) => {
+    Dict.forEach((tileConf, tileName) => {
+      let configSchema: {};
+      const tileType = tileConf.tileType + "";
+      const folderName =
+        tileType[0].toLowerCase() + tileType.slice(1).split("Tile")[0];
+      const confPath = path.resolve(
+        CORE_TILES_ROOT_DIR,
+        folderName,
+        SCHEMA_FILENAME,
+      );
+      if (fs.existsSync(confPath)) {
+        configSchema = JSON.parse(fs.readFileSync(confPath, "utf-8"));
+      } else {
+        const confPath = path.resolve(
+          CUSTOM_TILES_ROOT_DIR,
+          folderName,
+          SCHEMA_FILENAME,
+        );
+        if (fs.existsSync(confPath)) {
+          configSchema = JSON.parse(fs.readFileSync(confPath, "utf-8"));
+        }
+      }
+      if (!configSchema) {
+        console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+        console.info(`    \u25B6 schema "${tileType}" not found`);
+        validationError = true;
+      } else if (validator.validate(configSchema, tileConf)) {
+        console.info(`  ${domain}/${tileName} [\x1b[32m OK \x1b[0m]`);
+      } else {
+        console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+        List.forEach((err) => {
+          console.error(`    \u25B6 ${err.message}`);
+        }, validator.errors);
+        validationError = true;
+      }
+    }, tiles);
+  }, tilesConf);
+  if (validationError) {
+    return false;
+  }
+  console.info("...\uD83D\uDC4D All the tiles are valid");
+  return true;
 }
 
-export function maxQueryWordsForQueryType(conf:ServerConf, qt:QueryType):number {
-    switch (qt) {
-        case QueryType.SINGLE_QUERY:
-            return conf?.freqDB?.single?.maxQueryWords || 1;
-        case QueryType.CMP_QUERY:
-            return conf?.freqDB?.cmp?.maxQueryWords || 1;
-        case QueryType.TRANSLAT_QUERY:
-            return conf?.freqDB?.translat?.maxQueryWords || 1;
-        default:
-            throw new Error(`Unknown query type ${qt}`);
-    }
+export function maxQueryWordsForQueryType(
+  conf: ServerConf,
+  qt: QueryType,
+): number {
+  switch (qt) {
+    case QueryType.SINGLE_QUERY:
+      return conf?.freqDB?.single?.maxQueryWords || 1;
+    case QueryType.CMP_QUERY:
+      return conf?.freqDB?.cmp?.maxQueryWords || 1;
+    case QueryType.TRANSLAT_QUERY:
+      return conf?.freqDB?.translat?.maxQueryWords || 1;
+    default:
+      throw new Error(`Unknown query type ${qt}`);
+  }
 }

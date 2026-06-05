@@ -15,93 +15,116 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
-import { share, map } from 'rxjs/operators';
+import { Observable } from "rxjs";
+import { share, map } from "rxjs/operators";
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { DataApi, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { IApiServices } from '../../../appServices';
-import { HTTP, List } from 'cnc-tskit';
-
+import { cachedAjax$ } from "../../../page/ajax";
+import { DataApi, IAsyncKeyValueStore, CorpusDetails } from "../../../types";
+import { IApiServices } from "../../../appServices";
+import { HTTP, List } from "cnc-tskit";
 
 interface HTTPResponse {
-    corpname:string;
-    description:string;
-    size:number;
-    web_url:string;
-    attrlist:Array<{name:string, size:number}>;
-    citationInfo?:{
-        article_ref:Array<string>;
-        default_ref:string;
-        other_bibliography:string;
-    };
-    structlist:Array<{name:string; size:number}>;
-    messages:Array<any>; // TODO
-    keywords:Array<{name:string, color:string}>;
+  corpname: string;
+  description: string;
+  size: number;
+  web_url: string;
+  attrlist: Array<{ name: string; size: number }>;
+  citationInfo?: {
+    article_ref: Array<string>;
+    default_ref: string;
+    other_bibliography: string;
+  };
+  structlist: Array<{ name: string; size: number }>;
+  messages: Array<any>; // TODO
+  keywords: Array<{ name: string; color: string }>;
 }
 
 export interface QueryArgs {
-    tileId:number;
-    corpname:string;
-    format:'json';
+  tileId: number;
+  corpname: string;
+  format: "json";
 }
 
-function findStructSize(data:Array<{name:string, size:number}>, name:string):number|undefined {
-    const ans = List.find(v => v.name === name, data);
-    return ans ? ans.size : undefined;
+function findStructSize(
+  data: Array<{ name: string; size: number }>,
+  name: string,
+): number | undefined {
+  const ans = List.find((v) => v.name === name, data);
+  return ans ? ans.size : undefined;
 }
 
 export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
+  private readonly apiURL: string;
 
-    private readonly apiURL:string;
+  private readonly cache: IAsyncKeyValueStore;
 
-    private readonly cache:IAsyncKeyValueStore;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  constructor(
+    cache: IAsyncKeyValueStore,
+    apiURL: string,
+    apiServices: IApiServices,
+  ) {
+    this.cache = cache;
+    this.apiURL = apiURL;
+    this.apiServices = apiServices;
+  }
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
-    }
-
-    call(args:QueryArgs):Observable<CorpusDetails> {
-        const headers = this.apiServices.getApiHeaders(this.apiURL);
-        headers['X-Is-Web-App'] = '1';
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            HTTP.Method.GET,
-            this.apiURL + '/corpora/ajax_get_corp_details',
-            args,
-            {
-                headers,
-                withCredentials: true
-            }
-
-        ).pipe(
-            share(),
-            map<HTTPResponse, CorpusDetails>(
-                (resp) => ({
-                    tileId: args.tileId,
-                    title: resp.corpname,
-                    description: resp.description,
-                    author: '', // TODO
-                    href: resp.web_url,
-                    attrList: resp.attrlist,
-                    citationInfo: {
-                        sourceName: resp.corpname,
-                        main: resp.citationInfo?.default_ref,
-                        papers: resp.citationInfo?.article_ref || [],
-                        otherBibliography: resp.citationInfo?.other_bibliography || undefined
-                    },
-                    structure: {
-                        numTokens: resp.size,
-                        numSentences: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'sentence')),
-                        numParagraphs: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'paragraph')),
-                        numDocuments: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'document'))
-                    },
-                    keywords: resp.keywords
-                })
-            )
-        );
-    }
+  call(args: QueryArgs): Observable<CorpusDetails> {
+    const headers = {
+      ...this.apiServices.getApiHeaders(this.apiURL),
+      "X-Is-Web-App": "1",
+      ...this.apiServices.getApiReportingHeaders(),
+    };
+    return cachedAjax$<HTTPResponse>(this.cache)(
+      HTTP.Method.GET,
+      this.apiURL + "/corpora/ajax_get_corp_details",
+      args,
+      {
+        headers,
+        withCredentials: true,
+      },
+    ).pipe(
+      share(),
+      map<HTTPResponse, CorpusDetails>((resp) => ({
+        tileId: args.tileId,
+        title: resp.corpname,
+        description: resp.description,
+        author: "", // TODO
+        href: resp.web_url,
+        attrList: resp.attrlist,
+        citationInfo: {
+          sourceName: resp.corpname,
+          main: resp.citationInfo?.default_ref,
+          papers: resp.citationInfo?.article_ref || [],
+          otherBibliography: resp.citationInfo?.other_bibliography || undefined,
+        },
+        structure: {
+          numTokens: resp.size,
+          numSentences: findStructSize(
+            resp.structlist,
+            this.apiServices.getCommonResourceStructure(
+              resp.corpname,
+              "sentence",
+            ),
+          ),
+          numParagraphs: findStructSize(
+            resp.structlist,
+            this.apiServices.getCommonResourceStructure(
+              resp.corpname,
+              "paragraph",
+            ),
+          ),
+          numDocuments: findStructSize(
+            resp.structlist,
+            this.apiServices.getCommonResourceStructure(
+              resp.corpname,
+              "document",
+            ),
+          ),
+        },
+        keywords: resp.keywords,
+      })),
+    );
+  }
 }

@@ -15,59 +15,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { renderToString } from 'react-dom/server';
-import * as React from 'react';
-import { pipe, Dict, List, tuple } from 'cnc-tskit';
-import { ServerStyleSheet } from 'styled-components'
-import { Request } from 'express';
-import { ViewUtils } from 'kombo';
+import { renderToString } from "react-dom/server";
+import * as React from "react";
+import { pipe, Dict, List, tuple } from "cnc-tskit";
+import { ServerStyleSheet } from "styled-components";
+import { Request } from "express";
+import { ViewUtils } from "kombo";
 
-import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
-import { encodeArgs } from '../../page/ajax';
-import { Services } from '../actionServices';
-import { GlobalComponents } from '../../views/common';
-import { AppServices } from '../../appServices';
-import { HtmlBodyProps, HtmlHeadProps} from '../../views/layout/layout';
-import { HostPageEnv } from '../../page/hostPage';
-import { RecognizedQueries } from '../../query/index';
-import { WdglanceMainProps } from '../../views/main';
-import { ErrPageProps } from '../../views/error';
-import { TileGroup } from '../../page/layout';
+import { UserConf, ClientConf, ColorThemeIdent } from "../../conf";
+import { encodeArgs } from "../../page/ajax";
+import { Services } from "../actionServices";
+import { GlobalComponents } from "../../views/common";
+import { AppServices } from "../../appServices";
+import { HtmlBodyProps, HtmlHeadProps } from "../../views/layout/layout";
+import { HostPageEnv } from "../../page/hostPage";
+import { RecognizedQueries } from "../../query/index";
+import { WdglanceMainProps } from "../../views/main";
+import { ErrPageProps } from "../../views/error";
+import { TileGroup } from "../../page/layout";
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
  * a URL query string as stored in the 'req' argument.
  */
-export function getQueryValue(req:Request, name:string, dflt?:string):Array<string> {
-    // here we use the 'simple' query string parser so we don't need those
-    // fancy crazy types provided by @type/express
-    // see https://nodejs.org/api/querystring.html
-    const val = (req.query as {[k:string]:string|Array<string>})[name];
-    if (typeof val === 'string') {
-        return [val];
-
-    } else if (Array.isArray(val)) {
-        return List.map(v => v + '', val);
-    }
-    return typeof dflt !== 'undefined' ? [dflt] : [];
+export function getQueryValue(
+  req: Request,
+  name: string,
+  dflt?: string,
+): Array<string> {
+  // here we use the 'simple' query string parser so we don't need those
+  // fancy crazy types provided by @type/express
+  // see https://nodejs.org/api/querystring.html
+  const val = (req.query as { [k: string]: string | Array<string> })[name];
+  if (typeof val === "string") {
+    return [val];
+  } else if (Array.isArray(val)) {
+    return List.map((v) => v + "", val);
+  }
+  return typeof dflt !== "undefined" ? [dflt] : [];
 }
 
+export function getQueryParam(
+  req: Request,
+  name: string,
+  dflt?: string,
+): Array<string> {
+  // we assume `--` as parameter separator
+  const val = req.params[name];
+  if (typeof val === "string") {
+    return val.split("--");
+  }
 
-export function getQueryParam(req:Request, name:string, dflt?:string):Array<string> {
-    // we assume `--` as parameter separator
-    const val = req.params[name];
-    if (typeof val === 'string') {
-        return val.split('--');
-    }
-
-    return typeof dflt !== 'undefined' ? [dflt] : [];
+  return typeof dflt !== "undefined" ? [dflt] : [];
 }
 
-
-export function getLangFromCookie(req:Request, services:Services):string {
-    const cookieName = services.serverConf.langCookie?.name;
-    const ans = cookieName && req.cookies[cookieName] ? req.cookies[cookieName] : services.toolbar.defaultHostLangCode();
-    return services.toolbar.exportLangCode(ans, services.serverConf.languages);
+export function getLangFromCookie(req: Request, services: Services): string {
+  const cookieName = services.serverConf.langCookie?.name;
+  const ans =
+    cookieName && req.cookies[cookieName]
+      ? req.cookies[cookieName]
+      : services.toolbar.defaultHostLangCode();
+  return services.toolbar.exportLangCode(ans, services.serverConf.languages);
 }
 
 /**
@@ -75,84 +83,97 @@ export function getLangFromCookie(req:Request, services:Services):string {
  * To enable/disable features, WaG relies only on client-side detection.
  * @param req
  */
-export function clientIsLikelyMobile(req:Request):boolean {
-    return req.headers['user-agent'].includes('mobile') || req.headers['user-agent'].includes('iphone') ||
-        req.headers['user-agent'].includes('tablet') || req.headers['user-agent'].includes('android');
+export function clientIsLikelyMobile(req: Request): boolean {
+  return (
+    req.headers["user-agent"].includes("mobile") ||
+    req.headers["user-agent"].includes("iphone") ||
+    req.headers["user-agent"].includes("tablet") ||
+    req.headers["user-agent"].includes("android")
+  );
 }
 
-
-export function fetchReqArgArray(req:Request, arg:string, minLen:number):Array<string> {
-
-    const mkEmpty = (len:number) => {
-        const ans:Array<string> = [];
-        for (let i = 0; i < len; i += 1) {
-            ans.push('');
-        }
-        return ans;
+export function fetchReqArgArray(
+  req: Request,
+  arg: string,
+  minLen: number,
+): Array<string> {
+  const mkEmpty = (len: number) => {
+    const ans: Array<string> = [];
+    for (let i = 0; i < len; i += 1) {
+      ans.push("");
     }
+    return ans;
+  };
 
-    const values = getQueryValue(req, arg);
-    if (Array.isArray(values)) {
-        return values.concat(mkEmpty(minLen - values.length));
-    }
-    return mkEmpty(minLen);
+  const values = getQueryValue(req, arg);
+  if (Array.isArray(values)) {
+    return values.concat(mkEmpty(minLen - values.length));
+  }
+  return mkEmpty(minLen);
 }
 
-
-export function fetchUrlParamArray(req:Request, param:string, minLen:number):Array<string> {
-
-    const mkEmpty = (len:number) => {
-        const ans:Array<string> = [];
-        for (let i = 0; i < len; i += 1) {
-            ans.push('');
-        }
-        return ans;
+export function fetchUrlParamArray(
+  req: Request,
+  param: string,
+  minLen: number,
+): Array<string> {
+  const mkEmpty = (len: number) => {
+    const ans: Array<string> = [];
+    for (let i = 0; i < len; i += 1) {
+      ans.push("");
     }
+    return ans;
+  };
 
-    const values = getQueryParam(req, param);
-    if (Array.isArray(values)) {
-        return values.concat(mkEmpty(minLen - values.length));
-    }
-    return mkEmpty(minLen);
+  const values = getQueryParam(req, param);
+  if (Array.isArray(values)) {
+    return values.concat(mkEmpty(minLen - values.length));
+  }
+  return mkEmpty(minLen);
 }
 
-
-export function mkPageReturnUrl(req:Request, rootUrl:string):string {
-    const args = Dict.filter((_ ,k) => k !== 'uiLang', req.query);
-    return rootUrl.replace(/\/$/, '') +
-        req.path +
-        (req.query && Dict.keys(args).length > 0 ? '?' + encodeArgs(args) : '');
+export function mkPageReturnUrl(req: Request, rootUrl: string): string {
+  const args = Dict.filter((_, k) => k !== "uiLang", req.query);
+  return (
+    rootUrl.replace(/\/$/, "") +
+    req.path +
+    (req.query && Dict.keys(args).length > 0 ? "?" + encodeArgs(args) : "")
+  );
 }
 
+export function createHelperServices(
+  services: Services,
+  uiLang: string,
+): [ViewUtils<GlobalComponents>, AppServices] {
+  const viewUtils = new ViewUtils<GlobalComponents>({
+    uiLang: uiLang,
+    translations: services.translations,
+    staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
+    actionUrlCreator: (path, args) =>
+      services.clientConf.hostUrl +
+      (path.substr(0, 1) === "/" ? path.substr(1) : path) +
+      (Object.keys(args || {}).length > 0 ? "?" + encodeArgs(args) : ""),
+  });
 
-export function createHelperServices(services:Services, uiLang:string):[ViewUtils<GlobalComponents>, AppServices] {
-    const viewUtils = new ViewUtils<GlobalComponents>({
-        uiLang: uiLang,
-        translations: services.translations,
-        staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
-        actionUrlCreator: (path, args) => services.clientConf.hostUrl +
-                (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
-                (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
-    });
-
-    return [
-        viewUtils,
-        new AppServices({
-            notifications: null, // TODO
-            uiLang: uiLang,
-            domainNames: pipe(
-                services.clientConf.searchDomains,
-                Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
-            ),
-            translator: viewUtils,
-            staticUrlCreator: viewUtils.createStaticUrl,
-            actionUrlCreator: viewUtils.createActionUrl,
-            dataReadability: {metadataMapping: {}, commonStructures: {}},
-            apiHeadersMapping: services.clientConf.apiHeaders || {},
-            mobileModeTest: ()=>false
-        })
-    ]
+  return [
+    viewUtils,
+    new AppServices({
+      notifications: null, // TODO
+      uiLang: uiLang,
+      domainNames: pipe(
+        services.clientConf.searchDomains,
+        Dict.keys(),
+        List.map((k) => tuple(k, services.clientConf.searchDomains[k])),
+      ),
+      translator: viewUtils,
+      staticUrlCreator: viewUtils.createStaticUrl,
+      actionUrlCreator: viewUtils.createActionUrl,
+      dataReadability: { metadataMapping: {}, commonStructures: {} },
+      apiHeadersMapping: services.clientConf.apiHeaders || {},
+      mobileModeTest: () => false,
+      apiReportingHeaders: {},
+    }),
+  ];
 }
 
 /**
@@ -160,114 +181,105 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
  * This allows using dynamic style generation with live code reloading.
  */
 class DummyStyleSheet {
+  collectStyles(elm: React.ReactElement): React.ReactElement {
+    return elm;
+  }
 
-    collectStyles(elm:React.ReactElement):React.ReactElement {
-        return elm;
-    }
+  seal(): void {}
 
-    seal():void {}
-
-    getStyleElement():Array<React.ReactElement> {
-        return [];
-    }
+  getStyleElement(): Array<React.ReactElement> {
+    return [];
+  }
 }
-
 
 interface RenderResultArgs {
-    HtmlBody:React.FC<HtmlBodyProps>;
-    HtmlHead:React.FC<HtmlHeadProps>;
-    services:Services;
-    toolbarData:HostPageEnv;
-    queryMatches:RecognizedQueries;
-    userConfig:UserConf;
-    clientConfig:ClientConf;
-    returnUrl:string;
-    themes:Array<ColorThemeIdent>;
-    currTheme:string;
-    rootView:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
-    homepageSections:Array<{label:string; html:string}>;
-    htmlTitle?:string;
-    layout:Array<TileGroup>;
-    isMobile:boolean;
-    isAnswerMode:boolean;
-    version:string;
-    repositoryUrl:string;
-    error?:[number, string];
+  HtmlBody: React.FC<HtmlBodyProps>;
+  HtmlHead: React.FC<HtmlHeadProps>;
+  services: Services;
+  toolbarData: HostPageEnv;
+  queryMatches: RecognizedQueries;
+  userConfig: UserConf;
+  clientConfig: ClientConf;
+  returnUrl: string;
+  themes: Array<ColorThemeIdent>;
+  currTheme: string;
+  rootView: React.FC<WdglanceMainProps> | React.FC<ErrPageProps>;
+  homepageSections: Array<{ label: string; html: string }>;
+  htmlTitle?: string;
+  layout: Array<TileGroup>;
+  isMobile: boolean;
+  isAnswerMode: boolean;
+  version: string;
+  repositoryUrl: string;
+  error?: [number, string];
 }
 
-
 export function renderResult({
-        HtmlBody,
-        HtmlHead,
-        toolbarData,
-        queryMatches,
-        userConfig,
-        clientConfig,
-        returnUrl,
-        currTheme,
-        themes,
-        rootView,
-        layout,
-        isMobile,
-        isAnswerMode,
-        htmlTitle,
-        homepageSections,
-        version,
-        services,
-        repositoryUrl,
-        error}:RenderResultArgs):string {
-
-    const sheet = process.env['NODE_ENV'] === 'production' ?
-        new ServerStyleSheet() :
-        new DummyStyleSheet();
-    try {
-        const bodyString = renderToString(
-            sheet.collectStyles(
-                React.createElement<HtmlBodyProps>(
-                    HtmlBody,
-                    {
-                        config: clientConfig,
-                        userConfig,
-                        hostPageEnv: toolbarData,
-                        queryMatches: queryMatches,
-                        uiLanguages: pipe(
-                            userConfig.uiLanguages,
-                            Dict.mapEntries(([code, label]) => ({code, label})),
-                            List.map(([,v]) => v)
-                        ),
-                        uiLang: userConfig.uiLang,
-                        returnUrl,
-                        currTheme,
-                        themes,
-                        homepageTiles: [...clientConfig.homepage.tiles],
-                        RootComponent: rootView,
-                        layout,
-                        homepageSections,
-                        isMobile,
-                        isAnswerMode,
-                        version,
-                        repositoryUrl,
-                        error,
-                        scriptNonce: services.scriptNonce,
-                        issueReportingUrl: clientConfig.issueReportingUrl
-                    }
-                )
-            )
-        );
-        const headString = renderToString(
-            React.createElement<HtmlHeadProps>(
-                HtmlHead,
-                {
-                    hostPageEnv: toolbarData,
-                    config: clientConfig,
-                    scStyles: sheet.getStyleElement(),
-                    htmlTitle: htmlTitle,
-                }
-            )
-        );
-        return `<!DOCTYPE html>\n<html lang=${userConfig.uiLang}>\n${headString}\n${bodyString}</html>`;
-
-    } finally {
-        sheet.seal();
-    }
+  HtmlBody,
+  HtmlHead,
+  toolbarData,
+  queryMatches,
+  userConfig,
+  clientConfig,
+  returnUrl,
+  currTheme,
+  themes,
+  rootView,
+  layout,
+  isMobile,
+  isAnswerMode,
+  htmlTitle,
+  homepageSections,
+  version,
+  services,
+  repositoryUrl,
+  error,
+}: RenderResultArgs): string {
+  const sheet =
+    process.env["NODE_ENV"] === "production"
+      ? new ServerStyleSheet()
+      : new DummyStyleSheet();
+  try {
+    const bodyString = renderToString(
+      sheet.collectStyles(
+        React.createElement<HtmlBodyProps>(HtmlBody, {
+          config: clientConfig,
+          userConfig,
+          hostPageEnv: toolbarData,
+          queryMatches: queryMatches,
+          uiLanguages: pipe(
+            userConfig.uiLanguages,
+            Dict.mapEntries(([code, label]) => ({ code, label })),
+            List.map(([, v]) => v),
+          ),
+          uiLang: userConfig.uiLang,
+          returnUrl,
+          currTheme,
+          themes,
+          homepageTiles: [...clientConfig.homepage.tiles],
+          RootComponent: rootView,
+          layout,
+          homepageSections,
+          isMobile,
+          isAnswerMode,
+          version,
+          repositoryUrl,
+          error,
+          scriptNonce: services.scriptNonce,
+          issueReportingUrl: clientConfig.issueReportingUrl,
+        }),
+      ),
+    );
+    const headString = renderToString(
+      React.createElement<HtmlHeadProps>(HtmlHead, {
+        hostPageEnv: toolbarData,
+        config: clientConfig,
+        scStyles: sheet.getStyleElement(),
+        htmlTitle: htmlTitle,
+      }),
+    );
+    return `<!DOCTYPE html>\n<html lang=${userConfig.uiLang}>\n${headString}\n${bodyString}</html>`;
+  } finally {
+    sheet.seal();
+  }
 }

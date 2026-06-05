@@ -16,52 +16,65 @@
  * limitations under the License.
  */
 
-import { Dict } from 'cnc-tskit';
-import { ClientStaticConf, CommonTextStructures } from '../conf'
-
+import { Dict } from "cnc-tskit";
+import { ClientStaticConf, CommonTextStructures } from "../conf";
+import { HTTPHeaders } from "../types";
 
 export class ApiServices {
+  private readonly apiKeyStorage: {
+    [url: string]: { [header: string]: string };
+  };
 
-    private readonly apiKeyStorage:{[url:string]:{[header:string]:string}};
+  private readonly clientConf: ClientStaticConf;
 
-    private readonly clientConf:ClientStaticConf;
+  constructor(clientConf: ClientStaticConf) {
+    this.apiKeyStorage = {};
+    this.clientConf = clientConf;
+  }
 
-    constructor(clientConf:ClientStaticConf) {
-        this.apiKeyStorage = {};
-        this.clientConf = clientConf;
+  getApiHeaders(apiUrl: string) {
+    return this.apiKeyStorage[apiUrl] || {};
+  }
+
+  getApiReportingHeaders(): HTTPHeaders {
+    return {};
+  }
+
+  translateResourceMetadata(
+    corpname: string,
+    value: keyof CommonTextStructures,
+  ) {
+    return value;
+  }
+
+  getCommonResourceStructure(
+    corpname: string,
+    struct: keyof CommonTextStructures,
+  ) {
+    return typeof this.clientConf.dataReadability === "string"
+      ? struct
+      : (this.clientConf.dataReadability?.commonStructures[corpname] || {})[
+          struct
+        ];
+  }
+
+  importExternalMessage(label: string | { [lang: string]: string }) {
+    if (typeof label === "string") {
+      return label;
     }
-
-    getApiHeaders(apiUrl:string) {
-        return this.apiKeyStorage[apiUrl] || {};
+    if ("en-US" in label) {
+      return label["en-US"];
     }
-
-    translateResourceMetadata(corpname:string, value:keyof CommonTextStructures) {
-        return value;
+    if ("en" in label) {
+      return label["en"];
     }
+    return "??";
+  }
 
-    getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures) {
-        return typeof this.clientConf.dataReadability === 'string' ?
-                struct :
-                (this.clientConf.dataReadability?.commonStructures[corpname] || {})[struct];
+  setApiKeyHeader(apiUrl: string, headerName: string, key: string): void {
+    if (!Dict.hasKey(apiUrl, this.apiKeyStorage)) {
+      this.apiKeyStorage[apiUrl] = {};
     }
-
-    importExternalMessage(label:string|{[lang:string]:string}) {
-        if (typeof label === 'string') {
-            return label;
-        }
-        if ('en-US' in label) {
-            return label['en-US'];
-        }
-        if ('en' in label) {
-            return label['en'];
-        }
-        return '??';
-    }
-
-    setApiKeyHeader(apiUrl:string, headerName:string, key:string):void {
-        if (!Dict.hasKey(apiUrl, this.apiKeyStorage)) {
-            this.apiKeyStorage[apiUrl] = {};
-        }
-        this.apiKeyStorage[apiUrl][headerName] = key;
-    }
+    this.apiKeyStorage[apiUrl][headerName] = key;
+  }
 }

@@ -15,55 +15,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
 
-import { ajax$ } from '../../../page/ajax';
-import { DataApi } from '../../../types';
-import { HTTP } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
-
+import { ajax$ } from "../../../page/ajax";
+import { DataApi } from "../../../types";
+import { HTTP } from "cnc-tskit";
+import { IApiServices } from "../../../appServices";
 
 export interface WordListArgs {
-	corpname:string;
-	wlattr:string;
-	wlpat:string;
-	wlminfreq:number;
-	wlnums:'frq';
-	wltype:'simple';
-	wlsort:'f';
-	include_nonwords:0;
-	format:'json';
+  corpname: string;
+  wlattr: string;
+  wlpat: string;
+  wlminfreq: number;
+  wlnums: "frq";
+  wltype: "simple";
+  wlsort: "f";
+  include_nonwords: 0;
+  format: "json";
 }
 
 export interface WordListResponse {
-	Items:Array<{ freq: number; str: string }>;
+  Items: Array<{ freq: number; str: string }>;
 }
 
 /**
  *
  */
 export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
+  private readonly url: string;
 
-	private readonly url:string;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  constructor(url: string, apiServices: IApiServices) {
+    this.url = url;
+    this.apiServices = apiServices;
+  }
 
-	constructor(url:string, apiServices:IApiServices) {
-		this.url = url;
-		this.apiServices = apiServices;
-	}
-
-	call(args:WordListArgs):Observable<WordListResponse> {
-		const headers = this.apiServices.getApiHeaders(this.url);
-        headers['X-Is-Web-App'] = '1';
-		return ajax$<WordListResponse>(
-			HTTP.Method.GET,
-			this.url + '/wordlist',
-			args,
-			{
-				headers,
-				withCredentials: true
-			}
-		);
-	}
+  call(args: WordListArgs): Observable<WordListResponse> {
+    const headers = {
+      ...this.apiServices.getApiHeaders(this.url),
+      "X-Is-Web-App": "1",
+      ...this.apiServices.getApiReportingHeaders(),
+    };
+    return ajax$<WordListResponse>(
+      HTTP.Method.GET,
+      this.url + "/wordlist",
+      args,
+      {
+        headers,
+        withCredentials: true,
+      },
+    );
+  }
 }
