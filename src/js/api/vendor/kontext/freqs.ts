@@ -15,122 +15,133 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
-import { cachedAjax$ } from '../../../page/ajax';
-import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi, DataApi } from '../../../types';
-import { CorpusInfoAPI } from './corpusInfo';
-import { BacklinkWithArgs, Backlink } from '../../../page/tile';
-import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
-import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../../models/tiles/freq';
-import { HTTP, List, pipe } from 'cnc-tskit';
-import { IApiServices } from '../../../appServices';
+import { cachedAjax$ } from "../../../page/ajax";
+import {
+  IAsyncKeyValueStore,
+  CorpusDetails,
+  WebDelegateApi,
+  DataApi,
+} from "../../../types";
+import { CorpusInfoAPI } from "./corpusInfo";
+import { BacklinkWithArgs, Backlink } from "../../../page/tile";
+import {
+  APIResponse,
+  APIBlockResponse,
+  IMultiBlockFreqDistribAPI,
+  IFreqDistribAPI,
+} from "../../abstract/freqs";
+import {
+  MinSingleCritFreqState,
+  MinMultiCritFreqState,
+} from "../../../models/tiles/freq";
+import { HTTP, List, pipe } from "cnc-tskit";
+import { IApiServices } from "../../../appServices";
 
 export enum FreqSort {
-    REL = 'rel'
+  REL = "rel",
 }
 
 export interface HTTPResponse {
-    conc_persistence_op_id:string;
-    concsize:number;
-    Blocks:Array<{
-        Head:Array<{s:string; n:string}>;
-        Items:Array<{
-            Word:Array<{n:string}>;
-            fbar:number;
-            freq:number;
-            freqbar:number;
-            nbar:number;
-            norm:number;
-            nfilter:Array<[string, string]>;
-            pfilter:Array<[string, string]>;
-            rel:number;
-            relbar:number;
-        }>;
-        Total:number;
-        TotalPages:number;
+  conc_persistence_op_id: string;
+  concsize: number;
+  Blocks: Array<{
+    Head: Array<{ s: string; n: string }>;
+    Items: Array<{
+      Word: Array<{ n: string }>;
+      fbar: number;
+      freq: number;
+      freqbar: number;
+      nbar: number;
+      norm: number;
+      nfilter: Array<[string, string]>;
+      pfilter: Array<[string, string]>;
+      rel: number;
+      relbar: number;
     }>;
+    Total: number;
+    TotalPages: number;
+  }>;
 }
 
 export interface SourceMappedDataRow {
-    sourceId:string;
-    error?:Error;
-    name:string;
-    freq:number;
-    ipm:number;
-    norm:number;
-    order?:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>|null;
-    uniqueColor:boolean;
+  sourceId: string;
+  error?: Error;
+  name: string;
+  freq: number;
+  ipm: number;
+  norm: number;
+  order?: number;
+  backlink: BacklinkWithArgs<BacklinkArgs> | null;
+  uniqueColor: boolean;
 }
-
-
-
 
 export interface BacklinkArgs {
-    corpname:string;
-    usesubcorp:string;
-    q:string;
-    fcrit:Array<string>;
-    freq_type:'tokens'|'text-types';
-    flimit:number;
-    freq_sort:string;
-    fpage:number;
-    ftt_include_empty:number;
+  corpname: string;
+  usesubcorp: string;
+  q: string;
+  fcrit: Array<string>;
+  freq_type: "tokens" | "text-types";
+  flimit: number;
+  freq_sort: string;
+  fpage: number;
+  ftt_include_empty: number;
 }
-
 
 interface CoreQueryArgs {
-    corpname:string;
-    usesubcorp?:string;
-    pagesize?:number;
-    q:string;
-    flimit:number;
-    freq_sort:string;
-    fpage:number;
-    ftt_include_empty:number;
-    format:'json';
+  corpname: string;
+  usesubcorp?: string;
+  pagesize?: number;
+  q: string;
+  flimit: number;
+  freq_sort: string;
+  fpage: number;
+  ftt_include_empty: number;
+  format: "json";
 }
-
 
 export interface SingleCritQueryArgs extends CoreQueryArgs {
-    fcrit:string;
-    freq_type:'tokens'|'text-types';
+  fcrit: string;
+  freq_type: "tokens" | "text-types";
 }
-
 
 /**
  *
  */
- export class SimpleKontextFreqDistribAPI implements DataApi<SingleCritQueryArgs, HTTPResponse> {
+export class SimpleKontextFreqDistribAPI implements DataApi<
+  SingleCritQueryArgs,
+  HTTPResponse
+> {
+  private readonly apiURL: string;
 
-    private readonly apiURL:string;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  private readonly cache: IAsyncKeyValueStore;
 
-    private readonly cache:IAsyncKeyValueStore;
+  constructor(
+    cache: IAsyncKeyValueStore,
+    apiURL: string,
+    apiServices: IApiServices,
+  ) {
+    this.cache = cache;
+    this.apiURL = apiURL;
+    this.apiServices = apiServices;
+  }
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
-    }
-
-    call(args:SingleCritQueryArgs):Observable<HTTPResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
-            this.apiURL + '/freqs',
-            args,
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
-
-        )
-    }
+  call(args: SingleCritQueryArgs): Observable<HTTPResponse> {
+    return cachedAjax$<HTTPResponse>(this.cache)(
+      "GET",
+      this.apiURL + "/freqs",
+      args,
+      {
+        headers: this.apiServices.getApiHeaders(this.apiURL),
+        withCredentials: true,
+      },
+    );
+  }
 }
-
 
 /**
  * FreqDistribAPI represents a simplified variant where we ask
@@ -138,215 +149,249 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
  * converts KonText's original response to a nicer form
  * (no multiple data blocks as they are not needed).
  */
-export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>, WebDelegateApi {
+export class KontextFreqDistribAPI
+  implements IFreqDistribAPI<SingleCritQueryArgs>, WebDelegateApi
+{
+  private readonly apiURL: string;
 
-    private readonly apiURL:string;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  private readonly cache: IAsyncKeyValueStore;
 
-    private readonly cache:IAsyncKeyValueStore;
+  private readonly srcInfoService: CorpusInfoAPI;
 
-    private readonly srcInfoService:CorpusInfoAPI;
+  constructor(
+    cache: IAsyncKeyValueStore,
+    apiURL: string,
+    apiServices: IApiServices,
+  ) {
+    this.cache = cache;
+    this.apiURL = apiURL;
+    this.apiServices = apiServices;
+    this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+  }
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
-    }
+  getSourceDescription(
+    tileId: number,
+    lang: string,
+    corpname: string,
+  ): Observable<CorpusDetails> {
+    return this.srcInfoService.call({
+      tileId: tileId,
+      corpname: corpname,
+      format: "json",
+    });
+  }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
-            corpname: corpname,
-            format: 'json'
-        });
-    }
-
-    createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
-        return backlink ?
-        {
-            url: backlink.url,
-            method: backlink.method || HTTP.Method.GET,
-            label: backlink.label,
-            args: {
-                corpname: state.corpname,
-                usesubcorp: null,
-                q: `~${concId}`,
-                fcrit: [state.fcrit],
-                freq_type: state.freqType,
-                flimit: state.flimit,
-                freq_sort: state.freqSort,
-                fpage: state.fpage,
-                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
-            }
-        } :
-        null;
-    };
-
-    stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):SingleCritQueryArgs {
-        return {
+  createBacklink(
+    state: MinSingleCritFreqState,
+    backlink: Backlink,
+    concId: string,
+  ): BacklinkWithArgs<BacklinkArgs> {
+    return backlink
+      ? {
+          url: backlink.url,
+          method: backlink.method || HTTP.Method.GET,
+          label: backlink.label,
+          args: {
             corpname: state.corpname,
-            usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
-            fcrit: state.fcrit,
+            usesubcorp: null,
+            q: `~${concId}`,
+            fcrit: [state.fcrit],
             freq_type: state.freqType,
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,
             ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-            format: 'json'
-        };
-    }
-
-    call(args:SingleCritQueryArgs):Observable<APIResponse> {
-        const headers = this.apiServices.getApiHeaders(this.apiURL);
-        headers['X-Is-Web-App'] = '1';
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
-            this.apiURL + '/freqs',
-            args,
-            {
-                headers,
-                withCredentials: true
-            }
-
-        ).pipe(
-            map<HTTPResponse, APIResponse>(resp => ({
-                data: resp.Blocks[0].Items.map(v => ({
-                        name: v.Word.map(v => v.n).join(' '),
-                        freq: v.freq,
-                        ipm: v.rel,
-                        norm: v.norm
-                })),
-                concId: resp.conc_persistence_op_id,
-                corpname: args.corpname,
-                usesubcorp: args.usesubcorp || null,
-                concsize: resp.concsize
-            }))
-        );
-    }
-
-    getBackLink(backlink:Backlink):Backlink {
-        return {
-            label: 'KonText',
-            method: HTTP.Method.GET,
-            ...(backlink || {}),
-            url: (backlink?.url ? backlink.url : this.apiURL) + '/freqs',
+          },
         }
-    }
+      : null;
+  }
+
+  stateToArgs(
+    state: MinSingleCritFreqState,
+    concId: string,
+    subcname?: string,
+  ): SingleCritQueryArgs {
+    return {
+      corpname: state.corpname,
+      usesubcorp: subcname,
+      q: `~${concId ? concId : state.concId}`,
+      fcrit: state.fcrit,
+      freq_type: state.freqType,
+      flimit: state.flimit,
+      freq_sort: state.freqSort,
+      fpage: state.fpage,
+      ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
+      format: "json",
+    };
+  }
+
+  call(args: SingleCritQueryArgs): Observable<APIResponse> {
+    const headers = {
+      ...this.apiServices.getApiHeaders(this.apiURL),
+      "X-Is-Web-App": "1",
+      ...this.apiServices.getApiReportingHeaders(),
+    };
+    return cachedAjax$<HTTPResponse>(this.cache)(
+      "GET",
+      this.apiURL + "/freqs",
+      args,
+      {
+        headers,
+        withCredentials: true,
+      },
+    ).pipe(
+      map<HTTPResponse, APIResponse>((resp) => ({
+        data: resp.Blocks[0].Items.map((v) => ({
+          name: v.Word.map((v) => v.n).join(" "),
+          freq: v.freq,
+          ipm: v.rel,
+          norm: v.norm,
+        })),
+        concId: resp.conc_persistence_op_id,
+        corpname: args.corpname,
+        usesubcorp: args.usesubcorp || null,
+        concsize: resp.concsize,
+      })),
+    );
+  }
+
+  getBackLink(backlink: Backlink): Backlink {
+    return {
+      label: "KonText",
+      method: HTTP.Method.GET,
+      ...(backlink || {}),
+      url: (backlink?.url ? backlink.url : this.apiURL) + "/freqs",
+    };
+  }
 }
 
 export interface MultiCritQueryArgs extends CoreQueryArgs {
-    fcrit:Array<string>;
+  fcrit: Array<string>;
 }
 
 /**
  * MultiBlockFreqDistribAPI creates requests with multiple freq. distrib.
  * criteria.
  */
-export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs>, WebDelegateApi {
+export class KontextMultiBlockFreqDistribAPI
+  implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs>, WebDelegateApi
+{
+  private readonly apiURL: string;
 
-    private readonly apiURL:string;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  private readonly cache: IAsyncKeyValueStore;
 
-    private readonly cache:IAsyncKeyValueStore;
+  private readonly srcInfoService: CorpusInfoAPI;
 
-    private readonly srcInfoService:CorpusInfoAPI;
+  constructor(
+    cache: IAsyncKeyValueStore,
+    apiURL: string,
+    apiServices: IApiServices,
+  ) {
+    this.cache = cache;
+    this.apiURL = apiURL;
+    this.apiServices = apiServices;
+    this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
+  }
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
-        this.cache = cache;
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
-    }
+  getSourceDescription(
+    tileId: number,
+    lang: string,
+    corpname: string,
+  ): Observable<CorpusDetails> {
+    return this.srcInfoService.call({
+      tileId: tileId,
+      corpname: corpname,
+      format: "json",
+    });
+  }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
-        return this.srcInfoService.call({
-            tileId: tileId,
-            corpname: corpname,
-            format: 'json'
-        });
-    }
-
-    createBacklink(state:MinMultiCritFreqState, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
-        return backlink ?
-        {
-            url: backlink.url,
-            method: backlink.method || HTTP.Method.GET,
-            label: backlink.label,
-            args: {
-                corpname: state.corpname,
-                usesubcorp: state.subcname,
-                q: `~${concId}`,
-                fcrit: state.fcrit,
-                freq_type: state.freqType,
-                flimit: state.flimit,
-                freq_sort: state.freqSort,
-                fpage: state.fpage,
-                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
-            }
-        } :
-        null;
-    };
-
-    stateToArgs(state:MinMultiCritFreqState, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
-        return {
+  createBacklink(
+    state: MinMultiCritFreqState,
+    backlink: Backlink,
+    concId: string,
+  ): BacklinkWithArgs<BacklinkArgs> {
+    return backlink
+      ? {
+          url: backlink.url,
+          method: backlink.method || HTTP.Method.GET,
+          label: backlink.label,
+          args: {
             corpname: state.corpname,
-            usesubcorp: subcname ? subcname : state.subcname,
-            q: `~${concId ? concId : state.concId}`,
-            fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
+            usesubcorp: state.subcname,
+            q: `~${concId}`,
+            fcrit: state.fcrit,
+            freq_type: state.freqType,
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,
             ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-            format: 'json'
-        };
-    }
-
-    call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
-        return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
-            this.apiURL + '/freqs',
-            args,
-            {
-                headers: this.apiServices.getApiHeaders(this.apiURL),
-                withCredentials: true
-            }
-
-        ).pipe(
-            map<HTTPResponse, APIBlockResponse>(
-                resp => ({
-                    blocks: List.map(
-                        block => ({
-                            data: pipe(
-                                block.Items,
-                                List.sortBy(x => x.freq),
-                                List.map((v,  i) => ({
-                                    name: List.map(v => v.n, v.Word).join(' '),
-                                    freq: v.freq,
-                                    ipm: v.rel,
-                                    norm: v.norm,
-                                    order: i
-                                }))
-                            )
-                        }),
-                        resp.Blocks
-                    ),
-                    concId: resp.conc_persistence_op_id,
-                    corpname: args.corpname
-                })
-            )
-        );
-    }
-
-    getBackLink(backlink:Backlink):Backlink {
-        return {
-            label: 'KonText',
-            method: HTTP.Method.GET,
-            ...(backlink || {}),
-            url: (backlink?.url ? backlink.url : this.apiURL) + '/freqs',
+          },
         }
-    }
+      : null;
+  }
+
+  stateToArgs(
+    state: MinMultiCritFreqState,
+    concId: string,
+    critIdx?: number,
+    subcname?: string,
+  ): MultiCritQueryArgs {
+    return {
+      corpname: state.corpname,
+      usesubcorp: subcname ? subcname : state.subcname,
+      q: `~${concId ? concId : state.concId}`,
+      fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
+      flimit: state.flimit,
+      freq_sort: state.freqSort,
+      fpage: state.fpage,
+      ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
+      format: "json",
+    };
+  }
+
+  call(args: MultiCritQueryArgs): Observable<APIBlockResponse> {
+    return cachedAjax$<HTTPResponse>(this.cache)(
+      "GET",
+      this.apiURL + "/freqs",
+      args,
+      {
+        headers: this.apiServices.getApiHeaders(this.apiURL),
+        withCredentials: true,
+      },
+    ).pipe(
+      map<HTTPResponse, APIBlockResponse>((resp) => ({
+        blocks: List.map(
+          (block) => ({
+            data: pipe(
+              block.Items,
+              List.sortBy((x) => x.freq),
+              List.map((v, i) => ({
+                name: List.map((v) => v.n, v.Word).join(" "),
+                freq: v.freq,
+                ipm: v.rel,
+                norm: v.norm,
+                order: i,
+              })),
+            ),
+          }),
+          resp.Blocks,
+        ),
+        concId: resp.conc_persistence_op_id,
+        corpname: args.corpname,
+      })),
+    );
+  }
+
+  getBackLink(backlink: Backlink): Backlink {
+    return {
+      label: "KonText",
+      method: HTTP.Method.GET,
+      ...(backlink || {}),
+      url: (backlink?.url ? backlink.url : this.apiURL) + "/freqs",
+    };
+  }
 }

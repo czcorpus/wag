@@ -15,69 +15,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
-import { ajax$ } from '../../../page/ajax';
-import { DataApi } from '../../../types';
-import { ConcResponse } from '../../abstract/concordance';
-import { IApiServices } from '../../../appServices';
-import { HTTP } from 'cnc-tskit';
-import { convertLines, ConcViewResponse } from './concordance/v015/common';
-
-
+import { ajax$ } from "../../../page/ajax";
+import { DataApi } from "../../../types";
+import { ConcResponse } from "../../abstract/concordance";
+import { IApiServices } from "../../../appServices";
+import { HTTP } from "cnc-tskit";
+import { convertLines, ConcViewResponse } from "./concordance/v015/common";
 
 export interface RequestArgs {
-    corpname:string;
-    usesubcorp:string;
-    rlines:number;
-    q:string;
-    format:'json';
+  corpname: string;
+  usesubcorp: string;
+  rlines: number;
+  q: string;
+  format: "json";
 }
-
 
 export interface ApiResponse extends ConcResponse {
-    rlines:number;
+  rlines: number;
 }
 
-
 export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
+  private readonly apiURL: string;
 
-    private readonly apiURL:string;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  constructor(apiURL: string, apiServices: IApiServices) {
+    this.apiURL = apiURL;
+    this.apiServices = apiServices;
+  }
 
-    constructor(apiURL:string, apiServices:IApiServices) {
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
-    }
-
-    call(args:RequestArgs):Observable<ApiResponse> {
-        const headers = this.apiServices.getApiHeaders(this.apiURL);
-        headers['X-Is-Web-App'] = '1';
-        return ajax$<ConcViewResponse>(
-            HTTP.Method.POST
-            ,
-            this.apiURL + '/reduce',
-            args,
-            {
-                headers,
-                withCredentials: true
-            }
-
-        ).pipe(
-            map(data => ({
-                concPersistenceID: data.conc_persistence_op_id,
-                messages: data.messages,
-                lines: convertLines(data.Lines),
-                concsize: data.concsize,
-                rlines: args.rlines,
-                arf: data.result_arf,
-                ipm: data.result_relative_freq,
-                query: args.q, // TODO !!!!
-                corpName: args.corpname,
-                subcorpName: args.usesubcorp
-            }))
-        );
-    }
+  call(args: RequestArgs): Observable<ApiResponse> {
+    const headers = {
+      ...this.apiServices.getApiHeaders(this.apiURL),
+      "X-Is-Web-App": "1",
+      ...this.apiServices.getApiReportingHeaders(),
+    };
+    return ajax$<ConcViewResponse>(
+      HTTP.Method.POST,
+      this.apiURL + "/reduce",
+      args,
+      {
+        headers,
+        withCredentials: true,
+      },
+    ).pipe(
+      map((data) => ({
+        concPersistenceID: data.conc_persistence_op_id,
+        messages: data.messages,
+        lines: convertLines(data.Lines),
+        concsize: data.concsize,
+        rlines: args.rlines,
+        arf: data.result_arf,
+        ipm: data.result_relative_freq,
+        query: args.q, // TODO !!!!
+        corpName: args.corpname,
+        subcorpName: args.usesubcorp,
+      })),
+    );
+  }
 }

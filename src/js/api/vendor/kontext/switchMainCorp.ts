@@ -16,65 +16,64 @@
  * limitations under the License.
  */
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { HTTP } from 'cnc-tskit';
-import { ajax$, encodeArgs } from '../../../page/ajax';
-import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../abstract/switchMainCorp';
-import { IApiServices } from '../../../appServices';
-
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { HTTP } from "cnc-tskit";
+import { ajax$, encodeArgs } from "../../../page/ajax";
+import {
+  ISwitchMainCorpApi,
+  SwitchMainCorpResponse,
+} from "../../abstract/switchMainCorp";
+import { IApiServices } from "../../../appServices";
 
 export interface SwitchMainCorpArgs {
-    concPersistenceID:string;
-    align:string;
-    maincorp:string;
-    corpname:string;
+  concPersistenceID: string;
+  align: string;
+  maincorp: string;
+  corpname: string;
 }
 
 interface HTTPResponse {
-    conc_persistence_op_id:string;
-    messages:Array<[string, string]>;
+  conc_persistence_op_id: string;
+  messages: Array<[string, string]>;
 }
 
 export class SwitchMainCorpApi implements ISwitchMainCorpApi {
+  private readonly apiURL: string;
 
-    private readonly apiURL:string;
+  private readonly apiServices: IApiServices;
 
-    private readonly apiServices:IApiServices;
+  constructor(apiURL: string, apiServices: IApiServices) {
+    this.apiURL = apiURL;
+    this.apiServices = apiServices;
+  }
 
-    constructor(apiURL:string, apiServices:IApiServices) {
-        this.apiURL = apiURL;
-        this.apiServices = apiServices;
-    }
-
-    call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
-        const headers = this.apiServices.getApiHeaders(this.apiURL);
-        headers['X-Is-Web-App'] = '1';
-        return ajax$<HTTPResponse>(
-            HTTP.Method.POST,
-            this.apiURL + '/switch_main_corp?' +
-                encodeArgs({
-                    corpname: args.corpname,
-                    maincorp: args.maincorp,
-                    align: args.align,
-                    q: '~' + args.concPersistenceID,
-                    format:'json'
-                }),
-            {},
-            {
-                headers,
-                withCredentials: true
-            }
-
-        ).pipe(
-            map(
-                data => ({
-                    concPersistenceID: data.conc_persistence_op_id
-                })
-            )
-        );
-    }
-
-
+  call(args: SwitchMainCorpArgs): Observable<SwitchMainCorpResponse> {
+    const headers = {
+      ...this.apiServices.getApiHeaders(this.apiURL),
+      "X-Is-Web-App": "1",
+      ...this.apiServices.getApiReportingHeaders(),
+    };
+    return ajax$<HTTPResponse>(
+      HTTP.Method.POST,
+      this.apiURL +
+        "/switch_main_corp?" +
+        encodeArgs({
+          corpname: args.corpname,
+          maincorp: args.maincorp,
+          align: args.align,
+          q: "~" + args.concPersistenceID,
+          format: "json",
+        }),
+      {},
+      {
+        headers,
+        withCredentials: true,
+      },
+    ).pipe(
+      map((data) => ({
+        concPersistenceID: data.conc_persistence_op_id,
+      })),
+    );
+  }
 }
-
