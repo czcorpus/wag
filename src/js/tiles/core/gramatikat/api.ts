@@ -190,16 +190,22 @@ export const tagCodeToHuman = (
             break;
         case 'adjectives':
             if (itemTypes === 'mutable' || itemTypes === 'all') {
-                ans.push(`${tc[0]}. pád`);
-                ans.push(`${tc[1]}. stupeň`);
-                switch (tc[2]) {
-                    case 'N':
-                        ans.push('negace');
+                switch (tc[0]) {
+                    case 'F':
+                        ans.push('ženský rod');
                         break;
-                    case 'A':
-                        ans.push('afirmativ');
+                    case 'I':
+                        ans.push('mužský neživotný rod');
+                        break;
+                    case 'M':
+                        ans.push('mužský životný rod');
+                        break;
+                    case 'N':
+                        ans.push('střední rod');
                         break;
                 }
+                ans.push(`${tc[1]}. pád`);
+                ans.push(`${tc[2]}. stupeň`);
             }
             break;
         default:
@@ -216,7 +222,7 @@ export const posToCatSet = (
             return [
                 { value: 'case', isFixed: false },
                 { value: 'degree', isFixed: false },
-                { value: 'polarity', isFixed: false },
+                { value: 'gender', isFixed: false },
             ];
         case 'nouns':
             return [

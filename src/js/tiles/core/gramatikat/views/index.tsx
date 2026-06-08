@@ -334,8 +334,8 @@ export function init(
             (v) => v.value === 'degree',
             tagStruct
         );
-        const polarityIdx = List.findIndex(
-            (v) => v.value === 'polarity',
+        const genderIdx = List.findIndex(
+            (v) => v.value === 'gender',
             tagStruct
         );
 
@@ -346,8 +346,8 @@ export function init(
                 ([minVal, maxVal, mapping], variant) => {
                     const gcase = variant.valSet[caseIdx];
                     const degree = variant.valSet[degreeIdx];
-                    const polarity = variant.valSet[polarityIdx];
-                    const key = `${gcase}-${degree}-${polarity}`;
+                    const gender = variant.valSet[genderIdx];
+                    const key = `${gcase}-${degree}-${gender}`;
                     mapping.set(key, variant);
                     return tuple(
                         variant.proportion < minVal
@@ -364,24 +364,31 @@ export function init(
         );
 
         // Prepare grouped bar chart data: one entry per tense
-        const degreeAndPolarityOrder = [
-            '1-A',
-            '2-A',
-            '3-A',
+        const degreeAndGenderOrder = [
+            '1-F',
+            '1-I',
+            '1-M',
             '1-N',
+            '2-F',
+            '2-I',
+            '2-M',
             '2-N',
+            '3-F',
+            '3-I',
+            '3-M',
             '3-N',
         ];
         const xLabels = List.map((item) => {
             const letters = item.split('-');
-            return <span>{degreeLabels[letters[0]]}</span>;
-        }, degreeAndPolarityOrder);
+            return <span>{genderLabels[letters[1]]}</span>;
+        }, degreeAndGenderOrder);
+
         const xGroupedLabels = pipe(
-            degreeAndPolarityOrder,
+            degreeAndGenderOrder,
             List.map((v) => v.split('-')),
-            List.groupBy((v) => v[1]),
+            List.groupBy((v) => v[0]),
             List.map(([v, grouped]) => ({
-                v: polarityLabels[v],
+                v: degreeLabels[v],
                 span: List.size(grouped),
             }))
         );
@@ -399,13 +406,16 @@ export function init(
         };
 
         const data: Array<Array<HeatmapCell>> = List.map(
-            (numo) =>
-                List.map((tano) => {
-                    const v = variantMap.get(numo + '-' + tano);
+            (caseTag) =>
+                List.map((genderAndDegreeTag) => {
+                    const dgTmp = genderAndDegreeTag.split('-');
+                    const v = variantMap.get(
+                        `${dgTmp[1]}-${caseTag}-${dgTmp[0]}`
+                    );
                     return v
                         ? { v: v.proportion * 100, icon: devToIcon(v) }
                         : { v: 0 };
-                }, degreeAndPolarityOrder),
+                }, degreeAndGenderOrder),
             caseOrder
         );
 
@@ -431,11 +441,8 @@ export function init(
 
     const SingleWordView: React.FC<WordData & { alpha: number }> = ({
         lemmaData,
-        posData,
         chartData,
-        missingPos,
         pos,
-        alpha,
     }) => {
         const message = chartData.hasSignificantDeviations
             ? ut.translate('gramatikat__showing_stat_signif_values')
