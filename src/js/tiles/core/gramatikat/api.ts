@@ -232,7 +232,7 @@ export const posCatToValSet = (cat: GramatikatCatSet): Array<string> => {
         case 'polarity':
             return ['P', 'N'];
         case 'aspect':
-            throw ['I', 'P', 'B'];
+            return ['I', 'P', 'B'];
         default:
             return [];
     }
