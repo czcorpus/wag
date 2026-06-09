@@ -56,6 +56,8 @@ export type GramatikatPolarity = 'P' | 'N';
 
 export type GramatikatTense = 'F' | 'P' | 'R';
 
+export type GramatikatAspect = 'I' | 'P' | 'B';
+
 // "gender" "number" "case" "degree" "polarity" "mood" "tense" "person" "voice" "aspect"
 
 export type Tag = Subset<
@@ -66,6 +68,7 @@ export type Tag = Subset<
         GramatikatDegree,
         GramatikatPolarity,
         GramatikatTense,
+        GramatikatAspect,
     ]
 >;
 
@@ -229,7 +232,7 @@ export const posCatToValSet = (cat: GramatikatCatSet): Array<string> => {
         case 'polarity':
             return ['P', 'N'];
         case 'aspect':
-            throw new Error('aspect not implemented yet');
+            throw ['I', 'P', 'B'];
         default:
             return [];
     }
