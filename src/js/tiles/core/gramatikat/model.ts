@@ -25,6 +25,7 @@ import {
     GramatikatFreq,
     GramatikatPoS,
     LemmaProfileResponse,
+    posCatToValSet,
     posToCatSet,
     Summary,
     tagCodeToHuman,
@@ -58,6 +59,10 @@ export interface WordData {
     missingPos: boolean;
 }
 
+export interface ViewOptions {
+    groupedXVisibility: { [tag: string]: boolean };
+}
+
 export interface GramatikatState {
     corpname: string;
 
@@ -72,6 +77,7 @@ export interface GramatikatState {
     words: Array<string>;
     isAltViewMode: boolean;
     isTweakMode: boolean;
+    viewOptions: ViewOptions;
 }
 
 export interface ChartData {
@@ -88,12 +94,6 @@ const attachCalcStats = (
     pos: GramatikatPoS,
     alpha: number
 ) => {
-    const tagAttrs = pipe(
-        posToCatSet(pos),
-        List.map(({ value, isFixed }) => tuple(value, isFixed)),
-        Dict.fromEntries()
-    );
-
     wordData.chartData = pipe(
         wordData.lemmaData.variants,
         List.filter((v) => v.proportion * wordData.lemmaData.totalFreq > 10), // TODO configurable threshold
@@ -288,6 +288,19 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                             this.state.statTestAlpha
                         );
                         state.data[action.payload.queryIdx] = tmp;
+
+                        // opts:
+                        const groupedProp = List.find(
+                            (v) => v.isGrouped,
+                            posToCatSet(action.payload.resp.pos)
+                        );
+                        state.viewOptions.groupedXVisibility = pipe(
+                            posCatToValSet(groupedProp.value),
+                            List.map((v, i) =>
+                                tuple(v, i === 0 ? true : false)
+                            ),
+                            Dict.fromEntries()
+                        );
                     });
                 } else {
                     this.changeState((state) => {
@@ -311,6 +324,30 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                     const data = List.head(state.data);
                     attachCalcStats(data, data.pos, state.statTestAlpha);
                     state.data[0] = data;
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.SetXGroupedVisibility,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    const numVisible = pipe(
+                        state.viewOptions.groupedXVisibility,
+                        Dict.filter((v, _) => v),
+                        Dict.size()
+                    );
+                    if (numVisible === 1 && !action.payload.visible) {
+                        this.appServices.showMessage(
+                            SystemMessageType.ERROR,
+                            'at least one block must be visible'
+                        );
+                    } else {
+                        state.viewOptions.groupedXVisibility[
+                            action.payload.tag
+                        ] = action.payload.visible;
+                    }
                 });
             }
         );

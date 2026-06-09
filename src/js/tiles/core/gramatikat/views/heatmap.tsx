@@ -22,12 +22,45 @@ import * as React from 'react';
 
 export interface HeatmapCell {
     v: number;
+    sortedIdx: number;
+    id?: string;
     icon?: 'up' | 'down';
 }
 
 interface GroupedLabel {
     v: string | React.ReactElement;
+    tag: string;
     span: number;
+    isHidden?: boolean;
+}
+
+// 0, span: 2
+// 1, span: 4
+// 2, span: 3
+// => [0, 1], [2, 3, 4, 5], [6, 7, 8],
+
+function getXGroupForColIdx(
+    xgroups: Array<GroupedLabel>,
+    idx: number
+): GroupedLabel | undefined {
+    return pipe(
+        xgroups,
+        List.foldl(
+            (acc, xg) => {
+                return [
+                    ...acc,
+                    List.empty(acc)
+                        ? tuple(0, xg)
+                        : tuple(List.last(acc)[0] + List.last(acc)[1].span, xg),
+                ];
+            },
+            [] as Array<[number, GroupedLabel]>
+        ),
+        List.find(
+            ([startFrom, xg]) => idx >= startFrom && idx < startFrom + xg.span
+        ),
+        (v) => (v ? v[1] : undefined)
+    );
 }
 
 export const Heatmap: React.FC<{
@@ -68,15 +101,18 @@ export const Heatmap: React.FC<{
         // Find non-zero columns
         const nonZeroCols: Array<number> = [];
         for (let col = 0; col < numCols; col++) {
-            let hasNonZero = false;
-            for (let row = 0; row < numRows; row++) {
-                if (data[row][col].v !== 0) {
-                    hasNonZero = true;
-                    break;
+            const group = getXGroupForColIdx(xGroupLabels, col);
+            if (!group.isHidden) {
+                let hasNonZero = false;
+                for (let row = 0; row < numRows; row++) {
+                    if (data[row][col].v !== 0) {
+                        hasNonZero = true;
+                        break;
+                    }
                 }
-            }
-            if (hasNonZero) {
-                nonZeroCols.push(col);
+                if (hasNonZero) {
+                    nonZeroCols.push(col);
+                }
             }
         }
 
@@ -204,20 +240,22 @@ export const Heatmap: React.FC<{
                                             key={`${col.v}:${i}`}
                                             style={{
                                                 backgroundColor: colorMapping(
-                                                    col.v
+                                                    col.sortedIdx
                                                 ),
                                                 color: Color.color2str(
                                                     Color.textColorFromBg(
                                                         Color.importColor(
                                                             0,
-                                                            colorMapping(col.v)
+                                                            colorMapping(
+                                                                col.sortedIdx
+                                                            )
                                                         )
                                                     )
                                                 ),
                                             }}
                                         >
                                             {iconIdToElm(col.icon)}
-                                            {Maths.roundToPos(col.v, 3)}
+                                            {Maths.roundToPos(col.v, 2)}
                                         </td>
                                     ),
                                     row

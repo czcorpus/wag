@@ -118,12 +118,10 @@ export const Heatmap = styled.div<{ theme: Theme }>`
 
         span.up {
             padding-right: 0.3rem;
-            color: #036b03;
         }
 
         span.down {
             padding-right: 0.3rem;
-            color: #ff0000b5;
         }
 
         th.vertical {
@@ -150,4 +148,39 @@ export const Settings = styled.div<{ theme: Theme }>`
     border-color: ${(props) => props.theme.colorLogoBlue};
     border-style: dashed;
     border-width: 0 0 1px 0;
+`;
+
+// ------------------ <PropertiesForAdjs /> ------------------------
+
+export const PropertiesForAdjs = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+
+    ul.degree-sel {
+        list-style-type: none;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5em 0;
+        }
+
+        li:not(:first-child) {
+            margin-left: 1.5em;
+        }
+
+        label {
+            display: flex;
+        }
+
+        input[type='checkbox'] {
+            margin-left: 0.7em;
+        }
+    }
 `;

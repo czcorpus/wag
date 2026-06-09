@@ -21,13 +21,13 @@ import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { init as altViewSingleInit } from './advanced.js';
 import { init as settingsViewInit } from './settings.js';
-import { GramatikatModel, WordData } from '../model.js';
+import { GramatikatModel, ViewOptions, WordData } from '../model.js';
 import {
     CoreTileComponentProps,
     TileComponent,
 } from '../../../../page/tile.js';
 import * as React from 'react';
-import { List, pipe, tuple } from 'cnc-tskit';
+import { Color, Dict, Ident, List, pipe, tuple } from 'cnc-tskit';
 import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
 import {
@@ -37,6 +37,78 @@ import {
     tagCodeToHuman,
 } from '../api.js';
 import { Heatmap, HeatmapCell } from './heatmap.js';
+import { Actions } from '../actions.js';
+
+// ------ TODO TMP FUNC (waiting for cnc-tskit upgrade)
+
+function saturation(value: number, color?: Color.RGBA): any {
+    const fn = (color2: Color.RGBA): Color.RGBA => {
+        if (value < 0) {
+            throw new Error('Cannot use negative saturation');
+        }
+        const [h, s, l] = Color.rgb2Hsl(color2);
+        const ans = Color.hsl2Rgb([h, Math.min(1, s * value), l]);
+        ans[3] = color2[3];
+        return ans;
+    };
+    return color ? fn(color) : fn;
+}
+
+function saturationColorMapping(
+    min: number,
+    max: number,
+    baseColor: string,
+    minSaturation = 0.2
+): (v: number) => string {
+    const range = Math.abs(max - min);
+    const colorRGB = Color.importColor(1, baseColor);
+    return (v: number): string => {
+        // t: linear coefficient, 0 at min, 1 at max (clamped)
+        const t = Math.min(1, Math.max(0, range > 0 ? (v - min) / range : 0));
+        if (t >= 1) {
+            return baseColor;
+        }
+        // saturation: minSaturation at min → 1 (full color) at max
+        const satur = saturation(
+            minSaturation + (1 - minSaturation) * t,
+            colorRGB
+        );
+        // luminosity multiplier: 1+(1-minSaturation) (bright) at min → 1 (original) at max
+        const ans = Color.luminosity(1 + (1 - minSaturation) * (1 - t), satur);
+        return Color.color2str(ans);
+    };
+}
+
+function attachColorIndexes(
+    data: Array<Array<HeatmapCell>>
+): (v: number) => string {
+    const groupedData = pipe(
+        data,
+        List.flatMap((v) => v),
+        List.groupBy((v) => `${v.v}`)
+    );
+
+    const dataOrderMapping = pipe(
+        groupedData,
+        List.sortedBy(([, v]) => v[0].v),
+        List.map(([, v], i) => tuple(i, v)),
+        List.flatMap(([orderIdx, values]) =>
+            List.map((v) => tuple(v.id, orderIdx), values)
+        ),
+        Dict.fromEntries()
+    );
+
+    List.forEach((row) => {
+        List.forEach((col) => {
+            if (col.v === 0) {
+                col.sortedIdx = 0;
+            } else {
+                col.sortedIdx = dataOrderMapping[col.id];
+            }
+        }, row);
+    }, data);
+    return saturationColorMapping(0, List.size(groupedData), '#009ee0');
+}
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -97,7 +169,8 @@ export function init(
             variants: Array<{ valSet: any; proportion: number }>;
         };
         pos: GramatikatPoS;
-    }> = ({ lemmaData, pos }) => {
+        viewOptions: ViewOptions;
+    }> = ({ lemmaData, pos, viewOptions }) => {
         const tagStruct = posToCatSet(pos);
         const tenseIdx = List.findIndex((v) => v.value === 'tense', tagStruct);
         const numberIdx = List.findIndex(
@@ -158,6 +231,8 @@ export function init(
             List.map(([v, grouped]) => ({
                 v: polarityLabels[v],
                 span: List.size(grouped),
+                tag: v,
+                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
             }))
         );
         const numberOrder = ['S', 'P', 'D'];
@@ -178,11 +253,18 @@ export function init(
                 List.map((tano) => {
                     const v = variantMap.get(tano + '-' + numo);
                     return v
-                        ? { v: v.proportion * 100, icon: devToIcon(v) }
-                        : { v: 0 };
+                        ? {
+                              v: v.proportion * 100,
+                              icon: devToIcon(v),
+                              id: Ident.puid(),
+                              sortedIdx: -1,
+                          }
+                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
                 }, tenseAndNegationOrder),
             numberOrder
         );
+
+        const colorMapping = attachColorIndexes(data);
 
         return (
             <>
@@ -193,12 +275,7 @@ export function init(
                             xLabels={xLabels}
                             xGroupLabels={xGroupedLabels}
                             yLabels={yLabels}
-                            colorMapping={theme.scaleColorSuperfine(
-                                minVal * 100,
-                                maxVal * 100,
-                                10,
-                                3
-                            )}
+                            colorMapping={colorMapping}
                         />
                     )}
                 />
@@ -214,7 +291,8 @@ export function init(
             variants: Array<{ valSet: any; proportion: number }>;
         };
         pos: GramatikatPoS;
-    }> = ({ lemmaData, pos }) => {
+        viewOptions: ViewOptions;
+    }> = ({ lemmaData, pos, viewOptions }) => {
         const tagStruct = posToCatSet(pos);
         const caseIdx = List.findIndex((v) => v.value === 'case', tagStruct);
         const numberIdx = List.findIndex(
@@ -276,6 +354,8 @@ export function init(
             List.map(([v, grouped]) => ({
                 v: numberLabels[v],
                 span: List.size(grouped),
+                tag: v,
+                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
             }))
         );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
@@ -296,11 +376,19 @@ export function init(
                 List.map((tano) => {
                     const v = variantMap.get(tano + '-' + numo);
                     return v
-                        ? { v: v.proportion * 100, icon: devToIcon(v) }
-                        : { v: 0 };
+                        ? {
+                              v: v.proportion * 100,
+                              icon: devToIcon(v),
+                              id: Ident.puid(),
+                              sortedIdx: -1,
+                          }
+                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
                 }, numberAndGenderOrder),
             caseOrder
         );
+
+        const colorMapping = attachColorIndexes(data);
+
         return (
             <globalComponents.ResponsiveWrapper
                 render={(width: number, height: number) => (
@@ -309,10 +397,7 @@ export function init(
                         xLabels={xLabels}
                         yLabels={yLabels}
                         xGroupLabels={xGroupedLabels}
-                        colorMapping={theme.scaleColor(
-                            minVal * 100,
-                            maxVal * 100
-                        )}
+                        colorMapping={colorMapping}
                     />
                 )}
             />
@@ -322,12 +407,14 @@ export function init(
     // ------------------- <PropertiesForAdjs /> ------------------------
 
     const PropertiesForAdjs: React.FC<{
+        tileId: number;
         lemmaData: {
             totalFreq: number;
             variants: Array<{ valSet: any; proportion: number }>;
         };
         pos: GramatikatPoS;
-    }> = ({ lemmaData, pos }) => {
+        viewOptions: ViewOptions;
+    }> = ({ tileId, lemmaData, pos, viewOptions }) => {
         const tagStruct = posToCatSet(pos);
         const caseIdx = List.findIndex((v) => v.value === 'case', tagStruct);
         const degreeIdx = List.findIndex(
@@ -339,15 +426,27 @@ export function init(
             tagStruct
         );
 
+        const groupedProp = List.find((v) => v.isGrouped, tagStruct);
+        const visible = viewOptions.groupedXVisibility[groupedProp.value];
+        console.log('grouped prop: ', groupedProp, ', visible: ', visible);
+
         const [minVal, maxVal, variantMap] = pipe(
             lemmaData.variants,
             List.filter((v) => v.proportion > 0),
             List.foldl(
                 ([minVal, maxVal, mapping], variant) => {
+                    console.log(
+                        'variant: ',
+                        variant,
+                        ', caseIDx: ',
+                        caseIdx,
+                        'genderIdx: ',
+                        genderIdx
+                    );
                     const gcase = variant.valSet[caseIdx];
                     const degree = variant.valSet[degreeIdx];
                     const gender = variant.valSet[genderIdx];
-                    const key = `${gcase}-${degree}-${gender}`;
+                    const key = `${gender}-${gcase}-${degree}`;
                     mapping.set(key, variant);
                     return tuple(
                         variant.proportion < minVal
@@ -390,6 +489,8 @@ export function init(
             List.map(([v, grouped]) => ({
                 v: degreeLabels[v],
                 span: List.size(grouped),
+                tag: v,
+                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
             }))
         );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
@@ -413,25 +514,66 @@ export function init(
                         `${dgTmp[1]}-${caseTag}-${dgTmp[0]}`
                     );
                     return v
-                        ? { v: v.proportion * 100, icon: devToIcon(v) }
-                        : { v: 0 };
+                        ? {
+                              v: v.proportion * 100,
+                              icon: devToIcon(v),
+                              id: Ident.puid(),
+                              sortedIdx: -1,
+                          }
+                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
                 }, degreeAndGenderOrder),
             caseOrder
         );
 
+        const colorMapping = attachColorIndexes(data);
+
+        const handleXGroupedVisibilityChng = (
+            evt: React.ChangeEvent<HTMLInputElement>
+        ) => {
+            dispatcher.dispatch(Actions.SetXGroupedVisibility, {
+                tileId,
+                tag: evt.target.value,
+                visible: !viewOptions.groupedXVisibility[evt.target.value],
+            });
+        };
+
         return (
             <globalComponents.ResponsiveWrapper
                 render={(width: number, height: number) => (
-                    <Heatmap
-                        data={data}
-                        xLabels={xLabels}
-                        xGroupLabels={xGroupedLabels}
-                        yLabels={yLabels}
-                        colorMapping={theme.scaleColor(
-                            minVal * 100,
-                            maxVal * 100
-                        )}
-                    />
+                    <S.PropertiesForAdjs>
+                        <Heatmap
+                            data={data}
+                            xLabels={xLabels}
+                            xGroupLabels={xGroupedLabels}
+                            yLabels={yLabels}
+                            colorMapping={colorMapping}
+                        />
+                        <ul className="degree-sel">
+                            {List.map(
+                                (lab) => (
+                                    <li>
+                                        <label>
+                                            {lab.v}
+                                            <input
+                                                type="checkbox"
+                                                value={lab.tag}
+                                                checked={
+                                                    viewOptions
+                                                        .groupedXVisibility[
+                                                        lab.tag
+                                                    ]
+                                                }
+                                                onChange={
+                                                    handleXGroupedVisibilityChng
+                                                }
+                                            />
+                                        </label>
+                                    </li>
+                                ),
+                                xGroupedLabels
+                            )}
+                        </ul>
+                    </S.PropertiesForAdjs>
                 )}
             />
         );
@@ -439,39 +581,43 @@ export function init(
 
     // ------------------- <SingleWordView /> ------------------------
 
-    const SingleWordView: React.FC<WordData & { alpha: number }> = ({
-        lemmaData,
-        chartData,
-        pos,
-    }) => {
+    const SingleWordView: React.FC<
+        WordData & {
+            tileId: number;
+            alpha: number;
+            viewOptions: ViewOptions;
+        }
+    > = ({ tileId, lemmaData, chartData, pos, viewOptions }) => {
         const message = chartData.hasSignificantDeviations
             ? ut.translate('gramatikat__showing_stat_signif_values')
             : ut.translate('gramatikat__there_are_no_stat_signif_values');
-
-        const fixedPosTagProps = pipe(
-            posToCatSet(pos),
-            List.filter(({ isFixed }) => isFixed),
-            List.map(({ value }) => value)
-        );
-        const fixedLabels = tagCodeToHuman(
-            pos,
-            List.head(chartData.items).tag,
-            'fixed'
-        );
 
         const renderChart = () => {
             switch (pos) {
                 case 'nouns':
                     return (
-                        <PropertiesForNouns lemmaData={lemmaData} pos={pos} />
+                        <PropertiesForNouns
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            viewOptions={viewOptions}
+                        />
                     );
                 case 'verbs':
                     return (
-                        <PropertiesForVerbs lemmaData={lemmaData} pos={pos} />
+                        <PropertiesForVerbs
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            viewOptions={viewOptions}
+                        />
                     );
                 case 'adjectives':
                     return (
-                        <PropertiesForAdjs lemmaData={lemmaData} pos={pos} />
+                        <PropertiesForAdjs
+                            tileId={tileId}
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            viewOptions={viewOptions}
+                        />
                     );
                 default:
                     return null;
@@ -525,12 +671,14 @@ export function init(
                             />
                         ) : (
                             <SingleWordView
+                                tileId={props.tileId}
                                 lemmaData={List.head(state.data).lemmaData}
                                 posData={List.head(state.data).posData}
                                 missingPos={List.head(state.data).missingPos}
                                 alpha={state.statTestAlpha}
                                 pos={List.head(state.data).pos}
                                 chartData={List.head(state.data).chartData}
+                                viewOptions={state.viewOptions}
                             />
                         );
                     } else {
