@@ -27,7 +27,7 @@ import {
     TileComponent,
 } from '../../../../page/tile.js';
 import * as React from 'react';
-import { List, pipe, tuple } from 'cnc-tskit';
+import { Color, Dict, Ident, List, pipe, tuple } from 'cnc-tskit';
 import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
 import {
@@ -37,6 +37,77 @@ import {
     tagCodeToHuman,
 } from '../api.js';
 import { Heatmap, HeatmapCell } from './heatmap.js';
+
+// ------ TODO TMP FUNC (waiting for cnc-tskit upgrade)
+
+function saturation(value: number, color?: Color.RGBA): any {
+    const fn = (color2: Color.RGBA): Color.RGBA => {
+        if (value < 0) {
+            throw new Error('Cannot use negative saturation');
+        }
+        const [h, s, l] = Color.rgb2Hsl(color2);
+        const ans = Color.hsl2Rgb([h, Math.min(1, s * value), l]);
+        ans[3] = color2[3];
+        return ans;
+    };
+    return color ? fn(color) : fn;
+}
+
+function saturationColorMapping(
+    min: number,
+    max: number,
+    baseColor: string,
+    minSaturation = 0.2
+): (v: number) => string {
+    const range = Math.abs(max - min);
+    const colorRGB = Color.importColor(1, baseColor);
+    return (v: number): string => {
+        // t: linear coefficient, 0 at min, 1 at max (clamped)
+        const t = Math.min(1, Math.max(0, range > 0 ? (v - min) / range : 0));
+        if (t >= 1) {
+            return baseColor;
+        }
+        // saturation: minSaturation at min → 1 (full color) at max
+        const satur = saturation(
+            minSaturation + (1 - minSaturation) * t,
+            colorRGB
+        );
+        // luminosity multiplier: 1+(1-minSaturation) (bright) at min → 1 (original) at max
+        const ans = Color.luminosity(1 + (1 - minSaturation) * (1 - t), satur);
+        return Color.color2str(ans);
+    };
+}
+
+function attachColorIndexes(
+    data: Array<Array<HeatmapCell>>
+): (v: number) => string {
+    const groupedData = pipe(
+        data,
+        List.flatMap((v) => v),
+        List.groupBy((v) => `${v.v}`)
+    );
+
+    const dataOrderMapping = pipe(
+        groupedData,
+        List.sortedBy(([, v]) => v[0].v),
+        List.map(([, v], i) => tuple(i, v)),
+        List.flatMap(([orderIdx, values]) =>
+            List.map((v) => tuple(v.id, orderIdx), values)
+        ),
+        Dict.fromEntries()
+    );
+
+    List.forEach((row) => {
+        List.forEach((col) => {
+            if (col.v === 0) {
+                col.sortedIdx = 0;
+            } else {
+                col.sortedIdx = dataOrderMapping[col.id];
+            }
+        }, row);
+    }, data);
+    return saturationColorMapping(0, List.size(groupedData), '#009ee0');
+}
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -178,11 +249,18 @@ export function init(
                 List.map((tano) => {
                     const v = variantMap.get(tano + '-' + numo);
                     return v
-                        ? { v: v.proportion * 100, icon: devToIcon(v) }
-                        : { v: 0 };
+                        ? {
+                              v: v.proportion * 100,
+                              icon: devToIcon(v),
+                              id: Ident.puid(),
+                              sortedIdx: -1,
+                          }
+                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
                 }, tenseAndNegationOrder),
             numberOrder
         );
+
+        const colorMapping = attachColorIndexes(data);
 
         return (
             <>
@@ -193,12 +271,7 @@ export function init(
                             xLabels={xLabels}
                             xGroupLabels={xGroupedLabels}
                             yLabels={yLabels}
-                            colorMapping={theme.scaleColorSuperfine(
-                                minVal * 100,
-                                maxVal * 100,
-                                10,
-                                3
-                            )}
+                            colorMapping={colorMapping}
                         />
                     )}
                 />
@@ -296,11 +369,19 @@ export function init(
                 List.map((tano) => {
                     const v = variantMap.get(tano + '-' + numo);
                     return v
-                        ? { v: v.proportion * 100, icon: devToIcon(v) }
-                        : { v: 0 };
+                        ? {
+                              v: v.proportion * 100,
+                              icon: devToIcon(v),
+                              id: Ident.puid(),
+                              sortedIdx: -1,
+                          }
+                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
                 }, numberAndGenderOrder),
             caseOrder
         );
+
+        const colorMapping = attachColorIndexes(data);
+
         return (
             <globalComponents.ResponsiveWrapper
                 render={(width: number, height: number) => (
@@ -309,10 +390,7 @@ export function init(
                         xLabels={xLabels}
                         yLabels={yLabels}
                         xGroupLabels={xGroupedLabels}
-                        colorMapping={theme.scaleColor(
-                            minVal * 100,
-                            maxVal * 100
-                        )}
+                        colorMapping={colorMapping}
                     />
                 )}
             />
@@ -413,11 +491,18 @@ export function init(
                         `${dgTmp[1]}-${caseTag}-${dgTmp[0]}`
                     );
                     return v
-                        ? { v: v.proportion * 100, icon: devToIcon(v) }
-                        : { v: 0 };
+                        ? {
+                              v: v.proportion * 100,
+                              icon: devToIcon(v),
+                              id: Ident.puid(),
+                              sortedIdx: -1,
+                          }
+                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
                 }, degreeAndGenderOrder),
             caseOrder
         );
+
+        const colorMapping = attachColorIndexes(data);
 
         return (
             <globalComponents.ResponsiveWrapper
@@ -427,10 +512,7 @@ export function init(
                         xLabels={xLabels}
                         xGroupLabels={xGroupedLabels}
                         yLabels={yLabels}
-                        colorMapping={theme.scaleColor(
-                            minVal * 100,
-                            maxVal * 100
-                        )}
+                        colorMapping={colorMapping}
                     />
                 )}
             />

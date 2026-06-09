@@ -118,12 +118,10 @@ export const Heatmap = styled.div<{ theme: Theme }>`
 
         span.up {
             padding-right: 0.3rem;
-            color: #036b03;
         }
 
         span.down {
             padding-right: 0.3rem;
-            color: #ff0000b5;
         }
 
         th.vertical {

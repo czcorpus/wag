@@ -22,6 +22,8 @@ import * as React from 'react';
 
 export interface HeatmapCell {
     v: number;
+    sortedIdx: number;
+    id?: string;
     icon?: 'up' | 'down';
 }
 
@@ -204,20 +206,22 @@ export const Heatmap: React.FC<{
                                             key={`${col.v}:${i}`}
                                             style={{
                                                 backgroundColor: colorMapping(
-                                                    col.v
+                                                    col.sortedIdx
                                                 ),
                                                 color: Color.color2str(
                                                     Color.textColorFromBg(
                                                         Color.importColor(
                                                             0,
-                                                            colorMapping(col.v)
+                                                            colorMapping(
+                                                                col.sortedIdx
+                                                            )
                                                         )
                                                     )
                                                 ),
                                             }}
                                         >
                                             {iconIdToElm(col.icon)}
-                                            {Maths.roundToPos(col.v, 3)}
+                                            {Maths.roundToPos(col.v, 2)}
                                         </td>
                                     ),
                                     row
