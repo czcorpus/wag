@@ -89,6 +89,9 @@ export class GramatikatTile implements ITileProvider {
                     (v) => v.word,
                     findCurrentMatches(queryMatches)
                 ),
+                viewOptions: {
+                    groupedXVisibility: {},
+                },
                 isBusy,
             },
             tileId,

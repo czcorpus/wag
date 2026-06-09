@@ -214,28 +214,49 @@ export const tagCodeToHuman = (
     return ans.join(', ');
 };
 
+export const posCatToValSet = (cat: GramatikatCatSet): Array<string> => {
+    switch (cat) {
+        case 'gender':
+            return ['F', 'I', 'M', 'N'];
+        case 'case':
+            return ['1', '2', '3', '4', '5', '6', '7'];
+        case 'degree':
+            return ['1', '2', '3'];
+        case 'number':
+            return ['D', 'P', 'S'];
+        case 'tense':
+            return ['F', 'P', 'R'];
+        case 'polarity':
+            return ['P', 'N'];
+        case 'aspect':
+            throw new Error('aspect not implemented yet');
+        default:
+            return [];
+    }
+};
+
 export const posToCatSet = (
     cs: GramatikatPoS
-): Array<{ value: GramatikatCatSet; isFixed: boolean }> => {
+): Array<{ value: GramatikatCatSet; isFixed: boolean; isGrouped: boolean }> => {
     switch (cs) {
         case 'adjectives':
             return [
-                { value: 'case', isFixed: false },
-                { value: 'degree', isFixed: false },
-                { value: 'gender', isFixed: false },
+                { value: 'gender', isFixed: false, isGrouped: false },
+                { value: 'case', isFixed: false, isGrouped: false },
+                { value: 'degree', isFixed: false, isGrouped: true },
             ];
         case 'nouns':
             return [
-                { value: 'gender', isFixed: true },
-                { value: 'number', isFixed: false },
-                { value: 'case', isFixed: false },
+                { value: 'gender', isFixed: true, isGrouped: true },
+                { value: 'number', isFixed: false, isGrouped: false },
+                { value: 'case', isFixed: false, isGrouped: false },
             ];
         case 'verbs':
             return [
-                { value: 'tense', isFixed: false },
-                { value: 'number', isFixed: false },
-                { value: 'aspect', isFixed: true },
-                { value: 'polarity', isFixed: false },
+                { value: 'tense', isFixed: false, isGrouped: false },
+                { value: 'number', isFixed: false, isGrouped: false },
+                { value: 'aspect', isFixed: true, isGrouped: true },
+                { value: 'polarity', isFixed: false, isGrouped: false },
             ];
         default:
             return [];

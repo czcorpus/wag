@@ -41,4 +41,12 @@ export class Actions {
     }> = {
         name: 'GRAMATIKAT_SET_STAT_TEST_ALPHA',
     };
+
+    static SetXGroupedVisibility: Action<{
+        tileId: number;
+        tag: string;
+        visible: boolean;
+    }> = {
+        name: 'GRAMATIKAT_SET_X_GROUPED_VISIBILITY',
+    };
 }

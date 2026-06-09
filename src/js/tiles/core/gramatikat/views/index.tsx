@@ -21,7 +21,7 @@ import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { init as altViewSingleInit } from './advanced.js';
 import { init as settingsViewInit } from './settings.js';
-import { GramatikatModel, WordData } from '../model.js';
+import { GramatikatModel, ViewOptions, WordData } from '../model.js';
 import {
     CoreTileComponentProps,
     TileComponent,
@@ -37,6 +37,7 @@ import {
     tagCodeToHuman,
 } from '../api.js';
 import { Heatmap, HeatmapCell } from './heatmap.js';
+import { Actions } from '../actions.js';
 
 // ------ TODO TMP FUNC (waiting for cnc-tskit upgrade)
 
@@ -168,7 +169,8 @@ export function init(
             variants: Array<{ valSet: any; proportion: number }>;
         };
         pos: GramatikatPoS;
-    }> = ({ lemmaData, pos }) => {
+        viewOptions: ViewOptions;
+    }> = ({ lemmaData, pos, viewOptions }) => {
         const tagStruct = posToCatSet(pos);
         const tenseIdx = List.findIndex((v) => v.value === 'tense', tagStruct);
         const numberIdx = List.findIndex(
@@ -229,6 +231,8 @@ export function init(
             List.map(([v, grouped]) => ({
                 v: polarityLabels[v],
                 span: List.size(grouped),
+                tag: v,
+                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
             }))
         );
         const numberOrder = ['S', 'P', 'D'];
@@ -287,7 +291,8 @@ export function init(
             variants: Array<{ valSet: any; proportion: number }>;
         };
         pos: GramatikatPoS;
-    }> = ({ lemmaData, pos }) => {
+        viewOptions: ViewOptions;
+    }> = ({ lemmaData, pos, viewOptions }) => {
         const tagStruct = posToCatSet(pos);
         const caseIdx = List.findIndex((v) => v.value === 'case', tagStruct);
         const numberIdx = List.findIndex(
@@ -349,6 +354,8 @@ export function init(
             List.map(([v, grouped]) => ({
                 v: numberLabels[v],
                 span: List.size(grouped),
+                tag: v,
+                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
             }))
         );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
@@ -400,12 +407,14 @@ export function init(
     // ------------------- <PropertiesForAdjs /> ------------------------
 
     const PropertiesForAdjs: React.FC<{
+        tileId: number;
         lemmaData: {
             totalFreq: number;
             variants: Array<{ valSet: any; proportion: number }>;
         };
         pos: GramatikatPoS;
-    }> = ({ lemmaData, pos }) => {
+        viewOptions: ViewOptions;
+    }> = ({ tileId, lemmaData, pos, viewOptions }) => {
         const tagStruct = posToCatSet(pos);
         const caseIdx = List.findIndex((v) => v.value === 'case', tagStruct);
         const degreeIdx = List.findIndex(
@@ -417,15 +426,27 @@ export function init(
             tagStruct
         );
 
+        const groupedProp = List.find((v) => v.isGrouped, tagStruct);
+        const visible = viewOptions.groupedXVisibility[groupedProp.value];
+        console.log('grouped prop: ', groupedProp, ', visible: ', visible);
+
         const [minVal, maxVal, variantMap] = pipe(
             lemmaData.variants,
             List.filter((v) => v.proportion > 0),
             List.foldl(
                 ([minVal, maxVal, mapping], variant) => {
+                    console.log(
+                        'variant: ',
+                        variant,
+                        ', caseIDx: ',
+                        caseIdx,
+                        'genderIdx: ',
+                        genderIdx
+                    );
                     const gcase = variant.valSet[caseIdx];
                     const degree = variant.valSet[degreeIdx];
                     const gender = variant.valSet[genderIdx];
-                    const key = `${gcase}-${degree}-${gender}`;
+                    const key = `${gender}-${gcase}-${degree}`;
                     mapping.set(key, variant);
                     return tuple(
                         variant.proportion < minVal
@@ -468,6 +489,8 @@ export function init(
             List.map(([v, grouped]) => ({
                 v: degreeLabels[v],
                 span: List.size(grouped),
+                tag: v,
+                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
             }))
         );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
@@ -504,16 +527,53 @@ export function init(
 
         const colorMapping = attachColorIndexes(data);
 
+        const handleXGroupedVisibilityChng = (
+            evt: React.ChangeEvent<HTMLInputElement>
+        ) => {
+            dispatcher.dispatch(Actions.SetXGroupedVisibility, {
+                tileId,
+                tag: evt.target.value,
+                visible: !viewOptions.groupedXVisibility[evt.target.value],
+            });
+        };
+
         return (
             <globalComponents.ResponsiveWrapper
                 render={(width: number, height: number) => (
-                    <Heatmap
-                        data={data}
-                        xLabels={xLabels}
-                        xGroupLabels={xGroupedLabels}
-                        yLabels={yLabels}
-                        colorMapping={colorMapping}
-                    />
+                    <S.PropertiesForAdjs>
+                        <Heatmap
+                            data={data}
+                            xLabels={xLabels}
+                            xGroupLabels={xGroupedLabels}
+                            yLabels={yLabels}
+                            colorMapping={colorMapping}
+                        />
+                        <ul className="degree-sel">
+                            {List.map(
+                                (lab) => (
+                                    <li>
+                                        <label>
+                                            {lab.v}
+                                            <input
+                                                type="checkbox"
+                                                value={lab.tag}
+                                                checked={
+                                                    viewOptions
+                                                        .groupedXVisibility[
+                                                        lab.tag
+                                                    ]
+                                                }
+                                                onChange={
+                                                    handleXGroupedVisibilityChng
+                                                }
+                                            />
+                                        </label>
+                                    </li>
+                                ),
+                                xGroupedLabels
+                            )}
+                        </ul>
+                    </S.PropertiesForAdjs>
                 )}
             />
         );
@@ -521,39 +581,43 @@ export function init(
 
     // ------------------- <SingleWordView /> ------------------------
 
-    const SingleWordView: React.FC<WordData & { alpha: number }> = ({
-        lemmaData,
-        chartData,
-        pos,
-    }) => {
+    const SingleWordView: React.FC<
+        WordData & {
+            tileId: number;
+            alpha: number;
+            viewOptions: ViewOptions;
+        }
+    > = ({ tileId, lemmaData, chartData, pos, viewOptions }) => {
         const message = chartData.hasSignificantDeviations
             ? ut.translate('gramatikat__showing_stat_signif_values')
             : ut.translate('gramatikat__there_are_no_stat_signif_values');
-
-        const fixedPosTagProps = pipe(
-            posToCatSet(pos),
-            List.filter(({ isFixed }) => isFixed),
-            List.map(({ value }) => value)
-        );
-        const fixedLabels = tagCodeToHuman(
-            pos,
-            List.head(chartData.items).tag,
-            'fixed'
-        );
 
         const renderChart = () => {
             switch (pos) {
                 case 'nouns':
                     return (
-                        <PropertiesForNouns lemmaData={lemmaData} pos={pos} />
+                        <PropertiesForNouns
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            viewOptions={viewOptions}
+                        />
                     );
                 case 'verbs':
                     return (
-                        <PropertiesForVerbs lemmaData={lemmaData} pos={pos} />
+                        <PropertiesForVerbs
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            viewOptions={viewOptions}
+                        />
                     );
                 case 'adjectives':
                     return (
-                        <PropertiesForAdjs lemmaData={lemmaData} pos={pos} />
+                        <PropertiesForAdjs
+                            tileId={tileId}
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            viewOptions={viewOptions}
+                        />
                     );
                 default:
                     return null;
@@ -607,12 +671,14 @@ export function init(
                             />
                         ) : (
                             <SingleWordView
+                                tileId={props.tileId}
                                 lemmaData={List.head(state.data).lemmaData}
                                 posData={List.head(state.data).posData}
                                 missingPos={List.head(state.data).missingPos}
                                 alpha={state.statTestAlpha}
                                 pos={List.head(state.data).pos}
                                 chartData={List.head(state.data).chartData}
+                                viewOptions={state.viewOptions}
                             />
                         );
                     } else {
