@@ -342,28 +342,29 @@ export function init(
         // Prepare grouped bar chart data: one entry per tense
         const numberAndGenderOrder = [
             'D-F',
-            'D-I',
-            'D-M',
-            'D-N',
             'P-F',
-            'P-I',
-            'P-M',
-            'P-N',
             'S-F',
+            'D-I',
+            'P-I',
             'S-I',
+            'D-M',
+            'P-M',
             'S-M',
+            'D-N',
+            'P-N',
             'S-N',
         ];
         const xLabels = List.map((item) => {
             const letters = item.split('-');
-            return <span>{genderLabels[letters[1]]}</span>;
+            return <span>{numberLabels[letters[0]]}</span>;
         }, numberAndGenderOrder);
+
         const xGroupedLabels = pipe(
             numberAndGenderOrder,
             List.map((v) => v.split('-')),
-            List.groupBy((v) => v[0]),
+            List.groupBy((v) => v[1]),
             List.map(([v, grouped]) => ({
-                v: numberLabels[v],
+                v: genderLabels[v],
                 span: List.size(grouped),
                 tag: v,
                 isHidden: colIsSetAsHidden(viewOptions.groupedXVisibility, v),
