@@ -110,6 +110,16 @@ function attachColorIndexes(
     return saturationColorMapping(0, List.size(groupedData), '#009ee0');
 }
 
+function colIsSetAsHidden(visibility: { [tag: string]: boolean }, tag: string) {
+    const isEmptySetting =
+        pipe(
+            visibility,
+            Dict.map((v, k) => v !== undefined),
+            Dict.size()
+        ) === 0;
+    return !isEmptySetting && !visibility[tag];
+}
+
 export function init(
     dispatcher: IActionDispatcher,
     ut: ViewUtils<GlobalComponents>,
@@ -232,9 +242,10 @@ export function init(
                 v: polarityLabels[v],
                 span: List.size(grouped),
                 tag: v,
-                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
+                isHidden: colIsSetAsHidden(viewOptions.groupedXVisibility, v),
             }))
         );
+
         const numberOrder = ['S', 'P', 'D'];
         const yLabels = List.map((item) => numberLabels[item], numberOrder);
 
@@ -355,7 +366,7 @@ export function init(
                 v: numberLabels[v],
                 span: List.size(grouped),
                 tag: v,
-                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
+                isHidden: colIsSetAsHidden(viewOptions.groupedXVisibility, v),
             }))
         );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
@@ -490,7 +501,7 @@ export function init(
                 v: degreeLabels[v],
                 span: List.size(grouped),
                 tag: v,
-                isHidden: !viewOptions.groupedXVisibility[v] ? true : undefined,
+                isHidden: colIsSetAsHidden(viewOptions.groupedXVisibility, v),
             }))
         );
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];

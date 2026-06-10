@@ -297,7 +297,13 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                         state.viewOptions.groupedXVisibility = pipe(
                             posCatToValSet(groupedProp.value),
                             List.map((v, i) =>
-                                tuple(v, i === 0 ? true : false)
+                                tuple(
+                                    v,
+                                    i === 0 ||
+                                        action.payload.resp.pos !== 'adjectives'
+                                        ? true
+                                        : false
+                                )
                             ),
                             Dict.fromEntries()
                         );
