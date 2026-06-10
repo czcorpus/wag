@@ -27,98 +27,13 @@ import {
     TileComponent,
 } from '../../../../page/tile.js';
 import * as React from 'react';
-import { Color, Dict, Ident, List, pipe, tuple } from 'cnc-tskit';
+import { Ident, List, pipe, tuple } from 'cnc-tskit';
 import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
-import {
-    GramatikatFreq,
-    GramatikatPoS,
-    posToCatSet,
-    tagCodeToHuman,
-} from '../api.js';
+import { GramatikatFreq, GramatikatPoS, posToCatSet } from '../api.js';
 import { Heatmap, HeatmapCell } from './heatmap.js';
 import { Actions } from '../actions.js';
-
-// ------ TODO TMP FUNC (waiting for cnc-tskit upgrade)
-
-function saturation(value: number, color?: Color.RGBA): any {
-    const fn = (color2: Color.RGBA): Color.RGBA => {
-        if (value < 0) {
-            throw new Error('Cannot use negative saturation');
-        }
-        const [h, s, l] = Color.rgb2Hsl(color2);
-        const ans = Color.hsl2Rgb([h, Math.min(1, s * value), l]);
-        ans[3] = color2[3];
-        return ans;
-    };
-    return color ? fn(color) : fn;
-}
-
-function saturationColorMapping(
-    min: number,
-    max: number,
-    baseColor: string,
-    minSaturation = 0.2
-): (v: number) => string {
-    const range = Math.abs(max - min);
-    const colorRGB = Color.importColor(1, baseColor);
-    return (v: number): string => {
-        // t: linear coefficient, 0 at min, 1 at max (clamped)
-        const t = Math.min(1, Math.max(0, range > 0 ? (v - min) / range : 0));
-        if (t >= 1) {
-            return baseColor;
-        }
-        // saturation: minSaturation at min → 1 (full color) at max
-        const satur = saturation(
-            minSaturation + (1 - minSaturation) * t,
-            colorRGB
-        );
-        // luminosity multiplier: 1+(1-minSaturation) (bright) at min → 1 (original) at max
-        const ans = Color.luminosity(1 + (1 - minSaturation) * (1 - t), satur);
-        return Color.color2str(ans);
-    };
-}
-
-function attachColorIndexes(
-    data: Array<Array<HeatmapCell>>
-): (v: number) => string {
-    const groupedData = pipe(
-        data,
-        List.flatMap((v) => v),
-        List.groupBy((v) => `${v.v}`)
-    );
-
-    const dataOrderMapping = pipe(
-        groupedData,
-        List.sortedBy(([, v]) => v[0].v),
-        List.map(([, v], i) => tuple(i, v)),
-        List.flatMap(([orderIdx, values]) =>
-            List.map((v) => tuple(v.id, orderIdx), values)
-        ),
-        Dict.fromEntries()
-    );
-
-    List.forEach((row) => {
-        List.forEach((col) => {
-            if (col.v === 0) {
-                col.sortedIdx = 0;
-            } else {
-                col.sortedIdx = dataOrderMapping[col.id];
-            }
-        }, row);
-    }, data);
-    return saturationColorMapping(0, List.size(groupedData), '#009ee0');
-}
-
-function colIsSetAsHidden(visibility: { [tag: string]: boolean }, tag: string) {
-    const isEmptySetting =
-        pipe(
-            visibility,
-            Dict.map((v, k) => v !== undefined),
-            Dict.size()
-        ) === 0;
-    return !isEmptySetting && !visibility[tag];
-}
+import { attachColorIndexes, colIsSetAsHidden } from './common.js';
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -437,24 +352,11 @@ export function init(
             (v) => v.value === 'gender',
             tagStruct
         );
-
-        const groupedProp = List.find((v) => v.isGrouped, tagStruct);
-        const visible = viewOptions.groupedXVisibility[groupedProp.value];
-        console.log('grouped prop: ', groupedProp, ', visible: ', visible);
-
-        const [minVal, maxVal, variantMap] = pipe(
+        const [, , variantMap] = pipe(
             lemmaData.variants,
             List.filter((v) => v.proportion > 0),
             List.foldl(
                 ([minVal, maxVal, mapping], variant) => {
-                    console.log(
-                        'variant: ',
-                        variant,
-                        ', caseIDx: ',
-                        caseIdx,
-                        'genderIdx: ',
-                        genderIdx
-                    );
                     const gcase = variant.valSet[caseIdx];
                     const degree = variant.valSet[degreeIdx];
                     const gender = variant.valSet[genderIdx];
