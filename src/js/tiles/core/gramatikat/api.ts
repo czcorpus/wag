@@ -54,7 +54,7 @@ export type GramatikatDegree = '1' | '2' | '3';
 
 export type GramatikatPolarity = 'P' | 'N';
 
-export type GramatikatTense = 'F' | 'P' | 'R';
+export type GramatikatTense = 'F' | 'P' | 'R' | 'B' | 'Q';
 
 export type GramatikatAspect = 'I' | 'P' | 'B';
 
@@ -155,6 +155,12 @@ export const tagCodeToHuman = (
                     case 'F':
                         ans.push('budoucí čas');
                         break;
+                    case 'B':
+                        ans.push('B (undefined)');
+                        break;
+                    case 'Q':
+                        ans.push('Q (undefined)');
+                        break;
                 }
                 switch (tc[1]) {
                     case 'D':
@@ -230,7 +236,7 @@ export const posCatToValSet = (cat: GramatikatCatSet): Array<string> => {
         case 'tense':
             return ['F', 'P', 'R'];
         case 'polarity':
-            return ['P', 'N'];
+            return ['A', 'N'];
         case 'aspect':
             return ['I', 'P', 'B'];
         default:
@@ -258,8 +264,7 @@ export const posToCatSet = (
             return [
                 { value: 'tense', isFixed: false, isGrouped: false },
                 { value: 'number', isFixed: false, isGrouped: false },
-                { value: 'aspect', isFixed: true, isGrouped: true },
-                { value: 'polarity', isFixed: false, isGrouped: false },
+                { value: 'polarity', isFixed: false, isGrouped: true },
             ];
         default:
             return [];
