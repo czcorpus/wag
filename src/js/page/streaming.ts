@@ -17,7 +17,7 @@
  */
 
 import { HTTP, Ident, List, pipe, tuple } from 'cnc-tskit';
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject, Subscription } from 'rxjs';
 import {
     concatMap,
     filter,
@@ -111,6 +111,8 @@ export interface IDataStreaming {
         entry: TileRequest | OtherTileRequest
     ): Observable<T>;
 
+    cancel(): void;
+
     getId(): string;
 
     startNewSubgroup(
@@ -126,6 +128,10 @@ export class EmptyDataStreaming implements IDataStreaming {
         entry: TileRequest | OtherTileRequest
     ): Observable<T> {
         return EMPTY;
+    }
+
+    cancel(): void {
+        // No active streaming to tear down in the empty implementation.
     }
 
     getId(): string {
@@ -167,17 +173,23 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly responseStream: Observable<EventItem>;
 
+    private readonly eventSources: Set<EventSource>;
+
+    private readonly subscriptions: Set<Subscription>;
+
     private readonly rootUrl: string | null;
 
     private readonly tilesReadyTimeoutSecs: number;
 
-    private readonly tilesDataStreams: { [streamId: string]: DataStreaming };
+    private tilesDataStreams: { [streamId: string]: DataStreaming };
 
     private readonly id: string;
 
     private readonly userSession: UserConf;
 
     private readonly apiReporting: APIReporting;
+
+    private isCancelled = false;
 
     static readonly ID_GLOBAL = '__global__';
 
@@ -198,6 +210,8 @@ export class DataStreaming implements IDataStreaming {
             (this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs));
         this.tilesDataStreams = {};
         this.requestSubject = new Subject<TileRequest | OtherTileRequest>();
+        this.eventSources = new Set<EventSource>();
+        this.subscriptions = new Set<Subscription>();
         this.responseStream =
             this.rootUrl && userSession && userSession.answerMode
                 ? this.requestSubject.pipe(
@@ -269,10 +283,24 @@ export class DataStreaming implements IDataStreaming {
                       concatMap(
                           ([tileReqMap, resp]) =>
                               new Observable<EventItem>((observer) => {
+                                  if (this.isCancelled) {
+                                      observer.complete();
+                                      return;
+                                  }
                                   const evtSrc = new EventSource(
                                       urlJoin(this.rootUrl, resp.id)
                                   );
-                                  tileReqMap.forEach((val, key) => {
+                                  this.eventSources.add(evtSrc);
+                                  const closeEventSource = () => {
+                                      evtSrc.onerror = null;
+                                      evtSrc.close();
+                                      this.eventSources.delete(evtSrc);
+                                  };
+                                  const handleClose = () => {
+                                      observer.complete();
+                                      closeEventSource();
+                                  };
+                                  tileReqMap.forEach((val) => {
                                       evtSrc.addEventListener(
                                           `DataTile-${val.tileId}.${val.queryIdx}`,
                                           (evt) => {
@@ -333,19 +361,18 @@ export class DataStreaming implements IDataStreaming {
                                           }
                                       );
                                   });
-                                  evtSrc.addEventListener('close', () => {
-                                      observer.complete();
-                                      evtSrc.close();
-                                  });
+                                  evtSrc.addEventListener('close', handleClose);
                                   evtSrc.onerror = (v) => {
                                       console.error(v);
                                       if (
                                           evtSrc.readyState ===
                                           EventSource.CLOSED
                                       ) {
-                                          evtSrc.close();
-                                          observer.complete();
+                                          handleClose();
                                       }
+                                  };
+                                  return () => {
+                                      handleClose();
                                   };
                               })
                       ),
@@ -353,18 +380,40 @@ export class DataStreaming implements IDataStreaming {
                   )
                 : EMPTY;
         if (typeof window !== 'undefined') {
-            this.responseStream.subscribe({
+            const responseSub = this.responseStream.subscribe({
                 error: (error) => {
                     console.log(
                         `response stream error for tile group ${tileIds.join(',')}: ${error}`
                     );
                 },
             });
+            this.subscriptions.add(responseSub);
         }
     }
 
     getId(): string {
         return this.id;
+    }
+
+    cancel(): void {
+        if (this.isCancelled) {
+            return;
+        }
+        this.isCancelled = true;
+        this.requestSubject.complete();
+        this.subscriptions.forEach((subscription) => {
+            subscription.unsubscribe();
+        });
+        this.subscriptions.clear();
+        this.eventSources.forEach((evtSrc) => {
+            evtSrc.onerror = null;
+            evtSrc.close();
+        });
+        this.eventSources.clear();
+        Object.keys(this.tilesDataStreams).forEach((streamId) => {
+            this.tilesDataStreams[streamId].cancel();
+        });
+        this.tilesDataStreams = {};
     }
 
     /**
@@ -448,7 +497,7 @@ export class DataStreaming implements IDataStreaming {
     registerTileRequest<T>(
         entry: TileRequest | OtherTileRequest
     ): Observable<T> {
-        if (!this.rootUrl) {
+        if (!this.rootUrl || this.isCancelled) {
             return EMPTY;
         }
         const normEntry = normalizeRequest(entry);
@@ -485,6 +534,10 @@ export class DataStreaming implements IDataStreaming {
 }
 
 export class DataStreamingPreview implements IDataStreaming {
+    cancel(): void {
+        // Preview mode has no active EventSource subscription to tear down.
+    }
+
     registerTileRequest<T>(
         entry: TileRequest | OtherTileRequest
     ): Observable<T> {
