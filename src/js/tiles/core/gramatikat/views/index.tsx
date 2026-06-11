@@ -31,9 +31,15 @@ import { Ident, List, pipe, tuple } from 'cnc-tskit';
 import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
 import { GramatikatFreq, GramatikatPoS, posToCatSet } from '../api.js';
-import { Heatmap, HeatmapCell } from './heatmap.js';
+import { Heatmap } from './heatmap.js';
 import { Actions } from '../actions.js';
-import { attachColorIndexes, colIsSetAsHidden } from './common.js';
+import {
+    attachColorIndexes,
+    colIsSetAsHidden,
+    HeatmapCell,
+    HeatmapCellVal,
+    newCell,
+} from './common.js';
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -164,7 +170,7 @@ export function init(
         const numberOrder = ['S', 'P', 'D'];
         const yLabels = List.map((item) => numberLabels[item], numberOrder);
 
-        const devToIcon = (v: GramatikatFreq): HeatmapCell['icon'] => {
+        const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
             if (v.deviatesFromMean) {
                 if (v.deviatesFromMean === 'over') {
                     return 'up';
@@ -179,18 +185,18 @@ export function init(
                 List.map((tano) => {
                     const v = variantMap.get(tano + '-' + numo);
                     return v
-                        ? {
+                        ? newCell({
                               v: v.proportion * 100,
                               icon: devToIcon(v),
                               id: Ident.puid(),
                               sortedIdx: -1,
-                          }
-                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
+                          })
+                        : newCell({ v: 0, id: Ident.puid(), sortedIdx: -1 });
                 }, tenseAndNegationOrder),
             numberOrder
         );
 
-        const colorMapping = attachColorIndexes(data);
+        const colorMapping = attachColorIndexes(data, 0);
 
         return (
             <>
@@ -288,7 +294,7 @@ export function init(
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
         const yLabels = List.map((item) => caseLabels[item], caseOrder);
 
-        const devToIcon = (v: GramatikatFreq): HeatmapCell['icon'] => {
+        const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
             if (v.deviatesFromMean) {
                 if (v.deviatesFromMean === 'over') {
                     return 'up';
@@ -303,18 +309,18 @@ export function init(
                 List.map((tano) => {
                     const v = variantMap.get(tano + '-' + numo);
                     return v
-                        ? {
+                        ? newCell({
                               v: v.proportion * 100,
                               icon: devToIcon(v),
                               id: Ident.puid(),
                               sortedIdx: -1,
-                          }
-                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
+                          })
+                        : newCell({ v: 0, id: Ident.puid(), sortedIdx: -1 });
                 }, numberAndGenderOrder),
             caseOrder
         );
 
-        const colorMapping = attachColorIndexes(data);
+        const colorMapping = attachColorIndexes(data, 0);
 
         return (
             <globalComponents.ResponsiveWrapper
@@ -410,7 +416,7 @@ export function init(
         const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
         const yLabels = List.map((item) => caseLabels[item], caseOrder);
 
-        const devToIcon = (v: GramatikatFreq): HeatmapCell['icon'] => {
+        const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
             if (v.deviatesFromMean) {
                 if (v.deviatesFromMean === 'over') {
                     return 'up';
@@ -428,18 +434,18 @@ export function init(
                         `${dgTmp[1]}-${caseTag}-${dgTmp[0]}`
                     );
                     return v
-                        ? {
+                        ? newCell({
                               v: v.proportion * 100,
                               icon: devToIcon(v),
                               id: Ident.puid(),
                               sortedIdx: -1,
-                          }
-                        : { v: 0, id: Ident.puid(), sortedIdx: -1 };
+                          })
+                        : newCell({ v: 0, id: Ident.puid(), sortedIdx: -1 });
                 }, degreeAndGenderOrder),
             caseOrder
         );
 
-        const colorMapping = attachColorIndexes(data);
+        const colorMapping = attachColorIndexes(data, 0);
 
         const handleXGroupedVisibilityChng = (
             evt: React.ChangeEvent<HTMLInputElement>
