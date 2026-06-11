@@ -85,6 +85,7 @@ export class GramatikatTile implements ITileProvider {
                 data: [],
                 statTestAlpha: 0.01,
                 error: undefined,
+                message: undefined,
                 words: List.map(
                     (v) => v.word,
                     findCurrentMatches(queryMatches)
