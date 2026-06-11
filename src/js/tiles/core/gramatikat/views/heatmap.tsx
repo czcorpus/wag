@@ -19,13 +19,7 @@
 import { Color, List, Maths, pipe, tuple } from 'cnc-tskit';
 import * as S from './style.js';
 import * as React from 'react';
-
-export interface HeatmapCell {
-    v: number;
-    sortedIdx: number;
-    id?: string;
-    icon?: 'up' | 'down';
-}
+import { HeatmapCell, HeatmapCellVal, someValueInCell } from './common.js';
 
 interface GroupedLabel {
     v: string | React.ReactElement;
@@ -70,7 +64,7 @@ export const Heatmap: React.FC<{
     yLabels: Array<string | React.ReactElement>;
     colorMapping: (v: number) => string;
 }> = ({ data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
-    const iconIdToElm = (v: HeatmapCell['icon']): React.ReactElement => {
+    const iconIdToElm = (v: HeatmapCellVal['icon']): React.ReactElement => {
         if (v === 'up') {
             return <span className="up">{'\u25B2'}</span>;
         } else if (v === 'down') {
@@ -105,7 +99,7 @@ export const Heatmap: React.FC<{
             if (!group.isHidden) {
                 let hasNonZero = false;
                 for (let row = 0; row < numRows; row++) {
-                    if (data[row][col].v !== 0) {
+                    if (someValueInCell(data[row][col], (v) => v.v !== 0)) {
                         hasNonZero = true;
                         break;
                     }
@@ -121,7 +115,7 @@ export const Heatmap: React.FC<{
         for (let row = 0; row < numRows; row++) {
             let hasNonZero = false;
             for (let col = 0; col < numCols; col++) {
-                if (data[row][col].v !== 0) {
+                if (someValueInCell(data[row][col], (v) => v.v !== 0)) {
                     hasNonZero = true;
                     break;
                 }
@@ -217,9 +211,15 @@ export const Heatmap: React.FC<{
                         <tr>
                             <th />
                             {List.map(
-                                (item) => (
-                                    <th colSpan={item.span} className="grouped">
+                                (item, i) => (
+                                    <th
+                                        key={`${i}:${item.tag}`}
+                                        colSpan={item.span}
+                                        className="grouped"
+                                    >
+                                        {'\u2190\u00a0'}
                                         {item.v}
+                                        {'\u00a0\u2192'}
                                     </th>
                                 ),
                                 filteredXGroupedLabels
@@ -230,32 +230,36 @@ export const Heatmap: React.FC<{
                 <tbody>
                     {List.map(
                         (row, rowIdx) => (
-                            <tr key={`${rowIdx}:${row[0].v}`}>
+                            <tr key={`${rowIdx}:${row[0].values[0].v}`}>
                                 <th className="row">
                                     {filteredYLabels[rowIdx]}
                                 </th>
                                 {List.map(
                                     (col, i) => (
                                         <td
-                                            key={`${col.v}:${i}`}
+                                            key={`${col.values[0].v}:${i}`}
                                             style={{
                                                 backgroundColor: colorMapping(
-                                                    col.sortedIdx
+                                                    col.values[0].sortedIdx
                                                 ),
                                                 color: Color.color2str(
                                                     Color.textColorFromBg(
                                                         Color.importColor(
                                                             0,
                                                             colorMapping(
-                                                                col.sortedIdx
+                                                                col.values[0]
+                                                                    .sortedIdx
                                                             )
                                                         )
                                                     )
                                                 ),
                                             }}
                                         >
-                                            {iconIdToElm(col.icon)}
-                                            {Maths.roundToPos(col.v, 2)}
+                                            {iconIdToElm(col.values[0].icon)}
+                                            {Maths.roundToPos(
+                                                col.values[0].v,
+                                                2
+                                            )}
                                         </td>
                                     ),
                                     row

@@ -17,7 +17,37 @@
  */
 
 import { Color, Dict, List, pipe, tuple } from 'cnc-tskit';
-import { HeatmapCell } from './heatmap.js';
+
+export interface HeatmapCellVal {
+    v: number;
+    sortedIdx: number;
+    id?: string;
+    icon?: 'up' | 'down';
+}
+
+export function allValuesInCell(
+    hc: HeatmapCell,
+    pred: (val: HeatmapCellVal) => boolean
+): boolean {
+    return List.find((v) => !pred(v), hc.values) === undefined;
+}
+
+export function someValueInCell(
+    hc: HeatmapCell,
+    pred: (val: HeatmapCellVal) => boolean
+): boolean {
+    return List.find((v) => pred(v), hc.values) !== undefined;
+}
+
+export function newCell(...vals: Array<HeatmapCellVal>): HeatmapCell {
+    return {
+        values: [...vals],
+    };
+}
+
+export interface HeatmapCell {
+    values: Array<HeatmapCellVal>;
+}
 
 export function saturationColorMapping(
     min: number,
@@ -45,30 +75,32 @@ export function saturationColorMapping(
 }
 
 export function attachColorIndexes(
-    data: Array<Array<HeatmapCell>>
+    data: Array<Array<HeatmapCell>>,
+    cellPart: number
 ): (v: number) => string {
     const groupedData = pipe(
         data,
         List.flatMap((v) => v),
-        List.groupBy((v) => `${v.v}`)
+        List.groupBy((v) => `${v.values[cellPart].v}`)
     );
 
     const dataOrderMapping = pipe(
         groupedData,
-        List.sortedBy(([, v]) => v[0].v),
+        List.sortedBy(([, v]) => v[0].values[cellPart].v),
         List.map(([, v], i) => tuple(i, v)),
         List.flatMap(([orderIdx, values]) =>
-            List.map((v) => tuple(v.id, orderIdx), values)
+            List.map((v) => tuple(v.values[cellPart].id, orderIdx), values)
         ),
         Dict.fromEntries()
     );
 
     List.forEach((row) => {
         List.forEach((col) => {
-            if (col.v === 0) {
-                col.sortedIdx = 0;
+            if (col.values[cellPart].v === 0) {
+                col.values[cellPart].sortedIdx = 0;
             } else {
-                col.sortedIdx = dataOrderMapping[col.id];
+                col.values[cellPart].sortedIdx =
+                    dataOrderMapping[col.values[cellPart].id];
             }
         }, row);
     }, data);
