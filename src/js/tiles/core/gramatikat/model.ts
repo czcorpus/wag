@@ -74,6 +74,12 @@ export interface GramatikatState {
     isBusy: boolean;
     backlinks: Array<Backlink>;
     error: string | undefined;
+
+    /**
+     * The message attribute is for Gramatikat-specific
+     * info/warning messages which are not errors.
+     */
+    message: string | undefined;
     words: Array<string>;
     isAltViewMode: boolean;
     isTweakMode: boolean;
@@ -282,6 +288,12 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
                             missingPos: action.payload.resp.isAmbiguousPos,
                             chartData: undefined,
                         };
+                        if (!action.payload.resp.pos) {
+                            state.message = this.appServices.translate(
+                                'gramatikat__exact_pos_is_required_msg'
+                            );
+                            return;
+                        }
                         attachCalcStats(
                             tmp,
                             action.payload.resp.pos,

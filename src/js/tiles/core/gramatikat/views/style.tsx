@@ -158,3 +158,21 @@ export const PropertiesForAdjs = styled.div`
         }
     }
 `;
+
+// ------------------- <PosWarning /> -------------------------
+
+export const PosWarning = styled.div`
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+
+    img {
+        padding: 1em;
+        width: 2em;
+        height: 2em;
+    }
+
+    p {
+        flex-grow: 1;
+    }
+`;

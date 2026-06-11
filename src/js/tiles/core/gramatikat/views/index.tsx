@@ -554,6 +554,19 @@ export function init(
         );
     };
 
+    // ---------------- <PosWarning /> -------------------------------------
+
+    const PosWarning: React.FC<{ message: string }> = ({ message }) => (
+        <S.PosWarning className="pos-warning">
+            <img
+                className="bulb"
+                src={ut.createStaticUrl('lightbulb-blue.svg')}
+                alt="light bulb"
+            />
+            <p>{message}</p>
+        </S.PosWarning>
+    );
+
     // ---------------- <GramatikatTile /> ---------------------------------
 
     const GramatikatTile: React.FC<CoreTileComponentProps> = (props) => {
@@ -568,7 +581,7 @@ export function init(
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
-                hasData={!List.empty(state.data)}
+                hasData={!List.empty(state.data) || !!state.message}
                 sourceIdent={{ corp: state.corpname }}
                 backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
@@ -576,6 +589,9 @@ export function init(
             >
                 {state.isTweakMode ? <Settings tileId={props.tileId} /> : null}
                 {(() => {
+                    if (state.message) {
+                        return <PosWarning message={state.message} />;
+                    }
                     if (List.empty(state.data)) {
                         return null;
                     }
