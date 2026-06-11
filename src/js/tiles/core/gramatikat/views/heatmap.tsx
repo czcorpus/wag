@@ -177,6 +177,7 @@ export const Heatmap: React.FC<{
             (rowIdx) => yLabels[rowIdx],
             nonZeroRows
         );
+
         return [
             filteredData,
             filteredXLabels,

@@ -88,6 +88,7 @@ export const Heatmap = styled.div<{ theme: Theme }>`
 
         th.row {
             padding-right: 0.4rem;
+            white-space: nowrap;
         }
 
         span.up {
@@ -100,6 +101,12 @@ export const Heatmap = styled.div<{ theme: Theme }>`
 
         th.vertical {
             padding-bottom: 1rem;
+
+            span {
+                display: inline-block;
+                width: 5em;
+                white-space: break-spaces;
+            }
         }
 
         thead th {
