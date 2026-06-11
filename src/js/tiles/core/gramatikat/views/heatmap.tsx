@@ -211,9 +211,15 @@ export const Heatmap: React.FC<{
                         <tr>
                             <th />
                             {List.map(
-                                (item) => (
-                                    <th colSpan={item.span} className="grouped">
+                                (item, i) => (
+                                    <th
+                                        key={`${i}:${item.tag}`}
+                                        colSpan={item.span}
+                                        className="grouped"
+                                    >
+                                        {'\u2190\u00a0'}
                                         {item.v}
+                                        {'\u00a0\u2192'}
                                     </th>
                                 ),
                                 filteredXGroupedLabels

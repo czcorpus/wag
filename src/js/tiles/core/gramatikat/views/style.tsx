@@ -28,6 +28,7 @@ export const SingleWordView = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-x: auto;
 
     h2 {
         text-align: center;
@@ -42,38 +43,10 @@ export const SingleWordView = styled.div<{ theme: Theme }>`
         margin-bottom: 1.5em;
     }
 
-    table.data {
-        margin-bottom: 1em;
-        border-width: 2px;
-        border-style: solid;
-        border-color: ${(props) => props.theme.oddDataLineBackgroundColor};
-
-        td,
-        th {
-            padding: 0.4em 0.8em;
-        }
-
-        .no-bg-col {
-            background-color: ${(props) => props.theme.tileBackgroundColor};
-        }
-
-        td.icon {
-            font-size: 1.5rem;
-
-            span.up {
-                color: green;
-            }
-
-            span.down {
-                color: red;
-            }
-        }
-    }
-
     p.note {
         color: ${(props) => props.theme.colorLightText};
-        font-size: 0.7em;
-        margin: 2em 0 0 0;
+        font-size: 0.8em;
+        margin: 2em 0 2em 0;
         padding: 0;
         text-align: center;
     }
@@ -88,6 +61,7 @@ export const Heatmap = styled.div<{ theme: Theme }>`
     font-size: 1.2rem;
 
     table {
+        margin-top: 2em;
         border-collapse: collapse;
 
         td {

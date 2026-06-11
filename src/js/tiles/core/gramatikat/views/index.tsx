@@ -151,9 +151,9 @@ export function init(
             'R-N',
             'F-N',
         ];
-        const xLabels = List.map((item) => {
+        const xLabels = List.map((item, i) => {
             const letters = item.split('-');
-            return <span>{tenseLabels[letters[0]]}</span>;
+            return <span key={`${i}:${item}`}>{tenseLabels[letters[0]]}</span>;
         }, tenseAndNegationOrder);
         const xGroupedLabels = pipe(
             tenseAndNegationOrder,
@@ -236,7 +236,7 @@ export function init(
             tagStruct
         );
 
-        const [minVal, maxVal, variantMap] = pipe(
+        const [, , variantMap] = pipe(
             lemmaData.variants,
             List.filter((v) => v.proportion > 0),
             List.foldl(
@@ -275,9 +275,9 @@ export function init(
             'P-N',
             'S-N',
         ];
-        const xLabels = List.map((item) => {
+        const xLabels = List.map((item, i) => {
             const letters = item.split('-');
-            return <span>{numberLabels[letters[0]]}</span>;
+            return <span key={`${i}:${item}`}>{numberLabels[letters[0]]}</span>;
         }, numberAndGenderOrder);
 
         const xGroupedLabels = pipe(
@@ -397,9 +397,9 @@ export function init(
             '3-M',
             '3-N',
         ];
-        const xLabels = List.map((item) => {
+        const xLabels = List.map((item, i) => {
             const letters = item.split('-');
-            return <span>{genderLabels[letters[1]]}</span>;
+            return <span key={`${i}:${item}`}>{genderLabels[letters[1]]}</span>;
         }, degreeAndGenderOrder);
 
         const xGroupedLabels = pipe(
@@ -470,8 +470,8 @@ export function init(
                         />
                         <ul className="degree-sel">
                             {List.map(
-                                (lab) => (
-                                    <li>
+                                (lab, i) => (
+                                    <li key={`${i}:${lab}`}>
                                         <label>
                                             {lab.v}
                                             <input
