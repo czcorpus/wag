@@ -181,7 +181,7 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly tilesReadyTimeoutSecs: number;
 
-    private tilesDataStreams: { [streamId: string]: DataStreaming };
+    private readonly tilesDataStreams: Map<string, DataStreaming>;
 
     private readonly id: string;
 
@@ -208,7 +208,7 @@ export class DataStreaming implements IDataStreaming {
             ? apiReporting
             : { headerName: undefined, headerValue: undefined }),
             (this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs));
-        this.tilesDataStreams = {};
+        this.tilesDataStreams = new Map();
         this.requestSubject = new Subject<TileRequest | OtherTileRequest>();
         this.eventSources = new Set<EventSource>();
         this.subscriptions = new Set<Subscription>();
@@ -410,10 +410,10 @@ export class DataStreaming implements IDataStreaming {
             evtSrc.close();
         });
         this.eventSources.clear();
-        Object.keys(this.tilesDataStreams).forEach((streamId) => {
-            this.tilesDataStreams[streamId].cancel();
+        this.tilesDataStreams.forEach((stream) => {
+            stream.cancel();
         });
-        this.tilesDataStreams = {};
+        this.tilesDataStreams.clear();
     }
 
     /**
@@ -442,15 +442,18 @@ export class DataStreaming implements IDataStreaming {
         ...dependentTiles: Array<number>
     ): DataStreaming {
         const groupId = Ident.puid();
-        this.tilesDataStreams[groupId] = new DataStreaming({
-            id: groupId,
-            tileIds: [mainTileId, ...dependentTiles],
-            rootUrl: this.rootUrl,
-            tilesReadyTimeoutSecs: this.tilesReadyTimeoutSecs,
-            userSession: this.userSession,
-            apiReporting: this.apiReporting,
-        });
-        return this.tilesDataStreams[groupId];
+        this.tilesDataStreams.set(
+            groupId,
+            new DataStreaming({
+                id: groupId,
+                tileIds: [mainTileId, ...dependentTiles],
+                rootUrl: this.rootUrl,
+                tilesReadyTimeoutSecs: this.tilesReadyTimeoutSecs,
+                userSession: this.userSession,
+                apiReporting: this.apiReporting,
+            })
+        );
+        return this.tilesDataStreams.get(groupId);
     }
 
     /**
@@ -463,7 +466,7 @@ export class DataStreaming implements IDataStreaming {
      * @param subgroupId is the ID of the group
      */
     getSubgroup(subgroupId: string): DataStreaming {
-        const curr = this.tilesDataStreams[subgroupId];
+        const curr = this.tilesDataStreams.get(subgroupId);
         if (!curr) {
             throw new Error(
                 `DataStreaming subgroup ${subgroupId} does not exist.`
