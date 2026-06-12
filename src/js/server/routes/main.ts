@@ -29,6 +29,7 @@ import {
     addWildcardMatches,
     queryTypeToAction,
     LemmatizationLevel,
+    RecognizedQueries,
 } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
@@ -298,6 +299,7 @@ export function mkRuntimeClientConf({
                 maxTileErrors: conf.maxTileErrors,
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
                 hideUnavailableQueryTypes: conf.hideUnavailableQueryTypes,
+                hideLemmaSelector: conf.hideLemmaSelector,
                 supportsExactFormSearch: !conf.disableExactFormSearchOption,
                 apiReporting: serverConf.apiReporting
                     ? {
@@ -645,6 +647,13 @@ export function queryAction({
                     ),
                     runtimeConf: rxOf(runtimeConf),
                     layoutManager: rxOf(layoutManager),
+                    suggestions:
+                        answerMode && queryType === 'single'
+                            ? freqDb.findSuggestions(
+                                  appServices,
+                                  userConf.queries[0].word
+                              )
+                            : rxOf<Array<QueryMatch>>([]),
                     qMatchesEachQuery: rxOf(
                         ...List.map(
                             (query) =>
@@ -693,6 +702,7 @@ export function queryAction({
                 userConf,
                 hostPageEnv,
                 runtimeConf,
+                suggestions,
                 qMatchesEachQuery,
                 appServices,
                 dispatcher,
@@ -736,6 +746,7 @@ export function queryAction({
                 const { component, tileGroups } = createRootComponent({
                     config: runtimeConf,
                     userSession: userConf,
+                    suggestions,
                     queryMatches: queryMatchesExtended,
                     appServices,
                     dispatcher,
@@ -776,6 +787,7 @@ export function queryAction({
                         HtmlHead,
                         services,
                         toolbarData: hostPageEnv,
+                        suggestions,
                         queryMatches: queryMatchesExtended,
                         themes: runtimeConf.colorThemes,
                         currTheme: runtimeConf.colors.themeId,
@@ -839,6 +851,7 @@ export function queryAction({
                         HtmlHead,
                         services: services,
                         toolbarData: emptyValue(),
+                        suggestions: [],
                         queryMatches: [],
                         themes: [],
                         currTheme: currTheme.ident,

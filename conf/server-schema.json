@@ -1,6 +1,16 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
+        "APIReportingRefreshInterval": {
+            "enum": [
+                "10h",
+                "10m",
+                "1d",
+                "1h",
+                "1m"
+            ],
+            "type": "string"
+        },
         "FreqDbConf": {
             "properties": {
                 "corpusSize": {
@@ -130,6 +140,30 @@
         },
         "address": {
             "type": "string"
+        },
+        "apiReporting": {
+            "description": "A secret key for generating client identifier\nin api requests. This is intended only for roughly\nproper stats about API use. An \"attacker\" may steal\nthe public header value but it gives them no authentication,\nno advantages in limits etc. and it will be valid just\nfor a short time period.",
+            "properties": {
+                "appId": {
+                    "type": "string"
+                },
+                "headerName": {
+                    "type": "string"
+                },
+                "refreshInterval": {
+                    "$ref": "#/definitions/APIReportingRefreshInterval"
+                },
+                "secretKey": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "appId",
+                "headerName",
+                "refreshInterval",
+                "secretKey"
+            ],
+            "type": "object"
         },
         "develServer": {
             "properties": {

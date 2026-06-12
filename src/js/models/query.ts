@@ -48,6 +48,7 @@ export interface QueryFormModelState {
     availQueryTypes: Array<QueryType>;
     expandMobileMenu: boolean;
     hideUnavailableQueryTypes: boolean;
+    hideLemmaSelector: boolean;
     currTranslatLanguage: string;
     translatLanguages: Array<TranslatLanguage>;
     queryTypesMenuItems: Array<QueryTypeMenuItem>;
@@ -66,6 +67,7 @@ export interface QueryFormModelState {
         data: Array<{ value: string; score: number }>;
     };
     extendedIndex: boolean;
+    suggestions: Array<string>;
 }
 
 /**
@@ -448,6 +450,8 @@ export interface DefaultFactoryArgs {
     lemmatizationLevel: LemmatizationLevel;
     availQueryTypes: Array<QueryType>;
     hideUnavailableQueryTypes: boolean;
+    hideLemmaSelector: boolean;
+    suggestions: Array<string>;
     queryMatches: RecognizedQueries;
     isAnswerMode: boolean;
     uiLanguages: Array<AvailableLanguage>;
@@ -468,6 +472,7 @@ export const defaultFactory = ({
     queryType,
     lemmatizationLevel,
     availQueryTypes,
+    suggestions,
     queryMatches,
     isAnswerMode,
     uiLanguages,
@@ -476,6 +481,7 @@ export const defaultFactory = ({
     maxCmpQueries,
     maxQueryWords,
     hideUnavailableQueryTypes,
+    hideLemmaSelector,
     hpKeywords,
 }: DefaultFactoryArgs) => {
     return new QueryFormModel(dispatcher, appServices, {
@@ -492,11 +498,13 @@ export const defaultFactory = ({
         lemmatizationLevel,
         availQueryTypes,
         hideUnavailableQueryTypes,
+        hideLemmaSelector,
         initialQueryType: queryType,
         queryTypesMenuItems: layout.getQueryTypesMenuItems(),
         currTranslatLanguage: translatLanguage,
         translatLanguages: layout.getTranslatLanguages(),
         errors: [],
+        suggestions,
         queryMatches,
         isAnswerMode,
         uiLanguages,

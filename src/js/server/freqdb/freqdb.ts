@@ -23,6 +23,11 @@ import { SourceDetails } from '../../types.js';
 import { MainPosAttrValues } from '../../conf/index.js';
 
 export interface IFreqDB {
+    findSuggestions(
+        appServices: IAppServices,
+        word: string
+    ): Observable<Array<string>>;
+
     findQueryMatches(
         appServices: IAppServices,
         word: string,
