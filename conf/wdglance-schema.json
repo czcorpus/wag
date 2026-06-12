@@ -128,6 +128,9 @@
                         }
                     ]
                 },
+                "formElementsBorderRadius": {
+                    "type": "string"
+                },
                 "geoAreaSpotFillColor": {
                     "type": "string"
                 },
@@ -153,6 +156,12 @@
                     "type": "string"
                 },
                 "pageBackgroundColor": {
+                    "type": "string"
+                },
+                "queryFormBackgroundColor": {
+                    "type": "string"
+                },
+                "queryFormBorderColor": {
                     "type": "string"
                 },
                 "scale": {
@@ -199,6 +208,10 @@
                     "type": "string"
                 },
                 "tileHeadingSeparColor": {
+                    "type": "string"
+                },
+                "toggleButtonCircleColor": {
+                    "description": "For some themes (e.g. dark ones, the circle's default\ncolor - page background) may not be most readable.\nFor those cases, a custom color can be set.",
                     "type": "string"
                 }
             },
@@ -900,6 +913,18 @@
                     ],
                     "description": "A label used in the header of the tile"
                 },
+                "lemmatizationLevels": {
+                    "description": "In case a tile supports only some of the lemmatization levels,\nit should be configured. If empty, WaG assumes the tile supports\nall the types.",
+                    "items": {
+                        "enum": [
+                            "form",
+                            "lemma",
+                            "sublemma"
+                        ],
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "maxTileHeight": {
                     "description": "Defines tile max height using a css value (e.g. '10em', '130px').\nIf other tiles in the row enforce more height, the value is ignored\n(but a possible scrollbar is still applied if needed).",
                     "type": "string"
@@ -995,6 +1020,9 @@
             "description": "This specifies an URL used by the DataStreaming class\nto start an EventSource stream. The fact whether it will\nbe used or not is given solely by tiles configuration.\nI.e. if there will be no tile with `useDataStreaming` set\nto true, then it does not matter whether this value\nis filled or not.",
             "type": "string"
         },
+        "disableExactFormSearchOption": {
+            "type": "boolean"
+        },
         "externalStyles": {
             "items": {
                 "type": "string"
@@ -1003,6 +1031,9 @@
         },
         "favicon": {
             "$ref": "#/definitions/FaviconConf"
+        },
+        "hideLemmaSelector": {
+            "type": "boolean"
         },
         "hideUnavailableQueryTypes": {
             "type": "boolean"
