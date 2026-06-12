@@ -299,6 +299,7 @@ export function mkRuntimeClientConf({
                 maxTileErrors: conf.maxTileErrors,
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
                 hideUnavailableQueryTypes: conf.hideUnavailableQueryTypes,
+                hideLemmaSelector: conf.hideLemmaSelector,
                 supportsExactFormSearch: !conf.disableExactFormSearchOption,
                 apiReporting: serverConf.apiReporting
                     ? {
@@ -646,9 +647,13 @@ export function queryAction({
                     ),
                     runtimeConf: rxOf(runtimeConf),
                     layoutManager: rxOf(layoutManager),
-                    suggestions: answerMode
-                        ? rxOf(['suugestion1', 'suggestion2', 'suggestion3'])
-                        : rxOf([]),
+                    suggestions:
+                        answerMode && queryType === 'single'
+                            ? freqDb.findSuggestions(
+                                  appServices,
+                                  userConf.queries[0].word
+                              )
+                            : rxOf<Array<QueryMatch>>([]),
                     qMatchesEachQuery: rxOf(
                         ...List.map(
                             (query) =>

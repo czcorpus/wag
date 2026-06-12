@@ -202,6 +202,7 @@ export function createRootComponent({
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords,
         hideUnavailableQueryTypes: !!config.hideUnavailableQueryTypes,
+        hideLemmaSelector: !!config.hideLemmaSelector,
         hpKeywords: {
             label: config.homepage.wordCloud?.label,
             apiUrl: config.homepage.wordCloud?.url,

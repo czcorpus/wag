@@ -489,8 +489,16 @@ export const Suggestions = styled.div<{ theme: Theme }>`
 
 export const SubmenuTile = styled.section`
     display: flex;
+    flex-direction: column;
     padding: 0;
     justify-content: center;
+
+    .hline {
+        width: 50%;
+        margin: 0.5em auto;
+        height: 0;
+        border-top: 1px solid ${(props) => props.theme.colorLightText};
+    }
 `;
 
 // --------------- <HamburgerButton /> --------------------------------------

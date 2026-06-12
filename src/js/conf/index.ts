@@ -215,6 +215,7 @@ export interface ClientStaticConf {
     logo?: LogoStaticConf;
     instanceSwitchMenu?: Array<InstanceLink> | string;
     hideUnavailableQueryTypes?: boolean;
+    hideLemmaSelector?: boolean;
     dataReadability?: DataReadabilityMapping | string;
     apiHeaders: { [urlPrefix: string]: HTTPHeaders };
     onLoadInit?: Array<string>;
@@ -295,6 +296,7 @@ export interface ClientConf {
     logo?: LogoRuntimeConf;
     instanceSwitchMenu?: Array<{ label: string; url: string }>;
     hideUnavailableQueryTypes?: boolean;
+    hideLemmaSelector?: boolean;
     colors?: ColorTheme;
     colorThemes: Array<ColorThemeIdent>;
     onLoadInit?: Array<string>;

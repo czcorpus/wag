@@ -1090,11 +1090,6 @@ export function init(
                             }
                         />
                     </div>
-                    {props.isAnswerMode &&
-                    state.queryType === 'single' &&
-                    !List.empty(state.suggestions) ? (
-                        <Suggestions words={state.suggestions} />
-                    ) : null}
                 </form>
             </S.WdglanceControls>
         );
@@ -2446,14 +2441,24 @@ export function init(
 
         return (
             <S.SubmenuTile>
-                <LemmaSelector
-                    matches={state.queryMatches}
-                    queries={state.queries.map((v) => v.value)}
-                    lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
-                    modalSelections={state.modalSelections}
-                    mainPosAttr={state.mainPosAttr}
-                    lemlevel={state.lemmatizationLevel}
-                />
+                {!state.hideLemmaSelector ? (
+                    <LemmaSelector
+                        matches={state.queryMatches}
+                        queries={state.queries.map((v) => v.value)}
+                        lemmaSelectorModalVisible={
+                            state.lemmaSelectorModalVisible
+                        }
+                        modalSelections={state.modalSelections}
+                        mainPosAttr={state.mainPosAttr}
+                        lemlevel={state.lemmatizationLevel}
+                    />
+                ) : null}
+                {!List.empty(state.suggestions) && !state.hideLemmaSelector ? (
+                    <div className="hline" />
+                ) : null}
+                {!List.empty(state.suggestions) ? (
+                    <Suggestions words={state.suggestions} />
+                ) : null}
             </S.SubmenuTile>
         );
     };

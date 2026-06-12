@@ -18,7 +18,7 @@
 import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
-import { concatMap, tap } from 'rxjs/operators';
+import { concatMap, map, tap } from 'rxjs/operators';
 import { HTTP, List, Dict } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices.js';
