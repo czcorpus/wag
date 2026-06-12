@@ -138,8 +138,11 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
             }
         );
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.data = List.map(
                     (item) => ({ ...item, isBusy: true }),
@@ -148,7 +151,15 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.reloadData(appServices.dataStreaming(), state, seDispatch);
+                this.reloadData(
+                    action.payload?.tileId === undefined
+                        ? appServices.dataStreaming()
+                        : appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
+                    state,
+                    seDispatch
+                );
             }
         );
 

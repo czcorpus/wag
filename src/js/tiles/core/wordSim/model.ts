@@ -126,14 +126,25 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             }
         );
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.getData(state, appServices.dataStreaming(), seDispatch);
+                this.getData(
+                    state,
+                    action.payload?.tileId === undefined
+                        ? appServices.dataStreaming()
+                        : appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
+                    seDispatch
+                );
             }
         );
         this.addActionHandler<typeof Actions.TileDataLoaded>(

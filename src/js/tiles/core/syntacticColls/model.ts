@@ -115,14 +115,25 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             }
         );
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                this.reloadData(appServices.dataStreaming(), state, seDispatch);
+                this.reloadData(
+                    action.payload?.tileId === undefined
+                        ? appServices.dataStreaming()
+                        : appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
+                    state,
+                    seDispatch
+                );
             }
         );
 

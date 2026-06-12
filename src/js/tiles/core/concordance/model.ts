@@ -261,13 +261,25 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler(GlobalActions.RequestQueryResponse, (action) => {
-            this.changeState((state) => {
-                state.isBusy = true;
-                state.error = null;
-            });
-            this.reloadData(this.appServices.dataStreaming());
-        });
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = true;
+                    state.error = null;
+                });
+                this.reloadData(
+                    action.payload?.tileId === undefined
+                        ? this.appServices.dataStreaming()
+                        : this.appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId)
+                );
+            }
+        );
 
         this.addActionSubtypeHandler(
             Actions.PartialTileDataLoaded,

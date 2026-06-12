@@ -34,7 +34,7 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { TileResponseError } from '../../../page/streaming.js';
+import { IDataStreaming, TileResponseError } from '../../../page/streaming.js';
 
 export interface FlevelDistribItem {
     rel: number;
@@ -119,8 +119,11 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         this.appServices = appServices;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -128,7 +131,14 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 state.queryMatches = findCurrentMatches(queryMatches);
             },
             (state, action, dispatch) =>
-                this.loadExtendedFreqInfo(state).subscribe({
+                this.loadExtendedFreqInfo(
+                    state,
+                    action.payload?.tileId === undefined
+                        ? this.appServices.dataStreaming()
+                        : this.appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId)
+                ).subscribe({
                     next: (data) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
@@ -225,7 +235,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
     }
 
     private loadExtendedFreqInfo(
-        state: SummaryModelState
+        state: SummaryModelState,
+        dsHandler: IDataStreaming
     ): Observable<Array<SimilarFreqWord>> {
         return new Observable<{
             variant: QueryMatch;
@@ -247,7 +258,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         }).pipe(
             mergeMap((args) =>
                 this.api.call(
-                    this.appServices.dataStreaming(),
+                    dsHandler,
                     this.tileId,
                     args.idx,
                     args.variant.lemma

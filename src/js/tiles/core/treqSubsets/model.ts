@@ -163,8 +163,11 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
         this.appServices = appServices;
         this.scaleColorGen = scaleColorGen;
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -173,7 +176,11 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                 const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
                 this.api
                     .call(
-                        this.appServices.dataStreaming(),
+                        action.payload?.tileId === undefined
+                            ? this.appServices.dataStreaming()
+                            : this.appServices
+                                  .dataStreaming()
+                                  .startNewSubgroup(this.tileId),
                         this.tileId,
                         0,
                         this.stateToArgs(state, srchLemma.lemma)

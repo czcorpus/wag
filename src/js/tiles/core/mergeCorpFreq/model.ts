@@ -95,14 +95,25 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.loadFreqs(state, appServices.dataStreaming(), dispatch);
+                this.loadFreqs(
+                    state,
+                    action.payload?.tileId === undefined
+                        ? appServices.dataStreaming()
+                        : appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
+                    dispatch
+                );
             }
         );
 

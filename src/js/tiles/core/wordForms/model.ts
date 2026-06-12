@@ -33,6 +33,7 @@ import { MainPosAttrValues } from '../../../conf/index.js';
 import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface WordFormsModelState {
     isBusy: boolean;
@@ -137,8 +138,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -181,6 +185,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             mainPosAttr: state.mainPosAttr,
                             initialCap: variant.initialCap,
                         },
+                        action.payload?.tileId === undefined
+                            ? this.appServices.dataStreaming()
+                            : this.appServices
+                                  .dataStreaming()
+                                  .startNewSubgroup(this.tileId),
                         dispatch
                     );
                 }
@@ -290,9 +299,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         );
     }
 
-    private fetchWordForms(args: RequestArgs, dispatch: SEDispatcher): void {
+    private fetchWordForms(
+        args: RequestArgs,
+        dsHandler: IDataStreaming,
+        dispatch: SEDispatcher
+    ): void {
         this.api
-            .call(this.appServices.dataStreaming(), this.tileId, 0, args)
+            .call(dsHandler, this.tileId, 0, args)
             .pipe(
                 map((v) => {
                     const updated = Maths.calcPercentRatios(

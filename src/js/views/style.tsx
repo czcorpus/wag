@@ -88,6 +88,7 @@ export const SystemMessage = styled.li<{ theme: Theme }>`
             p.text {
                 margin: 0;
                 flex-grow: 1;
+                overflow: hidden;
             }
 
             .close {

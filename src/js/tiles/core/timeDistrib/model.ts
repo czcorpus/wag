@@ -170,8 +170,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.infoApi = infoApi;
         this.lemlevelSupp = lemlevelSupp;
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.data = List.map((_) => [], this.queryMatches);
                 state.mainBacklinks = List.map((_) => null, this.queryMatches);
@@ -183,7 +186,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 this.loadData(
                     state,
-                    appServices.dataStreaming(),
+                    action.payload?.tileId === undefined
+                        ? appServices.dataStreaming()
+                        : appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
                     SubchartID.MAIN,
                     dispatch
                 );

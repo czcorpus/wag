@@ -25,6 +25,7 @@ import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
 import { IAppServices } from '../../../appServices.js';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface TranslationModelArgs {
     dispatcher: IActionQueue;
@@ -63,14 +64,25 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.loadData(state, dispatch);
+                this.loadData(
+                    state,
+                    action.payload?.tileId === undefined
+                        ? this.appServices.dataStreaming()
+                        : this.appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
+                    dispatch
+                );
             }
         );
 
@@ -168,12 +180,13 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
     private loadData(
         state: TranslationsModelState,
+        dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
         this.api
             .call(
-                this.appServices.dataStreaming(),
+                dsHandler,
                 this.tileId,
                 0,
                 this.stateToArgs(state, srchLemma.lemma)

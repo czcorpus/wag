@@ -128,8 +128,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.isAltViewMode = false;
             }
         );
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -137,7 +140,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action, seDispatch) => {
                 this.reloadAllData(
                     state,
-                    this.appServices.dataStreaming(),
+                    action.payload?.tileId === undefined
+                        ? this.appServices.dataStreaming()
+                        : this.appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId, ...dependentTiles),
                     rxOf(
                         ...List.map((qm, i) => tuple(i, qm), this.queryMatches)
                     ),

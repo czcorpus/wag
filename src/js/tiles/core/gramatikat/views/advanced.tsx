@@ -16,14 +16,10 @@
  * limitations under the License.
  */
 
-import { IActionDispatcher, useModel, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { GramatikatModel, WordData } from '../model.js';
-import {
-    CoreTileComponentProps,
-    TileComponent,
-} from '../../../../page/tile.js';
 import * as React from 'react';
 import { List } from 'cnc-tskit';
 import {
@@ -37,8 +33,6 @@ import {
     YAxis,
 } from 'recharts';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
-import { init as multiWordViewInit } from './cmp.js';
-import { View } from '../../syntacticCollsVsTextTypes/style.js';
 
 type SAVProps = WordData & { alpha: number };
 
@@ -58,13 +52,8 @@ export function init(
         pos,
         alpha,
     }) => {
-        const message = chartData.hasSignificantDeviations
-            ? ut.translate('gramatikat__showing_stat_signif_values')
-            : ut.translate('gramatikat__there_are_no_stat_signif_values');
-
         return (
             <div>
-                <p>{message}</p>
                 <div
                     style={{
                         width: '80%',

@@ -150,14 +150,23 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.queryType = queryType;
         this.lemlevelSupp = lemlevelSupp;
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.backlinks = List.map((_) => null, this.queryMatches);
                 state.error = null;
             },
             (state, action, dispatch) => {
+                const dsHandler =
+                    action.payload?.tileId === undefined
+                        ? this.appServices.dataStreaming()
+                        : this.appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId);
                 const dataStream = new Observable<
                     [MQueryFreqArgs | null, number]
                 >((observer) => {
@@ -183,13 +192,13 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     mergeMap(([args, queryIdx]) =>
                         zip(
                             this.mapLoader.call(
-                                this.appServices.dataStreaming(),
+                                dsHandler,
                                 this.tileId,
                                 queryIdx,
                                 'mapCzech.inline.svg'
                             ),
                             this.freqApi.call(
-                                this.appServices.dataStreaming(),
+                                dsHandler,
                                 this.tileId,
                                 queryIdx,
                                 args

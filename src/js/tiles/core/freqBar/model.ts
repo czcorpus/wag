@@ -131,84 +131,96 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
             }
         );
 
-        this.addActionHandler(GlobalActions.RequestQueryResponse, (action) => {
-            this.changeState((state) => {
-                List.forEach((item) => {
-                    item.isReady = false;
-                }, state.freqData);
-                state.isBusy = true;
-                state.error = null;
-            });
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    List.forEach((item) => {
+                        item.isReady = false;
+                    }, state.freqData);
+                    state.isBusy = true;
+                    state.error = null;
+                });
 
-            new Observable<[MQueryFreqArgs, { queryIdx: number }]>(
-                (observer) => {
-                    try {
-                        pipe(
-                            this.queryMatches,
-                            List.map((currMatch, queryIdx) =>
-                                tuple(this.stateToArgs(currMatch), {
-                                    queryIdx,
-                                })
-                            ),
-                            List.forEach((args) => observer.next(args))
-                        );
-                        observer.complete();
-                    } catch (e) {
-                        observer.error(e);
+                new Observable<[MQueryFreqArgs, { queryIdx: number }]>(
+                    (observer) => {
+                        try {
+                            pipe(
+                                this.queryMatches,
+                                List.map((currMatch, queryIdx) =>
+                                    tuple(this.stateToArgs(currMatch), {
+                                        queryIdx,
+                                    })
+                                ),
+                                List.forEach((args) => observer.next(args))
+                            );
+                            observer.complete();
+                        } catch (e) {
+                            observer.error(e);
+                        }
                     }
-                }
-            )
-                .pipe(
-                    mergeMap(([args, pass]) =>
-                        appServices.callAPIWithExtraVal(
-                            this.api,
-                            this.appServices.dataStreaming(),
-                            this.tileId,
-                            pass.queryIdx,
-                            args,
-                            pass
+                )
+                    .pipe(
+                        mergeMap(([args, pass]) =>
+                            appServices.callAPIWithExtraVal(
+                                this.api,
+                                action.payload?.tileId === undefined
+                                    ? this.appServices.dataStreaming()
+                                    : this.appServices
+                                          .dataStreaming()
+                                          .startNewSubgroup(this.tileId),
+                                this.tileId,
+                                pass.queryIdx,
+                                args,
+                                pass
+                            )
                         )
                     )
-                )
-                .subscribe({
-                    next: ([data, pass]) => {
-                        this.changeState((state) => {
-                            state.freqData[pass.queryIdx].rows = data.data;
-                            state.freqData[pass.queryIdx].isReady = true;
-                            state.backlinks[pass.queryIdx] =
-                                this.api.getBacklink(pass.queryIdx);
-                        });
-                    },
-                    complete: () => {
-                        this.changeState((state) => {
-                            state.isBusy = false;
-                        });
-                    },
-                    error: (error) => {
-                        this.changeState((state) => {
-                            state.freqData = List.map(
-                                (match) => ({
-                                    word: match.word,
-                                    isReady: true,
-                                    rows: [],
-                                }),
-                                this.queryMatches
+                    .subscribe({
+                        next: ([data, pass]) => {
+                            this.changeState((state) => {
+                                state.freqData[pass.queryIdx].rows = data.data;
+                                state.freqData[pass.queryIdx].isReady = true;
+                                state.backlinks[pass.queryIdx] =
+                                    this.api.getBacklink(pass.queryIdx);
+                            });
+                        },
+                        complete: () => {
+                            this.changeState((state) => {
+                                state.isBusy = false;
+                            });
+                        },
+                        error: (error) => {
+                            this.changeState((state) => {
+                                state.freqData = List.map(
+                                    (match) => ({
+                                        word: match.word,
+                                        isReady: true,
+                                        rows: [],
+                                    }),
+                                    this.queryMatches
+                                );
+                                state.backlinks = List.map(
+                                    (_) => null,
+                                    this.queryMatches
+                                );
+                                state.error =
+                                    this.appServices.normalizeHttpApiError(
+                                        error
+                                    );
+                                state.isBusy = false;
+                            });
+                            this.appServices.showMessage(
+                                SystemMessageType.ERROR,
+                                error
                             );
-                            state.backlinks = List.map(
-                                (_) => null,
-                                this.queryMatches
-                            );
-                            state.error =
-                                this.appServices.normalizeHttpApiError(error);
-                            state.isBusy = false;
-                        });
-                        this.appServices.showMessage(
-                            SystemMessageType.ERROR,
-                            error
-                        );
-                    },
-                });
-        });
+                        },
+                    });
+            }
+        );
 
         this.addActionSubtypeHandler(
             GlobalActions.GetSourceInfo,

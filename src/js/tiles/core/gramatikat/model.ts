@@ -205,15 +205,27 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
         this.appServices = appServices;
         this.tileId = tileId;
 
-        this.addActionHandler(GlobalActions.RequestQueryResponse, (action) => {
-            this.changeState((state) => {
-                state.isBusy = true;
-                state.error = null;
-            });
-            this.processResponse(
-                this.loadData(this.appServices.dataStreaming())
-            );
-        });
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = true;
+                    state.error = null;
+                });
+                this.processResponse(
+                    this.loadData(
+                        action.payload?.tileId === undefined
+                            ? this.appServices.dataStreaming()
+                            : this.appServices
+                                  .dataStreaming()
+                                  .startNewSubgroup(this.tileId)
+                    )
+                );
+            }
+        );
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,

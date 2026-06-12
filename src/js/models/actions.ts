@@ -24,6 +24,11 @@ import { Backlink } from '../page/tile.js';
 export class Actions {
     static RequestQueryResponse: Action<{
         focusedTile?: string;
+
+        /**
+         * If defined, we assume the action is actually tile reload.
+         */
+        tileId?: number;
     }> = {
         name: 'MAIN_REQUEST_QUERY_RESPONSE',
     };

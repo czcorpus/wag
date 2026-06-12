@@ -96,8 +96,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         this.audioLinkGenerator = audioLinkGenerator;
         this.lemlevelSupp = lemlevelSupp;
 
-        this.addActionHandler(
+        this.addActionSubtypeHandler(
             GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -105,7 +108,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             (state, action, dispatch) => {
                 this.reloadData({
                     state,
-                    streaming: appServices.dataStreaming(),
+                    streaming:
+                        action.payload?.tileId === undefined
+                            ? appServices.dataStreaming()
+                            : appServices
+                                  .dataStreaming()
+                                  .startNewSubgroup(this.tileId),
                     dispatch,
                     range: tuple(state.leftRange, state.rightRange),
                 });

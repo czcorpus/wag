@@ -25,6 +25,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 export interface HtmlModelArgs {
     dispatcher: IActionQueue;
@@ -58,15 +59,27 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
         this.service = service;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch) => {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
-                this.requestData(state, variant.lemma, seDispatch);
+                this.requestData(
+                    state,
+                    variant.lemma,
+                    action.payload?.tileId === undefined
+                        ? this.appServices.dataStreaming()
+                        : this.appServices
+                              .dataStreaming()
+                              .startNewSubgroup(this.tileId),
+                    seDispatch
+                );
             }
         );
 
@@ -105,11 +118,12 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     private requestData(
         state: HtmlModelState,
         variant: string,
+        dataStreaming: IDataStreaming,
         seDispatch: SEDispatcher
     ): void {
         (variant
             ? this.service.call(
-                  this.appServices.dataStreaming(),
+                  dataStreaming,
                   this.tileId,
                   0,
                   this.service.stateToArgs(state, variant)
