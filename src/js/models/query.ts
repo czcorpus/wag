@@ -66,6 +66,7 @@ export interface QueryFormModelState {
         data: Array<{ value: string; score: number }>;
     };
     extendedIndex: boolean;
+    suggestions: Array<string>;
 }
 
 /**
@@ -448,6 +449,7 @@ export interface DefaultFactoryArgs {
     lemmatizationLevel: LemmatizationLevel;
     availQueryTypes: Array<QueryType>;
     hideUnavailableQueryTypes: boolean;
+    suggestions: Array<string>;
     queryMatches: RecognizedQueries;
     isAnswerMode: boolean;
     uiLanguages: Array<AvailableLanguage>;
@@ -468,6 +470,7 @@ export const defaultFactory = ({
     queryType,
     lemmatizationLevel,
     availQueryTypes,
+    suggestions,
     queryMatches,
     isAnswerMode,
     uiLanguages,
@@ -497,6 +500,7 @@ export const defaultFactory = ({
         currTranslatLanguage: translatLanguage,
         translatLanguages: layout.getTranslatLanguages(),
         errors: [],
+        suggestions,
         queryMatches,
         isAnswerMode,
         uiLanguages,

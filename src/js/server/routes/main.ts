@@ -29,6 +29,7 @@ import {
     addWildcardMatches,
     queryTypeToAction,
     LemmatizationLevel,
+    RecognizedQueries,
 } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
@@ -645,6 +646,9 @@ export function queryAction({
                     ),
                     runtimeConf: rxOf(runtimeConf),
                     layoutManager: rxOf(layoutManager),
+                    suggestions: answerMode
+                        ? rxOf(['suugestion1', 'suggestion2', 'suggestion3'])
+                        : rxOf([]),
                     qMatchesEachQuery: rxOf(
                         ...List.map(
                             (query) =>
@@ -693,6 +697,7 @@ export function queryAction({
                 userConf,
                 hostPageEnv,
                 runtimeConf,
+                suggestions,
                 qMatchesEachQuery,
                 appServices,
                 dispatcher,
@@ -736,6 +741,7 @@ export function queryAction({
                 const { component, tileGroups } = createRootComponent({
                     config: runtimeConf,
                     userSession: userConf,
+                    suggestions,
                     queryMatches: queryMatchesExtended,
                     appServices,
                     dispatcher,
@@ -776,6 +782,7 @@ export function queryAction({
                         HtmlHead,
                         services,
                         toolbarData: hostPageEnv,
+                        suggestions,
                         queryMatches: queryMatchesExtended,
                         themes: runtimeConf.colorThemes,
                         currTheme: runtimeConf.colors.themeId,
@@ -839,6 +846,7 @@ export function queryAction({
                         HtmlHead,
                         services: services,
                         toolbarData: emptyValue(),
+                        suggestions: [],
                         queryMatches: [],
                         themes: [],
                         currTheme: currTheme.ident,

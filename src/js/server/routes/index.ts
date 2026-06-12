@@ -99,6 +99,7 @@ export function errorPage({
             HtmlHead,
             services: services,
             toolbarData: emptyValue(),
+            suggestions: [],
             queryMatches: [],
             themes: [],
             currTheme: clientConfig.colors.themeId,
