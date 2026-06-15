@@ -21,11 +21,11 @@
     "@swc/core": "^1.15.24",
     "@swc/plugin-styled-components": "^12.8.0",
     "@types/chai": "^4.3.3",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.10",
     "@types/sinon": "^10.0.13",
     "@typescript/native-preview": "^7.0.0-beta",
     "ajv-cli": "^5.0.0",
-    "chai": "^4.3.6",
+    "chai": "^6.2.2",
     "clean-webpack-plugin": "^4.0.0",
     "file-loader": "^6.2.0",
     "merge": "~2.1.1",
@@ -86,6 +86,9 @@
   "overrides": {
     "ajv-cli": {
       "fast-json-patch": "^3.1.1"
-    }
+    },
+    "uuid": "^11.1.1",
+    "diff": "^8.0.3",
+    "serialize-javascript": "^7.0.5"
   }
 }
