@@ -35,6 +35,7 @@ export interface HtmlBodyProps {
     config: ClientConf;
     userConfig: UserConf;
     hostPageEnv: HostPageEnv;
+    suggestions: Array<string>;
     queryMatches: RecognizedQueries;
     uiLanguages: Array<AvailableLanguage>;
     homepageTiles: Array<{
@@ -340,7 +341,7 @@ export function init(
 
         const createScriptStr = () => {
             return `const dispatcher = indexPage.initClient(document.querySelector('.wdglance-mount'),
-                ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.queryMatches)});
+                ${marshalJSON(props.config)}, ${marshalJSON(props.userConfig)}, ${marshalJSON(props.suggestions)}, ${marshalJSON(props.queryMatches)});
                 const aboutLinkSrch = window.document.getElementById('app-about-link');
                 if (aboutLinkSrch) {
                     aboutLinkSrch.addEventListener('click', () => { dispatcher.dispatch({name: 'MAIN_ABOUT_APP_LINK_CLICKED', payload: ${JSON.stringify(clickableAboutContent)}}); });

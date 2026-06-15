@@ -56,6 +56,7 @@ import {
 import { Theme } from '../page/theme.js';
 import { init as wcloudViewInit, WordCloudItem } from './wordCloud/index.js';
 import urlJoin from 'url-join';
+import { HTTPAction } from '../page/actions.js';
 
 export interface WdglanceMainProps {
     layout: Array<TileGroup>;
@@ -954,6 +955,33 @@ export function init(
                 </S.LemmaSelector>
             );
         }
+    };
+
+    // ------------------ <Suggestions /> -----------------------------------
+
+    const Suggestions: React.FC<{
+        words: Array<string>;
+    }> = (props) => {
+        return (
+            <S.Suggestions>
+                <span>{ut.translate('global__suggestions')}: </span>
+                {List.map(
+                    (w, i) => (
+                        <>
+                            {i > 0 ? ', ' : null}
+                            <a
+                                href={ut.createActionUrl(
+                                    `${HTTPAction.SEARCH}${w}`
+                                )}
+                            >
+                                {w}
+                            </a>
+                        </>
+                    ),
+                    props.words
+                )}
+            </S.Suggestions>
+        );
     };
 
     // ------------------ <WdglanceControls /> ------------------------------
@@ -2413,14 +2441,24 @@ export function init(
 
         return (
             <S.SubmenuTile>
-                <LemmaSelector
-                    matches={state.queryMatches}
-                    queries={state.queries.map((v) => v.value)}
-                    lemmaSelectorModalVisible={state.lemmaSelectorModalVisible}
-                    modalSelections={state.modalSelections}
-                    mainPosAttr={state.mainPosAttr}
-                    lemlevel={state.lemmatizationLevel}
-                />
+                {!state.hideLemmaSelector ? (
+                    <LemmaSelector
+                        matches={state.queryMatches}
+                        queries={state.queries.map((v) => v.value)}
+                        lemmaSelectorModalVisible={
+                            state.lemmaSelectorModalVisible
+                        }
+                        modalSelections={state.modalSelections}
+                        mainPosAttr={state.mainPosAttr}
+                        lemlevel={state.lemmatizationLevel}
+                    />
+                ) : null}
+                {!List.empty(state.suggestions) && !state.hideLemmaSelector ? (
+                    <div className="hline" />
+                ) : null}
+                {!List.empty(state.suggestions) ? (
+                    <Suggestions words={state.suggestions} />
+                ) : null}
             </S.SubmenuTile>
         );
     };

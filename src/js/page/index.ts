@@ -145,6 +145,7 @@ export function initClient(
     mountElement: HTMLElement,
     config: ClientConf,
     userSession: UserConf,
+    suggestions: Array<string>,
     queryMatches: RecognizedQueries
 ): ActionDispatcher {
     const dispatcher = new ActionDispatcher();
@@ -284,6 +285,7 @@ export function initClient(
             const { component, tileGroups } = createRootComponent({
                 config,
                 userSession,
+                suggestions,
                 queryMatches,
                 appServices,
                 dispatcher,

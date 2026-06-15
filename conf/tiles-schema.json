@@ -97,6 +97,18 @@
                     ],
                     "description": "A label used in the header of the tile"
                 },
+                "lemmatizationLevels": {
+                    "description": "In case a tile supports only some of the lemmatization levels,\nit should be configured. If empty, WaG assumes the tile supports\nall the types.",
+                    "items": {
+                        "enum": [
+                            "form",
+                            "lemma",
+                            "sublemma"
+                        ],
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "maxTileHeight": {
                     "description": "Defines tile max height using a css value (e.g. '10em', '130px').\nIf other tiles in the row enforce more height, the value is ignored\n(but a possible scrollbar is still applied if needed).",
                     "type": "string"

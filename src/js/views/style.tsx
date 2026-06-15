@@ -470,12 +470,35 @@ export const LemmaSelector = styled.div<{ theme: Theme }>`
     }
 `;
 
+// -------------- <Suggestions /> --------------------------------------------
+
+export const Suggestions = styled.div<{ theme: Theme }>`
+    font-size: 80%;
+    padding: 0;
+    color: ${(props) => props.theme.colorLightText};
+    text-align: center;
+    font-style: italic;
+
+    a {
+        text-decoration: none;
+        color: ${(props) => props.theme.colorLogoBlueHiContrast};
+    }
+`;
+
 // -------------- <SubmenuTile /> --------------------------------------------
 
 export const SubmenuTile = styled.section`
     display: flex;
+    flex-direction: column;
     padding: 0;
     justify-content: center;
+
+    .hline {
+        width: 50%;
+        margin: 0.5em auto;
+        height: 0;
+        border-top: 1px solid ${(props) => props.theme.colorLightText};
+    }
 `;
 
 // --------------- <HamburgerButton /> --------------------------------------

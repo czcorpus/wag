@@ -128,6 +128,7 @@ const mkAttachTile =
 export interface InitIntArgs {
     config: ClientConf;
     userSession: UserConf;
+    suggestions: Array<string>;
     queryMatches: RecognizedQueries;
     appServices: IAppServices;
     dispatcher: IFullActionControl;
@@ -140,6 +141,7 @@ export function createRootComponent({
     config,
     userSession,
     queryMatches,
+    suggestions,
     appServices,
     dispatcher,
     onResize,
@@ -176,6 +178,7 @@ export function createRootComponent({
             List.map((x) => x.type)
         ),
         queryMatches: queryMatches,
+        suggestions,
         isAnswerMode: userSession.answerMode,
         uiLanguages: pipe(
             userSession.uiLanguages,
@@ -199,6 +202,7 @@ export function createRootComponent({
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords,
         hideUnavailableQueryTypes: !!config.hideUnavailableQueryTypes,
+        hideLemmaSelector: !!config.hideLemmaSelector,
         hpKeywords: {
             label: config.homepage.wordCloud?.label,
             apiUrl: config.homepage.wordCloud?.url,

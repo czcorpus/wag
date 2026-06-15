@@ -229,6 +229,7 @@ interface RenderResultArgs {
     HtmlHead: React.FC<HtmlHeadProps>;
     services: Services;
     toolbarData: HostPageEnv;
+    suggestions: Array<string>;
     queryMatches: RecognizedQueries;
     userConfig: UserConf;
     clientConfig: ClientConf;
@@ -254,6 +255,7 @@ export function renderResult({
     HtmlBody,
     HtmlHead,
     toolbarData,
+    suggestions,
     queryMatches,
     userConfig,
     clientConfig,
@@ -282,6 +284,7 @@ export function renderResult({
                     config: clientConfig,
                     userConfig,
                     hostPageEnv: toolbarData,
+                    suggestions,
                     queryMatches: queryMatches,
                     uiLanguages: pipe(
                         userConfig.uiLanguages,

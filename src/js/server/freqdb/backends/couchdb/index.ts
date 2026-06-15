@@ -249,6 +249,13 @@ export class CouchFreqDB implements IFreqDB {
         );
     }
 
+    findSuggestions(
+        appServices: IAppServices,
+        word: string
+    ): Observable<Array<string>> {
+        return rxOf([]);
+    }
+
     findQueryMatches(
         appServices: IAppServices,
         word: string,

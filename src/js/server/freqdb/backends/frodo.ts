@@ -43,6 +43,7 @@ interface HTTPNgramDoc {
 
 interface HTTPNgramResponse {
     matches: Array<HTTPNgramDoc>;
+    suggestions?: Array<string>;
     error: string | undefined;
 }
 
@@ -67,6 +68,17 @@ export class FrodoClient implements IFreqDB {
         this.apiServices = apiServices;
     }
 
+    findSuggestions(
+        appServices: IAppServices,
+        word: string
+    ): Observable<Array<string>> {
+        return serverHttpRequest<HTTPNgramResponse>({
+            url: urlJoin(this.apiURL, `search`, word),
+            method: HTTP.Method.GET,
+            params: {},
+        }).pipe(map((resp) => resp.suggestions || []));
+    }
+
     findQueryMatches(
         appServices: IAppServices,
         word: string,
@@ -79,8 +91,8 @@ export class FrodoClient implements IFreqDB {
             method: HTTP.Method.GET,
             params: {},
         }).pipe(
-            map((resp) => {
-                return pipe(
+            map((resp) =>
+                pipe(
                     resp.matches,
                     List.flatMap((v, i) =>
                         pipe(
@@ -166,8 +178,8 @@ export class FrodoClient implements IFreqDB {
                             })
                         )
                     )
-                );
-            })
+                )
+            )
         );
     }
 
