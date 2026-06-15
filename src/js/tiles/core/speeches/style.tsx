@@ -109,7 +109,7 @@ export const Speaker = styled.dt<{ theme: Theme }>`
 
 // -------------- <Speech /> -----------------
 
-export const Speech = styled.dd`
+export const Speech = styled.dd<{ theme: Theme }>`
     margin-top: 0.3em;
     line-height: 1.2em;
     margin-left: 0.7em;

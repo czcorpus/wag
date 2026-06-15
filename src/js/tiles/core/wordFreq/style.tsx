@@ -223,7 +223,7 @@ export const MultiWordProfile = styled.div<{ theme: Theme }>`
 
 // ----------------------
 
-export const SrchButton = styled.button`
+export const SrchButton = styled.button<{ theme: Theme }>`
     display: inline-flex;
     margin-left: 0.7em;
     justify-content: center;

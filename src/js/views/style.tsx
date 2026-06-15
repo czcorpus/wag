@@ -282,7 +282,7 @@ export const SingleQueryInput = styled.span<{
 
 // ------
 
-const generalQueryFieldProps = css`
+const generalQueryFieldProps = css<{ theme: Theme }>`
     border-color: ${(props) => props.theme.queryFormBorderColor};
     border-width: 1.5px;
     border-style: solid;
@@ -290,7 +290,7 @@ const generalQueryFieldProps = css`
     background-color: ${(props) => props.theme.queryFormBackgroundColor};
 `;
 
-const collapsedQueryFieldProps = css`
+const collapsedQueryFieldProps = css<{ theme: Theme }>`
     border-radius: ${(props) => props.theme.formElementsBorderRadius};
     background-color: ${(props) => props.theme.queryFormBackgroundColor};
 `;
@@ -471,12 +471,35 @@ export const LemmaSelector = styled.div<{ theme: Theme }>`
     }
 `;
 
+// -------------- <Suggestions /> --------------------------------------------
+
+export const Suggestions = styled.div<{ theme: Theme }>`
+    font-size: 80%;
+    padding: 0;
+    color: ${(props) => props.theme.colorLightText};
+    text-align: center;
+    font-style: italic;
+
+    a {
+        text-decoration: none;
+        color: ${(props) => props.theme.colorLogoBlueHiContrast};
+    }
+`;
+
 // -------------- <SubmenuTile /> --------------------------------------------
 
-export const SubmenuTile = styled.section`
+export const SubmenuTile = styled.section<{ theme: Theme }>`
     display: flex;
+    flex-direction: column;
     padding: 0;
     justify-content: center;
+
+    .hline {
+        width: 50%;
+        margin: 0.5em auto;
+        height: 0;
+        border-top: 1px solid ${(props) => props.theme.colorLightText};
+    }
 `;
 
 // --------------- <HamburgerButton /> --------------------------------------
@@ -1073,7 +1096,7 @@ export const ModalTextContentContainer = styled.div`
 
 // -------------- <TranslatQueryField /> --------------------------------------
 
-export const TranslatQueryField = styled.div`
+export const TranslatQueryField = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: center;
     flex-direction: column;
