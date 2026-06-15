@@ -262,7 +262,7 @@ export const Row = styled.tr<{ theme: Theme }>`
 
 export const SentRow = styled.tr<{ theme: Theme }>`
     &.highlighted {
-        background-color: ${(props) => props.theme.colorDataHighlightRow};
+        background-color: ${(props) => props.theme.colorLogoBlueShining};
     }
 
     &.odd {

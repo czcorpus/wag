@@ -32,7 +32,7 @@ export const AjaxLoader = styled.img`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TileWrapper = styled.div`
+export const TileWrapper = styled.div<{ theme: Theme }>`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -128,7 +128,7 @@ export const TitleLoaderBar = styled.div<{ theme: Theme }>`
 
 // ---------------- <HorizontalBlockSwitch /> --------------------------------------
 
-export const HorizontalBlockSwitch = styled.div`
+export const HorizontalBlockSwitch = styled.div<{ theme: Theme }>`
     padding-top: 0.3em;
     padding-top: 0.3em;
     text-align: center;
