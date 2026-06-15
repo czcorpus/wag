@@ -281,7 +281,7 @@ export const SingleQueryInput = styled.span<{
 
 // ------
 
-const generalQueryFieldProps = css`
+const generalQueryFieldProps = css<{ theme: Theme }>`
     border-color: ${(props) => props.theme.queryFormBorderColor};
     border-width: 1.5px;
     border-style: solid;
@@ -289,7 +289,7 @@ const generalQueryFieldProps = css`
     background-color: ${(props) => props.theme.queryFormBackgroundColor};
 `;
 
-const collapsedQueryFieldProps = css`
+const collapsedQueryFieldProps = css<{ theme: Theme }>`
     border-radius: ${(props) => props.theme.formElementsBorderRadius};
     background-color: ${(props) => props.theme.queryFormBackgroundColor};
 `;
@@ -487,7 +487,7 @@ export const Suggestions = styled.div<{ theme: Theme }>`
 
 // -------------- <SubmenuTile /> --------------------------------------------
 
-export const SubmenuTile = styled.section`
+export const SubmenuTile = styled.section<{ theme: Theme }>`
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -1095,7 +1095,7 @@ export const ModalTextContentContainer = styled.div`
 
 // -------------- <TranslatQueryField /> --------------------------------------
 
-export const TranslatQueryField = styled.div`
+export const TranslatQueryField = styled.div<{ theme: Theme }>`
     display: flex;
     align-items: center;
     flex-direction: column;

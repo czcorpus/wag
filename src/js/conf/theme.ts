@@ -57,6 +57,7 @@ export interface ColorTheme extends ColorThemeIdent {
     colorSecondaryText?: string;
     colorLogoPink?: string;
     colorLogoPinkHiContrast?: string;
+    colorLogoOrange?: string;
     colorSuperlightGrey?: string;
     svgIconsFilter?: string;
     svgLogoFilter?: string;

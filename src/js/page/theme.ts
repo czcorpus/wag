@@ -42,6 +42,7 @@ const fallbackTheme: ColorTheme = {
 
     colorLogoPink: '#E2007A',
     colorLogoBlue: '#009EE0',
+    colorLogoOrange: '#d86928',
     colorLogoBlueShining: '#00CAF6',
     colorWhitelikeBlue: '#eff9fe',
     colorInvertedSecondaryText: '#dadada',
@@ -143,6 +144,8 @@ export class Theme {
     public readonly colorLightText: string;
 
     public readonly colorLogoPink: string;
+
+    public readonly colorLogoOrange: string;
 
     public readonly colorLogoPinkHiContrast: string;
 

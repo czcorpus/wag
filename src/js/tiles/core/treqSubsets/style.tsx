@@ -73,7 +73,7 @@ export const ChartLikeTable = styled.table<{ theme: Theme }>`
     }
 
     tr.highlighted {
-        background-color: ${(props) => props.theme.colorDataHighlightRow};
+        background-color: ${(props) => props.theme.colorLogoBlueShining};
     }
 
     .SimpleBar {
