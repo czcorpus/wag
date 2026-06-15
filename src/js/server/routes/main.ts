@@ -653,7 +653,7 @@ export function queryAction({
                                   appServices,
                                   userConf.queries[0].word
                               )
-                            : rxOf<Array<QueryMatch>>([]),
+                            : rxOf<Array<string>>([]),
                     qMatchesEachQuery: rxOf(
                         ...List.map(
                             (query) =>
