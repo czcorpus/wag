@@ -111,7 +111,6 @@ export class ConcordanceTile implements ITileProvider {
             ),
             queryMatches,
             queryType,
-            lemlevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
             initState: {
                 tileId,
                 visibleQueryIdx: 0,
