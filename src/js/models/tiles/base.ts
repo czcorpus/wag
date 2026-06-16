@@ -40,6 +40,15 @@ function lemLevelSupport(
     return List.findIndex((x) => x === ll, conf) > -1;
 }
 
+interface StatelessModelArgs<T> {
+    dispatcher: IActionQueue;
+    initState: T;
+    tileId: number;
+    dependentTiles: Array<number>;
+    appServices: IAppServices;
+    lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+}
+
 export abstract class TileStatelessModel<
     T extends object,
 > extends StatelessModel<T> {
@@ -47,15 +56,23 @@ export abstract class TileStatelessModel<
 
     protected readonly appServices: IAppServices;
 
-    constructor(
-        dispatcher: IActionQueue,
-        initState: T,
-        tileId: number,
-        appServices: IAppServices
-    ) {
+    protected readonly dependentTiles: Array<number>;
+
+    readonly lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+
+    constructor({
+        dispatcher,
+        initState,
+        tileId,
+        dependentTiles,
+        appServices,
+        lemLevelSupport,
+    }: StatelessModelArgs<T>) {
         super(dispatcher, initState);
         this.tileId = tileId;
+        this.dependentTiles = dependentTiles;
         this.appServices = appServices;
+        this.lemLevelSupport = lemLevelSupport;
     }
 
     addSearchActionHandler(
@@ -82,18 +99,23 @@ export abstract class TileStatelessModel<
                         ? this.appServices.dataStreaming()
                         : this.appServices
                               .dataStreaming()
-                              .startNewSubgroup(this.tileId);
+                              .startNewSubgroup(
+                                  this.tileId,
+                                  ...this.dependentTiles
+                              );
                 seProducer(state, action, seDispatch, ds);
             }
         );
     }
+}
 
-    lemLevelSupport(
-        conf: Array<LemmatizationLevel> | undefined,
-        ll: LemmatizationLevel
-    ): boolean {
-        return lemLevelSupport(conf, ll);
-    }
+interface StatefulModelArgs<T> {
+    dispatcher: IFullActionControl;
+    initState: T;
+    tileId: number;
+    dependentTiles: Array<number>;
+    appServices: IAppServices;
+    lemLevelSupport: (lv: LemmatizationLevel) => boolean;
 }
 
 export abstract class TileStatefulModel<
@@ -101,17 +123,25 @@ export abstract class TileStatefulModel<
 > extends StatefulModel<T> {
     protected readonly tileId: number;
 
+    protected readonly dependentTiles: Array<number>;
+
     protected readonly appServices: IAppServices;
 
-    constructor(
-        dispatcher: IFullActionControl,
-        initState: T,
-        tileId: number,
-        appServices: IAppServices
-    ) {
+    readonly lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+
+    constructor({
+        dispatcher,
+        initState,
+        tileId,
+        dependentTiles,
+        appServices,
+        lemLevelSupport,
+    }: StatefulModelArgs<T>) {
         super(dispatcher, initState);
         this.tileId = tileId;
+        this.dependentTiles = dependentTiles;
         this.appServices = appServices;
+        this.lemLevelSupport = lemLevelSupport;
     }
 
     addSearchActionHandler(
@@ -131,16 +161,12 @@ export abstract class TileStatefulModel<
                         ? this.appServices.dataStreaming()
                         : this.appServices
                               .dataStreaming()
-                              .startNewSubgroup(this.tileId);
+                              .startNewSubgroup(
+                                  this.tileId,
+                                  ...this.dependentTiles
+                              );
                 handler(action, ds);
             }
         );
-    }
-
-    lemLevelSupport(
-        conf: Array<LemmatizationLevel> | undefined,
-        ll: LemmatizationLevel
-    ): boolean {
-        return lemLevelSupport(conf, ll);
     }
 }

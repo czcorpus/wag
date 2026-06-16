@@ -109,6 +109,7 @@ export class ConcordanceTile implements ITileProvider {
                 conf.srcInfoURL ? conf.srcInfoURL : conf.apiURL,
                 appServices
             ),
+            lemLevelSupport: this.supportsLemmatizationLevel,
             queryMatches,
             queryType,
             initState: {

@@ -99,6 +99,7 @@ export class GramatikatTile implements ITileProvider {
             appServices,
             queryMatches,
             api: new GramatikatAPI(conf.apiUrl),
+            lemLevelSupport: this.supportsLemmatizationLevel,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

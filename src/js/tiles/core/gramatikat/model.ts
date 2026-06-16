@@ -37,11 +37,13 @@ import {
     QueryMatch,
     findCurrQueryMatch,
     testIsDictMatch,
+    LemmatizationLevelTest,
 } from '../../../query/index.js';
 import { mergeMap, Observable, reduce, tap } from 'rxjs';
 import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
 import { SystemMessageType } from '../../../types.js';
+import { TileStatefulModel } from '../../../models/tiles/base.js';
 
 export interface WordData {
     lemmaData: {
@@ -180,16 +182,13 @@ export interface ConcordanceTileModelArgs {
     api: GramatikatAPI;
     queryMatches: RecognizedQueries;
     initState: GramatikatState;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class GramatikatModel extends StatefulModel<GramatikatState> {
-    private readonly tileId: number;
-
+export class GramatikatModel extends TileStatefulModel<GramatikatState> {
     private readonly api: GramatikatAPI;
 
     private readonly queryMatches: RecognizedQueries;
-
-    private readonly appServices: IAppServices;
 
     constructor({
         dispatcher,
@@ -198,34 +197,26 @@ export class GramatikatModel extends StatefulModel<GramatikatState> {
         api,
         queryMatches,
         initState,
+        lemLevelSupport,
     }: ConcordanceTileModelArgs) {
-        super(dispatcher, initState);
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.api = api;
         this.queryMatches = queryMatches;
-        this.appServices = appServices;
-        this.tileId = tileId;
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
-            (action) => {
-                this.changeState((state) => {
-                    state.isBusy = true;
-                    state.error = null;
-                });
-                this.processResponse(
-                    this.loadData(
-                        action.payload?.tileId === undefined
-                            ? this.appServices.dataStreaming()
-                            : this.appServices
-                                  .dataStreaming()
-                                  .startNewSubgroup(this.tileId)
-                    )
-                );
-            }
-        );
+        this.addSearchActionHandler((action, ds) => {
+            this.changeState((state) => {
+                state.isBusy = true;
+                state.error = null;
+            });
+            this.processResponse(this.loadData(ds));
+        });
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,

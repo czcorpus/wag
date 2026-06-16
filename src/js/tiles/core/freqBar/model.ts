@@ -36,6 +36,7 @@ import { SystemMessageType } from '../../../types.js';
 import { mergeMap, Observable } from 'rxjs';
 import { List, pipe, tuple } from 'cnc-tskit';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { TileStatefulModel } from '../../../models/tiles/base.js';
 
 export interface FreqDataBlock {
     word: string;
@@ -75,21 +76,15 @@ export interface FreqBarModelArgs {
     appServices: IAppServices;
     api: MQueryFreqDistribAPI;
     initState: FreqBarModelState;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class FreqBarModel extends StatefulModel<FreqBarModelState> {
+export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
     readonly CHART_LABEL_MAX_LEN = 20;
 
     private readonly api: MQueryFreqDistribAPI;
 
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
     private readonly queryMatches: Array<QueryMatch>;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
@@ -98,14 +93,18 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
         api,
         queryMatches,
         initState,
-        lemlevelSupp,
+        lemLevelSupport,
     }: FreqBarModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            lemLevelSupport,
+            dependentTiles: [],
+        });
         this.queryMatches = queryMatches;
-        this.appServices = appServices;
         this.api = api;
-        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
             console.log('SET SCREEN MODE: ', action.payload);
@@ -131,96 +130,84 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
             }
         );
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
-            (action) => {
-                this.changeState((state) => {
-                    List.forEach((item) => {
-                        item.isReady = false;
-                    }, state.freqData);
-                    state.isBusy = true;
-                    state.error = null;
-                });
+        this.addSearchActionHandler((action, ds) => {
+            this.changeState((state) => {
+                List.forEach((item) => {
+                    item.isReady = false;
+                }, state.freqData);
+                state.isBusy = true;
+                state.error = null;
+            });
 
-                new Observable<[MQueryFreqArgs, { queryIdx: number }]>(
-                    (observer) => {
-                        try {
-                            pipe(
-                                this.queryMatches,
-                                List.map((currMatch, queryIdx) =>
-                                    tuple(this.stateToArgs(currMatch), {
-                                        queryIdx,
-                                    })
-                                ),
-                                List.forEach((args) => observer.next(args))
-                            );
-                            observer.complete();
-                        } catch (e) {
-                            observer.error(e);
-                        }
+            new Observable<[MQueryFreqArgs, { queryIdx: number }]>(
+                (observer) => {
+                    try {
+                        pipe(
+                            this.queryMatches,
+                            List.map((currMatch, queryIdx) =>
+                                tuple(this.stateToArgs(currMatch), {
+                                    queryIdx,
+                                })
+                            ),
+                            List.forEach((args) => observer.next(args))
+                        );
+                        observer.complete();
+                    } catch (e) {
+                        observer.error(e);
                     }
-                )
-                    .pipe(
-                        mergeMap(([args, pass]) =>
-                            appServices.callAPIWithExtraVal(
-                                this.api,
-                                action.payload?.tileId === undefined
-                                    ? this.appServices.dataStreaming()
-                                    : this.appServices
-                                          .dataStreaming()
-                                          .startNewSubgroup(this.tileId),
-                                this.tileId,
-                                pass.queryIdx,
-                                args,
-                                pass
-                            )
+                }
+            )
+                .pipe(
+                    mergeMap(([args, pass]) =>
+                        appServices.callAPIWithExtraVal(
+                            this.api,
+                            ds,
+                            this.tileId,
+                            pass.queryIdx,
+                            args,
+                            pass
                         )
                     )
-                    .subscribe({
-                        next: ([data, pass]) => {
-                            this.changeState((state) => {
-                                state.freqData[pass.queryIdx].rows = data.data;
-                                state.freqData[pass.queryIdx].isReady = true;
-                                state.backlinks[pass.queryIdx] =
-                                    this.api.getBacklink(pass.queryIdx);
-                            });
-                        },
-                        complete: () => {
-                            this.changeState((state) => {
-                                state.isBusy = false;
-                            });
-                        },
-                        error: (error) => {
-                            this.changeState((state) => {
-                                state.freqData = List.map(
-                                    (match) => ({
-                                        word: match.word,
-                                        isReady: true,
-                                        rows: [],
-                                    }),
-                                    this.queryMatches
-                                );
-                                state.backlinks = List.map(
-                                    (_) => null,
-                                    this.queryMatches
-                                );
-                                state.error =
-                                    this.appServices.normalizeHttpApiError(
-                                        error
-                                    );
-                                state.isBusy = false;
-                            });
-                            this.appServices.showMessage(
-                                SystemMessageType.ERROR,
-                                error
+                )
+                .subscribe({
+                    next: ([data, pass]) => {
+                        this.changeState((state) => {
+                            state.freqData[pass.queryIdx].rows = data.data;
+                            state.freqData[pass.queryIdx].isReady = true;
+                            state.backlinks[pass.queryIdx] =
+                                this.api.getBacklink(pass.queryIdx);
+                        });
+                    },
+                    complete: () => {
+                        this.changeState((state) => {
+                            state.isBusy = false;
+                        });
+                    },
+                    error: (error) => {
+                        this.changeState((state) => {
+                            state.freqData = List.map(
+                                (match) => ({
+                                    word: match.word,
+                                    isReady: true,
+                                    rows: [],
+                                }),
+                                this.queryMatches
                             );
-                        },
-                    });
-            }
-        );
+                            state.backlinks = List.map(
+                                (_) => null,
+                                this.queryMatches
+                            );
+                            state.error =
+                                this.appServices.normalizeHttpApiError(error);
+                            state.isBusy = false;
+                        });
+                        this.appServices.showMessage(
+                            SystemMessageType.ERROR,
+                            error
+                        );
+                    },
+                });
+        });
 
         this.addActionSubtypeHandler(
             GlobalActions.GetSourceInfo,
@@ -298,7 +285,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         queryMatch,
                         this.state.posQueryGenerator,
                         this.state.lemmatizationLevel,
-                        this.lemlevelSupp
+                        this.lemLevelSupport
                     ),
                     subcorpus: '', // TODO
                     attr: this.state.fcrit,

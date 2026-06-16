@@ -20,10 +20,14 @@ import { Observable, Observer } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { List, tuple } from 'cnc-tskit';
 
-import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
+import { IActionDispatcher, SEDispatcher } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { QueryMatch, testIsDictMatch } from '../../../query/index.js';
+import {
+    LemmatizationLevelTest,
+    QueryMatch,
+    testIsDictMatch,
+} from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
 import {
@@ -35,6 +39,7 @@ import {
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CNCWSServerApi } from './api/wss.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface WordSimModelArgs {
     dispatcher: IActionDispatcher;
@@ -42,6 +47,7 @@ export interface WordSimModelArgs {
     tileId: number;
     api: CNCWord2VecSimApi | CNCWSServerApi;
     appServices: IAppServices;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 /**
@@ -66,9 +72,7 @@ export interface WordSimModelState {
     selectedText: string;
 }
 
-export class WordSimModel extends StatelessModel<WordSimModelState> {
-    private readonly tileId: number;
-
+export class WordSimModel extends TileStatelessModel<WordSimModelState> {
     private readonly api: CNCWord2VecSimApi | CNCWSServerApi;
 
     constructor({
@@ -77,9 +81,16 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         tileId,
         api,
         appServices,
+        lemLevelSupport,
     }: WordSimModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.api = api;
 
         this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
@@ -126,25 +137,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             }
         );
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, seDispatch) => {
-                this.getData(
-                    state,
-                    action.payload?.tileId === undefined
-                        ? appServices.dataStreaming()
-                        : appServices
-                              .dataStreaming()
-                              .startNewSubgroup(this.tileId),
-                    seDispatch
-                );
+            (state, action, seDispatch, ds) => {
+                this.getData(state, ds, seDispatch);
             }
         );
         this.addActionHandler<typeof Actions.TileDataLoaded>(

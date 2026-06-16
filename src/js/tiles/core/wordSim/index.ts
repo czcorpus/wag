@@ -104,6 +104,7 @@ export class WordSimTile implements ITileProvider {
         this.model = new WordSimModel({
             appServices,
             dispatcher,
+            lemLevelSupport: this.supportsLemmatizationLevel,
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),

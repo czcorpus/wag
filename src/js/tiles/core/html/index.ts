@@ -90,6 +90,7 @@ export class HtmlTile implements ITileProvider {
             appServices: appServices,
             service: this.api,
             queryMatches,
+            lemLevelSupport: this.supportsLemmatizationLevel,
             initState: {
                 isBusy: isBusy,
                 tileId: tileId,

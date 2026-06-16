@@ -94,7 +94,8 @@ export class WordFreqTile implements ITileProvider {
         this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new SummaryModel({
             dispatcher,
-            initialState: {
+            lemLevelSupport: this.supportsLemmatizationLevel,
+            initState: {
                 isBusy: isBusy,
                 error: null,
                 corpname: conf.corpname,

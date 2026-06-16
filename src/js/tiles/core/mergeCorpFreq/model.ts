@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
+import { IActionQueue, SEDispatcher } from 'kombo';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import domtoimage from 'dom-to-image-more';
 import { concatMap, map, mergeMap, tap } from 'rxjs/operators';
@@ -39,6 +39,7 @@ import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import urlJoin from 'url-join';
 import { callWithExtraVal } from '../../../api/util.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface MergeCorpFreqModelArgs {
     dispatcher: IActionQueue;
@@ -47,19 +48,13 @@ export interface MergeCorpFreqModelArgs {
     freqApi: MergeFreqsApi;
     initState: MergeCorpFreqModelState;
     downloadLabel: string;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
+export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelState> {
     private readonly freqApi: MergeFreqsApi;
 
     private readonly downloadLabel: string;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
@@ -68,14 +63,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         freqApi,
         initState,
         downloadLabel,
-        lemlevelSupp,
+        lemLevelSupport,
     }: MergeCorpFreqModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
-        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -95,25 +94,13 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             }
         );
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, dispatch) => {
-                this.loadFreqs(
-                    state,
-                    action.payload?.tileId === undefined
-                        ? appServices.dataStreaming()
-                        : appServices
-                              .dataStreaming()
-                              .startNewSubgroup(this.tileId),
-                    dispatch
-                );
+            (state, action, dispatch, ds) => {
+                this.loadFreqs(state, ds, dispatch);
             }
         );
 
@@ -384,7 +371,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     queryMatch,
                     state.posQueryGenerator,
                     lemmatizationLevel,
-                    this.lemlevelSupp
+                    this.lemLevelSupport
                 ),
                 flimit: state.flimit,
                 matchCase: '0',

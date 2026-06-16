@@ -120,7 +120,7 @@ export class FreqBarTile implements ITileProvider {
                 conf.backlink
             ),
             readDataFromTile,
-            lemlevelSupp: (ll) => this.supportsLemmatizationLevel(ll),
+            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
             initState: {
                 isBusy,
                 error: null,

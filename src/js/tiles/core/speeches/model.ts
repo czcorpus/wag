@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
+import { SEDispatcher, IActionQueue } from 'kombo';
 import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
@@ -38,6 +38,7 @@ import { AudioPlayer } from '../../../page/audioPlayer.js';
 import { ConcResponse } from '../../../api/vendor/mquery/concordance/common.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming, TileResponseError } from '../../../page/streaming.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 /**
  * A general action notifying about single query
@@ -55,7 +56,7 @@ export interface SpeechesModelArgs {
     api: SpeechesApi;
     initState: SpeechesModelState;
     audioLinkGenerator: AudioLinkGenerator;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 interface ReloadDataArgs {
@@ -65,20 +66,14 @@ interface ReloadDataArgs {
     range: [number, number];
 }
 
-export class SpeechesModel extends StatelessModel<SpeechesModelState> {
+export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
     static DEFAULT_LEFT_RANGE = 30;
 
     static DEFAULT_RIGHT_RANGE = 30;
 
     private readonly api: SpeechesApi;
 
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
     private readonly audioLinkGenerator: AudioLinkGenerator | null;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
@@ -87,33 +82,28 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         api,
         initState,
         audioLinkGenerator,
-        lemlevelSupp,
+        lemLevelSupport,
     }: SpeechesModelArgs) {
-        super(dispatcher, initState);
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.api = api;
-        this.appServices = appServices;
-        this.tileId = tileId;
         this.audioLinkGenerator = audioLinkGenerator;
-        this.lemlevelSupp = lemlevelSupp;
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, dispatch) => {
+            (state, action, dispatch, ds) => {
                 this.reloadData({
                     state,
-                    streaming:
-                        action.payload?.tileId === undefined
-                            ? appServices.dataStreaming()
-                            : appServices
-                                  .dataStreaming()
-                                  .startNewSubgroup(this.tileId),
+                    streaming: ds,
                     dispatch,
                     range: tuple(state.leftRange, state.rightRange),
                 });
@@ -367,7 +357,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     state.queryMatches[0],
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
-                    this.lemlevelSupp
+                    this.lemLevelSupport
                 ),
                 // hitlen: kwicNumTokens,  TODO
                 struct: [

@@ -18,7 +18,7 @@
 import { map } from 'rxjs/operators';
 import { List, Maths } from 'cnc-tskit';
 
-import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
+import { SEDispatcher, IActionQueue } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import {
@@ -34,6 +34,7 @@ import { IWordFormsApi, RequestArgs, WordFormItem } from './common.js';
 import { SystemMessageType } from '../../../types.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface WordFormsModelState {
     isBusy: boolean;
@@ -83,42 +84,40 @@ function filterRareVariants(
 
 export interface WordFormsModelArgs {
     dispatcher: IActionQueue;
-    initialState: WordFormsModelState;
+    initState: WordFormsModelState;
     tileId: number;
     api: IWordFormsApi;
     queryMatches: RecognizedQueries;
     appServices: IAppServices;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class WordFormsModel extends StatelessModel<WordFormsModelState> {
-    private readonly tileId: number;
-
+export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
     private readonly api: IWordFormsApi;
 
     private readonly queryMatches: RecognizedQueries;
 
-    private readonly appServices: IAppServices;
-
     private readonly backlink: BacklinkConf;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
-        initialState,
+        initState,
         tileId,
         api,
         queryMatches,
         appServices,
-        lemlevelSupp,
+        lemLevelSupport,
     }: WordFormsModelArgs) {
-        super(dispatcher, initialState);
-        this.tileId = tileId;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.api = api;
         this.queryMatches = queryMatches;
-        this.appServices = appServices;
-        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -138,17 +137,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             }
         );
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
                 state.data = [];
             },
-            (state, action, dispatch) => {
+            (state, action, dispatch, ds) => {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
                 if (
                     variant.pos.length > 1 &&
@@ -185,11 +180,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             mainPosAttr: state.mainPosAttr,
                             initialCap: variant.initialCap,
                         },
-                        action.payload?.tileId === undefined
-                            ? this.appServices.dataStreaming()
-                            : this.appServices
-                                  .dataStreaming()
-                                  .startNewSubgroup(this.tileId),
+                        ds,
                         dispatch
                     );
                 }

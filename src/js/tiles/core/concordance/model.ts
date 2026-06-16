@@ -105,6 +105,7 @@ export interface ConcordanceTileModelArgs {
     queryMatches: RecognizedQueries;
     initState: ConcordanceTileState;
     queryType: QueryType;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 export type SupportedForeignResponses =
@@ -205,8 +206,16 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         initState,
         queryType,
         readDataFromTile,
+        lemLevelSupport,
     }: ConcordanceTileModelArgs) {
-        super(dispatcher, initState, tileId, appServices);
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.concApi = api;
         this.infoApi = infoApi;
         this.queryMatches = queryMatches;

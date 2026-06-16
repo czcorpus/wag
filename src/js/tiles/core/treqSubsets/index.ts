@@ -79,7 +79,7 @@ export class TreqSubsetsTile implements ITileProvider {
         this.model = new TreqSubsetModel({
             dispatcher,
             appServices,
-            initialState: {
+            initState: {
                 lang1: conf.primaryPackage,
                 lang2: translatLanguage,
                 isBusy: isBusy,
@@ -108,6 +108,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 ),
             },
             tileId,
+            lemLevelSupport: this.supportsLemmatizationLevel,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed,

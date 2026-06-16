@@ -32,6 +32,7 @@ import {
 import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface CollocModelArgs {
     dispatcher: IActionQueue;
@@ -41,7 +42,7 @@ export interface CollocModelArgs {
     service: MQueryCollAPI;
     initState: CollocModelState;
     queryMatches: Array<QueryMatch>;
-    lemlevelTest: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 type FreqRequestArgs = [number, QueryMatch];
@@ -49,16 +50,10 @@ type FreqRequestArgs = [number, QueryMatch];
 /**
  *
  */
-export class CollocModel extends StatelessModel<CollocModelState> {
+export class CollocModel extends TileStatelessModel<CollocModelState> {
     private readonly collApi: MQueryCollAPI;
 
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
     private readonly queryMatches: Array<QueryMatch>;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     private readonly measureMap = {
         t: 'T-score',
@@ -79,14 +74,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         initState,
         dependentTiles,
         queryMatches,
-        lemlevelTest,
+        lemLevelSupport,
     }: CollocModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles,
+            lemLevelSupport,
+        });
         this.collApi = service;
         this.queryMatches = queryMatches;
-        this.lemlevelSupp = lemlevelTest;
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -128,23 +127,15 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.isAltViewMode = false;
             }
         );
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, seDispatch) => {
+            (state, action, seDispatch, ds) => {
                 this.reloadAllData(
                     state,
-                    action.payload?.tileId === undefined
-                        ? this.appServices.dataStreaming()
-                        : this.appServices
-                              .dataStreaming()
-                              .startNewSubgroup(this.tileId, ...dependentTiles),
+                    ds,
                     rxOf(
                         ...List.map((qm, i) => tuple(i, qm), this.queryMatches)
                     ),
@@ -335,7 +326,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     queryMatch,
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
-                    this.lemlevelSupp
+                    this.lemLevelSupport
                 ),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],

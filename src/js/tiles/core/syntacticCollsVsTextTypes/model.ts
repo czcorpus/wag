@@ -20,7 +20,11 @@ import { IActionQueue, SEDispatcher, StatelessModel } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { IAppServices } from '../../../appServices.js';
-import { QueryMatch, QueryType } from '../../../query/index.js';
+import {
+    LemmatizationLevelTest,
+    QueryMatch,
+    QueryType,
+} from '../../../query/index.js';
 import { SCollsQueryType } from '../syntacticColls/api/scollex.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions } from './common.js';
@@ -35,6 +39,7 @@ import {
 } from '../syntacticColls/eApi/mquery.js';
 import { SystemMessageType } from '../../../types.js';
 import { map, of as rxOf } from 'rxjs';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface TTData {
     id: string;
@@ -64,20 +69,15 @@ interface SyntacticCollsModelArgs {
     eApi: SyntacticCollsExamplesAPI;
     maxItems: number;
     theme: Theme;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTModelState> {
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
+export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVsTTModelState> {
     private readonly queryType: QueryType;
 
     private readonly api: WSServerSyntacticCollsTTAPI;
 
     private readonly eApi: SyntacticCollsExamplesAPI;
-
-    private readonly theme: Theme;
 
     constructor({
         dispatcher,
@@ -87,13 +87,18 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
         api,
         eApi,
         theme,
+        lemLevelSupport,
     }: SyntacticCollsModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.api = api;
         this.eApi = eApi;
-        this.theme = theme;
 
         this.addActionSubtypeHandler(
             Actions.TileDataLoaded,
@@ -138,11 +143,7 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
             }
         );
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.data = List.map(
                     (item) => ({ ...item, isBusy: true }),
@@ -150,16 +151,8 @@ export class SyntacticCollsVsTTModel extends StatelessModel<SyntacticCollsVsTTMo
                 );
                 state.error = null;
             },
-            (state, action, seDispatch) => {
-                this.reloadData(
-                    action.payload?.tileId === undefined
-                        ? appServices.dataStreaming()
-                        : appServices
-                              .dataStreaming()
-                              .startNewSubgroup(this.tileId),
-                    state,
-                    seDispatch
-                );
+            (state, action, seDispatch, ds) => {
+                this.reloadData(ds, state, seDispatch);
             }
         );
 

@@ -16,18 +16,23 @@
  * limitations under the License.
  */
 
-import { StatelessModel, IActionQueue } from 'kombo';
+import { IActionQueue } from 'kombo';
 
 import { RequestArgs } from '../translations/api.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevelTest,
+    RecognizedQueries,
+} from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { filterByMinFreq, TreqSubsetsAPI, WordEntry } from './api.js';
 import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface MultiSrcTranslationRow {
     idx: number;
@@ -127,60 +132,54 @@ export interface TranslationsSubsetsModelState {
 export interface TreqSubsetModelArgs {
     dispatcher: IActionQueue;
     appServices: IAppServices;
-    initialState: TranslationsSubsetsModelState;
+    initState: TranslationsSubsetsModelState;
     tileId: number;
     api: TreqSubsetsAPI;
     queryMatches: RecognizedQueries;
+    lemLevelSupport: LemmatizationLevelTest;
     scaleColorGen: ColorScaleFunctionGenerator;
 }
 
-export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelState> {
+export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModelState> {
     public static readonly UNMATCHING_ITEM_COLOR = '#878787';
-
-    private readonly tileId: number;
 
     private readonly api: TreqSubsetsAPI;
 
     private readonly queryMatches: RecognizedQueries;
-
-    private readonly appServices: IAppServices;
 
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
     constructor({
         dispatcher,
         appServices,
-        initialState,
+        initState,
         tileId,
         api,
         queryMatches,
+        lemLevelSupport,
         scaleColorGen,
     }: TreqSubsetModelArgs) {
-        super(dispatcher, initialState);
-        this.api = api;
-        this.tileId = tileId;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.queryMatches = queryMatches;
-        this.appServices = appServices;
         this.scaleColorGen = scaleColorGen;
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, dispatch) => {
+            (state, action, dispatch, ds) => {
                 const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
                 this.api
                     .call(
-                        action.payload?.tileId === undefined
-                            ? this.appServices.dataStreaming()
-                            : this.appServices
-                                  .dataStreaming()
-                                  .startNewSubgroup(this.tileId),
+                        ds,
                         this.tileId,
                         0,
                         this.stateToArgs(state, srchLemma.lemma)

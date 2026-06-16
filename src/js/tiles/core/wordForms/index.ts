@@ -87,8 +87,8 @@ export class WordFormsTile implements ITileProvider {
         );
         this.model = new WordFormsModel({
             dispatcher,
-            lemlevelSupp: (ll) => this.supportsLemmatizationLevel(ll),
-            initialState: {
+            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
+            initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,

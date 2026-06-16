@@ -23,9 +23,14 @@ import { Actions } from './common.js';
 import { HtmlModelState } from './common.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevelTest,
+    RecognizedQueries,
+} from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface HtmlModelArgs {
     dispatcher: IActionQueue;
@@ -34,16 +39,13 @@ export interface HtmlModelArgs {
     service: RawHtmlAPI;
     initState: HtmlModelState;
     queryMatches: RecognizedQueries;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class HtmlModel extends StatelessModel<HtmlModelState> {
+export class HtmlModel extends TileStatelessModel<HtmlModelState> {
     private readonly queryMatches: RecognizedQueries;
 
     private readonly service: RawHtmlAPI;
-
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
 
     constructor({
         dispatcher,
@@ -52,34 +54,27 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
         service,
         initState,
         queryMatches,
+        lemLevelSupport,
     }: HtmlModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.service = service;
         this.queryMatches = queryMatches;
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, seDispatch) => {
+            (state, action, seDispatch, ds) => {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
-                this.requestData(
-                    state,
-                    variant.lemma,
-                    action.payload?.tileId === undefined
-                        ? this.appServices.dataStreaming()
-                        : this.appServices
-                              .dataStreaming()
-                              .startNewSubgroup(this.tileId),
-                    seDispatch
-                );
+                this.requestData(state, variant.lemma, ds, seDispatch);
             }
         );
 
@@ -163,8 +158,8 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                         })
                 )
             )
-            .subscribe(
-                (data) => {
+            .subscribe({
+                next: (data) => {
                     seDispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -174,7 +169,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                         },
                     });
                 },
-                (err) => {
+                error: (err) => {
                     seDispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -184,7 +179,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                         },
                         error: err,
                     });
-                }
-            );
+                },
+            });
     }
 }

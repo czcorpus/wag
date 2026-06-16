@@ -162,11 +162,12 @@ export class SyntacticCollsTile implements ITileProvider {
         this.configuredLemLevels = conf.lemmatizationLevels || [];
 
         this.model = new SyntacticCollsModel({
-            dispatcher: dispatcher,
-            tileId: tileId,
-            appServices: appServices,
-            queryType: queryType,
+            dispatcher,
+            tileId,
+            appServices,
+            queryType,
             maxItems: conf.maxItems,
+            lemLevelSupport: this.supportsLemmatizationLevel,
             api:
                 conf.apiType === 'wss'
                     ? new WSServerSyntacticCollsAPI(conf.apiURL, appServices)
