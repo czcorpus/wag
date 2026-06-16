@@ -1000,6 +1000,7 @@ export function init(
         };
 
         const state = useModel(formModel);
+        const tmState = useModel(tilesModel);
         const useMobileComponent = globalComponents.useMobileComponent();
 
         const numQTypes = pipe(
@@ -1065,7 +1066,8 @@ export function init(
                     </S.MenuTabs>
                     {props.isAnswerMode &&
                     indexItems.length > 0 &&
-                    !useMobileComponent ? (
+                    !useMobileComponent &&
+                    tmState.numTileErrors <= tmState.maxTileErrors ? (
                         <Index
                             items={indexItems}
                             extended={state.extendedIndex}

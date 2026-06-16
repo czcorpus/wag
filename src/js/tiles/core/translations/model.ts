@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
 import { List, pipe } from 'cnc-tskit';
 
@@ -23,54 +23,62 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
 import { IAppServices } from '../../../appServices.js';
-import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevelTest,
+    RecognizedQueries,
+} from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
+import { IDataStreaming } from '../../../page/streaming.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface TranslationModelArgs {
     dispatcher: IActionQueue;
     appServices: IAppServices;
-    initialState: TranslationsModelState;
+    initState: TranslationsModelState;
     tileId: number;
     api: TreqAPI;
     queryMatches: RecognizedQueries;
+    lemLevelSupport: LemmatizationLevelTest;
     scaleColorGen: ColorScaleFunctionGenerator;
 }
 
-export class TranslationsModel extends StatelessModel<TranslationsModelState> {
-    private readonly tileId: number;
-
-    private readonly api: TreqAPI;
-
+export class TranslationsModel extends TileStatelessModel<TranslationsModelState> {
     private readonly queryMatches: RecognizedQueries;
 
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
-    private readonly appServices: IAppServices;
+    private readonly api: TreqAPI;
 
     constructor({
         dispatcher,
         appServices,
-        initialState,
+        initState,
         tileId,
         api,
         queryMatches,
+        lemLevelSupport,
         scaleColorGen,
     }: TranslationModelArgs) {
-        super(dispatcher, initialState);
-        this.api = api;
+        super({
+            dispatcher,
+            initState,
+            appServices,
+            tileId,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.queryMatches = queryMatches;
-        this.tileId = tileId;
         this.scaleColorGen = scaleColorGen;
-        this.appServices = appServices;
+        this.api = api;
 
-        this.addActionHandler(
-            GlobalActions.RequestQueryResponse,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, dispatch) => {
-                this.loadData(state, dispatch);
+            (state, action, dispatch, ds) => {
+                this.loadData(state, ds, dispatch);
             }
         );
 
@@ -168,12 +176,13 @@ export class TranslationsModel extends StatelessModel<TranslationsModelState> {
 
     private loadData(
         state: TranslationsModelState,
+        dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {
         const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
         this.api
             .call(
-                this.appServices.dataStreaming(),
+                dsHandler,
                 this.tileId,
                 0,
                 this.stateToArgs(state, srchLemma.lemma)

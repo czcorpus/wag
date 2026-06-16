@@ -58,7 +58,10 @@ export class RetryTileLoad
     onAction(action: Action) {
         switch (action.name) {
             case Actions.RetryTileLoad.name:
-                this.reloadDispatcher.dispatch(this.state.lastAction);
+                const lastAction = { ...this.state.lastAction };
+                lastAction.payload = { ...this.state.lastAction.payload };
+                lastAction.payload['tileId'] = action.payload['tileId'];
+                this.reloadDispatcher.dispatch(lastAction);
                 break;
             case Actions.RequestQueryResponse.name:
                 this.state.lastAction = action;

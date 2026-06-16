@@ -54,6 +54,7 @@ import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { HTTPResponse as TranslatHTTPResponse } from '../translations/api.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { TileStatefulModel } from '../../../models/tiles/base.js';
 
 export interface ConcordanceTileState {
     tileId: number;
@@ -104,7 +105,7 @@ export interface ConcordanceTileModelArgs {
     queryMatches: RecognizedQueries;
     initState: ConcordanceTileState;
     queryType: QueryType;
-    lemlevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 export type SupportedForeignResponses =
@@ -180,14 +181,10 @@ function transformSupportedForeignResponse(
 /**
  *
  */
-export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
+export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState> {
     private readonly concApi: MQueryConcApi;
 
     private readonly queryMatches: RecognizedQueries;
-
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
 
     private readonly queryType: QueryType;
 
@@ -209,17 +206,21 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
         initState,
         queryType,
         readDataFromTile,
-        lemlevelSupport,
+        lemLevelSupport,
     }: ConcordanceTileModelArgs) {
-        super(dispatcher, initState);
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.concApi = api;
         this.infoApi = infoApi;
         this.queryMatches = queryMatches;
-        this.appServices = appServices;
-        this.tileId = tileId;
         this.queryType = queryType;
         this.readDataFromTile = readDataFromTile;
-        this.lemlevelSupport = lemlevelSupport;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
             if (action.payload.isMobile !== this.state.isMobile) {
@@ -261,12 +262,12 @@ export class ConcordanceTileModel extends StatefulModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler(GlobalActions.RequestQueryResponse, (action) => {
+        this.addSearchActionHandler((action, ds) => {
             this.changeState((state) => {
                 state.isBusy = true;
                 state.error = null;
             });
-            this.reloadData(this.appServices.dataStreaming());
+            this.reloadData(ds);
         });
 
         this.addActionSubtypeHandler(

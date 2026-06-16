@@ -44,6 +44,7 @@ import {
 } from '../../../api/vendor/mquery/freqs.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 /*
 oral2013:
@@ -112,14 +113,10 @@ interface GeoAreasModelArgs {
     mapLoader: DataApi<string, string>;
     initState: GeoAreasModelState;
     queryType: QueryType;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
-    private readonly tileId: number;
-
-    private readonly appServices: IAppServices;
-
+export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
     private readonly freqApi: MQueryFreqDistribAPI;
 
     private readonly mapLoader: DataApi<string, string>;
@@ -127,8 +124,6 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
     private readonly queryMatches: Array<Array<QueryMatch>>;
 
     private readonly queryType: QueryType;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
@@ -139,25 +134,28 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         mapLoader,
         initState,
         queryType,
-        lemlevelSupp,
+        lemLevelSupport,
     }: GeoAreasModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.queryMatches = queryMatches;
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryType = queryType;
-        this.lemlevelSupp = lemlevelSupp;
 
-        this.addActionHandler(
-            GlobalActions.RequestQueryResponse,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.backlinks = List.map((_) => null, this.queryMatches);
                 state.error = null;
             },
-            (state, action, dispatch) => {
+            (state, action, dispatch, ds) => {
                 const dataStream = new Observable<
                     [MQueryFreqArgs | null, number]
                 >((observer) => {
@@ -183,17 +181,12 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     mergeMap(([args, queryIdx]) =>
                         zip(
                             this.mapLoader.call(
-                                this.appServices.dataStreaming(),
+                                ds,
                                 this.tileId,
                                 queryIdx,
                                 'mapCzech.inline.svg'
                             ),
-                            this.freqApi.call(
-                                this.appServices.dataStreaming(),
-                                this.tileId,
-                                queryIdx,
-                                args
-                            )
+                            this.freqApi.call(ds, this.tileId, queryIdx, args)
                         )
                     ),
                     share()
@@ -488,7 +481,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     queryMatch,
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
-                    this.lemlevelSupp
+                    this.lemLevelSupport
                 ),
                 flimit: state.flimit,
                 matchCase: '0',

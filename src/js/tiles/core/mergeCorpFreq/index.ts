@@ -140,7 +140,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             tileId,
             appServices,
             freqApi: new MergeFreqsApi(conf.apiURL, appServices, conf.backlink),
-            lemlevelSupp: (ll) => this.supportsLemmatizationLevel(ll),
+            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,

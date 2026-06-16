@@ -80,8 +80,11 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
             }
         );
 
-        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
-            GlobalActions.RequestQueryResponse.name,
+        this.addActionSubtypeHandler(
+            GlobalActions.RequestQueryResponse,
+            (action) =>
+                action.payload?.tileId === undefined ||
+                action.payload?.tileId === this.tileId,
             (state, action) => {
                 state.isBusy = true;
             },

@@ -15,11 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
+import { IActionQueue, SEDispatcher } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
-import { QueryMatch, QueryType } from '../../../query/index.js';
+import {
+    LemmatizationLevelTest,
+    QueryMatch,
+    QueryType,
+} from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { Dict, List } from 'cnc-tskit';
@@ -33,6 +37,7 @@ import {
     SyntacticCollsExamplesAPI,
 } from './eApi/mquery.js';
 import { SCollsData, SCollsQueryType, SCollsRequest } from './api/common.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export type CollMeasure = 'LMI' | 'LL' | 'LogDice' | 'T-Score';
 
@@ -45,6 +50,7 @@ export interface SyntacticCollsModelArgs {
     api: ScollexSyntacticCollsAPI | WSServerSyntacticCollsAPI;
     eApi: SyntacticCollsExamplesAPI;
     maxItems: number;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 export interface SyntacticCollsModelState {
@@ -68,11 +74,7 @@ export interface SyntacticCollsModelState {
     exampleWindowData: SCollsExamples | undefined; // if undefined, the window is closed
 }
 
-export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState> {
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
+export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelState> {
     private readonly queryType: QueryType;
 
     private readonly api: ScollexSyntacticCollsAPI | WSServerSyntacticCollsAPI;
@@ -90,10 +92,16 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
         api,
         eApi,
         maxItems,
+        lemLevelSupport,
     }: SyntacticCollsModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            lemLevelSupport,
+            dependentTiles: [],
+        });
         this.queryType = queryType;
         this.api = api;
         this.eApi = eApi;
@@ -115,14 +123,13 @@ export class SyntacticCollsModel extends StatelessModel<SyntacticCollsModelState
             }
         );
 
-        this.addActionHandler(
-            GlobalActions.RequestQueryResponse,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, seDispatch) => {
-                this.reloadData(appServices.dataStreaming(), state, seDispatch);
+            (state, action, seDispatch, ds) => {
+                this.reloadData(ds, state, seDispatch);
             }
         );
 

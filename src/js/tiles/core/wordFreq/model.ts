@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionQueue } from 'kombo';
+import { IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
@@ -29,12 +29,14 @@ import {
     QueryType,
     findCurrQueryMatch,
     LemmatizationLevel,
+    LemmatizationLevelTest,
 } from '../../../query/index.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import { SimilarFreqWordsFrodoAPI } from './similarFreq.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
-import { TileResponseError } from '../../../page/streaming.js';
+import { IDataStreaming, TileResponseError } from '../../../page/streaming.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export interface FlevelDistribItem {
     rel: number;
@@ -67,13 +69,14 @@ export interface SummaryModelState {
 
 export interface SummaryModelArgs {
     dispatcher: IActionQueue;
-    initialState: SummaryModelState;
+    initState: SummaryModelState;
     tileId: number;
     api: SimilarFreqWordsFrodoAPI;
     sourceInfoApi: CorpusInfoAPI;
     appServices: IAppServices;
     queryMatches: RecognizedQueries;
     queryType: QueryType;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 export function findCurrentMatches(
@@ -92,43 +95,44 @@ export function mkEmptySimilarWords(
     return List.repeat((_) => [], queryMatches.length);
 }
 
-export class SummaryModel extends StatelessModel<SummaryModelState> {
+export class SummaryModel extends TileStatelessModel<SummaryModelState> {
     private readonly api: SimilarFreqWordsFrodoAPI;
 
     private readonly sourceInfoApi: CorpusInfoAPI;
-
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
 
     private readonly queryMatches: RecognizedQueries;
 
     constructor({
         dispatcher,
-        initialState,
+        initState,
         tileId,
         api,
         sourceInfoApi,
         appServices,
         queryMatches,
+        lemLevelSupport,
     }: SummaryModelArgs) {
-        super(dispatcher, initialState);
-        this.tileId = tileId;
+        super({
+            dispatcher,
+            initState,
+            appServices,
+            tileId,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.api = api;
         this.sourceInfoApi = sourceInfoApi;
-        this.appServices = appServices;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler(
-            GlobalActions.RequestQueryResponse,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
                 state.similarFreqWords = mkEmptySimilarWords(queryMatches);
                 state.queryMatches = findCurrentMatches(queryMatches);
             },
-            (state, action, dispatch) =>
-                this.loadExtendedFreqInfo(state).subscribe({
+            (state, action, dispatch, ds) =>
+                this.loadExtendedFreqInfo(state, ds).subscribe({
                     next: (data) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
@@ -225,7 +229,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
     }
 
     private loadExtendedFreqInfo(
-        state: SummaryModelState
+        state: SummaryModelState,
+        dsHandler: IDataStreaming
     ): Observable<Array<SimilarFreqWord>> {
         return new Observable<{
             variant: QueryMatch;
@@ -247,7 +252,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         }).pipe(
             mergeMap((args) =>
                 this.api.call(
-                    this.appServices.dataStreaming(),
+                    dsHandler,
                     this.tileId,
                     args.idx,
                     args.variant.lemma

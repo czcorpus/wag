@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
+import { SEDispatcher, IActionDispatcher } from 'kombo';
 import { Observable } from 'rxjs';
 import { map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, Maths, pipe, List, tuple } from 'cnc-tskit';
@@ -39,15 +39,12 @@ import {
     TimeDistribResponse,
 } from '../../../api/vendor/mquery/timeDistrib.js';
 import { callWithExtraVal } from '../../../api/util.js';
-import {
-    mkLemmaMatchQuery,
-    mkWordMatchQuery,
-    queryMatchToCQL,
-} from '../../../api/vendor/mquery/common.js';
+import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { SystemMessageType } from '../../../types.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
 
 export enum FreqFilterQuantity {
     ABS = 'abs',
@@ -118,7 +115,7 @@ export interface TimeDistribModelArgs {
     infoApi: CorpusInfoAPI;
     appServices: IAppServices;
     queryMatches: RecognizedQueries;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
 function dateToSortNumber(s: string): number {
@@ -139,18 +136,12 @@ function dateToSortNumber(s: string): number {
 /**
  *
  */
-export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
+export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> {
     private readonly queryMatches: RecognizedQueries;
 
     private readonly api: MQueryTimeDistribStreamApi;
 
     private readonly infoApi: CorpusInfoAPI;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
@@ -160,18 +151,21 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         infoApi,
         appServices,
         queryMatches,
-        lemlevelSupp,
+        lemLevelSupport,
     }: TimeDistribModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles: [],
+            lemLevelSupport,
+        });
         this.queryMatches = queryMatches;
         this.api = api;
         this.infoApi = infoApi;
-        this.lemlevelSupp = lemlevelSupp;
 
-        this.addActionHandler(
-            GlobalActions.RequestQueryResponse,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.data = List.map((_) => [], this.queryMatches);
                 state.mainBacklinks = List.map((_) => null, this.queryMatches);
@@ -180,13 +174,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.loadingStatus = LoadingStatus.BUSY_LOADING_MAIN;
                 state.error = null;
             },
-            (state, action, dispatch) => {
-                this.loadData(
-                    state,
-                    appServices.dataStreaming(),
-                    SubchartID.MAIN,
-                    dispatch
-                );
+            (state, action, dispatch, ds) => {
+                this.loadData(state, ds, SubchartID.MAIN, dispatch);
             }
         );
 
@@ -739,7 +728,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                       queryMatch,
                       state.posQueryGenerator,
                       state.lemmatizationLevel,
-                      this.lemlevelSupp
+                      this.lemLevelSupport
                   ),
             subcorpName: undefined, // TODO
             fromYear: state.fromYear ? state.fromYear + '' : undefined,

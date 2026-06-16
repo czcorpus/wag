@@ -113,6 +113,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
                 appServices,
                 conf.attrNames
             ),
+            lemLevelSupport: this.supportsLemmatizationLevel,
             initState: {
                 corpname: conf.corpname,
                 datasetName: conf.datasetName

@@ -82,7 +82,7 @@ export class TranslationsTile implements ITileProvider {
         this.model = new TranslationsModel({
             dispatcher,
             appServices,
-            initialState: {
+            initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -97,6 +97,7 @@ export class TranslationsTile implements ITileProvider {
                 lang2: translatLanguage,
             },
             tileId,
+            lemLevelSupport: this.supportsLemmatizationLevel,
             api: new TreqAPI(
                 conf.apiURL,
                 conf.fetchExamplesFrom,

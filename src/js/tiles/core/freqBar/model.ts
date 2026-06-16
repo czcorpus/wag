@@ -36,6 +36,7 @@ import { SystemMessageType } from '../../../types.js';
 import { mergeMap, Observable } from 'rxjs';
 import { List, pipe, tuple } from 'cnc-tskit';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { TileStatefulModel } from '../../../models/tiles/base.js';
 
 export interface FreqDataBlock {
     word: string;
@@ -75,21 +76,15 @@ export interface FreqBarModelArgs {
     appServices: IAppServices;
     api: MQueryFreqDistribAPI;
     initState: FreqBarModelState;
-    lemlevelSupp: LemmatizationLevelTest;
+    lemLevelSupport: LemmatizationLevelTest;
 }
 
-export class FreqBarModel extends StatefulModel<FreqBarModelState> {
+export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
     readonly CHART_LABEL_MAX_LEN = 20;
 
     private readonly api: MQueryFreqDistribAPI;
 
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
-
     private readonly queryMatches: Array<QueryMatch>;
-
-    private readonly lemlevelSupp: LemmatizationLevelTest;
 
     constructor({
         dispatcher,
@@ -98,14 +93,18 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
         api,
         queryMatches,
         initState,
-        lemlevelSupp,
+        lemLevelSupport,
     }: FreqBarModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            lemLevelSupport,
+            dependentTiles: [],
+        });
         this.queryMatches = queryMatches;
-        this.appServices = appServices;
         this.api = api;
-        this.lemlevelSupp = lemlevelSupp;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
             console.log('SET SCREEN MODE: ', action.payload);
@@ -131,7 +130,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
             }
         );
 
-        this.addActionHandler(GlobalActions.RequestQueryResponse, (action) => {
+        this.addSearchActionHandler((action, ds) => {
             this.changeState((state) => {
                 List.forEach((item) => {
                     item.isReady = false;
@@ -162,7 +161,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                     mergeMap(([args, pass]) =>
                         appServices.callAPIWithExtraVal(
                             this.api,
-                            this.appServices.dataStreaming(),
+                            ds,
                             this.tileId,
                             pass.queryIdx,
                             args,
@@ -286,7 +285,7 @@ export class FreqBarModel extends StatefulModel<FreqBarModelState> {
                         queryMatch,
                         this.state.posQueryGenerator,
                         this.state.lemmatizationLevel,
-                        this.lemlevelSupp
+                        this.lemLevelSupport
                     ),
                     subcorpus: '', // TODO
                     attr: this.state.fcrit,
