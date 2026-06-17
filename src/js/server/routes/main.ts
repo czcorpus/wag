@@ -29,7 +29,6 @@ import {
     addWildcardMatches,
     queryTypeToAction,
     LemmatizationLevel,
-    RecognizedQueries,
 } from '../../query/index.js';
 import { QueryValidator } from '../../query/validation.js';
 import {
@@ -50,7 +49,6 @@ import {
     LayoutsConfig,
     HomepageTileConf,
     GroupLayoutConfig,
-    LayoutConfigCmpQuery,
     APIReportingRefreshInterval,
 } from '../../conf/index.js';
 import { init as viewInit } from '../../views/layout/layout.js';
@@ -300,6 +298,7 @@ export function mkRuntimeClientConf({
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
                 hideUnavailableQueryTypes: conf.hideUnavailableQueryTypes,
                 hideLemmaSelector: conf.hideLemmaSelector,
+                addWildcards: conf.addWildcards,
                 supportsExactFormSearch: !conf.disableExactFormSearchOption,
                 apiReporting: serverConf.apiReporting
                     ? {
@@ -722,6 +721,7 @@ export function queryAction({
                                     forms: [],
                                     pos: [],
                                     upos: [],
+                                    specifier: [],
                                     abs: 0,
                                     ipm: 0,
                                     arf: 0,
@@ -737,7 +737,9 @@ export function queryAction({
                             layoutManager.getLayoutMainPosAttr(),
                             List.sorted(
                                 (v1, v2) => v2.ipm - v1.ipm,
-                                addWildcardMatches([...queryMatches])
+                                runtimeConf.addWildcards !== false
+                                    ? addWildcardMatches([...queryMatches])
+                                    : [...queryMatches]
                             )
                         );
                     },

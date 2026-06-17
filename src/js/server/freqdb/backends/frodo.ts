@@ -27,6 +27,7 @@ interface HTTPNgramDoc {
     pos: string;
     datasetSize: number;
     upos: string;
+    specifier: string;
     count: number;
     arf: number;
     ipm: number;
@@ -151,6 +152,7 @@ export class FrodoClient implements IFreqDB {
                                               'upos',
                                               appServices
                                           ),
+                                    specifier: v.specifier.split(' '),
                                     abs:
                                         freqLemLevel === 'sublemma'
                                             ? sublProps.count
@@ -223,6 +225,7 @@ export class FrodoClient implements IFreqDB {
                                     'upos',
                                     appServices
                                 ),
+                                specifier: dictEntry.specifier.split(' '),
                                 abs: dictEntry.count,
                                 ipm: (dictEntry.count / corpusSize) * 1e6,
                                 flevel: calcFreqBand(
