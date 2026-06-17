@@ -68,6 +68,7 @@ export class __Template__Tile implements ITileProvider {
         conf,
         isBusy,
         queryMatches,
+        dependentTiles,
     }: TileFactoryArgs<__Template__TileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -79,6 +80,8 @@ export class __Template__Tile implements ITileProvider {
             tileId: tileId,
             appServices: appServices,
             queryMatches,
+            dependentTiles,
+            lemLevelSupport: this.configuredLemLevels,
             initState: {
                 isBusy: isBusy,
                 tileId: tileId,

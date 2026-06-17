@@ -15,11 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { findCurrQueryMatch, RecognizedQueries } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    RecognizedQueries,
+} from '../../../query/index.js';
+import { TileStatelessModel } from '../../../models/tiles/base.js';
+import { SEDispatcher } from 'kombo';
+import { IDataStreaming } from '../../../page/streaming.js';
 
 import { __Template__ModelState, Actions } from './common.js';
 import { of as rxOf } from 'rxjs';
@@ -31,14 +38,12 @@ export interface __Template__ModelArgs {
     appServices: IAppServices;
     initState: __Template__ModelState;
     queryMatches: RecognizedQueries;
+    lemLevelSupport: Array<LemmatizationLevel>;
+    dependentTiles: Array<number>;
 }
 
-export class __Template__Model extends StatelessModel<__Template__ModelState> {
+export class __Template__Model extends TileStatelessModel<__Template__ModelState> {
     private readonly queryMatches: RecognizedQueries;
-
-    private readonly appServices: IAppServices;
-
-    private readonly tileId: number;
 
     constructor({
         dispatcher,
@@ -46,10 +51,17 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
         appServices,
         initState,
         queryMatches,
+        dependentTiles,
+        lemLevelSupport,
     }: __Template__ModelArgs) {
-        super(dispatcher, initState);
-        this.tileId = tileId;
-        this.appServices = appServices;
+        super({
+            dispatcher,
+            initState,
+            tileId,
+            appServices,
+            dependentTiles,
+            lemLevelSupport,
+        });
         this.queryMatches = queryMatches;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
@@ -80,16 +92,12 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
             }
         );
 
-        this.addActionSubtypeHandler(
-            GlobalActions.RequestQueryResponse,
-            (action) =>
-                action.payload?.tileId === undefined ||
-                action.payload?.tileId === this.tileId,
+        this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
             },
-            (state, action, seDispatch) => {
-                this.fetchData(seDispatch);
+            (state, action, dispatch, ds) => {
+                this.fetchData(ds, dispatch);
             }
         );
 
@@ -112,7 +120,7 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
         );
     }
 
-    fetchData(seDispatch: SEDispatcher) {
+    fetchData(ds: IDataStreaming, seDispatch: SEDispatcher) {
         rxOf(...this.queryMatches)
             .pipe(delay(2000))
             .subscribe(
