@@ -46,9 +46,17 @@ interface StatelessModelArgs<T> {
     tileId: number;
     dependentTiles: Array<number>;
     appServices: IAppServices;
-    lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
+/**
+ * TileStatelessModel is a WaG-specific extension of
+ * StatelessModel with some necessary and/or useful
+ * properties required by tile logic. It also provides
+ * a simpler way how to handle the main search action
+ * (RequestQueryResponse) with DataStreaming already
+ * properly prepared.
+ */
 export abstract class TileStatelessModel<
     T extends object,
 > extends StatelessModel<T> {
@@ -58,7 +66,7 @@ export abstract class TileStatelessModel<
 
     protected readonly dependentTiles: Array<number>;
 
-    readonly lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+    protected readonly supportedLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         dispatcher,
@@ -72,7 +80,7 @@ export abstract class TileStatelessModel<
         this.tileId = tileId;
         this.dependentTiles = dependentTiles;
         this.appServices = appServices;
-        this.lemLevelSupport = lemLevelSupport;
+        this.supportedLemLevels = lemLevelSupport;
     }
 
     addSearchActionHandler(
@@ -107,6 +115,10 @@ export abstract class TileStatelessModel<
             }
         );
     }
+
+    lemLevelSupport(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.supportedLemLevels, ll);
+    }
 }
 
 interface StatefulModelArgs<T> {
@@ -115,9 +127,17 @@ interface StatefulModelArgs<T> {
     tileId: number;
     dependentTiles: Array<number>;
     appServices: IAppServices;
-    lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
+/**
+ * TileStatefulModel is a WaG-specific extension of
+ * StatefulModel with some necessary and/or useful
+ * properties required by tile logic. It also provides
+ * a simpler way how to handle the main search action
+ * (RequestQueryResponse) with DataStreaming already
+ * properly prepared.
+ */
 export abstract class TileStatefulModel<
     T extends object,
 > extends StatefulModel<T> {
@@ -127,7 +147,7 @@ export abstract class TileStatefulModel<
 
     protected readonly appServices: IAppServices;
 
-    readonly lemLevelSupport: (lv: LemmatizationLevel) => boolean;
+    protected readonly supportedLemLevels: Array<LemmatizationLevel>;
 
     constructor({
         dispatcher,
@@ -141,7 +161,7 @@ export abstract class TileStatefulModel<
         this.tileId = tileId;
         this.dependentTiles = dependentTiles;
         this.appServices = appServices;
-        this.lemLevelSupport = lemLevelSupport;
+        this.supportedLemLevels = lemLevelSupport;
     }
 
     addSearchActionHandler(
@@ -168,5 +188,9 @@ export abstract class TileStatefulModel<
                 handler(action, ds);
             }
         );
+    }
+
+    lemLevelSupport(ll: LemmatizationLevel): boolean {
+        return lemLevelSupport(this.supportedLemLevels, ll);
     }
 }

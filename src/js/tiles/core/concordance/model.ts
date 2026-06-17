@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { StatefulModel, IFullActionControl } from 'kombo';
+import { IFullActionControl } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce, map } from 'rxjs/operators';
 import { List, pipe, tuple } from 'cnc-tskit';
@@ -105,7 +105,8 @@ export interface ConcordanceTileModelArgs {
     queryMatches: RecognizedQueries;
     initState: ConcordanceTileState;
     queryType: QueryType;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export type SupportedForeignResponses =
@@ -192,8 +193,6 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
 
     private readonly infoApi: CorpusInfoAPI | undefined;
 
-    private readonly lemlevelSupport: LemmatizationLevelTest;
-
     public static readonly CTX_SIZES = [8, 10, 18, 28];
 
     constructor({
@@ -207,13 +206,14 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         queryType,
         readDataFromTile,
         lemLevelSupport,
+        dependentTiles,
     }: ConcordanceTileModelArgs) {
         super({
             dispatcher,
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.concApi = api;
@@ -578,7 +578,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                 queryMatch,
                 this.state.posQueryGenerator,
                 this.state.lemmatizationLevel,
-                this.lemlevelSupport
+                this.lemLevelSupport.bind(this)
             ),
             rowsOffset:
                 (this.state.concordances[queryIdx].loadPage - 1) *

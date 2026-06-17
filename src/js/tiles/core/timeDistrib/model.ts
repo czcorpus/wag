@@ -27,7 +27,6 @@ import { Actions } from './common.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
-    LemmatizationLevelTest,
     RecognizedQueries,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -115,7 +114,8 @@ export interface TimeDistribModelArgs {
     infoApi: CorpusInfoAPI;
     appServices: IAppServices;
     queryMatches: RecognizedQueries;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 function dateToSortNumber(s: string): number {
@@ -151,6 +151,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
         infoApi,
         appServices,
         queryMatches,
+        dependentTiles,
         lemLevelSupport,
     }: TimeDistribModelArgs) {
         super({
@@ -158,7 +159,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.queryMatches = queryMatches;
@@ -728,7 +729,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                       queryMatch,
                       state.posQueryGenerator,
                       state.lemmatizationLevel,
-                      this.lemLevelSupport
+                      this.lemLevelSupport.bind(this)
                   ),
             subcorpName: undefined, // TODO
             fromYear: state.fromYear ? state.fromYear + '' : undefined,

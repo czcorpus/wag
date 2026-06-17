@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-import { IActionQueue, SEDispatcher, StatelessModel } from 'kombo';
+import { IActionQueue, SEDispatcher } from 'kombo';
 
-import { Actions as GlobalActions } from '../../../models/actions.js';
 import { IAppServices } from '../../../appServices.js';
 import {
-    LemmatizationLevelTest,
+    LemmatizationLevel,
     QueryMatch,
     QueryType,
 } from '../../../query/index.js';
@@ -69,7 +68,8 @@ interface SyntacticCollsModelArgs {
     eApi: SyntacticCollsExamplesAPI;
     maxItems: number;
     theme: Theme;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVsTTModelState> {

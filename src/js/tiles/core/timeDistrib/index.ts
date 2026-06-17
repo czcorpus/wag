@@ -80,6 +80,7 @@ export class TimeDistTile implements ITileProvider {
         mainPosAttr,
         queryType,
         lemmatizationLevel,
+        dependentTiles,
     }: TileFactoryArgs<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
@@ -88,7 +89,8 @@ export class TimeDistTile implements ITileProvider {
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
-            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             initState: {
                 loadingStatus: isBusy
                     ? LoadingStatus.BUSY_LOADING_MAIN

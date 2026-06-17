@@ -24,6 +24,7 @@ import { IActionDispatcher, SEDispatcher } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import {
+    LemmatizationLevel,
     LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
@@ -47,7 +48,8 @@ export interface WordSimModelArgs {
     tileId: number;
     api: CNCWord2VecSimApi | CNCWSServerApi;
     appServices: IAppServices;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
+    dependentTiles: Array<number>;
 }
 
 /**
@@ -82,13 +84,14 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
         api,
         appServices,
         lemLevelSupport,
+        dependentTiles,
     }: WordSimModelArgs) {
         super({
             dispatcher,
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.api = api;

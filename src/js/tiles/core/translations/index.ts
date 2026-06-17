@@ -73,6 +73,7 @@ export class TranslationsTile implements ITileProvider {
         translatLanguage,
         widthFract,
         conf,
+        dependentTiles,
         isBusy,
     }: TileFactoryArgs<TranslationsTileConf>) {
         this.tileId = tileId;
@@ -97,7 +98,8 @@ export class TranslationsTile implements ITileProvider {
                 lang2: translatLanguage,
             },
             tileId,
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             api: new TreqAPI(
                 conf.apiURL,
                 conf.fetchExamplesFrom,

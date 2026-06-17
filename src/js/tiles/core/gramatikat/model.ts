@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IFullActionControl, StatefulModel } from 'kombo';
+import { IFullActionControl } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import {
@@ -37,7 +37,7 @@ import {
     QueryMatch,
     findCurrQueryMatch,
     testIsDictMatch,
-    LemmatizationLevelTest,
+    LemmatizationLevel,
 } from '../../../query/index.js';
 import { mergeMap, Observable, reduce, tap } from 'rxjs';
 import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
@@ -182,7 +182,8 @@ export interface ConcordanceTileModelArgs {
     api: GramatikatAPI;
     queryMatches: RecognizedQueries;
     initState: GramatikatState;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
+    dependentTiles: Array<number>;
 }
 
 export class GramatikatModel extends TileStatefulModel<GramatikatState> {
@@ -198,13 +199,14 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
         queryMatches,
         initState,
         lemLevelSupport,
+        dependentTiles,
     }: ConcordanceTileModelArgs) {
         super({
             dispatcher,
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.api = api;

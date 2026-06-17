@@ -84,6 +84,7 @@ export class WordSimTile implements ITileProvider {
         isBusy,
         queryMatches,
         mainPosAttr,
+        dependentTiles,
     }: TileFactoryArgs<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -104,7 +105,8 @@ export class WordSimTile implements ITileProvider {
         this.model = new WordSimModel({
             appServices,
             dispatcher,
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),

@@ -77,6 +77,7 @@ export class HtmlTile implements ITileProvider {
         conf,
         isBusy,
         queryMatches,
+        dependentTiles,
     }: TileFactoryArgs<HtmlTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -90,7 +91,8 @@ export class HtmlTile implements ITileProvider {
             appServices: appServices,
             service: this.api,
             queryMatches,
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            dependentTiles,
+            lemLevelSupport: this.configuredLemLevels,
             initState: {
                 isBusy: isBusy,
                 tileId: tileId,

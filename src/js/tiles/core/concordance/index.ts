@@ -92,6 +92,7 @@ export class ConcordanceTile implements ITileProvider {
         conf,
         isBusy,
         readDataFromTile,
+        dependentTiles,
     }: TileFactoryArgs<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -99,8 +100,9 @@ export class ConcordanceTile implements ITileProvider {
         this.readDataFromTile = readDataFromTile;
         this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new ConcordanceTileModel({
-            dispatcher: dispatcher,
+            dispatcher,
             tileId,
+            dependentTiles,
             readDataFromTile:
                 typeof readDataFromTile === 'number' ? readDataFromTile : null,
             appServices,
@@ -109,7 +111,7 @@ export class ConcordanceTile implements ITileProvider {
                 conf.srcInfoURL ? conf.srcInfoURL : conf.apiURL,
                 appServices
             ),
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
             queryMatches,
             queryType,
             initState: {

@@ -84,6 +84,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
         widthFract,
         conf,
         isBusy,
+        dependentTiles,
         queryMatches,
         queryType,
     }: TileFactoryArgs<SyntacticCollsVsTextTypesTileConf>) {
@@ -113,7 +114,8 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
                 appServices,
                 conf.attrNames
             ),
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             initState: {
                 corpname: conf.corpname,
                 datasetName: conf.datasetName
@@ -134,7 +136,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
                 ),
                 examplesCache: {},
                 exampleWindowData: undefined,
-                isBusy: false,
+                isBusy,
                 error: undefined,
             },
         });

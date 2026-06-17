@@ -32,7 +32,7 @@ import {
 import { GramatikatModel } from './model.js';
 import { GramatikatAPI } from './api.js';
 import { init as viewInit } from './views/index.js';
-import { List, tuple } from 'cnc-tskit';
+import { List } from 'cnc-tskit';
 import { findCurrentMatches } from '../wordFreq/model.js';
 
 export interface GramatikatTileConf extends TileConf {
@@ -98,8 +98,9 @@ export class GramatikatTile implements ITileProvider {
             tileId,
             appServices,
             queryMatches,
+            dependentTiles,
             api: new GramatikatAPI(conf.apiUrl),
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

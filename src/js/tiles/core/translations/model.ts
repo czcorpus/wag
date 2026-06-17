@@ -25,7 +25,7 @@ import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
 import { IAppServices } from '../../../appServices.js';
 import {
     findCurrQueryMatch,
-    LemmatizationLevelTest,
+    LemmatizationLevel,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
@@ -39,7 +39,9 @@ export interface TranslationModelArgs {
     tileId: number;
     api: TreqAPI;
     queryMatches: RecognizedQueries;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
+
     scaleColorGen: ColorScaleFunctionGenerator;
 }
 
@@ -57,6 +59,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         tileId,
         api,
         queryMatches,
+        dependentTiles,
         lemLevelSupport,
         scaleColorGen,
     }: TranslationModelArgs) {
@@ -65,7 +68,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             initState,
             appServices,
             tileId,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.queryMatches = queryMatches;
