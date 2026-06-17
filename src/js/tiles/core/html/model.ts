@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -25,7 +25,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import {
     findCurrQueryMatch,
-    LemmatizationLevelTest,
+    LemmatizationLevel,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
@@ -39,7 +39,8 @@ export interface HtmlModelArgs {
     service: RawHtmlAPI;
     initState: HtmlModelState;
     queryMatches: RecognizedQueries;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export class HtmlModel extends TileStatelessModel<HtmlModelState> {
@@ -54,6 +55,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
         service,
         initState,
         queryMatches,
+        dependentTiles,
         lemLevelSupport,
     }: HtmlModelArgs) {
         super({
@@ -61,7 +63,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.service = service;

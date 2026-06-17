@@ -72,6 +72,7 @@ export class TreqSubsetsTile implements ITileProvider {
         conf,
         isBusy,
         translatLanguage,
+        dependentTiles,
     }: TileFactoryArgs<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -108,7 +109,8 @@ export class TreqSubsetsTile implements ITileProvider {
                 ),
             },
             tileId,
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed,

@@ -20,7 +20,7 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './common.js';
 import {
-    LemmatizationLevelTest,
+    LemmatizationLevel,
     QueryMatch,
     QueryType,
 } from '../../../query/index.js';
@@ -50,7 +50,8 @@ export interface SyntacticCollsModelArgs {
     api: ScollexSyntacticCollsAPI | WSServerSyntacticCollsAPI;
     eApi: SyntacticCollsExamplesAPI;
     maxItems: number;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export interface SyntacticCollsModelState {

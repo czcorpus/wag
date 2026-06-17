@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IFullActionControl, StatefulModel } from 'kombo';
+import { IFullActionControl } from 'kombo';
 
 import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     LemmatizationLevel,
-    LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -76,7 +75,8 @@ export interface FreqBarModelArgs {
     appServices: IAppServices;
     api: MQueryFreqDistribAPI;
     initState: FreqBarModelState;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
@@ -93,6 +93,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         api,
         queryMatches,
         initState,
+        dependentTiles,
         lemLevelSupport,
     }: FreqBarModelArgs) {
         super({
@@ -101,7 +102,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
             tileId,
             appServices,
             lemLevelSupport,
-            dependentTiles: [],
+            dependentTiles,
         });
         this.queryMatches = queryMatches;
         this.api = api;
@@ -285,7 +286,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
                         queryMatch,
                         this.state.posQueryGenerator,
                         this.state.lemmatizationLevel,
-                        this.lemLevelSupport
+                        this.lemLevelSupport.bind(this)
                     ),
                     subcorpus: '', // TODO
                     attr: this.state.fcrit,

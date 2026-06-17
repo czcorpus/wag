@@ -24,7 +24,6 @@ import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
-    LemmatizationLevelTest,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -89,7 +88,8 @@ export interface WordFormsModelArgs {
     api: IWordFormsApi;
     queryMatches: RecognizedQueries;
     appServices: IAppServices;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
+    dependentTiles: Array<number>;
 }
 
 export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
@@ -106,6 +106,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
         api,
         queryMatches,
         appServices,
+        dependentTiles,
         lemLevelSupport,
     }: WordFormsModelArgs) {
         super({
@@ -113,7 +114,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.api = api;

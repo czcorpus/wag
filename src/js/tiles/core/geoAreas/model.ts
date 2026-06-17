@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
+import { IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, zip } from 'rxjs';
 import { reduce, share, mergeMap } from 'rxjs/operators';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
@@ -29,7 +29,6 @@ import { TooltipValues } from '../../../views/common/index.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
-    LemmatizationLevelTest,
     QueryMatch,
     QueryType,
     RecognizedQueries,
@@ -113,7 +112,7 @@ interface GeoAreasModelArgs {
     mapLoader: DataApi<string, string>;
     initState: GeoAreasModelState;
     queryType: QueryType;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
@@ -481,7 +480,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                     queryMatch,
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
-                    this.lemLevelSupport
+                    this.lemLevelSupport.bind(this)
                 ),
                 flimit: state.flimit,
                 matchCase: '0',

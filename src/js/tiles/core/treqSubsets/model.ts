@@ -23,7 +23,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
-    LemmatizationLevelTest,
+    LemmatizationLevel,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -136,7 +136,8 @@ export interface TreqSubsetModelArgs {
     tileId: number;
     api: TreqSubsetsAPI;
     queryMatches: RecognizedQueries;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
+    dependentTiles: Array<number>;
     scaleColorGen: ColorScaleFunctionGenerator;
 }
 
@@ -157,6 +158,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
         api,
         queryMatches,
         lemLevelSupport,
+        dependentTiles,
         scaleColorGen,
     }: TreqSubsetModelArgs) {
         super({
@@ -164,7 +166,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.queryMatches = queryMatches;

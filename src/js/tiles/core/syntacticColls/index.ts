@@ -148,6 +148,7 @@ export class SyntacticCollsTile implements ITileProvider {
         isBusy,
         queryMatches,
         queryType,
+        dependentTiles,
     }: TileFactoryArgs<SyntacticCollsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -167,7 +168,8 @@ export class SyntacticCollsTile implements ITileProvider {
             appServices,
             queryType,
             maxItems: conf.maxItems,
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             api:
                 conf.apiType === 'wss'
                     ? new WSServerSyntacticCollsAPI(conf.apiURL, appServices)

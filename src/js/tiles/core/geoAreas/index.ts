@@ -113,7 +113,7 @@ export class GeoAreasTile implements ITileProvider {
             ),
             mapLoader: new MapLoader(appServices),
             queryType,
-            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
+            lemLevelSupport: this.configuredLemLevels,
             initState: {
                 isBusy: isBusy,
                 error: null,

@@ -77,6 +77,7 @@ export class WordFormsTile implements ITileProvider {
         theme,
         mainPosAttr,
         lemmatizationLevel,
+        dependentTiles,
     }: TileFactoryArgs<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -87,7 +88,8 @@ export class WordFormsTile implements ITileProvider {
         );
         this.model = new WordFormsModel({
             dispatcher,
-            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,

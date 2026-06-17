@@ -86,6 +86,7 @@ export class WordFreqTile implements ITileProvider {
         mainPosAttr,
         theme,
         lemmatizationLevel,
+        dependentTiles,
     }: TileFactoryArgs<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -94,7 +95,8 @@ export class WordFreqTile implements ITileProvider {
         this.configuredLemLevels = conf.lemmatizationLevels || [];
         this.model = new SummaryModel({
             dispatcher,
-            lemLevelSupport: this.supportsLemmatizationLevel,
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             initState: {
                 isBusy: isBusy,
                 error: null,

@@ -25,7 +25,7 @@ import { SystemMessageType } from '../../../types.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions, CollocModelState, ctxToRange } from './common.js';
 import {
-    LemmatizationLevelTest,
+    LemmatizationLevel,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -42,7 +42,7 @@ export interface CollocModelArgs {
     service: MQueryCollAPI;
     initState: CollocModelState;
     queryMatches: Array<QueryMatch>;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 type FreqRequestArgs = [number, QueryMatch];
@@ -326,7 +326,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     queryMatch,
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
-                    this.lemLevelSupport
+                    this.lemLevelSupport.bind(this)
                 ),
                 subcorpus: '', // TODO
                 measure: this.measureMap[state.appliedMetrics[0]],

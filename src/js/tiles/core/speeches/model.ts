@@ -20,10 +20,7 @@ import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import {
-    LemmatizationLevelTest,
-    SubqueryPayload,
-} from '../../../query/index.js';
+import { LemmatizationLevel, SubqueryPayload } from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
 import {
     SpeechesModelState,
@@ -56,7 +53,8 @@ export interface SpeechesModelArgs {
     api: SpeechesApi;
     initState: SpeechesModelState;
     audioLinkGenerator: AudioLinkGenerator;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 interface ReloadDataArgs {
@@ -82,6 +80,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
         api,
         initState,
         audioLinkGenerator,
+        dependentTiles,
         lemLevelSupport,
     }: SpeechesModelArgs) {
         super({
@@ -89,7 +88,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.api = api;
@@ -357,7 +356,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
                     state.queryMatches[0],
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
-                    this.lemLevelSupport
+                    this.lemLevelSupport.bind(this)
                 ),
                 // hitlen: kwicNumTokens,  TODO
                 struct: [

@@ -101,6 +101,7 @@ export class FreqBarTile implements ITileProvider {
         queryMatches,
         queryType,
         lemmatizationLevel,
+        dependentTiles,
     }: TileFactoryArgs<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
@@ -120,7 +121,8 @@ export class FreqBarTile implements ITileProvider {
                 conf.backlink
             ),
             readDataFromTile,
-            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
+            dependentTiles,
+            lemLevelSupport: this.configuredLemLevels,
             initState: {
                 isBusy,
                 error: null,

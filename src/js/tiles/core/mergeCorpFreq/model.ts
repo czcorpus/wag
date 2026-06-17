@@ -48,7 +48,8 @@ export interface MergeCorpFreqModelArgs {
     freqApi: MergeFreqsApi;
     initState: MergeCorpFreqModelState;
     downloadLabel: string;
-    lemLevelSupport: LemmatizationLevelTest;
+    dependentTiles: Array<number>;
+    lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelState> {
@@ -63,6 +64,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
         freqApi,
         initState,
         downloadLabel,
+        dependentTiles,
         lemLevelSupport,
     }: MergeCorpFreqModelArgs) {
         super({
@@ -70,7 +72,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
             initState,
             tileId,
             appServices,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.freqApi = freqApi;
@@ -371,7 +373,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
                     queryMatch,
                     state.posQueryGenerator,
                     lemmatizationLevel,
-                    this.lemLevelSupport
+                    this.lemLevelSupport.bind(this)
                 ),
                 flimit: state.flimit,
                 matchCase: '0',

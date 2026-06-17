@@ -84,6 +84,7 @@ export class SpeechesTile implements ITileProvider {
         conf,
         isBusy,
         queryMatches,
+        dependentTiles,
         lemmatizationLevel,
     }: TileFactoryArgs<SpeechesTileConf>) {
         this.tileId = tileId;
@@ -98,7 +99,8 @@ export class SpeechesTile implements ITileProvider {
             audioLinkGenerator: conf.audioApiURL
                 ? new AudioLinkGenerator(conf.audioApiURL)
                 : null,
-            lemLevelSupport: (ll) => this.supportsLemmatizationLevel(ll),
+            lemLevelSupport: this.configuredLemLevels,
+            dependentTiles,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

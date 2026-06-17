@@ -29,7 +29,6 @@ import {
     QueryType,
     findCurrQueryMatch,
     LemmatizationLevel,
-    LemmatizationLevelTest,
 } from '../../../query/index.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -76,7 +75,8 @@ export interface SummaryModelArgs {
     appServices: IAppServices;
     queryMatches: RecognizedQueries;
     queryType: QueryType;
-    lemLevelSupport: LemmatizationLevelTest;
+    lemLevelSupport: Array<LemmatizationLevel>;
+    dependentTiles: Array<number>;
 }
 
 export function findCurrentMatches(
@@ -111,13 +111,14 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
         appServices,
         queryMatches,
         lemLevelSupport,
+        dependentTiles,
     }: SummaryModelArgs) {
         super({
             dispatcher,
             initState,
             appServices,
             tileId,
-            dependentTiles: [],
+            dependentTiles,
             lemLevelSupport,
         });
         this.api = api;
