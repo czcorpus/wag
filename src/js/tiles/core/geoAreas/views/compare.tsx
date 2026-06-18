@@ -469,6 +469,7 @@ export function init(
                 hasData={state.data.some((v) => v.length > 0)}
                 sourceIdent={{ corp: state.corpname }}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
                 backlink={state.backlinks}
             >

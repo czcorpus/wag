@@ -215,6 +215,10 @@ export class WordFormsTile implements ITileProvider {
         }
         return lemLevelSupport(this.configuredLemLevels, ll);
     }
+
+    isSubtileContainer(): boolean {
+        return false;
+    }
 }
 
 export const init: TileFactory<WordFormsTileConf> = {

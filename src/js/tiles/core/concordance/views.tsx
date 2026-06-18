@@ -449,6 +449,7 @@ export function init(
                 )}
                 sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
                 backlink={state.backlinks}
+                isSubtileContainer={props.isSubtileContainer}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
             >

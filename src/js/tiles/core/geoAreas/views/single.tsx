@@ -227,6 +227,7 @@ export function init(
                 sourceIdent={{ corp: state.corpname }}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}
+                isSubtileContainer={props.isSubtileContainer}
                 backlink={state.backlinks[0]}
             >
                 <S.GeoAreasTileView>

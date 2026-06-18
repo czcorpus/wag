@@ -47,6 +47,7 @@ export function init(
                 hasData={Boolean(state.data)}
                 sourceIdent={null}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
                 backlink={state.backlink}
             >

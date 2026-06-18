@@ -585,57 +585,81 @@ export function init(
                 sourceIdent={{ corp: state.corpname }}
                 backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
-                {state.isTweakMode ? <Settings tileId={props.tileId} /> : null}
-                {(() => {
-                    if (state.message) {
-                        return <PosWarning message={state.message} />;
-                    }
-                    if (List.empty(state.data)) {
-                        return null;
-                    }
-                    if (List.size(state.data) === 1) {
-                        return state.isAltViewMode ? (
-                            <AltViewSingle
-                                lemmaData={List.head(state.data).lemmaData}
-                                posData={List.head(state.data).posData}
-                                missingPos={List.head(state.data).missingPos}
-                                alpha={state.statTestAlpha}
-                                pos={List.head(state.data).pos}
-                                chartData={List.head(state.data).chartData}
-                            />
-                        ) : (
-                            <SingleWordView
-                                tileId={props.tileId}
-                                lemmaData={List.head(state.data).lemmaData}
-                                posData={List.head(state.data).posData}
-                                missingPos={List.head(state.data).missingPos}
-                                alpha={state.statTestAlpha}
-                                pos={List.head(state.data).pos}
-                                chartData={List.head(state.data).chartData}
-                                viewOptions={state.viewOptions}
-                            />
-                        );
-                    } else {
-                        return state.isAltViewMode ? (
-                            <div>advanced view multi-word - TODO</div>
-                        ) : (
-                            <MultiWordView
-                                lemmaData={List.map(
-                                    (v) => v.lemmaData,
-                                    state.data
-                                )}
-                                posData={posInfo}
-                                words={state.words}
-                                missingPos={List.map(
-                                    (v) => v.missingPos,
-                                    state.data
-                                )}
-                            />
-                        );
-                    }
-                })()}
+                <globalComponents.Subtile
+                    tileId={props.tileId}
+                    sourceIdent={{ corp: state.corpname }}
+                    backlink={state.backlinks}
+                >
+                    {props.tileHeader}
+
+                    {state.isTweakMode ? (
+                        <Settings tileId={props.tileId} />
+                    ) : null}
+                    {(() => {
+                        if (state.message) {
+                            return <PosWarning message={state.message} />;
+                        }
+                        if (List.empty(state.data)) {
+                            return null;
+                        }
+                        if (List.size(state.data) === 1) {
+                            return state.isAltViewMode ? (
+                                <AltViewSingle
+                                    lemmaData={List.head(state.data).lemmaData}
+                                    posData={List.head(state.data).posData}
+                                    missingPos={
+                                        List.head(state.data).missingPos
+                                    }
+                                    alpha={state.statTestAlpha}
+                                    pos={List.head(state.data).pos}
+                                    chartData={List.head(state.data).chartData}
+                                />
+                            ) : (
+                                <SingleWordView
+                                    tileId={props.tileId}
+                                    lemmaData={List.head(state.data).lemmaData}
+                                    posData={List.head(state.data).posData}
+                                    missingPos={
+                                        List.head(state.data).missingPos
+                                    }
+                                    alpha={state.statTestAlpha}
+                                    pos={List.head(state.data).pos}
+                                    chartData={List.head(state.data).chartData}
+                                    viewOptions={state.viewOptions}
+                                />
+                            );
+                        } else {
+                            return state.isAltViewMode ? (
+                                <div>advanced view multi-word - TODO</div>
+                            ) : (
+                                <MultiWordView
+                                    lemmaData={List.map(
+                                        (v) => v.lemmaData,
+                                        state.data
+                                    )}
+                                    posData={posInfo}
+                                    words={state.words}
+                                    missingPos={List.map(
+                                        (v) => v.missingPos,
+                                        state.data
+                                    )}
+                                />
+                            );
+                        }
+                    })()}
+                </globalComponents.Subtile>
+                <globalComponents.Subtile
+                    tileId={props.tileId}
+                    heading={'Grammatical categories and word forms note'}
+                >
+                    <p>
+                        The relationship between the two tiles is{' '}
+                        <strong>as follows ...</strong>
+                    </p>
+                </globalComponents.Subtile>
             </globalComponents.TileWrapper>
         );
     };

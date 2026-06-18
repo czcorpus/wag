@@ -1463,6 +1463,7 @@ export function init(
         tileResultFlag: TileResultFlagRec;
         isHighlighted: boolean;
         altViewIcon: AltViewIconProps;
+        isSubtileContainer: boolean;
     }> = (props) => {
         const getHTMLClass = () => {
             const ans = [
@@ -1498,59 +1499,58 @@ export function init(
             props.tile.supportsHelpView ||
             (props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult);
 
+        const renderHeader = () => (
+            <header className="wag-tile-header panel">
+                <h2>{currLabel}</h2>
+                <div className="window-buttons">
+                    {props.tile.supportsLemmaOnly ? (
+                        <LemmaOnlySupportWarning />
+                    ) : null}
+                    {props.tileResultFlag &&
+                    props.tileResultFlag.canBeAmbiguousResult ? (
+                        <AmbiguousResultWarning />
+                    ) : null}
+                    {props.tile.supportsSVGFigureSave ? (
+                        <SaveButton
+                            tileId={props.tile.tileId}
+                            disabled={
+                                !props.tileResultFlag ||
+                                props.tileResultFlag.status !==
+                                    TileResultFlag.VALID_RESULT
+                            }
+                        />
+                    ) : null}
+                    {props.tile.supportsAltView ? (
+                        <AltViewButton
+                            tileId={props.tile.tileId}
+                            isAltView={props.isAltViewMode}
+                            altIconProps={props.altViewIcon}
+                        />
+                    ) : null}
+                    {props.tile.supportsTweakMode ? (
+                        <TweakButton
+                            tileId={props.tile.tileId}
+                            isExtended={props.isTweakMode}
+                        />
+                    ) : null}
+                    {props.tile.supportsHelpView ? (
+                        <HelpButton tileId={props.tile.tileId} />
+                    ) : null}
+                </div>
+            </header>
+        );
+
         return (
-            <section
+            <S.TileContainer
                 id={mkTileSectionId(props.tile.tileId)}
                 key={`tile-ident-${props.tile.tileId}`}
                 className={getHTMLClass()}
+                $isSubtileContainer={props.isSubtileContainer}
             >
-                {headerNotEmpty ? (
-                    <header className="wag-tile-header panel">
-                        <h2>{currLabel}</h2>
-                        <div className="window-buttons">
-                            {props.tile.supportsLemmaOnly ? (
-                                <LemmaOnlySupportWarning />
-                            ) : null}
-                            {props.tileResultFlag &&
-                            props.tileResultFlag.canBeAmbiguousResult ? (
-                                <AmbiguousResultWarning />
-                            ) : null}
-                            {props.tile.supportsSVGFigureSave ? (
-                                <SaveButton
-                                    tileId={props.tile.tileId}
-                                    disabled={
-                                        !props.tileResultFlag ||
-                                        props.tileResultFlag.status !==
-                                            TileResultFlag.VALID_RESULT
-                                    }
-                                />
-                            ) : null}
-                            {props.tile.supportsAltView ? (
-                                <AltViewButton
-                                    tileId={props.tile.tileId}
-                                    isAltView={props.isAltViewMode}
-                                    altIconProps={props.altViewIcon}
-                                />
-                            ) : null}
-                            {props.tile.supportsTweakMode ? (
-                                <TweakButton
-                                    tileId={props.tile.tileId}
-                                    isExtended={props.isTweakMode}
-                                />
-                            ) : null}
-                            {props.tile.supportsHelpView ? (
-                                <HelpButton tileId={props.tile.tileId} />
-                            ) : null}
-                        </div>
-                    </header>
-                ) : null}
-                <div
-                    className="provider"
-                    style={{
-                        height: '100%',
-                        overflow: props.tile.maxTileHeight ? 'auto' : 'initial',
-                    }}
-                >
+                <div className="tile">
+                    {headerNotEmpty && !props.isSubtileContainer
+                        ? renderHeader()
+                        : null}
                     <div
                         style={{
                             height: '100%',
@@ -1570,8 +1570,17 @@ export function init(
                                     supportsReloadOnError={
                                         props.tile.supportsReloadOnError
                                     }
+                                    isSubtileContainer={
+                                        props.isSubtileContainer
+                                    }
                                     issueReportingUrl={
                                         props.tile.issueReportingUrl
+                                    }
+                                    tileHeader={
+                                        headerNotEmpty &&
+                                        props.isSubtileContainer
+                                            ? renderHeader()
+                                            : null
                                     }
                                 />
                             ) : (
@@ -1582,7 +1591,7 @@ export function init(
                         </globalComponents.ErrorBoundary>
                     </div>
                 </div>
-            </section>
+            </S.TileContainer>
         );
     };
 
@@ -1892,6 +1901,7 @@ export function init(
                                         props.highlightedTileId === tile.tileId
                                     }
                                     altViewIcon={tile.altViewIcon}
+                                    isSubtileContainer={tile.isSubtileContainer}
                                 />
                             ))
                         )}

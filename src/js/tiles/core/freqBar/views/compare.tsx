@@ -382,6 +382,7 @@ export function init(
                 sourceIdent={{ corp: state.corpname }}
                 backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <globComponents.ResponsiveWrapper

@@ -136,6 +136,7 @@ export function init(
                 )}
                 sourceIdent={{ corp: state.corpus }}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.WordSimView>

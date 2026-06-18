@@ -170,6 +170,10 @@ export class GramatikatTile implements ITileProvider {
     hideOnNoData(): boolean {
         return false;
     }
+
+    isSubtileContainer(): boolean {
+        return true;
+    }
 }
 
 export const init: TileFactory<GramatikatTileConf> = {
