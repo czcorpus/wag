@@ -661,7 +661,7 @@ export const TileContainer = styled.section<{
     theme: Theme;
     $isSubtileContainer: boolean;
 }>`
-    padding: 0.1em;
+    padding: 0.2em;
     display: flex;
 
     .tile {
@@ -675,7 +675,7 @@ export const TileContainer = styled.section<{
         box-shadow: ${(props) =>
             props.$isSubtileContainer
                 ? 'none'
-                : '.05em .05em .15em .05em rgba(0, 0, 0, 0.2)'};
+                : '.1em .1em .15em .1em rgba(0, 0, 0, 0.2)'};
         background-color: ${(props) =>
             props.$isSubtileContainer
                 ? 'transparent'
@@ -909,7 +909,7 @@ export const Group = styled.section<{ theme: Theme }>`
     }
 
     ${TilesSections} > &:not(:first-child) {
-        margin-top: 1.7em;
+        margin-top: 0.5rem;
     }
 
     ${(props) => props.theme.cssMobileScreen} {
@@ -950,7 +950,7 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
 
 export const Tiles = styled.section<{ theme: Theme }>`
     display: grid;
-    grid-gap: 1em;
+    grid-gap: 0.5rem;
     grid-template-columns: 1fr 1fr 1fr;
     color: #444;
 
