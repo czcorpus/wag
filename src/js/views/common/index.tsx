@@ -165,6 +165,8 @@ export interface GlobalComponents {
         children: React.ReactNode;
         sourceIdent?: SourceInfo | Array<SourceInfo>;
         backlink?: Backlink | Array<Backlink>;
+        isBusy: boolean;
+        hasData: boolean;
     }>;
 }
 
@@ -1248,19 +1250,56 @@ export function init(
         children,
         sourceIdent,
         backlink,
+        isBusy,
+        hasData,
     }) => {
+        const htmlClasses = [];
+        if (!hasData && !isBusy) {
+            htmlClasses.push('empty');
+        }
+
         return (
-            <S.Subtile $isHeadless={!heading}>
+            <S.Subtile className={htmlClasses.join(' ')} $isHeadless={!heading}>
                 {heading ? (
                     <header className="wag-tile-header panel">
                         <h2>{heading}</h2>
                     </header>
                 ) : null}
+                <div className="loader-wrapper">
+                    {hasData && isBusy ? <TileLoaderBar /> : null}
+                </div>
                 {React.Children.count(children) > 1 ? (
                     <>
                         {children[0]}
                         <div className="wag-tile-body">
-                            {Array.isArray(children) ? children.slice(1) : null}
+                            {!hasData && isBusy ? (
+                                <p>
+                                    <AjaxLoader htmlClass="centered" />
+                                </p>
+                            ) : null}
+                            {!hasData && !isBusy ? (
+                                <div className="not-applicable-box">
+                                    <div className="message">
+                                        <MessageStatusIcon
+                                            statusType={
+                                                SystemMessageType.WARNING
+                                            }
+                                            isInline={false}
+                                        />
+                                        <p>
+                                            {ut.translate(
+                                                'global__no_data_for_current_query'
+                                            )}
+                                        </p>
+                                    </div>
+                                    <p className="not-applicable">
+                                        <span>N/A</span>
+                                    </p>
+                                </div>
+                            ) : null}
+                            {hasData && Array.isArray(children)
+                                ? children.slice(1)
+                                : null}
                         </div>
                     </>
                 ) : (
