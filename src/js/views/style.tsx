@@ -741,6 +741,7 @@ export const TileContainer = styled.section<{
     }
 
     .wag-tile-header {
+        border-radius: 0.25em 0.25em 0 0;
         padding: 0.625em 1.25em;
         border-bottom: 0.1em solid
             ${(props) => props.theme.tileHeadingSeparColor};
@@ -768,6 +769,69 @@ export const TileContainer = styled.section<{
                 margin-left: 0em;
                 margin-right: 0.1em;
             }
+        }
+    }
+
+    .panel {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        .window-buttons {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            span.bar-button {
+                display: flex;
+                padding-left: 0.2em;
+                padding-right: 0.2em;
+
+                button {
+                    display: block;
+                    border: none;
+                    background-color: transparent;
+                    padding: 0;
+                    cursor: pointer;
+
+                    img {
+                        display: block;
+                        width: 1.2em;
+                    }
+                }
+
+                button:focus {
+                    outline: none;
+                }
+
+                button::-moz-focus-inner {
+                    border: 0;
+                }
+            }
+        }
+
+        .window-buttons span.TweakButton.bar-button {
+            img {
+                width: 1.3em;
+            }
+        }
+
+        .window-buttons > span.disabled {
+            button {
+                cursor: default;
+            }
+        }
+
+        h2 {
+            margin: 0;
+            padding: 0;
+            font-size: 1.4rem;
+            font-weight: normal;
+        }
+
+        h3 {
+            font-size: 1.1em;
         }
     }
 `;
@@ -907,81 +971,6 @@ export const Tiles = styled.section<{ theme: Theme }>`
 
         &.span-3 {
             grid-column: span 3;
-        }
-
-        .panel {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-
-            .window-buttons {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-
-                span.bar-button {
-                    display: flex;
-                    padding-left: 0.2em;
-                    padding-right: 0.2em;
-
-                    button {
-                        display: block;
-                        border: none;
-                        background-color: transparent;
-                        padding: 0;
-                        cursor: pointer;
-
-                        img {
-                            display: block;
-                            width: 1.2em;
-                        }
-                    }
-
-                    button:focus {
-                        outline: none;
-                    }
-
-                    button::-moz-focus-inner {
-                        border: 0;
-                    }
-                }
-            }
-
-            .window-buttons span.TweakButton.bar-button {
-                img {
-                    width: 1.3em;
-                }
-            }
-
-            .window-buttons > span.disabled {
-                button {
-                    cursor: default;
-                }
-            }
-
-            h2 {
-                margin: 0;
-                padding: 0;
-                font-size: 1.3em;
-                font-weight: normal;
-            }
-
-            h3 {
-                font-size: 1.1em;
-            }
-        }
-
-        .provider {
-            box-sizing: border-box;
-            flex-grow: 1;
-            display: block;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        .provider.hidden {
-            display: none;
         }
     }
 
