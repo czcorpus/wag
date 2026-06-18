@@ -424,6 +424,7 @@ export function init(
                 )}
                 backlink={List.flatMap((v) => v, state.backlinks)}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <div style={{ position: 'relative' }}>

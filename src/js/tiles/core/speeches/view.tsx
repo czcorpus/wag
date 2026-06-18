@@ -369,6 +369,7 @@ export function init(
                 sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
                 backlink={state.backlink}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.SpeechesTile>

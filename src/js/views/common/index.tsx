@@ -59,6 +59,7 @@ export interface GlobalComponents {
         sourceIdent?: SourceInfo | Array<SourceInfo>;
         supportsTileReload: boolean;
         issueReportingUrl: string;
+        isSubtileContainer: boolean;
         backlink?: Backlink | Array<Backlink>;
         htmlClass?: string;
         error?: string;
@@ -157,6 +158,14 @@ export interface GlobalComponents {
     }>;
 
     useMobileComponent: () => boolean;
+
+    Subtile: React.FC<{
+        tileId: number;
+        heading?: string;
+        children: React.ReactNode;
+        sourceIdent?: SourceInfo | Array<SourceInfo>;
+        backlink?: Backlink | Array<Backlink>;
+    }>;
 }
 
 export function init(
@@ -177,13 +186,13 @@ export function init(
         );
     };
 
-    // --------------- <TitleLoaderBar /> -------------------------------------------
+    // --------------- <TileLoaderBar /> -------------------------------------------
 
-    const TitleLoaderBar: React.FC<{}> = (props) => {
+    const TileLoaderBar: React.FC<{}> = (props) => {
         return (
-            <S.TitleLoaderBar title={ut.translate('global__alt_loading')}>
+            <S.TileLoaderBar title={ut.translate('global__alt_loading')}>
                 <div className="grad"></div>
-            </S.TitleLoaderBar>
+            </S.TileLoaderBar>
         );
     };
 
@@ -593,41 +602,41 @@ export function init(
                     className={htmlClasses.join(' ')}
                     onClick={handleAreaClick}
                 >
-                    <div className="loader-wrapper">
-                        {props.hasData && props.isBusy ? (
-                            <TitleLoaderBar />
-                        ) : null}
-                    </div>
+                    {props.isSubtileContainer ? null : (
+                        <div className="loader-wrapper">
+                            {props.hasData && props.isBusy ? (
+                                <TileLoaderBar />
+                            ) : null}
+                        </div>
+                    )}
                     <div
                         className={`wag-tile-body content${props.hasData ? '' : ' empty'}`}
                     >
-                        <div style={{ height: '100%' }}>
-                            {props.hasData ? (
-                                props.children
-                            ) : (
-                                <div className="not-applicable-box">
-                                    <div className="message">
-                                        <MessageStatusIcon
-                                            statusType={
-                                                SystemMessageType.WARNING
-                                            }
-                                            isInline={false}
-                                        />
-                                        <p>
-                                            {props.noDataMessage ||
-                                                ut.translate(
-                                                    'global__no_data_for_current_query'
-                                                )}
-                                        </p>
-                                    </div>
-                                    <p className="not-applicable">
-                                        <span>N/A</span>
+                        {props.hasData ? (
+                            props.children
+                        ) : (
+                            <div className="not-applicable-box">
+                                <div className="message">
+                                    <MessageStatusIcon
+                                        statusType={SystemMessageType.WARNING}
+                                        isInline={false}
+                                    />
+                                    <p>
+                                        {props.noDataMessage ||
+                                            ut.translate(
+                                                'global__no_data_for_current_query'
+                                            )}
                                     </p>
                                 </div>
-                            )}
-                        </div>
+                                <p className="not-applicable">
+                                    <span>N/A</span>
+                                </p>
+                            </div>
+                        )}
                     </div>
-                    {props.hasData && (props.sourceIdent || props.backlink) ? (
+                    {!props.isSubtileContainer &&
+                    props.hasData &&
+                    (props.sourceIdent || props.backlink) ? (
                         <SourceReference
                             data={props.sourceIdent}
                             backlink={props.backlink}
@@ -1231,6 +1240,43 @@ export function init(
         );
     };
 
+    // ----------------- <Subtile /> ------------------------------
+
+    const Subtile: GlobalComponents['Subtile'] = ({
+        tileId,
+        heading,
+        children,
+        sourceIdent,
+        backlink,
+    }) => {
+        return (
+            <S.Subtile $isHeadless={!heading}>
+                {heading ? (
+                    <header className="wag-tile-header panel">
+                        <h2>{heading}</h2>
+                    </header>
+                ) : null}
+                {React.Children.count(children) > 1 ? (
+                    <>
+                        {children[0]}
+                        <div className="wag-tile-body">
+                            {Array.isArray(children) ? children.slice(1) : null}
+                        </div>
+                    </>
+                ) : (
+                    <div className="wag-tile-body">{children}</div>
+                )}
+                {sourceIdent || backlink ? (
+                    <SourceReference
+                        data={sourceIdent}
+                        backlink={backlink}
+                        tileId={tileId}
+                    />
+                ) : null}
+            </S.Subtile>
+        );
+    };
+
     /**
      * useMobileComponent is a React hook providing information if the current
      * environment is a mobile screen. The condition is equivalent to the CSS
@@ -1281,6 +1327,7 @@ export function init(
         Paginator,
         TileMinHeightContext: React.createContext(100),
         ToggleButton,
+        Subtile,
         useMobileComponent,
     };
 }

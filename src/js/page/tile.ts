@@ -188,6 +188,8 @@ export interface TileFrameProps {
     issueReportingUrl: string;
 
     altViewIcon: AltViewIconProps;
+
+    isSubtileContainer: boolean;
 }
 
 /**
@@ -202,6 +204,8 @@ export interface CoreTileComponentProps {
     supportsReloadOnError: boolean;
     issueReportingUrl: string;
     tileLabel: string;
+    isSubtileContainer: boolean;
+    tileHeader: React.ReactElement;
 }
 
 /**
@@ -327,6 +331,8 @@ export interface ITileProvider {
      * user experience.
      */
     hideOnNoData(): boolean;
+
+    isSubtileContainer(): boolean;
 }
 
 /**

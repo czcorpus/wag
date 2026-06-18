@@ -328,6 +328,7 @@ export function init(
                 backlink={state.backlinks}
                 sourceIdent={{ corp: 'InterCorp' }}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.TreqSubsetsView>

@@ -88,6 +88,7 @@ export function init(
                 hasData={state.queryMatches.length > 0}
                 sourceIdent={{ corp: state.corpname }}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.WordFreqTileView>

@@ -655,6 +655,123 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
     }
 `;
 
+// ---------------- <TileContainer /> ----------------------------------------
+
+export const TileContainer = styled.section<{
+    theme: Theme;
+    $isSubtileContainer: boolean;
+}>`
+    padding: 0.1em;
+    display: flex;
+
+    .tile {
+        box-sizing: border-box;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        font-size: 0.92em;
+        color: ${(props) => props.theme.colorSecondaryText};
+        border-radius: 0.25em;
+        box-shadow: ${(props) =>
+            props.$isSubtileContainer
+                ? 'none'
+                : '.05em .05em .15em .05em rgba(0, 0, 0, 0.2)'};
+        background-color: ${(props) =>
+            props.$isSubtileContainer
+                ? 'transparent'
+                : props.theme.tileBackgroundColor};
+    }
+
+    .tile-body {
+        padding: 1.35em;
+        text-align: justify;
+        line-height: 1.6;
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        scroll-snap-align: start;
+        scroll-margin-top: 1em;
+    }
+
+    .highlighted {
+        box-shadow: 0.09em 0.09em 0.15em 0.09em rgba(226, 0, 122, 0.7);
+    }
+
+    .hidden-no-data {
+        display: none;
+    }
+
+    .wag-tile-body {
+        padding: ${(props) => (props.$isSubtileContainer ? '' : '1.25em')};
+        flex-grow: ${(props) => (props.$isSubtileContainer ? '0' : '1')};
+    }
+
+    .wag-tile-body a {
+        color: ${(props) => props.theme.colorLogoBlue};
+        text-decoration: none;
+    }
+
+    .wag-tile-body a:hover {
+        text-decoration: underline;
+    }
+
+    .wag-tile-body.error .message,
+    .wag-tile-body.empty .message {
+        display: flex;
+        align-items: center;
+        align-content: center;
+
+        p {
+            font-size: 1.1em;
+        }
+
+        .MessageStatusIcon {
+            margin-right: 1.3em;
+
+            img {
+                width: 1.7em;
+                display: block;
+            }
+        }
+    }
+
+    .wag-tile-body.error .report {
+        font-size: 1.2em;
+        text-align: center;
+    }
+
+    .wag-tile-header {
+        padding: 0.625em 1.25em;
+        border-bottom: 0.1em solid
+            ${(props) => props.theme.tileHeadingSeparColor};
+        background-color: ${(props) => props.theme.tileBackgroundColor};
+    }
+
+    .tile-body.text,
+    .wag-tile-body.text {
+        .raw-html {
+            em {
+                color: ${(props) => props.theme.colorLogoPink};
+            }
+
+            a {
+                color: ${(props) => props.theme.colorLogoBlue};
+            }
+
+            a:hover {
+                text-decoration: none;
+            }
+
+            img {
+                width: 1em;
+                display: inline-block;
+                margin-left: 0em;
+                margin-right: 0.1em;
+            }
+        }
+    }
+`;
+
 // ---------------- <NothingFoundBox /> --------------------------------------
 
 export const NothingFoundBox = styled.div`

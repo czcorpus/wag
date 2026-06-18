@@ -119,6 +119,7 @@ const mkAttachTile =
             helpURL: helpURL,
             supportsReloadOnError: tile.registerReloadModel(retryLoadModel),
             altViewIcon: tile.getAltViewIcon(),
+            isSubtileContainer: tile.isSubtileContainer(),
         });
         if (!support) {
             tile.disable();

@@ -40,9 +40,10 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
 
     .loader-wrapper {
         height: 0.2em;
+        background-color: ${(props) => props.theme.tileBackgroundColor};
     }
 
-    .content {
+    :not(.wag-subtile-container) .content {
         padding: 1.25em;
 
         .tweak-box {
@@ -100,7 +101,7 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TitleLoaderBar = styled.div<{ theme: Theme }>`
+export const TileLoaderBar = styled.div<{ theme: Theme }>`
     @keyframes slidein {
         0% {
             transform: translate(0);
@@ -512,5 +513,20 @@ export const ToggleButton = styled.div<{
                 ${(props) => props.theme.toggleButtonCircleColor} 20%,
                 black
             );
+    }
+`;
+
+// ---------------- <Subtile /> --------------------------------------
+
+export const Subtile = styled.div<{ theme: Theme; $isHeadless: boolean }>`
+    font-size: 0.92em;
+    margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
+    color: ${(props) => props.theme.colorSecondaryText};
+    border-radius: 0.25em;
+    box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
+    background-color: ${(props) => props.theme.tileBackgroundColor};
+
+    .wag-tile-body {
+        padding: 1.25em;
     }
 `;

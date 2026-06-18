@@ -128,6 +128,7 @@ export function init(
                 sourceIdent={{ corp: 'InterCorp' }}
                 backlink={state.backlink}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 {state.isAltViewMode ? (

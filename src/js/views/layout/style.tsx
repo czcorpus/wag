@@ -316,111 +316,12 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
         }
     }
 
-    .tile-body {
-        padding: 1.35em;
-        text-align: justify;
-        line-height: 1.6;
-    }
-
-    .tile-body.text,
-    .wag-tile-body.text {
-
-        .raw-html {
-
-            em {
-                color: ${confTheme.colorLogoPink};
-            }
-
-            a {
-                color: ${confTheme.colorLogoBlue};
-            }
-
-            a:hover {
-                text-decoration: none;
-            }
-
-            img {
-                width: 1em;
-                display: inline-block;
-                margin-left: 0em;
-                margin-right: 0.1em;
-            }
-        }
-    }
-
     #modal-overlay .wag-tile-body.text .raw-html {
         font-size: 1.2em;
         max-width: 32em;
     }
 
     // -------
-
-    .wag-tile {
-        border-radius: .25em;
-        box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
-        background-color: ${confTheme.tileBackgroundColor};
-        font-size: .92em;
-        color: ${confTheme.colorSecondaryText};
-    }
-
-    ${confTheme.cssMobileScreen} {
-        .wag-tile {
-            scroll-snap-align: start;
-            scroll-margin-top: 1em;
-        }
-    }
-
-    .wag-tile.highlighted {
-        box-shadow: .09em .09em .15em .09em rgba(226, 0, 122, 0.7);
-    }
-
-    .wag-tile.hidden-no-data {
-        display: none;
-    }
-
-    .wag-tile-body {
-        padding: 1.25em;
-        height: 100%;
-    }
-
-    .wag-tile-body a {
-        color: ${confTheme.colorLogoBlue};
-        text-decoration: none;
-    }
-
-    .wag-tile-body a:hover {
-        text-decoration: underline;
-    }
-
-    .wag-tile-body.error .message,
-    .wag-tile-body.empty .message {
-        display: flex;
-        align-items: center;
-        align-content: center;
-
-        p {
-            font-size: 1.1em;
-        }
-
-        .MessageStatusIcon {
-            margin-right: 1.3em;
-
-            img {
-                width: 1.7em;
-                display: block;
-            }
-        }
-    }
-
-    .wag-tile-body.error .report {
-        font-size: 1.2em;
-        text-align: center;
-    }
-
-    .wag-tile-header {
-        padding: .625em 1.25em;
-        border-bottom: .1em solid ${confTheme.tileHeadingSeparColor};
-    }
 
     .wag-form {
         width: 100%;

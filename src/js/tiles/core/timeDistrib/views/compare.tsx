@@ -597,6 +597,7 @@ export function init(
                 hasData={List.some((v) => v.length > 0, state.data)}
                 sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
                 supportsTileReload={props.supportsReloadOnError}
+                isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
                 backlink={state.mainBacklinks}
             >

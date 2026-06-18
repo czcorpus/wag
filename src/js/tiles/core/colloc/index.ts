@@ -232,6 +232,10 @@ export class CollocationsTile implements ITileProvider {
     hideOnNoData(): boolean {
         return false;
     }
+
+    isSubtileContainer(): boolean {
+        return false;
+    }
 }
 
 export const init: TileFactory<CollocationsTileConf> = {

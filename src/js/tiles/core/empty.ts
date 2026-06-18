@@ -103,4 +103,8 @@ export class EmptyTile implements ITileProvider {
     supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
         return false;
     }
+
+    isSubtileContainer(): boolean {
+        return false;
+    }
 }

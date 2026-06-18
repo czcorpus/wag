@@ -201,6 +201,10 @@ export class WordSimTile implements ITileProvider {
     supportsLemmatizationLevel(ll: LemmatizationLevel): boolean {
         return lemLevelSupport(this.configuredLemLevels, ll);
     }
+
+    isSubtileContainer(): boolean {
+        return false;
+    }
 }
 
 export const init: TileFactory<WordSimTileConf> = {
