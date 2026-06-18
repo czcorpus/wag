@@ -697,7 +697,7 @@ export const TileContainer = styled.section<{
         box-shadow: 0.09em 0.09em 0.15em 0.09em rgba(226, 0, 122, 0.7);
     }
 
-    .hidden-no-data {
+    &.hidden-no-data .tile {
         display: none;
     }
 
