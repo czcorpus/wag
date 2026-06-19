@@ -293,7 +293,7 @@ interface LemmaArgs {
 export interface GramatikatFreq {
     valSet: Tag;
     proportion: number;
-    deviatesFromMean?: 'over' | 'under';
+    uncommonValue: 'over' | 'under' | 'none';
 }
 
 export interface LemmaResponse {
