@@ -518,15 +518,21 @@ export const ToggleButton = styled.div<{
 
 // ---------------- <Subtile /> --------------------------------------
 
-export const Subtile = styled.div<{ theme: Theme; $isHeadless: boolean }>`
+export const Subtile = styled.div<{
+    theme: Theme;
+    $isHeadless: boolean;
+    $isMaxHeight: boolean;
+}>`
     font-size: 0.92em;
     margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
+    flex-grow: ${(props) => (props.$isMaxHeight ? '1' : 'initial')};
     color: ${(props) => props.theme.colorSecondaryText};
     border-radius: 0.25em;
     box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
     background-color: ${(props) => props.theme.tileBackgroundColor};
 
     .wag-tile-body {
+        display: flex;
         padding: 1.25em;
     }
 `;

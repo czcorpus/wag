@@ -1551,45 +1551,31 @@ export function init(
                     {headerNotEmpty && !props.isSubtileContainer
                         ? renderHeader()
                         : null}
-                    <div
-                        style={{
-                            height: '100%',
-                            maxHeight: props.tile.maxTileHeight
-                                ? props.tile.maxTileHeight
-                                : 'initial',
-                        }}
-                    >
-                        <globalComponents.ErrorBoundary>
-                            {props.supportsCurrQuery ? (
-                                <props.tile.Component
-                                    tileId={props.tile.tileId}
-                                    tileName={props.tile.tileName}
-                                    tileLabel={currLabel}
-                                    isMobile={props.isMobile}
-                                    widthFract={props.tile.widthFract}
-                                    supportsReloadOnError={
-                                        props.tile.supportsReloadOnError
-                                    }
-                                    isSubtileContainer={
-                                        props.isSubtileContainer
-                                    }
-                                    issueReportingUrl={
-                                        props.tile.issueReportingUrl
-                                    }
-                                    tileHeader={
-                                        headerNotEmpty &&
-                                        props.isSubtileContainer
-                                            ? renderHeader()
-                                            : null
-                                    }
-                                />
-                            ) : (
-                                <DisabledTile
-                                    reason={props.tile.reasonTileDisabled}
-                                />
-                            )}
-                        </globalComponents.ErrorBoundary>
-                    </div>
+                    <globalComponents.ErrorBoundary>
+                        {props.supportsCurrQuery ? (
+                            <props.tile.Component
+                                tileId={props.tile.tileId}
+                                tileName={props.tile.tileName}
+                                tileLabel={currLabel}
+                                isMobile={props.isMobile}
+                                widthFract={props.tile.widthFract}
+                                supportsReloadOnError={
+                                    props.tile.supportsReloadOnError
+                                }
+                                isSubtileContainer={props.isSubtileContainer}
+                                issueReportingUrl={props.tile.issueReportingUrl}
+                                tileHeader={
+                                    headerNotEmpty && props.isSubtileContainer
+                                        ? renderHeader()
+                                        : null
+                                }
+                            />
+                        ) : (
+                            <DisabledTile
+                                reason={props.tile.reasonTileDisabled}
+                            />
+                        )}
+                    </globalComponents.ErrorBoundary>
                 </div>
             </S.TileContainer>
         );
