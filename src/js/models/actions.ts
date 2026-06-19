@@ -30,7 +30,7 @@ export class Actions {
          */
         tileId?: number;
 
-        queryMatches?: Array<QueryMatch>;
+        newQueryMatches?: Array<QueryMatch>;
     }> = {
         name: 'MAIN_REQUEST_QUERY_RESPONSE',
     };

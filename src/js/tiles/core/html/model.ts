@@ -46,7 +46,7 @@ export interface HtmlModelArgs {
 }
 
 export class HtmlModel extends TileStatelessModel<HtmlModelState> {
-    private queryMatches: Array<QueryMatch>;
+    private currQueryMatches: Array<QueryMatch>;
 
     private readonly service: RawHtmlAPI;
 
@@ -69,21 +69,21 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             lemLevelSupport,
         });
         this.service = service;
-        this.queryMatches = List.map(
+        this.currQueryMatches = List.map(
             (match) => findCurrQueryMatch(match),
             queryMatches
         );
 
         this.addSearchActionHandler(
             (state, action) => {
-                if (!!action.payload?.queryMatches) {
-                    this.queryMatches = action.payload.queryMatches;
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch, ds) => {
-                const variant = this.queryMatches[0];
+                const variant = this.currQueryMatches[0];
                 this.requestData(state, variant.lemma, ds, seDispatch);
             }
         );
@@ -110,7 +110,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 const variant =
-                    this.queryMatches[action.payload.backlink.queryId];
+                    this.currQueryMatches[action.payload.backlink.queryId];
                 const url = this.service.requestBacklink(
                     this.service.stateToArgs(state, variant.lemma)
                 );

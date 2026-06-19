@@ -53,7 +53,7 @@ export interface SummaryModelState {
 
     similarFreqWords: Array<Array<SimilarFreqWord>>;
 
-    queryMatches: Array<QueryMatch>;
+    currQueryMatches: Array<QueryMatch>;
 
     lemmatizationLevel: LemmatizationLevel;
 
@@ -127,8 +127,8 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
                 state.isBusy = true;
                 state.error = null;
                 state.similarFreqWords = mkEmptySimilarWords(queryMatches);
-                state.queryMatches =
-                    action.payload?.queryMatches ||
+                state.currQueryMatches =
+                    action.payload?.newQueryMatches ||
                     findCurrentMatches(queryMatches);
             },
             (state, action, dispatch, ds) =>
@@ -244,7 +244,7 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
                         lang: this.appServices.getUILang(),
                         idx,
                     });
-                }, state.queryMatches);
+                }, state.currQueryMatches);
                 observer.complete();
             } catch (err) {
                 observer.error(err);

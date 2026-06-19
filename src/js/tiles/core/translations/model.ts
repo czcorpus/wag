@@ -47,7 +47,7 @@ export interface TranslationModelArgs {
 }
 
 export class TranslationsModel extends TileStatelessModel<TranslationsModelState> {
-    private queryMatch: QueryMatch;
+    private currQueryMatch: QueryMatch;
 
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
@@ -72,14 +72,14 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatch = findCurrQueryMatch(queryMatches[0]);
+        this.currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         this.scaleColorGen = scaleColorGen;
         this.api = api;
 
         this.addSearchActionHandler(
             (state, action) => {
-                if (!!action.payload?.queryMatches) {
-                    this.queryMatch = action.payload.queryMatches[0];
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatch = action.payload.newQueryMatches[0];
                 }
                 state.isBusy = true;
                 state.error = null;
@@ -154,7 +154,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = this.queryMatch;
+                const srchLemma = this.currQueryMatch;
                 const url = this.api.requestBacklink(state, srchLemma.lemma);
                 window.open(url.toString(), '_blank');
             }
@@ -184,7 +184,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {
-        const srchLemma = this.queryMatch;
+        const srchLemma = this.currQueryMatch;
         this.api
             .call(
                 dsHandler,
@@ -218,7 +218,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: data.length === 0,
-                            query: this.queryMatch.lemma, // TODO switch to word and give up dict support
+                            query: this.currQueryMatch.lemma, // TODO switch to word and give up dict support
                             subqueries: List.map(
                                 (v) => ({
                                     value: {
@@ -241,7 +241,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: true,
-                            query: this.queryMatch.lemma, // TODO switch to word and give up dict support
+                            query: this.currQueryMatch.lemma, // TODO switch to word and give up dict support
                             subqueries: [],
                             translatLanguage: state.lang1,
                             data: { translations: [] },

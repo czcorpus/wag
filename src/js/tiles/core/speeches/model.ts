@@ -96,8 +96,8 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
 
         this.addSearchActionHandler(
             (state, action) => {
-                if (!!action.payload?.queryMatches) {
-                    state.queryMatches = action.payload.queryMatches;
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
                 state.error = null;
@@ -351,12 +351,12 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
         state: SpeechesModelState,
         range?: [number, number]
     ): SpeechReqArgs | null {
-        if (state.queryMatches[0].lemma) {
+        if (state.currQueryMatches[0].lemma) {
             return {
                 corpname: state.corpname,
                 subcorpus: state.subcname,
                 query: queryMatchToCQL(
-                    state.queryMatches[0],
+                    state.currQueryMatches[0],
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
                     this.lemLevelSupport.bind(this)

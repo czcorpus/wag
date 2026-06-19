@@ -93,6 +93,6 @@ export interface MergeCorpFreqModelState {
         showClickTip: boolean;
     } | null;
     backlinks: Array<Array<Backlink>>;
-    queryMatches: Array<QueryMatch>;
+    currQueryMatches: Array<QueryMatch>;
     lemmatizationLevel: LemmatizationLevel;
 }

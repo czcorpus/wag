@@ -189,7 +189,7 @@ export interface ConcordanceTileModelArgs {
 export class GramatikatModel extends TileStatefulModel<GramatikatState> {
     private readonly api: GramatikatAPI;
 
-    private queryMatches: Array<QueryMatch>;
+    private currQueryMatches: Array<QueryMatch>;
 
     constructor({
         dispatcher,
@@ -210,14 +210,14 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             lemLevelSupport,
         });
         this.api = api;
-        this.queryMatches = List.map(
+        this.currQueryMatches = List.map(
             (match) => findCurrQueryMatch(match),
             queryMatches
         );
 
         this.addSearchActionHandler((action, ds) => {
-            if (!!action.payload?.queryMatches) {
-                this.queryMatches = action.payload.queryMatches;
+            if (!!action.payload?.newQueryMatches) {
+                this.currQueryMatches = action.payload.newQueryMatches;
             }
             this.changeState((state) => {
                 state.isBusy = true;
@@ -446,7 +446,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             (observer) => {
                 try {
                     pipe(
-                        this.queryMatches,
+                        this.currQueryMatches,
                         List.map((currMatch, queryIdx) =>
                             tuple(
                                 testIsDictMatch(currMatch)

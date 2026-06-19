@@ -45,6 +45,7 @@ interface StatelessModelArgs<T> {
     initState: T;
     tileId: number;
     dependentTiles: Array<number>;
+    readDataFromTile?: number;
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
 }
@@ -66,6 +67,8 @@ export abstract class TileStatelessModel<
 
     protected readonly dependentTiles: Array<number>;
 
+    protected readonly readDataFromTile?: number;
+
     protected readonly supportedLemLevels: Array<LemmatizationLevel>;
 
     constructor({
@@ -73,12 +76,14 @@ export abstract class TileStatelessModel<
         initState,
         tileId,
         dependentTiles,
+        readDataFromTile,
         appServices,
         lemLevelSupport,
     }: StatelessModelArgs<T>) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.dependentTiles = dependentTiles;
+        this.readDataFromTile = readDataFromTile;
         this.appServices = appServices;
         this.supportedLemLevels = lemLevelSupport;
     }
@@ -103,8 +108,9 @@ export abstract class TileStatelessModel<
             reducer,
             (state, action, seDispatch) => {
                 const ds =
-                    action.payload?.tileId === undefined &&
-                    action.payload?.queryMatches === undefined
+                    (action.payload?.tileId === undefined &&
+                        action.payload?.newQueryMatches === undefined) ||
+                    this.readDataFromTile !== undefined
                         ? this.appServices.dataStreaming()
                         : this.appServices
                               .dataStreaming()
@@ -127,6 +133,7 @@ interface StatefulModelArgs<T> {
     initState: T;
     tileId: number;
     dependentTiles: Array<number>;
+    readDataFromTile?: number;
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
 }
@@ -146,6 +153,8 @@ export abstract class TileStatefulModel<
 
     protected readonly dependentTiles: Array<number>;
 
+    protected readonly readDataFromTile?: number;
+
     protected readonly appServices: IAppServices;
 
     protected readonly supportedLemLevels: Array<LemmatizationLevel>;
@@ -155,12 +164,14 @@ export abstract class TileStatefulModel<
         initState,
         tileId,
         dependentTiles,
+        readDataFromTile,
         appServices,
         lemLevelSupport,
     }: StatefulModelArgs<T>) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.dependentTiles = dependentTiles;
+        this.readDataFromTile = readDataFromTile;
         this.appServices = appServices;
         this.supportedLemLevels = lemLevelSupport;
     }
@@ -178,8 +189,9 @@ export abstract class TileStatefulModel<
                 action.payload?.tileId === this.tileId,
             (action) => {
                 const ds =
-                    action.payload?.tileId === undefined &&
-                    action.payload?.queryMatches === undefined
+                    (action.payload?.tileId === undefined &&
+                        action.payload?.newQueryMatches === undefined) ||
+                    this.readDataFromTile !== undefined
                         ? this.appServices.dataStreaming()
                         : this.appServices
                               .dataStreaming()

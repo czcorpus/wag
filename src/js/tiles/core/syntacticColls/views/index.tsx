@@ -409,7 +409,7 @@ export function init(
                                         <div className="tables">
                                             <WSSTable
                                                 tileId={props.tileId}
-                                                word={state.queryMatch.word}
+                                                word={state.currQueryMatch.word}
                                                 data={state.data}
                                                 queryType={state.displayType}
                                                 isMobile={props.isMobile}

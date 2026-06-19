@@ -68,7 +68,7 @@ export interface WordSimModelState {
     operationMode: OperationMode;
     corpus: string;
     model: string;
-    queryMatches: Array<QueryMatch>;
+    currQueryMatches: Array<QueryMatch>;
     mainPosAttr: MainPosAttrValues;
     selectedText: string;
 }
@@ -141,8 +141,8 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
         );
         this.addSearchActionHandler(
             (state, action) => {
-                if (!!action.payload?.queryMatches) {
-                    state.queryMatches = action.payload.queryMatches;
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
                 state.error = null;
@@ -157,7 +157,10 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.data = List.map((_) => [], state.queryMatches);
+                        state.data = List.map(
+                            (_) => [],
+                            state.currQueryMatches
+                        );
                         state.error = appServices.normalizeHttpApiError(
                             action.error
                         );
@@ -174,7 +177,7 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.operationMode = action.payload.value;
-                    state.data = state.queryMatches.map((_) => []);
+                    state.data = state.currQueryMatches.map((_) => []);
                 }
             },
             (state, action, seDispatch) => {
@@ -252,7 +255,7 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
         seDispatch: SEDispatcher
     ): void {
         new Observable((observer: Observer<[number, QueryMatch]>) => {
-            state.queryMatches.forEach((queryMatch, queryId) => {
+            state.currQueryMatches.forEach((queryMatch, queryId) => {
                 observer.next(tuple(queryId, queryMatch));
             });
             observer.complete();

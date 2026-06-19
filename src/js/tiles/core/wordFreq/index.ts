@@ -103,7 +103,7 @@ export class WordFreqTile implements ITileProvider {
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
                 similarFreqWords: mkEmptySimilarWords(queryMatches),
-                queryMatches: findCurrentMatches(queryMatches),
+                currQueryMatches: findCurrentMatches(queryMatches),
                 sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: conf.flevelDistrib
                     ? conf.flevelDistrib

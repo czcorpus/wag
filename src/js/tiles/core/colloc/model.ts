@@ -53,7 +53,7 @@ type FreqRequestArgs = [number, QueryMatch];
 export class CollocModel extends TileStatelessModel<CollocModelState> {
     private readonly collApi: MQueryCollAPI;
 
-    private queryMatches: Array<QueryMatch>;
+    private currQueryMatches: Array<QueryMatch>;
 
     private readonly measureMap = {
         t: 'T-score',
@@ -85,7 +85,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
             lemLevelSupport,
         });
         this.collApi = service;
-        this.queryMatches = queryMatches;
+        this.currQueryMatches = queryMatches;
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -129,8 +129,8 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         );
         this.addSearchActionHandler(
             (state, action) => {
-                if (!!action.payload?.queryMatches) {
-                    this.queryMatches = action.payload.queryMatches;
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
                 state.error = null;
@@ -140,7 +140,10 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     state,
                     ds,
                     rxOf(
-                        ...List.map((qm, i) => tuple(i, qm), this.queryMatches)
+                        ...List.map(
+                            (qm, i) => tuple(i, qm),
+                            this.currQueryMatches
+                        )
                     ),
                     seDispatch
                 );
@@ -226,7 +229,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
             (state, action) => {
                 state.isBusy = true;
                 state.srchRangeType = action.payload.ctxType;
-                state.backlinks = List.map((_) => null, this.queryMatches);
+                state.backlinks = List.map((_) => null, this.currQueryMatches);
             },
             (state, action, seDispatch) => {
                 const subg = appServices
@@ -240,7 +243,10 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     state,
                     subg,
                     rxOf(
-                        ...List.map((qm, i) => tuple(i, qm), this.queryMatches)
+                        ...List.map(
+                            (qm, i) => tuple(i, qm),
+                            this.currQueryMatches
+                        )
                     ),
                     seDispatch
                 );
@@ -256,7 +262,9 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     .requestBacklink(
                         this.stateToArgs(
                             state,
-                            this.queryMatches[action.payload.backlink.queryId]
+                            this.currQueryMatches[
+                                action.payload.backlink.queryId
+                            ]
                         )
                     )
                     .subscribe({

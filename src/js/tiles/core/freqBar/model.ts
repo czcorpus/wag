@@ -69,7 +69,7 @@ export interface FreqBarModelState {
 
 export interface FreqBarModelArgs {
     dispatcher: IFullActionControl;
-    queryMatches: Array<QueryMatch>;
+    currQueryMatches: Array<QueryMatch>;
     tileId: number;
     readDataFromTile: number | null;
     appServices: IAppServices;
@@ -84,14 +84,14 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
 
     private readonly api: MQueryFreqDistribAPI;
 
-    private queryMatches: Array<QueryMatch>;
+    private currQueryMatches: Array<QueryMatch>;
 
     constructor({
         dispatcher,
         tileId,
         appServices,
         api,
-        queryMatches,
+        currQueryMatches,
         initState,
         dependentTiles,
         lemLevelSupport,
@@ -104,7 +104,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
             lemLevelSupport,
             dependentTiles,
         });
-        this.queryMatches = queryMatches;
+        this.currQueryMatches = currQueryMatches;
         this.api = api;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
@@ -132,8 +132,8 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         );
 
         this.addSearchActionHandler((action, ds) => {
-            if (!!action.payload?.queryMatches) {
-                this.queryMatches = action.payload.queryMatches;
+            if (!!action.payload?.newQueryMatches) {
+                this.currQueryMatches = action.payload.newQueryMatches;
             }
 
             this.changeState((state) => {
@@ -148,7 +148,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
                 (observer) => {
                     try {
                         pipe(
-                            this.queryMatches,
+                            this.currQueryMatches,
                             List.map((currMatch, queryIdx) =>
                                 tuple(this.stateToArgs(currMatch), {
                                     queryIdx,
@@ -196,11 +196,11 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
                                     isReady: true,
                                     rows: [],
                                 }),
-                                this.queryMatches
+                                this.currQueryMatches
                             );
                             state.backlinks = List.map(
                                 (_) => null,
-                                this.queryMatches
+                                this.currQueryMatches
                             );
                             state.error =
                                 this.appServices.normalizeHttpApiError(error);
@@ -256,7 +256,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
             (action) => action.payload.tileId === this.tileId,
             (action) => {
                 const args = this.stateToArgs(
-                    this.queryMatches[action.payload.backlink.queryId]
+                    this.currQueryMatches[action.payload.backlink.queryId]
                 );
                 this.api.requestBacklink(args).subscribe({
                     next: (url) => {

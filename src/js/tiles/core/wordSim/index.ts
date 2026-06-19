@@ -120,7 +120,7 @@ export class WordSimTile implements ITileProvider {
                 model: conf.model || '',
                 minScore: conf.minScore || 0,
                 minMatchFreq: conf.minMatchFreq,
-                queryMatches: List.map(
+                currQueryMatches: List.map(
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches
                 ),

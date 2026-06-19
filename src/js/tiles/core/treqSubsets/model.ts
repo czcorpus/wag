@@ -147,7 +147,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
 
     private readonly api: TreqSubsetsAPI;
 
-    private queryMatch: QueryMatch;
+    private currQueryMatch: QueryMatch;
 
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
@@ -170,19 +170,19 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatch = findCurrQueryMatch(queryMatches[0]);
+        this.currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         this.scaleColorGen = scaleColorGen;
 
         this.addSearchActionHandler(
             (state, action) => {
-                if (!!action.payload?.queryMatches) {
-                    this.queryMatch = action.payload.queryMatches[0];
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatch = action.payload.newQueryMatches[0];
                 }
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch, ds) => {
-                const srchLemma = this.queryMatch;
+                const srchLemma = this.currQueryMatch;
                 this.api
                     .call(
                         ds,
@@ -341,7 +341,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = this.queryMatch;
+                const srchLemma = this.currQueryMatch;
                 const url = this.requestBacklink(
                     state,
                     srchLemma.lemma,

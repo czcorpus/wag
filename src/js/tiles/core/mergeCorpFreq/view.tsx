@@ -435,13 +435,13 @@ export function init(
                             visible={true}
                             caption={state.tooltipData.caption}
                             values={state.tooltipData.data}
-                            multiWord={state.queryMatches.length > 1}
+                            multiWord={state.currQueryMatches.length > 1}
                             colors={
-                                state.queryMatches.length > 1
+                                state.currQueryMatches.length > 1
                                     ? (idx) =>
                                           theme.cmpCategoryColor(
                                               idx,
-                                              state.queryMatches.length
+                                              state.currQueryMatches.length
                                           )
                                     : null
                             }
@@ -472,7 +472,9 @@ export function init(
                                         <TableView
                                             tileId={props.tileId}
                                             data={state.data}
-                                            queryMatches={state.queryMatches}
+                                            queryMatches={
+                                                state.currQueryMatches
+                                            }
                                         />
                                     </S.Tables>
                                 ) : (
@@ -483,7 +485,9 @@ export function init(
                                             height={height}
                                             data={state.data}
                                             barCategoryGap={barCategoryGap}
-                                            queryMatches={state.queryMatches}
+                                            queryMatches={
+                                                state.currQueryMatches
+                                            }
                                             isPartial={state.isBusy}
                                             isMobile={props.isMobile}
                                             onBarClick={handleBarClick}
