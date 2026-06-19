@@ -24,6 +24,7 @@ import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -95,7 +96,7 @@ export interface WordFormsModelArgs {
 export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
     private readonly api: IWordFormsApi;
 
-    private readonly queryMatches: RecognizedQueries;
+    private queryMatch: QueryMatch;
 
     private readonly backlink: BacklinkConf;
 
@@ -118,7 +119,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
             lemLevelSupport,
         });
         this.api = api;
-        this.queryMatches = queryMatches;
+        this.queryMatch = findCurrQueryMatch(queryMatches[0]);
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -140,12 +141,15 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    this.queryMatch = action.payload.queryMatches[0];
+                }
                 state.isBusy = true;
                 state.error = null;
                 state.data = [];
             },
             (state, action, dispatch, ds) => {
-                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const variant = this.queryMatch;
                 if (
                     variant.pos.length > 1 &&
                     !this.api.supportsMultiWordQueries()
@@ -261,7 +265,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
             (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const variant = this.queryMatch;
                 const args = {
                     lemma: variant.lemma,
                     pos: List.map((v) => v.value, variant.pos),

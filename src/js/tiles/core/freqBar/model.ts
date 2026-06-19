@@ -84,7 +84,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
 
     private readonly api: MQueryFreqDistribAPI;
 
-    private readonly queryMatches: Array<QueryMatch>;
+    private queryMatches: Array<QueryMatch>;
 
     constructor({
         dispatcher,
@@ -132,6 +132,10 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         );
 
         this.addSearchActionHandler((action, ds) => {
+            if (!!action.payload?.queryMatches) {
+                this.queryMatches = action.payload.queryMatches;
+            }
+
             this.changeState((state) => {
                 List.forEach((item) => {
                     item.isReady = false;

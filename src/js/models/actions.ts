@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 
 import { SystemMessageType, SourceDetails } from '../types.js';
-import { QueryType } from '../query/index.js';
+import { QueryMatch, QueryType } from '../query/index.js';
 import { Backlink } from '../page/tile.js';
 
 export class Actions {
@@ -29,6 +29,8 @@ export class Actions {
          * If defined, we assume the action is actually tile reload.
          */
         tileId?: number;
+
+        queryMatches?: Array<QueryMatch>;
     }> = {
         name: 'MAIN_REQUEST_QUERY_RESPONSE',
     };
@@ -96,6 +98,7 @@ export class Actions {
     static ChangeCurrQueryMatch: Action<{
         queryIdx: number;
         matchId: string;
+        softReload?: boolean;
     }> = {
         name: 'MAIN_CHANGE_CURR_QUERY_MATCH',
     };

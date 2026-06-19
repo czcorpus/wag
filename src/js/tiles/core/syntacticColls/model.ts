@@ -126,6 +126,9 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    state.queryMatch = action.payload.queryMatches[0];
+                }
                 state.isBusy = true;
                 state.error = null;
             },

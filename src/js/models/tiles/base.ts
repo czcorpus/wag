@@ -103,7 +103,8 @@ export abstract class TileStatelessModel<
             reducer,
             (state, action, seDispatch) => {
                 const ds =
-                    action.payload?.tileId === undefined
+                    action.payload?.tileId === undefined &&
+                    action.payload?.queryMatches === undefined
                         ? this.appServices.dataStreaming()
                         : this.appServices
                               .dataStreaming()
@@ -177,7 +178,8 @@ export abstract class TileStatefulModel<
                 action.payload?.tileId === this.tileId,
             (action) => {
                 const ds =
-                    action.payload?.tileId === undefined
+                    action.payload?.tileId === undefined &&
+                    action.payload?.queryMatches === undefined
                         ? this.appServices.dataStreaming()
                         : this.appServices
                               .dataStreaming()

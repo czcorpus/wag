@@ -96,6 +96,9 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    state.queryMatches = action.payload.queryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },

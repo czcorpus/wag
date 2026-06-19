@@ -27,6 +27,7 @@ import { Actions } from './common.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -137,7 +138,7 @@ function dateToSortNumber(s: string): number {
  *
  */
 export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> {
-    private readonly queryMatches: RecognizedQueries;
+    private queryMatches: Array<QueryMatch>;
 
     private readonly api: MQueryTimeDistribStreamApi;
 
@@ -162,12 +163,15 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
+        this.queryMatches = List.map(findCurrQueryMatch, queryMatches);
         this.api = api;
         this.infoApi = infoApi;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    this.queryMatches = action.payload.queryMatches;
+                }
                 state.data = List.map((_) => [], this.queryMatches);
                 state.mainBacklinks = List.map((_) => null, this.queryMatches);
                 state.dataCmp = [];
@@ -665,7 +669,6 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                       try {
                           pipe(
                               this.queryMatches,
-                              List.map(findCurrQueryMatch),
                               List.map((currMatch, queryIdx) =>
                                   tuple(
                                       testIsDictMatch(currMatch)
@@ -720,7 +723,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
         queryIdx: number,
         cmp?: boolean
     ): TimeDistribArgs {
-        const queryMatch = findCurrQueryMatch(this.queryMatches[queryIdx]);
+        const queryMatch = this.queryMatches[queryIdx];
         return {
             corpname: state.corpname,
             q: cmp

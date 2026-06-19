@@ -100,8 +100,6 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
 
     private readonly sourceInfoApi: CorpusInfoAPI;
 
-    private readonly queryMatches: RecognizedQueries;
-
     constructor({
         dispatcher,
         initState,
@@ -123,14 +121,15 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
         });
         this.api = api;
         this.sourceInfoApi = sourceInfoApi;
-        this.queryMatches = queryMatches;
 
         this.addSearchActionHandler(
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
                 state.similarFreqWords = mkEmptySimilarWords(queryMatches);
-                state.queryMatches = findCurrentMatches(queryMatches);
+                state.queryMatches =
+                    action.payload?.queryMatches ||
+                    findCurrentMatches(queryMatches);
             },
             (state, action, dispatch, ds) =>
                 this.loadExtendedFreqInfo(state, ds).subscribe({
@@ -241,11 +240,11 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
             try {
                 List.forEach((match, idx) => {
                     observer.next({
-                        variant: findCurrQueryMatch(match),
+                        variant: match,
                         lang: this.appServices.getUILang(),
                         idx,
                     });
-                }, this.queryMatches);
+                }, state.queryMatches);
                 observer.complete();
             } catch (err) {
                 observer.error(err);

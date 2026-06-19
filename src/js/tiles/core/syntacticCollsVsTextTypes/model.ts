@@ -145,6 +145,9 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    state.queryMatch = action.payload.queryMatches[0];
+                }
                 state.data = List.map(
                     (item) => ({ ...item, isBusy: true }),
                     state.data

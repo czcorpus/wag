@@ -53,7 +53,7 @@ type FreqRequestArgs = [number, QueryMatch];
 export class CollocModel extends TileStatelessModel<CollocModelState> {
     private readonly collApi: MQueryCollAPI;
 
-    private readonly queryMatches: Array<QueryMatch>;
+    private queryMatches: Array<QueryMatch>;
 
     private readonly measureMap = {
         t: 'T-score',
@@ -129,6 +129,9 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         );
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    this.queryMatches = action.payload.queryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },

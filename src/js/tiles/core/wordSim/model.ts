@@ -25,7 +25,6 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import {
     LemmatizationLevel,
-    LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -142,6 +141,9 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
         );
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    state.queryMatches = action.payload.queryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },

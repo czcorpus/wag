@@ -120,7 +120,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
 
     private readonly mapLoader: DataApi<string, string>;
 
-    private readonly queryMatches: Array<Array<QueryMatch>>;
+    private queryMatches: Array<QueryMatch>;
 
     private readonly queryType: QueryType;
 
@@ -143,13 +143,19 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             dependentTiles: [],
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
+        this.queryMatches = List.map(
+            (match) => findCurrQueryMatch(match),
+            queryMatches
+        );
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryType = queryType;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.queryMatches) {
+                    this.queryMatches = action.payload.queryMatches;
+                }
                 state.isBusy = true;
                 state.backlinks = List.map((_) => null, this.queryMatches);
                 state.error = null;
@@ -161,8 +167,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                     try {
                         pipe(
                             this.queryMatches,
-                            List.map((queryMatch, queryIdx) => {
-                                const match = findCurrQueryMatch(queryMatch);
+                            List.map((match, queryIdx) => {
                                 return tuple(
                                     testIsDictMatch(match)
                                         ? this.stateToArgs(state, match)
@@ -391,9 +396,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             (state, action, dispatch) => {
                 const args = this.stateToArgs(
                     state,
-                    findCurrQueryMatch(
-                        this.queryMatches[action.payload.backlink.queryId]
-                    )
+                    this.queryMatches[action.payload.backlink.queryId]
                 );
                 this.freqApi.requestBacklink(args).subscribe({
                     next: (url) => {
