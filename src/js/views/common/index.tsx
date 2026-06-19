@@ -1255,17 +1255,13 @@ export function init(
         hasData,
         setMaxHeight,
     }) => {
-        const htmlClasses = [];
+        const htmlClasses = ['wag-tile-body'];
         if (!hasData && !isBusy) {
             htmlClasses.push('empty');
         }
 
         return (
-            <S.Subtile
-                className={htmlClasses.join(' ')}
-                $isHeadless={!heading}
-                $isMaxHeight={!!setMaxHeight}
-            >
+            <S.Subtile $isHeadless={!heading} $isMaxHeight={!!setMaxHeight}>
                 {heading ? (
                     <header className="wag-tile-header panel">
                         <h2>{heading}</h2>
@@ -1277,7 +1273,7 @@ export function init(
                 {React.Children.count(children) > 1 ? (
                     <>
                         {children[0]}
-                        <div className="wag-tile-body">
+                        <div className={htmlClasses.join(' ')}>
                             {!hasData && isBusy ? (
                                 <p>
                                     <AjaxLoader htmlClass="centered" />
