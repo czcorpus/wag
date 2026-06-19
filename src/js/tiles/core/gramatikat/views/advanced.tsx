@@ -34,7 +34,7 @@ import {
 } from 'recharts';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
 
-type SAVProps = WordData & { alpha: number };
+type SAVProps = WordData;
 
 export function init(
     dispatcher: IActionDispatcher,
@@ -50,7 +50,6 @@ export function init(
         chartData,
         missingPos,
         pos,
-        alpha,
     }) => {
         return (
             <div>

@@ -40,7 +40,7 @@ import {
     LemmatizationLevel,
 } from '../../../query/index.js';
 import { mergeMap, Observable, reduce, tap } from 'rxjs';
-import { Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
 import { SystemMessageType } from '../../../types.js';
 import { TileStatefulModel } from '../../../models/tiles/base.js';
@@ -55,14 +55,26 @@ export interface WordData {
     };
     chartData: {
         items: Array<ChartData>;
-        hasSignificantDeviations: boolean;
     };
     pos: GramatikatPoS;
     missingPos: boolean;
 }
 
+export type UncommonValue = 'over' | 'under' | 'none';
+
+export interface HeatmapConfig {
+    label: string;
+    columnsTags: Array<string>;
+    rowsTags: Array<string>;
+}
+
 export interface ViewOptions {
     groupedXVisibility: { [tag: string]: boolean };
+    heatmaps: {
+        verbs: Array<{ conf: HeatmapConfig; isActive: boolean }>;
+        nouns: Array<{ conf: HeatmapConfig; isActive: boolean }>;
+        adjectives: Array<{ conf: HeatmapConfig; isActive: boolean }>;
+    };
 }
 
 export interface GramatikatState {
@@ -72,7 +84,6 @@ export interface GramatikatState {
      * For each queryIdx, we keep data about a lemma and its PoS
      */
     data: Array<WordData>;
-    statTestAlpha: number;
     isBusy: boolean;
     backlinks: Array<Backlink>;
     error: string | undefined;
@@ -93,15 +104,10 @@ export interface ChartData {
     tagReadable: string;
     value: number;
     mean: number;
-    pValue: number;
-    isSignificant: boolean;
+    uncommonValue: UncommonValue;
 }
 
-const attachCalcStats = (
-    wordData: WordData,
-    pos: GramatikatPoS,
-    alpha: number
-) => {
+const attachCalcStats = (wordData: WordData, pos: GramatikatPoS) => {
     wordData.chartData = pipe(
         wordData.lemmaData.variants,
         List.filter((v) => v.proportion * wordData.lemmaData.totalFreq > 10), // TODO configurable threshold
@@ -117,30 +123,13 @@ const attachCalcStats = (
             return tuple(v, summary);
         }),
         List.map(([variant, summary]) => {
-            // Calculate chi-square test if we have POS data
-            let pValue = 1;
-            let isSignificant = false;
-            // For chi-square test, we need absolute frequencies
-            // Calculate absolute frequency from proportion
-            const variantFreq = Math.round(
-                variant.proportion * wordData.lemmaData.totalFreq
-            );
-            // observed: actual frequency for this variant and others
-            const observed = [
-                variantFreq,
-                wordData.lemmaData.totalFreq - variantFreq,
-            ];
-            // expected: based on mean proportion from POS data
-            const expectedProps = [summary.mean, 1 - summary.mean];
-            const chiTest = Maths.chiSquareTest(observed, expectedProps, alpha);
-            pValue = chiTest.pValue;
-            isSignificant = chiTest.isSignificant;
-            if (isSignificant) {
-                // TODO this block is a side effect
-                variant.deviatesFromMean =
-                    variant.proportion > summary.mean ? 'over' : 'under';
+            variant.uncommonValue = 'none';
+            if (variant.proportion > summary.quartiles[2]) {
+                variant.uncommonValue = 'over';
+            } else if (variant.proportion < summary.quartiles[0]) {
+                variant.uncommonValue = 'under';
             }
-            return tuple(summary, {
+            return {
                 tag: variant.valSet.join(''),
                 tagReadable: tagCodeToHuman(
                     pos,
@@ -148,29 +137,12 @@ const attachCalcStats = (
                     'mutable'
                 ),
                 value: variant.proportion,
-                pValue,
-                isSignificant,
+                uncommonValue: variant.uncommonValue,
                 mean: summary.mean,
-            });
+            };
         }),
         (values) => ({
-            items: List.some(([, v]) => v.isSignificant, values)
-                ? pipe(
-                      values,
-                      List.filter(([, v]) => v.isSignificant),
-                      List.map(([, v]) => v)
-                  )
-                : pipe(
-                      values,
-                      List.filter(
-                          ([summary, v]) => v.mean > summary.quartiles[2]
-                      ),
-                      List.map(([, v]) => v)
-                  ),
-            hasSignificantDeviations: List.some(
-                ([, v]) => v.isSignificant,
-                values
-            ),
+            items: values,
         })
     );
 };
@@ -299,11 +271,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                             );
                             return;
                         }
-                        attachCalcStats(
-                            tmp,
-                            action.payload.resp.pos,
-                            this.state.statTestAlpha
-                        );
+                        attachCalcStats(tmp, action.payload.resp.pos);
                         state.data[action.payload.queryIdx] = tmp;
 
                         // opts:
@@ -335,19 +303,6 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                         action.error
                     );
                 }
-            }
-        );
-
-        this.addActionSubtypeHandler(
-            Actions.SetStatTestAlpha,
-            (action) => action.payload.tileId === this.tileId,
-            (action) => {
-                this.changeState((state) => {
-                    state.statTestAlpha = action.payload.value;
-                    const data = List.head(state.data);
-                    attachCalcStats(data, data.pos, state.statTestAlpha);
-                    state.data[0] = data;
-                });
             }
         );
 

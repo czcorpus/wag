@@ -83,7 +83,6 @@ export class GramatikatTile implements ITileProvider {
                 backlinks: [],
                 corpname: 'syn2015_20_25', // TODO configurable
                 data: [],
-                statTestAlpha: 0.01,
                 error: undefined,
                 message: undefined,
                 words: List.map(
@@ -92,6 +91,91 @@ export class GramatikatTile implements ITileProvider {
                 ),
                 viewOptions: {
                     groupedXVisibility: {},
+                    heatmaps: {
+                        verbs: [
+                            {
+                                conf: {
+                                    label: 'cislopad',
+                                    columnsTags: [
+                                        // tense and negation
+                                        'P-A',
+                                        'R-A',
+                                        'F-A',
+                                        'P-N',
+                                        'R-N',
+                                        'F-N',
+                                    ],
+                                    rowsTags: ['S', 'P', 'D'], // number
+                                },
+                                isActive: true,
+                            },
+                        ],
+                        adjectives: [
+                            {
+                                conf: {
+                                    label: 'cislopad',
+                                    columnsTags: [
+                                        // degree and gender
+                                        '1-F',
+                                        '1-I',
+                                        '1-M',
+                                        '1-N',
+                                        '2-F',
+                                        '2-I',
+                                        '2-M',
+                                        '2-N',
+                                        '3-F',
+                                        '3-I',
+                                        '3-M',
+                                        '3-N',
+                                    ],
+                                    rowsTags: [
+                                        // case
+                                        '1',
+                                        '2',
+                                        '3',
+                                        '4',
+                                        '5',
+                                        '6',
+                                        '7',
+                                    ],
+                                },
+                                isActive: true,
+                            },
+                        ],
+                        nouns: [
+                            {
+                                conf: {
+                                    label: 'cislopad',
+                                    columnsTags: [
+                                        // number and gender
+                                        'D-F',
+                                        'P-F',
+                                        'S-F',
+                                        'D-I',
+                                        'P-I',
+                                        'S-I',
+                                        'D-M',
+                                        'P-M',
+                                        'S-M',
+                                        'D-N',
+                                        'P-N',
+                                        'S-N',
+                                    ],
+                                    rowsTags: [
+                                        '1',
+                                        '2',
+                                        '3',
+                                        '4',
+                                        '5',
+                                        '6',
+                                        '7',
+                                    ], // case
+                                },
+                                isActive: true,
+                            },
+                        ],
+                    },
                 },
                 isBusy,
             },

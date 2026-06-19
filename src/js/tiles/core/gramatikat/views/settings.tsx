@@ -23,8 +23,6 @@ import { init as altViewSingleInit } from './advanced.js';
 import { GramatikatModel, WordData } from '../model.js';
 import * as React from 'react';
 import { List } from 'cnc-tskit';
-import { ValueType } from 'recharts/types/component/DefaultTooltipContent.js';
-import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
 import { Actions } from '../actions.js';
 
@@ -37,29 +35,9 @@ export function init(
     const Settings: React.FC<{ tileId: number }> = ({ tileId }) => {
         const state = useModel(model);
 
-        const handleChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-            dispatcher.dispatch(Actions.SetStatTestAlpha, {
-                value: parseFloat(evt.target.value),
-                tileId,
-            });
-        };
-
         return (
             <S.Settings>
-                <form>
-                    <label>
-                        {ut.translate('gramatikat__significance_level')}
-                        <select
-                            value={state.statTestAlpha}
-                            onChange={handleChange}
-                        >
-                            <option>0.5 (debugging)</option>
-                            <option>0.1</option>
-                            <option>0.05</option>
-                            <option>0.01</option>
-                        </select>
-                    </label>
-                </form>
+                <form>-- TODO --</form>
             </S.Settings>
         );
     };

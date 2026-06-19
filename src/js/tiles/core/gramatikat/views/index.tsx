@@ -21,7 +21,12 @@ import { Theme } from '../../../../page/theme.js';
 import { GlobalComponents } from '../../../../views/common/index.js';
 import { init as altViewSingleInit } from './advanced.js';
 import { init as settingsViewInit } from './settings.js';
-import { GramatikatModel, ViewOptions, WordData } from '../model.js';
+import {
+    GramatikatModel,
+    UncommonValue,
+    ViewOptions,
+    WordData,
+} from '../model.js';
 import {
     CoreTileComponentProps,
     TileComponent,
@@ -92,12 +97,26 @@ export function init(
         '3': ut.translate('gramatikat__degree_3'),
     };
 
+    const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
+        if (v.uncommonValue === 'over') {
+            return 'up';
+        }
+        if (v.uncommonValue === 'under') {
+            return 'down';
+        }
+        return undefined;
+    };
+
     // ---------------- <PropertiesForVerbs /> ----------------------
 
     const PropertiesForVerbs: React.FC<{
         lemmaData: {
             totalFreq: number;
-            variants: Array<{ valSet: any; proportion: number }>;
+            variants: Array<{
+                valSet: any;
+                proportion: number;
+                uncommonValue: 'over' | 'under' | 'none';
+            }>;
         };
         pos: GramatikatPoS;
         viewOptions: ViewOptions;
@@ -143,15 +162,12 @@ export function init(
         );
 
         // Prepare grouped bar chart data: one entry per tense
-        const tenseAndNegationOrder = [
-            'P-A',
-            'R-A',
-            'F-A',
-            'P-N',
-            'R-N',
-            'F-N',
-        ];
-        const xLabels = List.map((item, i) => {
+        const heatmapConf = List.find(
+            (v) => v.isActive,
+            viewOptions.heatmaps.verbs
+        );
+        const tenseAndNegationOrder = heatmapConf.conf.columnsTags;
+        const colLabels = List.map((item, i) => {
             const letters = item.split('-');
             return <span key={`${i}:${item}`}>{tenseLabels[letters[0]]}</span>;
         }, tenseAndNegationOrder);
@@ -167,18 +183,8 @@ export function init(
             }))
         );
 
-        const numberOrder = ['S', 'P', 'D'];
-        const yLabels = List.map((item) => numberLabels[item], numberOrder);
-
-        const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
-            if (v.deviatesFromMean) {
-                if (v.deviatesFromMean === 'over') {
-                    return 'up';
-                }
-                return 'down';
-            }
-            return undefined;
-        };
+        const numberOrder = heatmapConf.conf.rowsTags;
+        const rowLabels = List.map((item) => numberLabels[item], numberOrder);
 
         const data: Array<Array<HeatmapCell>> = List.map(
             (numo) =>
@@ -204,9 +210,9 @@ export function init(
                     render={(width: number, height: number) => (
                         <Heatmap
                             data={data}
-                            xLabels={xLabels}
+                            xLabels={colLabels}
                             xGroupLabels={xGroupedLabels}
-                            yLabels={yLabels}
+                            yLabels={rowLabels}
                             colorMapping={colorMapping}
                         />
                     )}
@@ -220,7 +226,11 @@ export function init(
     const PropertiesForNouns: React.FC<{
         lemmaData: {
             totalFreq: number;
-            variants: Array<{ valSet: any; proportion: number }>;
+            variants: Array<{
+                valSet: any;
+                proportion: number;
+                uncommonValue: UncommonValue;
+            }>;
         };
         pos: GramatikatPoS;
         viewOptions: ViewOptions;
@@ -261,27 +271,17 @@ export function init(
         );
 
         // Prepare grouped bar chart data: one entry per tense
-        const numberAndGenderOrder = [
-            'D-F',
-            'P-F',
-            'S-F',
-            'D-I',
-            'P-I',
-            'S-I',
-            'D-M',
-            'P-M',
-            'S-M',
-            'D-N',
-            'P-N',
-            'S-N',
-        ];
+        const heatmapConf = List.find(
+            (v) => v.isActive,
+            viewOptions.heatmaps.nouns
+        );
         const xLabels = List.map((item, i) => {
             const letters = item.split('-');
             return <span key={`${i}:${item}`}>{numberLabels[letters[0]]}</span>;
-        }, numberAndGenderOrder);
+        }, heatmapConf.conf.columnsTags);
 
         const xGroupedLabels = pipe(
-            numberAndGenderOrder,
+            heatmapConf.conf.columnsTags,
             List.map((v) => v.split('-')),
             List.groupBy((v) => v[1]),
             List.map(([v, grouped]) => ({
@@ -291,18 +291,8 @@ export function init(
                 isHidden: colIsSetAsHidden(viewOptions.groupedXVisibility, v),
             }))
         );
-        const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
+        const caseOrder = heatmapConf.conf.rowsTags;
         const yLabels = List.map((item) => caseLabels[item], caseOrder);
-
-        const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
-            if (v.deviatesFromMean) {
-                if (v.deviatesFromMean === 'over') {
-                    return 'up';
-                }
-                return 'down';
-            }
-            return undefined;
-        };
 
         const data: Array<Array<HeatmapCell>> = List.map(
             (numo) =>
@@ -316,7 +306,7 @@ export function init(
                               sortedIdx: -1,
                           })
                         : newCell({ v: 0, id: Ident.puid(), sortedIdx: -1 });
-                }, numberAndGenderOrder),
+                }, heatmapConf.conf.columnsTags),
             caseOrder
         );
 
@@ -343,7 +333,11 @@ export function init(
         tileId: number;
         lemmaData: {
             totalFreq: number;
-            variants: Array<{ valSet: any; proportion: number }>;
+            variants: Array<{
+                valSet: any;
+                proportion: number;
+                uncommonValue: UncommonValue;
+            }>;
         };
         pos: GramatikatPoS;
         viewOptions: ViewOptions;
@@ -383,20 +377,11 @@ export function init(
         );
 
         // Prepare grouped bar chart data: one entry per tense
-        const degreeAndGenderOrder = [
-            '1-F',
-            '1-I',
-            '1-M',
-            '1-N',
-            '2-F',
-            '2-I',
-            '2-M',
-            '2-N',
-            '3-F',
-            '3-I',
-            '3-M',
-            '3-N',
-        ];
+        const heatmapConf = List.find(
+            (v) => v.isActive,
+            viewOptions.heatmaps.adjectives
+        );
+        const degreeAndGenderOrder = heatmapConf.conf.columnsTags;
         const xLabels = List.map((item, i) => {
             const letters = item.split('-');
             return <span key={`${i}:${item}`}>{genderLabels[letters[1]]}</span>;
@@ -413,18 +398,8 @@ export function init(
                 isHidden: colIsSetAsHidden(viewOptions.groupedXVisibility, v),
             }))
         );
-        const caseOrder = ['1', '2', '3', '4', '5', '6', '7'];
+        const caseOrder = heatmapConf.conf.rowsTags;
         const yLabels = List.map((item) => caseLabels[item], caseOrder);
-
-        const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
-            if (v.deviatesFromMean) {
-                if (v.deviatesFromMean === 'over') {
-                    return 'up';
-                }
-                return 'down';
-            }
-            return undefined;
-        };
 
         const data: Array<Array<HeatmapCell>> = List.map(
             (caseTag) =>
@@ -504,14 +479,9 @@ export function init(
     const SingleWordView: React.FC<
         WordData & {
             tileId: number;
-            alpha: number;
             viewOptions: ViewOptions;
         }
     > = ({ tileId, lemmaData, chartData, pos, viewOptions }) => {
-        const message = chartData.hasSignificantDeviations
-            ? ut.translate('gramatikat__showing_stat_signif_values')
-            : ut.translate('gramatikat__there_are_no_stat_signif_values');
-
         const renderChart = () => {
             switch (pos) {
                 case 'nouns':
@@ -548,7 +518,9 @@ export function init(
             <S.SingleWordView>
                 <div>
                     {renderChart()}
-                    <p className="note">{message}</p>
+                    <p className="note">
+                        {ut.translate('gramatikat__showing_stat_signif_values')}
+                    </p>
                 </div>
             </S.SingleWordView>
         );
@@ -616,7 +588,6 @@ export function init(
                                     missingPos={
                                         List.head(state.data).missingPos
                                     }
-                                    alpha={state.statTestAlpha}
                                     pos={List.head(state.data).pos}
                                     chartData={List.head(state.data).chartData}
                                 />
@@ -628,7 +599,6 @@ export function init(
                                     missingPos={
                                         List.head(state.data).missingPos
                                     }
-                                    alpha={state.statTestAlpha}
                                     pos={List.head(state.data).pos}
                                     chartData={List.head(state.data).chartData}
                                     viewOptions={state.viewOptions}
