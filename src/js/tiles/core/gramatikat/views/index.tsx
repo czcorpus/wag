@@ -592,6 +592,9 @@ export function init(
                     tileId={props.tileId}
                     sourceIdent={{ corp: state.corpname }}
                     backlink={state.backlinks}
+                    setMaxHeight={true}
+                    isBusy={state.isBusy}
+                    hasData={!List.empty(state.data) || !!state.message}
                 >
                     {props.tileHeader}
 
@@ -654,6 +657,8 @@ export function init(
                 <globalComponents.Subtile
                     tileId={props.tileId}
                     heading={'Grammatical categories and word forms note'}
+                    isBusy={false}
+                    hasData={true}
                 >
                     <p>
                         The relationship between the two tiles is{' '}

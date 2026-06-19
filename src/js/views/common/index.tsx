@@ -167,6 +167,7 @@ export interface GlobalComponents {
         backlink?: Backlink | Array<Backlink>;
         isBusy: boolean;
         hasData: boolean;
+        setMaxHeight?: boolean;
     }>;
 }
 
@@ -1252,6 +1253,7 @@ export function init(
         backlink,
         isBusy,
         hasData,
+        setMaxHeight,
     }) => {
         const htmlClasses = [];
         if (!hasData && !isBusy) {
@@ -1259,7 +1261,11 @@ export function init(
         }
 
         return (
-            <S.Subtile className={htmlClasses.join(' ')} $isHeadless={!heading}>
+            <S.Subtile
+                className={htmlClasses.join(' ')}
+                $isHeadless={!heading}
+                $isMaxHeight={!!setMaxHeight}
+            >
                 {heading ? (
                     <header className="wag-tile-header panel">
                         <h2>{heading}</h2>

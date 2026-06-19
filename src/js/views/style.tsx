@@ -669,6 +669,7 @@ export const TileContainer = styled.section<{
         height: 100%;
         display: flex;
         flex-direction: column;
+        flex-grow: 1;
         font-size: 0.92em;
         color: ${(props) => props.theme.colorSecondaryText};
         border-radius: 0.25em;
@@ -702,8 +703,10 @@ export const TileContainer = styled.section<{
     }
 
     .wag-tile-body {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
         padding: ${(props) => (props.$isSubtileContainer ? '' : '1.25em')};
-        flex-grow: ${(props) => (props.$isSubtileContainer ? '0' : '1')};
     }
 
     .wag-tile-body a {
