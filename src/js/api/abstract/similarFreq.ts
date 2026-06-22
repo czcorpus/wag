@@ -37,6 +37,7 @@ export interface SimilarFreqWord {
     lemma: string;
     pos: Array<PosItem>;
     upos: Array<PosItem>;
+    specifier: Array<string>;
     ipm: number;
     flevel: FreqBand | null;
 }

@@ -162,7 +162,8 @@ export function init(
                                     data={data}
                                     caption={
                                         state.data.length > 1
-                                            ? state.queryMatches[matchIdx].word
+                                            ? state.currQueryMatches[matchIdx]
+                                                  .word
                                             : null
                                     }
                                 />
@@ -176,7 +177,7 @@ export function init(
                                             {state.data.length > 1 ? (
                                                 <h2>
                                                     {
-                                                        state.queryMatches[
+                                                        state.currQueryMatches[
                                                             matchIdx
                                                         ].word
                                                     }

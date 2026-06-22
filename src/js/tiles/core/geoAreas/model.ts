@@ -120,7 +120,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
 
     private readonly mapLoader: DataApi<string, string>;
 
-    private readonly queryMatches: Array<Array<QueryMatch>>;
+    private currQueryMatches: Array<QueryMatch>;
 
     private readonly queryType: QueryType;
 
@@ -143,15 +143,21 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             dependentTiles: [],
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
+        this.currQueryMatches = List.map(
+            (match) => findCurrQueryMatch(match),
+            queryMatches
+        );
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryType = queryType;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatches = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
-                state.backlinks = List.map((_) => null, this.queryMatches);
+                state.backlinks = List.map((_) => null, this.currQueryMatches);
                 state.error = null;
             },
             (state, action, dispatch, ds) => {
@@ -160,9 +166,8 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                 >((observer) => {
                     try {
                         pipe(
-                            this.queryMatches,
-                            List.map((queryMatch, queryIdx) => {
-                                const match = findCurrQueryMatch(queryMatch);
+                            this.currQueryMatches,
+                            List.map((match, queryIdx) => {
                                 return tuple(
                                     testIsDictMatch(match)
                                         ? this.stateToArgs(state, match)
@@ -200,7 +205,10 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             (state, action) => {
                 if (action.error) {
                     state.data = state.currQueryMatches.map((_) => []);
-                    state.backlinks = List.map((_) => null, this.queryMatches);
+                    state.backlinks = List.map(
+                        (_) => null,
+                        this.currQueryMatches
+                    );
                     state.error = this.appServices.normalizeHttpApiError(
                         action.error
                     );
@@ -391,9 +399,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             (state, action, dispatch) => {
                 const args = this.stateToArgs(
                     state,
-                    findCurrQueryMatch(
-                        this.queryMatches[action.payload.backlink.queryId]
-                    )
+                    this.currQueryMatches[action.payload.backlink.queryId]
                 );
                 this.freqApi.requestBacklink(args).subscribe({
                     next: (url) => {

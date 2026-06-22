@@ -26,6 +26,7 @@ import { IAppServices } from '../../../appServices.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
@@ -46,7 +47,7 @@ export interface TranslationModelArgs {
 }
 
 export class TranslationsModel extends TileStatelessModel<TranslationsModelState> {
-    private readonly queryMatches: RecognizedQueries;
+    private currQueryMatch: QueryMatch;
 
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
@@ -71,12 +72,15 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
+        this.currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         this.scaleColorGen = scaleColorGen;
         this.api = api;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatch = action.payload.newQueryMatches[0];
+                }
                 state.isBusy = true;
                 state.error = null;
             },
@@ -150,9 +154,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = findCurrQueryMatch(
-                    this.queryMatches[action.payload.backlink.queryId]
-                );
+                const srchLemma = this.currQueryMatch;
                 const url = this.api.requestBacklink(state, srchLemma.lemma);
                 window.open(url.toString(), '_blank');
             }
@@ -182,7 +184,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {
-        const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
+        const srchLemma = this.currQueryMatch;
         this.api
             .call(
                 dsHandler,
@@ -216,8 +218,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: data.length === 0,
-                            query: findCurrQueryMatch(this.queryMatches[0])
-                                .lemma, // TODO switch to word and give up dict support
+                            query: this.currQueryMatch.lemma, // TODO switch to word and give up dict support
                             subqueries: List.map(
                                 (v) => ({
                                     value: {
@@ -240,8 +241,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: true,
-                            query: findCurrQueryMatch(this.queryMatches[0])
-                                .lemma, // TODO switch to word and give up dict support
+                            query: this.currQueryMatch.lemma, // TODO switch to word and give up dict support
                             subqueries: [],
                             translatLanguage: state.lang1,
                             data: { translations: [] },

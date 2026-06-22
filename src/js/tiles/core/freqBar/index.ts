@@ -114,7 +114,7 @@ export class FreqBarTile implements ITileProvider {
             dispatcher,
             tileId,
             appServices,
-            queryMatches: findCurrentMatches(queryMatches),
+            currQueryMatches: findCurrentMatches(queryMatches),
             api: new MQueryFreqDistribAPI(
                 conf.apiURL,
                 appServices,

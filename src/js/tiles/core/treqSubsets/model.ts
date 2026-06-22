@@ -24,6 +24,7 @@ import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -146,7 +147,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
 
     private readonly api: TreqSubsetsAPI;
 
-    private readonly queryMatches: RecognizedQueries;
+    private currQueryMatch: QueryMatch;
 
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
@@ -169,16 +170,19 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
+        this.currQueryMatch = findCurrQueryMatch(queryMatches[0]);
         this.scaleColorGen = scaleColorGen;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatch = action.payload.newQueryMatches[0];
+                }
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch, ds) => {
-                const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
+                const srchLemma = this.currQueryMatch;
                 this.api
                     .call(
                         ds,
@@ -337,9 +341,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = findCurrQueryMatch(
-                    this.queryMatches[action.payload.backlink.queryId]
-                );
+                const srchLemma = this.currQueryMatch;
                 const url = this.requestBacklink(
                     state,
                     srchLemma.lemma,

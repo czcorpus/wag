@@ -122,7 +122,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
                     ? conf.datasetName
                     : conf.corpname,
                 scollType: 'mixed', // TODO
-                queryMatch: findCurrQueryMatch(queryMatches[0]),
+                currQueryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: List.map(
                     (tt) => ({
                         id: tt.id,

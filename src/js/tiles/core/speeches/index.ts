@@ -135,7 +135,7 @@ export class SpeechesTile implements ITileProvider {
                     SpeechesTile.DEFAULT_MAX_NUM_SPEECHES,
                 posQueryGenerator: conf.posQueryGenerator,
                 supportsSublemma: !!conf.supportsSublemma,
-                queryMatches: List.map(
+                currQueryMatches: List.map(
                     (lemma) => findCurrQueryMatch(lemma),
                     queryMatches
                 ),

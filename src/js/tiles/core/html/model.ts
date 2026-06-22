@@ -26,11 +26,13 @@ import { concatMap } from 'rxjs/operators';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
+import { List } from 'cnc-tskit';
 
 export interface HtmlModelArgs {
     dispatcher: IActionQueue;
@@ -44,7 +46,7 @@ export interface HtmlModelArgs {
 }
 
 export class HtmlModel extends TileStatelessModel<HtmlModelState> {
-    private readonly queryMatches: RecognizedQueries;
+    private currQueryMatches: Array<QueryMatch>;
 
     private readonly service: RawHtmlAPI;
 
@@ -67,15 +69,21 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             lemLevelSupport,
         });
         this.service = service;
-        this.queryMatches = queryMatches;
+        this.currQueryMatches = List.map(
+            (match) => findCurrQueryMatch(match),
+            queryMatches
+        );
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    this.currQueryMatches = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch, ds) => {
-                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const variant = this.currQueryMatches[0];
                 this.requestData(state, variant.lemma, ds, seDispatch);
             }
         );
@@ -101,9 +109,8 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const variant = findCurrQueryMatch(
-                    this.queryMatches[action.payload.backlink.queryId]
-                );
+                const variant =
+                    this.currQueryMatches[action.payload.backlink.queryId];
                 const url = this.service.requestBacklink(
                     this.service.stateToArgs(state, variant.lemma)
                 );

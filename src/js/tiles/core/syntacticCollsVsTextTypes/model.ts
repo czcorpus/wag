@@ -50,7 +50,7 @@ export interface SyntacticCollsVsTTModelState {
     error: string | undefined;
     corpname: string;
     datasetName: string;
-    queryMatch: QueryMatch;
+    currQueryMatch: QueryMatch;
     scollType: SCollsQueryType;
     data: Array<TTData>;
     isBusy: boolean;
@@ -145,6 +145,9 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatch = action.payload.newQueryMatches[0];
+                }
                 state.data = List.map(
                     (item) => ({ ...item, isBusy: true }),
                     state.data
@@ -198,10 +201,12 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
                 const row = ttData.data.rows[action.payload.dataId];
                 if (!ttData.data.examplesQueryTpl) {
                     q = this.eApi.makeQuery(
-                        state.queryMatch.lemma,
+                        state.currQueryMatch.lemma,
                         row.value,
-                        (state.queryMatch.upos[0] || state.queryMatch.pos[0])
-                            .value,
+                        (
+                            state.currQueryMatch.upos[0] ||
+                            state.currQueryMatch.pos[0]
+                        ).value,
                         row.pos,
                         row.deprel,
                         row.mutualDist,
@@ -225,7 +230,7 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
                           .pipe(
                               map((data) => ({
                                   ...data,
-                                  word1: state.queryMatch.word,
+                                  word1: state.currQueryMatch.word,
                                   word2: row.value,
                               }))
                           )
@@ -283,13 +288,13 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
             return null;
         }
         const args: SCollsTTRequest['args'] = {
-            w: state.queryMatch.lemma
-                ? state.queryMatch.lemma
-                : state.queryMatch.word,
+            w: state.currQueryMatch.lemma
+                ? state.currQueryMatch.lemma
+                : state.currQueryMatch.word,
             textTypes: List.map((item) => item.id, state.data),
         };
-        if (state.queryMatch.upos.length > 0) {
-            args['pos'] = state.queryMatch.upos[0].value;
+        if (state.currQueryMatch.upos.length > 0) {
+            args['pos'] = state.currQueryMatch.upos[0].value;
         }
         return {
             params: {
