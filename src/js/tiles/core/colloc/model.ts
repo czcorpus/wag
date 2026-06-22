@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { tap, reduce, mergeMap } from 'rxjs/operators';
 import { List, pipe, tuple } from 'cnc-tskit';
@@ -41,7 +41,6 @@ export interface CollocModelArgs {
     appServices: IAppServices;
     service: MQueryCollAPI;
     initState: CollocModelState;
-    queryMatches: Array<QueryMatch>;
     lemLevelSupport: Array<LemmatizationLevel>;
 }
 
@@ -52,8 +51,6 @@ type FreqRequestArgs = [number, QueryMatch];
  */
 export class CollocModel extends TileStatelessModel<CollocModelState> {
     private readonly collApi: MQueryCollAPI;
-
-    private currQueryMatches: Array<QueryMatch>;
 
     private readonly measureMap = {
         t: 'T-score',
@@ -73,7 +70,6 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         service,
         initState,
         dependentTiles,
-        queryMatches,
         lemLevelSupport,
     }: CollocModelArgs) {
         super({
@@ -85,7 +81,6 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
             lemLevelSupport,
         });
         this.collApi = service;
-        this.currQueryMatches = queryMatches;
 
         this.addActionHandler(
             GlobalActions.SubqItemHighlighted,
@@ -130,7 +125,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         this.addSearchActionHandler(
             (state, action) => {
                 if (!!action.payload?.newQueryMatches) {
-                    this.currQueryMatches = action.payload.newQueryMatches;
+                    state.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
                 state.error = null;
@@ -142,7 +137,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     rxOf(
                         ...List.map(
                             (qm, i) => tuple(i, qm),
-                            this.currQueryMatches
+                            state.currQueryMatches
                         )
                     ),
                     seDispatch
@@ -229,7 +224,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
             (state, action) => {
                 state.isBusy = true;
                 state.srchRangeType = action.payload.ctxType;
-                state.backlinks = List.map((_) => null, this.currQueryMatches);
+                state.backlinks = List.map((_) => null, state.currQueryMatches);
             },
             (state, action, seDispatch) => {
                 const subg = appServices
@@ -245,7 +240,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     rxOf(
                         ...List.map(
                             (qm, i) => tuple(i, qm),
-                            this.currQueryMatches
+                            state.currQueryMatches
                         )
                     ),
                     seDispatch
@@ -260,12 +255,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
             (state, action, dispatch) => {
                 this.collApi
                     .requestBacklink(
-                        this.stateToArgs(
-                            state,
-                            this.currQueryMatches[
-                                action.payload.backlink.queryId
-                            ]
-                        )
+                        this.stateToArgs(state, action.payload.backlink.queryId)
                     )
                     .subscribe({
                         next: (url) => {
@@ -323,9 +313,9 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
 
     private stateToArgs(
         state: CollocModelState,
-        queryMatch: QueryMatch
+        queryId: number
     ): MQueryCollArgs | null {
-        if (testIsDictMatch(queryMatch)) {
+        if (testIsDictMatch(state.queryMatches[queryId])) {
             const [cfromw, ctow] = ctxToRange(
                 state.srchRangeType,
                 state.srchRange
@@ -334,7 +324,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                 corpusId: state.corpname,
                 cmpCorp: state.comparisonCorpname || undefined,
                 q: queryMatchToCQL(
-                    queryMatch,
+                    state.queryMatches[queryId],
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
                     this.lemLevelSupport.bind(this)
@@ -396,7 +386,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     this.tileId,
                     queryId,
                     testIsDictMatch(queryMatch)
-                        ? this.stateToArgs(state, queryMatch)
+                        ? this.stateToArgs(state, queryId)
                         : null,
                     { queryId: queryId }
                 )

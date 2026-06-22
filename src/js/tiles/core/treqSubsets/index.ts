@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 
-import { LemmatizationLevel, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
@@ -81,6 +85,7 @@ export class TreqSubsetsTile implements ITileProvider {
             dispatcher,
             appServices,
             initState: {
+                currQueryMatch: List.map(findCurrQueryMatch, queryMatches),
                 lang1: conf.primaryPackage,
                 lang2: translatLanguage,
                 isBusy: isBusy,
@@ -112,7 +117,6 @@ export class TreqSubsetsTile implements ITileProvider {
             lemLevelSupport: this.configuredLemLevels,
             dependentTiles,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
-            queryMatches,
             scaleColorGen: theme.scaleColorIndexed,
         });
         this.label = appServices.importExternalMessage(

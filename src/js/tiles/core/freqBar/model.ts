@@ -44,6 +44,7 @@ export interface FreqDataBlock {
 }
 
 export interface FreqBarModelState {
+    currQueryMatches: Array<QueryMatch>;
     corpname: string;
     subcname: string | undefined;
     fcrit: string;
@@ -69,7 +70,6 @@ export interface FreqBarModelState {
 
 export interface FreqBarModelArgs {
     dispatcher: IFullActionControl;
-    currQueryMatches: Array<QueryMatch>;
     tileId: number;
     readDataFromTile: number | null;
     appServices: IAppServices;
@@ -84,14 +84,11 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
 
     private readonly api: MQueryFreqDistribAPI;
 
-    private currQueryMatches: Array<QueryMatch>;
-
     constructor({
         dispatcher,
         tileId,
         appServices,
         api,
-        currQueryMatches,
         initState,
         dependentTiles,
         lemLevelSupport,
@@ -104,12 +101,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
             lemLevelSupport,
             dependentTiles,
         });
-        this.currQueryMatches = currQueryMatches;
         this.api = api;
-
-        this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
-            console.log('SET SCREEN MODE: ', action.payload);
-        });
 
         this.addActionSubtypeHandler(
             GlobalActions.EnableAltViewMode,
@@ -133,7 +125,9 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
 
         this.addSearchActionHandler((action, ds) => {
             if (!!action.payload?.newQueryMatches) {
-                this.currQueryMatches = action.payload.newQueryMatches;
+                this.changeState((state) => {
+                    state.currQueryMatches = action.payload.newQueryMatches;
+                });
             }
 
             this.changeState((state) => {
@@ -148,9 +142,9 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
                 (observer) => {
                     try {
                         pipe(
-                            this.currQueryMatches,
-                            List.map((currMatch, queryIdx) =>
-                                tuple(this.stateToArgs(currMatch), {
+                            this.state.currQueryMatches,
+                            List.map((_, queryIdx) =>
+                                tuple(this.stateToArgs(this.state, queryIdx), {
                                     queryIdx,
                                 })
                             ),
@@ -196,11 +190,11 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
                                     isReady: true,
                                     rows: [],
                                 }),
-                                this.currQueryMatches
+                                state.currQueryMatches
                             );
                             state.backlinks = List.map(
                                 (_) => null,
-                                this.currQueryMatches
+                                state.currQueryMatches
                             );
                             state.error =
                                 this.appServices.normalizeHttpApiError(error);
@@ -256,7 +250,8 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
             (action) => action.payload.tileId === this.tileId,
             (action) => {
                 const args = this.stateToArgs(
-                    this.currQueryMatches[action.payload.backlink.queryId]
+                    this.state,
+                    action.payload.backlink.queryId
                 );
                 this.api.requestBacklink(args).subscribe({
                     next: (url) => {
@@ -280,14 +275,17 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         );
     }
 
-    private stateToArgs(queryMatch: QueryMatch): MQueryFreqArgs | null {
-        if (testIsDictMatch(queryMatch)) {
+    private stateToArgs(
+        state: FreqBarModelState,
+        queryId: number
+    ): MQueryFreqArgs | null {
+        if (testIsDictMatch(state.currQueryMatches[queryId])) {
             return {
                 corpname: this.state.corpname,
                 path: this.state.freqType === 'tokens' ? 'freqs' : 'text-types',
                 queryArgs: {
                     q: queryMatchToCQL(
-                        queryMatch,
+                        state.currQueryMatches[queryId],
                         this.state.posQueryGenerator,
                         this.state.lemmatizationLevel,
                         this.lemLevelSupport.bind(this)

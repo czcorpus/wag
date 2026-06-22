@@ -107,7 +107,6 @@ interface GeoAreasModelArgs {
     dispatcher: IActionQueue;
     tileId: number;
     appServices: IAppServices;
-    queryMatches: RecognizedQueries;
     freqApi: MQueryFreqDistribAPI;
     mapLoader: DataApi<string, string>;
     initState: GeoAreasModelState;
@@ -120,15 +119,12 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
 
     private readonly mapLoader: DataApi<string, string>;
 
-    private currQueryMatches: Array<QueryMatch>;
-
     private readonly queryType: QueryType;
 
     constructor({
         dispatcher,
         tileId,
         appServices,
-        queryMatches,
         freqApi,
         mapLoader,
         initState,
@@ -143,10 +139,6 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             dependentTiles: [],
             lemLevelSupport,
         });
-        this.currQueryMatches = List.map(
-            (match) => findCurrQueryMatch(match),
-            queryMatches
-        );
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
         this.queryType = queryType;
@@ -154,10 +146,10 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
         this.addSearchActionHandler(
             (state, action) => {
                 if (!!action.payload?.newQueryMatches) {
-                    this.currQueryMatches = action.payload.newQueryMatches;
+                    state.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
-                state.backlinks = List.map((_) => null, this.currQueryMatches);
+                state.backlinks = List.map((_) => null, state.currQueryMatches);
                 state.error = null;
             },
             (state, action, dispatch, ds) => {
@@ -166,11 +158,11 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                 >((observer) => {
                     try {
                         pipe(
-                            this.currQueryMatches,
+                            state.currQueryMatches,
                             List.map((match, queryIdx) => {
                                 return tuple(
                                     testIsDictMatch(match)
-                                        ? this.stateToArgs(state, match)
+                                        ? this.stateToArgs(state, queryIdx)
                                         : null,
                                     queryIdx
                                 );
@@ -207,7 +199,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                     state.data = state.currQueryMatches.map((_) => []);
                     state.backlinks = List.map(
                         (_) => null,
-                        this.currQueryMatches
+                        state.currQueryMatches
                     );
                     state.error = this.appServices.normalizeHttpApiError(
                         action.error
@@ -399,7 +391,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             (state, action, dispatch) => {
                 const args = this.stateToArgs(
                     state,
-                    this.currQueryMatches[action.payload.backlink.queryId]
+                    action.payload.backlink.queryId
                 );
                 this.freqApi.requestBacklink(args).subscribe({
                     next: (url) => {
@@ -474,7 +466,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
 
     private stateToArgs(
         state: GeoAreasModelState,
-        queryMatch: QueryMatch,
+        queryId: number,
         subcname?: string
     ): MQueryFreqArgs {
         return {
@@ -483,7 +475,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             queryArgs: {
                 subcorpus: subcname ? subcname : state.subcname,
                 q: queryMatchToCQL(
-                    queryMatch,
+                    state.currQueryMatches[queryId],
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
                     this.lemLevelSupport.bind(this)

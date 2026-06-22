@@ -316,9 +316,24 @@ export interface PosInfoResponse {
     summaries: Array<Summary>;
 }
 
+export type ErrorLemmaInfo = {
+    detail: Array<{
+        loc: [string, string];
+        msg: string;
+        type: string;
+        input: unknown;
+    }>;
+};
+
+export type LemmaInfo = Array<LemmaResponse> | ErrorLemmaInfo;
+
+export function isErrorLemmaInfo(lmi: LemmaInfo): lmi is ErrorLemmaInfo {
+    return lmi['detail'] !== undefined && Array.isArray(lmi['detail']);
+}
+
 export interface LemmaProfileResponse {
     isAmbiguousPos: boolean;
-    lemmaInfo: Array<LemmaResponse>;
+    lemmaInfo: LemmaInfo;
     posInfo: Array<PosInfoResponse>;
     pos: GramatikatPoS;
 }

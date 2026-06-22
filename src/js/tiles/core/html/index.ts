@@ -16,9 +16,14 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
+import { List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
-import { LemmatizationLevel, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import { HtmlModel } from './model.js';
 import { init as viewInit } from './views.js';
 import {
@@ -90,11 +95,14 @@ export class HtmlTile implements ITileProvider {
             tileId: tileId,
             appServices: appServices,
             service: this.api,
-            queryMatches,
             dependentTiles,
             lemLevelSupport: this.configuredLemLevels,
             initState: {
                 isBusy: isBusy,
+                currQueryMatches: List.map(
+                    (match) => findCurrQueryMatch(match),
+                    queryMatches
+                ),
                 tileId: tileId,
                 widthFract: widthFract,
                 error: null,

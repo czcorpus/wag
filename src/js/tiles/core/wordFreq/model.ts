@@ -27,7 +27,6 @@ import {
     QueryMatch,
     RecognizedQueries,
     QueryType,
-    findCurrQueryMatch,
     LemmatizationLevel,
 } from '../../../query/index.js';
 import { HTTP, List, pipe } from 'cnc-tskit';

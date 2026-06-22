@@ -23,16 +23,10 @@ import { Actions } from './common.js';
 import { HtmlModelState } from './common.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import {
-    findCurrQueryMatch,
-    LemmatizationLevel,
-    QueryMatch,
-    RecognizedQueries,
-} from '../../../query/index.js';
+import { LemmatizationLevel } from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
-import { List } from 'cnc-tskit';
 
 export interface HtmlModelArgs {
     dispatcher: IActionQueue;
@@ -40,14 +34,11 @@ export interface HtmlModelArgs {
     appServices: IAppServices;
     service: RawHtmlAPI;
     initState: HtmlModelState;
-    queryMatches: RecognizedQueries;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
 }
 
 export class HtmlModel extends TileStatelessModel<HtmlModelState> {
-    private currQueryMatches: Array<QueryMatch>;
-
     private readonly service: RawHtmlAPI;
 
     constructor({
@@ -56,7 +47,6 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
         appServices,
         service,
         initState,
-        queryMatches,
         dependentTiles,
         lemLevelSupport,
     }: HtmlModelArgs) {
@@ -69,21 +59,17 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             lemLevelSupport,
         });
         this.service = service;
-        this.currQueryMatches = List.map(
-            (match) => findCurrQueryMatch(match),
-            queryMatches
-        );
 
         this.addSearchActionHandler(
             (state, action) => {
                 if (!!action.payload?.newQueryMatches) {
-                    this.currQueryMatches = action.payload.newQueryMatches;
+                    state.currQueryMatches = action.payload.newQueryMatches;
                 }
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch, ds) => {
-                const variant = this.currQueryMatches[0];
+                const variant = state.currQueryMatches[0];
                 this.requestData(state, variant.lemma, ds, seDispatch);
             }
         );
@@ -110,7 +96,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
                 const variant =
-                    this.currQueryMatches[action.payload.backlink.queryId];
+                    state.currQueryMatches[action.payload.backlink.queryId];
                 const url = this.service.requestBacklink(
                     this.service.stateToArgs(state, variant.lemma)
                 );

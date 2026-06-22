@@ -132,6 +132,7 @@ export function ctxToRange(
 }
 
 export interface CollocModelState {
+    currQueryMatches: Array<QueryMatch>;
     isBusy: boolean;
     tileId: number;
     isTweakMode: boolean;

@@ -12,7 +12,6 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { importQueryPosWithLabel } from '../../../postag.js';
 import { SourceDetails } from '../../../types.js';
 import urlJoin from 'url-join';
-import { group } from 'd3';
 
 interface Sublemma {
     value: string;
@@ -152,7 +151,9 @@ export class FrodoClient implements IFreqDB {
                                               'upos',
                                               appServices
                                           ),
-                                    specifier: v.specifier.split(' '),
+                                    specifier: v.specifier
+                                        ? v.specifier.split(' ')
+                                        : [],
                                     abs:
                                         freqLemLevel === 'sublemma'
                                             ? sublProps.count

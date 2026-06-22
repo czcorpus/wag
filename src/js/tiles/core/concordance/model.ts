@@ -31,7 +31,6 @@ import {
     findCurrQueryMatch,
     testIsDictMatch,
     LemmatizationLevel,
-    LemmatizationLevelTest,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -59,6 +58,7 @@ import { TileStatefulModel } from '../../../models/tiles/base.js';
 export interface ConcordanceTileState {
     tileId: number;
     queries: Array<string>;
+    currQueryMatches: Array<QueryMatch>;
     lemmatizationLevel: LemmatizationLevel;
     corpname: string;
     otherCorpname: string;
@@ -102,7 +102,6 @@ export interface ConcordanceTileModelArgs {
     appServices: IAppServices;
     api: MQueryConcApi;
     infoApi?: CorpusInfoAPI;
-    queryMatches: RecognizedQueries;
     initState: ConcordanceTileState;
     queryType: QueryType;
     dependentTiles: Array<number>;
@@ -185,8 +184,6 @@ function transformSupportedForeignResponse(
 export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState> {
     private readonly concApi: MQueryConcApi;
 
-    private currQueryMatches: Array<QueryMatch>;
-
     private readonly queryType: QueryType;
 
     private readonly infoApi: CorpusInfoAPI | undefined;
@@ -199,7 +196,6 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         appServices,
         api,
         infoApi,
-        queryMatches,
         initState,
         queryType,
         readDataFromTile,
@@ -217,10 +213,6 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         });
         this.concApi = api;
         this.infoApi = infoApi;
-        this.currQueryMatches = List.map(
-            (match) => findCurrQueryMatch(match),
-            queryMatches
-        );
         this.queryType = queryType;
 
         this.addActionHandler(GlobalActions.SetScreenMode, (action) => {
@@ -239,7 +231,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                 const subgroup = this.appServices
                     .dataStreaming()
                     .startNewSubgroup(this.tileId);
-                this.reloadData(subgroup, this.currQueryMatches);
+                this.reloadData(subgroup, this.state.currQueryMatches);
             }
         });
 
@@ -265,13 +257,13 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
 
         this.addSearchActionHandler((action, ds) => {
             if (!!action.payload?.newQueryMatches) {
-                this.currQueryMatches = action.payload.newQueryMatches;
+                this.state.currQueryMatches = action.payload.newQueryMatches;
             }
             this.changeState((state) => {
                 state.isBusy = true;
                 state.error = null;
             });
-            this.reloadData(ds, this.currQueryMatches);
+            this.reloadData(ds, this.state.currQueryMatches);
         });
 
         this.addActionSubtypeHandler(
@@ -325,14 +317,14 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                     state.isBusy = false;
                     if (action.error) {
                         state.concordances = createInitialLinesData(
-                            this.currQueryMatches.length
+                            state.currQueryMatches.length
                         );
                         state.error = this.appServices.normalizeHttpApiError(
                             action.error
                         );
                         state.backlinks = List.map(
                             (_) => null,
-                            this.currQueryMatches
+                            state.currQueryMatches
                         );
                     } else {
                         if (state.isExamplesMode) {
@@ -360,7 +352,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                     this.appServices
                         .dataStreaming()
                         .startNewSubgroup(this.tileId),
-                    this.currQueryMatches
+                    this.state.currQueryMatches
                 );
             }
         );
@@ -379,7 +371,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                     this.appServices
                         .dataStreaming()
                         .startNewSubgroup(this.tileId),
-                    this.currQueryMatches
+                    this.state.currQueryMatches
                 );
             }
         );
@@ -397,7 +389,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                     this.appServices
                         .dataStreaming()
                         .startNewSubgroup(this.tileId),
-                    this.currQueryMatches
+                    this.state.currQueryMatches
                 );
             }
         );
@@ -533,7 +525,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                 if (this.concApi instanceof MQueryConcApi) {
                     const url = this.concApi.requestBacklink(
                         this.stateToArgs(
-                            this.currQueryMatches[
+                            this.state.currQueryMatches[
                                 action.payload.backlink.queryId
                             ],
                             action.payload.backlink.queryId

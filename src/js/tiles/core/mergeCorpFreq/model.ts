@@ -26,7 +26,6 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     LemmatizationLevel,
-    LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';

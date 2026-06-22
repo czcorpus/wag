@@ -68,6 +68,7 @@ export interface TimeDistribModelState {
     corpname: string;
     subcnames: Array<string>;
     subcDesc: string;
+    currQueryMatches: Array<QueryMatch>;
     error: string;
     alphaLevel: Maths.AlphaLevel;
     posQueryGenerator: PosQueryGeneratorType;
@@ -114,7 +115,6 @@ export interface TimeDistribModelArgs {
     api: MQueryTimeDistribStreamApi;
     infoApi: CorpusInfoAPI;
     appServices: IAppServices;
-    queryMatches: RecognizedQueries;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
 }
@@ -138,8 +138,6 @@ function dateToSortNumber(s: string): number {
  *
  */
 export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> {
-    private currQueryMatches: Array<QueryMatch>;
-
     private readonly api: MQueryTimeDistribStreamApi;
 
     private readonly infoApi: CorpusInfoAPI;
@@ -151,7 +149,6 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
         api,
         infoApi,
         appServices,
-        queryMatches,
         dependentTiles,
         lemLevelSupport,
     }: TimeDistribModelArgs) {
@@ -163,19 +160,18 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             dependentTiles,
             lemLevelSupport,
         });
-        this.currQueryMatches = List.map(findCurrQueryMatch, queryMatches);
         this.api = api;
         this.infoApi = infoApi;
 
         this.addSearchActionHandler(
             (state, action) => {
                 if (!!action.payload?.newQueryMatches) {
-                    this.currQueryMatches = action.payload.newQueryMatches;
+                    state.currQueryMatches = action.payload.newQueryMatches;
                 }
-                state.data = List.map((_) => [], this.currQueryMatches);
+                state.data = List.map((_) => [], state.currQueryMatches);
                 state.mainBacklinks = List.map(
                     (_) => null,
-                    this.currQueryMatches
+                    state.currQueryMatches
                 );
                 state.dataCmp = [];
                 state.cmpBacklink = null;
@@ -193,10 +189,10 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             (state, action) => {
                 state.loadingStatus = LoadingStatus.IDLE;
                 if (action.error) {
-                    state.data = List.map((_) => [], this.currQueryMatches);
+                    state.data = List.map((_) => [], state.currQueryMatches);
                     state.mainBacklinks = List.map(
                         (_) => null,
-                        this.currQueryMatches
+                        state.currQueryMatches
                     );
                     state.dataCmp = [];
                     state.cmpBacklink = null;
@@ -671,7 +667,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                   >((observer) => {
                       try {
                           pipe(
-                              this.currQueryMatches,
+                              state.currQueryMatches,
                               List.map((currMatch, queryIdx) =>
                                   tuple(
                                       testIsDictMatch(currMatch)
@@ -726,7 +722,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
         queryIdx: number,
         cmp?: boolean
     ): TimeDistribArgs {
-        const queryMatch = this.currQueryMatches[queryIdx];
+        const queryMatch = state.currQueryMatches[queryIdx];
         return {
             corpname: state.corpname,
             q: cmp

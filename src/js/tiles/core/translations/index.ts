@@ -16,7 +16,12 @@
  * limitations under the License.
  */
 import { IAppServices } from '../../../appServices.js';
-import { LemmatizationLevel, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
+import { List } from 'cnc-tskit';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
@@ -85,6 +90,7 @@ export class TranslationsTile implements ITileProvider {
             appServices,
             initState: {
                 isBusy: isBusy,
+                currQueryMatch: List.map(findCurrQueryMatch, queryMatches),
                 isAltViewMode: false,
                 error: null,
                 searchPackages: conf.srchPackages[translatLanguage] || [],
@@ -106,7 +112,6 @@ export class TranslationsTile implements ITileProvider {
                 appServices,
                 conf.backlink
             ),
-            queryMatches,
             scaleColorGen: theme.scaleColorIndexed,
         });
         this.label = appServices.importExternalMessage(

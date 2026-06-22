@@ -24,6 +24,8 @@ import {
     GramatikatAPIArgs,
     GramatikatFreq,
     GramatikatPoS,
+    isErrorLemmaInfo,
+    LemmaInfo,
     LemmaProfileResponse,
     posCatToValSet,
     posToCatSet,
@@ -35,7 +37,6 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     RecognizedQueries,
     QueryMatch,
-    findCurrQueryMatch,
     testIsDictMatch,
     LemmatizationLevel,
 } from '../../../query/index.js';
@@ -79,6 +80,7 @@ export interface ViewOptions {
 
 export interface GramatikatState {
     corpname: string;
+    currQueryMatches: Array<QueryMatch>;
 
     /**
      * For each queryIdx, we keep data about a lemma and its PoS
@@ -161,14 +163,11 @@ export interface ConcordanceTileModelArgs {
 export class GramatikatModel extends TileStatefulModel<GramatikatState> {
     private readonly api: GramatikatAPI;
 
-    private currQueryMatches: Array<QueryMatch>;
-
     constructor({
         dispatcher,
         tileId,
         appServices,
         api,
-        queryMatches,
         initState,
         lemLevelSupport,
         dependentTiles,
@@ -182,18 +181,14 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             lemLevelSupport,
         });
         this.api = api;
-        this.currQueryMatches = List.map(
-            (match) => findCurrQueryMatch(match),
-            queryMatches
-        );
 
         this.addSearchActionHandler((action, ds) => {
-            if (!!action.payload?.newQueryMatches) {
-                this.currQueryMatches = action.payload.newQueryMatches;
-            }
             this.changeState((state) => {
                 state.isBusy = true;
-                state.error = null;
+                state.error = action.error ? `${action.error}` : null;
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatches = action.payload.newQueryMatches;
+                }
             });
             this.processResponse(this.loadData(ds));
         });
@@ -255,6 +250,24 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 if (!action.error) {
                     this.changeState((state) => {
                         state.isBusy = false;
+                        if (
+                            !this.isValidLemmaInfo(
+                                action.payload.resp.lemmaInfo
+                            ) ||
+                            !action.payload.resp.pos
+                        ) {
+                            state.message = this.appServices.translate(
+                                'gramatikat__exact_pos_is_required_msg'
+                            );
+                            if (
+                                isErrorLemmaInfo(action.payload.resp.lemmaInfo)
+                            ) {
+                                console.error(
+                                    action.payload.resp.lemmaInfo.detail[0].msg
+                                );
+                            }
+                            return;
+                        }
                         const tmp = {
                             lemmaData: {
                                 totalFreq:
@@ -271,12 +284,6 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                             missingPos: action.payload.resp.isAmbiguousPos,
                             chartData: undefined,
                         };
-                        if (!action.payload.resp.pos) {
-                            state.message = this.appServices.translate(
-                                'gramatikat__exact_pos_is_required_msg'
-                            );
-                            return;
-                        }
                         attachCalcStats(tmp, action.payload.resp.pos);
                         state.data[action.payload.queryIdx] = tmp;
 
@@ -349,6 +356,10 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
         };
     }
 
+    private isValidLemmaInfo(lmi: LemmaInfo): boolean {
+        return !isErrorLemmaInfo(lmi) && !List.empty(lmi);
+    }
+
     private processResponse(
         resp: Observable<[LemmaProfileResponse, number]>
     ): void {
@@ -366,7 +377,9 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             reduce(
                 (acc, [resp]) => {
                     return {
-                        isEmpty: acc.isEmpty && List.empty(resp.lemmaInfo),
+                        isEmpty:
+                            acc.isEmpty &&
+                            this.isValidLemmaInfo(resp.lemmaInfo),
                     };
                 },
                 { isEmpty: true }
@@ -401,7 +414,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             (observer) => {
                 try {
                     pipe(
-                        this.currQueryMatches,
+                        this.state.currQueryMatches,
                         List.map((currMatch, queryIdx) =>
                             tuple(
                                 testIsDictMatch(currMatch)
