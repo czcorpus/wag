@@ -112,10 +112,13 @@ export class ConcordanceTile implements ITileProvider {
                 appServices
             ),
             lemLevelSupport: this.configuredLemLevels,
-            queryMatches,
             queryType,
             initState: {
                 tileId,
+                currQueryMatches: List.map(
+                    (match) => findCurrQueryMatch(match),
+                    queryMatches
+                ),
                 visibleQueryIdx: 0,
                 isBusy,
                 error: null,

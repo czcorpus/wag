@@ -65,7 +65,7 @@ export interface SyntacticCollsModelState {
     widthFract: number;
     datasetName: string;
     corpname: string;
-    queryMatch: QueryMatch;
+    currQueryMatch: QueryMatch;
     data: SCollsData;
     displayType: SCollsQueryType;
     label: string;
@@ -126,6 +126,9 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatch = action.payload.newQueryMatches[0];
+                }
                 state.isBusy = true;
                 state.error = null;
             },
@@ -167,10 +170,12 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
                 const row = state.data.rows[action.payload.rowId];
                 if (!state.data.examplesQueryTpl) {
                     q = this.eApi.makeQuery(
-                        state.queryMatch.lemma,
+                        state.currQueryMatch.lemma,
                         row.value,
-                        (state.queryMatch.upos[0] || state.queryMatch.pos[0])
-                            .value,
+                        (
+                            state.currQueryMatch.upos[0] ||
+                            state.currQueryMatch.pos[0]
+                        ).value,
                         row.pos,
                         row.deprel,
                         row.mutualDist
@@ -192,7 +197,7 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
                           .pipe(
                               map((data) => ({
                                   ...data,
-                                  word1: state.queryMatch.word,
+                                  word1: state.currQueryMatch.word,
                                   word2: row.value,
                               }))
                           )
@@ -347,12 +352,12 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
             return null;
         }
         const args = {
-            w: state.queryMatch.lemma
-                ? state.queryMatch.lemma
-                : state.queryMatch.word,
+            w: state.currQueryMatch.lemma
+                ? state.currQueryMatch.lemma
+                : state.currQueryMatch.word,
         };
-        if (state.queryMatch.upos.length > 0) {
-            args['pos'] = state.queryMatch.upos[0].value;
+        if (state.currQueryMatch.upos.length > 0) {
+            args['pos'] = state.currQueryMatch.upos[0].value;
             args['deprel'] = undefined;
         }
         return {

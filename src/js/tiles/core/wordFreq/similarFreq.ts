@@ -20,14 +20,12 @@ import { map } from 'rxjs/operators';
 import { pipe, List, HTTP } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
-import { ajax$, encodeURLParameters } from '../../../page/ajax.js';
+import { encodeURLParameters } from '../../../page/ajax.js';
 import { matchesPos, calcFreqBand } from '../../../query/index.js';
-import { MultiDict } from '../../../multidict.js';
 import {
     RequestArgs,
     SimilarFreqWord,
 } from '../../../api/abstract/similarFreq.js';
-import { HTTPAction } from '../../../page/actions.js';
 import { IApiServices } from '../../../appServices.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 
@@ -104,6 +102,7 @@ export class SimilarFreqWordsFrodoAPI {
                                     otherSublemmas: [],
                                     pos: [{ value: v.pos, label: v.pos }], // TODO what about label?
                                     upos: [], // TODO UD support?
+                                    specifier: [], // TODO
                                     ipm: v.ipm,
                                     flevel: calcFreqBand(v.ipm),
                                     initialCap: v.is_pname,

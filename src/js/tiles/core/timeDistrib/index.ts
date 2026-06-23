@@ -18,7 +18,11 @@
 import { IActionDispatcher } from 'kombo';
 import { List, Maths } from 'cnc-tskit';
 
-import { LemmatizationLevel, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import {
     AltViewIconProps,
     DEFAULT_ALT_VIEW_ICON,
@@ -101,6 +105,7 @@ export class TimeDistTile implements ITileProvider {
                     ? [...conf.subcname]
                     : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
+                currQueryMatches: List.map(findCurrQueryMatch, queryMatches),
                 mainPosAttr,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: List.map((_) => [], queryMatches),
@@ -134,7 +139,6 @@ export class TimeDistTile implements ITileProvider {
             infoApi: new CorpusInfoAPI(conf.apiURL, appServices),
             tileId,
             appServices,
-            queryMatches,
         });
         this.label = appServices.importExternalMessage(
             conf.label || 'timeDistrib__main_label'

@@ -118,6 +118,7 @@ export class CollocationsTile implements ITileProvider {
             appServices,
             service: this.api,
             initState: {
+                currQueryMatches: List.map(findCurrQueryMatch, queryMatches),
                 isBusy: isBusy,
                 isTweakMode: false,
                 isAltViewMode: false,
@@ -155,7 +156,6 @@ export class CollocationsTile implements ITileProvider {
                 ),
                 examplesPerColl: conf.examplesPerColl,
             },
-            queryMatches: List.map(findCurrQueryMatch, queryMatches),
             lemLevelSupport: this.configuredLemLevels,
         });
         this.label = appServices.importExternalMessage(

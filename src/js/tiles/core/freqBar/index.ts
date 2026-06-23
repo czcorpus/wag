@@ -114,7 +114,6 @@ export class FreqBarTile implements ITileProvider {
             dispatcher,
             tileId,
             appServices,
-            queryMatches: findCurrentMatches(queryMatches),
             api: new MQueryFreqDistribAPI(
                 conf.apiURL,
                 appServices,
@@ -125,6 +124,7 @@ export class FreqBarTile implements ITileProvider {
             lemLevelSupport: this.configuredLemLevels,
             initState: {
                 isBusy,
+                currQueryMatches: findCurrentMatches(queryMatches),
                 error: null,
                 freqData: List.map(
                     (match) => ({

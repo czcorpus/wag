@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 
-import { LemmatizationLevel, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import {
     AltViewIconProps,
@@ -64,8 +68,6 @@ export class GramatikatTile implements ITileProvider {
         conf,
         isBusy,
         queryMatches,
-        queryType,
-        lemmatizationLevel,
         dependentTiles,
     }: TileFactoryArgs<GramatikatTileConf>) {
         this.tileId = tileId;
@@ -82,6 +84,10 @@ export class GramatikatTile implements ITileProvider {
                 isTweakMode: false,
                 backlinks: [],
                 corpname: 'syn2015_20_25', // TODO configurable
+                currQueryMatches: List.map(
+                    (match) => findCurrQueryMatch(match),
+                    queryMatches
+                ),
                 data: [],
                 error: undefined,
                 message: undefined,

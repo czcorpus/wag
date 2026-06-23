@@ -26,7 +26,6 @@ import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     LemmatizationLevel,
-    LemmatizationLevelTest,
     QueryMatch,
     testIsDictMatch,
 } from '../../../query/index.js';
@@ -98,6 +97,9 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatches = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },
@@ -196,7 +198,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
                         !!state.sources[action.payload.barIdx]
                             .viewInOtherWagUrl,
                     data:
-                        state.queryMatches.length > 1
+                        state.currQueryMatches.length > 1
                             ? Dict.fromEntries(
                                   List.map((v, i) => {
                                       const index = List.findIndex(
@@ -229,7 +231,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
                                               },
                                           ],
                                       ];
-                                  }, state.queryMatches)
+                                  }, state.currQueryMatches)
                               )
                             : {
                                   [appServices.translate(
@@ -304,7 +306,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
             (state, action, dispatch) => {
                 const args = this.stateToArgs(
                     state.sources[action.payload.backlink.subqueryId],
-                    state.queryMatches[action.payload.backlink.queryId],
+                    state.currQueryMatches[action.payload.backlink.queryId],
                     state.lemmatizationLevel
                 );
                 this.freqApi.requestBacklink(args).subscribe({
@@ -328,7 +330,8 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
             (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const currMatch = state.queryMatches[action.payload.queryIdx];
+                const currMatch =
+                    state.currQueryMatches[action.payload.queryIdx];
                 const target =
                     urlJoin(
                         state.sources[action.payload.barIdx].viewInOtherWagUrl,
@@ -391,7 +394,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
             (observer) => {
                 try {
                     pipe(
-                        state.queryMatches,
+                        state.currQueryMatches,
                         List.map((currMatch, queryIdx) =>
                             tuple(this.allSourcesToArgs(state, currMatch), {
                                 queryIdx,

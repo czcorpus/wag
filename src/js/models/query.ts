@@ -114,7 +114,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                     state.queryMatches[action.payload.queryIdx][currIdx].word;
             },
             (state, action, dispatch) => {
-                this.submitCurrLemma(state);
+                if (!action.payload.softReload) {
+                    this.submitCurrLemma(state);
+                }
             }
         );
 

@@ -85,16 +85,16 @@ export function init(
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
-                hasData={state.queryMatches.length > 0}
+                hasData={state.currQueryMatches.length > 0}
                 sourceIdent={{ corp: state.corpname }}
                 supportsTileReload={props.supportsReloadOnError}
                 isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
             >
                 <S.WordFreqTileView>
-                    {state.queryMatches.length === 1 ? (
+                    {state.currQueryMatches.length === 1 ? (
                         <SingleWordProfile
-                            searchedWord={state.queryMatches[0]}
+                            searchedWord={state.currQueryMatches[0]}
                             similarFreqWords={state.similarFreqWords[0]}
                             expandLemmaPos={state.expandLemmaPos}
                             tileId={props.tileId}
@@ -103,14 +103,14 @@ export function init(
                         />
                     ) : (
                         <MultiWordProfile
-                            matches={state.queryMatches}
+                            matches={state.currQueryMatches}
                             mainPosAttr={state.mainPosAttr}
                             lemmatizationLevel={state.lemmatizationLevel}
                         />
                     )}
                     {!props.isMobile && props.widthFract > 1 ? (
                         <AuxChart
-                            queryMatches={state.queryMatches}
+                            queryMatches={state.currQueryMatches}
                             isMobile={props.isMobile}
                             widthFract={props.widthFract}
                             tileName={props.tileName}

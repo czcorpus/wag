@@ -30,7 +30,11 @@ import {
 } from '../../../page/tile.js';
 import { IAppServices } from '../../../appServices.js';
 import { WordFormsModel } from './model.js';
-import { LemmatizationLevel, QueryType } from '../../../query/index.js';
+import {
+    findCurrQueryMatch,
+    LemmatizationLevel,
+    QueryType,
+} from '../../../query/index.js';
 import { init as viewInit } from './views.js';
 import { CoreApiGroup } from '../../../api/coreGroups.js';
 import { MQueryWordFormsAPI } from './api/mquery.js';
@@ -94,6 +98,7 @@ export class WordFormsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
+                currQueryMatch: List.map(findCurrQueryMatch, queryMatches),
                 corpname: conf.corpname,
                 roundToPos: 1,
                 corpusSize: conf.corpusSize,
@@ -111,7 +116,6 @@ export class WordFormsTile implements ITileProvider {
             },
             tileId,
             api: this.createApi(conf, appServices),
-            queryMatches,
             appServices,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);

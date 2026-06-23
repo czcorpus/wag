@@ -26,6 +26,7 @@ import { IAppServices } from '../../../appServices.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
@@ -38,7 +39,6 @@ export interface TranslationModelArgs {
     initState: TranslationsModelState;
     tileId: number;
     api: TreqAPI;
-    queryMatches: RecognizedQueries;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
 
@@ -46,8 +46,6 @@ export interface TranslationModelArgs {
 }
 
 export class TranslationsModel extends TileStatelessModel<TranslationsModelState> {
-    private readonly queryMatches: RecognizedQueries;
-
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
     private readonly api: TreqAPI;
@@ -58,7 +56,6 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         initState,
         tileId,
         api,
-        queryMatches,
         dependentTiles,
         lemLevelSupport,
         scaleColorGen,
@@ -71,12 +68,14 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
         this.scaleColorGen = scaleColorGen;
         this.api = api;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatch = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },
@@ -150,10 +149,8 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = findCurrQueryMatch(
-                    this.queryMatches[action.payload.backlink.queryId]
-                );
-                const url = this.api.requestBacklink(state, srchLemma.lemma);
+                const srchLemma = state.currQueryMatch;
+                const url = this.api.requestBacklink(state, srchLemma[0].lemma);
                 window.open(url.toString(), '_blank');
             }
         );
@@ -182,13 +179,13 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {
-        const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
+        const srchLemma = state.currQueryMatch;
         this.api
             .call(
                 dsHandler,
                 this.tileId,
                 0,
-                this.stateToArgs(state, srchLemma.lemma)
+                this.stateToArgs(state, srchLemma[0].lemma)
             )
             .pipe(
                 map((item) => {
@@ -216,8 +213,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: data.length === 0,
-                            query: findCurrQueryMatch(this.queryMatches[0])
-                                .lemma, // TODO switch to word and give up dict support
+                            query: state.currQueryMatch[0].lemma, // TODO switch to word and give up dict support
                             subqueries: List.map(
                                 (v) => ({
                                     value: {
@@ -240,8 +236,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                             tileId: this.tileId,
                             queryIdx: 0,
                             isEmpty: true,
-                            query: findCurrQueryMatch(this.queryMatches[0])
-                                .lemma, // TODO switch to word and give up dict support
+                            query: state.currQueryMatch[0].lemma, // TODO switch to word and give up dict support
                             subqueries: [],
                             translatLanguage: state.lang1,
                             data: { translations: [] },

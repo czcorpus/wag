@@ -196,7 +196,7 @@ export class SyntacticCollsTile implements ITileProvider {
                 datasetName: conf.datasetName
                     ? conf.datasetName
                     : conf.corpname,
-                queryMatch: findCurrQueryMatch(queryMatches[0]),
+                currQueryMatch: findCurrQueryMatch(queryMatches[0]),
                 data: null,
                 availableMeasures: ['LL', 'LMI', 'LogDice', 'T-Score'],
                 visibleMeasures:

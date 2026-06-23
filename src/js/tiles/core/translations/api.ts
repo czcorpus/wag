@@ -19,13 +19,14 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$, encodeArgs } from '../../../page/ajax.js';
+import { encodeArgs } from '../../../page/ajax.js';
 import { SourceDetails } from '../../../types.js';
 import { IAppServices } from '../../../appServices.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Line } from '../../../api/vendor/mquery/concordance/common.js';
+import { QueryMatch } from '../../../query/index.js';
 
 export type SearchPackages = { [translatLang: string]: Array<string> };
 
@@ -126,6 +127,8 @@ export interface TranslationsModelState {
     backlink?: Backlink;
 
     maxNumLines: number;
+
+    currQueryMatch: Array<QueryMatch>;
 }
 
 export class TreqAPICommon {

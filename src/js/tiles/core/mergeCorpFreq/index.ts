@@ -183,7 +183,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                     (_) => List.map((_) => null, conf.sources),
                     queryMatches
                 ),
-                queryMatches: List.map(
+                currQueryMatches: List.map(
                     (match) => findCurrQueryMatch(match),
                     queryMatches
                 ),

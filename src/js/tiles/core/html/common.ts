@@ -19,9 +19,11 @@
 import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Backlink } from '../../../page/tile.js';
+import { QueryMatch } from '../../../query/index.js';
 
 export interface HtmlModelState {
     isBusy: boolean;
+    currQueryMatches: Array<QueryMatch>;
     tileId: number;
     error: string | null;
     widthFract: number;

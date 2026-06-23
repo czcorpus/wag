@@ -24,6 +24,7 @@ import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -117,6 +118,7 @@ export const flipRowColMapper = <T>(
  */
 export interface TranslationsSubsetsModelState {
     minItemFreq: number;
+    currQueryMatch: Array<QueryMatch>;
     lang1: string;
     lang2: string;
     isBusy: boolean;
@@ -132,10 +134,9 @@ export interface TranslationsSubsetsModelState {
 export interface TreqSubsetModelArgs {
     dispatcher: IActionQueue;
     appServices: IAppServices;
+    api: TreqSubsetsAPI;
     initState: TranslationsSubsetsModelState;
     tileId: number;
-    api: TreqSubsetsAPI;
-    queryMatches: RecognizedQueries;
     lemLevelSupport: Array<LemmatizationLevel>;
     dependentTiles: Array<number>;
     scaleColorGen: ColorScaleFunctionGenerator;
@@ -146,8 +147,6 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
 
     private readonly api: TreqSubsetsAPI;
 
-    private readonly queryMatches: RecognizedQueries;
-
     private readonly scaleColorGen: ColorScaleFunctionGenerator;
 
     constructor({
@@ -156,7 +155,6 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
         initState,
         tileId,
         api,
-        queryMatches,
         lemLevelSupport,
         dependentTiles,
         scaleColorGen,
@@ -169,16 +167,19 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             dependentTiles,
             lemLevelSupport,
         });
-        this.queryMatches = queryMatches;
+        this.api = api;
         this.scaleColorGen = scaleColorGen;
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatch = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch, ds) => {
-                const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
+                const srchLemma = state.currQueryMatch[0];
                 this.api
                     .call(
                         ds,
@@ -337,9 +338,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             GlobalActions.FollowBacklink,
             (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                const srchLemma = findCurrQueryMatch(
-                    this.queryMatches[action.payload.backlink.queryId]
-                );
+                const srchLemma = state.currQueryMatch[0];
                 const url = this.requestBacklink(
                     state,
                     srchLemma.lemma,

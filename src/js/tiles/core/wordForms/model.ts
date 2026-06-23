@@ -24,6 +24,7 @@ import { Actions } from './actions.js';
 import {
     findCurrQueryMatch,
     LemmatizationLevel,
+    QueryMatch,
     RecognizedQueries,
 } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
@@ -39,6 +40,7 @@ export interface WordFormsModelState {
     isBusy: boolean;
     isAltViewMode: boolean;
     error: string;
+    currQueryMatch: Array<QueryMatch>;
     corpname: string;
     roundToPos: number; // 0 to N
     corpusSize: number;
@@ -86,7 +88,6 @@ export interface WordFormsModelArgs {
     initState: WordFormsModelState;
     tileId: number;
     api: IWordFormsApi;
-    queryMatches: RecognizedQueries;
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
     dependentTiles: Array<number>;
@@ -95,8 +96,6 @@ export interface WordFormsModelArgs {
 export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
     private readonly api: IWordFormsApi;
 
-    private readonly queryMatches: RecognizedQueries;
-
     private readonly backlink: BacklinkConf;
 
     constructor({
@@ -104,7 +103,6 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
         initState,
         tileId,
         api,
-        queryMatches,
         appServices,
         dependentTiles,
         lemLevelSupport,
@@ -118,7 +116,6 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
             lemLevelSupport,
         });
         this.api = api;
-        this.queryMatches = queryMatches;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -140,12 +137,15 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
 
         this.addSearchActionHandler(
             (state, action) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatch = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
                 state.data = [];
             },
             (state, action, dispatch, ds) => {
-                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const variant = state.currQueryMatch[0];
                 if (
                     variant.pos.length > 1 &&
                     !this.api.supportsMultiWordQueries()
@@ -261,7 +261,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
             (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
-                const variant = findCurrQueryMatch(this.queryMatches[0]);
+                const variant = state.currQueryMatch[0];
                 const args = {
                     lemma: variant.lemma,
                     pos: List.map((v) => v.value, variant.pos),

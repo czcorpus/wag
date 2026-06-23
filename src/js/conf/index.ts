@@ -216,6 +216,7 @@ export interface ClientStaticConf {
     instanceSwitchMenu?: Array<InstanceLink> | string;
     hideUnavailableQueryTypes?: boolean;
     hideLemmaSelector?: boolean;
+    addWildcards?: boolean;
     dataReadability?: DataReadabilityMapping | string;
     apiHeaders: { [urlPrefix: string]: HTTPHeaders };
     onLoadInit?: Array<string>;
@@ -297,6 +298,7 @@ export interface ClientConf {
     instanceSwitchMenu?: Array<{ label: string; url: string }>;
     hideUnavailableQueryTypes?: boolean;
     hideLemmaSelector?: boolean;
+    addWildcards?: boolean;
     colors?: ColorTheme;
     colorThemes: Array<ColorThemeIdent>;
     onLoadInit?: Array<string>;

@@ -83,7 +83,7 @@ export interface SpeechesModelState {
     posQueryGenerator: PosQueryGeneratorType;
     supportsSublemma: boolean;
     lemmatizationLevel: LemmatizationLevel;
-    queryMatches: Array<QueryMatch>;
+    currQueryMatches: Array<QueryMatch>;
 }
 
 function createNewSpeech(
