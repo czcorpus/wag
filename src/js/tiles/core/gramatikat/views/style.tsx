@@ -131,9 +131,9 @@ export const Settings = styled.div<{ theme: Theme }>`
     border-width: 0 0 1px 0;
 `;
 
-// ------------------ <PropertiesForAdjs /> ------------------------
+// ------------------ <WordGrammaticalOverview /> ------------------------
 
-export const PropertiesForAdjs = styled.div`
+export const WordGrammaticalOverview = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;

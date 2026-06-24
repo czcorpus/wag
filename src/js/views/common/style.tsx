@@ -72,6 +72,7 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
             height: 100%;
             display: flex;
             flex-direction: column;
+            padding: 1em;
 
             p.not-applicable {
                 display: flex;

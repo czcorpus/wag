@@ -22,13 +22,12 @@ import { Backlink } from '../../../page/tile.js';
 import {
     GramatikatAPI,
     GramatikatAPIArgs,
+    GramatikatCatSet,
     GramatikatFreq,
     GramatikatPoS,
     isErrorLemmaInfo,
     LemmaInfo,
     LemmaProfileResponse,
-    posCatToValSet,
-    posToCatSet,
     Summary,
     tagCodeToHuman,
 } from './api.js';
@@ -63,19 +62,83 @@ export interface WordData {
 
 export type UncommonValue = 'over' | 'under' | 'none';
 
-export interface HeatmapConfig {
+export interface HeatmapStaticConfig {
     label: string;
+
+    /**
+     * Defines which properties (at most two) are in the columns.
+     * These values must match (including their order) the
+     * columnsTags.
+     * E.g.: columnsProps: ['polarity', 'tense'] means, that
+     * in the tag value listings the values must be [polarity]-[tense]
+     *
+     * Also, in case the values are two, the first one will be grouped.
+     *
+     */
+    columnsProps: Array<GramatikatCatSet>;
     columnsTags: Array<string>;
+    activeGroupedColVals: { [code: string]: boolean };
+    switchableGroupColVals: boolean;
     rowsTags: Array<string>;
+    rowsProp: GramatikatCatSet;
+}
+
+export interface HeatmapConfig {
+    conf: HeatmapStaticConfig;
+    isActive: boolean;
 }
 
 export interface ViewOptions {
-    groupedXVisibility: { [tag: string]: boolean };
     heatmaps: {
-        verbs: Array<{ conf: HeatmapConfig; isActive: boolean }>;
-        nouns: Array<{ conf: HeatmapConfig; isActive: boolean }>;
-        adjectives: Array<{ conf: HeatmapConfig; isActive: boolean }>;
+        verbs: Array<HeatmapConfig>;
+        nouns: Array<HeatmapConfig>;
+        adjectives: Array<HeatmapConfig>;
     };
+}
+
+const wagPosToGramatikat = (pos: string): GramatikatPoS | undefined => {
+    switch (pos) {
+        case 'N':
+        case 'NOUN':
+        case 'PROPN':
+            return 'nouns';
+        case 'A':
+        case 'ADJ':
+            return 'adjectives';
+        case 'V':
+        case 'VERB':
+        case 'AUX':
+            return 'verbs';
+        default:
+            return undefined;
+    }
+};
+
+export function getHeatmapConfList(
+    opts: ViewOptions,
+    pos: GramatikatPoS
+): Array<HeatmapConfig> | undefined {
+    switch (pos) {
+        case 'adjectives':
+            return opts.heatmaps.adjectives;
+        case 'nouns':
+            return opts.heatmaps.nouns;
+        case 'verbs':
+            return opts.heatmaps.verbs;
+        default:
+            return undefined;
+    }
+}
+
+export function getActiveHeatmapConf(
+    opts: ViewOptions,
+    pos: GramatikatPoS
+): HeatmapConfig | undefined {
+    const conf = getHeatmapConfList(opts, pos);
+    if (conf === undefined) {
+        return undefined;
+    }
+    return List.find((v) => v.isActive, conf);
 }
 
 export interface GramatikatState {
@@ -148,6 +211,30 @@ const attachCalcStats = (wordData: WordData, pos: GramatikatPoS) => {
         })
     );
 };
+
+export function remapTagValueOrder(ourOrder: Array<GramatikatCatSet>): {
+    [prop: string]: number;
+} {
+    const apiPropOrder = [
+        'tense',
+        'gender',
+        'number',
+        'case',
+        'degree',
+        'polarity',
+        'mood',
+        'person',
+        'voice',
+        'aspect',
+    ];
+    return pipe(
+        ourOrder,
+        List.map((v) => tuple(v, apiPropOrder.indexOf(v))),
+        List.sortedBy(([, idx]) => idx),
+        List.map(([v], i) => tuple(v, i)),
+        Dict.fromEntries()
+    );
+}
 
 export interface ConcordanceTileModelArgs {
     dispatcher: IFullActionControl;
@@ -286,25 +373,6 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                         };
                         attachCalcStats(tmp, action.payload.resp.pos);
                         state.data[action.payload.queryIdx] = tmp;
-
-                        // opts:
-                        const groupedProp = List.find(
-                            (v) => v.isGrouped,
-                            posToCatSet(action.payload.resp.pos)
-                        );
-                        state.viewOptions.groupedXVisibility = pipe(
-                            posCatToValSet(groupedProp.value),
-                            List.map((v, i) =>
-                                tuple(
-                                    v,
-                                    i === 0 ||
-                                        action.payload.resp.pos !== 'adjectives'
-                                        ? true
-                                        : false
-                                )
-                            ),
-                            Dict.fromEntries()
-                        );
                     });
                 } else {
                     this.changeState((state) => {
@@ -324,9 +392,13 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             (action) => action.payload.tileId === this.tileId,
             (action) => {
                 this.changeState((state) => {
+                    const hmc = getActiveHeatmapConf(
+                        state.viewOptions,
+                        action.payload.pos
+                    );
                     const numVisible = pipe(
-                        state.viewOptions.groupedXVisibility,
-                        Dict.filter((v, _) => v),
+                        hmc.conf.activeGroupedColVals,
+                        Dict.filter((v) => v),
                         Dict.size()
                     );
                     if (numVisible === 1 && !action.payload.visible) {
@@ -335,24 +407,27 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                             'at least one block must be visible'
                         );
                     } else {
-                        state.viewOptions.groupedXVisibility[
+                        const activeHmc = (hmc.conf.activeGroupedColVals[
                             action.payload.tag
-                        ] = action.payload.visible;
+                        ] = action.payload.visible);
                     }
                 });
             }
         );
     }
 
-    private stateToArgs(m: QueryMatch): GramatikatAPIArgs {
+    private stateToArgs(
+        state: GramatikatState,
+        m: QueryMatch
+    ): GramatikatAPIArgs {
+        const pos = wagPosToGramatikat(m.pos[0].value);
+        const conf = getActiveHeatmapConf(state.viewOptions, pos);
+
         return {
             lemma: m.lemma,
-            catSet: [], // will be added later
+            catSet: [...conf.conf.columnsProps, conf.conf.rowsProp],
             corpus: this.state.corpname,
-            pos:
-                Array.isArray(m.pos) && !List.empty(m.pos)
-                    ? m.pos[0].value
-                    : undefined,
+            pos: Array.isArray(m.pos) && !List.empty(m.pos) ? pos : undefined,
         };
     }
 
@@ -418,7 +493,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                         List.map((currMatch, queryIdx) =>
                             tuple(
                                 testIsDictMatch(currMatch)
-                                    ? this.stateToArgs(currMatch)
+                                    ? this.stateToArgs(this.state, currMatch)
                                     : null,
                                 queryIdx
                             )

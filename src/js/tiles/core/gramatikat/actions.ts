@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { LemmaProfileResponse } from './api.js';
+import { GramatikatPoS, LemmaProfileResponse } from './api.js';
 import { SubqueryPayload } from '../../../query/index.js';
 
 export interface PartialDataPayload extends SubqueryPayload {
@@ -38,6 +38,7 @@ export class Actions {
     static SetXGroupedVisibility: Action<{
         tileId: number;
         tag: string;
+        pos: GramatikatPoS;
         visible: boolean;
     }> = {
         name: 'GRAMATIKAT_SET_X_GROUPED_VISIBILITY',

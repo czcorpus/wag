@@ -32,7 +32,7 @@ export interface GramatikatAPIArgs {
      * giving the information that it requires PoS to be
      * able to provide information.
      */
-    pos: string | undefined;
+    pos: GramatikatPoS | undefined;
     catSet: Array<GramatikatCatSet>;
     corpus: string;
 }
@@ -85,24 +85,6 @@ export type GramatikatCatSet =
     | 'aspect';
 
 export type GramatikatPoS = 'nouns' | 'adjectives' | 'verbs';
-
-const wagPosToGramatikat = (pos: string): GramatikatPoS | undefined => {
-    switch (pos) {
-        case 'N':
-        case 'NOUN':
-        case 'PROPN':
-            return 'nouns';
-        case 'A':
-        case 'ADJ':
-            return 'adjectives';
-        case 'V':
-        case 'VERB':
-        case 'AUX':
-            return 'verbs';
-        default:
-            return undefined;
-    }
-};
 
 export const tagCodeToHuman = (
     pos: GramatikatPoS,
@@ -244,33 +226,6 @@ export const posCatToValSet = (cat: GramatikatCatSet): Array<string> => {
     }
 };
 
-export const posToCatSet = (
-    cs: GramatikatPoS
-): Array<{ value: GramatikatCatSet; isFixed: boolean; isGrouped: boolean }> => {
-    switch (cs) {
-        case 'adjectives':
-            return [
-                { value: 'gender', isFixed: false, isGrouped: false },
-                { value: 'case', isFixed: false, isGrouped: false },
-                { value: 'degree', isFixed: false, isGrouped: true },
-            ];
-        case 'nouns':
-            return [
-                { value: 'gender', isFixed: true, isGrouped: true },
-                { value: 'number', isFixed: false, isGrouped: false },
-                { value: 'case', isFixed: false, isGrouped: false },
-            ];
-        case 'verbs':
-            return [
-                { value: 'tense', isFixed: false, isGrouped: false },
-                { value: 'number', isFixed: false, isGrouped: false },
-                { value: 'polarity', isFixed: false, isGrouped: true },
-            ];
-        default:
-            return [];
-    }
-};
-
 interface LemmaArgs {
     lemma: string;
 
@@ -371,16 +326,10 @@ export class GramatikatAPI
         queryIdx: number,
         args: GramatikatAPIArgs | null
     ): Observable<[LemmaProfileResponse, number]> {
-        const pos = wagPosToGramatikat(args.pos);
-        const catSet = pipe(
-            posToCatSet(pos),
-            List.map(({ value, isFixed }) => value)
-        );
-
         const reqArgs: LemmaArgs = {
             lemma: args.lemma,
-            pos,
-            catSet,
+            pos: args.pos,
+            catSet: args.catSet,
             corpus: args.corpus,
         };
         return streaming
@@ -399,7 +348,7 @@ export class GramatikatAPI
             .pipe(
                 map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
                     resp
-                        ? { ...resp, pos, isAmbiguousPos: !args.pos }
+                        ? { ...resp, pos: args.pos, isAmbiguousPos: !args.pos }
                         : {
                               lemmaInfo: [
                                   {
@@ -413,7 +362,7 @@ export class GramatikatAPI
                                       summaries: [],
                                   },
                               ],
-                              pos,
+                              pos: args.pos,
                               isAmbiguousPos: !args.pos,
                           }
                 ),
