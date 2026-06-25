@@ -57,6 +57,10 @@ function getXGroupForColIdx(
     );
 }
 
+function isNonEmptyGroupedLabel(gl: Array<GroupedLabel>): boolean {
+    return Array.isArray(gl) && !List.empty(gl) && gl[0].v !== '';
+}
+
 export const Heatmap: React.FC<{
     data: Array<Array<HeatmapCell>>;
     xLabels: Array<string | React.ReactElement>;
@@ -192,7 +196,6 @@ export const Heatmap: React.FC<{
         filteredXGroupedLabels,
         filteredYLabels,
     ] = filterZeroColumnsAndRows(data, xLabels, xGroupLabels, yLabels);
-
     return (
         <S.Heatmap>
             <table>
@@ -208,7 +211,7 @@ export const Heatmap: React.FC<{
                             filteredXLabels
                         )}
                     </tr>
-                    {Array.isArray(xGroupLabels) ? (
+                    {isNonEmptyGroupedLabel(xGroupLabels) ? (
                         <tr>
                             <th />
                             {List.map(

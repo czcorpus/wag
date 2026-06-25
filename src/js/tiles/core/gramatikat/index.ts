@@ -96,22 +96,28 @@ export class GramatikatTile implements ITileProvider {
                     findCurrentMatches(queryMatches)
                 ),
                 viewOptions: {
-                    groupedXVisibility: {},
                     heatmaps: {
                         verbs: [
                             {
                                 conf: {
                                     label: 'cislopad',
+                                    columnsProps: ['polarity', 'tense'],
+                                    activeGroupedColVals: {},
+                                    switchableGroupColVals: false,
                                     columnsTags: [
-                                        // tense and negation
-                                        'P-A',
-                                        'R-A',
-                                        'F-A',
-                                        'P-N',
-                                        'R-N',
-                                        'F-N',
+                                        'A-P',
+                                        'A-R',
+                                        'A-F',
+                                        'A-B',
+                                        'A-Q',
+                                        'N-P',
+                                        'N-R',
+                                        'N-F',
+                                        'N-B',
+                                        'N-Q',
                                     ],
-                                    rowsTags: ['S', 'P', 'D'], // number
+                                    rowsProp: 'number',
+                                    rowsTags: ['S', 'P', 'D'],
                                 },
                                 isActive: true,
                             },
@@ -119,9 +125,11 @@ export class GramatikatTile implements ITileProvider {
                         adjectives: [
                             {
                                 conf: {
-                                    label: 'cislopad',
+                                    label: 'degree-gender-case',
+                                    columnsProps: ['degree', 'gender'],
+                                    activeGroupedColVals: { '1': true },
+                                    switchableGroupColVals: true,
                                     columnsTags: [
-                                        // degree and gender
                                         '1-F',
                                         '1-I',
                                         '1-M',
@@ -135,8 +143,8 @@ export class GramatikatTile implements ITileProvider {
                                         '3-M',
                                         '3-N',
                                     ],
+                                    rowsProp: 'case',
                                     rowsTags: [
-                                        // case
                                         '1',
                                         '2',
                                         '3',
@@ -148,25 +156,39 @@ export class GramatikatTile implements ITileProvider {
                                 },
                                 isActive: true,
                             },
+                            {
+                                conf: {
+                                    label: 'rod',
+                                    columnsProps: [null, 'gender'],
+                                    activeGroupedColVals: { '1': true },
+                                    switchableGroupColVals: false,
+                                    columnsTags: ['-M', '-I', '-N', '-F'],
+                                    rowsProp: 'degree',
+                                    rowsTags: ['1', '2', '3'],
+                                },
+                                isActive: false,
+                            },
                         ],
                         nouns: [
                             {
                                 conf: {
                                     label: 'cislopad',
+                                    columnsProps: ['gender', 'number'],
+                                    activeGroupedColVals: {},
+                                    switchableGroupColVals: false,
                                     columnsTags: [
-                                        // number and gender
-                                        'D-F',
-                                        'P-F',
-                                        'S-F',
-                                        'D-I',
-                                        'P-I',
-                                        'S-I',
-                                        'D-M',
-                                        'P-M',
-                                        'S-M',
-                                        'D-N',
-                                        'P-N',
-                                        'S-N',
+                                        'F-S',
+                                        'F-P',
+                                        'F-D',
+                                        'I-S',
+                                        'I-P',
+                                        'I-D',
+                                        'M-S',
+                                        'M-P',
+                                        'M-D',
+                                        'N-S',
+                                        'N-P',
+                                        'N-D',
                                     ],
                                     rowsTags: [
                                         '1',
@@ -176,7 +198,8 @@ export class GramatikatTile implements ITileProvider {
                                         '5',
                                         '6',
                                         '7',
-                                    ], // case
+                                    ],
+                                    rowsProp: 'case',
                                 },
                                 isActive: true,
                             },

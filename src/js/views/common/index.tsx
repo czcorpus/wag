@@ -618,22 +618,26 @@ export function init(
                         {props.hasData ? (
                             props.children
                         ) : (
-                            <div className="not-applicable-box">
-                                <div className="message">
-                                    <MessageStatusIcon
-                                        statusType={SystemMessageType.WARNING}
-                                        isInline={false}
-                                    />
-                                    <p>
-                                        {props.noDataMessage ||
-                                            ut.translate(
-                                                'global__no_data_for_current_query'
-                                            )}
+                            <div className="tile">
+                                <div className="not-applicable-box">
+                                    <div className="message">
+                                        <MessageStatusIcon
+                                            statusType={
+                                                SystemMessageType.WARNING
+                                            }
+                                            isInline={false}
+                                        />
+                                        <p>
+                                            {props.noDataMessage ||
+                                                ut.translate(
+                                                    'global__no_data_for_current_query'
+                                                )}
+                                        </p>
+                                    </div>
+                                    <p className="not-applicable">
+                                        <span>N/A</span>
                                     </p>
                                 </div>
-                                <p className="not-applicable">
-                                    <span>N/A</span>
-                                </p>
                             </div>
                         )}
                     </div>
