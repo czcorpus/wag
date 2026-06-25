@@ -125,7 +125,7 @@ export class GramatikatTile implements ITileProvider {
                         adjectives: [
                             {
                                 conf: {
-                                    label: 'cislopad',
+                                    label: 'degree-gender-case',
                                     columnsProps: ['degree', 'gender'],
                                     activeGroupedColVals: { '1': true },
                                     switchableGroupColVals: true,
@@ -156,6 +156,18 @@ export class GramatikatTile implements ITileProvider {
                                 },
                                 isActive: true,
                             },
+                            {
+                                conf: {
+                                    label: 'rod',
+                                    columnsProps: [null, 'gender'],
+                                    activeGroupedColVals: { '1': true },
+                                    switchableGroupColVals: false,
+                                    columnsTags: ['-M', '-I', '-N', '-F'],
+                                    rowsProp: 'degree',
+                                    rowsTags: ['1', '2', '3'],
+                                },
+                                isActive: false,
+                            },
                         ],
                         nouns: [
                             {
@@ -165,18 +177,18 @@ export class GramatikatTile implements ITileProvider {
                                     activeGroupedColVals: {},
                                     switchableGroupColVals: false,
                                     columnsTags: [
-                                        'F-D',
-                                        'F-P',
                                         'F-S',
-                                        'I-D',
-                                        'I-P',
+                                        'F-P',
+                                        'F-D',
                                         'I-S',
-                                        'M-D',
-                                        'M-P',
+                                        'I-P',
+                                        'I-D',
                                         'M-S',
-                                        'N-D',
-                                        'N-P',
+                                        'M-P',
+                                        'M-D',
                                         'N-S',
+                                        'N-P',
+                                        'N-D',
                                     ],
                                     rowsTags: [
                                         '1',

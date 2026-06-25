@@ -120,5 +120,7 @@ export const gramPropTolabelGen = (prop: GramatikatCatSet): LabelGenerator => {
             return tenseTagToLabel;
         case 'voice':
             return (s) => s; // TODO
+        default:
+            return (s) => s;
     }
 };

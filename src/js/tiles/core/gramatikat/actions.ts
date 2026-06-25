@@ -43,4 +43,12 @@ export class Actions {
     }> = {
         name: 'GRAMATIKAT_SET_X_GROUPED_VISIBILITY',
     };
+
+    static SelectAttrSet: Action<{
+        tileId: number;
+        pos: GramatikatPoS;
+        idx: number;
+    }> = {
+        name: 'GRAMATIKAT_SELECT_ATTR_SET',
+    };
 }

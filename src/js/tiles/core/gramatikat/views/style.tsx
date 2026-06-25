@@ -26,9 +26,9 @@ import { styled } from 'styled-components';
 export const SingleWordView = styled.div<{ theme: Theme }>`
     padding-top: 3em;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow-x: auto;
 
     h2 {
         text-align: center;
@@ -41,6 +41,22 @@ export const SingleWordView = styled.div<{ theme: Theme }>`
 
     .main-block {
         margin-bottom: 1.5em;
+    }
+
+    .visualisation {
+        overflow-x: auto;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        width: 100%;
+
+        .sep {
+            flex-grow: 1;
+        }
+
+        .heatm {
+            margin-right: 3rem;
+        }
     }
 
     p.note {
@@ -181,5 +197,35 @@ export const PosWarning = styled.div`
 
     p {
         flex-grow: 1;
+    }
+`;
+
+// ------------------- <AttrSetSwitch /> ------------------------
+
+export const AttrSetSwitch = styled.ul<{ theme: Theme }>`
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+
+    li {
+        display: block;
+
+        a {
+            display: block;
+            padding: 0.5rem 1rem;
+            border: ${(props) => props.theme.tileBorderStyle};
+            border-radius: ${(props) => props.theme.tileBorderRadius};
+            cursor: pointer;
+        }
+
+        a.active {
+            border-color: ${(props) => props.theme.colorLogoPink};
+        }
+    }
+
+    li:not(first-child) {
+        margin-top: 0.5rem;
     }
 `;

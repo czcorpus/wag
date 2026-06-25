@@ -22,12 +22,11 @@ import { GlobalComponents } from '../../../../views/common/index.js';
 import { init as altViewSingleInit } from './advanced.js';
 import { init as settingsViewInit } from './settings.js';
 import {
-    getActiveHeatmapConf,
+    getHeatmapConfList,
     GramatikatModel,
     HeatmapConfig,
     remapTagValueOrder,
     UncommonValue,
-    ViewOptions,
     WordData,
 } from '../model.js';
 import {
@@ -90,6 +89,7 @@ export function init(
             ...heatmapConf.conf.columnsProps,
             heatmapConf.conf.rowsProp,
         ]);
+
         const [, , variantMap] = pipe(
             lemmaData.variants,
             List.filter((v) => v.proportion > 0),
@@ -103,9 +103,12 @@ export function init(
                         variant.valSet[
                             propPosMap[heatmapConf.conf.columnsProps[1]]
                         ];
-                    const row =
-                        variant.valSet[propPosMap[heatmapConf.conf.rowsProp]];
-                    const key = `${col1}-${col2}-${row}`;
+                    const row = heatmapConf.conf.rowsProp
+                        ? variant.valSet[propPosMap[heatmapConf.conf.rowsProp]]
+                        : '';
+                    const key = heatmapConf.conf.columnsProps[0]
+                        ? `${col1}-${col2}-${row}`
+                        : `-${col2}-${row}`;
                     mapping.set(key, variant);
                     return tuple(
                         variant.proportion < minVal
@@ -122,7 +125,7 @@ export function init(
         );
 
         const columnTags = heatmapConf.conf.columnsTags;
-        const xLabels = List.map(
+        const columnLabels = List.map(
             (item, i) => (
                 <span key={`${i}:${item}`}>
                     {ut.translate(
@@ -135,20 +138,24 @@ export function init(
             ),
             columnTags
         );
+
         const xGroupedLabels = pipe(
             columnTags,
             List.map((v) => v.split('-')),
             List.groupBy((v) => v[0]),
             List.map(([v, grouped]) => ({
-                v: ut.translate(
-                    gramPropTolabelGen(heatmapConf.conf.columnsProps[0])(v)
-                ),
+                v: v
+                    ? ut.translate(
+                          gramPropTolabelGen(heatmapConf.conf.columnsProps[0])(
+                              v
+                          )
+                      )
+                    : '',
                 span: List.size(grouped),
                 tag: v,
-                isHidden: colIsSetAsHidden(
-                    heatmapConf.conf.activeGroupedColVals,
-                    v
-                ),
+                isHidden: v
+                    ? colIsSetAsHidden(heatmapConf.conf.activeGroupedColVals, v)
+                    : false,
             }))
         );
         const rowTags = heatmapConf.conf.rowsTags;
@@ -159,9 +166,11 @@ export function init(
                 ),
             rowTags
         );
-
-        const data: Array<Array<HeatmapCell>> = List.map(
-            (rowTag) =>
+        const data: Array<Array<HeatmapCell>> = pipe(
+            rowTags,
+            (values) =>
+                !Array.isArray(rowTags) || List.empty(rowTags) ? [''] : values,
+            List.map((rowTag) =>
                 List.map((columnTag) => {
                     const v = variantMap.get(`${columnTag}-${rowTag}`);
                     return v
@@ -172,10 +181,9 @@ export function init(
                               sortedIdx: -1,
                           })
                         : newCell({ v: 0, id: Ident.puid(), sortedIdx: -1 });
-                }, columnTags),
-            rowTags
+                }, columnTags)
+            )
         );
-
         const colorMapping = attachColorIndexes(data, 0);
 
         const handleXGroupedVisibilityChng = (
@@ -196,7 +204,7 @@ export function init(
                     <S.WordGrammaticalOverview>
                         <Heatmap
                             data={data}
-                            xLabels={xLabels}
+                            xLabels={columnLabels}
                             xGroupLabels={xGroupedLabels}
                             yLabels={yLabels}
                             colorMapping={colorMapping}
@@ -234,27 +242,70 @@ export function init(
         );
     };
 
+    // ------------------- <AttrSetSwitch /> -------------------------
+
+    const AttrSetSwitch: React.FC<{
+        tileId: number;
+        hmConfigs: Array<HeatmapConfig>;
+        pos: GramatikatPoS;
+    }> = ({ tileId, hmConfigs, pos }) => {
+        const handleClick = (idx: number) => () => {
+            dispatcher.dispatch(Actions.SelectAttrSet, {
+                tileId,
+                pos,
+                idx,
+            });
+        };
+
+        return (
+            <S.AttrSetSwitch>
+                {List.map(
+                    (conf, i) => (
+                        <li key={conf.conf.label}>
+                            <a
+                                className={conf.isActive ? 'active' : null}
+                                onClick={handleClick(i)}
+                            >
+                                {ut.translate(conf.conf.label)}
+                            </a>
+                        </li>
+                    ),
+                    hmConfigs
+                )}
+            </S.AttrSetSwitch>
+        );
+    };
+
     // ------------------- <SingleWordView /> ------------------------
 
     const SingleWordView: React.FC<
         WordData & {
             tileId: number;
-            heatmapConf: HeatmapConfig;
+            heatmapConfigs: Array<HeatmapConfig>;
         }
-    > = ({ tileId, lemmaData, chartData, pos, heatmapConf }) => {
+    > = ({ tileId, lemmaData, pos, heatmapConfigs }) => {
+        const activeConf = List.find((v) => v.isActive, heatmapConfigs);
         return (
             <S.SingleWordView>
-                <div>
-                    <WordGrammaticalOverview
-                        tileId={tileId}
-                        lemmaData={lemmaData}
+                <div className="visualisation">
+                    <AttrSetSwitch
+                        hmConfigs={heatmapConfigs}
                         pos={pos}
-                        heatmapConf={heatmapConf}
+                        tileId={tileId}
                     />
-                    <p className="note">
-                        {ut.translate('gramatikat__showing_stat_signif_values')}
-                    </p>
+                    <div className="sep" />
+                    <div className="heatm">
+                        <WordGrammaticalOverview
+                            tileId={tileId}
+                            lemmaData={lemmaData}
+                            pos={pos}
+                            heatmapConf={activeConf}
+                        />
+                    </div>
                 </div>
+                <p className="note">
+                    {ut.translate('gramatikat__showing_stat_signif_values')}
+                </p>
             </S.SingleWordView>
         );
     };
@@ -314,7 +365,7 @@ export function init(
                             return null;
                         }
                         if (List.size(state.data) === 1) {
-                            const heatmapConf = getActiveHeatmapConf(
+                            const heatmapConfigs = getHeatmapConfList(
                                 state.viewOptions,
                                 List.head(state.data).pos
                             );
@@ -326,7 +377,6 @@ export function init(
                                         List.head(state.data).missingPos
                                     }
                                     pos={List.head(state.data).pos}
-                                    chartData={List.head(state.data).chartData}
                                 />
                             ) : (
                                 <SingleWordView
@@ -337,8 +387,7 @@ export function init(
                                         List.head(state.data).missingPos
                                     }
                                     pos={List.head(state.data).pos}
-                                    chartData={List.head(state.data).chartData}
-                                    heatmapConf={heatmapConf}
+                                    heatmapConfigs={heatmapConfigs}
                                 />
                             );
                         } else {

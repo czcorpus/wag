@@ -53,7 +53,7 @@ export interface WordData {
     posData: {
         summaries: Array<Summary>;
     };
-    chartData: {
+    chartData?: {
         items: Array<ChartData>;
     };
     pos: GramatikatPoS;
@@ -127,6 +127,23 @@ export function getHeatmapConfList(
             return opts.heatmaps.verbs;
         default:
             return undefined;
+    }
+}
+
+export function setHeatmapConfList(
+    opts: ViewOptions,
+    pos: GramatikatPoS,
+    values: Array<HeatmapConfig>
+): void {
+    switch (pos) {
+        case 'adjectives':
+            opts.heatmaps.adjectives = values;
+        case 'nouns':
+            opts.heatmaps.nouns = values;
+        case 'verbs':
+            opts.heatmaps.verbs = values;
+        default:
+            return;
     }
 }
 
@@ -229,6 +246,7 @@ export function remapTagValueOrder(ourOrder: Array<GramatikatCatSet>): {
     ];
     return pipe(
         ourOrder,
+        List.filter((v) => !!v),
         List.map((v) => tuple(v, apiPropOrder.indexOf(v))),
         List.sortedBy(([, idx]) => idx),
         List.map(([v], i) => tuple(v, i)),
@@ -414,6 +432,36 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 });
             }
         );
+
+        this.addActionSubtypeHandler(
+            Actions.SelectAttrSet,
+            (action) => this.tileId === action.payload.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.isBusy = true;
+                    const conflist = getHeatmapConfList(
+                        state.viewOptions,
+                        action.payload.pos
+                    );
+                    List.forEach((v) => {
+                        v.isActive = false;
+                    }, conflist);
+                    conflist[action.payload.idx].isActive = true;
+                    setHeatmapConfList(
+                        state.viewOptions,
+                        action.payload.pos,
+                        conflist
+                    );
+                });
+                this.processResponse(
+                    this.loadData(
+                        this.appServices
+                            .dataStreaming()
+                            .startNewSubgroup(tileId, ...dependentTiles)
+                    )
+                );
+            }
+        );
     }
 
     private stateToArgs(
@@ -425,7 +473,10 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
 
         return {
             lemma: m.lemma,
-            catSet: [...conf.conf.columnsProps, conf.conf.rowsProp],
+            catSet: List.filter(
+                (item) => !!item,
+                [...conf.conf.columnsProps, conf.conf.rowsProp]
+            ),
             corpus: this.state.corpname,
             pos: Array.isArray(m.pos) && !List.empty(m.pos) ? pos : undefined,
         };
