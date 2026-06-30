@@ -51,4 +51,11 @@ export class Actions {
     }> = {
         name: 'GRAMATIKAT_SELECT_ATTR_SET',
     };
+
+    static ToggleAdvancedViewUncommonOnly: Action<{
+        tileId: number;
+        value: boolean;
+    }> = {
+        name: 'GRAMATIKAT_TOGGLE_ADVANCED_VIEW_UNCOMMON_ONLY',
+    };
 }

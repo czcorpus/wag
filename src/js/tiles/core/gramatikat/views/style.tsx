@@ -50,12 +50,12 @@ export const SingleWordView = styled.div<{ theme: Theme }>`
         justify-content: center;
         width: 100%;
 
-        .sep {
-            flex-grow: 1;
-        }
-
         .heatm {
+            flex-grow: 1;
             margin-right: 3rem;
+
+            display: flex;
+            align-items: center;
         }
     }
 
@@ -147,6 +147,35 @@ export const Settings = styled.div<{ theme: Theme }>`
     border-width: 0 0 1px 0;
 `;
 
+// ------------------ <GroupedAttrSelector /> ----------------------------
+
+export const GroupedAttrSelector = styled.ul`
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5em 0;
+    }
+
+    li:not(:first-child) {
+        margin-left: 1.5em;
+    }
+
+    label {
+        display: flex;
+    }
+
+    input[type='checkbox'] {
+        margin-left: 0.7em;
+    }
+`;
+
 // ------------------ <WordGrammaticalOverview /> ------------------------
 
 export const WordGrammaticalOverview = styled.div`
@@ -154,32 +183,6 @@ export const WordGrammaticalOverview = styled.div`
     flex-direction: column;
     justify-content: center;
     align-content: center;
-
-    ul.degree-sel {
-        list-style-type: none;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-
-        li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5em 0;
-        }
-
-        li:not(:first-child) {
-            margin-left: 1.5em;
-        }
-
-        label {
-            display: flex;
-        }
-
-        input[type='checkbox'] {
-            margin-left: 0.7em;
-        }
-    }
 `;
 
 // ------------------- <PosWarning /> -------------------------
@@ -228,4 +231,26 @@ export const AttrSetSwitch = styled.ul<{ theme: Theme }>`
     li:not(first-child) {
         margin-top: 0.5rem;
     }
+`;
+
+// ------------------ <SingleWordAdvancedView /> --------------------------
+
+export const SingleWordAdvancedView = styled.div``;
+
+// ------------------ <AdvancedChart /> -----------------------------------
+
+export const AdvancedChart = styled.div<{ $maxHeight: string }>`
+    max-height: ${(props) => props.$maxHeight};
+    overflow-y: auto;
+`;
+
+// ------------------- <AdvancedViewUncommonOnlySelector /> ----------------
+
+export const AdvancedViewUncommonOnlySelector = styled.ul`
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    list-style-type: none;
 `;

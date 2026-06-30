@@ -247,6 +247,7 @@ interface LemmaArgs {
 
 export interface GramatikatFreq {
     valSet: Tag;
+    readableTag?: string;
     proportion: number;
     uncommonValue: 'over' | 'under' | 'none';
 }

@@ -27,7 +27,8 @@
         "gramatikat__neuter": "Neuter",
         "gramatikat__degree_1": "1st degree",
         "gramatikat__degree_2": "2nd degree",
-        "gramatikat__degree_3": "3rd degree"
+        "gramatikat__degree_3": "3rd degree",
+        "gramatikat__only_significant_items_sel": "only items below the 25th or above the 75th percentile"
     },
     "cs-CZ": {
         "gramatikat__main_label": "Gramatické kategorie",
@@ -57,6 +58,7 @@
         "gramatikat__neuter": "střední rod",
         "gramatikat__degree_1": "1. stupeň",
         "gramatikat__degree_2": "2. stupeň",
-        "gramatikat__degree_3": "3. stupeň"
+        "gramatikat__degree_3": "3. stupeň",
+        "gramatikat__only_significant_items_sel": "pouze položky pod 25., nebo nad 75. percentilem"
     }
 }
