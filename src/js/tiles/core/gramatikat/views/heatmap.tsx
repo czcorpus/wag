@@ -69,9 +69,9 @@ export const Heatmap: React.FC<{
     colorMapping: (v: number) => string;
 }> = ({ data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
     const iconIdToElm = (v: HeatmapCellVal['icon']): React.ReactElement => {
-        if (v === 'up') {
+        if (v === 'over') {
             return <span className="up">{'\u25B2'}</span>;
-        } else if (v === 'down') {
+        } else if (v === 'under') {
             return <span className="down">{'\u25BC'}</span>;
         }
         return null;

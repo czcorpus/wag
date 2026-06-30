@@ -22,7 +22,7 @@ export interface HeatmapCellVal {
     v: number;
     sortedIdx: number;
     id?: string;
-    icon?: 'up' | 'down';
+    icon?: 'over' | 'under' | 'none';
 }
 
 export function allValuesInCell(

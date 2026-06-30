@@ -44,7 +44,6 @@ import {
     attachColorIndexes,
     colIsSetAsHidden,
     HeatmapCell,
-    HeatmapCellVal,
     newCell,
 } from './common.js';
 import { gramPropTolabelGen } from '../labels.js';
@@ -59,16 +58,6 @@ export function init(
     const MultiWordView = multiWordViewInit(dispatcher, ut, theme);
     const AltViewSingle = altViewSingleInit(dispatcher, ut, theme, model);
     const Settings = settingsViewInit(dispatcher, ut, theme, model);
-
-    const devToIcon = (v: GramatikatFreq): HeatmapCellVal['icon'] => {
-        if (v.uncommonValue === 'over') {
-            return 'up';
-        }
-        if (v.uncommonValue === 'under') {
-            return 'down';
-        }
-        return undefined;
-    };
 
     // ------------------- <WordGrammaticalOverview /> ------------------------
 
@@ -176,7 +165,7 @@ export function init(
                     return v
                         ? newCell({
                               v: v.proportion * 100,
-                              icon: devToIcon(v),
+                              icon: v.uncommonValue,
                               id: Ident.puid(),
                               sortedIdx: -1,
                           })
@@ -210,7 +199,7 @@ export function init(
                             colorMapping={colorMapping}
                         />
                         {heatmapConf.conf.switchableGroupColVals ? (
-                            <ul className="degree-sel">
+                            <S.GroupedAttrSelector>
                                 {List.map(
                                     (lab, i) => (
                                         <li key={`${i}:${lab}`}>
@@ -234,7 +223,7 @@ export function init(
                                     ),
                                     xGroupedLabels
                                 )}
-                            </ul>
+                            </S.GroupedAttrSelector>
                         ) : null}
                     </S.WordGrammaticalOverview>
                 )}
@@ -293,7 +282,6 @@ export function init(
                         pos={pos}
                         tileId={tileId}
                     />
-                    <div className="sep" />
                     <div className="heatm">
                         <WordGrammaticalOverview
                             tileId={tileId}
@@ -362,6 +350,9 @@ export function init(
                             return <PosWarning message={state.message} />;
                         }
                         if (List.empty(state.data)) {
+                            if (state.isBusy) {
+                                return <globalComponents.AjaxLoader />;
+                            }
                             return null;
                         }
                         if (List.size(state.data) === 1) {
@@ -371,12 +362,17 @@ export function init(
                             );
                             return state.isAltViewMode ? (
                                 <AltViewSingle
+                                    tileId={props.tileId}
                                     lemmaData={List.head(state.data).lemmaData}
                                     posData={List.head(state.data).posData}
                                     missingPos={
                                         List.head(state.data).missingPos
                                     }
                                     pos={List.head(state.data).pos}
+                                    heatmapConfigs={heatmapConfigs}
+                                    advancedViewUncommonOnly={
+                                        state.advancedViewUncommonOnly
+                                    }
                                 />
                             ) : (
                                 <SingleWordView

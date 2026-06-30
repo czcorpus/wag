@@ -53,9 +53,6 @@ export interface WordData {
     posData: {
         summaries: Array<Summary>;
     };
-    chartData?: {
-        items: Array<ChartData>;
-    };
     pos: GramatikatPoS;
     missingPos: boolean;
 }
@@ -166,6 +163,7 @@ export interface GramatikatState {
      * For each queryIdx, we keep data about a lemma and its PoS
      */
     data: Array<WordData>;
+    advancedViewUncommonOnly: boolean;
     isBusy: boolean;
     backlinks: Array<Backlink>;
     error: string | undefined;
@@ -181,50 +179,35 @@ export interface GramatikatState {
     viewOptions: ViewOptions;
 }
 
-export interface ChartData {
-    tag: string;
-    tagReadable: string;
-    value: number;
-    mean: number;
-    uncommonValue: UncommonValue;
-}
-
 const attachCalcStats = (wordData: WordData, pos: GramatikatPoS) => {
-    wordData.chartData = pipe(
+    pipe(
         wordData.lemmaData.variants,
-        List.filter((v) => v.proportion * wordData.lemmaData.totalFreq > 10), // TODO configurable threshold
-        List.map((v) => {
+        List.forEach((v) => {
             const tag = v.valSet.join(' ');
             const summary = List.find(
                 (s) => s.valSet.join(' ') === tag,
                 wordData.posData.summaries
             );
-            if (!summary || summary.mean === undefined) {
-                throw new Error('missing summary data for the word');
+
+            // Always add readableTag
+            v.readableTag = tagCodeToHuman(pos, v.valSet.join(''), 'mutable');
+
+            // Only add mean and uncommonValue if we have summary data and sufficient frequency
+            if (
+                summary &&
+                summary.mean !== undefined &&
+                v.proportion * wordData.lemmaData.totalFreq > 10
+            ) {
+                v['mean'] = summary.mean;
+                v.uncommonValue = 'none';
+                if (v.proportion > summary.quartiles[2]) {
+                    v.uncommonValue = 'over';
+                } else if (v.proportion < summary.quartiles[0]) {
+                    v.uncommonValue = 'under';
+                }
+            } else {
+                v.uncommonValue = 'none';
             }
-            return tuple(v, summary);
-        }),
-        List.map(([variant, summary]) => {
-            variant.uncommonValue = 'none';
-            if (variant.proportion > summary.quartiles[2]) {
-                variant.uncommonValue = 'over';
-            } else if (variant.proportion < summary.quartiles[0]) {
-                variant.uncommonValue = 'under';
-            }
-            return {
-                tag: variant.valSet.join(''),
-                tagReadable: tagCodeToHuman(
-                    pos,
-                    variant.valSet.join(''),
-                    'mutable'
-                ),
-                value: variant.proportion,
-                uncommonValue: variant.uncommonValue,
-                mean: summary.mean,
-            };
-        }),
-        (values) => ({
-            items: values,
         })
     );
 };
@@ -460,6 +443,16 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                             .startNewSubgroup(tileId, ...dependentTiles)
                     )
                 );
+            }
+        );
+
+        this.addActionSubtypeHandler(
+            Actions.ToggleAdvancedViewUncommonOnly,
+            (action) => this.tileId === action.payload.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.advancedViewUncommonOnly = action.payload.value;
+                });
             }
         );
     }

@@ -89,6 +89,7 @@ export class GramatikatTile implements ITileProvider {
                     queryMatches
                 ),
                 data: [],
+                advancedViewUncommonOnly: true,
                 error: undefined,
                 message: undefined,
                 words: List.map(
