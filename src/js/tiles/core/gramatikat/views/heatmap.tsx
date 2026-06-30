@@ -62,12 +62,13 @@ function isNonEmptyGroupedLabel(gl: Array<GroupedLabel>): boolean {
 }
 
 export const Heatmap: React.FC<{
+    numCmpWords: number;
     data: Array<Array<HeatmapCell>>;
     xLabels: Array<string | React.ReactElement>;
     xGroupLabels?: Array<GroupedLabel>;
     yLabels: Array<string | React.ReactElement>;
     colorMapping: (v: number) => string;
-}> = ({ data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
+}> = ({ numCmpWords, data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
     const iconIdToElm = (v: HeatmapCellVal['icon']): React.ReactElement => {
         if (v === 'over') {
             return <span className="up">{'\u25B2'}</span>;
@@ -204,7 +205,11 @@ export const Heatmap: React.FC<{
                         <th />
                         {List.map(
                             (lab, i) => (
-                                <th key={`${lab}:${i}`} className="vertical">
+                                <th
+                                    key={`${lab}:${i}`}
+                                    className="vertical"
+                                    colSpan={numCmpWords}
+                                >
                                     <div>{lab}</div>
                                 </th>
                             ),
@@ -218,7 +223,7 @@ export const Heatmap: React.FC<{
                                 (item, i) => (
                                     <th
                                         key={`${i}:${item.tag}`}
-                                        colSpan={item.span}
+                                        colSpan={item.span * numCmpWords}
                                         className="grouped"
                                     >
                                         {'\u2190\u00a0'}
@@ -239,33 +244,37 @@ export const Heatmap: React.FC<{
                                     {filteredYLabels[rowIdx]}
                                 </th>
                                 {List.map(
-                                    (col, i) => (
-                                        <td
-                                            key={`${col.values[0].v}:${i}`}
-                                            style={{
-                                                backgroundColor: colorMapping(
-                                                    col.values[0].sortedIdx
-                                                ),
-                                                color: Color.color2str(
-                                                    Color.textColorFromBg(
-                                                        Color.importColor(
-                                                            0,
+                                    (col, i) =>
+                                        List.map(
+                                            (value, j) => (
+                                                <td
+                                                    key={`${value.v}:${i}:${j}`}
+                                                    style={{
+                                                        backgroundColor:
                                                             colorMapping(
-                                                                col.values[0]
-                                                                    .sortedIdx
+                                                                value.sortedIdx
+                                                            ),
+                                                        color: Color.color2str(
+                                                            Color.textColorFromBg(
+                                                                Color.importColor(
+                                                                    0,
+                                                                    colorMapping(
+                                                                        value.sortedIdx
+                                                                    )
+                                                                )
                                                             )
-                                                        )
-                                                    )
-                                                ),
-                                            }}
-                                        >
-                                            {iconIdToElm(col.values[0].icon)}
-                                            {Maths.roundToPos(
-                                                col.values[0].v,
-                                                2
-                                            )}
-                                        </td>
-                                    ),
+                                                        ),
+                                                    }}
+                                                >
+                                                    {iconIdToElm(value.icon)}
+                                                    {Maths.roundToPos(
+                                                        value.v,
+                                                        2
+                                                    )}
+                                                </td>
+                                            ),
+                                            col.values
+                                        ),
                                     row
                                 )}
                             </tr>

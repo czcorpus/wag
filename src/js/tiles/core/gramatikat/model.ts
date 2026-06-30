@@ -285,6 +285,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             Actions.TileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (action) => {
+                console.log('tile data loaded ', action.payload);
                 this.changeState((state) => {
                     state.isBusy = false;
                 });
@@ -497,14 +498,15 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 (acc, [resp]) => {
                     return {
                         isEmpty:
-                            acc.isEmpty &&
-                            this.isValidLemmaInfo(resp.lemmaInfo),
+                            acc.isEmpty ||
+                            !this.isValidLemmaInfo(resp.lemmaInfo),
                     };
                 },
-                { isEmpty: true }
+                { isEmpty: false }
             )
         ).subscribe({
             next: ({ isEmpty }) => {
+                console.log('subscribe, isEmpty: ', isEmpty);
                 this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
