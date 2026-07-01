@@ -196,8 +196,16 @@ export const ModalOverlay = styled.div<{ theme: Theme }>`
         border: ${(props) => props.theme.tileBorderStyle};
         border-color: ${(props) => props.theme.tileHeadingSeparColor};
 
-        header span:first-letter {
-            text-transform: uppercase;
+        header {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-width: 0 0 1px 0;
+            border-style: solid;
+            border-color: ${(props) => props.theme.tileHeadingSeparColor};
+
+            span:first-letter {
+                text-transform: uppercase;
+            }
         }
     }
 

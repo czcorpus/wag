@@ -47,6 +47,7 @@ interface MultiWordViewProps {
     }>;
     words: Array<string>;
     missingPos: Array<boolean>;
+    attrSwitchComponent: React.ReactElement;
 }
 
 export function init(
@@ -249,18 +250,20 @@ export function init(
         posData,
         missingPos,
         heatmapConfigs,
+        attrSwitchComponent,
     }) => {
         const activeConf = List.find((v) => v.isActive, heatmapConfigs);
 
         return (
-            <div>
+            <S.MultiWordView>
+                {attrSwitchComponent}
                 <CmpGrammaticalOverview
                     tileId={tileId}
                     heatmapConf={activeConf}
                     lemmaData={lemmaData}
                     pos={posData.pos}
                 />
-            </div>
+            </S.MultiWordView>
         );
     };
 

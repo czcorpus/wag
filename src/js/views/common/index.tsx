@@ -64,6 +64,15 @@ export interface GlobalComponents {
         htmlClass?: string;
         error?: string;
         noDataMessage?: string;
+
+        /**
+         * In case WaG fails to render the subtile group
+         * at all, it cannot possibly know any subtile heading.
+         * In such situation, it is better to provide a fallback
+         * title.
+         */
+        errorSubtileContainerLabel?: string;
+
         children: React.ReactNode;
     }>;
 
@@ -560,14 +569,25 @@ export function init(
                 },
             });
         };
-
         if (props.isBusy && !props.hasData) {
             return (
                 <S.TileWrapper>
                     <div className="wag-tile-body content">
-                        <p>
-                            <AjaxLoader htmlClass="centered" />
-                        </p>
+                        {props.isSubtileContainer ? (
+                            <Subtile
+                                hasData={false}
+                                isBusy={true}
+                                tileId={props.tileId}
+                            >
+                                <p>
+                                    <AjaxLoader htmlClass="centered" />
+                                </p>
+                            </Subtile>
+                        ) : (
+                            <p>
+                                <AjaxLoader htmlClass="centered" />
+                            </p>
+                        )}
                     </div>
                 </S.TileWrapper>
             );
@@ -619,25 +639,34 @@ export function init(
                             props.children
                         ) : (
                             <div className="tile">
-                                <div className="not-applicable-box">
-                                    <div className="message">
-                                        <MessageStatusIcon
-                                            statusType={
-                                                SystemMessageType.WARNING
-                                            }
-                                            isInline={false}
-                                        />
-                                        <p>
-                                            {props.noDataMessage ||
-                                                ut.translate(
-                                                    'global__no_data_for_current_query'
-                                                )}
+                                {wrapInSubtileIfTrue(
+                                    {
+                                        hasData: false,
+                                        isBusy: false,
+                                        tileId: props.tileId,
+                                    },
+                                    <div className="not-applicable-box">
+                                        <div className="message">
+                                            <MessageStatusIcon
+                                                statusType={
+                                                    SystemMessageType.WARNING
+                                                }
+                                                isInline={false}
+                                            />
+                                            <p>
+                                                {props.noDataMessage ||
+                                                    ut.translate(
+                                                        'global__no_data_for_current_query'
+                                                    )}
+                                            </p>
+                                        </div>
+                                        <p className="not-applicable">
+                                            <span>N/A</span>
                                         </p>
-                                    </div>
-                                    <p className="not-applicable">
-                                        <span>N/A</span>
-                                    </p>
-                                </div>
+                                    </div>,
+                                    props.errorSubtileContainerLabel || '--',
+                                    props.isSubtileContainer
+                                )}
                             </div>
                         )}
                     </div>
@@ -1321,6 +1350,28 @@ export function init(
             </S.Subtile>
         );
     };
+
+    function wrapInSubtileIfTrue(
+        stProps: { hasData: boolean; isBusy: boolean; tileId: number },
+        children: React.ReactNode,
+        title: string,
+        pred: boolean
+    ): React.ReactNode {
+        return pred ? (
+            <Subtile
+                hasData={stProps.hasData}
+                isBusy={stProps.isBusy}
+                tileId={stProps.tileId}
+            >
+                <header className="wag-tile-header panel">
+                    <h2>{title}</h2>
+                </header>
+                {children}
+            </Subtile>
+        ) : (
+            children
+        );
+    }
 
     /**
      * useMobileComponent is a React hook providing information if the current

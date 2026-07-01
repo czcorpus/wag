@@ -277,6 +277,17 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                const hasErrors =
+                    pipe(
+                        this.state.currQueryMatches,
+                        List.map(this.isSupportedQueryMatch),
+                        List.find((v) => !v)
+                    ) !== undefined;
+                if (hasErrors) {
+                    state.message = appServices.translate(
+                        'gramatikat__exact_pos_is_required_msg'
+                    );
+                }
             });
             this.processResponse(this.loadData(ds));
         });
@@ -285,7 +296,6 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             Actions.TileDataLoaded,
             (action) => action.payload.tileId === this.tileId,
             (action) => {
-                console.log('tile data loaded ', action.payload);
                 this.changeState((state) => {
                     state.isBusy = false;
                 });
@@ -506,7 +516,6 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             )
         ).subscribe({
             next: ({ isEmpty }) => {
-                console.log('subscribe, isEmpty: ', isEmpty);
                 this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -528,6 +537,13 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
         });
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        return (
+            testIsDictMatch(cm) &&
+            wagPosToGramatikat(cm.pos[0].value) !== undefined
+        );
+    }
+
     private loadData(
         streaming: IDataStreaming
     ): Observable<[LemmaProfileResponse, number]> {
@@ -538,7 +554,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                         this.state.currQueryMatches,
                         List.map((currMatch, queryIdx) =>
                             tuple(
-                                testIsDictMatch(currMatch)
+                                this.isSupportedQueryMatch(currMatch)
                                     ? this.stateToArgs(this.state, currMatch)
                                     : null,
                                 queryIdx
