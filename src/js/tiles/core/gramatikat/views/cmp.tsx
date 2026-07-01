@@ -254,7 +254,6 @@ export function init(
 
         return (
             <div>
-                <p>TODO - compare mode</p>
                 <CmpGrammaticalOverview
                     tileId={tileId}
                     heatmapConf={activeConf}

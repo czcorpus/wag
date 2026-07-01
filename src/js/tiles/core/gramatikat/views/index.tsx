@@ -320,14 +320,16 @@ export function init(
 
         const posInfoSrch = List.find((v) => v !== undefined, state.data);
         const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
-        console.log('List.empty(state.data): ', List.empty(state.data));
-        console.log('has data: ', !List.empty(state.data) || !!state.message);
+        const hasAllData =
+            (!List.empty(state.data) &&
+                !List.some((v) => v === undefined, [...state.data])) ||
+            !!state.message;
         return (
             <globalComponents.TileWrapper
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
-                hasData={!List.empty(state.data) || !!state.message}
+                hasData={hasAllData}
                 sourceIdent={{ corp: state.corpname }}
                 backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
@@ -340,7 +342,7 @@ export function init(
                     backlink={state.backlinks}
                     setMaxHeight={true}
                     isBusy={state.isBusy}
-                    hasData={!List.empty(state.data) || !!state.message}
+                    hasData={hasAllData}
                 >
                     {props.tileHeader}
 
@@ -388,7 +390,7 @@ export function init(
                                     heatmapConfigs={heatmapConfigs}
                                 />
                             );
-                        } else {
+                        } else if (hasAllData) {
                             const heatmapConfigs = getHeatmapConfList(
                                 state.viewOptions,
                                 List.head(state.data).pos

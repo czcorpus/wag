@@ -87,8 +87,12 @@ export const Heatmap = styled.div<{ theme: Theme }>`
 
         td {
             width: 3rem;
-            padding: 0.4rem 0.6rem;
+            padding: 0;
             text-align: right;
+
+            > div {
+                padding: 0.4rem 0.6rem;
+            }
         }
 
         th {
