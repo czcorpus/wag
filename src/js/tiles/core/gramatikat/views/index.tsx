@@ -192,6 +192,7 @@ export function init(
                 render={(width: number, height: number) => (
                     <S.WordGrammaticalOverview>
                         <Heatmap
+                            numCmpWords={1}
                             data={data}
                             xLabels={columnLabels}
                             xGroupLabels={xGroupedLabels}
@@ -319,13 +320,16 @@ export function init(
 
         const posInfoSrch = List.find((v) => v !== undefined, state.data);
         const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
-
+        const hasAllData =
+            (!List.empty(state.data) &&
+                !List.some((v) => v === undefined, [...state.data])) ||
+            !!state.message;
         return (
             <globalComponents.TileWrapper
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
-                hasData={!List.empty(state.data) || !!state.message}
+                hasData={hasAllData}
                 sourceIdent={{ corp: state.corpname }}
                 backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
@@ -338,7 +342,7 @@ export function init(
                     backlink={state.backlinks}
                     setMaxHeight={true}
                     isBusy={state.isBusy}
-                    hasData={!List.empty(state.data) || !!state.message}
+                    hasData={hasAllData}
                 >
                     {props.tileHeader}
 
@@ -386,21 +390,30 @@ export function init(
                                     heatmapConfigs={heatmapConfigs}
                                 />
                             );
-                        } else {
+                        } else if (hasAllData) {
+                            const heatmapConfigs = getHeatmapConfList(
+                                state.viewOptions,
+                                List.head(state.data).pos
+                            );
                             return state.isAltViewMode ? (
                                 <div>advanced view multi-word - TODO</div>
                             ) : (
                                 <MultiWordView
+                                    tileId={props.tileId}
                                     lemmaData={List.map(
                                         (v) => v.lemmaData,
                                         state.data
                                     )}
-                                    posData={posInfo}
+                                    posData={{
+                                        ...posInfo,
+                                        pos: List.head(state.data).pos,
+                                    }}
                                     words={state.words}
                                     missingPos={List.map(
                                         (v) => v.missingPos,
                                         state.data
                                     )}
+                                    heatmapConfigs={heatmapConfigs}
                                 />
                             );
                         }

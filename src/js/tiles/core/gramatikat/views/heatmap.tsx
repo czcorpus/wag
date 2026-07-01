@@ -62,12 +62,13 @@ function isNonEmptyGroupedLabel(gl: Array<GroupedLabel>): boolean {
 }
 
 export const Heatmap: React.FC<{
+    numCmpWords: number;
     data: Array<Array<HeatmapCell>>;
     xLabels: Array<string | React.ReactElement>;
     xGroupLabels?: Array<GroupedLabel>;
     yLabels: Array<string | React.ReactElement>;
     colorMapping: (v: number) => string;
-}> = ({ data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
+}> = ({ numCmpWords, data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
     const iconIdToElm = (v: HeatmapCellVal['icon']): React.ReactElement => {
         if (v === 'over') {
             return <span className="up">{'\u25B2'}</span>;
@@ -241,28 +242,39 @@ export const Heatmap: React.FC<{
                                 {List.map(
                                     (col, i) => (
                                         <td
-                                            key={`${col.values[0].v}:${i}`}
-                                            style={{
-                                                backgroundColor: colorMapping(
-                                                    col.values[0].sortedIdx
-                                                ),
-                                                color: Color.color2str(
-                                                    Color.textColorFromBg(
-                                                        Color.importColor(
-                                                            0,
-                                                            colorMapping(
-                                                                col.values[0]
-                                                                    .sortedIdx
-                                                            )
-                                                        )
-                                                    )
-                                                ),
-                                            }}
+                                            key={`${col.values.map((v) => v.id).join('')}:${i}`}
                                         >
-                                            {iconIdToElm(col.values[0].icon)}
-                                            {Maths.roundToPos(
-                                                col.values[0].v,
-                                                2
+                                            {List.map(
+                                                (value, j) => (
+                                                    <div
+                                                        key={`${value.id}:${j}`}
+                                                        style={{
+                                                            backgroundColor:
+                                                                colorMapping(
+                                                                    value.sortedIdx
+                                                                ),
+                                                            color: Color.color2str(
+                                                                Color.textColorFromBg(
+                                                                    Color.importColor(
+                                                                        0,
+                                                                        colorMapping(
+                                                                            value.sortedIdx
+                                                                        )
+                                                                    )
+                                                                )
+                                                            ),
+                                                        }}
+                                                    >
+                                                        {iconIdToElm(
+                                                            value.icon
+                                                        )}
+                                                        {Maths.roundToPos(
+                                                            value.v,
+                                                            2
+                                                        )}
+                                                    </div>
+                                                ),
+                                                col.values
                                             )}
                                         </td>
                                     ),
