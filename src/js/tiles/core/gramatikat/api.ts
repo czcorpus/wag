@@ -327,12 +327,15 @@ export class GramatikatAPI
         queryIdx: number,
         args: GramatikatAPIArgs | null
     ): Observable<[LemmaProfileResponse, number]> {
-        const reqArgs: LemmaArgs = {
-            lemma: args.lemma,
-            pos: args.pos,
-            catSet: args.catSet,
-            corpus: args.corpus,
-        };
+        const reqArgs: Partial<LemmaArgs> = args
+            ? {
+                  lemma: args.lemma,
+                  pos: args.pos,
+                  catSet: args.catSet,
+                  corpus: args.corpus,
+              }
+            : {};
+
         return streaming
             .registerTileRequest<LemmaProfileResponse>({
                 tileId,

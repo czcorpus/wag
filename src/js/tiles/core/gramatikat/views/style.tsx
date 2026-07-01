@@ -258,3 +258,10 @@ export const AdvancedViewUncommonOnlySelector = styled.ul`
     align-items: center;
     list-style-type: none;
 `;
+
+// -------------------- <MultiWordView /> -----------------------------------
+
+export const MultiWordView = styled.div`
+    display: flex;
+    flex-direction: row;
+`;

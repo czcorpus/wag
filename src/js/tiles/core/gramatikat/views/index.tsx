@@ -321,9 +321,9 @@ export function init(
         const posInfoSrch = List.find((v) => v !== undefined, state.data);
         const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
         const hasAllData =
-            (!List.empty(state.data) &&
-                !List.some((v) => v === undefined, [...state.data])) ||
-            !!state.message;
+            !List.empty(state.data) &&
+            !List.some((v) => v === undefined, [...state.data]) &&
+            !state.message;
         return (
             <globalComponents.TileWrapper
                 tileId={props.tileId}
@@ -414,6 +414,13 @@ export function init(
                                         state.data
                                     )}
                                     heatmapConfigs={heatmapConfigs}
+                                    attrSwitchComponent={
+                                        <AttrSetSwitch
+                                            tileId={props.tileId}
+                                            hmConfigs={heatmapConfigs}
+                                            pos={List.head(state.data).pos}
+                                        />
+                                    }
                                 />
                             );
                         }

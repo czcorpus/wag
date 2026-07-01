@@ -1427,7 +1427,7 @@ export function init(
 
     const DisabledTile: React.FC<{
         reason: string;
-    }> = (props) => (
+    }> = ({ reason }) => (
         <CS.TileWrapper className="empty">
             <div className="loader-wrapper"></div>
             <div className="wag-tile-body content empty">
@@ -1437,7 +1437,7 @@ export function init(
                             statusType={SystemMessageType.INFO}
                             isInline={false}
                         />
-                        <p>{props.reason}</p>
+                        <p>{reason}</p>
                     </div>
                     <p
                         className="not-applicable"
@@ -1539,7 +1539,6 @@ export function init(
                 </div>
             </header>
         );
-
         return (
             <S.TileContainer
                 id={mkTileSectionId(props.tile.tileId)}
