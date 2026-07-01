@@ -635,40 +635,36 @@ export function init(
                     <div
                         className={`wag-tile-body content${props.hasData ? '' : ' empty'}`}
                     >
-                        {props.hasData ? (
-                            props.children
-                        ) : (
-                            <div className="tile">
-                                {wrapInSubtileIfTrue(
-                                    {
-                                        hasData: false,
-                                        isBusy: false,
-                                        tileId: props.tileId,
-                                    },
-                                    <div className="not-applicable-box">
-                                        <div className="message">
-                                            <MessageStatusIcon
-                                                statusType={
-                                                    SystemMessageType.WARNING
-                                                }
-                                                isInline={false}
-                                            />
-                                            <p>
-                                                {props.noDataMessage ||
-                                                    ut.translate(
-                                                        'global__no_data_for_current_query'
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <p className="not-applicable">
-                                            <span>N/A</span>
-                                        </p>
-                                    </div>,
-                                    props.errorSubtileContainerLabel || '--',
-                                    props.isSubtileContainer
-                                )}
-                            </div>
-                        )}
+                        {props.hasData
+                            ? props.children
+                            : wrapInSubtileIfTrue(
+                                  {
+                                      hasData: false,
+                                      isBusy: false,
+                                      tileId: props.tileId,
+                                  },
+                                  <div className="not-applicable-box">
+                                      <div className="message">
+                                          <MessageStatusIcon
+                                              statusType={
+                                                  SystemMessageType.WARNING
+                                              }
+                                              isInline={false}
+                                          />
+                                          <p>
+                                              {props.noDataMessage ||
+                                                  ut.translate(
+                                                      'global__no_data_for_current_query'
+                                                  )}
+                                          </p>
+                                      </div>
+                                      <p className="not-applicable">
+                                          <span>N/A</span>
+                                      </p>
+                                  </div>,
+                                  props.errorSubtileContainerLabel || '--',
+                                  props.isSubtileContainer
+                              )}
                     </div>
                     {!props.isSubtileContainer &&
                     props.hasData &&
