@@ -256,10 +256,10 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         );
 
         this.addSearchActionHandler((action, ds) => {
-            if (!!action.payload?.newQueryMatches) {
-                this.state.currQueryMatches = action.payload.newQueryMatches;
-            }
             this.changeState((state) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatches = action.payload.newQueryMatches;
+                }
                 state.isBusy = true;
                 state.error = null;
             });

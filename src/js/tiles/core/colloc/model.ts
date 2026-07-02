@@ -127,6 +127,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                state.data = List.map((_) => null, state.currQueryMatches);
                 state.isBusy = true;
                 state.error = null;
             },
@@ -315,7 +316,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         state: CollocModelState,
         queryId: number
     ): MQueryCollArgs | null {
-        if (testIsDictMatch(state.queryMatches[queryId])) {
+        if (testIsDictMatch(state.currQueryMatches[queryId])) {
             const [cfromw, ctow] = ctxToRange(
                 state.srchRangeType,
                 state.srchRange
@@ -324,7 +325,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                 corpusId: state.corpname,
                 cmpCorp: state.comparisonCorpname || undefined,
                 q: queryMatchToCQL(
-                    state.queryMatches[queryId],
+                    state.currQueryMatches[queryId],
                     state.posQueryGenerator,
                     state.lemmatizationLevel,
                     this.lemLevelSupport.bind(this)
