@@ -259,7 +259,14 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
             this.changeState((state) => {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
+                    state.queries = List.map(
+                        (match) => match.word,
+                        action.payload.newQueryMatches
+                    );
                 }
+                state.concordances = createInitialLinesData(
+                    state.currQueryMatches.length
+                );
                 state.isBusy = true;
                 state.error = null;
             });
@@ -403,38 +410,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                 const subgroup = this.appServices
                     .dataStreaming()
                     .getSubgroup(action.payload.subgroupId);
-                this.getDataFromStream(
-                    subgroup
-                        .registerTileRequest<CollWithExamplesResponse>({
-                            tileId: this.tileId,
-                            otherTileId: this.readDataFromTile,
-                            contentType: 'application/json',
-                        })
-                        .pipe(
-                            map<
-                                CollWithExamplesResponse,
-                                [ConcResponse, number]
-                            >(
-                                (resp) =>
-                                    tuple(
-                                        {
-                                            concSize: 0,
-                                            ipm: 0,
-                                            lines: pipe(
-                                                resp.colls,
-                                                List.flatMap((x) => x.examples),
-                                                List.map((ex) => ({
-                                                    ...ex,
-                                                    metadata: [],
-                                                }))
-                                            ),
-                                            resultType: 'concordance',
-                                        },
-                                        0
-                                    ) // TODO upgrade once we support cmp
-                            )
-                        )
-                );
+                this.reloadData(subgroup, this.state.currQueryMatches);
             }
         );
 

@@ -173,7 +173,11 @@ export function init(
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
-                hasData={freqData && !List.empty(freqData.rows)}
+                hasData={
+                    freqData &&
+                    !List.empty(freqData.rows) &&
+                    List.some((v) => v.freq > 0, freqData.rows)
+                }
                 sourceIdent={{ corp: state.corpname }}
                 backlink={state.backlinks}
                 supportsTileReload={props.supportsReloadOnError}
