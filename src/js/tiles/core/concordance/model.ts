@@ -270,12 +270,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                 state.isBusy = true;
                 state.error = null;
             });
-            if (
-                action.payload?.newQueryMatches === undefined ||
-                typeof this.readDataFromTile !== 'number'
-            ) {
-                this.reloadData(ds, this.state.currQueryMatches);
-            }
+            this.reloadData(ds, this.state.currQueryMatches);
         });
 
         this.addActionSubtypeHandler(

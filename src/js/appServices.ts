@@ -238,6 +238,7 @@ export class AppServices implements IAppServices {
 
         dispatcher.registerActionListener((action, seDispatch) => {
             if (Actions.isUpdateQueryMatches(action)) {
+                this.dataStreamingImpl.cancel();
                 this.dataStreamingImpl = this.dataStreamingImpl.clone();
                 dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
                     name: Actions.RequestQueryResponse.name,
