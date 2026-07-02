@@ -124,13 +124,18 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         );
 
         this.addSearchActionHandler((action, ds) => {
-            if (!!action.payload?.newQueryMatches) {
-                this.changeState((state) => {
-                    state.currQueryMatches = action.payload.newQueryMatches;
-                });
-            }
-
             this.changeState((state) => {
+                if (!!action.payload?.newQueryMatches) {
+                    state.currQueryMatches = action.payload.newQueryMatches;
+                    state.freqData = List.map(
+                        (match) => ({
+                            word: match.word,
+                            isReady: false,
+                            rows: [],
+                        }),
+                        action.payload.newQueryMatches
+                    );
+                }
                 List.forEach((item) => {
                     item.isReady = false;
                 }, state.freqData);
