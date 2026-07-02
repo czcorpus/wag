@@ -76,6 +76,8 @@ import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import { TileConf } from '../../page/tile.js';
 import { queriesConf, previewLayoutConf } from '../../conf/preview.js';
 import { Theme } from '../../page/theme.js';
+import { ViewUtils } from 'kombo';
+import { GlobalComponents } from '../../views/common/index.js';
 
 interface MkRuntimeClientConfArgs {
     conf: ClientStaticConf;
@@ -545,11 +547,14 @@ export function determineCurrentMatch(
 
 export interface QueryActionArgs {
     services: Services;
+    appServices: IAppServices;
+    viewUtils: ViewUtils<GlobalComponents>;
     answerMode: boolean;
     httpAction: HTTPAction;
     queryType: QueryType;
     lemmatizationLevel: LemmatizationLevel;
     uiLang: string;
+    dispatcher: ServerSideActionDispatcher;
     req: Request;
     res: Response;
     next: NextFunction;
@@ -557,21 +562,18 @@ export interface QueryActionArgs {
 
 export function queryAction({
     services,
+    appServices,
     answerMode,
     httpAction,
     queryType,
     lemmatizationLevel,
+    viewUtils,
     uiLang,
     req,
     res,
+    dispatcher,
     next,
 }: QueryActionArgs) {
-    const dispatcher = new ServerSideActionDispatcher();
-    const [viewUtils, appServices] = createHelperServices(
-        services,
-        uiLang,
-        queryType
-    );
     const freqDb = createInstance(
         services.serverConf.freqDB.database.dbType as FreqDBType,
         services.serverConf.freqDB.database.path,

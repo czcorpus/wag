@@ -220,6 +220,7 @@ export function initClient(
                 ),
         },
         dataStreaming,
+        dispatcher,
         mobileModeTest: () => Client.isMobileTouchDevice(),
     });
 

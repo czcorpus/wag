@@ -35,6 +35,18 @@ export class Actions {
         name: 'MAIN_REQUEST_QUERY_RESPONSE',
     };
 
+    static UpdateQueryMatches: Action<{
+        newQueryMatches?: Array<QueryMatch>;
+    }> = {
+        name: 'MAIN_UPDATE_QUERY_MATCHES',
+    };
+
+    static isUpdateQueryMatches(
+        action: Action
+    ): action is typeof Actions.UpdateQueryMatches {
+        return action.name === Actions.UpdateQueryMatches.name;
+    }
+
     static RetryTileLoad: Action<{
         tileId: number;
     }> = {

@@ -138,12 +138,12 @@ export function init(
         const caption = (idx: number) => {
             if (state.comparisonCorpname) {
                 if (idx === 0) {
-                    return state.queryMatches[0].word;
+                    return state.currQueryMatches[0].word;
                 } else {
-                    return `${state.queryMatches[0].word} (${state.comparisonCorpname})`;
+                    return `${state.currQueryMatches[0].word} (${state.comparisonCorpname})`;
                 }
             } else {
-                return state.queryMatches[idx].word;
+                return state.currQueryMatches[idx].word;
             }
         };
 

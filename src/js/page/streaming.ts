@@ -115,6 +115,8 @@ export interface IDataStreaming {
 
     getId(): string;
 
+    clone(): IDataStreaming;
+
     startNewSubgroup(
         mainTileId: number,
         ...dependentTiles: Array<number>
@@ -148,6 +150,10 @@ export class EmptyDataStreaming implements IDataStreaming {
     getSubgroup(subgroupId: string): IDataStreaming {
         return undefined;
     }
+
+    clone(): IDataStreaming {
+        return undefined;
+    }
 }
 
 interface DataStreamingArgs {
@@ -169,6 +175,8 @@ interface DataStreamingArgs {
  * also individually processes its data.
  */
 export class DataStreaming implements IDataStreaming {
+    private readonly origTileIds: Array<string | number>;
+
     private readonly requestSubject: Subject<TileRequest | OtherTileRequest>;
 
     private readonly responseStream: Observable<EventItem>;
@@ -202,12 +210,13 @@ export class DataStreaming implements IDataStreaming {
         apiReporting,
     }: DataStreamingArgs) {
         this.id = id ? id : DataStreaming.ID_GLOBAL;
+        this.origTileIds = tileIds;
         this.userSession = userSession;
         this.rootUrl = rootUrl;
-        ((this.apiReporting = apiReporting
+        this.apiReporting = apiReporting
             ? apiReporting
-            : { headerName: undefined, headerValue: undefined }),
-            (this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs));
+            : { headerName: undefined, headerValue: undefined };
+        this.tilesReadyTimeoutSecs = tilesReadyTimeoutSecs;
         this.tilesDataStreams = new Map();
         this.requestSubject = new Subject<TileRequest | OtherTileRequest>();
         this.eventSources = new Set<EventSource>();
@@ -416,6 +425,17 @@ export class DataStreaming implements IDataStreaming {
         this.tilesDataStreams.clear();
     }
 
+    clone(): DataStreaming {
+        return new DataStreaming({
+            id: this.id,
+            tileIds: this.origTileIds,
+            rootUrl: this.rootUrl,
+            tilesReadyTimeoutSecs: this.tilesReadyTimeoutSecs,
+            userSession: this.userSession,
+            apiReporting: this.apiReporting,
+        });
+    }
+
     /**
      * Creates a new DataStreaming instance with custom
      * group of tiles. This is mostly used for:
@@ -584,5 +604,9 @@ export class DataStreamingPreview implements IDataStreaming {
 
     getSubgroup(subgroupId: string): IDataStreaming {
         return this;
+    }
+
+    clone(): IDataStreaming {
+        return new DataStreamingPreview();
     }
 }
