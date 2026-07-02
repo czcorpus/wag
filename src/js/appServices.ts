@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Observable, of as rxOf } from 'rxjs';
-import { ITranslator } from 'kombo';
+import { IActionDispatcher, IFullActionControl, ITranslator } from 'kombo';
 import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
 import {
@@ -41,6 +41,7 @@ import {
     IntlMessageFormat,
     PrimitiveType,
 } from 'intl-messageformat';
+import { Actions } from './models/actions.js';
 
 export interface IApiServices {
     getApiHeaders(apiUrl: string): HTTPHeaders;
@@ -160,6 +161,7 @@ export interface AppServicesArgs {
     apiHeadersMapping: { [urlPrefix: string]: HTTPHeaders };
     apiCaller: IAPICaller;
     dataStreaming: IDataStreaming;
+    dispatcher: IFullActionControl;
     mobileModeTest: () => boolean;
 }
 
@@ -197,7 +199,9 @@ export class AppServices implements IAppServices {
 
     private readonly sessionStorage: ISimpleSessionStorage;
 
-    private readonly dataStreamingImpl: IDataStreaming;
+    private dataStreamingImpl: IDataStreaming;
+
+    private readonly dispatcher: IFullActionControl;
 
     private readonly apiCaller: IAPICaller;
 
@@ -211,6 +215,7 @@ export class AppServices implements IAppServices {
         apiHeadersMapping,
         apiCaller,
         dataStreaming,
+        dispatcher,
         mobileModeTest,
     }: AppServicesArgs) {
         this.notifications = notifications;
@@ -228,7 +233,20 @@ export class AppServices implements IAppServices {
                 ? new DummySessionStorage()
                 : window.sessionStorage;
         this.dataStreamingImpl = dataStreaming;
+        this.dispatcher = dispatcher;
         this.apiCaller = apiCaller;
+
+        dispatcher.registerActionListener((action, seDispatch) => {
+            if (Actions.isUpdateQueryMatches(action)) {
+                this.dataStreamingImpl = this.dataStreamingImpl.clone();
+                dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
+                    name: Actions.RequestQueryResponse.name,
+                    payload: {
+                        newQueryMatches: action.payload.newQueryMatches,
+                    },
+                });
+            }
+        });
     }
 
     showMessage(type: SystemMessageType, text: string | Error): void {

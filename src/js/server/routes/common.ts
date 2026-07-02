@@ -20,7 +20,7 @@ import * as React from 'react';
 import { pipe, Dict, List } from 'cnc-tskit';
 import { ServerStyleSheet } from 'styled-components';
 import { Request } from 'express';
-import { ViewUtils } from 'kombo';
+import { IFullActionControl, ViewUtils } from 'kombo';
 
 import { UserConf, ClientConf } from '../../conf/index.js';
 import { encodeArgs } from '../../page/ajax.js';
@@ -37,6 +37,7 @@ import { DataStreaming, DataStreamingPreview } from '../../page/streaming.js';
 import { ServerNotifications } from '../../page/notifications.js';
 import { Observable } from 'rxjs';
 import { ColorThemeIdent } from '../../conf/theme.js';
+import { ServerSideActionDispatcher } from '../core.js';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -149,7 +150,7 @@ export function createHelperServices(
     services: Services,
     uiLang: string,
     queryType?: QueryType
-): [ViewUtils<GlobalComponents>, AppServices] {
+): [ViewUtils<GlobalComponents>, AppServices, ServerSideActionDispatcher] {
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang,
         translations: services.translations,
@@ -170,6 +171,8 @@ export function createHelperServices(
                   userSession: null,
                   apiReporting: null,
               });
+
+    const dispatcher = new ServerSideActionDispatcher();
 
     return [
         viewUtils,
@@ -202,9 +205,11 @@ export function createHelperServices(
             actionUrlCreator: viewUtils.createActionUrl,
             dataReadability: { metadataMapping: {}, commonStructures: {} },
             dataStreaming: streaming,
+            dispatcher,
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: () => false,
         }),
+        dispatcher,
     ];
 }
 

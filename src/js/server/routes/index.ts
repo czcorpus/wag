@@ -18,15 +18,12 @@
 import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
-import { concatMap, map, tap } from 'rxjs/operators';
+import { concatMap, tap } from 'rxjs/operators';
 import { HTTP, List, Dict } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices.js';
 import { encodeArgs } from '../../page/ajax.js';
-import {
-    importLemmatizationLevelOrError,
-    QueryType,
-} from '../../query/index.js';
+import { importLemmatizationLevelOrError } from '../../query/index.js';
 import { GlobalComponents } from '../../views/common/index.js';
 import { IFreqDB } from '../freqdb/freqdb.js';
 
@@ -59,6 +56,7 @@ import { createInstance, FreqDBType } from '../freqdb/factory.js';
 import urlJoin from 'url-join';
 import { ServerNotifications } from '../../page/notifications.js';
 import { Theme } from '../../page/theme.js';
+import { ServerSideActionDispatcher } from '../core.js';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -275,6 +273,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
 
     app.get(HTTPAction.SEARCH, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'single'
+        );
         queryAction({
             services,
             answerMode: false,
@@ -284,6 +287,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            appServices,
+            dispatcher,
+            viewUtils,
             req,
             res,
             next,
@@ -334,6 +340,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 return;
             }
         }
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'single'
+        );
         queryAction({
             services,
             answerMode: true,
@@ -343,6 +354,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            appServices,
+            viewUtils,
+            dispatcher,
             req,
             res,
             next,
@@ -406,6 +420,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
 
     app.get(HTTPAction.COMPARE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'cmp'
+        );
         queryAction({
             services,
             answerMode: false,
@@ -415,6 +434,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            appServices,
+            dispatcher,
+            viewUtils,
             req,
             res,
             next,
@@ -423,6 +445,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
 
     app.get(`${HTTPAction.COMPARE}:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'cmp'
+        );
         queryAction({
             services,
             answerMode: true,
@@ -432,6 +459,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            viewUtils,
+            appServices,
+            dispatcher,
             req,
             res,
             next,
@@ -442,6 +472,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
 
     app.get(HTTPAction.TRANSLATE, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'translat'
+        );
         queryAction({
             services,
             answerMode: false,
@@ -451,6 +486,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            viewUtils,
+            appServices,
+            dispatcher,
             req,
             res,
             next,
@@ -462,6 +500,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
         res.cookie(LAST_USED_TRANSLAT_LANG_COOKIE_NAME, req.params.lang, {
             expires: new Date(Date.now() + 3600 * 24 * 365),
         });
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'cmp'
+        );
         queryAction({
             services,
             answerMode: true,
@@ -471,6 +514,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            viewUtils,
+            appServices,
+            dispatcher,
             req,
             res,
             next,
@@ -489,6 +535,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
             actionUrlCreator: (path, args) =>
                 services.clientConf.hostUrl + path + '?' + encodeArgs(args),
         });
+        const dispatcher = new ServerSideActionDispatcher();
         const appServices = new AppServices({
             notifications: new ServerNotifications(),
             uiLang: uiLang,
@@ -526,6 +573,7 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 userSession: null,
                 apiReporting: null,
             }),
+            dispatcher,
             mobileModeTest: () => false,
         });
 
@@ -677,6 +725,11 @@ export const wdgRouter = (services: Services) => (app: Express) => {
 
     app.get(HTTPAction.PREVIEW, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
+        const [viewUtils, appServices, dispatcher] = createHelperServices(
+            services,
+            uiLang,
+            'cmp'
+        );
         queryAction({
             services,
             answerMode: true,
@@ -686,6 +739,9 @@ export const wdgRouter = (services: Services) => (app: Express) => {
                 getQueryValue(req, 'lemlevel')[0]
             ),
             uiLang,
+            viewUtils,
+            appServices,
+            dispatcher,
             req,
             res,
             next,
