@@ -132,6 +132,12 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                 state.error = null;
             },
             (state, action, seDispatch, ds) => {
+                if (!!action.payload?.newQueryMatches) {
+                    seDispatch(GlobalActions.TileSubgroupReady, {
+                        mainTileId: this.tileId,
+                        subgroupId: ds.getId(),
+                    });
+                }
                 this.reloadAllData(
                     state,
                     ds,
