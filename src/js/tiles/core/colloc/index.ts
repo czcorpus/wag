@@ -144,10 +144,6 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlinks: List.map((_) => null, queryMatches),
-                queryMatches: List.map(
-                    (v) => findCurrQueryMatch(v),
-                    queryMatches
-                ),
                 queryType,
                 posQueryGenerator: conf.posQueryGenerator,
                 supportsSublemma: lemLevelSupport(

@@ -194,8 +194,6 @@ export interface CollocModelState {
 
     queryType: QueryType;
 
-    queryMatches: Array<QueryMatch>;
-
     posQueryGenerator: PosQueryGeneratorType;
 
     supportsSublemma: boolean;
