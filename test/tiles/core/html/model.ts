@@ -67,6 +67,8 @@ describe('HtmlTile model', function () {
                     appServices,
                     tileId: 1,
                     service: htmlApiStub,
+                    dependentTiles: [],
+                    lemLevelSupport: ['lemma'],
                     initState: {
                         isBusy: false,
                         tileId: 1,
@@ -77,10 +79,13 @@ describe('HtmlTile model', function () {
                         lemmaArg: '',
                         sanitizeHTML: false,
                         backlink: { label: '', queryId: 0, subqueryId: 0 },
+                        currQueryMatches: [
+                            {
+                                isCurrent: true,
+                                lemma: 'anything',
+                            } as QueryMatch,
+                        ],
                     },
-                    queryMatches: [
-                        [{ isCurrent: true, lemma: 'anything' } as QueryMatch],
-                    ],
                 })
         );
     });
