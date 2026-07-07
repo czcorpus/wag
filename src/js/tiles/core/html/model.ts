@@ -65,6 +65,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                state.data = null;
                 state.isBusy = true;
                 state.error = null;
             },

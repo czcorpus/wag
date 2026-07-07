@@ -99,6 +99,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                state.data = [];
                 state.isBusy = true;
                 state.error = null;
             },

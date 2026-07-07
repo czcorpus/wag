@@ -23,12 +23,7 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
 import { IAppServices } from '../../../appServices.js';
-import {
-    findCurrQueryMatch,
-    LemmatizationLevel,
-    QueryMatch,
-    RecognizedQueries,
-} from '../../../query/index.js';
+import { LemmatizationLevel } from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
@@ -76,6 +71,8 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatch = action.payload.newQueryMatches;
                 }
+                state.translations = [];
+                state.backlink = null;
                 state.isBusy = true;
                 state.error = null;
             },

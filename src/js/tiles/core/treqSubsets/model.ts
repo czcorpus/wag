@@ -21,12 +21,7 @@ import { IActionQueue } from 'kombo';
 import { RequestArgs } from '../translations/api.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import {
-    findCurrQueryMatch,
-    LemmatizationLevel,
-    QueryMatch,
-    RecognizedQueries,
-} from '../../../query/index.js';
+import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';

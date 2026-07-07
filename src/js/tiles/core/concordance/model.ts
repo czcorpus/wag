@@ -25,10 +25,8 @@ import { List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import {
-    RecognizedQueries,
     QueryType,
     QueryMatch,
-    findCurrQueryMatch,
     testIsDictMatch,
     LemmatizationLevel,
 } from '../../../query/index.js';

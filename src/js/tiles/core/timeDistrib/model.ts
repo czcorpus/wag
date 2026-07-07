@@ -25,10 +25,8 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
 import { Actions } from './common.js';
 import {
-    findCurrQueryMatch,
     LemmatizationLevel,
     QueryMatch,
-    RecognizedQueries,
     testIsDictMatch,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';

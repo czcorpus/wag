@@ -149,7 +149,11 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
                     state.currQueryMatch = action.payload.newQueryMatches[0];
                 }
                 state.data = List.map(
-                    (item) => ({ ...item, isBusy: true }),
+                    (item) => ({
+                        ...item,
+                        data: { rows: [], examplesQueryTpl: undefined },
+                        isBusy: true,
+                    }),
                     state.data
                 );
                 state.error = null;

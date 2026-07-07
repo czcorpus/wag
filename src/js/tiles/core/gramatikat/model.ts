@@ -277,6 +277,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                state.data = [];
                 const hasErrors =
                     pipe(
                         this.state.currQueryMatches,
