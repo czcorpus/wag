@@ -21,12 +21,7 @@ import { List, Maths } from 'cnc-tskit';
 import { SEDispatcher, IActionQueue } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import {
-    findCurrQueryMatch,
-    LemmatizationLevel,
-    QueryMatch,
-    RecognizedQueries,
-} from '../../../query/index.js';
+import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';

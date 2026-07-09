@@ -129,6 +129,7 @@ export function init(
                     dataKey="name"
                     width={maxLabelLength * 7}
                     tick={{ fill: theme.chartTextColor }}
+                    tickMargin={3}
                 />
                 <Legend
                     formatter={(value) => (

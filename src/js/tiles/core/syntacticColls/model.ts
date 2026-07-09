@@ -129,6 +129,7 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatch = action.payload.newQueryMatches[0];
                 }
+                state.data = null;
                 state.isBusy = true;
                 state.error = null;
             },

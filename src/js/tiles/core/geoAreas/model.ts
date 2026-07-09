@@ -27,11 +27,9 @@ import { Actions } from './actions.js';
 import { DataApi, SystemMessageType } from '../../../types.js';
 import { TooltipValues } from '../../../views/common/index.js';
 import {
-    findCurrQueryMatch,
     LemmatizationLevel,
     QueryMatch,
     QueryType,
-    RecognizedQueries,
     testIsDictMatch,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
@@ -148,6 +146,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                state.data = List.map((_) => [], state.currQueryMatches);
                 state.isBusy = true;
                 state.backlinks = List.map((_) => null, state.currQueryMatches);
                 state.error = null;

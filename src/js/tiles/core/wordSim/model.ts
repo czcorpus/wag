@@ -144,6 +144,10 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
                 if (!!action.payload?.newQueryMatches) {
                     state.currQueryMatches = action.payload.newQueryMatches;
                 }
+                state.data = List.repeat(
+                    (_) => [],
+                    state.currQueryMatches.length
+                );
                 state.isBusy = true;
                 state.error = null;
             },
