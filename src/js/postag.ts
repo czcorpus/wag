@@ -65,6 +65,8 @@ export enum PoSValues {
     UNKNOWN = 'X',
     SEGMENT = 'S',
     ABBREVIATION = 'B',
+
+    DTIJ = 'DTIJ',
 }
 
 /**
@@ -158,6 +160,10 @@ const posTable = {
     [PoSValues.UNKNOWN]: {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
         'en-US': 'unknown or undetermined part of speech',
+    },
+    [PoSValues.DTIJ]: {
+        'cs-CZ': 'více slovních druhů',
+        'en-US': 'multiple parts of speech',
     },
 };
 
@@ -266,7 +272,8 @@ const pennTreebankLabels = {
 
 const directPos: PosQueryExport = (pos) => pos;
 
-const ppTagset: PosQueryExport = (pos) => `${pos.toUpperCase()}.+`;
+const ppTagset: PosQueryExport = (pos) =>
+    `${pos.length > 1 ? '[' + pos.toUpperCase() + ']' : pos.toUpperCase()}.+`;
 
 const pennTreebank: PosQueryExport = (pos) => pennTreebankLabels[pos];
 
