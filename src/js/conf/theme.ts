@@ -65,6 +65,7 @@ export interface ColorTheme extends ColorThemeIdent {
 
     tileBorderStyle?: string;
     tileBorderRadius?: string;
+    tileShadow?: string;
 
     cssMobileScreen?: string;
 
