@@ -41,6 +41,7 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     .loader-wrapper {
         height: 0.2em;
         background-color: ${(props) => props.theme.tileBackgroundColor};
+        overflow: hidden;
     }
 
     :not(.wag-subtile-container) .content {
