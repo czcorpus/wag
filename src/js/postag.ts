@@ -34,7 +34,7 @@ import { MainPosAttrValues } from './conf/index.js';
  * depends on actual tagset.
  */
 interface PosQueryExport {
-    (pos: string): string;
+    (pos: string, specifier: string): string;
 }
 
 /**
@@ -270,12 +270,24 @@ const pennTreebankLabels = {
     //WRB	Wh-adverb
 };
 
-const directPos: PosQueryExport = (pos) => pos;
+const directPos: PosQueryExport = (pos, specifier) => pos;
 
-const ppTagset: PosQueryExport = (pos) =>
-    `${pos.length > 1 ? '[' + pos.toUpperCase() + ']' : pos.toUpperCase()}.+`;
+const ppTagset: PosQueryExport = (pos, specifier) => {
+    const posPart =
+        pos.length > 1 ? `[${pos.toUpperCase()}]` : pos.toUpperCase();
+    if (!!specifier) {
+        switch (posPart) {
+            case PoSValues.NOUN:
+                return `${posPart}.${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
+            case PoSValues.VERB:
+                return `${posPart}...........${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
+        }
+    }
+    return `${posPart}.+`;
+};
 
-const pennTreebank: PosQueryExport = (pos) => pennTreebankLabels[pos];
+const pennTreebank: PosQueryExport = (pos, specifier) =>
+    pennTreebankLabels[pos];
 
 /**
  * Test two multi-word PoS tags whether they are equal.
