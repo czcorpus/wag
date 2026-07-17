@@ -53,6 +53,7 @@ const fallbackTheme: ColorTheme = {
 
     tileBorderStyle: 'solid 1px #dadada',
     tileBorderRadius: '0.25em',
+    tileShadow: 'rgba(0, 0, 0, 0.2) 0.05em 0.05em 0.15em 0.05em',
 
     // text color
 
@@ -202,6 +203,8 @@ export class Theme {
 
     public readonly tileBorderRadius: string;
 
+    public readonly tileShadow: string;
+
     public readonly chartTextColor: string;
 
     public readonly chartGridColor: string;
@@ -237,6 +240,7 @@ export class Theme {
             confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
         this.tileBorderRadius =
             confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
+        this.tileShadow = confSrc.tileShadow || fallbackTheme.tileShadow;
         this.textInputBorderStyle =
             confSrc.textInputBorderStyle || this.tileBorderStyle;
         this.colorLogoBlue =
