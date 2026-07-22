@@ -320,6 +320,7 @@ export function init(
 
         const posInfoSrch = List.find((v) => v !== undefined, state.data);
         const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
+
         const hasAllData =
             !List.empty(state.data) &&
             !List.some((v) => v === undefined, [...state.data]) &&
@@ -335,6 +336,7 @@ export function init(
                 supportsTileReload={props.supportsReloadOnError}
                 isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
+                errorSubtileContainerLabel={props.tileLabel}
             >
                 <globalComponents.Subtile
                     tileId={props.tileId}

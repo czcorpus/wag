@@ -20,7 +20,7 @@ import { EMPTY, map, Observable } from 'rxjs';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { Backlink } from '../../../page/tile.js';
-import { HTTP, List, pipe, tuple } from 'cnc-tskit';
+import { HTTP, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
 export interface GramatikatAPIArgs {
@@ -292,6 +292,7 @@ export interface LemmaProfileResponse {
     lemmaInfo: LemmaInfo;
     posInfo: Array<PosInfoResponse>;
     pos: GramatikatPoS;
+    error?: string;
 }
 
 export interface GramatikatSourceDetail extends SourceDetails {}
@@ -335,7 +336,6 @@ export class GramatikatAPI
                   corpus: args.corpus,
               }
             : {};
-
         return streaming
             .registerTileRequest<LemmaProfileResponse>({
                 tileId,
@@ -368,6 +368,7 @@ export class GramatikatAPI
                               ],
                               pos: args.pos,
                               isAmbiguousPos: !args.pos,
+                              error: resp.error,
                           }
                 ),
                 map((resp) => tuple(resp, queryIdx))
