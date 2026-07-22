@@ -88,6 +88,9 @@
                 "colorLogoBlueShining": {
                     "type": "string"
                 },
+                "colorLogoOrange": {
+                    "type": "string"
+                },
                 "colorLogoPink": {
                     "type": "string"
                 },
@@ -208,6 +211,9 @@
                     "type": "string"
                 },
                 "tileHeadingSeparColor": {
+                    "type": "string"
+                },
+                "tileShadow": {
                     "type": "string"
                 },
                 "toggleButtonCircleColor": {
@@ -1005,6 +1011,13 @@
                     "type": "string"
                 }
             ]
+        },
+        "currMatchSelectionAlgorithm": {
+            "enum": [
+                "cnc",
+                "ujc"
+            ],
+            "type": "string"
         },
         "dataReadability": {
             "anyOf": [
