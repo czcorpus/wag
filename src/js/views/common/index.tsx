@@ -595,20 +595,33 @@ export function init(
             return (
                 <S.TileWrapper>
                     <div className="wag-tile-body content error">
-                        <div className="message">
-                            <MessageStatusIcon
-                                statusType={SystemMessageType.ERROR}
-                                isInline={false}
-                            />
-                            <p>{props.error}</p>
-                        </div>
-                        <div />
-                        {props.supportsTileReload ? (
-                            <TileReloadControl tileId={props.tileId} />
-                        ) : null}
-                        {props.issueReportingUrl ? (
-                            <ErrorReportControl url={props.issueReportingUrl} />
-                        ) : null}
+                        {wrapInSubtileIfTrue(
+                            {
+                                hasData: true,
+                                isBusy: false,
+                                tileId: props.tileId,
+                            },
+                            <>
+                                <div className="message">
+                                    <MessageStatusIcon
+                                        statusType={SystemMessageType.ERROR}
+                                        isInline={false}
+                                    />
+                                    <p>{props.error}</p>
+                                </div>
+                                <div />
+                                {props.supportsTileReload ? (
+                                    <TileReloadControl tileId={props.tileId} />
+                                ) : null}
+                                {props.issueReportingUrl ? (
+                                    <ErrorReportControl
+                                        url={props.issueReportingUrl}
+                                    />
+                                ) : null}
+                            </>,
+                            props.errorSubtileContainerLabel || '--',
+                            props.isSubtileContainer
+                        )}
                     </div>
                 </S.TileWrapper>
             );
