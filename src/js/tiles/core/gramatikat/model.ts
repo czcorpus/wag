@@ -280,7 +280,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 state.data = [];
                 const hasErrors =
                     pipe(
-                        this.state.currQueryMatches,
+                        state.currQueryMatches,
                         List.map(this.isSupportedQueryMatch),
                         List.find((v) => !v)
                     ) !== undefined;
@@ -299,7 +299,16 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             (action) => {
                 this.changeState((state) => {
                     state.isBusy = false;
+                    if (action.error) {
+                        state.error = `${action.error}`;
+                    }
                 });
+                if (action.error) {
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        action.error
+                    );
+                }
             }
         );
 
