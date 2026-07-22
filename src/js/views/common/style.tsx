@@ -542,7 +542,6 @@ export const Subtile = styled.div<{
     background-color: ${(props) => props.theme.tileBackgroundColor};
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 
     .wag-tile-body {
         display: flex;

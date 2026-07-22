@@ -49,6 +49,9 @@
                 "colorLogoBlueShining": {
                     "type": "string"
                 },
+                "colorLogoOrange": {
+                    "type": "string"
+                },
                 "colorLogoPink": {
                     "type": "string"
                 },
@@ -169,6 +172,9 @@
                     "type": "string"
                 },
                 "tileHeadingSeparColor": {
+                    "type": "string"
+                },
+                "tileShadow": {
                     "type": "string"
                 },
                 "toggleButtonCircleColor": {

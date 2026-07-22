@@ -626,7 +626,15 @@ export function init(
                     onClick={handleAreaClick}
                 >
                     {props.isSubtileContainer ? null : (
-                        <div className="loader-wrapper">
+                        <div
+                            className="loader-wrapper"
+                            style={{
+                                visibility:
+                                    props.hasData && props.isBusy
+                                        ? 'visible'
+                                        : 'hidden',
+                            }}
+                        >
                             {props.hasData && props.isBusy ? (
                                 <TileLoaderBar />
                             ) : null}
@@ -1296,7 +1304,12 @@ export function init(
                         <h2>{heading}</h2>
                     </header>
                 ) : null}
-                <div className="loader-wrapper">
+                <div
+                    className="loader-wrapper"
+                    style={{
+                        visibility: hasData && isBusy ? 'visible' : 'hidden',
+                    }}
+                >
                     {hasData && isBusy ? <TileLoaderBar /> : null}
                 </div>
                 {React.Children.count(children) > 1 ? (

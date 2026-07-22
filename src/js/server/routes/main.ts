@@ -60,7 +60,6 @@ import { loadFile } from '../files.js';
 import { createRootComponent } from '../../app.js';
 import {
     fetchReqArgArray,
-    createHelperServices,
     mkPageReturnUrl,
     renderResult,
     fetchUrlParamArray,
@@ -300,7 +299,7 @@ export function mkRuntimeClientConf({
                 maxQueryWords: serverConf.freqDB.maxQueryWords,
                 hideUnavailableQueryTypes: conf.hideUnavailableQueryTypes,
                 hideLemmaSelector: conf.hideLemmaSelector,
-                addWildcards: conf.addWildcards,
+                currMatchSelectionAlgorithm: conf.currMatchSelectionAlgorithm,
                 supportsExactFormSearch: !conf.disableExactFormSearchOption,
                 apiReporting: serverConf.apiReporting
                     ? {
@@ -733,17 +732,26 @@ export function queryAction({
                                 },
                             ];
                         }
-                        return determineCurrentMatch(
-                            userConf.queries[queryIdx],
-                            userConf.lemmatizationLevel,
-                            layoutManager.getLayoutMainPosAttr(),
-                            List.sorted(
-                                (v1, v2) => v2.ipm - v1.ipm,
-                                runtimeConf.addWildcards !== false
-                                    ? addWildcardMatches([...queryMatches])
-                                    : [...queryMatches]
-                            )
-                        );
+                        switch (runtimeConf.currMatchSelectionAlgorithm) {
+                            case 'ujc':
+                                return determineCurrentMatch(
+                                    userConf.queries[queryIdx],
+                                    userConf.lemmatizationLevel,
+                                    layoutManager.getLayoutMainPosAttr(),
+                                    [...queryMatches]
+                                );
+                            case 'cnc':
+                            default:
+                                return determineCurrentMatch(
+                                    userConf.queries[queryIdx],
+                                    userConf.lemmatizationLevel,
+                                    layoutManager.getLayoutMainPosAttr(),
+                                    List.sorted(
+                                        (v1, v2) => v2.ipm - v1.ipm,
+                                        addWildcardMatches([...queryMatches])
+                                    )
+                                );
+                        }
                     },
                     qMatchesEachQuery
                 );

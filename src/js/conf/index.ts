@@ -216,7 +216,7 @@ export interface ClientStaticConf {
     instanceSwitchMenu?: Array<InstanceLink> | string;
     hideUnavailableQueryTypes?: boolean;
     hideLemmaSelector?: boolean;
-    addWildcards?: boolean;
+    currMatchSelectionAlgorithm?: 'cnc' | 'ujc';
     dataReadability?: DataReadabilityMapping | string;
     apiHeaders: { [urlPrefix: string]: HTTPHeaders };
     onLoadInit?: Array<string>;
@@ -299,6 +299,7 @@ export interface ClientConf {
     hideUnavailableQueryTypes?: boolean;
     hideLemmaSelector?: boolean;
     addWildcards?: boolean;
+    currMatchSelectionAlgorithm?: 'cnc' | 'ujc';
     colors?: ColorTheme;
     colorThemes: Array<ColorThemeIdent>;
     onLoadInit?: Array<string>;
