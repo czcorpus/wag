@@ -33,7 +33,7 @@ export interface ColorThemeIdent {
  * JavaScript generated stuff
  * (mainly chart colors).
  */
-export interface ColorTheme extends ColorThemeIdent {
+export interface ColorTheme<T = any> extends ColorThemeIdent {
     isDefault?: boolean;
     defaultFontFamily?: string;
     condensedFontFamily?: string;
@@ -91,6 +91,8 @@ export interface ColorTheme extends ColorThemeIdent {
     toggleButtonCircleColor?: string;
 
     formElementsBorderRadius?: string;
+
+    extraTheme?: T;
 }
 
 export interface ColorsConf {
