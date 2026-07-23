@@ -190,7 +190,11 @@ const attachCalcStats = (wordData: WordData, pos: GramatikatPoS) => {
             );
 
             // Always add readableTag
-            v.readableTag = tagCodeToHuman(pos, v.valSet.join(''), 'mutable');
+            v.readableTag = tagCodeToHuman(
+                pos,
+                v ? v.valSet.join('') : '--',
+                'mutable'
+            );
 
             // Only add mean and uncommonValue if we have summary data and sufficient frequency
             if (
@@ -548,6 +552,9 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
     }
 
     private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (!Array.isArray(cm.pos) || cm.pos.length < 1) {
+            return false;
+        }
         return (
             testIsDictMatch(cm) &&
             wagPosToGramatikat(cm.pos[0].value) !== undefined

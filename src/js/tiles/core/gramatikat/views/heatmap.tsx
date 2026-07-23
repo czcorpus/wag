@@ -67,7 +67,7 @@ export const Heatmap: React.FC<{
     xLabels: Array<string | React.ReactElement>;
     xGroupLabels?: Array<GroupedLabel>;
     yLabels: Array<string | React.ReactElement>;
-    colorMapping: (v: number) => string;
+    colorMapping: Array<(v: number) => string>;
 }> = ({ numCmpWords, data, xLabels, xGroupLabels, yLabels, colorMapping }) => {
     const iconIdToElm = (v: HeatmapCellVal['icon']): React.ReactElement => {
         if (v === 'over') {
@@ -250,15 +250,17 @@ export const Heatmap: React.FC<{
                                                         key={`${value.id}:${j}`}
                                                         style={{
                                                             backgroundColor:
-                                                                colorMapping(
-                                                                    value.sortedIdx
+                                                                colorMapping[j](
+                                                                    value.v
                                                                 ),
                                                             color: Color.color2str(
                                                                 Color.textColorFromBg(
                                                                     Color.importColor(
                                                                         0,
-                                                                        colorMapping(
-                                                                            value.sortedIdx
+                                                                        colorMapping[
+                                                                            j
+                                                                        ](
+                                                                            value.v
                                                                         )
                                                                     )
                                                                 )

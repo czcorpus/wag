@@ -167,13 +167,11 @@ export function init(
                               v: v.proportion * 100,
                               icon: v.uncommonValue,
                               id: Ident.puid(),
-                              sortedIdx: -1,
                           })
-                        : newCell({ v: 0, id: Ident.puid(), sortedIdx: -1 });
+                        : newCell({ v: 0, id: Ident.puid() });
                 }, columnTags)
             )
         );
-        const colorMapping = attachColorIndexes(data, 0);
 
         const handleXGroupedVisibilityChng = (
             evt: React.ChangeEvent<HTMLInputElement>
@@ -197,7 +195,13 @@ export function init(
                             xLabels={columnLabels}
                             xGroupLabels={xGroupedLabels}
                             yLabels={yLabels}
-                            colorMapping={colorMapping}
+                            colorMapping={[
+                                attachColorIndexes(
+                                    theme,
+                                    lemmaData.variants,
+                                    0
+                                ),
+                            ]}
                         />
                         {heatmapConf.conf.switchableGroupColVals ? (
                             <S.GroupedAttrSelector>
@@ -325,6 +329,12 @@ export function init(
             !List.empty(state.data) &&
             !List.some((v) => v === undefined, [...state.data]) &&
             !state.message;
+
+        const hasAmbigQueries = List.some(
+            (x) => !x.pos || x.pos.length === 0,
+            state.currQueryMatches
+        );
+
         return (
             <globalComponents.TileWrapper
                 tileId={props.tileId}
@@ -337,6 +347,7 @@ export function init(
                 isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
                 errorSubtileContainerLabel={props.tileLabel}
+                showDisambigLinkOnNoData={hasAmbigQueries}
             >
                 <globalComponents.Subtile
                     tileId={props.tileId}

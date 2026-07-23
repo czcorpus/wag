@@ -547,4 +547,10 @@ export const Subtile = styled.div<{
         display: flex;
         padding: 1.25em;
     }
+
+    .disambig {
+        display: block;
+        margin-top: 0.4em;
+        cursor: pointer;
+    }
 `;
