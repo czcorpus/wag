@@ -366,9 +366,9 @@ export class GramatikatAPI
                                       summaries: [],
                                   },
                               ],
-                              pos: args.pos,
-                              isAmbiguousPos: !args.pos,
-                              error: resp.error,
+                              pos: args?.pos,
+                              isAmbiguousPos: !args?.pos,
+                              error: resp?.error,
                           }
                 ),
                 map((resp) => tuple(resp, queryIdx))

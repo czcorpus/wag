@@ -60,6 +60,7 @@ export interface GlobalComponents {
         supportsTileReload: boolean;
         issueReportingUrl: string;
         isSubtileContainer: boolean;
+        showDisambigLinkOnNoData?: boolean;
         backlink?: Backlink | Array<Backlink>;
         htmlClass?: string;
         error?: string;
@@ -177,6 +178,7 @@ export interface GlobalComponents {
         isBusy: boolean;
         hasData: boolean;
         setMaxHeight?: boolean;
+        showDisambigLinkOnNoData?: boolean;
     }>;
 }
 
@@ -600,6 +602,8 @@ export function init(
                                 hasData: true,
                                 isBusy: false,
                                 tileId: props.tileId,
+                                showDisambigLinkOnNoData:
+                                    props.showDisambigLinkOnNoData,
                             },
                             <>
                                 <div className="message">
@@ -663,6 +667,8 @@ export function init(
                                       hasData: false,
                                       isBusy: false,
                                       tileId: props.tileId,
+                                      showDisambigLinkOnNoData:
+                                          props.showDisambigLinkOnNoData,
                                   },
                                   <div className="not-applicable-box">
                                       <div className="message">
@@ -1303,12 +1309,19 @@ export function init(
         backlink,
         isBusy,
         hasData,
+        showDisambigLinkOnNoData,
         setMaxHeight,
     }) => {
         const htmlClasses = ['wag-tile-body'];
         if (!hasData && !isBusy) {
             htmlClasses.push('empty');
         }
+
+        const handleDisambigClick = () => {
+            dispatcher.dispatch<typeof Actions.ShowQueryMatchModal>({
+                name: Actions.ShowQueryMatchModal.name,
+            });
+        };
 
         return (
             <S.Subtile $isHeadless={!heading} $isMaxHeight={!!setMaxHeight}>
@@ -1347,6 +1360,21 @@ export function init(
                                             {ut.translate(
                                                 'global__no_data_for_current_query'
                                             )}
+                                            {showDisambigLinkOnNoData ? (
+                                                <>
+                                                    <br />
+                                                    <a
+                                                        className="disambig"
+                                                        onClick={
+                                                            handleDisambigClick
+                                                        }
+                                                    >
+                                                        {ut.translate(
+                                                            'global__click_to_specify_ambiguous_queries_in_tile'
+                                                        )}
+                                                    </a>
+                                                </>
+                                            ) : null}
                                         </p>
                                     </div>
                                     <p className="not-applicable">
@@ -1374,7 +1402,12 @@ export function init(
     };
 
     function wrapInSubtileIfTrue(
-        stProps: { hasData: boolean; isBusy: boolean; tileId: number },
+        stProps: {
+            hasData: boolean;
+            isBusy: boolean;
+            tileId: number;
+            showDisambigLinkOnNoData: boolean;
+        },
         children: React.ReactNode,
         title: string,
         pred: boolean
@@ -1384,6 +1417,7 @@ export function init(
                 hasData={stProps.hasData}
                 isBusy={stProps.isBusy}
                 tileId={stProps.tileId}
+                showDisambigLinkOnNoData={stProps.showDisambigLinkOnNoData}
             >
                 <header className="wag-tile-header panel">
                     <h2>{title}</h2>

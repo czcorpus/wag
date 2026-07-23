@@ -173,16 +173,18 @@ export function init(
                                           v: v.proportion * 100,
                                           icon: v.uncommonValue,
                                           id: Ident.puid(),
-                                          sortedIdx: -1,
                                       }
-                                    : { v: 0, id: Ident.puid(), sortedIdx: -1 };
+                                    : { v: 0, id: Ident.puid() };
                             })
                         )
                     );
                 }, columnTags)
             )
         );
-        const colorMapping = attachColorIndexes(data, 0);
+        const colorMapping = List.map(
+            (data, idx) => attachColorIndexes(theme, data.variants, idx),
+            lemmaData
+        );
 
         const handleXGroupedVisibilityChng = (
             evt: React.ChangeEvent<HTMLInputElement>

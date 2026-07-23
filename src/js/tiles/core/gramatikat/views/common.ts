@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-import { Color, Dict, List, pipe, tuple } from 'cnc-tskit';
+import { Color, Dict, List, Maths, pipe, tuple } from 'cnc-tskit';
+import { Theme } from '../../../../page/theme.js';
+import { UncommonValue } from '../model.js';
 
 export interface HeatmapCellVal {
     v: number;
-    sortedIdx: number;
     id?: string;
     icon?: 'over' | 'under' | 'none';
 }
@@ -75,36 +76,33 @@ export function saturationColorMapping(
 }
 
 export function attachColorIndexes(
-    data: Array<Array<HeatmapCell>>,
-    cellPart: number
+    theme: Theme,
+    data: Array<{
+        valSet: any;
+        proportion: number;
+        uncommonValue: UncommonValue;
+    }>,
+    cmpIdx: number
 ): (v: number) => string {
     const groupedData = pipe(
         data,
-        List.flatMap((v) => v),
-        List.groupBy((v) => `${v.values[cellPart].v}`)
+        List.groupBy((v) => `${Maths.roundToPos(v.proportion * 100, 2)}`)
     );
 
-    const dataOrderMapping = pipe(
+    const colorMapping = saturationColorMapping(
+        0,
+        List.size(groupedData),
+        theme.cmpCategoryColor(cmpIdx)
+    );
+
+    const mapping = pipe(
         groupedData,
-        List.sortedBy(([, v]) => v[0].values[cellPart].v),
-        List.map(([, v], i) => tuple(i, v)),
-        List.flatMap(([orderIdx, values]) =>
-            List.map((v) => tuple(v.values[cellPart].id, orderIdx), values)
-        ),
+        List.sortedBy(([_, values]) => values[0].proportion),
+        List.map(([key], idx) => tuple(key, colorMapping(idx))),
         Dict.fromEntries()
     );
 
-    List.forEach((row) => {
-        List.forEach((col) => {
-            if (col.values[cellPart].v === 0) {
-                col.values[cellPart].sortedIdx = 0;
-            } else {
-                col.values[cellPart].sortedIdx =
-                    dataOrderMapping[col.values[cellPart].id];
-            }
-        }, row);
-    }, data);
-    return saturationColorMapping(0, List.size(groupedData), '#009ee0');
+    return (v: number) => mapping[`${Maths.roundToPos(v, 2)}`];
 }
 
 export function colIsSetAsHidden(
