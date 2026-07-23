@@ -40,7 +40,7 @@
             ],
             "type": "object"
         },
-        "ColorTheme": {
+        "ColorTheme<any>": {
             "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
             "properties": {
                 "backgroundImage": {
@@ -131,6 +131,7 @@
                         }
                     ]
                 },
+                "extraTheme": {},
                 "formElementsBorderRadius": {
                     "type": "string"
                 },
@@ -243,7 +244,7 @@
                 },
                 "themes": {
                     "items": {
-                        "$ref": "#/definitions/ColorTheme"
+                        "$ref": "#/definitions/ColorTheme<any>"
                     },
                     "type": "array"
                 }

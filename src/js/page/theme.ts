@@ -103,7 +103,7 @@ const fallbackTheme: ColorTheme = {
  * Theme class provides all the data-styling defined in
  * a specific ColorsConf configuration.
  */
-export class Theme {
+export class Theme<T = any> {
     public readonly ident: string;
 
     // main styling
@@ -214,6 +214,9 @@ export class Theme {
     public readonly toggleButtonCircleColor: string;
 
     public readonly formElementsBorderRadius: string;
+
+    // extra themes that might be used for example only by special tiles
+    public readonly extraTheme: T;
 
     constructor(conf?: ColorTheme, logoConf?: LogoRuntimeConf) {
         const confSrc =
@@ -353,6 +356,7 @@ export class Theme {
             : this.pageBackgroundColor;
 
         this.formElementsBorderRadius = fallbackTheme.formElementsBorderRadius; // TODO configurable
+        this.extraTheme = confSrc.extraTheme;
     }
 
     categoryPalette = (
