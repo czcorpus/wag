@@ -58,6 +58,8 @@ export type GramatikatTense = 'F' | 'P' | 'R' | 'B' | 'Q';
 
 export type GramatikatAspect = 'I' | 'P' | 'B';
 
+export type GramatikatMood = 'I' | 'D' | 'O' | 'F' | 'T' | 'C';
+
 // "gender" "number" "case" "degree" "polarity" "mood" "tense" "person" "voice" "aspect"
 
 export type Tag = Subset<
