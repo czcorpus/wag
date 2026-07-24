@@ -28,7 +28,20 @@
         "gramatikat__degree_1": "1st degree",
         "gramatikat__degree_2": "2nd degree",
         "gramatikat__degree_3": "3rd degree",
-        "gramatikat__only_significant_items_sel": "only items below the 25th or above the 75th percentile"
+        "gramatikat__only_significant_items_sel": "only items below the 25th or above the 75th percentile",
+        "gramatikat_result_type_number_case": "Number + Case",
+        "gramatikat_result_type_deg_gend_case": "Degree + Gender + Case",
+        "gramatikat_result_type_gender": "Gender",
+        "gramatikat_result_type_gend_num_case": "Gender + Number + Case",
+        "gramatikat_result_type_mood": "Mood",
+        "gramatikat_indicative": "Indicative",
+        "gramatikat_directive": "Directive",
+        "gramatikat_passive": "Passive",
+        "gramatikat_infinitive": "Infinitive",
+        "gramatikat_transgressive": "Transgressive",
+        "gramatikat_conditional": "Conditional",
+        "gramatikat_src_data_description": "This is an internal representative corpus of written Czech compiled from three five-year data sets (SYN2015, SYN2020, and SYN2025), which is not intended for use as a standard public searchable corpus but serves as the data source for the Gramatikat API.",
+        "gramatikat_src_data_authors": "The team of authors of the SYN2015, SYN2020, and SYN2025 corpora"
     },
     "cs-CZ": {
         "gramatikat__main_label": "Gramatické kategorie",
@@ -59,6 +72,19 @@
         "gramatikat__degree_1": "1. stupeň",
         "gramatikat__degree_2": "2. stupeň",
         "gramatikat__degree_3": "3. stupeň",
-        "gramatikat__only_significant_items_sel": "pouze položky pod 25., nebo nad 75. percentilem"
+        "gramatikat__only_significant_items_sel": "pouze položky pod 25., nebo nad 75. percentilem",
+        "gramatikat_result_type_number_case": "číslo + pád",
+        "gramatikat_result_type_deg_gend_case": "stupeň + rod + pád",
+        "gramatikat_result_type_gender": "Gender",
+        "gramatikat_result_type_gend_num_case": "Gender + Number + Case",
+        "gramatikat_result_type_mood": "způsob",
+        "gramatikat_indicative": "oznamovací",
+        "gramatikat_directive": "rozkazovací",
+        "gramatikat_passive": "příč. trpné - doplněk",
+        "gramatikat_infinitive": "infinitiv",
+        "gramatikat_transgressive": "přechodník",
+        "gramatikat_conditional": "podmiňovací",
+        "gramatikat_src_data_description": "Jde o interní reprezentativní korpus psané češtiny sloučený ze tří pětiletých řad (SYN2015, SYN2020 a SYN2025), který neslouží jako běžný veřejný korpus k vyhledávání, ale funguje jako datový podklad pro Gramatikat API.",
+        "gramatikat_src_data_authors": "Kolektiv autorů korpusů SYN2015, SYN2020 a SYN2025"
     }
 }

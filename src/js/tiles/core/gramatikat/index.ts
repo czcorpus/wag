@@ -101,7 +101,9 @@ export class GramatikatTile implements ITileProvider {
                         verbs: [
                             {
                                 conf: {
-                                    label: 'cislopad',
+                                    label: appServices.translate(
+                                        'gramatikat_result_type_number_case'
+                                    ),
                                     columnsProps: ['polarity', 'tense'],
                                     activeGroupedColVals: {},
                                     switchableGroupColVals: false,
@@ -122,26 +124,49 @@ export class GramatikatTile implements ITileProvider {
                                 },
                                 isActive: true,
                             },
+                            {
+                                conf: {
+                                    label: appServices.translate(
+                                        'gramatikat_result_type_mood'
+                                    ),
+                                    columnsProps: [undefined, 'mood'],
+                                    activeGroupedColVals: {},
+                                    switchableGroupColVals: false,
+                                    columnsTags: [
+                                        '-I',
+                                        '-D',
+                                        '-O',
+                                        '-F',
+                                        '-T',
+                                        '-C',
+                                    ],
+                                    rowsTags: [],
+                                    rowsProp: undefined,
+                                },
+                                isActive: false,
+                            },
                         ],
                         adjectives: [
                             {
                                 conf: {
-                                    label: 'degree-gender-case',
+                                    label: appServices.translate(
+                                        'gramatikat_result_type_deg_gend_case'
+                                    ),
                                     columnsProps: ['degree', 'gender'],
                                     activeGroupedColVals: { '1': true },
                                     switchableGroupColVals: true,
                                     columnsTags: [
+                                        '1-M',
                                         '1-F',
                                         '1-I',
-                                        '1-M',
                                         '1-N',
+                                        '2-M',
                                         '2-F',
                                         '2-I',
-                                        '2-M',
                                         '2-N',
+                                        '3-M',
                                         '3-F',
                                         '3-I',
-                                        '3-M',
                                         '3-N',
                                     ],
                                     rowsProp: 'case',
@@ -159,7 +184,9 @@ export class GramatikatTile implements ITileProvider {
                             },
                             {
                                 conf: {
-                                    label: 'rod',
+                                    label: appServices.translate(
+                                        'gramatikat_result_type_gender'
+                                    ),
                                     columnsProps: [null, 'gender'],
                                     activeGroupedColVals: { '1': true },
                                     switchableGroupColVals: false,
@@ -173,20 +200,22 @@ export class GramatikatTile implements ITileProvider {
                         nouns: [
                             {
                                 conf: {
-                                    label: 'cislopad',
+                                    label: appServices.translate(
+                                        'gramatikat_result_type_gend_num_case'
+                                    ),
                                     columnsProps: ['gender', 'number'],
                                     activeGroupedColVals: {},
                                     switchableGroupColVals: false,
                                     columnsTags: [
+                                        'M-S',
+                                        'M-P',
+                                        'M-D',
                                         'F-S',
                                         'F-P',
                                         'F-D',
                                         'I-S',
                                         'I-P',
                                         'I-D',
-                                        'M-S',
-                                        'M-P',
-                                        'M-D',
                                         'N-S',
                                         'N-P',
                                         'N-D',

@@ -98,6 +98,19 @@ const aspectTagToLabel: LabelGenerator = (tag, tagElm = 0): string => {
     );
 };
 
+const moodTagToLabel: LabelGenerator = (tag, tagElm = 0): string => {
+    return (
+        {
+            I: 'gramatikat_indicative',
+            D: 'gramatikat_directive',
+            O: 'gramatikat_passive',
+            F: 'gramatikat_infinitive',
+            T: 'gramatikat_transgressive',
+            C: 'gramatikat_conditional',
+        }[tag.split('-')[tagElm]] || '??'
+    );
+};
+
 export const gramPropTolabelGen = (prop: GramatikatCatSet): LabelGenerator => {
     switch (prop) {
         case 'aspect':
@@ -109,7 +122,7 @@ export const gramPropTolabelGen = (prop: GramatikatCatSet): LabelGenerator => {
         case 'gender':
             return genderTagToLabel;
         case 'mood':
-            return (s) => s; // TODO
+            return moodTagToLabel;
         case 'number':
             return numberTagToLabel;
         case 'person':

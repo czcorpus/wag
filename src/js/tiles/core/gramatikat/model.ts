@@ -414,6 +414,28 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
         );
 
         this.addActionSubtypeHandler(
+            GlobalActions.GetSourceInfo,
+            (action) => action.payload.tileId === this.tileId,
+            (action) => {
+                this.dispatchSideEffect({
+                    name: GlobalActions.GetSourceInfoDone.name,
+                    payload: {
+                        data: {
+                            tileId: this.tileId,
+                            title: action.payload.corpusId,
+                            description: appServices.translate(
+                                'gramatikat_src_data_description'
+                            ),
+                            author: appServices.translate(
+                                'gramatikat_src_data_authors'
+                            ),
+                        },
+                    },
+                });
+            }
+        );
+
+        this.addActionSubtypeHandler(
             Actions.SetXGroupedVisibility,
             (action) => action.payload.tileId === this.tileId,
             (action) => {
