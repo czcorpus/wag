@@ -79,6 +79,7 @@ export interface SourceDetails {
     href?: string;
     citationInfo?: SourceCitation;
     keywords?: Array<{ name: string; color?: string }>;
+    backlink?: { key: string; links: Array<{ label: string; url: string }> };
 }
 
 export interface CorpusDetails extends SourceDetails {
