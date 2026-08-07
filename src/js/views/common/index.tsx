@@ -497,6 +497,29 @@ export function init(
 
         return (
             <S.SourceInfoBox $createStaticUrl={ut.createStaticUrl}>
+                {props.data.backlink ? (
+                    <>
+                        <h2>
+                            <b>{props.data.backlink.key}</b>{' '}
+                            {List.map(
+                                (link, i) => (
+                                    <>
+                                        {i > 0 ? ', ' : null}
+                                        <a
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener"
+                                        >
+                                            {link.label}
+                                        </a>
+                                    </>
+                                ),
+                                props.data.backlink.links
+                            )}
+                        </h2>
+                        <hr />
+                    </>
+                ) : null}
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ? (
