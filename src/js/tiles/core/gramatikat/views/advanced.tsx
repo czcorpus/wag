@@ -144,7 +144,13 @@ export function init(
         const groupedVariants = pipe(
             lemmaData.variants.filter((v) => v['mean'] !== undefined),
             List.groupBy((v) => {
-                return v.valSet[propPosMap[activeConf.conf.columnsProps[0]]];
+                const valCombValues = List.map(
+                    (x: { cat: string; val: any }) => x.val,
+                    v.valComb
+                );
+                return String(
+                    valCombValues[propPosMap[activeConf.conf.columnsProps[0]]]
+                );
             })
         );
 
@@ -281,7 +287,7 @@ export function init(
                                 />
                                 {/* Dot for actual frequency */}
                                 <Scatter
-                                    dataKey="proportion"
+                                    dataKey="prop"
                                     fill="#ff7300"
                                     shape="circle"
                                 />

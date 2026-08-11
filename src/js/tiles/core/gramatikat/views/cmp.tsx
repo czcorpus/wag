@@ -64,8 +64,8 @@ export function init(
         lemmaData: Array<{
             totalFreq: number;
             variants: Array<{
-                valSet: any;
-                proportion: number;
+                valComb: any;
+                prop: number;
                 uncommonValue: UncommonValue;
             }>;
         }>;
@@ -81,31 +81,27 @@ export function init(
             lemmaData,
             List.map((v, i) => List.map((x) => tuple(i, x), v.variants)),
             List.flatMap((v) => v),
-            List.filter(([i, v]) => v.proportion > 0),
+            List.filter(([i, v]) => v.prop > 0),
             List.foldl(
                 ([minVal, maxVal, mapping], [queryIdx, variant]) => {
                     const col1 =
-                        variant.valSet[
+                        variant.valComb[
                             propPosMap[heatmapConf.conf.columnsProps[0]]
                         ];
                     const col2 =
-                        variant.valSet[
+                        variant.valComb[
                             propPosMap[heatmapConf.conf.columnsProps[1]]
                         ];
                     const row = heatmapConf.conf.rowsProp
-                        ? variant.valSet[propPosMap[heatmapConf.conf.rowsProp]]
+                        ? variant.valComb[propPosMap[heatmapConf.conf.rowsProp]]
                         : '';
                     const key = heatmapConf.conf.columnsProps[0]
                         ? `${queryIdx}::${col1}-${col2}-${row}`
                         : `${queryIdx}::-${col2}-${row}`;
                     mapping.set(key, variant);
                     return tuple(
-                        variant.proportion < minVal
-                            ? variant.proportion
-                            : minVal,
-                        variant.proportion > maxVal
-                            ? variant.proportion
-                            : maxVal,
+                        variant.prop < minVal ? variant.prop : minVal,
+                        variant.prop > maxVal ? variant.prop : maxVal,
                         mapping
                     );
                 },
@@ -170,7 +166,7 @@ export function init(
                                 );
                                 return v
                                     ? {
-                                          v: v.proportion * 100,
+                                          v: v.prop * 100,
                                           icon: v.uncommonValue,
                                           id: Ident.puid(),
                                       }

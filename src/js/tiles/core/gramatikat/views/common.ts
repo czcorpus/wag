@@ -78,15 +78,15 @@ export function saturationColorMapping(
 export function attachColorIndexes(
     theme: Theme,
     data: Array<{
-        valSet: any;
-        proportion: number;
+        valComb: any;
+        prop: number;
         uncommonValue: UncommonValue;
     }>,
     cmpIdx: number
 ): (v: number) => string {
     const groupedData = pipe(
         data,
-        List.groupBy((v) => `${Maths.roundToPos(v.proportion * 100, 2)}`)
+        List.groupBy((v) => `${Maths.roundToPos(v.prop * 100, 2)}`)
     );
 
     const colorMapping = saturationColorMapping(
@@ -97,7 +97,7 @@ export function attachColorIndexes(
 
     const mapping = pipe(
         groupedData,
-        List.sortedBy(([_, values]) => values[0].proportion),
+        List.sortedBy(([_, values]) => values[0].prop),
         List.map(([key], idx) => tuple(key, colorMapping(idx))),
         Dict.fromEntries()
     );

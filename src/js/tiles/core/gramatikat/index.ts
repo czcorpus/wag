@@ -83,7 +83,7 @@ export class GramatikatTile implements ITileProvider {
                 isAltViewMode: false,
                 isTweakMode: false,
                 backlinks: [],
-                corpname: 'syn2015_20_25', // TODO configurable
+                corpname: 'syn_v14/15_20_25', // TODO configurable
                 currQueryMatches: List.map(
                     (match) => findCurrQueryMatch(match),
                     queryMatches
