@@ -37,7 +37,12 @@ import * as React from 'react';
 import { Ident, List, pipe, tuple } from 'cnc-tskit';
 import { init as multiWordViewInit } from './cmp.js';
 import * as S from './style.js';
-import { GramatikatFreq, GramatikatPoS } from '../api.js';
+import {
+    GramatikatCatSet,
+    GramatikatFreq,
+    GramatikatPoS,
+    ValComb,
+} from '../api.js';
 import { Heatmap } from './heatmap.js';
 import { Actions } from '../actions.js';
 import {
@@ -66,8 +71,8 @@ export function init(
         lemmaData: {
             totalFreq: number;
             variants: Array<{
-                valSet: any;
-                proportion: number;
+                valComb: Array<ValComb>;
+                prop: number;
                 uncommonValue: UncommonValue;
             }>;
         };
@@ -78,34 +83,33 @@ export function init(
             ...heatmapConf.conf.columnsProps,
             heatmapConf.conf.rowsProp,
         ]);
-
         const [, , variantMap] = pipe(
             lemmaData.variants,
-            List.filter((v) => v.proportion > 0),
+            List.filter((v) => v.prop > 0),
             List.foldl(
                 ([minVal, maxVal, mapping], variant) => {
+                    const valCombValues = List.map(
+                        (x: { cat: string; val: any }) => x.val,
+                        variant.valComb
+                    );
                     const col1 =
-                        variant.valSet[
+                        valCombValues[
                             propPosMap[heatmapConf.conf.columnsProps[0]]
                         ];
                     const col2 =
-                        variant.valSet[
+                        valCombValues[
                             propPosMap[heatmapConf.conf.columnsProps[1]]
                         ];
                     const row = heatmapConf.conf.rowsProp
-                        ? variant.valSet[propPosMap[heatmapConf.conf.rowsProp]]
+                        ? valCombValues[propPosMap[heatmapConf.conf.rowsProp]]
                         : '';
                     const key = heatmapConf.conf.columnsProps[0]
                         ? `${col1}-${col2}-${row}`
                         : `-${col2}-${row}`;
                     mapping.set(key, variant);
                     return tuple(
-                        variant.proportion < minVal
-                            ? variant.proportion
-                            : minVal,
-                        variant.proportion > maxVal
-                            ? variant.proportion
-                            : maxVal,
+                        variant.prop < minVal ? variant.prop : minVal,
+                        variant.prop > maxVal ? variant.prop : maxVal,
                         mapping
                     );
                 },
@@ -164,7 +168,7 @@ export function init(
                     const v = variantMap.get(`${columnTag}-${rowTag}`);
                     return v
                         ? newCell({
-                              v: v.proportion * 100,
+                              v: v.prop * 100,
                               icon: v.uncommonValue,
                               id: Ident.puid(),
                           })

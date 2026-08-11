@@ -20,6 +20,7 @@ import { IFullActionControl } from 'kombo';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink } from '../../../page/tile.js';
 import {
+    extractFrameCats,
     GramatikatAPI,
     GramatikatAPIArgs,
     GramatikatCatSet,
@@ -30,6 +31,7 @@ import {
     LemmaProfileResponse,
     Summary,
     tagCodeToHuman,
+    ValComb,
 } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -135,10 +137,13 @@ export function setHeatmapConfList(
     switch (pos) {
         case 'adjectives':
             opts.heatmaps.adjectives = values;
+            break;
         case 'nouns':
             opts.heatmaps.nouns = values;
+            break;
         case 'verbs':
             opts.heatmaps.verbs = values;
+            break;
         default:
             return;
     }
@@ -183,30 +188,30 @@ const attachCalcStats = (wordData: WordData, pos: GramatikatPoS) => {
     pipe(
         wordData.lemmaData.variants,
         List.forEach((v) => {
-            const tag = v.valSet.join(' ');
+            const tagValues = List.map(
+                (x: { cat: string; val: any }) => x.val,
+                v.valComb
+            );
+            const tag = tagValues.join(' ');
             const summary = List.find(
-                (s) => s.valSet.join(' ') === tag,
+                (s) => s.valComb.join(' ') === tag,
                 wordData.posData.summaries
             );
 
             // Always add readableTag
-            v.readableTag = tagCodeToHuman(
-                pos,
-                v ? v.valSet.join('') : '--',
-                'mutable'
-            );
+            v.readableTag = tagCodeToHuman(pos, tagValues.join(''), 'mutable');
 
             // Only add mean and uncommonValue if we have summary data and sufficient frequency
             if (
                 summary &&
                 summary.mean !== undefined &&
-                v.proportion * wordData.lemmaData.totalFreq > 10
+                v.prop * wordData.lemmaData.totalFreq > 10
             ) {
                 v['mean'] = summary.mean;
                 v.uncommonValue = 'none';
-                if (v.proportion > summary.quartiles[2]) {
+                if (v.prop > summary.quartile3) {
                     v.uncommonValue = 'over';
-                } else if (v.proportion < summary.quartiles[0]) {
+                } else if (v.prop < summary.quartile1) {
                     v.uncommonValue = 'under';
                 }
             } else {
@@ -363,35 +368,55 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 if (!action.error) {
                     this.changeState((state) => {
                         state.isBusy = false;
+
+                        const lemmaInfo = action.payload.resp.lemmaInfo;
+                        if (isErrorLemmaInfo(lemmaInfo)) {
+                            this.appServices.showMessage(
+                                SystemMessageType.ERROR,
+                                `Unexpected error state: ${lemmaInfo.detail}`
+                            );
+                            return;
+                        }
+
                         if (
-                            !this.isValidLemmaInfo(
-                                action.payload.resp.lemmaInfo
-                            ) ||
+                            !this.isValidLemmaInfo(lemmaInfo) ||
                             !action.payload.resp.pos
                         ) {
                             state.message = this.appServices.translate(
                                 'gramatikat__exact_pos_is_required_msg'
                             );
-                            if (
-                                isErrorLemmaInfo(action.payload.resp.lemmaInfo)
-                            ) {
-                                console.error(
-                                    action.payload.resp.lemmaInfo.detail[0].msg
-                                );
-                            }
                             return;
                         }
+                        // we need to regroup valComb and frameInfo
+                        List.forEach((item) => {
+                            const restoredCats: Array<ValComb> = List.repeat(
+                                (i) => undefined,
+                                List.size(item.valComb) +
+                                    List.size(
+                                        lemmaInfo.frameInfos[0].frameValComb
+                                    )
+                            );
+                            List.forEach((v, i) => {
+                                restoredCats[
+                                    action.payload.resp.catMapping[i][1]
+                                ] = v;
+                            }, item.valComb);
+                            List.forEach((v, i) => {
+                                restoredCats[
+                                    action.payload.resp.frameCatMapping[i][1]
+                                ] = v;
+                            }, lemmaInfo.frameInfos[0].frameValComb);
+                            item.valComb = restoredCats;
+                        }, lemmaInfo.frameInfos[0].valCombInfos);
                         const tmp = {
                             lemmaData: {
-                                totalFreq:
-                                    action.payload.resp.lemmaInfo[0].freq,
-                                variants:
-                                    action.payload.resp.lemmaInfo[0]
-                                        .proportions,
+                                totalFreq: lemmaInfo.frameInfos[0].size,
+                                variants: lemmaInfo.frameInfos[0].valCombInfos,
                             },
                             posData: {
                                 summaries:
-                                    action.payload.resp.posInfo[0].summaries,
+                                    action.payload.resp.posInfo
+                                        .frameGroupInfos[0].valCombInfos,
                             },
                             pos: action.payload.resp.pos,
                             missingPos: action.payload.resp.isAmbiguousPos,
@@ -510,20 +535,24 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
     ): GramatikatAPIArgs {
         const pos = wagPosToGramatikat(m.pos[0].value);
         const conf = getActiveHeatmapConf(state.viewOptions, pos);
-
-        return {
-            lemma: m.lemma,
-            catSet: List.filter(
+        const [catComb, frameCatComb] = extractFrameCats(
+            pos,
+            List.filter(
                 (item) => !!item,
                 [...conf.conf.columnsProps, conf.conf.rowsProp]
-            ),
+            )
+        );
+        return {
+            lemma: m.lemma,
+            catComb,
+            frameCatComb,
             corpus: this.state.corpname,
             pos: Array.isArray(m.pos) && !List.empty(m.pos) ? pos : undefined,
         };
     }
 
     private isValidLemmaInfo(lmi: LemmaInfo): boolean {
-        return !isErrorLemmaInfo(lmi) && !List.empty(lmi);
+        return !isErrorLemmaInfo(lmi) && !List.empty(lmi.frameInfos);
     }
 
     private processResponse(

@@ -20,7 +20,7 @@ import { EMPTY, map, Observable } from 'rxjs';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { ResourceApi, SourceDetails } from '../../../types.js';
 import { Backlink } from '../../../page/tile.js';
-import { HTTP, tuple } from 'cnc-tskit';
+import { HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
 export interface GramatikatAPIArgs {
@@ -33,7 +33,8 @@ export interface GramatikatAPIArgs {
      * able to provide information.
      */
     pos: GramatikatPoS | undefined;
-    catSet: Array<GramatikatCatSet>;
+    catComb: Array<[GramatikatCatSet, number]>;
+    frameCatComb?: Array<[GramatikatCatSet, number]>;
     corpus: string;
 }
 
@@ -236,27 +237,39 @@ interface LemmaArgs {
     /**
      * Set of grammatical categories.
      */
-    catSet: Array<GramatikatCatSet>;
+    catComb: Array<GramatikatCatSet>;
 
     /**
      * If given, proportions of instances of values of catSet are computed
      * separately within instances of each value of frameCatSet
      */
-    frameCatSet?: GramatikatCatSet;
+    frameCatComb?: Array<GramatikatCatSet>;
 
     corpus: string;
 }
 
+export interface ValComb {
+    cat: GramatikatCatSet;
+    val: Tag;
+}
+
 export interface GramatikatFreq {
-    valSet: Tag;
-    readableTag?: string;
-    proportion: number;
+    valComb: Array<ValComb>;
+    prop: number;
     uncommonValue: 'over' | 'under' | 'none';
+    readableTag?: string;
+}
+
+export interface FormInfos {}
+
+export interface FrameInfos {
+    frameValComb: Array<ValComb>;
+    size: number;
+    valCombInfos: Array<GramatikatFreq>;
 }
 
 export interface LemmaResponse {
-    freq: number;
-    proportions: Array<GramatikatFreq>;
+    frameInfos: Array<FrameInfos>;
 }
 
 export interface Summary {
@@ -264,14 +277,18 @@ export interface Summary {
     max: number;
     min: number;
     mean: number;
-    quartiles: [number, number, number];
+    quartile1: number;
+    quartile2: number;
+    quartile3: number;
     upperWhisker: number;
-    valSet: Tag;
+    valComb: Tag;
 }
 
 export interface PosInfoResponse {
-    frameValSet: unknown;
-    summaries: Array<Summary>;
+    frameGroupInfos: Array<{
+        frameValComb: any;
+        valCombInfos: Array<Summary>;
+    }>;
 }
 
 export type ErrorLemmaInfo = {
@@ -283,17 +300,65 @@ export type ErrorLemmaInfo = {
     }>;
 };
 
-export type LemmaInfo = Array<LemmaResponse> | ErrorLemmaInfo;
+export type LemmaInfo = LemmaResponse | ErrorLemmaInfo;
 
 export function isErrorLemmaInfo(lmi: LemmaInfo): lmi is ErrorLemmaInfo {
     return lmi['detail'] !== undefined && Array.isArray(lmi['detail']);
 }
 
+export function extractFrameCats(
+    pos: GramatikatPoS,
+    items: Array<GramatikatCatSet>
+): [Array<[GramatikatCatSet, number]>, Array<[GramatikatCatSet, number]>] {
+    switch (pos) {
+        case 'nouns':
+            return pipe(
+                items,
+                List.map((v, i) => tuple(v, i)),
+                List.foldl(
+                    (acc, [curr, i]) => {
+                        if (curr === 'gender') {
+                            return tuple(acc[0], [...acc[1], tuple(curr, i)]);
+                        }
+                        return tuple([...acc[0], tuple(curr, i)], acc[1]);
+                    },
+                    tuple([], []) as [
+                        Array<[GramatikatCatSet, number]>,
+                        Array<[GramatikatCatSet, number]>,
+                    ]
+                )
+            );
+        case 'adjectives':
+            return tuple(
+                List.map((v, i) => tuple(v, i), items),
+                []
+            );
+        case 'verbs':
+            return tuple(
+                List.map((v, i) => tuple(v, i), items),
+                []
+            );
+    }
+}
+
 export interface LemmaProfileResponse {
     isAmbiguousPos: boolean;
     lemmaInfo: LemmaInfo;
-    posInfo: Array<PosInfoResponse>;
+    posInfo: PosInfoResponse;
     pos: GramatikatPoS;
+
+    /**
+     * catMapping allows for restoring tile's native category order
+     * compared with Gramatikat API which requires splitting into
+     * lexical and inflectional categories. This value is not provided
+     * by Gramatikat API, it is created by the client.
+     */
+    catMapping: Array<[GramatikatCatSet, number]>;
+
+    /**
+     * See catMapping
+     */
+    frameCatMapping: Array<[GramatikatCatSet, number]>;
     error?: string;
 }
 
@@ -334,7 +399,8 @@ export class GramatikatAPI
             ? {
                   lemma: args.lemma,
                   pos: args.pos,
-                  catSet: args.catSet,
+                  catComb: List.map(([v]) => v, args.catComb),
+                  frameCatComb: List.map(([v]) => v, args.frameCatComb),
                   corpus: args.corpus,
               }
             : {};
@@ -352,27 +418,45 @@ export class GramatikatAPI
                 contentType: 'application/json',
             })
             .pipe(
-                map<LemmaProfileResponse, LemmaProfileResponse>((resp) =>
-                    resp
-                        ? { ...resp, pos: args.pos, isAmbiguousPos: !args.pos }
-                        : {
-                              lemmaInfo: [
-                                  {
-                                      freq: 0,
-                                      proportions: [],
-                                  },
-                              ],
-                              posInfo: [
-                                  {
-                                      frameValSet: undefined,
-                                      summaries: [],
-                                  },
-                              ],
-                              pos: args?.pos,
-                              isAmbiguousPos: !args?.pos,
-                              error: resp?.error,
-                          }
-                ),
+                map<LemmaProfileResponse, LemmaProfileResponse>((resp) => {
+                    if (!resp) {
+                        return {
+                            lemmaInfo: {
+                                frameInfos: [],
+                            },
+                            posInfo: {
+                                frameGroupInfos: [
+                                    {
+                                        frameValComb: undefined,
+                                        valCombInfos: [],
+                                    },
+                                ],
+                            },
+                            pos: args?.pos,
+                            isAmbiguousPos: !args?.pos,
+                            catMapping: args.catComb,
+                            frameCatMapping: args.frameCatComb,
+                            error: resp?.error,
+                        };
+                    }
+
+                    const lemmaInfo = resp.lemmaInfo;
+                    if (isErrorLemmaInfo(lemmaInfo)) {
+                        // TODO
+                        throw new Error(
+                            'should not return lemma info error directly'
+                        );
+                    } else {
+                        return {
+                            lemmaInfo,
+                            posInfo: resp.posInfo,
+                            pos: args.pos,
+                            isAmbiguousPos: !args.pos,
+                            catMapping: args.catComb,
+                            frameCatMapping: args.frameCatComb,
+                        };
+                    }
+                }),
                 map((resp) => tuple(resp, queryIdx))
             );
     }
