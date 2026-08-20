@@ -30,7 +30,6 @@ import {
     LemmaInfo,
     LemmaProfileResponse,
     Summary,
-    tagCodeToHuman,
     ValComb,
 } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -46,10 +45,12 @@ import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { Actions } from './actions.js';
 import { SystemMessageType } from '../../../types.js';
 import { TileStatefulModel } from '../../../models/tiles/base.js';
+import { gramPropTolabelGen } from './labels.js';
 
 export interface WordData {
     lemmaData: {
         totalFreq: number;
+        frameVariant: string;
         variants: Array<GramatikatFreq>;
     };
     posData: {
@@ -165,9 +166,12 @@ export interface GramatikatState {
     currQueryMatches: Array<QueryMatch>;
 
     /**
-     * For each queryIdx, we keep data about a lemma and its PoS
+     * For each queryIdx, we keep data about a lemma and its PoS for each frame
      */
-    data: Array<WordData>;
+    data: Array<{
+        frames: Array<WordData>;
+        currFrame: number;
+    }>;
     advancedViewUncommonOnly: boolean;
     isBusy: boolean;
     backlinks: Array<Backlink>;
@@ -197,9 +201,6 @@ const attachCalcStats = (wordData: WordData, pos: GramatikatPoS) => {
                 (s) => s.valComb.join(' ') === tag,
                 wordData.posData.summaries
             );
-
-            // Always add readableTag
-            v.readableTag = tagCodeToHuman(pos, tagValues.join(''), 'mutable');
 
             // Only add mean and uncommonValue if we have summary data and sufficient frequency
             if (
@@ -387,43 +388,17 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                             );
                             return;
                         }
-                        // we need to regroup valComb and frameInfo
-                        List.forEach((item) => {
-                            const restoredCats: Array<ValComb> = List.repeat(
-                                (i) => undefined,
-                                List.size(item.valComb) +
-                                    List.size(
-                                        lemmaInfo.frameInfos[0].frameValComb
-                                    )
-                            );
-                            List.forEach((v, i) => {
-                                restoredCats[
-                                    action.payload.resp.catMapping[i][1]
-                                ] = v;
-                            }, item.valComb);
-                            List.forEach((v, i) => {
-                                restoredCats[
-                                    action.payload.resp.frameCatMapping[i][1]
-                                ] = v;
-                            }, lemmaInfo.frameInfos[0].frameValComb);
-                            item.valComb = restoredCats;
-                        }, lemmaInfo.frameInfos[0].valCombInfos);
-                        const tmp = {
-                            lemmaData: {
-                                totalFreq: lemmaInfo.frameInfos[0].size,
-                                variants: lemmaInfo.frameInfos[0].valCombInfos,
-                            },
-                            posData: {
-                                summaries:
-                                    action.payload.resp.posInfo
-                                        .frameGroupInfos[0].valCombInfos,
-                            },
-                            pos: action.payload.resp.pos,
-                            missingPos: action.payload.resp.isAmbiguousPos,
-                            chartData: undefined,
+                        state.data[action.payload.queryIdx] = {
+                            frames: List.map(
+                                (v, i) =>
+                                    this.importFrameData(
+                                        action.payload.resp,
+                                        i
+                                    ),
+                                lemmaInfo.frameInfos
+                            ),
+                            currFrame: 0,
                         };
-                        attachCalcStats(tmp, action.payload.resp.pos);
-                        state.data[action.payload.queryIdx] = tmp;
                     });
                 } else {
                     this.changeState((state) => {
@@ -527,6 +502,64 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 });
             }
         );
+
+        this.addActionSubtypeHandler(
+            Actions.SetActiveFrame,
+            (action) => this.tileId === action.payload.tileId,
+            (action) => {
+                this.changeState((state) => {
+                    state.data[action.payload.queryIdx].currFrame =
+                        action.payload.frameIdx;
+                });
+            }
+        );
+    }
+
+    private importFrameData(
+        resp: LemmaProfileResponse,
+        frameIdx: number
+    ): WordData {
+        const lemmaInfo = resp.lemmaInfo;
+        if (isErrorLemmaInfo(lemmaInfo)) {
+            return null; // todo
+        }
+        // we need to regroup valComb and frameInfo
+        List.forEach((item) => {
+            const restoredCats: Array<ValComb> = List.repeat(
+                (i) => undefined,
+                List.size(item.valComb) +
+                    List.size(lemmaInfo.frameInfos[frameIdx].frameValComb)
+            );
+            List.forEach((v, i) => {
+                restoredCats[resp.catMapping[i][1]] = v;
+            }, item.valComb);
+            List.forEach((v, i) => {
+                restoredCats[resp.frameCatMapping[i][1]] = v;
+            }, lemmaInfo.frameInfos[frameIdx].frameValComb);
+            item.valComb = restoredCats;
+        }, lemmaInfo.frameInfos[frameIdx].valCombInfos);
+        const tmp = {
+            lemmaData: {
+                totalFreq: lemmaInfo.frameInfos[frameIdx].size,
+                variants: lemmaInfo.frameInfos[frameIdx].valCombInfos,
+                frameVariant: pipe(
+                    lemmaInfo.frameInfos[frameIdx].frameValComb,
+                    List.map((x) =>
+                        this.appServices.translate(
+                            gramPropTolabelGen(x.cat)(String(x.val))
+                        )
+                    )
+                ).join(', '),
+            },
+            posData: {
+                summaries: resp.posInfo.frameGroupInfos[frameIdx].valCombInfos,
+            },
+            pos: resp.pos,
+            missingPos: resp.isAmbiguousPos,
+            chartData: undefined,
+        };
+        attachCalcStats(tmp, resp.pos);
+        return tmp;
     }
 
     private stateToArgs(

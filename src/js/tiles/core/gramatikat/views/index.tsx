@@ -300,9 +300,6 @@ export function init(
                         />
                     </div>
                 </div>
-                <p className="note">
-                    {ut.translate('gramatikat__showing_stat_signif_values')}
-                </p>
             </S.SingleWordView>
         );
     };
@@ -320,25 +317,71 @@ export function init(
         </S.PosWarning>
     );
 
+    // ---------------- <FrameSelector /> ----------------------------------
+
+    const FrameSelector: React.FC<{
+        tileId: number;
+        queryIdx: number;
+        currFrameIdx: number;
+        frameLabels: Array<string>;
+    }> = ({ tileId, currFrameIdx, queryIdx, frameLabels }) => {
+        const handleSelect = (frameIdx: number) => () => {
+            dispatcher.dispatch({
+                name: Actions.SetActiveFrame.name,
+                payload: {
+                    tileId,
+                    queryIdx,
+                    frameIdx,
+                },
+            });
+        };
+
+        return (
+            <S.FrameSelector>
+                {List.map(
+                    (v, i) => (
+                        <li key={`frame:${queryIdx}:${i}`}>
+                            <label
+                                className={i === currFrameIdx ? 'active' : null}
+                            >
+                                <input
+                                    name="gram-cat-sel"
+                                    type="radio"
+                                    onClick={handleSelect(i)}
+                                    checked={i === currFrameIdx}
+                                />
+                                {v}
+                            </label>
+                        </li>
+                    ),
+                    frameLabels
+                )}
+            </S.FrameSelector>
+        );
+    };
+
     // ---------------- <GramatikatTile /> ---------------------------------
 
     const GramatikatTile: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
         // TODO - currently we only work with the first dataset item (i.e. no frameCatSet)
 
-        const posInfoSrch = List.find((v) => v !== undefined, state.data);
-        const posInfo = posInfoSrch ? posInfoSrch.posData : { summaries: [] };
-
         const hasAllData =
             !List.empty(state.data) &&
             !List.some((v) => v === undefined, [...state.data]) &&
             !state.message;
 
+        const posInfo = !List.empty(state.data)
+            ? state.data[0].frames[state.data[0].currFrame].posData
+            : undefined;
+        const currFrame = !List.empty(state.data)
+            ? state.data[0].frames[state.data[0].currFrame]
+            : undefined;
+
         const hasAmbigQueries = List.some(
             (x) => !x.pos || x.pos.length === 0,
             state.currQueryMatches
         );
-
         return (
             <globalComponents.TileWrapper
                 tileId={props.tileId}
@@ -379,38 +422,56 @@ export function init(
                         if (List.size(state.data) === 1) {
                             const heatmapConfigs = getHeatmapConfList(
                                 state.viewOptions,
-                                List.head(state.data).pos
+                                currFrame.pos
                             );
                             return state.isAltViewMode ? (
                                 <AltViewSingle
                                     tileId={props.tileId}
-                                    lemmaData={List.head(state.data).lemmaData}
-                                    posData={List.head(state.data).posData}
-                                    missingPos={
-                                        List.head(state.data).missingPos
-                                    }
-                                    pos={List.head(state.data).pos}
+                                    lemmaData={currFrame.lemmaData}
+                                    posData={currFrame.posData}
+                                    missingPos={currFrame.missingPos}
+                                    pos={currFrame.pos}
                                     heatmapConfigs={heatmapConfigs}
                                     advancedViewUncommonOnly={
                                         state.advancedViewUncommonOnly
                                     }
                                 />
                             ) : (
-                                <SingleWordView
-                                    tileId={props.tileId}
-                                    lemmaData={List.head(state.data).lemmaData}
-                                    posData={List.head(state.data).posData}
-                                    missingPos={
-                                        List.head(state.data).missingPos
-                                    }
-                                    pos={List.head(state.data).pos}
-                                    heatmapConfigs={heatmapConfigs}
-                                />
+                                <>
+                                    <SingleWordView
+                                        tileId={props.tileId}
+                                        lemmaData={currFrame.lemmaData}
+                                        posData={currFrame.posData}
+                                        missingPos={currFrame.missingPos}
+                                        pos={currFrame.pos}
+                                        heatmapConfigs={heatmapConfigs}
+                                    />
+                                    {List.size(state.data) > 0 &&
+                                    List.size(state.data[0].frames) > 1 ? (
+                                        <FrameSelector
+                                            tileId={props.tileId}
+                                            queryIdx={0}
+                                            currFrameIdx={
+                                                state.data[0].currFrame
+                                            }
+                                            frameLabels={List.map(
+                                                (frm, i) =>
+                                                    frm.lemmaData.frameVariant,
+                                                state.data[0].frames
+                                            )}
+                                        />
+                                    ) : null}
+                                    <p className="note">
+                                        {ut.translate(
+                                            'gramatikat__showing_stat_signif_values'
+                                        )}
+                                    </p>
+                                </>
                             );
                         } else if (hasAllData) {
                             const heatmapConfigs = getHeatmapConfList(
                                 state.viewOptions,
-                                List.head(state.data).pos
+                                currFrame.pos
                             );
                             return state.isAltViewMode ? (
                                 <div>advanced view multi-word - TODO</div>
@@ -418,16 +479,16 @@ export function init(
                                 <MultiWordView
                                     tileId={props.tileId}
                                     lemmaData={List.map(
-                                        (v) => v.lemmaData,
+                                        (v) => v.frames[v.currFrame].lemmaData,
                                         state.data
                                     )}
                                     posData={{
                                         ...posInfo,
-                                        pos: List.head(state.data).pos,
+                                        pos: currFrame.pos,
                                     }}
                                     words={state.words}
                                     missingPos={List.map(
-                                        (v) => v.missingPos,
+                                        (v) => v.frames[v.currFrame].missingPos,
                                         state.data
                                     )}
                                     heatmapConfigs={heatmapConfigs}
@@ -435,7 +496,7 @@ export function init(
                                         <AttrSetSwitch
                                             tileId={props.tileId}
                                             hmConfigs={heatmapConfigs}
-                                            pos={List.head(state.data).pos}
+                                            pos={currFrame.pos}
                                         />
                                     }
                                 />
