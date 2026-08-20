@@ -692,7 +692,7 @@ export const TileContainer = styled.section<{
         scroll-margin-top: 1em;
     }
 
-    .highlighted {
+    &.highlighted {
         box-shadow: 0.09em 0.09em 0.15em 0.09em rgba(226, 0, 122, 0.7);
     }
 
