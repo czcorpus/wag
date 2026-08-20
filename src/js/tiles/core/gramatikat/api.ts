@@ -89,125 +89,6 @@ export type GramatikatCatSet =
 
 export type GramatikatPoS = 'nouns' | 'adjectives' | 'verbs';
 
-export const tagCodeToHuman = (
-    pos: GramatikatPoS,
-    tc: string,
-    itemTypes: 'fixed' | 'mutable' | 'all' = 'mutable'
-): string => {
-    const ans: Array<string> = [];
-    switch (pos) {
-        case 'nouns':
-            if (itemTypes === 'fixed' || itemTypes === 'all') {
-                switch (tc[0]) {
-                    case 'F':
-                        ans.push('ženský rod');
-                        break;
-                    case 'I':
-                        ans.push('mužský neživotný rod');
-                        break;
-                    case 'M':
-                        ans.push('mužský životný rod');
-                        break;
-                    case 'N':
-                        ans.push('střední rod');
-                        break;
-                }
-            }
-            if (itemTypes === 'mutable' || itemTypes === 'all') {
-                switch (tc[1]) {
-                    case 'D':
-                        ans.push('dvojné číslo');
-                        break;
-                    case 'P':
-                        ans.push('množné číslo');
-                        break;
-                    case 'S':
-                        ans.push('jednotné číslo');
-                        break;
-                }
-                ans.push(`${tc[2]}. pád`);
-            }
-            break;
-        case 'verbs':
-            if (itemTypes === 'mutable' || itemTypes === 'all') {
-                switch (tc[0]) {
-                    case 'P':
-                        ans.push('přítomný čas');
-                        break;
-                    case 'R':
-                        ans.push('minulý čas');
-                        break;
-                    case 'F':
-                        ans.push('budoucí čas');
-                        break;
-                    case 'B':
-                        ans.push('B (undefined)');
-                        break;
-                    case 'Q':
-                        ans.push('Q (undefined)');
-                        break;
-                }
-                switch (tc[1]) {
-                    case 'D':
-                        ans.push('dvojné číslo');
-                        break;
-                    case 'P':
-                        ans.push('množné číslo');
-                        break;
-                    case 'S':
-                        ans.push('jednotné číslo');
-                        break;
-                }
-            }
-            if (itemTypes === 'fixed' || itemTypes === 'all') {
-                switch (tc[2]) {
-                    case 'I':
-                        ans.push('nedokonavý vid');
-                        break;
-                    case 'P':
-                        ans.push('dokonavý vid');
-                        break;
-                    case 'B':
-                        ans.push('obouvidé');
-                }
-            }
-            if (itemTypes === 'mutable' || itemTypes === 'all') {
-                switch (tc[3]) {
-                    case 'N':
-                        ans.push('negace');
-                        break;
-                    case 'A':
-                        ans.push('afirmativ');
-                        break;
-                }
-            }
-            break;
-        case 'adjectives':
-            if (itemTypes === 'mutable' || itemTypes === 'all') {
-                switch (tc[0]) {
-                    case 'F':
-                        ans.push('ženský rod');
-                        break;
-                    case 'I':
-                        ans.push('mužský neživotný rod');
-                        break;
-                    case 'M':
-                        ans.push('mužský životný rod');
-                        break;
-                    case 'N':
-                        ans.push('střední rod');
-                        break;
-                }
-                ans.push(`${tc[1]}. pád`);
-                ans.push(`${tc[2]}. stupeň`);
-            }
-            break;
-        default:
-            ans.push(tc);
-    }
-    return ans.join(', ');
-};
-
 export const posCatToValSet = (cat: GramatikatCatSet): Array<string> => {
     switch (cat) {
         case 'gender':
@@ -257,7 +138,6 @@ export interface GramatikatFreq {
     valComb: Array<ValComb>;
     prop: number;
     uncommonValue: 'over' | 'under' | 'none';
-    readableTag?: string;
 }
 
 export interface FormInfos {}

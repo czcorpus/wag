@@ -46,6 +46,7 @@ export const SingleWordView = styled.div<{ theme: Theme }>`
     .visualisation {
         overflow-x: auto;
         display: flex;
+        flex-direction: column;
         align-items: stretch;
         justify-content: center;
         width: 100%;
@@ -214,7 +215,6 @@ export const AttrSetSwitch = styled.ul<{ theme: Theme }>`
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
 
     li {
         display: block;
@@ -264,4 +264,31 @@ export const AdvancedViewUncommonOnlySelector = styled.ul`
 export const MultiWordView = styled.div`
     display: flex;
     flex-direction: row;
+`;
+
+// --------------------- <FrameSelector /> ----------------------------------
+
+export const FrameSelector = styled.ul<{ theme: Theme }>`
+    list-style-type: none;
+    margin: 1em 0 0 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    li {
+        label {
+            display: block;
+            padding: 0.3rem;
+            font-size: 1.4em;
+        }
+
+        label.active {
+            color: ${(props) => props.theme.colorLogoPink};
+        }
+
+        input {
+            margin-right: 0.4rem;
+        }
+    }
 `;

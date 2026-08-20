@@ -58,4 +58,12 @@ export class Actions {
     }> = {
         name: 'GRAMATIKAT_TOGGLE_ADVANCED_VIEW_UNCOMMON_ONLY',
     };
+
+    static SetActiveFrame: Action<{
+        tileId: number;
+        queryIdx: number;
+        frameIdx: number;
+    }> = {
+        name: 'GRAMATIKAT_SET_ACTIVE_FRAME',
+    };
 }
