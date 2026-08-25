@@ -32,7 +32,7 @@ import {
     Summary,
     ValComb,
 } from './api.js';
-import { IDataStreaming } from '../../../page/streaming.js';
+import { IDataStreaming, TileResponseError } from '../../../page/streaming.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import {
     RecognizedQueries,
@@ -454,10 +454,6 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                             SystemMessageType.ERROR,
                             'at least one block must be visible'
                         );
-                    } else {
-                        const activeHmc = (hmc.conf.activeGroupedColVals[
-                            action.payload.tag
-                        ] = action.payload.visible);
                     }
                 });
             }
@@ -623,6 +619,16 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                 });
             },
             error: (err) => {
+                if (err instanceof TileResponseError && err.status === 404) {
+                    this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: true,
+                        },
+                    });
+                    return;
+                }
                 this.dispatchSideEffect<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     error: err,

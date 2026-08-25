@@ -76,7 +76,6 @@ export function init(
             ...heatmapConf.conf.columnsProps,
             heatmapConf.conf.rowsProp,
         ]);
-
         const [, , variantMap] = pipe(
             lemmaData,
             List.map((v, i) => List.map((x) => tuple(i, x), v.variants)),
@@ -84,16 +83,20 @@ export function init(
             List.filter(([i, v]) => v.prop > 0),
             List.foldl(
                 ([minVal, maxVal, mapping], [queryIdx, variant]) => {
+                    const valCombValues = List.map(
+                        (x: { cat: string; val: any }) => x.val,
+                        variant.valComb
+                    );
                     const col1 =
-                        variant.valComb[
+                        valCombValues[
                             propPosMap[heatmapConf.conf.columnsProps[0]]
                         ];
                     const col2 =
-                        variant.valComb[
+                        valCombValues[
                             propPosMap[heatmapConf.conf.columnsProps[1]]
                         ];
                     const row = heatmapConf.conf.rowsProp
-                        ? variant.valComb[propPosMap[heatmapConf.conf.rowsProp]]
+                        ? valCombValues[propPosMap[heatmapConf.conf.rowsProp]]
                         : '';
                     const key = heatmapConf.conf.columnsProps[0]
                         ? `${queryIdx}::${col1}-${col2}-${row}`
@@ -251,7 +254,6 @@ export function init(
         attrSwitchComponent,
     }) => {
         const activeConf = List.find((v) => v.isActive, heatmapConfigs);
-
         return (
             <S.MultiWordView>
                 {attrSwitchComponent}

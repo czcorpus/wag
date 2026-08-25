@@ -366,16 +366,16 @@ export function init(
         const state = useModel(model);
         // TODO - currently we only work with the first dataset item (i.e. no frameCatSet)
 
+        const anyCommonInfoData = List.find((v) => v !== undefined, state.data);
         const hasAllData =
             !List.empty(state.data) &&
             !List.some((v) => v === undefined, [...state.data]) &&
             !state.message;
-
         const posInfo = !List.empty(state.data)
-            ? state.data[0].frames[state.data[0].currFrame].posData
+            ? anyCommonInfoData?.frames[anyCommonInfoData?.currFrame].posData
             : undefined;
         const currFrame = !List.empty(state.data)
-            ? state.data[0].frames[state.data[0].currFrame]
+            ? anyCommonInfoData?.frames[anyCommonInfoData?.currFrame]
             : undefined;
 
         const hasAmbigQueries = List.some(
