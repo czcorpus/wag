@@ -239,6 +239,12 @@ export interface LemmaProfileResponse {
      * See catMapping
      */
     frameCatMapping: Array<[GramatikatCatSet, number]>;
+
+    /**
+     * HTTP status code (derived from both requests APIGuard
+     * actually performs)
+     */
+    code: number;
     error?: string;
 }
 
@@ -316,6 +322,7 @@ export class GramatikatAPI
                             isAmbiguousPos: !args?.pos,
                             catMapping: args.catComb,
                             frameCatMapping: args.frameCatComb,
+                            code: HTTP.Status.InternalServerError,
                             error: resp?.error,
                         };
                     }
@@ -334,6 +341,7 @@ export class GramatikatAPI
                             isAmbiguousPos: !args.pos,
                             catMapping: args.catComb,
                             frameCatMapping: args.frameCatComb,
+                            code: resp.code,
                         };
                     }
                 }),
