@@ -66,7 +66,7 @@ export enum PoSValues {
     SEGMENT = 'S',
     ABBREVIATION = 'B',
 
-    DTIJ = 'DTIJ',
+    DTIJCR = 'DTIJCR',
 }
 
 /**
@@ -161,7 +161,7 @@ const posTable = {
         'cs-CZ': 'neznámý nebo neurčený slovní druh',
         'en-US': 'unknown or undetermined part of speech',
     },
-    [PoSValues.DTIJ]: {
+    [PoSValues.DTIJCR]: {
         'cs-CZ': 'více slovních druhů',
         'en-US': 'multiple parts of speech',
     },
