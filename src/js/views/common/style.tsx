@@ -537,7 +537,7 @@ export const Subtile = styled.div<{
     margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
     flex-grow: ${(props) => (props.$isMaxHeight ? '1' : 'initial')};
     color: ${(props) => props.theme.colorSecondaryText};
-    border-radius: 0.25em;
+    border-radius: ${(props) => props.theme.tileBorderRadius};
     box-shadow: ${(props) => props.theme.tileShadow};
     background-color: ${(props) => props.theme.tileBackgroundColor};
     display: flex;
