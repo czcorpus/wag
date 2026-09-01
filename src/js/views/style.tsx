@@ -708,7 +708,7 @@ export const TileContainer = styled.section<{
     }
 
     .wag-tile-body a {
-        color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorDefaultLink};
         text-decoration: none;
     }
 
@@ -758,7 +758,7 @@ export const TileContainer = styled.section<{
             }
 
             a {
-                color: ${(props) => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorDefaultLink};
             }
 
             a:hover {
@@ -938,7 +938,7 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
 
     li {
         a {
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorDefaultLink};
             cursor: pointer;
         }
     }
@@ -1125,7 +1125,7 @@ export const ErrPage = styled.div<{ theme: Theme }>`
     }
 
     a {
-        color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorDefaultLink};
     }
 `;
 
@@ -1174,7 +1174,7 @@ export const Index = styled.div<{ theme: Theme }>`
         }
 
         a:hover {
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorLogoBlueShining};
         }
     }
 
