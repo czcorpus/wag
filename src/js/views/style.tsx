@@ -1039,7 +1039,6 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
             }
 
             a {
-                color: #ffffff;
                 cursor: pointer;
             }
 
@@ -1070,7 +1069,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
             .help {
                 border-style: solid;
-                border-color: #ffffff;
+                border-color: ${(props) => props.theme.colorInvertText};
                 border-width: 0 0 0 1px;
                 padding-left: 0.3em;
                 font-size: 1.1em;
@@ -1092,7 +1091,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
                 justify-content: space-between;
 
                 a:hover {
-                    color: #ffffff;
+                    color: ${(props) => props.theme.colorInvertText};
                 }
 
                 .help {
