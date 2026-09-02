@@ -144,6 +144,8 @@ export class Theme<T = any> {
 
     public readonly colorLightText: string;
 
+    public readonly colorDefaultLink: string;
+
     public readonly colorLogoPink: string;
 
     public readonly colorLogoOrange: string;
@@ -272,6 +274,8 @@ export class Theme<T = any> {
         this.colorInvertedSecondaryText =
             confSrc.colorInvertedSecondaryText ||
             fallbackTheme.colorInvertedSecondaryText;
+        this.colorDefaultLink =
+            confSrc.colorDefaultLink || fallbackTheme.colorLogoBlue;
 
         this.oddDataLineBackgroundColor =
             confSrc.oddDataLineBackgroundColor ||

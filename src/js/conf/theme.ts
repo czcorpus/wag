@@ -55,6 +55,7 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     colorInvertText?: string;
     colorInvertedSecondaryText?: string;
     colorSecondaryText?: string;
+    colorDefaultLink?: string;
     colorLogoPink?: string;
     colorLogoPinkHiContrast?: string;
     colorLogoOrange?: string;

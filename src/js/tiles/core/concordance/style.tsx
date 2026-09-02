@@ -143,6 +143,7 @@ export const ConcLines = styled.div<{ theme: Theme }>`
     overflow-x: auto;
 
     table {
+        width: 100%;
         border-collapse: collapse;
     }
 

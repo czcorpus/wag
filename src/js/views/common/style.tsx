@@ -60,7 +60,7 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
         a {
             cursor: pointer;
             text-decoration: none;
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorDefaultLink};
         }
 
         a:hover {
@@ -137,7 +137,7 @@ export const HorizontalBlockSwitch = styled.div<{ theme: Theme }>`
     text-align: center;
 
     a {
-        color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorDefaultText};
         cursor: pointer;
         font-size: 2em;
         padding: 0.2em;
@@ -337,7 +337,7 @@ export const BacklinkButton = styled.button<{
     background-color: transparent;
     cursor: pointer;
     text-decoration: none;
-    color: ${(props) => props.theme.colorLogoBlue};
+    color: ${(props) => props.theme.colorDefaultLink};
     background-image: url(${(props) =>
         props.$createStaticUrl('external-link.svg')});
     background-repeat: no-repeat;
@@ -375,7 +375,7 @@ export const SourceInfoBox = styled.div<{
             }
 
             a.current {
-                border-color: ${(props) => props.theme.colorLogoBlue};
+                border-color: ${(props) => props.theme.colorLogoBlueShining};
                 border-style: solid;
                 border-width: 0 0 2px 0;
             }
@@ -441,11 +441,12 @@ export const SourceInfoBox = styled.div<{
         }
 
         a {
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorDefaultLink};
         }
     }
 
     a.external {
+        color: ${(props) => props.theme.colorDefaultLink};
         background-image: url(${(props) =>
             props.$createStaticUrl('external-link.svg')});
         background-repeat: no-repeat;
@@ -537,7 +538,7 @@ export const Subtile = styled.div<{
     margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
     flex-grow: ${(props) => (props.$isMaxHeight ? '1' : 'initial')};
     color: ${(props) => props.theme.colorSecondaryText};
-    border-radius: 0.25em;
+    border-radius: ${(props) => props.theme.tileBorderRadius};
     box-shadow: ${(props) => props.theme.tileShadow};
     background-color: ${(props) => props.theme.tileBackgroundColor};
     display: flex;

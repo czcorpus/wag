@@ -246,7 +246,7 @@ export const SingleQueryInput = styled.span<{
             flex-grow: 2;
             border: ${(props) => props.theme.textInputBorderStyle};
             outline: none;
-            border-radius: ${(props) => props.theme.tileBorderRadius};
+            border-radius: ${(props) => props.theme.formElementsBorderRadius};
             background-color: ${(props) =>
                 props.theme.textInputBackgroundColor};
         }
@@ -572,7 +572,7 @@ export const MenuTabs = styled.div<{ theme: Theme }>`
         flex-direction: column;
         margin-top: 2em;
         background-color: ${(props) => props.theme.tileBackgroundColor};
-        border-radius: 0.25em;
+        border-radius: ${(props) => props.theme.formElementsBorderRadius};
 
         nav {
             flex-direction: column;
@@ -672,7 +672,7 @@ export const TileContainer = styled.section<{
         flex-grow: 1;
         font-size: 0.92em;
         color: ${(props) => props.theme.colorSecondaryText};
-        border-radius: 0.25em;
+        border-radius: ${(props) => props.theme.tileBorderRadius};
         box-shadow: ${(props) =>
             props.$isSubtileContainer ? 'none' : props.theme.tileShadow};
         background-color: ${(props) =>
@@ -708,7 +708,7 @@ export const TileContainer = styled.section<{
     }
 
     .wag-tile-body a {
-        color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorDefaultLink};
         text-decoration: none;
     }
 
@@ -742,7 +742,8 @@ export const TileContainer = styled.section<{
     }
 
     .wag-tile-header {
-        border-radius: 0.25em 0.25em 0 0;
+        border-radius: ${(props) => props.theme.tileBorderRadius}
+            ${(props) => props.theme.tileBorderRadius} 0 0;
         padding: 0.625em 1.25em;
         border-bottom: 0.1em solid
             ${(props) => props.theme.tileHeadingSeparColor};
@@ -757,7 +758,7 @@ export const TileContainer = styled.section<{
             }
 
             a {
-                color: ${(props) => props.theme.colorLogoBlue};
+                color: ${(props) => props.theme.colorDefaultLink};
             }
 
             a:hover {
@@ -929,7 +930,7 @@ export const Group = styled.section<{ theme: Theme }>`
 
 export const MinimizedGroup = styled.ul<{ theme: Theme }>`
     background-color: ${(props) => props.theme.tileBackgroundColor};
-    border-radius: 0.25em;
+    border-radius: ${(props) => props.theme.formElementsBorderRadius};
 
     list-style-type: none;
     margin: 0;
@@ -937,7 +938,7 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
 
     li {
         a {
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorDefaultLink};
             cursor: pointer;
         }
     }
@@ -1038,7 +1039,6 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
             }
 
             a {
-                color: #ffffff;
                 cursor: pointer;
             }
 
@@ -1069,7 +1069,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
             .help {
                 border-style: solid;
-                border-color: #ffffff;
+                border-color: ${(props) => props.theme.colorInvertText};
                 border-width: 0 0 0 1px;
                 padding-left: 0.3em;
                 font-size: 1.1em;
@@ -1091,7 +1091,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
                 justify-content: space-between;
 
                 a:hover {
-                    color: #ffffff;
+                    color: ${(props) => props.theme.colorInvertText};
                 }
 
                 .help {
@@ -1125,7 +1125,7 @@ export const ErrPage = styled.div<{ theme: Theme }>`
     }
 
     a {
-        color: ${(props) => props.theme.colorLogoBlue};
+        color: ${(props) => props.theme.colorDefaultLink};
     }
 `;
 
@@ -1141,7 +1141,8 @@ export const Index = styled.div<{ theme: Theme }>`
     z-index: 1000;
     background-color: ${(props) => props.theme.tileBackgroundColor};
     border: 1px solid ${(props) => props.theme.tileHeadingSeparColor};
-    border-radius: 0.25em 0 0 0.25em;
+    border-radius: ${(props) => props.theme.formElementsBorderRadius} 0 0
+        ${(props) => props.theme.formElementsBorderRadius};
     overflow: hidden;
 
     .index-button {
@@ -1173,7 +1174,7 @@ export const Index = styled.div<{ theme: Theme }>`
         }
 
         a:hover {
-            color: ${(props) => props.theme.colorLogoBlue};
+            color: ${(props) => props.theme.colorLogoBlueShining};
         }
     }
 

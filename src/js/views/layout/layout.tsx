@@ -397,7 +397,10 @@ export function init(
                                 className="main-logo logo-filtered"
                                 src={
                                     props.config.logo?.url
-                                        ? props.config.logo.url
+                                        ? props.config.logo.url.replace(
+                                              '{theme}',
+                                              props.currTheme
+                                          )
                                         : ut.createStaticUrl(
                                               ut.translate('global__logo_file')
                                           )
@@ -409,7 +412,10 @@ export function init(
                             <a href={props.config.hostUrl}>
                                 <img
                                     className="main-sublogo"
-                                    src={props.config.logo.subWag.url}
+                                    src={props.config.logo.subWag.url.replace(
+                                        '{theme}',
+                                        props.currTheme
+                                    )}
                                     alt="logo"
                                 />
                             </a>
