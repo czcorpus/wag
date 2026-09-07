@@ -292,7 +292,7 @@ export function init(
     }> = (props) => {
         const speakerColors = pipe(
             props.speakers,
-            List.map((sp, i) => tuple(sp, theme.scaleColorIndexed()(i))),
+            List.map((sp, i) => tuple(sp, theme.categoryColor(i))),
             Dict.fromEntries()
         );
         const someSpeachDataAvailable = List.some(
