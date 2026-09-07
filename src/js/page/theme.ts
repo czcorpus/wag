@@ -289,7 +289,7 @@ export class Theme<T = any> {
                 ? confSrc.svgLogoFilter
                 : confSrc.svgIconsFilter;
 
-        this.catColors = confSrc.category || [];
+        this.catColors = confSrc.category || fallbackTheme.category;
         this.catColorsHighlighted = List.map(
             (color) =>
                 pipe(
@@ -306,7 +306,10 @@ export class Theme<T = any> {
         this.lineChartColor2 = confSrc.lineChartColor2 || this.catColors[1];
         this.lineConfidenceAreaColor2 =
             confSrc.lineConfidenceAreaColor2 || this.catColors[1];
-        this.cmpCategoryColors = confSrc.cmpCategory || [];
+        this.cmpCategoryColors =
+            confSrc.cmpCategory ||
+            confSrc.category ||
+            fallbackTheme.cmpCategory;
         this.cmpCategoryColorsHighlighted = List.map(
             (color) =>
                 pipe(
@@ -317,7 +320,7 @@ export class Theme<T = any> {
                 ),
             this.cmpCategoryColors
         );
-        this.scaleColors = confSrc.scale || [];
+        this.scaleColors = confSrc.scale || fallbackTheme.scale;
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
         this.infoGraphicsFont = 'Roboto Condensed';
