@@ -22,6 +22,12 @@ import { Theme } from '../../../page/theme.js';
 import { styled } from 'styled-components';
 
 export const TimeDistribTile = styled.div`
+    .centered {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     p.message {
         margin-top: 0.2em;
         margin-bottom: 0.8em;
@@ -74,6 +80,12 @@ export const TweakControls = styled.form`
 
 export const MultiWordTimeDistribTile = styled.div`
     position: relative;
+
+    .centered {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
     #zoomResetButton {
         position: absolute;
