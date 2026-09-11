@@ -59,7 +59,7 @@
     "tiles": [
       {
         "path": "core/colloc",
-        "conf_name": "CollocationsTileConf"
+        "conf_name": "CollocTileConf"
       },
       {
         "path": "core/concordance",

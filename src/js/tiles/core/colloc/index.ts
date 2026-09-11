@@ -43,10 +43,11 @@ import {
     PosQueryGeneratorType,
     validatePosQueryGenerator,
 } from '../../../conf/common.js';
+import { CollConf, ConcConf, MQueryMultiCollAPI } from './api/multicoll.js';
 
-export interface CollocationsTileConf extends TileConf {
+export interface CollocTileConf extends TileConf {
     apiURL: string;
-    apiType: 'default' | 'with-examples';
+    apiType: 'default' | 'with-examples' | 'multi-coll';
     corpname: string;
     comparisonCorpname?: string;
     minFreq: number;
@@ -59,6 +60,9 @@ export interface CollocationsTileConf extends TileConf {
      * A positional attribute name and a function id that creates a query value (e.g. ['tag', 'ppTagset']).
      */
     posQueryGenerator: PosQueryGeneratorType;
+
+    // list of sources for multi-collocations
+    multiCollConf?: Array<CollConf | ConcConf>;
 }
 
 /**
@@ -79,7 +83,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view: TileComponent;
 
-    private readonly api: MQueryCollAPI;
+    private readonly api: MQueryCollAPI | MQueryMultiCollAPI;
 
     private readonly dependentTiles: Array<number>;
 
@@ -98,19 +102,27 @@ export class CollocationsTile implements ITileProvider {
         queryType,
         lemmatizationLevel,
         dependentTiles,
-    }: TileFactoryArgs<CollocationsTileConf>) {
+    }: TileFactoryArgs<CollocTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.dependentTiles = dependentTiles;
         this.configuredLemLevels = conf.lemmatizationLevels || [];
-        this.api = new MQueryCollAPI(
-            conf.apiURL,
-            conf.apiType === 'with-examples',
-            appServices,
-            conf.backlink
-        );
+        this.api =
+            conf.apiType === 'multi-coll'
+                ? new MQueryMultiCollAPI(
+                      conf.apiURL,
+                      appServices,
+                      conf.backlink,
+                      conf.multiCollConf
+                  )
+                : new MQueryCollAPI(
+                      conf.apiURL,
+                      conf.apiType === 'with-examples',
+                      appServices,
+                      conf.backlink
+                  );
         this.model = new CollocModel({
             dispatcher,
             tileId,
@@ -234,7 +246,7 @@ export class CollocationsTile implements ITileProvider {
     }
 }
 
-export const init: TileFactory<CollocationsTileConf> = {
+export const init: TileFactory<CollocTileConf> = {
     sanityCheck: (args) => {
         const ans = [];
         if (

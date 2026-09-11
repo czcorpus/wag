@@ -98,7 +98,7 @@ export interface ConcResponse {
     lines: Array<Line>;
     corpname?: string;
     alignedCorpname?: string;
-    resultType: 'concordance';
+    resultType: 'conc';
 }
 
 export interface ConcData {

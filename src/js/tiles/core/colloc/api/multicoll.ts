@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { catchError, concatMap, map } from 'rxjs/operators';
+import { catchError, concatMap, map, tap } from 'rxjs/operators';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
@@ -27,62 +27,40 @@ import { Backlink, BacklinkConf } from '../../../../page/tile.js';
 import { IApiServices } from '../../../../appServices.js';
 import { CollApiResponse } from '../common.js';
 import { IDataStreaming } from '../../../../page/streaming.js';
+import { BasicHTTPResponse, measureMap, MQueryCollArgs } from './index.js';
+import { ConcResponse } from '../../../../api/vendor/mquery/concordance/common.js';
+import { ConcApiArgs } from '../../../../api/vendor/mquery/concordance/index.js';
 
-export interface BasicHTTPResponse {
-    concSize: number;
-    corpusSize: number;
-    subcSize?: number;
-    colls: Array<{
-        word: string;
-        score: number;
-        freq: number;
-        interactionId: string;
-    }>;
-    cmpColls?: Array<{
-        word: string;
-        score: number;
-        freq: number;
-    }>;
-    measure: string;
-    srchRange: [number, number];
-    error?: string;
-    resultType: 'coll' | 'collWithExamples';
-}
-
-export interface MQueryCollArgs {
+export interface CollConf {
+    action: 'coll';
     corpusId: string;
-    cmpCorp?: string;
-    q: string;
-    subcorpus: string;
-    measure:
-        | 'absFreq'
-        | 'logLikelihood'
-        | 'logDice'
-        | 'minSensitivity'
-        | 'mutualInfo'
-        | 'mutualInfo3'
-        | 'mutualInfoLogF'
-        | 'relFreq'
-        | 'tScore';
-    srchLeft: number;
-    srchRight: number;
-    srchAttr: string;
-    minCollFreq: number;
-    maxItems: number;
-    examplesPerColl?: number;
+    args: {
+        minFreq: number;
+        minItems: number;
+    };
 }
 
-export const measureMap = {
-    m: 'mutualInfo',
-    '3': 'mutualInfo3',
-    l: 'logLikelihood',
-    s: 'minSensitivity',
-    d: 'logDice',
-    p: 'mutualInfoLogF',
-    f: 'relFreq',
-};
+export interface ConcConf {
+    action: 'conc';
+    corpusId: string;
+    args: {
+        maxRows: number;
+    };
+}
 
-export class MQueryCollAPI
+export interface CollArgs {
+    action: 'coll';
+    corpusId: string;
+    args: MQueryCollArgs & { minItems: number };
+}
+
+export interface ConcArgs {
+    action: 'conc';
+    corpusId: string;
+    args: ConcApiArgs;
+}
+
+export class MQueryMultiCollAPI
     implements ResourceApi<MQueryCollArgs, CollApiResponse>
 {
     private readonly apiURL: string;
@@ -93,19 +71,19 @@ export class MQueryCollAPI
 
     private readonly backlinkConf: BacklinkConf;
 
-    private readonly useWithExamplesVariant: boolean;
+    private readonly multiCollConf: Array<CollConf | ConcConf>;
 
     constructor(
         apiURL: string,
-        useWithExamplesVariant: boolean,
         apiServices: IApiServices,
-        backlinkConf: BacklinkConf
+        backlinkConf: BacklinkConf,
+        multiCollConf: Array<CollConf | ConcConf>
     ) {
         this.apiURL = apiURL;
         this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(apiURL, apiServices);
         this.backlinkConf = backlinkConf;
-        this.useWithExamplesVariant = useWithExamplesVariant;
+        this.multiCollConf = multiCollConf;
     }
 
     getSourceDescription(
@@ -128,35 +106,11 @@ export class MQueryCollAPI
         return false;
     }
 
-    private prepareArgs(queryArgs: { [k: string]: any }): string {
-        return pipe(
-            {
-                ...queryArgs,
-            },
-            Dict.toEntries(),
-            List.filter(([k, v]) => v !== undefined),
-            List.map(([k, v]) => `${k}=${encodeURIComponent(v)}`),
-            (x) => x.join('&')
-        );
-    }
-
-    private prepareCollWithExArgs(
-        queryArgs: MQueryCollArgs,
-        event: string
-    ): string {
-        return this.prepareArgs({
-            ...queryArgs,
-            examplesPerColl: queryArgs.examplesPerColl || 3,
-            event,
-        });
-    }
-
     private mkUrl(args: MQueryCollArgs, event: string): string {
-        return this.useWithExamplesVariant
-            ? urlJoin(this.apiURL, 'collocations-extended', args.corpusId) +
-                  `?${this.prepareCollWithExArgs(args, event)}`
-            : urlJoin(this.apiURL, 'collocations', args.corpusId) +
-                  `?${this.prepareArgs({ ...args, examplesPerColl: undefined })}`;
+        return (
+            urlJoin(this.apiURL, 'multi-colloc-extended') +
+            `?q=${encodeURIComponent(args.q)}&event=${encodeURIComponent(event)}`
+        );
     }
 
     private mkRequest(
@@ -166,20 +120,22 @@ export class MQueryCollAPI
         args: MQueryCollArgs | null
     ): Observable<BasicHTTPResponse> {
         return streaming
-            .registerTileRequest<BasicHTTPResponse>({
+            .registerTileRequest<BasicHTTPResponse | ConcResponse>({
                 tileId,
                 queryIdx,
-                method: HTTP.Method.GET,
+                method: HTTP.Method.POST,
                 url: args
                     ? this.mkUrl(args, `DataTile-${tileId}.${queryIdx}`)
                     : '',
-                body: {},
-                isEventSource: this.useWithExamplesVariant,
+                body: args ? this.makeArgs(args) : '',
+                isEventSource: true,
                 contentType: 'application/json',
             })
             .pipe(
                 map((resp) =>
-                    resp
+                    resp &&
+                    (resp.resultType == 'coll' ||
+                        resp.resultType == 'collWithExamples')
                         ? resp
                         : {
                               concSize: 0,
@@ -283,5 +239,30 @@ export class MQueryCollAPI
                 );
             })
         );
+    }
+
+    makeArgs(cArgs: MQueryCollArgs): Array<CollArgs | ConcArgs> {
+        return List.map((conf) => {
+            switch (conf.action) {
+                case 'coll':
+                    return {
+                        action: 'coll',
+                        corpusId: conf.corpusId,
+                        args: {
+                            ...cArgs,
+                            minCollFreq: conf.args.minFreq,
+                            minItems: conf.args.minItems,
+                        },
+                    } as CollArgs;
+                case 'conc':
+                    return {
+                        action: 'conc',
+                        corpusId: conf.corpusId,
+                        args: {
+                            maxRows: conf.args.maxRows,
+                        },
+                    } as ConcArgs;
+            }
+        }, this.multiCollConf);
     }
 }
