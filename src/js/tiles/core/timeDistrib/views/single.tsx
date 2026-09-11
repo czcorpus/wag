@@ -413,7 +413,7 @@ export function init(
                                   parseInt(v.datetime) <= this.props.zoom[1]
                                 : true
                         )}
-                        margin={{ top: 50, right: 2, left: 0, bottom: 0 }}
+                        margin={{ top: 50, right: 20, left: 0, bottom: 0 }}
                         onMouseLeave={this.zoomMouseLeave}
                         onMouseDown={this.zoomMouseDown}
                         onMouseMove={
@@ -728,20 +728,24 @@ export function init(
                     ) : (
                         ''
                     )}
-                    <Chart
-                        data1={List.head(state.data)}
-                        data2={state.dataCmp}
-                        size={[300, 300]}
-                        loadingStatus={state.loadingStatus}
-                        word={List.head(state.wordMainLabels)}
-                        displayFreq={state.useAbsFreq}
-                        displayObserved={state.displayObserved}
-                        wordCmp={state.wordCmp}
-                        isSmallWidth={props.isMobile || props.widthFract < 2}
-                        zoom={state.zoom}
-                        refArea={state.refArea}
-                        tileId={props.tileId}
-                    />
+                    <div className="centered">
+                        <Chart
+                            data1={List.head(state.data)}
+                            data2={state.dataCmp}
+                            size={[300, 300]}
+                            loadingStatus={state.loadingStatus}
+                            word={List.head(state.wordMainLabels)}
+                            displayFreq={state.useAbsFreq}
+                            displayObserved={state.displayObserved}
+                            wordCmp={state.wordCmp}
+                            isSmallWidth={
+                                props.isMobile || props.widthFract < 2
+                            }
+                            zoom={state.zoom}
+                            refArea={state.refArea}
+                            tileId={props.tileId}
+                        />
+                    </div>
                 </S.TimeDistribTile>
             </globComponents.TileWrapper>
         );

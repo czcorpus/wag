@@ -33,13 +33,14 @@ import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
+import { MQueryMultiCollAPI } from './api/multicoll.js';
 
 export interface CollocModelArgs {
     dispatcher: IActionQueue;
     tileId: number;
     dependentTiles: Array<number>;
     appServices: IAppServices;
-    service: MQueryCollAPI;
+    service: MQueryCollAPI | MQueryMultiCollAPI;
     initState: CollocModelState;
     lemLevelSupport: Array<LemmatizationLevel>;
 }
@@ -50,7 +51,7 @@ type FreqRequestArgs = [number, QueryMatch];
  *
  */
 export class CollocModel extends TileStatelessModel<CollocModelState> {
-    private readonly collApi: MQueryCollAPI;
+    private readonly collApi: MQueryCollAPI | MQueryMultiCollAPI;
 
     private readonly measureMap = {
         t: 'T-score',
@@ -213,6 +214,9 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                             )
                         )
                     );
+                }
+                if (action.payload.corpname) {
+                    state.corpname = action.payload.corpname;
                 }
                 state.backlinks[action.payload.queryIdx] =
                     this.collApi.getBacklink(action.payload.queryIdx);
@@ -397,6 +401,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
+                        corpname: data.corpname,
                         heading: data.collHeadings,
                         data: data.data,
                         cmpData: data.cmpData || [],

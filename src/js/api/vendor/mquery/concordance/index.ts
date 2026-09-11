@@ -106,7 +106,6 @@ export class MQueryConcApi
         queryIdx: number,
         args: ConcApiArgs | null
     ): Observable<[ConcResponse, number]> {
-
         return streaming
             .registerTileRequest<ConcResponse>({
                 tileId,
@@ -120,21 +119,19 @@ export class MQueryConcApi
                 contentType: 'application/json',
             })
             .pipe(
-                map<ConcResponse, ConcResponse>(
-                    resp => resp ?
-                        resp :
-                        {
-                            concSize: 0,
-                            ipm: 0,
-                            lines: [],
-                            corpname: args ? args.corpusName : undefined,
-                            alignedCorpname: undefined,
-                            resultType:'concordance'
-                        }
+                map<ConcResponse, ConcResponse>((resp) =>
+                    resp
+                        ? resp
+                        : {
+                              concSize: 0,
+                              ipm: 0,
+                              lines: [],
+                              corpname: args ? args.corpusName : undefined,
+                              alignedCorpname: undefined,
+                              resultType: 'conc',
+                          }
                 ),
-                map(
-                    (resp) => tuple(resp, queryIdx)
-                )
+                map((resp) => tuple(resp, queryIdx))
             );
     }
 

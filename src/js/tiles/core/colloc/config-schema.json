@@ -7,6 +7,7 @@
         "apiType": {
             "enum": [
                 "default",
+                "multi-coll",
                 "with-examples"
             ],
             "type": "string"
@@ -50,6 +51,19 @@
             ],
             "minItems": 2,
             "maxItems": 2
+        },
+        "multiCollConf": {
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/CollConf"
+                    },
+                    {
+                        "$ref": "#/definitions/ConcConf"
+                    }
+                ]
+            }
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -130,6 +144,70 @@
         "tileType"
     ],
     "definitions": {
+        "CollConf": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "coll"
+                    ]
+                },
+                "corpusId": {
+                    "type": "string"
+                },
+                "args": {
+                    "type": "object",
+                    "properties": {
+                        "minFreq": {
+                            "type": "number"
+                        },
+                        "minItems": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "minFreq",
+                        "minItems"
+                    ]
+                }
+            },
+            "required": [
+                "action",
+                "args",
+                "corpusId"
+            ]
+        },
+        "ConcConf": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "conc"
+                    ]
+                },
+                "corpusId": {
+                    "type": "string"
+                },
+                "args": {
+                    "type": "object",
+                    "properties": {
+                        "maxRows": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "maxRows"
+                    ]
+                }
+            },
+            "required": [
+                "action",
+                "args",
+                "corpusId"
+            ]
+        },
         "BacklinkConf": {
             "type": "object",
             "properties": {

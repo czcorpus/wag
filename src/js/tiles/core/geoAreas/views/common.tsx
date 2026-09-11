@@ -81,8 +81,6 @@ export class Map extends React.PureComponent<{ mapSVG: string }> {
             <div
                 style={{
                     cursor: 'default',
-                    width: '100%',
-                    height: '100%',
                     overflowX: 'auto',
                     textAlign: 'center',
                 }}

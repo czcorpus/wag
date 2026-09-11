@@ -39,6 +39,7 @@ export enum CollocMetric {
 }
 
 export interface DataLoadedPayload extends SubqueryPayload {
+    corpname: string;
     data: Array<DataRow>;
     cmpData: Array<{
         word: string;
@@ -100,6 +101,7 @@ export interface DataRow {
 }
 
 export interface CollApiResponse {
+    corpname: string;
     collHeadings: DataHeading;
     data: Array<DataRow>;
     cmpData?: Array<{

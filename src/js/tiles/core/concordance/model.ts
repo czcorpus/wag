@@ -108,12 +108,17 @@ export interface ConcordanceTileModelArgs {
 
 export type SupportedForeignResponses =
     | CollWithExamplesResponse
+    | ConcResponse
     | TranslatHTTPResponse;
 
 function isCollWithExamplesResponse(
     v: SupportedForeignResponses
 ): v is CollWithExamplesResponse {
     return Array.isArray(v['colls']) && v['resultType'] === 'collWithExamples';
+}
+
+function isConcResponse(v: SupportedForeignResponses): v is ConcResponse {
+    return v['resultType'] === 'conc';
 }
 
 function isTranslationResponse(
@@ -622,22 +627,25 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                           map(
                               (resp) =>
                                   tuple(
-                                      {
-                                          concSize: 0,
-                                          ipm: 0,
-                                          lines: transformSupportedForeignResponse(
-                                              resp
-                                          ),
-                                          corpname: isTranslationResponse(resp)
-                                              ? resp.fromCorp
-                                              : undefined,
-                                          alignedCorpname:
-                                              isTranslationResponse(resp)
-                                                  ? resp.toCorp
-                                                  : undefined,
-                                          resultType:
-                                              'concordance' as 'concordance',
-                                      },
+                                      isConcResponse(resp)
+                                          ? resp
+                                          : {
+                                                concSize: 0,
+                                                ipm: 0,
+                                                lines: transformSupportedForeignResponse(
+                                                    resp
+                                                ),
+                                                corpname: isTranslationResponse(
+                                                    resp
+                                                )
+                                                    ? resp.fromCorp
+                                                    : undefined,
+                                                alignedCorpname:
+                                                    isTranslationResponse(resp)
+                                                        ? resp.toCorp
+                                                        : undefined,
+                                                resultType: 'conc' as 'conc',
+                                            },
                                       0
                                   ) // TODO upgrade once we support cmp
                           )

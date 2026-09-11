@@ -353,7 +353,7 @@ export function init(
                 >
                     <AreaChart
                         data={data}
-                        margin={{ top: 50, right: 2, left: 0, bottom: 0 }}
+                        margin={{ top: 50, right: 20, left: 0, bottom: 0 }}
                         onMouseLeave={this.zoomMouseLeave}
                         onMouseDown={this.zoomMouseDown}
                         onMouseMove={
@@ -611,21 +611,25 @@ export function init(
                             />
                         </div>
                     ) : null}
-                    <Chart
-                        data={state.data}
-                        size={[300, 300]}
-                        isPartial={
-                            state.loadingStatus ===
-                            LoadingStatus.BUSY_LOADING_MAIN
-                        }
-                        words={state.wordMainLabels}
-                        isSmallWidth={props.isMobile || props.widthFract < 2}
-                        averagingYears={state.averagingYears}
-                        units={state.units}
-                        zoom={state.zoom}
-                        refArea={state.refArea}
-                        tileId={props.tileId}
-                    />
+                    <div className="centered">
+                        <Chart
+                            data={state.data}
+                            size={[300, 300]}
+                            isPartial={
+                                state.loadingStatus ===
+                                LoadingStatus.BUSY_LOADING_MAIN
+                            }
+                            words={state.wordMainLabels}
+                            isSmallWidth={
+                                props.isMobile || props.widthFract < 2
+                            }
+                            averagingYears={state.averagingYears}
+                            units={state.units}
+                            zoom={state.zoom}
+                            refArea={state.refArea}
+                            tileId={props.tileId}
+                        />
+                    </div>
                 </S.MultiWordTimeDistribTile>
             </globComponents.TileWrapper>
         );
