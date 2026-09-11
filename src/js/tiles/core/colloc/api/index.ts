@@ -30,6 +30,7 @@ import { IDataStreaming } from '../../../../page/streaming.js';
 
 export interface BasicHTTPResponse {
     concSize: number;
+    corpname: string;
     corpusSize: number;
     subcSize?: number;
     colls: Array<{
@@ -183,6 +184,7 @@ export class MQueryCollAPI
                         ? resp
                         : {
                               concSize: 0,
+                              corpname: '',
                               corpusSize: 0,
                               colls: [],
                               measure: null,
@@ -201,6 +203,7 @@ export class MQueryCollAPI
     ): Observable<CollApiResponse> {
         return this.mkRequest(streaming, tileId, queryIdx, args).pipe(
             map((v) => ({
+                corpname: v.corpname,
                 concId: undefined,
                 collHeadings: [
                     {

@@ -215,6 +215,9 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                         )
                     );
                 }
+                if (action.payload.corpname) {
+                    state.corpname = action.payload.corpname;
+                }
                 state.backlinks[action.payload.queryIdx] =
                     this.collApi.getBacklink(action.payload.queryIdx);
             }
@@ -398,6 +401,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
                     name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
+                        corpname: data.corpname,
                         heading: data.collHeadings,
                         data: data.data,
                         cmpData: data.cmpData || [],

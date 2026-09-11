@@ -139,6 +139,7 @@ export class MQueryMultiCollAPI
                         ? resp
                         : {
                               concSize: 0,
+                              corpname: '',
                               corpusSize: 0,
                               colls: [],
                               measure: null,
@@ -157,6 +158,7 @@ export class MQueryMultiCollAPI
     ): Observable<CollApiResponse> {
         return this.mkRequest(streaming, tileId, queryIdx, args).pipe(
             map((v) => ({
+                corpname: v.corpname,
                 concId: undefined,
                 collHeadings: [
                     {
