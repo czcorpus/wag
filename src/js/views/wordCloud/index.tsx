@@ -280,13 +280,17 @@ export function init<T>(
                     tooltipPos: [x, y],
                     activeItem: data,
                 });
-                dispatcher.dispatch<typeof GlobalActions.SubqItemHighlighted>({
-                    name: GlobalActions.SubqItemHighlighted.name,
-                    payload: {
-                        interactionId: data.interactionId,
-                        text: data.text,
-                    },
-                });
+                if (data.interactionId) {
+                    dispatcher.dispatch<
+                        typeof GlobalActions.SubqItemHighlighted
+                    >({
+                        name: GlobalActions.SubqItemHighlighted.name,
+                        payload: {
+                            interactionId: data.interactionId,
+                            text: data.text,
+                        },
+                    });
+                }
             }
         };
 
@@ -296,12 +300,16 @@ export function init<T>(
                 activeItem: null,
                 tooltipPos: [0, 0],
             });
-            dispatcher.dispatch<typeof GlobalActions.SubqItemDehighlighted>({
-                name: GlobalActions.SubqItemDehighlighted.name,
-                payload: {
-                    interactionId: data.interactionId,
-                },
-            });
+            if (data.interactionId) {
+                dispatcher.dispatch<typeof GlobalActions.SubqItemDehighlighted>(
+                    {
+                        name: GlobalActions.SubqItemDehighlighted.name,
+                        payload: {
+                            interactionId: data.interactionId,
+                        },
+                    }
+                );
+            }
         };
 
         const boxWidth = chartContainer.current

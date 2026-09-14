@@ -903,7 +903,8 @@ export const Group = styled.section<{ theme: Theme }>`
     & > header {
         padding: 0;
         margin-top: 0;
-        margin-bottom: 1.2em;
+        margin-bottom: 0.5em;
+        margin-left: -1em;
 
         display: flex;
         align-items: flex-start;
@@ -911,11 +912,12 @@ export const Group = styled.section<{ theme: Theme }>`
     }
 
     ${TilesSections} > &:not(:first-child) {
-        margin-top: 0.5rem;
+        margin-top: 1.2rem;
     }
 
     ${(props) => props.theme.cssMobileScreen} {
         & > header {
+            margin-left: 0;
             display: block;
 
             .description {
