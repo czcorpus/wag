@@ -1625,31 +1625,6 @@ export function init(
             >
                 <h2>
                     <span className="flex">
-                        <span
-                            className={`triangle${props.groupHidden ? ' right' : ''}`}
-                        >
-                            {props.groupHidden ? (
-                                <img
-                                    className="filtered"
-                                    src={ut.createStaticUrl(
-                                        'triangle_w_right.svg'
-                                    )}
-                                    alt={ut.translate(
-                                        'global__img_alt_triangle_w_right'
-                                    )}
-                                />
-                            ) : (
-                                <img
-                                    className="filtered"
-                                    src={ut.createStaticUrl(
-                                        'triangle_w_down.svg'
-                                    )}
-                                    alt={ut.translate(
-                                        'global__img_alt_triangle_w_down'
-                                    )}
-                                />
-                            )}
-                        </span>
                         <a
                             className="switch-common"
                             onClick={
@@ -1667,6 +1642,31 @@ export function init(
                                       )
                             }
                         >
+                            <span
+                                className={`triangle${props.groupHidden ? ' right' : ''}`}
+                            >
+                                {props.groupHidden ? (
+                                    <img
+                                        className="filtered"
+                                        src={ut.createStaticUrl(
+                                            'triangle_w_right.svg'
+                                        )}
+                                        alt={ut.translate(
+                                            'global__img_alt_triangle_w_right'
+                                        )}
+                                    />
+                                ) : (
+                                    <img
+                                        className="filtered"
+                                        src={ut.createStaticUrl(
+                                            'triangle_w_down.svg'
+                                        )}
+                                        alt={ut.translate(
+                                            'global__img_alt_triangle_w_down'
+                                        )}
+                                    />
+                                )}
+                            </span>
                             <span className="switch">
                                 {props.group.groupLabel}
                             </span>
@@ -1750,10 +1750,36 @@ export function init(
             }
         };
 
+        const maxWidth = React.useMemo(() => {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return 0;
+                const bodyStyle = window.getComputedStyle(
+                    document.body || document.documentElement
+                );
+                // attempt to use the page font size and family for better measurement
+                const fontSize = bodyStyle.fontSize || '14px';
+                const fontFamily = bodyStyle.fontFamily || 'Arial, sans-serif';
+                ctx.font = `${fontSize} ${fontFamily}`;
+                const max = props.items.reduce((acc, s) => {
+                    const w = ctx.measureText(s).width;
+                    return w > acc ? w : acc;
+                }, 0);
+                // add some padding to account for glyphs and UI spacing
+                return Math.ceil(max + 40);
+            } catch (e) {
+                console.log(e);
+
+                return 0;
+            }
+        }, [props.items]);
+
         return (
             <S.Index
                 onMouseOver={() => handleIndexHover(true)}
                 onMouseLeave={() => handleIndexHover(false)}
+                $maxWidth={maxWidth}
             >
                 <div className="index-button">
                     <span>{ut.translate('global__index')}</span>

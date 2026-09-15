@@ -1050,7 +1050,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
             .triangle {
                 display: inline-block;
-                width: 1em;
+                width: 1.5em;
 
                 img {
                     width: 0.65em;
@@ -1133,7 +1133,7 @@ export const ErrPage = styled.div<{ theme: Theme }>`
 
 // ---------------- <Index /> --------------------------------------
 
-export const Index = styled.div<{ theme: Theme }>`
+export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     position: fixed;
     right: 0;
     margin-top: 1em;
@@ -1166,6 +1166,7 @@ export const Index = styled.div<{ theme: Theme }>`
         white-space: nowrap;
         overflow: hidden;
         width: 0;
+        transition: width 0.3s ease;
 
         a {
             display: block;
@@ -1181,7 +1182,7 @@ export const Index = styled.div<{ theme: Theme }>`
     }
 
     .extended {
-        width: fit-content;
+        width: ${(props) => props.$maxWidth}px;
     }
 `;
 
