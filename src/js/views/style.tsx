@@ -1050,7 +1050,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
             .triangle {
                 display: inline-block;
-                width: 1em;
+                width: 1.5em;
 
                 img {
                     width: 0.65em;
