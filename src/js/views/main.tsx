@@ -1723,12 +1723,19 @@ export function init(
         items: Array<string>;
         extended: boolean;
     }> = (props) => {
-        const [scrollY, setScrollY] = React.useState(0);
+        const [state, setState] = React.useState({
+            scrollY: 0,
+            maxWidth: List.reduce(
+                (acc, curr, i) => (curr.length > acc ? curr.length : acc),
+                0,
+                props.items
+            ),
+        });
 
         React.useEffect(() => {
             const handleScroll = () => {
                 const y = window.scrollY;
-                setScrollY(y);
+                setState({ ...state, scrollY: y });
             };
 
             window.addEventListener('scroll', handleScroll, { passive: true });
@@ -1750,43 +1757,18 @@ export function init(
             }
         };
 
-        const maxWidth = React.useMemo(() => {
-            try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return 0;
-                const bodyStyle = window.getComputedStyle(
-                    document.body || document.documentElement
-                );
-                // attempt to use the page font size and family for better measurement
-                const fontSize = bodyStyle.fontSize || '14px';
-                const fontFamily = bodyStyle.fontFamily || 'Arial, sans-serif';
-                ctx.font = `${fontSize} ${fontFamily}`;
-                const max = props.items.reduce((acc, s) => {
-                    const w = ctx.measureText(s).width;
-                    return w > acc ? w : acc;
-                }, 0);
-                // add some padding to account for glyphs and UI spacing
-                return Math.ceil(max + 40);
-            } catch (e) {
-                console.log(e);
-
-                return 0;
-            }
-        }, [props.items]);
-
         return (
             <S.Index
                 onMouseOver={() => handleIndexHover(true)}
                 onMouseLeave={() => handleIndexHover(false)}
-                $maxWidth={maxWidth}
+                $maxWidth={state.maxWidth}
             >
                 <div className="index-button">
                     <span>{ut.translate('global__index')}</span>
                 </div>
                 <div
                     className={
-                        props.extended || scrollY < 5
+                        props.extended || state.scrollY < 5
                             ? 'index-content extended'
                             : 'index-content'
                     }
