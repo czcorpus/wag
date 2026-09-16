@@ -1182,7 +1182,8 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     }
 
     .extended {
-        width: ${(props) => props.$maxWidth}px;
+        width: ${(props) =>
+            props.$maxWidth ? `${0.7 * props.$maxWidth}em` : 'fit-content'};
     }
 `;
 
