@@ -70,7 +70,7 @@
                     "fpage": {
                         "type": "number"
                     },
-                    "fttIncludeEmpty": {
+                    "hideIfZero": {
                         "type": "boolean"
                     },
                     "viewInOtherWagUrl": {
@@ -107,7 +107,6 @@
                     "fpage",
                     "freqSort",
                     "freqType",
-                    "fttIncludeEmpty",
                     "posQueryGenerator"
                 ]
             }

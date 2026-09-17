@@ -44,8 +44,6 @@ export interface GeneralSingleCritFreqBarModelState<T>
 
     posQueryGenerator: PosQueryGeneratorType;
 
-    fttIncludeEmpty?: boolean;
-
     fmaxitems?: number;
 
     data: Array<T>;

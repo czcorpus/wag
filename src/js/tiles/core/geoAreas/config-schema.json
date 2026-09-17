@@ -26,9 +26,6 @@
         "fpage": {
             "type": "number"
         },
-        "fttIncludeEmpty": {
-            "type": "boolean"
-        },
         "areaCodeMapping": {
             "type": "object",
             "additionalProperties": {
@@ -138,7 +135,6 @@
         "freqSort",
         "freqType",
         "frequencyDisplayLimit",
-        "fttIncludeEmpty",
         "posQueryGenerator",
         "tileType"
     ],

@@ -120,27 +120,52 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
                     action.payload.sourceIdx
                 );
                 if (state.data[action.payload.queryId] === undefined) {
-                    state.data[action.payload.queryId] = [];
+                    state.data[action.payload.queryId] = pipe(
+                        state.sources,
+                        List.map((conf, sourceIdx) =>
+                            conf.hideIfZero
+                                ? null
+                                : {
+                                      word: state.currQueryMatches[
+                                          action.payload.queryId
+                                      ].lemma,
+                                      base: 0,
+                                      ipm: 0,
+                                      freq: 0,
+                                      sourceIdx,
+                                      name: conf.valuePlaceholder,
+                                      viewInOtherWagUrl: null,
+                                      uniqueColor: conf.uniqueColor,
+                                  }
+                        ),
+                        List.filter((v) => v !== null)
+                    );
                 }
                 state.data[action.payload.queryId] = pipe(
                     state.data[action.payload.queryId],
                     List.concat(action.payload.data),
-                    List.unique((v) => `${v.word}:${v.sourceIdx}`)
+                    List.groupBy((v) => `${v.word}:${v.sourceIdx}`),
+                    List.map(([, items]) =>
+                        pipe(
+                            items,
+                            List.sortedBy((v) => v.freq),
+                            List.last()
+                        )
+                    )
                 );
             }
         );
 
-        this.addActionHandler<typeof Actions.TileDataLoaded>(
-            Actions.TileDataLoaded.name,
+        this.addActionSubtypeHandler(
+            Actions.TileDataLoaded,
+            (action) => action.payload.tileId === this.tileId,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        state.data = [];
-                        state.error = this.appServices.normalizeHttpApiError(
-                            action.error
-                        );
-                    }
+                state.isBusy = false;
+                if (action.error) {
+                    state.data = [];
+                    state.error = this.appServices.normalizeHttpApiError(
+                        action.error
+                    );
                 }
             }
         );

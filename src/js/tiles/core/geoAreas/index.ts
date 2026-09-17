@@ -52,7 +52,6 @@ export interface GeoAreasTileConf extends TileConf {
     freqType: 'tokens' | 'text-types';
     freqSort: string;
     fpage: number;
-    fttIncludeEmpty: boolean;
     areaCodeMapping: { [name: string]: string };
     frequencyDisplayLimit: number;
 
@@ -128,7 +127,6 @@ export class GeoAreasTile implements ITileProvider {
                 frequencyDisplayLimit: conf.frequencyDisplayLimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
