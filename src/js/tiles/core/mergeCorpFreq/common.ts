@@ -41,7 +41,7 @@ export interface ModelSourceArgs {
 
     supportsSublemma: boolean;
 
-    fttIncludeEmpty?: boolean;
+    hideIfZero?: boolean;
 
     fmaxitems?: number;
 

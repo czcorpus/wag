@@ -60,7 +60,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         flimit: number;
         freqSort: string;
         fpage: number;
-        fttIncludeEmpty: boolean;
+        hideIfZero?: boolean;
 
         viewInOtherWagUrl?: string;
 
@@ -158,7 +158,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                         flimit: src.flimit,
                         freqSort: src.freqSort,
                         fpage: src.fpage,
-                        fttIncludeEmpty: src.fttIncludeEmpty,
+                        hideIfZero: src.hideIfZero,
                         valuePlaceholder: src.valuePlaceholder
                             ? appServices.importExternalMessage(
                                   src.valuePlaceholder
