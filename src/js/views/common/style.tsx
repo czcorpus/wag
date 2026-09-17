@@ -79,16 +79,8 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
                 display: flex;
                 flex-grow: 1;
                 margin: 0;
-                color: ${(props) => props.theme.colorSuperlightGrey};
-                font-size: 9em;
-                text-align: center;
                 justify-content: center;
                 align-items: center;
-
-                span {
-                    cursor: default;
-                    user-select: none;
-                }
             }
         }
     }

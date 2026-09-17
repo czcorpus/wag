@@ -1443,7 +1443,7 @@ export function init(
                         className="not-applicable"
                         title={ut.translate('global__not_applicable')}
                     >
-                        <span>N/A</span>
+                        <globalComponents.NotApplicable />
                     </p>
                 </div>
             </div>
