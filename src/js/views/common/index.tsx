@@ -52,6 +52,8 @@ export interface GlobalComponents {
         htmlClass?: string;
     }>;
 
+    NotApplicable: React.FC<{}>;
+
     TileWrapper: React.FC<{
         isBusy: boolean;
         hasData: boolean;
@@ -179,6 +181,10 @@ export interface GlobalComponents {
         hasData: boolean;
         setMaxHeight?: boolean;
         showDisambigLinkOnNoData?: boolean;
+    }>;
+
+    TweakBox: React.FC<{
+        children: React.ReactNode;
     }>;
 }
 
@@ -583,6 +589,44 @@ export function init(
         );
     };
 
+    // --------------- <NotApplicable /> -------------------------------------------
+
+    const NotApplicable: React.FC<{}> = (props) => {
+        const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+
+        React.useEffect(() => {
+            const canvas = canvasRef.current;
+            if (!canvas) {
+                return;
+            }
+
+            const parent = canvas.parentElement;
+            const width = parent?.clientWidth || canvas.width || 120;
+            const height = parent?.clientHeight || canvas.height || 40;
+
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = '100%';
+            canvas.style.height = 'auto';
+            canvas.style.aspectRatio = `${width} / ${height}`;
+
+            const context = canvas.getContext('2d');
+            if (!context) {
+                return;
+            }
+
+            const fontWidth = width / 3;
+            context.clearRect(0, 0, width, height);
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.font = `normal ${fontWidth}px sans`;
+            context.fillStyle = theme.colorSuperlightGrey;
+            context.fillText('N/A', width / 2, height / 2);
+        }, []);
+
+        return <canvas ref={canvasRef} {...props} />;
+    };
+
     // --------------- <TileWrapper /> -------------------------------------------
 
     const TileWrapper: GlobalComponents['TileWrapper'] = (props) => {
@@ -709,7 +753,7 @@ export function init(
                                           </p>
                                       </div>
                                       <p className="not-applicable">
-                                          <span>N/A</span>
+                                          <NotApplicable />
                                       </p>
                                   </div>,
                                   props.errorSubtileContainerLabel || '--',
@@ -1322,6 +1366,14 @@ export function init(
         );
     };
 
+    // -------------------- <TweakBox /> -----------------------------
+
+    const TweakBox: React.FC<{
+        children: React.ReactNode;
+    }> = (props) => {
+        return <S.TweakBox>{props.children}</S.TweakBox>;
+    };
+
     // ----------------- <Subtile /> ------------------------------
 
     const Subtile: GlobalComponents['Subtile'] = ({
@@ -1401,7 +1453,7 @@ export function init(
                                         </p>
                                     </div>
                                     <p className="not-applicable">
-                                        <span>N/A</span>
+                                        <NotApplicable />
                                     </p>
                                 </div>
                             ) : null}
@@ -1490,6 +1542,7 @@ export function init(
     return {
         AjaxLoader,
         MessageStatusIcon,
+        NotApplicable,
         TileWrapper,
         ErrorBoundary,
         ModalBox,
@@ -1503,6 +1556,7 @@ export function init(
         TileMinHeightContext: React.createContext(100),
         ToggleButton,
         Subtile,
+        TweakBox,
         useMobileComponent,
     };
 }

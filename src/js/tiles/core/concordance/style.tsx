@@ -298,8 +298,6 @@ export const SentRow = styled.tr<{ theme: Theme }>`
 // ---------------- <Controls /> ----------------------------
 
 export const Controls = styled.form<{ theme: Theme }>`
-    margin-bottom: 0.7em;
-
     fieldset {
         border: none;
     }

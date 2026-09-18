@@ -1143,6 +1143,7 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     z-index: 1000;
     background-color: ${(props) => props.theme.tileBackgroundColor};
     border: 1px solid ${(props) => props.theme.tileHeadingSeparColor};
+    border-right: none;
     border-radius: ${(props) => props.theme.formElementsBorderRadius} 0 0
         ${(props) => props.theme.formElementsBorderRadius};
     overflow: hidden;

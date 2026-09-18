@@ -547,7 +547,7 @@ export function init(
 
         render() {
             return (
-                <form style={{ minHeight: '2em' }}>
+                <form style={{ minHeight: '2em' }} className="wag-form">
                     <label htmlFor="unitsSelect">
                         {ut.translate('multiWordTimeDistrib__units')}:{'\u00a0'}
                         <select
@@ -603,13 +603,13 @@ export function init(
             >
                 <S.MultiWordTimeDistribTile>
                     {state.isTweakMode ? (
-                        <div className="tweak-box">
+                        <globComponents.TweakBox>
                             <TweakControls
                                 averagingYears={state.averagingYears}
                                 tileId={props.tileId}
                                 units={state.units}
                             />
-                        </div>
+                        </globComponents.TweakBox>
                     ) : null}
                     <div className="centered">
                         <Chart

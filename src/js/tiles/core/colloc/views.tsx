@@ -54,7 +54,7 @@ export function init(
         };
 
         return (
-            <form className="Controls wag-form tile-tweak">
+            <form className="wag-form">
                 <label>
                     {ut.translate('collocations__search_in_context_label')}
                     :{' '}
@@ -162,12 +162,12 @@ export function init(
                 issueReportingUrl={props.issueReportingUrl}
             >
                 {state.isTweakMode ? (
-                    <div className="tweak-box">
+                    <globalCompontents.TweakBox>
                         <Controls
                             tileId={props.tileId}
                             value={state.srchRangeType}
                         />
-                    </div>
+                    </globalCompontents.TweakBox>
                 ) : null}
                 <S.Boxes $isMobile={props.isMobile}>
                     {List.map((data, index) => {
