@@ -182,6 +182,10 @@ export interface GlobalComponents {
         setMaxHeight?: boolean;
         showDisambigLinkOnNoData?: boolean;
     }>;
+
+    TweakBox: React.FC<{
+        children: React.ReactNode;
+    }>;
 }
 
 export function init(
@@ -1362,6 +1366,14 @@ export function init(
         );
     };
 
+    // -------------------- <TweakBox /> -----------------------------
+
+    const TweakBox: React.FC<{
+        children: React.ReactNode;
+    }> = (props) => {
+        return <S.TweakBox>{props.children}</S.TweakBox>;
+    };
+
     // ----------------- <Subtile /> ------------------------------
 
     const Subtile: GlobalComponents['Subtile'] = ({
@@ -1544,6 +1556,7 @@ export function init(
         TileMinHeightContext: React.createContext(100),
         ToggleButton,
         Subtile,
+        TweakBox,
         useMobileComponent,
     };
 }

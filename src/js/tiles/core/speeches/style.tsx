@@ -41,31 +41,25 @@ export const SpeechesTile = styled.div<{ theme: Theme }>`
         }
     }
 
-    .navig {
-        margin-bottom: 0.4em;
-        display: flex;
-        align-content: flex-end;
+    .next,
+    .expand {
+        margin-right: 2em;
 
-        .next,
-        .expand {
-            margin-right: 2em;
+        a {
+            display: block;
+            cursor: pointer;
 
-            a {
+            img {
+                width: 1.2em;
                 display: block;
-                cursor: pointer;
-
-                img {
-                    width: 1.2em;
-                    display: block;
-                }
             }
         }
+    }
 
-        .expand a img {
-            position: relative;
-            top: 0.15em;
-            width: 1.6em;
-        }
+    .expand a img {
+        position: relative;
+        top: 0.15em;
+        width: 1.6em;
     }
 
     div.play-all {

@@ -46,10 +46,6 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
 
     :not(.wag-subtile-container) .content {
         padding: 1.25em;
-
-        .tweak-box {
-            margin-bottom: 1.5em;
-        }
     }
 
     .source {
@@ -546,4 +542,15 @@ export const Subtile = styled.div<{
         margin-top: 0.4em;
         cursor: pointer;
     }
+`;
+
+// -------------- <TweakBox /> --------------------------------------
+
+export const TweakBox = styled.div<{ theme: Theme }>`
+    left: 0;
+    right: 0;
+    border-radius: ${(props) => props.theme.formElementsBorderRadius};
+    background-color: ${(props) => props.theme.colorSuperlightGrey};
+    padding: 1em;
+    margin-bottom: 1.5em;
 `;

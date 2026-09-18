@@ -102,29 +102,27 @@ export const MultiWordTimeDistribTile = styled.div`
         margin-bottom: 0.8em;
     }
 
-    .tweak-box {
-        form {
-            display: flex;
-            align-self: center;
-            line-height: 1.8em;
+    ${TweakControls} {
+        display: flex;
+        align-self: center;
+        line-height: 1.8em;
 
-            > *:not(:first-child) {
-                margin-left: 1em;
-            }
+        > *:not(:first-child) {
+            margin-left: 1em;
+        }
 
-            label > * {
-                display: inline-block;
-                vertical-align: middle;
-            }
+        label > * {
+            display: inline-block;
+            vertical-align: middle;
+        }
 
-            .range {
-                font-size: 1.2em;
-                padding: 0 0.2em;
-            }
+        .range {
+            font-size: 1.2em;
+            padding: 0 0.2em;
+        }
 
-            #intervalSelect {
-                margin-left: 0.7em;
-            }
+        #intervalSelect {
+            margin-left: 0.7em;
         }
     }
 `;

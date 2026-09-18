@@ -342,13 +342,13 @@ export function init(
 
         return (
             <div>
-                <div className="navig">
-                    <div className="next">
-                        {props.isTweakMode ? (
+                {props.isTweakMode ? (
+                    <globComponents.TweakBox>
+                        <div className="next">
                             <LoadNext tileId={props.tileId} active={true} />
-                        ) : null}
-                    </div>
-                </div>
+                        </div>
+                    </globComponents.TweakBox>
+                ) : null}
                 {props.playbackEnabled && someSpeachDataAvailable ? (
                     <div className="play-all">
                         <a onClick={handlePlayAllClick}>

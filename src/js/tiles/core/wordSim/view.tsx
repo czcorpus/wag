@@ -57,7 +57,7 @@ export function init(
         };
 
         return (
-            <S.Controls className="wag-form tile-tweak">
+            <S.Controls className="wag-form">
                 <select
                     value={props.operationMode}
                     onChange={handleOperationModeChange}
@@ -141,10 +141,12 @@ export function init(
             >
                 <S.WordSimView>
                     {state.isTweakMode ? (
-                        <Controls
-                            tileId={props.tileId}
-                            operationMode={state.operationMode}
-                        />
+                        <globalCompontents.TweakBox>
+                            <Controls
+                                tileId={props.tileId}
+                                operationMode={state.operationMode}
+                            />
+                        </globalCompontents.TweakBox>
                     ) : null}
                     <S.Boxes $isMobile={props.isMobile}>
                         {List.map((data, matchIdx) => {

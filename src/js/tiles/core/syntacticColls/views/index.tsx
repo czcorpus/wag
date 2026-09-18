@@ -95,64 +95,62 @@ export function init(
                 <h2>
                     {ut.translate('syntactic_colls__collocation_score_select')}
                 </h2>
-                <form className="Controls wag-form tile-tweak">
-                    <fieldset>
-                        <label>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>1.</th>
-                                        <th>2.</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {List.map(
-                                        (v) => (
-                                            <tr key={`row:${v}`}>
-                                                <td>
-                                                    <label>
-                                                        <input
-                                                            type="radio"
-                                                            value={v}
-                                                            name="col1sel"
-                                                            checked={
-                                                                props
-                                                                    .visibleMeasures[0] ===
-                                                                v
-                                                            }
-                                                            onChange={handleChange(
-                                                                0
-                                                            )}
-                                                        />
-                                                        {v}
-                                                    </label>
-                                                </td>
-                                                <td>
-                                                    <label>
-                                                        <input
-                                                            type="radio"
-                                                            value={v}
-                                                            name="col2sel"
-                                                            checked={
-                                                                props
-                                                                    .visibleMeasures[1] ===
-                                                                v
-                                                            }
-                                                            onChange={handleChange(
-                                                                1
-                                                            )}
-                                                        />
-                                                        {v}
-                                                    </label>
-                                                </td>
-                                            </tr>
-                                        ),
-                                        props.availableMeasures
-                                    )}
-                                </tbody>
-                            </table>
-                        </label>
-                    </fieldset>
+                <form className="wag-form">
+                    <label>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>1.</th>
+                                    <th>2.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {List.map(
+                                    (v) => (
+                                        <tr key={`row:${v}`}>
+                                            <td>
+                                                <label>
+                                                    <input
+                                                        type="radio"
+                                                        value={v}
+                                                        name="col1sel"
+                                                        checked={
+                                                            props
+                                                                .visibleMeasures[0] ===
+                                                            v
+                                                        }
+                                                        onChange={handleChange(
+                                                            0
+                                                        )}
+                                                    />
+                                                    {v}
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input
+                                                        type="radio"
+                                                        value={v}
+                                                        name="col2sel"
+                                                        checked={
+                                                            props
+                                                                .visibleMeasures[1] ===
+                                                            v
+                                                        }
+                                                        onChange={handleChange(
+                                                            1
+                                                        )}
+                                                    />
+                                                    {v}
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    ),
+                                    props.availableMeasures
+                                )}
+                            </tbody>
+                        </table>
+                    </label>
                 </form>
             </S.Controls>
         );
@@ -375,13 +373,13 @@ export function init(
                 issueReportingUrl={props.issueReportingUrl}
             >
                 {state.isTweakMode ? (
-                    <div className="tweak-box">
+                    <globalComponents.TweakBox>
                         <Controls
                             tileId={props.tileId}
                             visibleMeasures={state.visibleMeasures}
                             availableMeasures={state.availableMeasures}
                         />
-                    </div>
+                    </globalComponents.TweakBox>
                 ) : (
                     <S.SyntacticColls>
                         {state.exampleWindowData ? (

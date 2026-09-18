@@ -203,7 +203,7 @@ export function init(
 
         render() {
             return (
-                <S.TweakControls>
+                <S.TweakControls className="wag-form">
                     <ul>
                         <li>
                             <label>
@@ -704,14 +704,14 @@ export function init(
             >
                 <S.TimeDistribTile>
                     {state.isTweakMode ? (
-                        <div className="tweak-box">
+                        <globComponents.TweakBox>
                             <TweakControls
                                 displayObserved={state.displayObserved}
                                 useAbsFreq={state.useAbsFreq}
                                 wordCmp={state.wordCmpInput}
                                 tileId={props.tileId}
                             />
-                        </div>
+                        </globComponents.TweakBox>
                     ) : null}
                     {state.wordCmp &&
                     state.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW &&

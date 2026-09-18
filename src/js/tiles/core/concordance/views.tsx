@@ -139,32 +139,30 @@ export function init(
         };
 
         return (
-            <S.Controls className="wag-form tile-tweak">
-                <fieldset>
-                    <label>
-                        {ut.translate('concordance__page')}:{'\u00a0'}
-                        <globalComponents.Paginator
-                            page={props.currPage}
-                            numPages={props.numPages}
-                            onNext={handleNextPage}
-                            onPrev={handlePrevPage}
-                        />
-                    </label>
-                    <label
-                        title={
-                            props.viewModeEnabled
-                                ? null
-                                : ut.translate('global__func_not_avail')
-                        }
-                    >
-                        {ut.translate('concordance__view_mode')}:{'\u00a0'}
-                        <ViewModeSwitch
-                            mode={props.viewMode}
-                            tileId={props.tileId}
-                            isEnabled={props.viewModeEnabled}
-                        />
-                    </label>
-                </fieldset>
+            <S.Controls className="wag-form">
+                <label>
+                    {ut.translate('concordance__page')}:{'\u00a0'}
+                    <globalComponents.Paginator
+                        page={props.currPage}
+                        numPages={props.numPages}
+                        onNext={handleNextPage}
+                        onPrev={handlePrevPage}
+                    />
+                </label>
+                <label
+                    title={
+                        props.viewModeEnabled
+                            ? null
+                            : ut.translate('global__func_not_avail')
+                    }
+                >
+                    {ut.translate('concordance__view_mode')}:{'\u00a0'}
+                    <ViewModeSwitch
+                        mode={props.viewMode}
+                        tileId={props.tileId}
+                        isEnabled={props.viewModeEnabled}
+                    />
+                </label>
             </S.Controls>
         );
     };
@@ -455,7 +453,7 @@ export function init(
             >
                 <S.ConcordanceTileView>
                     {state.isTweakMode ? (
-                        <div className="tweak-box">
+                        <globalComponents.TweakBox>
                             <Controls
                                 currPage={conc.currPage}
                                 numPages={conc.numPages}
@@ -468,7 +466,7 @@ export function init(
                                 queries={state.queries}
                                 currVisibleQueryIdx={state.visibleQueryIdx}
                             />
-                        </div>
+                        </globalComponents.TweakBox>
                     ) : null}
                     {state.queries.length > 1 ? (
                         <S.QueryInfo>
