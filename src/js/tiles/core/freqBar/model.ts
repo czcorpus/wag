@@ -66,6 +66,7 @@ export interface FreqBarModelState {
     isBusy: boolean;
     error: string;
     pixelsPerCategory: number;
+    hideCategories: Array<string>;
 }
 
 export interface FreqBarModelArgs {
@@ -176,7 +177,14 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
                 .subscribe({
                     next: ([data, pass]) => {
                         this.changeState((state) => {
-                            state.freqData[pass.queryIdx].rows = data.data;
+                            state.freqData[pass.queryIdx].rows = List.filter(
+                                (row) =>
+                                    List.findIndex(
+                                        (c) => c === row.name,
+                                        state.hideCategories
+                                    ) === -1,
+                                data.data
+                            );
                             state.freqData[pass.queryIdx].isReady = true;
                             state.backlinks[pass.queryIdx] =
                                 this.api.getBacklink(pass.queryIdx);

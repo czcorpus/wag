@@ -615,7 +615,7 @@ export function init(
                 return;
             }
 
-            const fontWidth = width / 3;
+            const fontWidth = Math.min(width / 3, (4 * height) / 5);
             context.clearRect(0, 0, width, height);
             context.textAlign = 'center';
             context.textBaseline = 'middle';
@@ -1145,7 +1145,7 @@ export function init(
                                             ? { backgroundColor: colors(index) }
                                             : null;
 
-                                    if (value && label) {
+                                    if ((value || value === 0) && label) {
                                         if (typeof value === 'string') {
                                             return (
                                                 <tr key={`${index}:${label}`}>

@@ -58,6 +58,7 @@ export interface FreqBarTileConf extends TileConf {
     fpage: number;
     matchCase: boolean;
     pixelsPerCategory?: number;
+    hideCategories?: Array<string>;
 
     /**
      * A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset']).
@@ -155,6 +156,7 @@ export class FreqBarTile implements ITileProvider {
                 subqSyncPalette: false,
                 isAltViewMode: false,
                 pixelsPerCategory: conf.pixelsPerCategory || 30,
+                hideCategories: conf.hideCategories || [],
             },
         });
         this.label = appServices.importExternalMessage(

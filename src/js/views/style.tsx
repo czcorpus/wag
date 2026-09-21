@@ -1046,22 +1046,44 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
             a:hover {
                 color: ${(props) => props.theme.colorLogoBlueShining};
-            }
 
-            .triangle {
-                display: inline-block;
-                width: 1.5em;
+                .triangle-wrapper {
+                    .triangle-down {
+                        border-top: 0.5em solid
+                            ${(props) => props.theme.colorLogoBlueShining};
+                    }
 
-                img {
-                    width: 0.65em;
-                    vertical-align: middle;
-                    position: relative;
-                    margin-top: -0.2em;
+                    .triangle-right {
+                        border-left: 0.5em solid
+                            ${(props) => props.theme.colorLogoBlueShining};
+                    }
                 }
             }
 
-            .triangle.right img {
-                width: 0.5em;
+            .triangle-wrapper {
+                display: inline-block;
+                width: 1em;
+
+                > * {
+                    vertical-align: center;
+                    display: inline-block;
+                    width: 0;
+                    height: 0;
+                }
+
+                .triangle-down {
+                    border-left: 0.3em solid transparent;
+                    border-right: 0.3em solid transparent;
+                    border-top: 0.5em solid
+                        ${(props) => props.theme.colorInvertText};
+                }
+
+                .triangle-right {
+                    border-left: 0.5em solid
+                        ${(props) => props.theme.colorInvertText};
+                    border-top: 0.3em solid transparent;
+                    border-bottom: 0.3em solid transparent;
+                }
             }
 
             .switch-common {
