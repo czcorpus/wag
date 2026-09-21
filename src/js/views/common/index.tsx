@@ -615,7 +615,7 @@ export function init(
                 return;
             }
 
-            const fontWidth = width / 3;
+            const fontWidth = Math.min(width / 3, (4 * height) / 5);
             context.clearRect(0, 0, width, height);
             context.textAlign = 'center';
             context.textBaseline = 'middle';
