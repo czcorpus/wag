@@ -1145,7 +1145,7 @@ export function init(
                                             ? { backgroundColor: colors(index) }
                                             : null;
 
-                                    if (value && label) {
+                                    if ((value || value === 0) && label) {
                                         if (typeof value === 'string') {
                                             return (
                                                 <tr key={`${index}:${label}`}>

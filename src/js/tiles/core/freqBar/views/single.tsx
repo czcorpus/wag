@@ -142,16 +142,20 @@ export function init(
                     isAnimationActive={false}
                     content={
                         <globComponents.AlignedRechartsTooltip
-                            payloadMapper={(payload) => [
-                                {
-                                    name: ut.translate('freqBar__rel_freq'),
-                                    value: payload.ipm,
-                                },
-                                {
-                                    name: ut.translate('freqBar__abs_freq'),
-                                    value: payload.freq,
-                                },
-                            ]}
+                            payloadMapper={(payload) => {
+                                console.log(payload);
+
+                                return [
+                                    {
+                                        name: ut.translate('freqBar__rel_freq'),
+                                        value: payload.ipm,
+                                    },
+                                    {
+                                        name: ut.translate('freqBar__abs_freq'),
+                                        value: payload.freq,
+                                    },
+                                ];
+                            }}
                         />
                     }
                 />
