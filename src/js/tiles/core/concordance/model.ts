@@ -114,11 +114,15 @@ export type SupportedForeignResponses =
 function isCollWithExamplesResponse(
     v: SupportedForeignResponses
 ): v is CollWithExamplesResponse {
-    return Array.isArray(v['colls']) && v['resultType'] === 'collWithExamples';
+    return (
+        !!v &&
+        Array.isArray(v['colls']) &&
+        v['resultType'] === 'collWithExamples'
+    );
 }
 
 function isConcResponse(v: SupportedForeignResponses): v is ConcResponse {
-    return v['resultType'] === 'conc';
+    return !!v && v['resultType'] === 'conc';
 }
 
 function isTranslationResponse(
