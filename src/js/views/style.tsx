@@ -264,6 +264,14 @@ export const SingleQueryInput = styled.span<{
         }
     }
 
+    &&&.integrated {
+        input {
+            border-right: none;
+            border-radius: ${(props) =>
+                `${props.theme.formElementsBorderRadius} 0 0 ${props.theme.formElementsBorderRadius}`};
+        }
+    }
+
     .num {
         color: ${(props) => props.theme.colorDefaultText};
         font-weight: bold;
@@ -624,17 +632,19 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
     && {
         width: 100%;
         display: flex;
+        align-items: center;
         justify-content: center;
         padding-top: 1rem;
         padding-bottom: 1rem;
 
         button {
+            cursor: pointer;
             display: flex;
             justify-content: center;
             width: 5rem;
             border: none;
             background-color: ${(props) => props.theme.colorLogoBlue};
-            padding: 0.3rem 0 0.3rem 0;
+            padding: 0.3rem 0;
             //border: 1px solid rgba(0, 0, 0, 0.8);
             box-shadow:
                 0 4px 14px rgba(0, 0, 0, 0.25),
@@ -645,6 +655,18 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
                 width: 1rem;
                 height: 1rem;
             }
+        }
+    }
+
+    &.integrated {
+        button {
+            width: 2.5rem;
+            padding: 0.5rem 0;
+            border-radius: ${(props) =>
+                `0 ${props.theme.formElementsBorderRadius} ${props.theme.formElementsBorderRadius} 0`};
+            border: ${(props) => props.theme.textInputBorderStyle};
+            border-left: none;
+            box-shadow: none;
         }
     }
 
@@ -1176,7 +1198,7 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     align-items: stretch;
     z-index: 1000;
     background-color: ${(props) => props.theme.tileBackgroundColor};
-    border: 1px solid ${(props) => props.theme.tileHeadingSeparColor};
+    border: ${(props) => props.theme.textInputBorderStyle};
     border-right: none;
     border-radius: ${(props) => props.theme.formElementsBorderRadius} 0 0
         ${(props) => props.theme.formElementsBorderRadius};
