@@ -90,7 +90,9 @@ export class SpeechesTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.configuredLemLevels = conf.lemmatizationLevels || [];
-        this.label = appServices.importExternalMessage(conf.label);
+        this.label = appServices.importExternalMessage(
+            conf.label || 'speeches__main_label'
+        );
         this.model = new SpeechesModel({
             dispatcher,
             tileId,

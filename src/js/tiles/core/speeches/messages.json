@@ -1,5 +1,6 @@
 {
     "en-US": {
+        "speeches__main_label": "Speech example",
         "speeches__no_speech_metadata_available": "Metadata not available due to partially displayed speech. Try to expand the context.",
         "speeches__expand_up_symbol": "Expand up icon",
         "speeches__expand_down_symbol": "Expand down icon",
@@ -9,6 +10,7 @@
         "speeches__play_all_btn": "Play all"
     },
     "cs-CZ": {
+        "speeches__main_label": "Ukázka promluvy",
         "speeches__no_speech_metadata_available": "Metadata nejsou k dispozici kvůli částečně zobrazené promluvě. Zkuste rozšířit kontext.",
         "speeches__expand_up_symbol": "Ikonka rozšíření nahoru",
         "speeches__expand_down_symbol": "Ikonka rozšíření dolů",
