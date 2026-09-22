@@ -33,6 +33,7 @@ export interface SourceInfo {
     corp: string;
     subcorp?: string;
     url?: string;
+    label?: string;
 }
 
 export type TooltipValues = {
@@ -287,7 +288,7 @@ export function init(
         if (props.data.url) {
             return (
                 <a href={props.data.url} target="_blank">
-                    {props.data.corp || props.data.url}
+                    {props.data.label || props.data.corp || props.data.url}
                 </a>
             );
         } else if (props.data.corp) {
@@ -298,9 +299,9 @@ export function init(
                             props.onClick(props.data.corp, props.data.subcorp)
                         }
                     >
-                        {props.data.corp}
+                        {props.data.label || props.data.corp}
                     </a>
-                    {props.data.subcorp ? (
+                    {!props.data.label && props.data.subcorp ? (
                         <span> / {props.data.subcorp}</span>
                     ) : null}
                 </>
@@ -312,7 +313,8 @@ export function init(
                         props.onClick(props.data.corp, props.data.subcorp)
                     }
                 >
-                    {ut.translate('global__click_for_details')}
+                    {props.data.label ||
+                        ut.translate('global__click_for_details')}
                 </a>
             );
         }
