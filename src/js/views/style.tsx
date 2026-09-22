@@ -1116,6 +1116,18 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
                 a:hover {
                     color: ${(props) => props.theme.colorInvertText};
+
+                    .triangle-wrapper {
+                        .triangle-down {
+                            border-top: 0.5em solid
+                                ${(props) => props.theme.colorInvertText};
+                        }
+
+                        .triangle-right {
+                            border-left: 0.5em solid
+                                ${(props) => props.theme.colorInvertText};
+                        }
+                    }
                 }
 
                 .help {
