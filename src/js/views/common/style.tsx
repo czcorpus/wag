@@ -554,3 +554,12 @@ export const TweakBox = styled.div<{ theme: Theme }>`
     padding: 1em;
     margin-bottom: 1.5em;
 `;
+
+// ------------ <SVGMask /> ----------------------------
+
+export const SVGMaskIcon = styled.div<{ theme: Theme; src: string }>`
+    mask-image: url(${(props) => props.src});
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+`;

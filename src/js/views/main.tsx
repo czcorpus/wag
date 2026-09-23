@@ -326,7 +326,10 @@ export function init(
                     onClick={props.onClick}
                     aria-label={ut.translate('global__aria_search_btn')}
                 >
-                    <img src={ut.createStaticUrl('mglass.svg')} />
+                    <globalComponents.SVGMaskIcon
+                        className="icon"
+                        src={ut.createStaticUrl('mglass.svg')}
+                    />
                 </button>
             </S.SubmitButton>
         );

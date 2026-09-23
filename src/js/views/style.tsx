@@ -651,9 +651,17 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
                 0 2px 4px rgba(0, 0, 0, 0.15);
             border-radius: ${(props) => props.theme.formElementsBorderRadius};
 
-            img {
+            .icon {
+                background-color: ${(props) => props.theme.colorInvertText};
                 width: 1rem;
                 height: 1rem;
+            }
+        }
+
+        button:hover {
+            .icon {
+                background-color: ${(props) =>
+                    props.theme.colorLogoBlueShining};
             }
         }
     }
@@ -673,6 +681,13 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
     ${(props) => props.theme.cssMobileScreen} {
         button {
             padding: 0.5em 1.5em 0.5em 1.5em;
+        }
+
+        button:hover {
+            .icon {
+                background-color: ${(props) =>
+                    props.theme.colorInvertText} !important;
+            }
         }
     }
 `;
