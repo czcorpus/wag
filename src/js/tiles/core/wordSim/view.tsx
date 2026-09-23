@@ -34,7 +34,7 @@ export function init(
     theme: Theme,
     model: WordSimModel
 ): TileComponent {
-    const globalCompontents = ut.getComponents();
+    const globalComponents = ut.getComponents();
 
     const WordCloud = wcloudViewInit<WordSimEntry>(dispatcher, ut, theme);
 
@@ -126,7 +126,7 @@ export function init(
                 : (_: number) => theme.scaleColorIndexed();
 
         return (
-            <globalCompontents.TileWrapper
+            <globalComponents.TileWrapper
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
@@ -141,12 +141,12 @@ export function init(
             >
                 <S.WordSimView>
                     {state.isTweakMode ? (
-                        <globalCompontents.TweakBox>
+                        <globalComponents.TweakBox>
                             <Controls
                                 tileId={props.tileId}
                                 operationMode={state.operationMode}
                             />
-                        </globalCompontents.TweakBox>
+                        </globalComponents.TweakBox>
                     ) : null}
                     <S.Boxes $isMobile={props.isMobile}>
                         {List.map((data, matchIdx) => {
@@ -170,7 +170,7 @@ export function init(
                                     }
                                 />
                             ) : data ? (
-                                <globalCompontents.ResponsiveWrapper
+                                <globalComponents.ResponsiveWrapper
                                     minWidth={props.isMobile ? undefined : 250}
                                     widthFract={props.widthFract}
                                     key={`${matchIdx}non-empty`}
@@ -204,7 +204,7 @@ export function init(
                                     )}
                                 />
                             ) : (
-                                <globalCompontents.ResponsiveWrapper
+                                <globalComponents.ResponsiveWrapper
                                     key={`${matchIdx}empty`}
                                     render={() =>
                                         data === null ? (
@@ -223,7 +223,7 @@ export function init(
                         }, state.data)}
                     </S.Boxes>
                 </S.WordSimView>
-            </globalCompontents.TileWrapper>
+            </globalComponents.TileWrapper>
         );
     };
 
