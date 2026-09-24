@@ -257,7 +257,7 @@ export function init(
         cmpContext: boolean;
         showQueryNum: boolean;
         isCollapsed: boolean;
-        integrated: boolean;
+        integratedSubmit: boolean;
         onContentChange: (s: string) => void;
         onRmClick: () => void;
         onEnter: () => void;
@@ -284,7 +284,7 @@ export function init(
 
         return (
             <S.SingleQueryInput
-                className={props.integrated ? 'integrated' : null}
+                className={props.integratedSubmit ? 'integrated-submit' : null}
                 $cmpContext={props.cmpContext}
             >
                 <input
@@ -304,6 +304,9 @@ export function init(
                             : ut.translate('global__any_form_placeholder')
                     }
                 />
+                {props.integratedSubmit ? (
+                    <SubmitButton onClick={props.onEnter} />
+                ) : null}
                 {props.allowsRemove && !props.isCollapsed ? (
                     <span className="controls">
                         <CloseCmpInputButton onClick={props.onRmClick} />
@@ -317,10 +320,9 @@ export function init(
 
     const SubmitButton: React.FC<{
         onClick: () => void;
-        integrated: boolean;
     }> = (props) => {
         return (
-            <S.SubmitButton className={props.integrated ? 'integrated' : null}>
+            <S.SubmitButton>
                 <button
                     type="button"
                     onClick={props.onClick}
@@ -427,7 +429,7 @@ export function init(
                         showQueryNum={false}
                         onRmClick={undefined}
                         isCollapsed={false}
-                        integrated={false}
+                        integratedSubmit={false}
                     />
                     <span className="arrow">{'\u25B6'}</span>
                     <TranslationLangSelector
@@ -439,10 +441,7 @@ export function init(
                     />
                 </div>
                 <div>
-                    <SubmitButton
-                        onClick={props.handleSubmit}
-                        integrated={false}
-                    />
+                    <SubmitButton onClick={props.handleSubmit} />
                 </div>
             </S.TranslatQueryField>
         );
@@ -585,14 +584,8 @@ export function init(
                                         : handleRMClickSwitchToSingle(queryIdx)
                                 }
                                 isCollapsed={!isExpanded}
-                                integrated={!hasControls}
+                                integratedSubmit={!hasControls}
                             />
-                            {!hasControls ? (
-                                <SubmitButton
-                                    onClick={props.handleSubmit}
-                                    integrated={true}
-                                />
-                            ) : null}
                         </li>
                     ),
                     props.queries
@@ -617,10 +610,7 @@ export function init(
                 )}
                 {((hasControls && !props.isAnswerMode) || isExpanded) && (
                     <li>
-                        <SubmitButton
-                            onClick={props.handleSubmit}
-                            integrated={false}
-                        />
+                        <SubmitButton onClick={props.handleSubmit} />
                     </li>
                 )}
             </S.MultiQueryField>
