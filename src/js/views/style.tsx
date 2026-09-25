@@ -229,6 +229,60 @@ export const QueryFields = styled.div<{ theme: Theme }>`
     }
 `;
 
+// -------------- <SubmitButton /> -------------------------------------------
+
+export const SubmitButton = styled.span<{ theme: Theme }>`
+    && {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+
+        button {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            width: 5rem;
+            border: none;
+            background-color: ${(props) => props.theme.colorLogoBlue};
+            padding: 0.3rem 0;
+            //border: 1px solid rgba(0, 0, 0, 0.8);
+            box-shadow:
+                0 4px 14px rgba(0, 0, 0, 0.25),
+                0 2px 4px rgba(0, 0, 0, 0.15);
+            border-radius: ${(props) => props.theme.formElementsBorderRadius};
+
+            .icon {
+                background-color: ${(props) => props.theme.colorInvertText};
+                width: 1rem;
+                height: 1rem;
+            }
+        }
+
+        button:hover {
+            .icon {
+                background-color: ${(props) =>
+                    props.theme.colorLogoBlueShining};
+            }
+        }
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        button {
+            padding: 0.5em 1.5em 0.5em 1.5em;
+        }
+
+        button:hover {
+            .icon {
+                background-color: ${(props) =>
+                    props.theme.colorInvertText} !important;
+            }
+        }
+    }
+`;
+
 // -------------- <SingleQueryInput /> ---------------------------------------
 
 export const SingleQueryInput = styled.span<{
@@ -261,6 +315,28 @@ export const SingleQueryInput = styled.span<{
 
         input::placeholder {
             opacity: 0.6;
+        }
+    }
+
+    &&&.integrated-submit {
+        input {
+            border-right: none;
+            border-radius: ${(props) =>
+                `${props.theme.formElementsBorderRadius} 0 0 ${props.theme.formElementsBorderRadius}`};
+        }
+
+        button {
+            width: 2.5rem;
+            padding: 0.5rem 0;
+            border-radius: ${(props) =>
+                `0 ${props.theme.formElementsBorderRadius} ${props.theme.formElementsBorderRadius} 0`};
+            border: ${(props) => props.theme.textInputBorderStyle};
+            border-left: none;
+            box-shadow: none;
+        }
+
+        input:focus ~ ${SubmitButton} button {
+            border-color: ${(props) => props.theme.colorLogoBlue};
         }
     }
 
@@ -615,43 +691,6 @@ export const QueryTypeSelector = styled.div<{ theme: Theme }>`
         color: ${(props) => props.theme.colorLightText};
         opacity: 0.5;
         cursor: default;
-    }
-`;
-
-// -------------- <SubmitButton /> -------------------------------------------
-
-export const SubmitButton = styled.span<{ theme: Theme }>`
-    && {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-
-        button {
-            display: flex;
-            justify-content: center;
-            width: 5rem;
-            border: none;
-            background-color: ${(props) => props.theme.colorLogoBlue};
-            padding: 0.3rem 0 0.3rem 0;
-            //border: 1px solid rgba(0, 0, 0, 0.8);
-            box-shadow:
-                0 4px 14px rgba(0, 0, 0, 0.25),
-                0 2px 4px rgba(0, 0, 0, 0.15);
-            border-radius: ${(props) => props.theme.formElementsBorderRadius};
-
-            img {
-                width: 1rem;
-                height: 1rem;
-            }
-        }
-    }
-
-    ${(props) => props.theme.cssMobileScreen} {
-        button {
-            padding: 0.5em 1.5em 0.5em 1.5em;
-        }
     }
 `;
 
@@ -1176,7 +1215,7 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     align-items: stretch;
     z-index: 1000;
     background-color: ${(props) => props.theme.tileBackgroundColor};
-    border: 1px solid ${(props) => props.theme.tileHeadingSeparColor};
+    border: ${(props) => props.theme.textInputBorderStyle};
     border-right: none;
     border-radius: ${(props) => props.theme.formElementsBorderRadius} 0 0
         ${(props) => props.theme.formElementsBorderRadius};

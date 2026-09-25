@@ -407,7 +407,9 @@ export function init(
                     {props.tileHeader}
 
                     {state.isTweakMode ? (
-                        <Settings tileId={props.tileId} />
+                        <globalComponents.TweakBox>
+                            <Settings tileId={props.tileId} />
+                        </globalComponents.TweakBox>
                     ) : null}
                     {(() => {
                         if (state.message) {

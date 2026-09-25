@@ -34,7 +34,7 @@ export function init(
     theme: Theme,
     model: CollocModel
 ): TileComponent {
-    const globalCompontents = ut.getComponents();
+    const globalComponents = ut.getComponents();
     const WordCloud = wcloudViewInit<DataRow>(dispatcher, ut, theme);
 
     // -------------- <Controls /> -------------------------------------
@@ -148,7 +148,7 @@ export function init(
         };
 
         return (
-            <globalCompontents.TileWrapper
+            <globalComponents.TileWrapper
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
@@ -162,12 +162,12 @@ export function init(
                 issueReportingUrl={props.issueReportingUrl}
             >
                 {state.isTweakMode ? (
-                    <globalCompontents.TweakBox>
+                    <globalComponents.TweakBox>
                         <Controls
                             tileId={props.tileId}
                             value={state.srchRangeType}
                         />
-                    </globalCompontents.TweakBox>
+                    </globalComponents.TweakBox>
                 ) : null}
                 <S.Boxes $isMobile={props.isMobile}>
                     {List.map((data, index) => {
@@ -190,7 +190,7 @@ export function init(
                                 caption={caption(index)}
                             />
                         ) : data ? (
-                            <globalCompontents.ResponsiveWrapper
+                            <globalComponents.ResponsiveWrapper
                                 minWidth={props.isMobile ? undefined : 250}
                                 key={`${index}-${availableInteractionIds}`}
                                 widthFract={props.widthFract}
@@ -218,7 +218,7 @@ export function init(
                                 )}
                             />
                         ) : (
-                            <globalCompontents.ResponsiveWrapper
+                            <globalComponents.ResponsiveWrapper
                                 key={`${index}empty`}
                                 render={() =>
                                     data === null ? (
@@ -239,7 +239,7 @@ export function init(
                         );
                     }, state.data)}
                 </S.Boxes>
-            </globalCompontents.TileWrapper>
+            </globalComponents.TileWrapper>
         );
     };
 

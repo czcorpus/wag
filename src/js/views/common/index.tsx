@@ -187,6 +187,11 @@ export interface GlobalComponents {
     TweakBox: React.FC<{
         children: React.ReactNode;
     }>;
+
+    SVGMaskIcon: React.FC<{
+        src: string;
+        className?: string;
+    }>;
 }
 
 export function init(
@@ -1376,6 +1381,15 @@ export function init(
         return <S.TweakBox>{props.children}</S.TweakBox>;
     };
 
+    // -------------------- <SVGMask /> -----------------------------
+
+    const SVGMaskIcon: React.FC<{
+        src: string;
+        className?: string;
+    }> = (props) => (
+        <S.SVGMaskIcon className={props.className} src={props.src} />
+    );
+
     // ----------------- <Subtile /> ------------------------------
 
     const Subtile: GlobalComponents['Subtile'] = ({
@@ -1559,6 +1573,7 @@ export function init(
         ToggleButton,
         Subtile,
         TweakBox,
+        SVGMaskIcon,
         useMobileComponent,
     };
 }

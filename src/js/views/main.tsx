@@ -257,6 +257,7 @@ export function init(
         cmpContext: boolean;
         showQueryNum: boolean;
         isCollapsed: boolean;
+        integratedSubmit: boolean;
         onContentChange: (s: string) => void;
         onRmClick: () => void;
         onEnter: () => void;
@@ -282,7 +283,10 @@ export function init(
         };
 
         return (
-            <S.SingleQueryInput $cmpContext={props.cmpContext}>
+            <S.SingleQueryInput
+                className={props.integratedSubmit ? 'integrated-submit' : null}
+                $cmpContext={props.cmpContext}
+            >
                 <input
                     type="text"
                     name="search-query"
@@ -300,6 +304,9 @@ export function init(
                             : ut.translate('global__any_form_placeholder')
                     }
                 />
+                {props.integratedSubmit ? (
+                    <SubmitButton onClick={props.onEnter} />
+                ) : null}
                 {props.allowsRemove && !props.isCollapsed ? (
                     <span className="controls">
                         <CloseCmpInputButton onClick={props.onRmClick} />
@@ -313,7 +320,6 @@ export function init(
 
     const SubmitButton: React.FC<{
         onClick: () => void;
-        cmpMode: boolean;
     }> = (props) => {
         return (
             <S.SubmitButton>
@@ -322,7 +328,10 @@ export function init(
                     onClick={props.onClick}
                     aria-label={ut.translate('global__aria_search_btn')}
                 >
-                    <img src={ut.createStaticUrl('mglass.svg')} />
+                    <globalComponents.SVGMaskIcon
+                        className="icon"
+                        src={ut.createStaticUrl('mglass.svg')}
+                    />
                 </button>
             </S.SubmitButton>
         );
@@ -420,6 +429,7 @@ export function init(
                         showQueryNum={false}
                         onRmClick={undefined}
                         isCollapsed={false}
+                        integratedSubmit={false}
                     />
                     <span className="arrow">{'\u25B6'}</span>
                     <TranslationLangSelector
@@ -431,10 +441,7 @@ export function init(
                     />
                 </div>
                 <div>
-                    <SubmitButton
-                        onClick={props.handleSubmit}
-                        cmpMode={false}
-                    />
+                    <SubmitButton onClick={props.handleSubmit} />
                 </div>
             </S.TranslatQueryField>
         );
@@ -449,12 +456,15 @@ export function init(
         maxCmpQueries: number;
         supportsCmpQuery: boolean;
         supportsExactFormSearch: boolean;
-        submitComponent: React.ReactElement;
         isAnswerMode: boolean;
         handleQueryInput: (idx: number) => (s: string) => void;
         handleSubmit: () => void;
     }> = (props) => {
-        const [isExpanded, setIsExpanded] = React.useState(!props.isAnswerMode);
+        const hasControls =
+            props.supportsCmpQuery || props.supportsExactFormSearch;
+        const [isExpanded, setIsExpanded] = React.useState(
+            hasControls && !props.isAnswerMode
+        );
         const containerRef = React.useRef<HTMLUListElement>(null);
 
         const focusOn = props.queries.findIndex(
@@ -469,6 +479,7 @@ export function init(
 
             const handleClickOutside = (evt: MouseEvent) => {
                 if (
+                    hasControls &&
                     containerRef.current &&
                     !containerRef.current.contains(evt.target as Node)
                 ) {
@@ -481,6 +492,7 @@ export function init(
                 // Only collapse if focus is moving to an element outside the container
                 // (relatedTarget null means clicking on non-focusable element, handled by mousedown)
                 if (
+                    hasControls &&
                     relatedTarget &&
                     containerRef.current &&
                     !containerRef.current.contains(relatedTarget)
@@ -536,7 +548,7 @@ export function init(
         };
 
         const handleFocus = () => {
-            if (props.isAnswerMode && !isExpanded) {
+            if (hasControls && props.isAnswerMode && !isExpanded) {
                 setIsExpanded(true);
             }
         };
@@ -572,12 +584,13 @@ export function init(
                                         : handleRMClickSwitchToSingle(queryIdx)
                                 }
                                 isCollapsed={!isExpanded}
+                                integratedSubmit={!hasControls}
                             />
                         </li>
                     ),
                     props.queries
                 )}
-                {(!props.isAnswerMode || isExpanded) && (
+                {((hasControls && !props.isAnswerMode) || isExpanded) && (
                     <li className="controls">
                         {props.supportsCmpQuery ? (
                             <AddCmpQueryField
@@ -595,8 +608,10 @@ export function init(
                         ) : null}
                     </li>
                 )}
-                {(!props.isAnswerMode || isExpanded) && (
-                    <li>{props.submitComponent}</li>
+                {((hasControls && !props.isAnswerMode) || isExpanded) && (
+                    <li>
+                        <SubmitButton onClick={props.handleSubmit} />
+                    </li>
                 )}
             </S.MultiQueryField>
         );
@@ -656,12 +671,6 @@ export function init(
                                 props.supportsExactFormSearch
                             }
                             isAnswerMode={props.isAnswerMode}
-                            submitComponent={
-                                <SubmitButton
-                                    onClick={handleSubmit}
-                                    cmpMode={false}
-                                />
-                            }
                         />
                     );
                 case 'cmp':
@@ -678,12 +687,6 @@ export function init(
                                 props.supportsExactFormSearch
                             }
                             isAnswerMode={props.isAnswerMode}
-                            submitComponent={
-                                <SubmitButton
-                                    onClick={handleSubmit}
-                                    cmpMode={false}
-                                />
-                            }
                         />
                     );
                 case 'translat':
