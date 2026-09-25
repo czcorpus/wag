@@ -332,9 +332,9 @@ export const BacklinkButton = styled.button<{
     }
 
     .icon {
-        margin-left: 2px;
-        width: 10px;
-        height: 10px;
+        margin-left: 0.1em;
+        width: 0.7em;
+        height: 0.7em;
         vertical-align: top;
         display: inline-block;
         background-color: ${(props) => props.theme.colorDefaultLink};
@@ -438,19 +438,17 @@ export const SourceInfoBox = styled.div<{
         }
     }
 
-    .backlink {
-        a {
-            color: ${(props) => props.theme.colorDefaultLink};
-        }
-    }
-
     a.external {
         color: ${(props) => props.theme.colorDefaultLink};
-        background-image: url(${(props) =>
-            props.$createStaticUrl('external-link.svg')});
-        background-repeat: no-repeat;
-        background-position: 99% 0;
-        padding-right: 1.1em;
+
+        .icon {
+            margin-left: 0.1em;
+            width: 0.7em;
+            height: 0.7em;
+            vertical-align: top;
+            display: inline-block;
+            background-color: ${(props) => props.theme.colorDefaultLink};
+        }
     }
 `;
 

@@ -516,19 +516,25 @@ export function init(
             <S.SourceInfoBox $createStaticUrl={ut.createStaticUrl}>
                 {props.data.backlink ? (
                     <>
-                        <h2 className="backlink">
+                        <h2>
                             <b>{props.data.backlink.key}</b>{' '}
                             {List.map(
                                 (link, i) => (
                                     <>
                                         {i > 0 ? ', ' : null}
                                         <a
-                                            className="backlink"
+                                            className="external"
                                             href={link.url}
                                             target="_blank"
                                             rel="noopener"
                                         >
                                             {link.label}
+                                            <SVGMaskIcon
+                                                className="icon"
+                                                src={ut.createStaticUrl(
+                                                    'external-link.svg'
+                                                )}
+                                            />
                                         </a>
                                     </>
                                 ),
@@ -550,6 +556,10 @@ export function init(
                             rel="noopener"
                         >
                             {props.data.href}
+                            <SVGMaskIcon
+                                className="icon"
+                                src={ut.createStaticUrl('external-link.svg')}
+                            />
                         </a>
                     </p>
                 ) : null}
