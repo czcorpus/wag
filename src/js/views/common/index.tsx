@@ -280,6 +280,10 @@ export function init(
                 {typeof props.backlink.label === 'string'
                     ? props.backlink.label
                     : props.backlink.label['en-US']}
+                <SVGMaskIcon
+                    className="icon"
+                    src={ut.createStaticUrl('external-link.svg')}
+                />
             </S.BacklinkButton>
         );
     };
@@ -519,11 +523,18 @@ export function init(
                                     <>
                                         {i > 0 ? ', ' : null}
                                         <a
+                                            className="external"
                                             href={link.url}
                                             target="_blank"
                                             rel="noopener"
                                         >
                                             {link.label}
+                                            <SVGMaskIcon
+                                                className="icon"
+                                                src={ut.createStaticUrl(
+                                                    'external-link.svg'
+                                                )}
+                                            />
                                         </a>
                                     </>
                                 ),
@@ -545,6 +556,10 @@ export function init(
                             rel="noopener"
                         >
                             {props.data.href}
+                            <SVGMaskIcon
+                                className="icon"
+                                src={ut.createStaticUrl('external-link.svg')}
+                            />
                         </a>
                     </p>
                 ) : null}
