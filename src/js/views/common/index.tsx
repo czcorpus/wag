@@ -280,6 +280,10 @@ export function init(
                 {typeof props.backlink.label === 'string'
                     ? props.backlink.label
                     : props.backlink.label['en-US']}
+                <SVGMaskIcon
+                    className="icon"
+                    src={ut.createStaticUrl('external-link.svg')}
+                />
             </S.BacklinkButton>
         );
     };
@@ -512,13 +516,14 @@ export function init(
             <S.SourceInfoBox $createStaticUrl={ut.createStaticUrl}>
                 {props.data.backlink ? (
                     <>
-                        <h2>
+                        <h2 className="backlink">
                             <b>{props.data.backlink.key}</b>{' '}
                             {List.map(
                                 (link, i) => (
                                     <>
                                         {i > 0 ? ', ' : null}
                                         <a
+                                            className="backlink"
                                             href={link.url}
                                             target="_blank"
                                             rel="noopener"

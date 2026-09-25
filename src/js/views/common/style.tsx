@@ -320,19 +320,24 @@ export const BacklinkButton = styled.button<{
     theme: Theme;
 }>`
     display: inline;
-    padding: 0 12px 0 0;
+    padding: 0;
     border: none;
     background-color: transparent;
     cursor: pointer;
     text-decoration: none;
     color: ${(props) => props.theme.colorDefaultLink};
-    background-image: url(${(props) =>
-        props.$createStaticUrl('external-link.svg')});
-    background-repeat: no-repeat;
-    background-position: 99% 0;
 
-    :hover {
+    &:hover {
         text-decoration: underline;
+    }
+
+    .icon {
+        margin-left: 2px;
+        width: 10px;
+        height: 10px;
+        vertical-align: top;
+        display: inline-block;
+        background-color: ${(props) => props.theme.colorDefaultLink};
     }
 `;
 
@@ -428,6 +433,12 @@ export const SourceInfoBox = styled.div<{
             color: ${(props) => props.theme.colorLogoPink};
         }
 
+        a {
+            color: ${(props) => props.theme.colorDefaultLink};
+        }
+    }
+
+    .backlink {
         a {
             color: ${(props) => props.theme.colorDefaultLink};
         }
