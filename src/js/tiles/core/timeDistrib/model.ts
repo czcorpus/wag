@@ -22,7 +22,7 @@ import { Dict, Maths, pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
+import { DataItemWithWCI, SubchartID, DataLoadedPayload, CorpusResource, CorpusResourceWithDesc, cartProd, MergeStreamedFreqDistArgs } from './common.js';
 import { Actions } from './common.js';
 import {
     LemmatizationLevel,
@@ -43,6 +43,7 @@ import { IDataStreaming } from '../../../page/streaming.js';
 import { CorpusInfoAPI } from '../../../api/vendor/mquery/corpusInfo.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
+import { MergeCorpFreqModelArgs } from '../mergeCorpFreq/model.js';
 
 export enum FreqFilterQuantity {
     ABS = 'abs',
@@ -63,9 +64,7 @@ export enum LoadingStatus {
 }
 
 export interface TimeDistribModelState {
-    corpname: string;
-    subcnames: Array<string>;
-    subcDesc: string;
+    corpora: Array<CorpusResourceWithDesc>;
     currQueryMatches: Array<QueryMatch>;
     error: string;
     alphaLevel: Maths.AlphaLevel;
@@ -83,9 +82,6 @@ export interface TimeDistribModelState {
     wordMainLabels: Array<string>; // a copy from mainform state used to attach a legend
     mainBacklinks: Array<Backlink>;
     cmpBacklink: Backlink;
-    fcrit: string;
-    fromYear: number;
-    toYear: number;
     maxItems: number;
     refArea: [number, number];
     averagingYears: number;
@@ -337,8 +333,19 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
+                const blCorpIdx = List.findIndex(v => !!v.isBackLinked, state.corpora);
+                if (blCorpIdx < 0) {
+                    const err = new Error('no backlink defined');
+                    dispatch(GlobalActions.BacklinkPreparationDone, err);
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        err
+                    );
+                    return;
+                }
                 const args = this.stateToArgs(
                     state,
+                    blCorpIdx,
                     action.payload.backlink.queryId,
                     action.payload.backlink.subqueryId === 1
                 );
@@ -666,7 +673,8 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                       try {
                           pipe(
                               state.currQueryMatches,
-                              List.map((currMatch, queryIdx) =>
+                              cartProd(List.map((_, i) => i, state.corpora)),
+                              List.map(([currMatch, corpIdx], queryIdx) =>
                                   tuple(
                                       testIsDictMatch(currMatch)
                                           ? this.stateToArgs(state, queryIdx)
@@ -717,26 +725,54 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
 
     private stateToArgs(
         state: TimeDistribModelState,
-        queryIdx: number,
+        corpusIdx: number,
         cmp?: boolean
-    ): TimeDistribArgs {
-        const queryMatch = state.currQueryMatches[queryIdx];
-        return {
-            corpname: state.corpname,
-            q: cmp
-                ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
-                : queryMatchToCQL(
-                      queryMatch,
-                      state.posQueryGenerator,
-                      state.lemmatizationLevel,
-                      this.lemLevelSupport.bind(this)
-                  ),
-            subcorpName: undefined, // TODO
-            fromYear: state.fromYear ? state.fromYear + '' : undefined,
-            toYear: state.toYear ? state.toYear + '' : undefined,
-            fcrit: state.fcrit,
-            maxItems: state.maxItems,
-            autobin: state.autobin ? '1' : '0',
-        };
+    ): TimeDistribArgs | MergeStreamedFreqDistArgs {
+        if (List.size(state.corpora) === 1) {
+            const queryMatch = List.head(state.currQueryMatches);
+            const conf = List.head(state.corpora);
+            return {
+                corpname: conf.corpname,
+                q: cmp
+                    ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
+                    : queryMatchToCQL(
+                        queryMatch,
+                        state.posQueryGenerator,
+                        state.lemmatizationLevel,
+                        this.lemLevelSupport.bind(this)
+                    ),
+                subcorpName: conf.subcname,
+                fromYear: conf.fromYear ? conf.fromYear + '' : undefined,
+                toYear: conf.toYear ? conf.toYear + '' : undefined,
+                fcrit: conf.fcrit,
+                maxItems: state.maxItems,
+                autobin: state.autobin ? '1' : '0',
+            };
+
+        } else {
+            return {
+                maxItems: state.maxItems,
+                event: null, // TODO
+                corpora: List.map(
+                    corp => ({
+                        corpname: corp.corpname,
+                        q: cmp
+                            ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
+                            : queryMatchToCQL(
+                                queryMatch,
+                                state.posQueryGenerator,
+                                state.lemmatizationLevel,
+                                this.lemLevelSupport.bind(this),
+                            ),
+                        attr: undefined, // TODO
+                        fcrit: corp.fcrit,
+                        flimit: corp.flimit,
+                        fromYear: corp.fromYear,
+                        toYear: corp.toYear
+                    }),
+                    state.corpora
+                )
+            );
+        }
     }
 }

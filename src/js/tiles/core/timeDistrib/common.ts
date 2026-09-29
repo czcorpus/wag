@@ -16,20 +16,31 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { TileConf } from '../../../page/tile.js';
+import { tuple } from 'cnc-tskit';
 
-export interface TimeDistTileConf extends CorpSrchTileConf {
+export interface CorpusResource {
+    corpname: string;
+    fcrit: string;
+    subcname?: string;
+    fromYear?: number;
+    toYear?: number;
+    isBackLinked?: boolean;
+}
+
+export interface CorpusResourceWithDesc extends CorpusResource {
+    subcDesc?: string;
+}
+
+export interface TimeDistTileConf extends TileConf {
+    corpora: Array<CorpusResource & { subcDesc?: LocalizedConfMsg }>;
+
     apiURL: string;
 
     maxItems: number;
-
-    fcrit: string;
-
-    fromYear?: number;
-
-    toYear?: number;
 
     posQueryGenerator: PosQueryGeneratorType;
 
@@ -56,6 +67,21 @@ export interface DataItemWithWCI {
     ipm: number;
     norm: number;
     ipmInterval: [number, number];
+}
+
+export interface MergeStreamedFreqDistArgs {
+    maxItems: number;
+    event: string;
+
+    corpora: Array<{
+        corpname: string;
+        q: string;
+        attr: string;
+        fcrit: string;
+        flimit: number;
+        fromYear: string;
+        toYear: string;
+    }>;
 }
 
 export class Actions {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { List, Maths } from 'cnc-tskit';
+import { Dict, List, Maths } from 'cnc-tskit';
 
 import {
     findCurrQueryMatch,
@@ -100,11 +100,15 @@ export class TimeDistTile implements ITileProvider {
                     ? LoadingStatus.BUSY_LOADING_MAIN
                     : LoadingStatus.IDLE,
                 error: null,
-                corpname: conf.corpname,
-                subcnames: Array.isArray(conf.subcname)
-                    ? [...conf.subcname]
-                    : [conf.subcname],
-                subcDesc: appServices.importExternalMessage(conf.subcDesc),
+                corpora: List.map(
+                    (item, k) => ({
+                        ...item,
+                        subcDesc: appServices.importExternalMessage(
+                            item.subcDesc
+                        ),
+                    }),
+                    conf.corpora
+                ),
                 currQueryMatches: List.map(findCurrQueryMatch, queryMatches),
                 mainPosAttr,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
@@ -120,11 +124,8 @@ export class TimeDistTile implements ITileProvider {
                 wordCmp: '',
                 zoom: [null, null],
                 refArea: [null, null],
-                fromYear: conf.fromYear,
-                toYear: conf.toYear,
                 maxItems: conf.maxItems,
                 autobin: conf.autobin,
-                fcrit: conf.fcrit,
                 mainBacklinks: List.map((_) => null, queryMatches),
                 cmpBacklink: null,
                 averagingYears: 0,
@@ -227,13 +228,15 @@ export class TimeDistTile implements ITileProvider {
 export const init: TileFactory<TimeDistTileConf> = {
     sanityCheck: (args) => {
         let ans = [];
-        if (!args.conf.fcrit) {
-            ans.push(
-                new Error(
-                    `${args.conf.tileType}: missing "fcrit" configuration`
-                )
-            );
-        }
+        List.forEach((corp) => {
+            if (!corp.fcrit) {
+                ans.push(
+                    new Error(
+                        `${args.conf.tileType}: missing "fcrit" configuration for ${corp.corpname}`
+                    )
+                );
+            }
+        }, args.conf.corpora);
         if (!args.conf.maxItems) {
             ans.push(
                 new Error(
