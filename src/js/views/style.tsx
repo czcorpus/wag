@@ -982,6 +982,10 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
             color: ${(props) => props.theme.colorDefaultLink};
             cursor: pointer;
         }
+
+        a:hover {
+            text-decoration: underline;
+        }
     }
 
     li:not(:last-child) {
@@ -1220,6 +1224,12 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     border-radius: ${(props) => props.theme.formElementsBorderRadius} 0 0
         ${(props) => props.theme.formElementsBorderRadius};
     overflow: hidden;
+
+    &:hover {
+        .index-button {
+            color: ${(props) => props.theme.colorLogoBlueShining};
+        }
+    }
 
     .index-button {
         display: flex;
