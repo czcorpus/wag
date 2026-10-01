@@ -87,6 +87,12 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
         color: ${(props) => props.theme.colorWhitelikeBlue};
         background-color: ${(props) => props.theme.colorWhitelikeBlue};
     }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        p.not-applicable {
+            display: none !important;
+        }
+    }
 `;
 
 // ---------------- <TileWrapper /> --------------------------------------
