@@ -33,7 +33,11 @@ import {
     TileFactory,
     TileFactoryArgs,
 } from '../../../page/tile.js';
-import { TimeDistTileConf } from './common.js';
+import {
+    isTimeDistTileLegacyConf,
+    TimeDistTileConf,
+    TimeDistTileLegacyConf,
+} from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as singleViewInit } from './views/single.js';
 import { init as compareViewInit } from './views/compare.js';
@@ -85,11 +89,33 @@ export class TimeDistTile implements ITileProvider {
         queryType,
         lemmatizationLevel,
         dependentTiles,
-    }: TileFactoryArgs<TimeDistTileConf>) {
+    }: TileFactoryArgs<TimeDistTileConf | TimeDistTileLegacyConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.configuredLemLevels = conf.lemmatizationLevels || [];
+
+        const isLegacyConf = isTimeDistTileLegacyConf(conf);
+        if (isLegacyConf) {
+            console.warn(
+                'using legacy TimeDistTile configuration - please upgrade'
+            );
+        }
+        const normConf: TimeDistTileConf = isLegacyConf
+            ? {
+                  ...conf,
+                  corpora: [
+                      {
+                          corpname: conf.corpname,
+                          fcrit: conf.fcrit,
+                          flimit: 1,
+                          fromYear: conf.fromYear,
+                          toYear: conf.toYear,
+                          isBackLinked: !!conf.backlink,
+                      },
+                  ],
+              }
+            : conf;
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
@@ -100,11 +126,15 @@ export class TimeDistTile implements ITileProvider {
                     ? LoadingStatus.BUSY_LOADING_MAIN
                     : LoadingStatus.IDLE,
                 error: null,
-                corpname: conf.corpname,
-                subcnames: Array.isArray(conf.subcname)
-                    ? [...conf.subcname]
-                    : [conf.subcname],
-                subcDesc: appServices.importExternalMessage(conf.subcDesc),
+                corpora: List.map(
+                    (item, k) => ({
+                        ...item,
+                        subcDesc: appServices.importExternalMessage(
+                            item.subcDesc
+                        ),
+                    }),
+                    normConf.corpora
+                ),
                 currQueryMatches: List.map(findCurrQueryMatch, queryMatches),
                 mainPosAttr,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
@@ -120,11 +150,8 @@ export class TimeDistTile implements ITileProvider {
                 wordCmp: '',
                 zoom: [null, null],
                 refArea: [null, null],
-                fromYear: conf.fromYear,
-                toYear: conf.toYear,
                 maxItems: conf.maxItems,
                 autobin: conf.autobin,
-                fcrit: conf.fcrit,
                 mainBacklinks: List.map((_) => null, queryMatches),
                 cmpBacklink: null,
                 averagingYears: 0,
@@ -227,13 +254,15 @@ export class TimeDistTile implements ITileProvider {
 export const init: TileFactory<TimeDistTileConf> = {
     sanityCheck: (args) => {
         let ans = [];
-        if (!args.conf.fcrit) {
-            ans.push(
-                new Error(
-                    `${args.conf.tileType}: missing "fcrit" configuration`
-                )
-            );
-        }
+        List.forEach((corp) => {
+            if (!corp.fcrit) {
+                ans.push(
+                    new Error(
+                        `${args.conf.tileType}: missing "fcrit" configuration for ${corp.corpname}`
+                    )
+                );
+            }
+        }, args.conf.corpora);
         if (!args.conf.maxItems) {
             ans.push(
                 new Error(

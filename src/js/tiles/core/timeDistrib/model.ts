@@ -22,7 +22,12 @@ import { Dict, Maths, pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common.js';
+import {
+    DataItemWithWCI,
+    SubchartID,
+    DataLoadedPayload,
+    CorpusResourceWithDesc,
+} from './common.js';
 import { Actions } from './common.js';
 import {
     LemmatizationLevel,
@@ -32,6 +37,8 @@ import {
 import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
 import {
+    isTimeDistribArgs,
+    MergedTimeDistribArgs,
     MQueryTimeDistribStreamApi,
     TimeDistribArgs,
     TimeDistribResponse,
@@ -63,9 +70,7 @@ export enum LoadingStatus {
 }
 
 export interface TimeDistribModelState {
-    corpname: string;
-    subcnames: Array<string>;
-    subcDesc: string;
+    corpora: Array<CorpusResourceWithDesc>;
     currQueryMatches: Array<QueryMatch>;
     error: string;
     alphaLevel: Maths.AlphaLevel;
@@ -83,9 +88,6 @@ export interface TimeDistribModelState {
     wordMainLabels: Array<string>; // a copy from mainform state used to attach a legend
     mainBacklinks: Array<Backlink>;
     cmpBacklink: Backlink;
-    fcrit: string;
-    fromYear: number;
-    toYear: number;
     maxItems: number;
     refArea: [number, number];
     averagingYears: number;
@@ -337,11 +339,31 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             (action) => action.payload.tileId === this.tileId,
             null,
             (state, action, dispatch) => {
+                const blCorpIdx =
+                    List.size(state.corpora) === 1
+                        ? 0
+                        : List.findIndex(
+                              (v) => !!v.isBackLinked,
+                              state.corpora
+                          );
+                if (blCorpIdx < 0) {
+                    const err = new Error('no backlink defined');
+                    dispatch(GlobalActions.BacklinkPreparationDone, err);
+                    this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    return;
+                }
                 const args = this.stateToArgs(
-                    state,
-                    action.payload.backlink.queryId,
+                    { ...state, corpora: [state.corpora[blCorpIdx]] },
                     action.payload.backlink.subqueryId === 1
                 );
+                if (!isTimeDistribArgs(args)) {
+                    const err = new Error(
+                        'internal error - invalid backlink configuration'
+                    );
+                    dispatch(GlobalActions.BacklinkPreparationDone, err);
+                    this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    return;
+                }
                 this.api.requestBacklink(args).subscribe({
                     next: (url) => {
                         dispatch(GlobalActions.BacklinkPreparationDone);
@@ -655,7 +677,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             targetId === SubchartID.MAIN
                 ? new Observable<
                       [
-                          TimeDistribArgs,
+                          TimeDistribArgs | MergedTimeDistribArgs,
                           {
                               wordMainLabel: string;
                               targetId: SubchartID;
@@ -669,7 +691,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                               List.map((currMatch, queryIdx) =>
                                   tuple(
                                       testIsDictMatch(currMatch)
-                                          ? this.stateToArgs(state, queryIdx)
+                                          ? this.stateToArgs(state)
                                           : null,
                                       {
                                           wordMainLabel: currMatch.lemma,
@@ -701,7 +723,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                           streaming,
                           this.tileId,
                           0,
-                          this.stateToArgs(state, 0, true)
+                          this.stateToArgs(state, true)
                       )
                       .pipe(
                           map((resp) =>
@@ -717,26 +739,53 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
 
     private stateToArgs(
         state: TimeDistribModelState,
-        queryIdx: number,
         cmp?: boolean
-    ): TimeDistribArgs {
-        const queryMatch = state.currQueryMatches[queryIdx];
-        return {
-            corpname: state.corpname,
-            q: cmp
-                ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
-                : queryMatchToCQL(
-                      queryMatch,
-                      state.posQueryGenerator,
-                      state.lemmatizationLevel,
-                      this.lemLevelSupport.bind(this)
-                  ),
-            subcorpName: undefined, // TODO
-            fromYear: state.fromYear ? state.fromYear + '' : undefined,
-            toYear: state.toYear ? state.toYear + '' : undefined,
-            fcrit: state.fcrit,
-            maxItems: state.maxItems,
-            autobin: state.autobin ? '1' : '0',
-        };
+    ): TimeDistribArgs | MergedTimeDistribArgs {
+        const queryMatch = List.head(state.currQueryMatches);
+
+        if (List.size(state.corpora) === 1) {
+            const conf = List.head(state.corpora);
+            return {
+                corpname: conf.corpname,
+                q: cmp
+                    ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
+                    : queryMatchToCQL(
+                          queryMatch,
+                          state.posQueryGenerator,
+                          state.lemmatizationLevel,
+                          this.lemLevelSupport.bind(this)
+                      ),
+                subcorpName: conf.subcname,
+                fromYear: conf.fromYear ? conf.fromYear + '' : undefined,
+                toYear: conf.toYear ? conf.toYear + '' : undefined,
+                fcrit: conf.fcrit,
+                maxItems: state.maxItems,
+                autobin: state.autobin ? '1' : '0',
+            };
+        } else {
+            return {
+                maxItems: state.maxItems,
+                event: null, // TODO
+                corpora: List.map(
+                    (corp) => ({
+                        corpname: corp.corpname,
+                        q: cmp
+                            ? `[word=="${state.wordCmp}"]` // TODO generate the query in a better way
+                            : queryMatchToCQL(
+                                  queryMatch,
+                                  state.posQueryGenerator,
+                                  state.lemmatizationLevel,
+                                  this.lemLevelSupport.bind(this)
+                              ),
+                        attr: undefined, // TODO
+                        fcrit: corp.fcrit,
+                        flimit: corp.flimit,
+                        fromYear: corp.fromYear,
+                        toYear: corp.toYear,
+                    }),
+                    state.corpora
+                ),
+            };
+        }
     }
 }

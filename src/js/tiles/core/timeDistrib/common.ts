@@ -16,11 +16,26 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
+import { LocalizedConfMsg } from '../../../types.js';
+import { CorpSrchTileConf, TileConf } from '../../../page/tile.js';
 
-export interface TimeDistTileConf extends CorpSrchTileConf {
+export interface CorpusResource {
+    corpname: string;
+    fcrit: string;
+    flimit: number;
+    subcname?: string;
+    fromYear?: number;
+    toYear?: number;
+    isBackLinked?: boolean;
+}
+
+export interface CorpusResourceWithDesc extends CorpusResource {
+    subcDesc?: string;
+}
+
+export interface TimeDistTileLegacyConf extends CorpSrchTileConf {
     apiURL: string;
 
     maxItems: number;
@@ -30,6 +45,28 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     fromYear?: number;
 
     toYear?: number;
+
+    posQueryGenerator: PosQueryGeneratorType;
+
+    supportsSublemma?: boolean;
+
+    showMeasuredFreq?: boolean;
+
+    autobin?: boolean;
+}
+
+export function isTimeDistTileLegacyConf(
+    conf: TimeDistTileLegacyConf | TimeDistTileConf
+): conf is TimeDistTileLegacyConf {
+    return conf.hasOwnProperty('corpname') && conf.hasOwnProperty('fcrit');
+}
+
+export interface TimeDistTileConf extends TileConf {
+    corpora: Array<CorpusResource & { subcDesc?: LocalizedConfMsg }>;
+
+    apiURL: string;
+
+    maxItems: number;
 
     posQueryGenerator: PosQueryGeneratorType;
 

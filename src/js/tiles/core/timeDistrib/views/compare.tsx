@@ -595,7 +595,13 @@ export function init(
                 isBusy={state.loadingStatus !== LoadingStatus.IDLE}
                 error={state.error}
                 hasData={List.some((v) => v.length > 0, state.data)}
-                sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
+                sourceIdent={List.map(
+                    (corp) => ({
+                        corp: corp.corpname,
+                        subcDesc: corp.subcDesc,
+                    }),
+                    state.corpora
+                )}
                 supportsTileReload={props.supportsReloadOnError}
                 isSubtileContainer={props.isSubtileContainer}
                 issueReportingUrl={props.issueReportingUrl}
