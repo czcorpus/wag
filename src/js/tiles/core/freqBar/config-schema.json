@@ -49,6 +49,12 @@
         "pixelsPerCategory": {
             "type": "number"
         },
+        "hideCategories": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
         "posQueryGenerator": {
             "description": "A positional attribute name and a function name to create a query value (e.g. ['tag', 'ppTagset']).",
             "type": "array",

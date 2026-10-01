@@ -19,12 +19,12 @@ import { Action } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { PosQueryGeneratorType } from '../../../conf/common.js';
 import { LocalizedConfMsg } from '../../../types.js';
-import { TileConf } from '../../../page/tile.js';
-import { tuple } from 'cnc-tskit';
+import { CorpSrchTileConf, TileConf } from '../../../page/tile.js';
 
 export interface CorpusResource {
     corpname: string;
     fcrit: string;
+    flimit: number;
     subcname?: string;
     fromYear?: number;
     toYear?: number;
@@ -33,6 +33,32 @@ export interface CorpusResource {
 
 export interface CorpusResourceWithDesc extends CorpusResource {
     subcDesc?: string;
+}
+
+export interface TimeDistTileLegacyConf extends CorpSrchTileConf {
+    apiURL: string;
+
+    maxItems: number;
+
+    fcrit: string;
+
+    fromYear?: number;
+
+    toYear?: number;
+
+    posQueryGenerator: PosQueryGeneratorType;
+
+    supportsSublemma?: boolean;
+
+    showMeasuredFreq?: boolean;
+
+    autobin?: boolean;
+}
+
+export function isTimeDistTileLegacyConf(
+    conf: TimeDistTileLegacyConf | TimeDistTileConf
+): conf is TimeDistTileLegacyConf {
+    return conf.hasOwnProperty('corpname') && conf.hasOwnProperty('fcrit');
 }
 
 export interface TimeDistTileConf extends TileConf {
@@ -67,21 +93,6 @@ export interface DataItemWithWCI {
     ipm: number;
     norm: number;
     ipmInterval: [number, number];
-}
-
-export interface MergeStreamedFreqDistArgs {
-    maxItems: number;
-    event: string;
-
-    corpora: Array<{
-        corpname: string;
-        q: string;
-        attr: string;
-        fcrit: string;
-        flimit: number;
-        fromYear: string;
-        toYear: string;
-    }>;
 }
 
 export class Actions {

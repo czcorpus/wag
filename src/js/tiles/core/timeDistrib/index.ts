@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher } from 'kombo';
-import { Dict, List, Maths } from 'cnc-tskit';
+import { List, Maths } from 'cnc-tskit';
 
 import {
     findCurrQueryMatch,
@@ -33,7 +33,11 @@ import {
     TileFactory,
     TileFactoryArgs,
 } from '../../../page/tile.js';
-import { TimeDistTileConf } from './common.js';
+import {
+    isTimeDistTileLegacyConf,
+    TimeDistTileConf,
+    TimeDistTileLegacyConf,
+} from './common.js';
 import { TimeDistribModel, LoadingStatus } from './model.js';
 import { init as singleViewInit } from './views/single.js';
 import { init as compareViewInit } from './views/compare.js';
@@ -85,11 +89,33 @@ export class TimeDistTile implements ITileProvider {
         queryType,
         lemmatizationLevel,
         dependentTiles,
-    }: TileFactoryArgs<TimeDistTileConf>) {
+    }: TileFactoryArgs<TimeDistTileConf | TimeDistTileLegacyConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.configuredLemLevels = conf.lemmatizationLevels || [];
+
+        const isLegacyConf = isTimeDistTileLegacyConf(conf);
+        if (isLegacyConf) {
+            console.warn(
+                'using legacy TimeDistTile configuration - please upgrade'
+            );
+        }
+        const normConf: TimeDistTileConf = isLegacyConf
+            ? {
+                  ...conf,
+                  corpora: [
+                      {
+                          corpname: conf.corpname,
+                          fcrit: conf.fcrit,
+                          flimit: 1,
+                          fromYear: conf.fromYear,
+                          toYear: conf.toYear,
+                          isBackLinked: !!conf.backlink,
+                      },
+                  ],
+              }
+            : conf;
 
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
@@ -107,7 +133,7 @@ export class TimeDistTile implements ITileProvider {
                             item.subcDesc
                         ),
                     }),
-                    conf.corpora
+                    normConf.corpora
                 ),
                 currQueryMatches: List.map(findCurrQueryMatch, queryMatches),
                 mainPosAttr,

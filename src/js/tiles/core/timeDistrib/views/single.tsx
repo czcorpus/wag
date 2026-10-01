@@ -696,7 +696,13 @@ export function init(
                 isBusy={state.loadingStatus !== LoadingStatus.IDLE}
                 error={state.error}
                 hasData={List.head(state.data).length >= MIN_DATA_ITEMS_TO_SHOW}
-                sourceIdent={{ corp: state.corpname, subcorp: state.subcDesc }}
+                sourceIdent={List.map(
+                    (corp) => ({
+                        corp: corp.corpname,
+                        subcDesc: corp.subcDesc,
+                    }),
+                    state.corpora
+                )}
                 supportsTileReload={props.supportsReloadOnError}
                 isSubtileContainer={props.isSubtileContainer}
                 backlink={[List.head(state.mainBacklinks), state.cmpBacklink]}

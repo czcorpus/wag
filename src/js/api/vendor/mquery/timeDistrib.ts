@@ -16,7 +16,16 @@
  * limitations under the License.
  */
 
-import { catchError, concatMap, map, Observable, scan, takeWhile } from 'rxjs';
+import {
+    catchError,
+    concatMap,
+    map,
+    mergeMap,
+    Observable,
+    scan,
+    takeWhile,
+    tap,
+} from 'rxjs';
 import urlJoin from 'url-join';
 
 import { DataApi } from '../../../types.js';
@@ -45,6 +54,27 @@ export interface TimeDistribArgs {
     autobin: string | undefined;
 }
 
+export function isTimeDistribArgs(
+    v: TimeDistribArgs | MergedTimeDistribArgs
+): v is TimeDistribArgs {
+    return v['corpname'] !== undefined && v['corpora'] === undefined;
+}
+
+export interface MergedTimeDistribArgs {
+    maxItems: number;
+    event: string;
+
+    corpora: Array<{
+        corpname: string;
+        q: string;
+        attr: string;
+        fcrit: string;
+        flimit: number;
+        fromYear: number;
+        toYear: number;
+    }>;
+}
+
 export type CustomArgs = { [k: string]: string };
 
 /**
@@ -69,22 +99,69 @@ export interface TimeDistribItem {
  */
 export interface TimeDistribResponse {
     corpName: string;
-    subcorpName?: string;
-    concPersistenceID?: string;
     data: Array<TimeDistribItem>;
     overwritePrevious?: boolean;
+}
+
+interface FreqData {
+    concSize: number;
+    corpusSize: number;
+    searchSize: number;
+    freqs: FreqRowResponse[];
 }
 
 export interface MqueryStreamData {
     chunkNum: number;
     totalChunks: number;
     error: string;
-    entries: {
-        concSize: number;
-        corpusSize: number;
-        searchSize: number;
-        freqs: FreqRowResponse[];
-    };
+    entries: FreqData;
+}
+
+export interface MqueryCorpBoundStreamData extends MqueryStreamData {
+    corpname: string;
+    subcname: string;
+}
+
+function mergeMqueryCorpBoundStreamData(
+    data: Map<string, MqueryCorpBoundStreamData>
+): Array<FreqRowResponse> {
+    return pipe(
+        [] as Array<MqueryCorpBoundStreamData>,
+        (x) => x.concat(...Array.from(data.values())),
+        List.flatMap((v) => v.entries.freqs),
+        List.reduce((merged, freqInfo) => {
+            const curr = merged.get(freqInfo.word);
+            if (curr === undefined) {
+                merged.set(freqInfo.word, freqInfo);
+            } else {
+                merged.set(freqInfo.word, {
+                    base: curr.base + freqInfo.base,
+                    collScore: undefined,
+                    freq: curr.freq + freqInfo.freq,
+                    ipm: undefined,
+                    word: freqInfo.word,
+                });
+            }
+            return merged;
+        }, new Map<string, FreqRowResponse>()),
+        (x) => Array.from(x.entries()),
+        List.map(([, v]) => v)
+    );
+}
+
+export interface MqueryMergeStreamData {
+    error: string;
+    parts: Array<MqueryCorpBoundStreamData>;
+}
+
+function isMqueryMergeStreamData(
+    md: MqueryStreamData | MqueryMergeStreamData
+): md is MqueryMergeStreamData {
+    return Array.isArray(md['parts']);
+}
+
+function createMqueryStreamDataKey(data: MqueryCorpBoundStreamData): string {
+    return `${data.corpname}:${data.subcname}`;
 }
 
 /**
@@ -150,7 +227,7 @@ export class MQueryTimeDistribStreamApi
                     ? `DataTile-${tileId}.${queryIdx}`
                     : undefined,
             },
-            Dict.filter((v, k) => v !== undefined),
+            Dict.filter((v, k) => v !== undefined && k !== 'corpname'),
             Dict.map((v, k) => encodeURIComponent(v)),
             Dict.toEntries(),
             List.map(([k, v]) => `${k}=${v}`),
@@ -158,65 +235,145 @@ export class MQueryTimeDistribStreamApi
         );
     }
 
+    private prepareMultiCorpArgs(
+        tileId: number,
+        queryIdx: number,
+        queryArgs: MergedTimeDistribArgs,
+        eventSource?: boolean
+    ): MergedTimeDistribArgs {
+        return {
+            ...queryArgs,
+            event: eventSource ? `DataTile-${tileId}.${queryIdx}` : undefined,
+        };
+    }
+
+    private generateURL(
+        tileId: number,
+        queryIdx: number,
+        queryArgs: TimeDistribArgs | MergedTimeDistribArgs
+    ): [HTTP.Method, string | null, {}] {
+        if (!queryArgs) {
+            return null;
+        }
+        if (isTimeDistribArgs(queryArgs)) {
+            return tuple(
+                HTTP.Method.GET,
+                `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`,
+                {}
+            );
+        }
+        return tuple(
+            HTTP.Method.POST,
+            `${this.apiURL}/merge-freqs-by-year-streamed?`,
+            this.prepareMultiCorpArgs(tileId, queryIdx, queryArgs, true)
+        );
+    }
+
+    private processResponse(
+        data: Observable<MqueryStreamData | MqueryMergeStreamData>,
+        queryArgs: TimeDistribArgs | MergedTimeDistribArgs
+    ): Observable<TimeDistribResponse> {
+        return data.pipe(
+            scan<
+                MqueryStreamData | MqueryMergeStreamData,
+                {
+                    chunks: Map<string, Set<number>>;
+                    totals: Map<string, number>;
+                    lastItems: Map<string, MqueryCorpBoundStreamData>;
+                }
+            >(
+                (acc, value) => {
+                    if (isMqueryMergeStreamData(value)) {
+                        pipe(
+                            value.parts,
+                            List.filter((v) => v.chunkNum !== undefined),
+                            List.forEach((part) => {
+                                const key = createMqueryStreamDataKey(part);
+                                acc.totals.set(key, part.totalChunks);
+                                const currChunks =
+                                    acc.chunks.get(key) || new Set();
+                                currChunks.add(part.chunkNum);
+                                acc.chunks.set(key, currChunks);
+                                acc.lastItems.set(key, part);
+                            })
+                        );
+                    } else if (isTimeDistribArgs(queryArgs)) {
+                        const corpBoundVal: MqueryCorpBoundStreamData = {
+                            ...value,
+                            corpname: queryArgs.corpname,
+                            subcname: queryArgs.subcorpName,
+                        };
+                        const key = createMqueryStreamDataKey(corpBoundVal);
+                        acc.totals.set(key, value.totalChunks);
+                        const currChunks = acc.chunks.get(key) || new Set();
+                        currChunks.add(value.chunkNum);
+                        acc.chunks.set(key, currChunks);
+                        acc.lastItems.set(key, corpBoundVal);
+                    }
+
+                    return acc;
+                },
+                {
+                    chunks: new Map<string, Set<number>>(),
+                    totals: new Map<string, number>(),
+                    lastItems: new Map<string, MqueryCorpBoundStreamData>(),
+                }
+            ),
+            takeWhile(({ chunks, totals }) => {
+                return pipe(
+                    Array.from(chunks.entries()),
+                    List.some(([k, v]) => v.size <= totals.get(k))
+                );
+            }),
+            map(({ lastItems }) => {
+                const merged = mergeMqueryCorpBoundStreamData(lastItems);
+                return {
+                    corpName: '-',
+                    data: List.map(
+                        (v) => ({
+                            datetime: v.word,
+                            freq: v.freq,
+                            norm: v.base,
+                        }),
+                        merged
+                    ),
+                    overwritePrevious: true,
+                };
+            })
+        );
+    }
+
     public loadSecondWord(
         streaming: IDataStreaming,
         tileId: number,
         queryIdx: number,
-        queryArgs: TimeDistribArgs
+        queryArgs: TimeDistribArgs | MergedTimeDistribArgs
     ): Observable<TimeDistribResponse> {
-        const args = this.prepareArgs(tileId, queryIdx, queryArgs, true);
-        return streaming
-            .registerTileRequest<MqueryStreamData>({
+        return this.processResponse(
+            streaming.registerTileRequest<
+                MqueryStreamData | MqueryMergeStreamData
+            >({
                 tileId,
                 queryIdx,
-                method: HTTP.Method.GET,
-                url: `${this.apiURL}/time-dist-word?${args}`,
-                body: {},
+                method: isTimeDistribArgs(queryArgs)
+                    ? HTTP.Method.GET
+                    : HTTP.Method.POST,
+                url: isTimeDistribArgs(queryArgs)
+                    ? `${this.apiURL}/time-dist-word?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`
+                    : `${this.apiURL}/merge-time-dist-word`,
+                body: isTimeDistribArgs(queryArgs)
+                    ? {}
+                    : this.prepareMultiCorpArgs(
+                          tileId,
+                          queryIdx,
+                          queryArgs,
+                          true
+                      ),
                 contentType: 'application/json',
                 isEventSource: true,
-            })
-            .pipe(
-                scan<
-                    MqueryStreamData,
-                    { curr: MqueryStreamData; chunks: Map<number, boolean> }
-                >(
-                    (acc, value) => {
-                        acc.chunks.set(value.chunkNum, true);
-                        acc.curr = value;
-                        return acc;
-                    },
-                    {
-                        curr: null,
-                        chunks: new Map<number, boolean>(),
-                    }
-                ),
-                takeWhile(
-                    ({ curr, chunks }) =>
-                        pipe(
-                            Array.from(chunks.entries()),
-                            List.filter(([k, v]) => !!v),
-                            List.size()
-                        ) <= curr.totalChunks
-                ),
-                map(({ curr }) => {
-                    if (curr.error) {
-                        throw new Error(curr.error);
-                    }
-                    return {
-                        corpName: queryArgs.corpname,
-                        subcorpName: queryArgs.subcorpName,
-                        data: List.map(
-                            (v) => ({
-                                datetime: v.word,
-                                freq: v.freq,
-                                norm: v.base,
-                            }),
-                            curr.entries.freqs
-                        ),
-                        overwritePrevious: true,
-                    };
-                })
-            );
+            }),
+            queryArgs
+        );
     }
 
     /*
@@ -231,65 +388,25 @@ export class MQueryTimeDistribStreamApi
         streaming: IDataStreaming,
         tileId: number,
         queryIdx: number,
-        queryArgs: TimeDistribArgs
+        queryArgs: TimeDistribArgs | MergedTimeDistribArgs
     ): Observable<TimeDistribResponse> {
-        return streaming
-            .registerTileRequest<MqueryStreamData>({
+        const [method, url, body] = this.generateURL(
+            tileId,
+            queryIdx,
+            queryArgs
+        );
+        return this.processResponse(
+            streaming.registerTileRequest<MqueryStreamData>({
                 tileId,
                 queryIdx,
-                method: HTTP.Method.GET,
-                url: queryArgs
-                    ? `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`
-                    : '',
-                body: {},
+                method,
+                url,
+                body,
                 contentType: 'application/json',
                 isEventSource: true,
-            })
-            .pipe(
-                scan<
-                    MqueryStreamData,
-                    { curr: MqueryStreamData; chunks: Map<number, boolean> }
-                >(
-                    (acc, value) => {
-                        if (value) {
-                            acc.chunks.set(value.chunkNum, true);
-                            acc.curr = value;
-                        }
-                        return acc;
-                    },
-                    {
-                        curr: null,
-                        chunks: new Map<number, boolean>(),
-                    }
-                ),
-                takeWhile(
-                    ({ curr, chunks }) =>
-                        curr &&
-                        pipe(
-                            Array.from(chunks.entries()),
-                            List.filter(([k, v]) => !!v),
-                            List.size()
-                        ) <= curr.totalChunks
-                ),
-                map(({ curr }) => {
-                    if (curr.error) {
-                        throw new Error(curr.error);
-                    }
-                    return {
-                        corpName: queryArgs.corpname,
-                        subcorpName: queryArgs.subcorpName,
-                        data: List.map(
-                            (v) => ({
-                                datetime: v.word,
-                                freq: v.freq,
-                                norm: v.base,
-                            }),
-                            curr.entries.freqs
-                        ),
-                        overwritePrevious: true,
-                    };
-                })
-            );
+            }),
+            queryArgs
+        );
     }
 
     requestBacklink(args: TimeDistribArgs): Observable<URL> {

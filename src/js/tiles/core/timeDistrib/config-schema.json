@@ -1,19 +1,38 @@
 {
     "type": "object",
     "properties": {
+        "corpora": {
+            "type": "array",
+            "items": {
+                "allOf": [
+                    {
+                        "$ref": "#/definitions/CorpusResource"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "subcDesc": {
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
         "apiURL": {
             "type": "string"
         },
         "maxItems": {
-            "type": "number"
-        },
-        "fcrit": {
-            "type": "string"
-        },
-        "fromYear": {
-            "type": "number"
-        },
-        "toYear": {
             "type": "number"
         },
         "posQueryGenerator": {
@@ -42,35 +61,6 @@
         },
         "autobin": {
             "type": "boolean"
-        },
-        "corpname": {
-            "type": "string"
-        },
-        "subcname": {
-            "anyOf": [
-                {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                {
-                    "type": "string"
-                }
-            ]
-        },
-        "subcDesc": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                {
-                    "type": "string"
-                }
-            ]
         },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
@@ -142,13 +132,43 @@
     },
     "required": [
         "apiURL",
-        "corpname",
-        "fcrit",
+        "corpora",
         "maxItems",
         "posQueryGenerator",
         "tileType"
     ],
     "definitions": {
+        "CorpusResource": {
+            "type": "object",
+            "properties": {
+                "corpname": {
+                    "type": "string"
+                },
+                "fcrit": {
+                    "type": "string"
+                },
+                "flimit": {
+                    "type": "number"
+                },
+                "subcname": {
+                    "type": "string"
+                },
+                "fromYear": {
+                    "type": "number"
+                },
+                "toYear": {
+                    "type": "number"
+                },
+                "isBackLinked": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "corpname",
+                "fcrit",
+                "flimit"
+            ]
+        },
         "BacklinkConf": {
             "type": "object",
             "properties": {

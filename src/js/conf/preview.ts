@@ -121,19 +121,22 @@ const tileConf: { [name: string]: AnyPreviewTileConf } = {
         tileType: 'TimeDistribTile',
         apiType: 'mquery',
         apiURL: '/PREVIEW__timeDistrib',
-        corpname: 'syn2020',
-        subcname: ['9eSmyKII'],
+        corpora: [
+            {
+                corpname: 'syn2020',
+                subcname: '9eSmyKII',
+                fcrit: 'doc.pubyear 0',
+                flimit: 1,
+                fromYear: 1990,
+                toYear: 2020,
+            },
+        ],
         showMeasuredFreq: true,
         posQueryGenerator: ['tag', 'ppTagset'],
         helpURL: 'anything',
         subcBacklinkLabel: {
             '9eSmyKII': 'pub',
         },
-        fcrit: 'doc.pubyear 0',
-        fromYear: 1990,
-        toYear: 2020,
-        corpName: 'syn2020',
-        subcorpName: '9eSmyKII',
         maxItems: 100,
         backlink: {
             url: '---',
@@ -251,6 +254,7 @@ interface AnyPreviewTileConf extends TileConf {
     infoApiURL?: string;
     apiType?: string;
     corpname?: string;
+    corpora?: Array<any>;
     corpName?: string;
     sentenceStruct?: string;
     subcname?: unknown;
