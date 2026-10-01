@@ -262,6 +262,7 @@ export class MQueryMultiCollAPI
                         corpusId: conf.corpusId,
                         args: {
                             maxRows: conf.args.maxRows,
+                            showTextProps: '1',
                         },
                     } as ConcArgs;
             }
