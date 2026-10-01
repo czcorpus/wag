@@ -1244,14 +1244,13 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
 
         a {
             display: block;
-            color: ${(props) => props.theme.colorSecondaryText};
+            color: ${(props) => props.theme.colorDefaultLink};
             cursor: pointer;
-            text-decoration: none;
             margin: 0.5em 2em 0.5em 1em;
         }
 
         a:hover {
-            color: ${(props) => props.theme.colorLogoBlueShining};
+            text-decoration: underline;
         }
     }
 

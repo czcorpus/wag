@@ -160,6 +160,8 @@ export class Theme<T = any> {
 
     public readonly oddDataLineBackgroundColor: string;
 
+    public readonly dataLineHighlightColor: string;
+
     public readonly cssMobileScreen: string;
 
     public readonly svgIconsFilter: string | undefined;
@@ -280,6 +282,9 @@ export class Theme<T = any> {
         this.oddDataLineBackgroundColor =
             confSrc.oddDataLineBackgroundColor ||
             fallbackTheme.oddDataLineBackgroundColor;
+        this.dataLineHighlightColor =
+            confSrc.dataLineHighlightColor ||
+            fallbackTheme.colorLogoBlueShining;
 
         this.cssMobileScreen =
             confSrc.cssMobileScreen || fallbackTheme.cssMobileScreen;
