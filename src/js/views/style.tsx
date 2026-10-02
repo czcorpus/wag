@@ -712,6 +712,7 @@ export const TileContainer = styled.section<{
         font-size: 0.92em;
         color: ${(props) => props.theme.colorSecondaryText};
         border-radius: ${(props) => props.theme.tileBorderRadius};
+        border: ${(props) => props.theme.tileBorderStyle};
         box-shadow: ${(props) =>
             props.$isSubtileContainer ? 'none' : props.theme.tileShadow};
         background-color: ${(props) =>

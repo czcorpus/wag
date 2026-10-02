@@ -207,6 +207,8 @@ export class Theme<T = any> {
 
     public readonly tileBorderRadius: string;
 
+    public readonly tileEmptyStyle: string;
+
     public readonly tileShadow: string;
 
     public readonly chartTextColor: string;
@@ -247,6 +249,7 @@ export class Theme<T = any> {
             confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
         this.tileBorderRadius =
             confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
+        this.tileEmptyStyle = confSrc.tileEmptyStyle || '';
         this.tileShadow = confSrc.tileShadow || fallbackTheme.tileShadow;
         this.textInputBorderStyle =
             confSrc.textInputBorderStyle || this.tileBorderStyle;

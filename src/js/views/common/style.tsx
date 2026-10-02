@@ -50,6 +50,11 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
         overflow: hidden;
     }
 
+    .content {
+        border-radius: 0 0 ${(props) => props.theme.tileBorderRadius}
+            ${(props) => props.theme.tileBorderRadius};
+    }
+
     :not(.wag-subtile-container) .content {
         padding: 1.25em;
     }
@@ -71,6 +76,8 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     }
 
     .empty {
+        ${(props) => props.theme.tileEmptyStyle};
+
         .not-applicable-box {
             height: 100%;
             display: flex;
