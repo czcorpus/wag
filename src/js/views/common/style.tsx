@@ -45,8 +45,7 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
         left: 0;
         right: 0;
 
-        height: 0.2em;
-        background-color: ${(props) => props.theme.tileBackgroundColor};
+        height: 0.2rem;
         overflow: hidden;
     }
 
@@ -554,6 +553,7 @@ export const Subtile = styled.div<{
     margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
     flex-grow: ${(props) => (props.$isMaxHeight ? '1' : 'initial')};
     color: ${(props) => props.theme.colorSecondaryText};
+    border: ${(props) => props.theme.tileBorderStyle};
     border-radius: ${(props) => props.theme.tileBorderRadius};
     box-shadow: ${(props) => props.theme.tileShadow};
     background-color: ${(props) => props.theme.tileBackgroundColor};
@@ -569,6 +569,10 @@ export const Subtile = styled.div<{
         display: block;
         margin-top: 0.4em;
         cursor: pointer;
+    }
+
+    .loader-wrapper {
+        position: static;
     }
 `;
 

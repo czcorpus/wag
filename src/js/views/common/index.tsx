@@ -663,7 +663,12 @@ export function init(
         if (props.isBusy && !props.hasData) {
             return (
                 <S.TileWrapper>
-                    <div className="wag-tile-body content">
+                    <div
+                        className={
+                            'wag-tile-body' +
+                            (!props.isSubtileContainer ? ' content' : '')
+                        }
+                    >
                         {props.isSubtileContainer ? (
                             <Subtile
                                 hasData={false}
@@ -685,7 +690,12 @@ export function init(
         } else if (props.error) {
             return (
                 <S.TileWrapper>
-                    <div className="wag-tile-body content error">
+                    <div
+                        className={
+                            'wag-tile-body error' +
+                            (!props.isSubtileContainer ? ' content' : '')
+                        }
+                    >
                         {wrapInSubtileIfTrue(
                             {
                                 hasData: true,
@@ -747,7 +757,7 @@ export function init(
                         </div>
                     )}
                     <div
-                        className={`wag-tile-body content${props.hasData ? '' : ' empty'}`}
+                        className={`wag-tile-body${!props.isSubtileContainer ? ' content' : ''}${props.hasData ? '' : ' empty'}`}
                     >
                         {props.hasData
                             ? props.children
@@ -1418,7 +1428,7 @@ export function init(
         showDisambigLinkOnNoData,
         setMaxHeight,
     }) => {
-        const htmlClasses = ['wag-tile-body'];
+        const htmlClasses = ['wag-tile-body', 'content'];
         if (!hasData && !isBusy) {
             htmlClasses.push('empty');
         }
@@ -1436,17 +1446,18 @@ export function init(
                         <h2>{heading}</h2>
                     </header>
                 ) : null}
-                <div
-                    className="loader-wrapper"
-                    style={{
-                        visibility: hasData && isBusy ? 'visible' : 'hidden',
-                    }}
-                >
-                    {hasData && isBusy ? <TileLoaderBar /> : null}
-                </div>
                 {React.Children.count(children) > 1 ? (
                     <>
                         {children[0]}
+                        <div
+                            className="loader-wrapper"
+                            style={{
+                                visibility:
+                                    hasData && isBusy ? 'visible' : 'hidden',
+                            }}
+                        >
+                            {hasData && isBusy ? <TileLoaderBar /> : null}
+                        </div>
                         <div className={htmlClasses.join(' ')}>
                             {!hasData && isBusy ? (
                                 <p>
@@ -1494,7 +1505,18 @@ export function init(
                         </div>
                     </>
                 ) : (
-                    <div className="wag-tile-body">{children}</div>
+                    <>
+                        <div
+                            className="loader-wrapper"
+                            style={{
+                                visibility:
+                                    hasData && isBusy ? 'visible' : 'hidden',
+                            }}
+                        >
+                            {hasData && isBusy ? <TileLoaderBar /> : null}
+                        </div>
+                        <div className="wag-tile-body content">{children}</div>
+                    </>
                 )}
                 {sourceIdent || backlink ? (
                     <SourceReference

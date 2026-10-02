@@ -1468,6 +1468,18 @@ export function init(
         altViewIcon: AltViewIconProps;
         isSubtileContainer: boolean;
     }> = (props) => {
+        const currLabel = props.overwriteLabel
+            ? props.overwriteLabel
+            : props.tile.label;
+
+        const headerNotEmpty =
+            !!currLabel ||
+            props.tile.supportsTweakMode ||
+            props.tile.supportsAltView ||
+            props.tile.supportsSVGFigureSave ||
+            props.tile.supportsHelpView ||
+            (props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult);
+
         const getHTMLClass = () => {
             const ans = [
                 'wag-tile',
@@ -1487,20 +1499,13 @@ export function init(
             ) {
                 ans.push('hidden-no-data');
             }
+
+            if (!headerNotEmpty && !props.isSubtileContainer) {
+                ans.push('headless');
+            }
+
             return ans.join(' ');
         };
-
-        const currLabel = props.overwriteLabel
-            ? props.overwriteLabel
-            : props.tile.label;
-
-        const headerNotEmpty =
-            !!currLabel ||
-            props.tile.supportsTweakMode ||
-            props.tile.supportsAltView ||
-            props.tile.supportsSVGFigureSave ||
-            props.tile.supportsHelpView ||
-            (props.tileResultFlag && props.tileResultFlag.canBeAmbiguousResult);
 
         const renderHeader = () => (
             <header className="wag-tile-header panel">
