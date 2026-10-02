@@ -37,8 +37,14 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    position: relative;
 
     .loader-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+
         height: 0.2em;
         background-color: ${(props) => props.theme.tileBackgroundColor};
         overflow: hidden;
