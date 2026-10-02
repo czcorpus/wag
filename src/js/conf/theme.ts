@@ -63,9 +63,11 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     svgIconsFilter?: string;
     svgLogoFilter?: string;
     oddDataLineBackgroundColor?: string;
+    dataLineHighlightColor?: string;
 
     tileBorderStyle?: string;
     tileBorderRadius?: string;
+    tileEmptyStyle?: string;
     tileShadow?: string;
 
     cssMobileScreen?: string;

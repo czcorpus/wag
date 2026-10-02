@@ -37,11 +37,22 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    position: relative;
 
     .loader-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+
         height: 0.2em;
         background-color: ${(props) => props.theme.tileBackgroundColor};
         overflow: hidden;
+    }
+
+    .content {
+        border-radius: 0 0 ${(props) => props.theme.tileBorderRadius}
+            ${(props) => props.theme.tileBorderRadius};
     }
 
     :not(.wag-subtile-container) .content {
@@ -65,6 +76,8 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     }
 
     .empty {
+        ${(props) => props.theme.tileEmptyStyle};
+
         .not-applicable-box {
             height: 100%;
             display: flex;
@@ -86,6 +99,12 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
         height: 2px;
         color: ${(props) => props.theme.colorWhitelikeBlue};
         background-color: ${(props) => props.theme.colorWhitelikeBlue};
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        p.not-applicable {
+            display: none !important;
+        }
     }
 `;
 

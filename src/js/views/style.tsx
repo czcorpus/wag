@@ -712,6 +712,7 @@ export const TileContainer = styled.section<{
         font-size: 0.92em;
         color: ${(props) => props.theme.colorSecondaryText};
         border-radius: ${(props) => props.theme.tileBorderRadius};
+        border: ${(props) => props.theme.tileBorderStyle};
         box-shadow: ${(props) =>
             props.$isSubtileContainer ? 'none' : props.theme.tileShadow};
         background-color: ${(props) =>
@@ -982,6 +983,10 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
             color: ${(props) => props.theme.colorDefaultLink};
             cursor: pointer;
         }
+
+        a:hover {
+            text-decoration: underline;
+        }
     }
 
     li:not(:last-child) {
@@ -1221,6 +1226,12 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
         ${(props) => props.theme.formElementsBorderRadius};
     overflow: hidden;
 
+    &:hover {
+        .index-button {
+            color: ${(props) => props.theme.colorLogoBlueShining};
+        }
+    }
+
     .index-button {
         display: flex;
         align-items: center;
@@ -1244,14 +1255,13 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
 
         a {
             display: block;
-            color: ${(props) => props.theme.colorSecondaryText};
+            color: ${(props) => props.theme.colorDefaultLink};
             cursor: pointer;
-            text-decoration: none;
             margin: 0.5em 2em 0.5em 1em;
         }
 
         a:hover {
-            color: ${(props) => props.theme.colorLogoBlueShining};
+            text-decoration: underline;
         }
     }
 

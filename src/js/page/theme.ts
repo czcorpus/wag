@@ -160,6 +160,8 @@ export class Theme<T = any> {
 
     public readonly oddDataLineBackgroundColor: string;
 
+    public readonly dataLineHighlightColor: string;
+
     public readonly cssMobileScreen: string;
 
     public readonly svgIconsFilter: string | undefined;
@@ -205,6 +207,8 @@ export class Theme<T = any> {
 
     public readonly tileBorderRadius: string;
 
+    public readonly tileEmptyStyle: string;
+
     public readonly tileShadow: string;
 
     public readonly chartTextColor: string;
@@ -245,6 +249,7 @@ export class Theme<T = any> {
             confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
         this.tileBorderRadius =
             confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
+        this.tileEmptyStyle = confSrc.tileEmptyStyle || '';
         this.tileShadow = confSrc.tileShadow || fallbackTheme.tileShadow;
         this.textInputBorderStyle =
             confSrc.textInputBorderStyle || this.tileBorderStyle;
@@ -280,6 +285,9 @@ export class Theme<T = any> {
         this.oddDataLineBackgroundColor =
             confSrc.oddDataLineBackgroundColor ||
             fallbackTheme.oddDataLineBackgroundColor;
+        this.dataLineHighlightColor =
+            confSrc.dataLineHighlightColor ||
+            fallbackTheme.colorLogoBlueShining;
 
         this.cssMobileScreen =
             confSrc.cssMobileScreen || fallbackTheme.cssMobileScreen;
