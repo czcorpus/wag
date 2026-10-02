@@ -641,7 +641,7 @@ export function init(
             context.clearRect(0, 0, width, height);
             context.textAlign = 'center';
             context.textBaseline = 'middle';
-            context.font = `normal ${fontWidth}px sans`;
+            context.font = `normal ${fontWidth}px sans-serif`;
             context.fillStyle = theme.colorSuperlightGrey;
             context.fillText('N/A', width / 2, height / 2);
         }, []);
