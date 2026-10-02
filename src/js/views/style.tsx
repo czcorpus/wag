@@ -703,6 +703,14 @@ export const TileContainer = styled.section<{
     padding: 0.2em;
     display: flex;
 
+    &.headless {
+        .loader-wrapper {
+            height: ${(props) => props.theme.tileBorderRadius};
+            border-radius: ${(props) => props.theme.tileBorderRadius}
+                ${(props) => props.theme.tileBorderRadius} 0 0;
+        }
+    }
+
     .tile {
         box-sizing: border-box;
         height: 100%;
@@ -711,8 +719,10 @@ export const TileContainer = styled.section<{
         flex-grow: 1;
         font-size: 0.92em;
         color: ${(props) => props.theme.colorSecondaryText};
-        border-radius: ${(props) => props.theme.tileBorderRadius};
-        border: ${(props) => props.theme.tileBorderStyle};
+        border-radius: ${(props) =>
+            props.$isSubtileContainer ? 'none' : props.theme.tileBorderRadius};
+        border: ${(props) =>
+            props.$isSubtileContainer ? 'none' : props.theme.tileBorderStyle};
         box-shadow: ${(props) =>
             props.$isSubtileContainer ? 'none' : props.theme.tileShadow};
         background-color: ${(props) =>
@@ -1003,8 +1013,6 @@ export const Tiles = styled.section<{ theme: Theme }>`
     color: #444;
 
     .app-output {
-        border-color: ${(props) => props.theme.colorLogoBlue};
-        border-radius: ${(props) => props.theme.tileBorderRadius};
         overflow: hidden;
         display: flex;
         flex-direction: column;

@@ -52,8 +52,8 @@ const fallbackTheme: ColorTheme = {
     oddDataLineBackgroundColor: '#eff9fe',
 
     tileBorderStyle: 'solid 1px #dadada',
-    tileBorderRadius: '0.25em',
-    tileShadow: 'rgba(0, 0, 0, 0.2) 0.05em 0.05em 0.15em 0.05em',
+    tileBorderRadius: '0.25rem',
+    tileShadow: 'rgba(0, 0, 0, 0.2) 0.05rem 0.05rem 0.15rem 0.05rem',
 
     // text color
 
