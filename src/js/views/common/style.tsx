@@ -39,8 +39,17 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     height: 100%;
 
     .loader-wrapper {
-        height: 0.2rem;
-        overflow: hidden;
+        position: relative;
+        height: 0;
+
+        .loader-wrapper-abs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.2rem;
+            overflow: hidden;
+        }
     }
 
     .content {
@@ -119,12 +128,12 @@ export const TileLoaderBar = styled.div<{ theme: Theme }>`
         position: relative;
         margin-left: -110%;
         width: 100%;
-        height: 0.2em;
+        height: 0.2rem;
         background: linear-gradient(
             0.25turn,
-            #ffffff,
+            ${(props: { theme: Theme }) => props.theme.tileBackgroundColor},
             ${(props: { theme: Theme }) => props.theme.colorLogoPink},
-            #ffffff
+            ${(props: { theme: Theme }) => props.theme.tileBackgroundColor}
         );
     }
 `;
