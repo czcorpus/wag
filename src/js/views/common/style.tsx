@@ -37,14 +37,8 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-    position: relative;
 
     .loader-wrapper {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-
         height: 0.2rem;
         overflow: hidden;
     }
@@ -569,10 +563,6 @@ export const Subtile = styled.div<{
         display: block;
         margin-top: 0.4em;
         cursor: pointer;
-    }
-
-    .loader-wrapper {
-        position: static;
     }
 `;
 
