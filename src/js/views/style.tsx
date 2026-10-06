@@ -705,9 +705,11 @@ export const TileContainer = styled.section<{
 
     &.headless {
         .loader-wrapper {
-            height: ${(props) => props.theme.tileBorderRadius};
-            border-radius: ${(props) => props.theme.tileBorderRadius}
-                ${(props) => props.theme.tileBorderRadius} 0 0;
+            .loader-wrapper-abs {
+                height: ${(props) => props.theme.tileBorderRadius};
+                border-radius: ${(props) => props.theme.tileBorderRadius}
+                    ${(props) => props.theme.tileBorderRadius} 0 0;
+            }
         }
     }
 

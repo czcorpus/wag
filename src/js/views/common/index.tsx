@@ -751,9 +751,11 @@ export function init(
                                         : 'hidden',
                             }}
                         >
-                            {props.hasData && props.isBusy ? (
-                                <TileLoaderBar />
-                            ) : null}
+                            <div className="loader-wrapper-abs">
+                                {props.hasData && props.isBusy ? (
+                                    <TileLoaderBar />
+                                ) : null}
+                            </div>
                         </div>
                     )}
                     <div
@@ -1456,7 +1458,9 @@ export function init(
                                     hasData && isBusy ? 'visible' : 'hidden',
                             }}
                         >
-                            {hasData && isBusy ? <TileLoaderBar /> : null}
+                            <div className="loader-wrapper-abs">
+                                {hasData && isBusy ? <TileLoaderBar /> : null}
+                            </div>
                         </div>
                         <div className={htmlClasses.join(' ')}>
                             {!hasData && isBusy ? (
@@ -1513,7 +1517,9 @@ export function init(
                                     hasData && isBusy ? 'visible' : 'hidden',
                             }}
                         >
-                            {hasData && isBusy ? <TileLoaderBar /> : null}
+                            <div className="loader-wrapper-abs">
+                                {hasData && isBusy ? <TileLoaderBar /> : null}
+                            </div>
                         </div>
                         <div className="wag-tile-body content">{children}</div>
                     </>

@@ -445,7 +445,10 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                 reduce<[string, APIResponse], { hasData: boolean }>(
                     (acc, [_, resp]) => {
                         acc.hasData =
-                            acc.hasData || (resp.data && resp.data.length > 0);
+                            acc.hasData ||
+                            (resp.data &&
+                                resp.data.length > 0 &&
+                                List.some((x) => x.freq !== 0, resp.data));
                         return acc;
                     },
                     { hasData: false }

@@ -466,7 +466,9 @@ export function init(
                 tileId={props.tileId}
                 isBusy={state.isBusy}
                 error={state.error}
-                hasData={state.data.some((v) => v.length > 0)}
+                hasData={state.data.some(
+                    (v) => v.length > 0 && List.some((x) => x.freq !== 0, v)
+                )}
                 sourceIdent={{ corp: state.corpname }}
                 supportsTileReload={props.supportsReloadOnError}
                 isSubtileContainer={props.isSubtileContainer}
