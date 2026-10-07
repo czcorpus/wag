@@ -108,9 +108,20 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
             display: none !important;
         }
     }
+
+    .recharts-wrapper {
+        .recharts-tooltip-wrapper {
+            z-index: 100;
+        }
+
+        .recharts-surface,
+        .recharts-legend-wrapper {
+            z-index: -1;
+        }
+    }
 `;
 
-// ---------------- <TileWrapper /> --------------------------------------
+// ---------------- <TileLoaderBar /> --------------------------------------
 
 export const TileLoaderBar = styled.div<{ theme: Theme }>`
     @keyframes slidein {

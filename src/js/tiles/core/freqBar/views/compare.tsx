@@ -177,9 +177,11 @@ export function init(
         return (
             // 100% height makes parent ResponsiveWrapper
             // to change size gradually after rendering
+            // not 100% width/height is a hack leaving recharts
+            // buffer space for size calculations, that might cause problems
             <ResponsiveContainer
                 id={`${props.tileId}-download-figure`}
-                width="100%"
+                width="99%"
                 height="95%"
                 minHeight={300}
             >

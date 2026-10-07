@@ -29,6 +29,7 @@ export const GlobalStyle = (confTheme: Theme) => createGlobalStyle<{
 
     body {
         visibility: visible !important;
+        overflow-x: clip;
 
         font-family: ${confTheme.defaultFontFamily};
         font-size: ${confTheme.defaultFontSize};

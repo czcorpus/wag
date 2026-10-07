@@ -1011,11 +1011,10 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
 export const Tiles = styled.section<{ theme: Theme }>`
     display: grid;
     grid-gap: 0.5rem;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
     color: #444;
 
     .app-output {
-        overflow: hidden;
         display: flex;
         flex-direction: column;
 
