@@ -25,6 +25,9 @@ import { styled } from 'styled-components';
 
 export const ConcordanceTileView = styled.div`
     overflow: hidden;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
 `;
 
 // ------------- <QueryInfo /> ---------------------------
@@ -141,6 +144,7 @@ export const ConcLines = styled.div<{ theme: Theme }>`
     display: flex;
     justify-content: center;
     overflow-x: auto;
+    flex-grow: 1;
 
     table {
         width: 100%;
@@ -214,6 +218,11 @@ export const ConcLines = styled.div<{ theme: Theme }>`
 
 export const Row = styled.tr<{ theme: Theme }>`
     white-space: nowrap;
+
+    &.highlighted {
+        background-color: ${(props) =>
+            props.theme.dataLineHighlightColor} !important;
+    }
 
     &.odd {
         background-color: ${(props) => props.theme.oddDataLineBackgroundColor};
