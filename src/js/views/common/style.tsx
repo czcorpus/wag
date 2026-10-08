@@ -110,12 +110,18 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     }
 
     .recharts-wrapper {
+        // this is to fix displaying tooltip overflowing
+        // over the neighboring tile with chart
+
         .recharts-tooltip-wrapper {
             z-index: 100;
         }
 
-        .recharts-surface,
         .recharts-legend-wrapper {
+            z-index: 10;
+        }
+
+        .recharts-surface {
             z-index: -1;
         }
     }
