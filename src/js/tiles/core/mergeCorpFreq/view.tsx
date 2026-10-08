@@ -82,8 +82,8 @@ export function init(
                     item.freq[queryIdx] = row.freq;
                     acc.push(item);
                 } else {
-                    acc[itemIndex].ipm[queryIdx] = row.ipm;
-                    acc[itemIndex].freq[queryIdx] = row.freq;
+                    acc[itemIndex].ipm[queryIdx] += row.ipm;
+                    acc[itemIndex].freq[queryIdx] += row.freq;
                 }
                 return acc;
             }, [])
