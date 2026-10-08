@@ -799,7 +799,6 @@ export const TileContainer = styled.section<{
         padding: 0.625em 1.25em;
         border-bottom: 0.1em solid
             ${(props) => props.theme.tileHeadingSeparColor};
-        background-color: ${(props) => props.theme.tileBackgroundColor};
     }
 
     .tile-body.text,
