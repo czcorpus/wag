@@ -253,7 +253,7 @@ export class MQueryTimeDistribStreamApi
         queryArgs: TimeDistribArgs | MergedTimeDistribArgs
     ): [HTTP.Method, string | null, {}] {
         if (!queryArgs) {
-            return null;
+            return tuple(HTTP.Method.GET, null, {});
         }
         if (isTimeDistribArgs(queryArgs)) {
             return tuple(
@@ -283,32 +283,34 @@ export class MQueryTimeDistribStreamApi
                 }
             >(
                 (acc, value) => {
-                    if (isMqueryMergeStreamData(value)) {
-                        pipe(
-                            value.parts,
-                            List.filter((v) => v.chunkNum !== undefined),
-                            List.forEach((part) => {
-                                const key = createMqueryStreamDataKey(part);
-                                acc.totals.set(key, part.totalChunks);
-                                const currChunks =
-                                    acc.chunks.get(key) || new Set();
-                                currChunks.add(part.chunkNum);
-                                acc.chunks.set(key, currChunks);
-                                acc.lastItems.set(key, part);
-                            })
-                        );
-                    } else if (isTimeDistribArgs(queryArgs)) {
-                        const corpBoundVal: MqueryCorpBoundStreamData = {
-                            ...value,
-                            corpname: queryArgs.corpname,
-                            subcname: queryArgs.subcorpName,
-                        };
-                        const key = createMqueryStreamDataKey(corpBoundVal);
-                        acc.totals.set(key, value.totalChunks);
-                        const currChunks = acc.chunks.get(key) || new Set();
-                        currChunks.add(value.chunkNum);
-                        acc.chunks.set(key, currChunks);
-                        acc.lastItems.set(key, corpBoundVal);
+                    if (value !== null) {
+                        if (isMqueryMergeStreamData(value)) {
+                            pipe(
+                                value.parts,
+                                List.filter((v) => v.chunkNum !== undefined),
+                                List.forEach((part) => {
+                                    const key = createMqueryStreamDataKey(part);
+                                    acc.totals.set(key, part.totalChunks);
+                                    const currChunks =
+                                        acc.chunks.get(key) || new Set();
+                                    currChunks.add(part.chunkNum);
+                                    acc.chunks.set(key, currChunks);
+                                    acc.lastItems.set(key, part);
+                                })
+                            );
+                        } else if (isTimeDistribArgs(queryArgs)) {
+                            const corpBoundVal: MqueryCorpBoundStreamData = {
+                                ...value,
+                                corpname: queryArgs.corpname,
+                                subcname: queryArgs.subcorpName,
+                            };
+                            const key = createMqueryStreamDataKey(corpBoundVal);
+                            acc.totals.set(key, value.totalChunks);
+                            const currChunks = acc.chunks.get(key) || new Set();
+                            currChunks.add(value.chunkNum);
+                            acc.chunks.set(key, currChunks);
+                            acc.lastItems.set(key, corpBoundVal);
+                        }
                     }
 
                     return acc;
