@@ -348,7 +348,7 @@ export function init(
             return (
                 <ResponsiveContainer
                     key="chartContainer"
-                    width={this.props.isSmallWidth ? '100%' : '90%'}
+                    width={this.props.isSmallWidth ? '99%' : '90%'}
                     height={this.props.size[1]}
                 >
                     <AreaChart

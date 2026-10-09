@@ -108,9 +108,26 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
             display: none !important;
         }
     }
+
+    .recharts-wrapper {
+        // this is to fix displaying tooltip overflowing
+        // over the neighboring tile with chart
+
+        .recharts-tooltip-wrapper {
+            z-index: 100;
+        }
+
+        .recharts-legend-wrapper {
+            z-index: 10;
+        }
+
+        .recharts-surface {
+            z-index: -1;
+        }
+    }
 `;
 
-// ---------------- <TileWrapper /> --------------------------------------
+// ---------------- <TileLoaderBar /> --------------------------------------
 
 export const TileLoaderBar = styled.div<{ theme: Theme }>`
     @keyframes slidein {

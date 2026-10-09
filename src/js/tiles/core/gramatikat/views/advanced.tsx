@@ -31,7 +31,6 @@ import {
     CartesianGrid,
     ComposedChart,
     Legend,
-    ResponsiveContainer,
     Scatter,
     Tooltip,
     XAxis,

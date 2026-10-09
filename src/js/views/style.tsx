@@ -799,7 +799,6 @@ export const TileContainer = styled.section<{
         padding: 0.625em 1.25em;
         border-bottom: 0.1em solid
             ${(props) => props.theme.tileHeadingSeparColor};
-        background-color: ${(props) => props.theme.tileBackgroundColor};
     }
 
     .tile-body.text,
@@ -1011,11 +1010,10 @@ export const MinimizedGroup = styled.ul<{ theme: Theme }>`
 export const Tiles = styled.section<{ theme: Theme }>`
     display: grid;
     grid-gap: 0.5rem;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
     color: #444;
 
     .app-output {
-        overflow: hidden;
         display: flex;
         flex-direction: column;
 

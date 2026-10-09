@@ -225,6 +225,36 @@ export function init(
         );
     };
 
+    // ------------------ <EmptyLines /> --------------------------------------------
+
+    const EmptyLines: React.FC<{
+        lastLine: number;
+    }> = (props) => {
+        const state = useModel(model);
+
+        return pipe(
+            List.range(props.lastLine, state.pageSize, 1),
+            List.map((v) =>
+                state.viewMode === ViewMode.KWIC ? (
+                    <React.Fragment key={v}>
+                        <S.Row>
+                            <td>&nbsp;</td>
+                        </S.Row>
+                        {!!state.otherCorpname ? (
+                            <S.Row>
+                                <td>&nbsp;</td>
+                            </S.Row>
+                        ) : null}
+                    </React.Fragment>
+                ) : (
+                    <S.SentRow key={v}>
+                        <td>&nbsp;</td>
+                    </S.SentRow>
+                )
+            )
+        );
+    };
+
     // ------------------ <SentRow /> --------------------------------------------
 
     const SentRow: React.FC<{
@@ -436,6 +466,12 @@ export function init(
         }
 
         const conc = state.concordances[state.visibleQueryIdx];
+        const visibleLines = state.isExamplesMode
+            ? conc.lines.slice(
+                  state.pageSize * (conc.currPage - 1),
+                  state.pageSize * conc.currPage
+              )
+            : conc.lines;
 
         return (
             <globalComponents.TileWrapper
@@ -572,14 +608,9 @@ export function init(
                                                 ) : null}
                                             </React.Fragment>
                                         ),
-                                    state.isExamplesMode
-                                        ? conc.lines.slice(
-                                              state.pageSize *
-                                                  (conc.currPage - 1),
-                                              state.pageSize * conc.currPage
-                                          )
-                                        : conc.lines
+                                    visibleLines
                                 )}
+                                <EmptyLines lastLine={visibleLines.length} />
                             </tbody>
                         </table>
                     </S.ConcLines>
