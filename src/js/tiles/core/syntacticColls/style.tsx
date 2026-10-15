@@ -86,7 +86,7 @@ export const SCollsTable = styled.div<{ theme: Theme }>`
 
 export const Examples = styled.div<{ theme: Theme }>`
     background-color: ${(props) => props.theme.tileBackgroundColor};
-    border: ${(props) => props.theme.tileBorderStyle};
+    border: ${(props) => props.theme.boxBorderStyle};
     border-radius: ${(props) => props.theme.tileBorderRadius};
     box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
     padding: 0.5em;
