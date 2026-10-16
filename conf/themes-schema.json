@@ -7,6 +7,9 @@
                 "backgroundImage": {
                     "type": "string"
                 },
+                "boxBorderStyle": {
+                    "type": "string"
+                },
                 "category": {
                     "items": {
                         "type": "string"
@@ -27,6 +30,9 @@
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "colorDefaultLink": {
+                    "type": "string"
                 },
                 "colorDefaultText": {
                     "type": "string"
@@ -71,6 +77,9 @@
                     "type": "string"
                 },
                 "cssMobileScreen": {
+                    "type": "string"
+                },
+                "dataLineHighlightColor": {
                     "type": "string"
                 },
                 "defaultFontFamily": {
@@ -169,7 +178,7 @@
                 "tileBorderRadius": {
                     "type": "string"
                 },
-                "tileBorderStyle": {
+                "tileEmptyStyle": {
                     "type": "string"
                 },
                 "tileHeadingSeparColor": {

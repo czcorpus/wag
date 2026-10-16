@@ -222,7 +222,7 @@ export const AttrSetSwitch = styled.ul<{ theme: Theme }>`
         a {
             display: block;
             padding: 0.5rem 1rem;
-            border: ${(props) => props.theme.tileBorderStyle};
+            border: ${(props) => props.theme.boxBorderStyle};
             border-radius: ${(props) => props.theme.tileBorderRadius};
             cursor: pointer;
         }

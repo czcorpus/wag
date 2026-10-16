@@ -1389,7 +1389,7 @@ export function init(
         });
 
         return (
-            <div className="tile-body text">
+            <div className="tile-body wag-tile-body text">
                 <div
                     className="raw-html"
                     dangerouslySetInnerHTML={{ __html: props.html }}
@@ -1414,12 +1414,18 @@ export function init(
                     props.sections,
                     List.filter((sect) => !sect.isFooterIntegrated),
                     List.map((sect, i) => (
-                        <section key={`${sect}:${i}`} className="wag-tile help">
-                            <header className="wag-tile-header panel">
-                                {sect.label}
-                            </header>
-                            <InitialHelpTile html={sect.html} />
-                        </section>
+                        <S.TileContainer
+                            key={`${sect}:${i}`}
+                            className="wag-tile help"
+                            $isSubtileContainer={false}
+                        >
+                            <div className="tile">
+                                <header className="wag-tile-header panel">
+                                    {sect.label}
+                                </header>
+                                <InitialHelpTile html={sect.html} />
+                            </div>
+                        </S.TileContainer>
                     ))
                 )}
             </>

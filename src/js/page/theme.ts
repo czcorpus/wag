@@ -51,7 +51,7 @@ const fallbackTheme: ColorTheme = {
     colorDefaultText: '#010101',
     oddDataLineBackgroundColor: '#eff9fe',
 
-    tileBorderStyle: 'solid 1px #dadada',
+    boxBorderStyle: 'solid 1px #dadada',
     tileBorderRadius: '0.25rem',
     tileShadow: 'rgba(0, 0, 0, 0.2) 0.05rem 0.05rem 0.15rem 0.05rem',
 
@@ -203,7 +203,7 @@ export class Theme<T = any> {
 
     public readonly lineConfidenceAreaColor2: string;
 
-    public readonly tileBorderStyle: string;
+    public readonly boxBorderStyle: string;
 
     public readonly tileBorderRadius: string;
 
@@ -245,14 +245,14 @@ export class Theme<T = any> {
         this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
         this.textInputBackgroundColor =
             confSrc.textInputBackgroundColor || this.tileBackgroundColor;
-        this.tileBorderStyle =
-            confSrc.tileBorderStyle || fallbackTheme.tileBorderStyle;
+        this.boxBorderStyle =
+            confSrc.boxBorderStyle || fallbackTheme.boxBorderStyle;
         this.tileBorderRadius =
             confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
         this.tileEmptyStyle = confSrc.tileEmptyStyle || '';
         this.tileShadow = confSrc.tileShadow || fallbackTheme.tileShadow;
         this.textInputBorderStyle =
-            confSrc.textInputBorderStyle || this.tileBorderStyle;
+            confSrc.textInputBorderStyle || this.boxBorderStyle;
         this.colorLogoBlue =
             confSrc.colorLogoBlue || fallbackTheme.colorLogoBlue;
         this.colorLogoBlueHiContrast =

@@ -58,7 +58,7 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
     }
 
     :not(.wag-subtile-container) .content {
-        padding: 1.25em;
+        padding: 1.25rem;
     }
 
     .source {
@@ -220,7 +220,7 @@ export const ModalOverlay = styled.div<{ theme: Theme }>`
         box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0, 0, 0, 0.2);
         background-color: ${(props) => props.theme.tileBackgroundColor};
         color: ${(props) => props.theme.colorSecondaryText};
-        border: ${(props) => props.theme.tileBorderStyle};
+        border: ${(props) => props.theme.boxBorderStyle};
         border-color: ${(props) => props.theme.tileHeadingSeparColor};
 
         header {
@@ -569,11 +569,9 @@ export const Subtile = styled.div<{
     $isHeadless: boolean;
     $isMaxHeight: boolean;
 }>`
-    font-size: 0.92em;
     margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
     flex-grow: ${(props) => (props.$isMaxHeight ? '1' : 'initial')};
     color: ${(props) => props.theme.colorSecondaryText};
-    border: ${(props) => props.theme.tileBorderStyle};
     border-radius: ${(props) => props.theme.tileBorderRadius};
     box-shadow: ${(props) => props.theme.tileShadow};
     background-color: ${(props) => props.theme.tileBackgroundColor};

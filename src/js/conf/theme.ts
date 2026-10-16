@@ -65,7 +65,7 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     oddDataLineBackgroundColor?: string;
     dataLineHighlightColor?: string;
 
-    tileBorderStyle?: string;
+    boxBorderStyle?: string;
     tileBorderRadius?: string;
     tileEmptyStyle?: string;
     tileShadow?: string;
