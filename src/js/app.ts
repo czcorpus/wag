@@ -222,7 +222,13 @@ export function createRootComponent({
         userSession.translatLanguage
     );
 
-    const isMultiWordQuery = testIsMultiWordMode(queryMatches);
+    // TODO multi word query needs some work
+    // some ujc variants can be one word, some multiple words at the same time
+    const isMultiWordQuery =
+        config.currMatchSelectionAlgorithm === 'ujc'
+            ? false
+            : testIsMultiWordMode(queryMatches);
+
     const attachTile = mkAttachTile(
         qType,
         lmLevel,
