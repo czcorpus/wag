@@ -75,24 +75,25 @@ export function queryMatchToCQL(
 export function mkLemmaMatchQuery(
     lvar: QueryMatch,
     generator: [string, string],
-    sublemma?: boolean
+    withSublemma?: boolean
 ): string {
     const fn = posQueryFactory(generator[1]);
     return pipe(
         lvar.lemma.split(' '),
-        List.map((lemma, i) => {
+        List.zipAll(lvar.sublemma.split(' ')),
+        List.map(([lemma, sublemma], i) => {
             const expr = [`lemma=="${escapeDQuotes(lemma)}"`];
-            if (lvar.pos[i] !== undefined || lvar.pos[i] !== null) {
+            if (lvar.pos[i] !== undefined && lvar.pos[i].value !== null) {
                 expr.push(
                     `${generator[0]}="${fn(lvar.pos[i].value, lvar.specifier[i])}"`
                 );
             }
-            if (lvar.sublemma && sublemma) {
-                expr.push(`sublemma=="${escapeDQuotes(lvar.sublemma)}"`);
+            if (sublemma && withSublemma) {
+                expr.push(`sublemma=="${escapeDQuotes(sublemma)}"`);
             }
             return `[${expr.join(' & ')}]`;
         })
-    ).join(' ');
+    ).join('');
 }
 
 /**
@@ -103,26 +104,26 @@ export function mkLemmaMatchQuery(
 export function mkWordMatchQuery(
     lvar: QueryMatch,
     generator: [string, string],
-    sublemma?: boolean
+    withSublemma?: boolean
 ): string {
     const words = lvar.word.split(' ');
     const lemmas = (lvar.lemma || '').split(' ');
+    const sublemmas = (lvar.sublemma || '').split(' ');
     const fn = posQueryFactory(generator[1]);
-
     return pipe(
         words,
         List.map((word, i) => {
             const expr = [];
             if (lemmas[i]) {
                 expr.push(`lemma=="${escapeDQuotes(lemmas[i])}"`);
-                if (lvar.pos[i] !== undefined || lvar.pos[i] !== null) {
+                if (lvar.pos[i] !== undefined && lvar.pos[i].value !== null) {
                     expr.push(
                         `${generator[0]}="${fn(lvar.pos[i].value, lvar.specifier[i])}"`
                     );
                 }
             }
-            if (lvar.sublemma && sublemma) {
-                expr.push(`sublemma=="${escapeDQuotes(lvar.sublemma)}"`);
+            if (sublemmas[i] && withSublemma) {
+                expr.push(`sublemma=="${escapeDQuotes(sublemmas[i])}"`);
             }
             expr.push(`word=="${escapeDQuotes(word)}"`);
             return `[${expr.join(' & ')}]`;
