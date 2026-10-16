@@ -82,7 +82,7 @@ export function mkLemmaMatchQuery(
         lvar.lemma.split(' '),
         List.map((lemma, i) => {
             const expr = [`lemma=="${escapeDQuotes(lemma)}"`];
-            if (lvar.pos[i] !== undefined) {
+            if (lvar.pos[i] !== undefined || lvar.pos[i] !== null) {
                 expr.push(
                     `${generator[0]}="${fn(lvar.pos[i].value, lvar.specifier[i])}"`
                 );
@@ -115,7 +115,7 @@ export function mkWordMatchQuery(
             const expr = [];
             if (lemmas[i]) {
                 expr.push(`lemma=="${escapeDQuotes(lemmas[i])}"`);
-                if (lvar.pos[i] !== undefined) {
+                if (lvar.pos[i] !== undefined || lvar.pos[i] !== null) {
                     expr.push(
                         `${generator[0]}="${fn(lvar.pos[i].value, lvar.specifier[i])}"`
                     );
