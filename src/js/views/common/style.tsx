@@ -569,7 +569,6 @@ export const Subtile = styled.div<{
     $isHeadless: boolean;
     $isMaxHeight: boolean;
 }>`
-    font-size: 0.92em;
     margin-top: ${(props) => (props.$isHeadless ? '0' : '1em')};
     flex-grow: ${(props) => (props.$isMaxHeight ? '1' : 'initial')};
     color: ${(props) => props.theme.colorSecondaryText};
