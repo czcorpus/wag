@@ -242,10 +242,10 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
             word: queryMatch.lemma,
             pos:
                 state.mainPosAttr === 'pos'
-                    ? queryMatch.pos.length > 0
+                    ? queryMatch.pos.length > 0 && queryMatch.pos[0].value
                         ? queryMatch.pos[0].value[0]
                         : '' // TODO is the first zero OK? (i.e. we ignore other variants)
-                    : queryMatch.upos.length > 0
+                    : queryMatch.upos.length > 0 && queryMatch.upos[0].value
                       ? queryMatch.upos[0].value
                       : '',
             limit: state.maxResultItems,
