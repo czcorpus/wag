@@ -48,6 +48,7 @@ interface StatelessModelArgs<T> {
     readDataFromTile?: number;
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 /**
@@ -71,6 +72,8 @@ export abstract class TileStatelessModel<
 
     protected readonly supportedLemLevels: Array<LemmatizationLevel>;
 
+    protected readonly multiWordSupport: boolean;
+
     constructor({
         dispatcher,
         initState,
@@ -79,6 +82,7 @@ export abstract class TileStatelessModel<
         readDataFromTile,
         appServices,
         lemLevelSupport,
+        multiWordSupport,
     }: StatelessModelArgs<T>) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -86,6 +90,7 @@ export abstract class TileStatelessModel<
         this.readDataFromTile = readDataFromTile;
         this.appServices = appServices;
         this.supportedLemLevels = lemLevelSupport;
+        this.multiWordSupport = multiWordSupport;
     }
 
     addSearchActionHandler(
@@ -134,6 +139,7 @@ interface StatefulModelArgs<T> {
     readDataFromTile?: number;
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 /**
@@ -157,6 +163,8 @@ export abstract class TileStatefulModel<
 
     protected readonly supportedLemLevels: Array<LemmatizationLevel>;
 
+    protected readonly multiWordSupport: boolean;
+
     constructor({
         dispatcher,
         initState,
@@ -165,6 +173,7 @@ export abstract class TileStatefulModel<
         readDataFromTile,
         appServices,
         lemLevelSupport,
+        multiWordSupport,
     }: StatefulModelArgs<T>) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -172,6 +181,7 @@ export abstract class TileStatefulModel<
         this.readDataFromTile = readDataFromTile;
         this.appServices = appServices;
         this.supportedLemLevels = lemLevelSupport;
+        this.multiWordSupport = multiWordSupport;
     }
 
     addSearchActionHandler(

@@ -20,7 +20,13 @@ import { pipe, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
-import { LemmatizationLevel, SubqueryPayload } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    SubqueryPayload,
+    testIsDictMatch,
+    testIsMultiWordMatch,
+} from '../../../query/index.js';
 import { SpeechesApi, SpeechReqArgs } from './api.js';
 import {
     SpeechesModelState,
@@ -55,6 +61,7 @@ export interface SpeechesModelArgs {
     audioLinkGenerator: AudioLinkGenerator;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 interface ReloadDataArgs {
@@ -82,6 +89,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
         audioLinkGenerator,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: SpeechesModelArgs) {
         super({
             dispatcher,
@@ -90,6 +98,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
         this.audioLinkGenerator = audioLinkGenerator;
@@ -348,11 +357,18 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
         );
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private stateToArgs(
         state: SpeechesModelState,
         range?: [number, number]
     ): SpeechReqArgs | null {
-        if (state.currQueryMatches[0].lemma) {
+        if (this.isSupportedQueryMatch(state.currQueryMatches[0])) {
             return {
                 corpname: state.corpname,
                 subcorpus: state.subcname,

@@ -115,6 +115,7 @@ export class SyntacticCollsVsTextTypesTile implements ITileProvider {
                 conf.attrNames
             ),
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 corpname: conf.corpname,

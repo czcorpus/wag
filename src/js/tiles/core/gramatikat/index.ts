@@ -244,6 +244,7 @@ export class GramatikatTile implements ITileProvider {
             dependentTiles,
             api: new GramatikatAPI(conf.apiUrl),
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

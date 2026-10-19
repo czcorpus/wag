@@ -112,6 +112,7 @@ export class GeoAreasTile implements ITileProvider {
             mapLoader: new MapLoader(appServices),
             queryType,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             initState: {
                 isBusy: isBusy,
                 error: null,

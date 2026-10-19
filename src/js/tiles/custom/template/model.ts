@@ -39,6 +39,7 @@ export interface __Template__ModelArgs {
     initState: __Template__ModelState;
     queryMatches: RecognizedQueries;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
     dependentTiles: Array<number>;
 }
 
@@ -53,6 +54,7 @@ export class __Template__Model extends TileStatelessModel<__Template__ModelState
         queryMatches,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: __Template__ModelArgs) {
         super({
             dispatcher,
@@ -61,6 +63,7 @@ export class __Template__Model extends TileStatelessModel<__Template__ModelState
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.queryMatches = queryMatches;
 

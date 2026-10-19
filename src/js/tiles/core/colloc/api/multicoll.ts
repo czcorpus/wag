@@ -103,7 +103,7 @@ export class MQueryMultiCollAPI
     }
 
     supportsMultiWordQueries(): boolean {
-        return false;
+        return true;
     }
 
     private mkUrl(args: MQueryCollArgs, event: string): string {

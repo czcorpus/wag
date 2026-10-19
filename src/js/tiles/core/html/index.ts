@@ -97,6 +97,7 @@ export class HtmlTile implements ITileProvider {
             service: this.api,
             dependentTiles,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             initState: {
                 isBusy: isBusy,
                 currQueryMatches: List.map(

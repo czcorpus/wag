@@ -169,6 +169,7 @@ export class SyntacticCollsTile implements ITileProvider {
             queryType,
             maxItems: conf.maxItems,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             api:
                 conf.apiType === 'wss'

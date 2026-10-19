@@ -33,6 +33,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     testIsDictMatch,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -117,6 +118,7 @@ export interface TimeDistribModelArgs {
     appServices: IAppServices;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 function dateToSortNumber(s: string): number {
@@ -151,6 +153,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
         appServices,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: TimeDistribModelArgs) {
         super({
             dispatcher,
@@ -159,6 +162,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
         this.infoApi = infoApi;
@@ -667,6 +671,13 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
             });
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private loadData(
         state: TimeDistribModelState,
         streaming: IDataStreaming,
@@ -690,7 +701,7 @@ export class TimeDistribModel extends TileStatelessModel<TimeDistribModelState> 
                               state.currQueryMatches,
                               List.map((currMatch, queryIdx) =>
                                   tuple(
-                                      testIsDictMatch(currMatch)
+                                      this.isSupportedQueryMatch(currMatch)
                                           ? this.stateToArgs(state)
                                           : null,
                                       {

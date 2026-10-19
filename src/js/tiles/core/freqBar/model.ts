@@ -24,6 +24,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     testIsDictMatch,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
 import {
@@ -78,6 +79,7 @@ export interface FreqBarModelArgs {
     initState: FreqBarModelState;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
@@ -93,6 +95,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         initState,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: FreqBarModelArgs) {
         super({
             dispatcher,
@@ -101,6 +104,7 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
             appServices,
             lemLevelSupport,
             dependentTiles,
+            multiWordSupport,
         });
         this.api = api;
 
@@ -292,6 +296,12 @@ export class FreqBarModel extends TileStatefulModel<FreqBarModelState> {
         state: FreqBarModelState,
         queryId: number
     ): MQueryFreqArgs | null {
+        if (
+            testIsMultiWordMatch(state.currQueryMatches[queryId]) &&
+            !this.multiWordSupport
+        ) {
+            return null;
+        }
         if (testIsDictMatch(state.currQueryMatches[queryId])) {
             return {
                 corpname: this.state.corpname,

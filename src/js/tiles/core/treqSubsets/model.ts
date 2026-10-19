@@ -21,7 +21,12 @@ import { IActionQueue } from 'kombo';
 import { RequestArgs } from '../translations/api.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    testIsDictMatch,
+    testIsMultiWordMatch,
+} from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
@@ -133,6 +138,7 @@ export interface TreqSubsetModelArgs {
     initState: TranslationsSubsetsModelState;
     tileId: number;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
     dependentTiles: Array<number>;
     scaleColorGen: ColorScaleFunctionGenerator;
 }
@@ -152,6 +158,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
         api,
         lemLevelSupport,
         dependentTiles,
+        multiWordSupport,
         scaleColorGen,
     }: TreqSubsetModelArgs) {
         super({
@@ -161,6 +168,7 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
         this.scaleColorGen = scaleColorGen;
@@ -180,7 +188,9 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
                         ds,
                         this.tileId,
                         0,
-                        this.stateToArgs(state, srchLemma.lemma)
+                        this.isSupportedQueryMatch(srchLemma)
+                            ? this.stateToArgs(state, srchLemma.lemma)
+                            : null
                     )
                     .pipe(
                         tap((data) => {
@@ -342,6 +352,13 @@ export class TreqSubsetModel extends TileStatelessModel<TranslationsSubsetsModel
                 window.open(url.toString(), '_blank');
             }
         );
+    }
+
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
     }
 
     private stateToArgs(

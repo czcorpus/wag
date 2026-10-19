@@ -28,6 +28,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     testIsDictMatch,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { MergeCorpFreqModelState, ModelSourceArgs } from './common.js';
 import { Actions } from './actions.js';
@@ -49,6 +50,7 @@ export interface MergeCorpFreqModelArgs {
     downloadLabel: string;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelState> {
@@ -65,6 +67,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
         downloadLabel,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: MergeCorpFreqModelArgs) {
         super({
             dispatcher,
@@ -73,6 +76,7 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.freqApi = freqApi;
         this.downloadLabel = downloadLabel ? downloadLabel : 'freq';
@@ -370,13 +374,20 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
         );
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private allSourcesToArgs(
         state: MergeCorpFreqModelState,
         queryMatch: QueryMatch
     ): Array<MQueryFreqArgs | null> {
         return List.map(
             (src) =>
-                testIsDictMatch(queryMatch)
+                this.isSupportedQueryMatch(queryMatch)
                     ? this.stateToArgs(
                           src,
                           queryMatch,

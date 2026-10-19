@@ -31,7 +31,6 @@ import {
     LemmatizationLevel,
     QueryType,
     RecognizedQueries,
-    testIsMultiWordMode,
 } from './query/index.js';
 import { ITileProvider, TileFrameProps } from './page/tile.js';
 import { ClientConf, MainPosAttrValues, UserConf } from './conf/index.js';
@@ -63,7 +62,6 @@ const mkAttachTile =
     (
         queryType: QueryType,
         lemmatizationLevel: LemmatizationLevel,
-        isMultiWordQuery: boolean,
         translatLang: string,
         appServices: IAppServices
     ) =>
@@ -77,18 +75,13 @@ const mkAttachTile =
         retryLoadModel,
     }: AttachTileArgs): void => {
         const support =
-            (tile.supportsQueryType(queryType, translatLang) &&
-                (!isMultiWordQuery || tile.supportsMultiWordQueries())) ||
+            tile.supportsQueryType(queryType, translatLang) ||
             queryType === 'preview';
         let reasonDisabled = undefined;
         if (!support) {
             if (!tile.supportsQueryType(queryType, translatLang)) {
                 reasonDisabled = appServices.translate(
                     'global__query_type_not_supported'
-                );
-            } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-                reasonDisabled = appServices.translate(
-                    'global__multi_word_query_not_supported'
                 );
             }
         }
@@ -222,17 +215,9 @@ export function createRootComponent({
         userSession.translatLanguage
     );
 
-    // TODO multi word query needs some work
-    // some ujc variants can be one word, some multiple words at the same time
-    const isMultiWordQuery =
-        config.currMatchSelectionAlgorithm === 'ujc'
-            ? false
-            : testIsMultiWordMode(queryMatches);
-
     const attachTile = mkAttachTile(
         qType,
         lmLevel,
-        isMultiWordQuery,
         userSession.translatLanguage,
         appServices
     );
@@ -250,10 +235,6 @@ export function createRootComponent({
                 maxTileHeight: tileConf.maxTileHeight,
                 retryLoadModel,
             });
-
-            if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
-                tile.disable();
-            }
         })
     );
 

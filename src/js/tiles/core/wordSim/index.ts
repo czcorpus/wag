@@ -106,6 +106,7 @@ export class WordSimTile implements ITileProvider {
             appServices,
             dispatcher,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 isBusy: isBusy,

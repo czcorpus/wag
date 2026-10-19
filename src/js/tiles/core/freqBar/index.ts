@@ -123,6 +123,7 @@ export class FreqBarTile implements ITileProvider {
             readDataFromTile,
             dependentTiles,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             initState: {
                 isBusy,
                 currQueryMatches: findCurrentMatches(queryMatches),

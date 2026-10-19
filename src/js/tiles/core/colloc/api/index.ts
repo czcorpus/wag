@@ -126,7 +126,7 @@ export class MQueryCollAPI
     }
 
     supportsMultiWordQueries(): boolean {
-        return false;
+        return true;
     }
 
     private prepareArgs(queryArgs: { [k: string]: any }): string {

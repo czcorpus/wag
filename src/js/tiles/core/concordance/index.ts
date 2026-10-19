@@ -112,6 +112,7 @@ export class ConcordanceTile implements ITileProvider {
                 appServices
             ),
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             queryType,
             initState: {
                 tileId,

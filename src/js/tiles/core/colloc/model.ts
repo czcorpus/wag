@@ -28,6 +28,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     testIsDictMatch,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { MQueryCollAPI, MQueryCollArgs } from './api/index.js';
 import { queryMatchToCQL } from '../../../api/vendor/mquery/common.js';
@@ -43,6 +44,7 @@ export interface CollocModelArgs {
     service: MQueryCollAPI | MQueryMultiCollAPI;
     initState: CollocModelState;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 type FreqRequestArgs = [number, QueryMatch];
@@ -72,6 +74,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         initState,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: CollocModelArgs) {
         super({
             dispatcher,
@@ -80,6 +83,7 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.collApi = service;
 
@@ -320,6 +324,9 @@ export class CollocModel extends TileStatelessModel<CollocModelState> {
         state: CollocModelState,
         queryId: number
     ): MQueryCollArgs | null {
+        if (testIsMultiWordMatch && !this.multiWordSupport) {
+            return null;
+        }
         if (testIsDictMatch(state.currQueryMatches[queryId])) {
             const [cfromw, ctow] = ctxToRange(
                 state.srchRangeType,

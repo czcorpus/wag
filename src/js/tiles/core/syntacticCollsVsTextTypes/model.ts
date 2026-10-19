@@ -23,6 +23,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     QueryType,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { SCollsQueryType } from '../syntacticColls/api/scollex.js';
 import { IDataStreaming } from '../../../page/streaming.js';
@@ -70,6 +71,7 @@ interface SyntacticCollsModelArgs {
     theme: Theme;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVsTTModelState> {
@@ -88,6 +90,7 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
         eApi,
         theme,
         lemLevelSupport,
+        multiWordSupport,
     }: SyntacticCollsModelArgs) {
         super({
             dispatcher,
@@ -96,6 +99,7 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
             appServices,
             dependentTiles: [],
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
         this.eApi = eApi;
@@ -288,6 +292,12 @@ export class SyntacticCollsVsTTModel extends TileStatelessModel<SyntacticCollsVs
     }
 
     private stateToArgs(state: SyntacticCollsVsTTModelState): SCollsTTRequest {
+        if (
+            testIsMultiWordMatch(state.currQueryMatch) &&
+            !this.multiWordSupport
+        ) {
+            return null;
+        }
         if (state.scollType === 'none') {
             return null;
         }
