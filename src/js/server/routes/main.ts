@@ -532,12 +532,22 @@ export function determineCurrentMatch(
     }
     // request represents a very general query, so let's try first
     // if user's the query matches a variant/sublemma:
-    const sublMatchIdx = List.findIndex(
-        (v) => v.sublemma === userQuery.word,
+    if (userQuery.sublemma) {
+        const sublMatchIdx = List.findIndex(
+            (v) => v.sublemma === userQuery.word,
+            availMatches
+        );
+        if (sublMatchIdx > -1) {
+            availMatches[sublMatchIdx].isCurrent = true;
+            return applicableMatches;
+        }
+    }
+    const wordMatchIdx = List.findIndex(
+        (v) => v.word === userQuery.word,
         availMatches
     );
-    if (sublMatchIdx > -1) {
-        availMatches[sublMatchIdx].isCurrent = true;
+    if (wordMatchIdx > -1) {
+        availMatches[wordMatchIdx].isCurrent = true;
         return applicableMatches;
     }
     applicableMatches[0].isCurrent = true;
