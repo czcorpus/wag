@@ -28,6 +28,8 @@ import {
     RecognizedQueries,
     QueryType,
     LemmatizationLevel,
+    testIsMultiWordMatch,
+    testIsDictMatch,
 } from '../../../query/index.js';
 import { HTTP, List, pipe } from 'cnc-tskit';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -75,6 +77,7 @@ export interface SummaryModelArgs {
     queryMatches: RecognizedQueries;
     queryType: QueryType;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
     dependentTiles: Array<number>;
 }
 
@@ -109,6 +112,7 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
         queryMatches,
         lemLevelSupport,
         dependentTiles,
+        multiWordSupport,
     }: SummaryModelArgs) {
         super({
             dispatcher,
@@ -117,6 +121,7 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
             tileId,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
         this.sourceInfoApi = sourceInfoApi;
@@ -227,6 +232,13 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
         );
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private loadExtendedFreqInfo(
         state: SummaryModelState,
         dsHandler: IDataStreaming
@@ -254,7 +266,7 @@ export class SummaryModel extends TileStatelessModel<SummaryModelState> {
                     dsHandler,
                     this.tileId,
                     args.idx,
-                    args.variant.lemma
+                    this.isSupportedQueryMatch(args.variant)
                         ? {
                               corpname: state.corpname
                                   ? state.corpname

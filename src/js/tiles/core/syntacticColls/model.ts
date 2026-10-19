@@ -23,6 +23,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     QueryType,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { map } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
@@ -52,6 +53,7 @@ export interface SyntacticCollsModelArgs {
     maxItems: number;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export interface SyntacticCollsModelState {
@@ -94,6 +96,7 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
         eApi,
         maxItems,
         lemLevelSupport,
+        multiWordSupport,
     }: SyntacticCollsModelArgs) {
         super({
             dispatcher,
@@ -101,6 +104,7 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
             tileId,
             appServices,
             lemLevelSupport,
+            multiWordSupport,
             dependentTiles: [],
         });
         this.queryType = queryType;
@@ -348,7 +352,13 @@ export class SyntacticCollsModel extends TileStatelessModel<SyntacticCollsModelS
             });
     }
 
-    private stateToArgs(state: SyntacticCollsModelState): SCollsRequest {
+    private stateToArgs(state: SyntacticCollsModelState): SCollsRequest | null {
+        if (
+            testIsMultiWordMatch(state.currQueryMatch) &&
+            !this.multiWordSupport
+        ) {
+            return null;
+        }
         if (state.displayType === 'none') {
             return null;
         }

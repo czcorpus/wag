@@ -105,6 +105,7 @@ export class TranslationsTile implements ITileProvider {
             },
             tileId,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             api: new TreqAPI(
                 conf.apiURL,

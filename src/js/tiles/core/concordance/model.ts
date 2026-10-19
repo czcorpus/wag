@@ -29,6 +29,7 @@ import {
     QueryMatch,
     testIsDictMatch,
     LemmatizationLevel,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import { Actions as GlobalActions } from '../../../models/actions.js';
@@ -104,6 +105,7 @@ export interface ConcordanceTileModelArgs {
     queryType: QueryType;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export type SupportedForeignResponses =
@@ -208,6 +210,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         readDataFromTile,
         lemLevelSupport,
         dependentTiles,
+        multiWordSupport,
     }: ConcordanceTileModelArgs) {
         super({
             dispatcher,
@@ -217,6 +220,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
             dependentTiles,
             lemLevelSupport,
             readDataFromTile,
+            multiWordSupport,
         });
         this.concApi = api;
         this.infoApi = infoApi;
@@ -548,6 +552,13 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
         });
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private stateToArgs(
         queryMatch: QueryMatch | null,
         queryIdx: number
@@ -586,7 +597,7 @@ export class ConcordanceTileModel extends TileStatefulModel<ConcordanceTileState
                     queryMatches,
                     List.map((currMatch, queryIdx) =>
                         tuple(
-                            testIsDictMatch(currMatch)
+                            this.isSupportedQueryMatch(currMatch)
                                 ? this.stateToArgs(currMatch, queryIdx)
                                 : null,
                             queryIdx

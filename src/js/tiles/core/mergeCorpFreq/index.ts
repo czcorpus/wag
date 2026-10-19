@@ -142,6 +142,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             appServices,
             freqApi: new MergeFreqsApi(conf.apiURL, appServices, conf.backlink),
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 isBusy: isBusy,

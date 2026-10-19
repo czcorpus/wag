@@ -102,6 +102,7 @@ export class SpeechesTile implements ITileProvider {
                 ? new AudioLinkGenerator(conf.audioApiURL)
                 : null,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 isBusy: isBusy,

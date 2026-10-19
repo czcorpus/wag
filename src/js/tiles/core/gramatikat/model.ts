@@ -39,6 +39,7 @@ import {
     QueryMatch,
     testIsDictMatch,
     LemmatizationLevel,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { mergeMap, Observable, reduce, tap } from 'rxjs';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
@@ -255,6 +256,7 @@ export interface ConcordanceTileModelArgs {
     queryMatches: RecognizedQueries;
     initState: GramatikatState;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
     dependentTiles: Array<number>;
 }
 
@@ -268,6 +270,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
         api,
         initState,
         lemLevelSupport,
+        multiWordSupport,
         dependentTiles,
     }: ConcordanceTileModelArgs) {
         super({
@@ -277,6 +280,7 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
 
@@ -643,6 +647,9 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
 
     private isSupportedQueryMatch(cm: QueryMatch): boolean {
         if (!Array.isArray(cm.pos) || cm.pos.length < 1) {
+            return false;
+        }
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
             return false;
         }
         return (

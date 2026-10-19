@@ -23,7 +23,12 @@ import { Actions } from './common.js';
 import { HtmlModelState } from './common.js';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { LemmatizationLevel } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    testIsDictMatch,
+    testIsMultiWordMatch,
+} from '../../../query/index.js';
 import { RawHtmlAPI } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
@@ -36,6 +41,7 @@ export interface HtmlModelArgs {
     initState: HtmlModelState;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export class HtmlModel extends TileStatelessModel<HtmlModelState> {
@@ -49,6 +55,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
         initState,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: HtmlModelArgs) {
         super({
             dispatcher,
@@ -57,6 +64,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.service = service;
 
@@ -71,7 +79,7 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
             },
             (state, action, seDispatch, ds) => {
                 const variant = state.currQueryMatches[0];
-                this.requestData(state, variant.lemma, ds, seDispatch);
+                this.requestData(state, variant, ds, seDispatch);
             }
         );
 
@@ -106,18 +114,25 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
         );
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private requestData(
         state: HtmlModelState,
-        variant: string,
+        match: QueryMatch,
         dataStreaming: IDataStreaming,
         seDispatch: SEDispatcher
     ): void {
-        (variant
+        (this.isSupportedQueryMatch(match)
             ? this.service.call(
                   dataStreaming,
                   this.tileId,
                   0,
-                  this.service.stateToArgs(state, variant)
+                  this.service.stateToArgs(state, match.sublemma)
               )
             : rxOf(null)
         )

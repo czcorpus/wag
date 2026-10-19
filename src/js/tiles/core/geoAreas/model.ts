@@ -31,6 +31,7 @@ import {
     QueryMatch,
     QueryType,
     testIsDictMatch,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { Backlink } from '../../../page/tile.js';
 import {
@@ -110,6 +111,7 @@ interface GeoAreasModelArgs {
     initState: GeoAreasModelState;
     queryType: QueryType;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 }
 
 export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
@@ -128,6 +130,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
         initState,
         queryType,
         lemLevelSupport,
+        multiWordSupport,
     }: GeoAreasModelArgs) {
         super({
             dispatcher,
@@ -136,6 +139,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
             appServices,
             dependentTiles: [],
             lemLevelSupport,
+            multiWordSupport,
         });
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
@@ -160,7 +164,7 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                             state.currQueryMatches,
                             List.map((match, queryIdx) => {
                                 return tuple(
-                                    testIsDictMatch(match)
+                                    this.isSupportedQueryMatch(match)
                                         ? this.stateToArgs(state, queryIdx)
                                         : null,
                                     queryIdx
@@ -407,6 +411,13 @@ export class GeoAreasModel extends TileStatelessModel<GeoAreasModelState> {
                 });
             }
         );
+    }
+
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
     }
 
     private handleLoad(

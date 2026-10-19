@@ -96,6 +96,7 @@ export class WordFreqTile implements ITileProvider {
         this.model = new SummaryModel({
             dispatcher,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 isBusy: isBusy,

@@ -120,6 +120,7 @@ export class TimeDistTile implements ITileProvider {
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 loadingStatus: isBusy

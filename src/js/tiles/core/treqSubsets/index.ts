@@ -115,6 +115,7 @@ export class TreqSubsetsTile implements ITileProvider {
             },
             tileId,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             api: new TreqSubsetsAPI(conf.apiURL, appServices, conf.backlink),
             scaleColorGen: theme.scaleColorIndexed,

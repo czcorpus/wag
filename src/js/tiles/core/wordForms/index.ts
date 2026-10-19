@@ -93,6 +93,7 @@ export class WordFormsTile implements ITileProvider {
         this.model = new WordFormsModel({
             dispatcher,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             dependentTiles,
             initState: {
                 isBusy: isBusy,

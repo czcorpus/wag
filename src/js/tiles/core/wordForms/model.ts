@@ -21,7 +21,11 @@ import { List, Maths } from 'cnc-tskit';
 import { SEDispatcher, IActionQueue } from 'kombo';
 import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
-import { LemmatizationLevel, QueryMatch } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    testIsMultiWordMatch,
+} from '../../../query/index.js';
 import { IAppServices } from '../../../appServices.js';
 import { Backlink, BacklinkConf } from '../../../page/tile.js';
 import { MainPosAttrValues } from '../../../conf/index.js';
@@ -86,6 +90,7 @@ export interface WordFormsModelArgs {
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
     dependentTiles: Array<number>;
+    multiWordSupport: boolean;
 }
 
 export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
@@ -101,6 +106,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
         appServices,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
     }: WordFormsModelArgs) {
         super({
             dispatcher,
@@ -109,6 +115,7 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
 
@@ -161,24 +168,23 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
                         },
                     });
                 } else {
-                    this.fetchWordForms(
-                        {
-                            lemma: variant.lemma,
-                            word:
-                                state.lemmatizationLevel === 'form'
-                                    ? variant.word
-                                    : undefined,
-                            sublemma: state.supportsSublemma
-                                ? variant.sublemma
-                                : undefined,
-                            pos: List.map((v) => v.value, variant.pos),
-                            corpName: state.corpname,
-                            mainPosAttr: state.mainPosAttr,
-                            initialCap: variant.initialCap,
-                        },
-                        ds,
-                        dispatch
-                    );
+                    const args = this.isSupportedQueryMatch(variant)
+                        ? {
+                              lemma: variant.lemma,
+                              word:
+                                  state.lemmatizationLevel === 'form'
+                                      ? variant.word
+                                      : undefined,
+                              sublemma: state.supportsSublemma
+                                  ? variant.sublemma
+                                  : undefined,
+                              pos: List.map((v) => v.value, variant.pos),
+                              corpName: state.corpname,
+                              mainPosAttr: state.mainPosAttr,
+                              initialCap: variant.initialCap,
+                          }
+                        : null;
+                    this.fetchWordForms(args, ds, dispatch);
                 }
             }
         );
@@ -286,8 +292,15 @@ export class WordFormsModel extends TileStatelessModel<WordFormsModelState> {
         );
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return true;
+    }
+
     private fetchWordForms(
-        args: RequestArgs,
+        args: RequestArgs | null,
         dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {

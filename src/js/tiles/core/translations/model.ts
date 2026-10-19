@@ -23,7 +23,12 @@ import { Actions as GlobalActions } from '../../../models/actions.js';
 import { Actions } from './actions.js';
 import { ColorScaleFunctionGenerator } from '../../../page/theme.js';
 import { IAppServices } from '../../../appServices.js';
-import { LemmatizationLevel } from '../../../query/index.js';
+import {
+    LemmatizationLevel,
+    QueryMatch,
+    testIsDictMatch,
+    testIsMultiWordMatch,
+} from '../../../query/index.js';
 import { RequestArgs, TranslationsModelState, TreqAPI } from './api.js';
 import { IDataStreaming } from '../../../page/streaming.js';
 import { TileStatelessModel } from '../../../models/tiles/base.js';
@@ -36,6 +41,7 @@ export interface TranslationModelArgs {
     api: TreqAPI;
     dependentTiles: Array<number>;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
 
     scaleColorGen: ColorScaleFunctionGenerator;
 }
@@ -53,6 +59,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         api,
         dependentTiles,
         lemLevelSupport,
+        multiWordSupport,
         scaleColorGen,
     }: TranslationModelArgs) {
         super({
@@ -62,6 +69,7 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
             tileId,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.scaleColorGen = scaleColorGen;
         this.api = api;
@@ -171,18 +179,27 @@ export class TranslationsModel extends TileStatelessModel<TranslationsModelState
         };
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private loadData(
         state: TranslationsModelState,
         dsHandler: IDataStreaming,
         dispatch: SEDispatcher
     ): void {
-        const srchLemma = state.currQueryMatch;
+        const srchLemma = state.currQueryMatch[0];
         this.api
             .call(
                 dsHandler,
                 this.tileId,
                 0,
-                this.stateToArgs(state, srchLemma[0].lemma)
+                this.isSupportedQueryMatch(srchLemma)
+                    ? this.stateToArgs(state, srchLemma.lemma)
+                    : null
             )
             .pipe(
                 map((item) => {

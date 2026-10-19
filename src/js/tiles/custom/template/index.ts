@@ -82,6 +82,7 @@ export class __Template__Tile implements ITileProvider {
             queryMatches,
             dependentTiles,
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
             initState: {
                 isBusy: isBusy,
                 tileId: tileId,

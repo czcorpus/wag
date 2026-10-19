@@ -27,6 +27,7 @@ import {
     LemmatizationLevel,
     QueryMatch,
     testIsDictMatch,
+    testIsMultiWordMatch,
 } from '../../../query/index.js';
 import { callWithExtraVal } from '../../../api/util.js';
 import { IAppServices } from '../../../appServices.js';
@@ -48,6 +49,7 @@ export interface WordSimModelArgs {
     api: CNCWord2VecSimApi | CNCWSServerApi;
     appServices: IAppServices;
     lemLevelSupport: Array<LemmatizationLevel>;
+    multiWordSupport: boolean;
     dependentTiles: Array<number>;
 }
 
@@ -83,6 +85,7 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
         api,
         appServices,
         lemLevelSupport,
+        multiWordSupport,
         dependentTiles,
     }: WordSimModelArgs) {
         super({
@@ -92,6 +95,7 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
             appServices,
             dependentTiles,
             lemLevelSupport,
+            multiWordSupport,
         });
         this.api = api;
 
@@ -232,6 +236,13 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
         );
     }
 
+    private isSupportedQueryMatch(cm: QueryMatch): boolean {
+        if (testIsMultiWordMatch(cm) && !this.multiWordSupport) {
+            return false;
+        }
+        return testIsDictMatch(cm);
+    }
+
     private stateToArgs(
         state: WordSimModelState,
         queryMatch: QueryMatch
@@ -271,7 +282,7 @@ export class WordSimModel extends TileStatelessModel<WordSimModelState> {
                         this.api,
                         this.tileId,
                         queryId,
-                        testIsDictMatch(queryMatch)
+                        this.isSupportedQueryMatch(queryMatch)
                             ? this.stateToArgs(state, queryMatch)
                             : null,
                         queryId

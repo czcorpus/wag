@@ -165,6 +165,7 @@ export class CollocationsTile implements ITileProvider {
                 examplesPerColl: conf.examplesPerColl,
             },
             lemLevelSupport: this.configuredLemLevels,
+            multiWordSupport: this.supportsMultiWordQueries(),
         });
         this.label = appServices.importExternalMessage(
             conf.label || 'collocations__main_label'

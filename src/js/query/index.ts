@@ -220,15 +220,8 @@ export function testIsDictMatch(queryMatch: QueryMatch): boolean {
     return !!queryMatch.lemma;
 }
 
-/**
- * Test whether at least one of provided matches is a multi-word one.
- */
-export function testIsMultiWordMode(queries: RecognizedQueries): boolean {
-    return pipe(
-        queries,
-        List.flatMap((v) => v),
-        List.some((v) => /\s/.test(v.word))
-    );
+export function testIsMultiWordMatch(queryMatch: QueryMatch): boolean {
+    return /\s/.test(queryMatch.word);
 }
 
 export function matchesPos(
