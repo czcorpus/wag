@@ -744,8 +744,19 @@ export function queryAction({
                         }
                         switch (runtimeConf.currMatchSelectionAlgorithm) {
                             case 'ujc':
+                                const query = userConf.queries[queryIdx];
+                                const selectedIdx = List.findIndex(
+                                    (qm) =>
+                                        qm.extraData?.variant?.key?.lemma ===
+                                        query.word,
+                                    queryMatches
+                                );
+                                if (selectedIdx !== -1) {
+                                    queryMatches[selectedIdx].isCurrent = true;
+                                    return queryMatches;
+                                }
                                 return determineCurrentMatch(
-                                    userConf.queries[queryIdx],
+                                    query,
                                     userConf.lemmatizationLevel,
                                     layoutManager.getLayoutMainPosAttr(),
                                     [...queryMatches]
