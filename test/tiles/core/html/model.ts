@@ -69,6 +69,7 @@ describe('HtmlTile model', function () {
                     service: htmlApiStub,
                     dependentTiles: [],
                     lemLevelSupport: ['lemma'],
+                    multiWordSupport: true,
                     initState: {
                         isBusy: false,
                         tileId: 1,

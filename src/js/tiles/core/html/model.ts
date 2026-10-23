@@ -127,12 +127,13 @@ export class HtmlModel extends TileStatelessModel<HtmlModelState> {
         dataStreaming: IDataStreaming,
         seDispatch: SEDispatcher
     ): void {
+        const queryValue = match.sublemma ?? match.lemma ?? match.word ?? '';
         (this.isSupportedQueryMatch(match)
             ? this.service.call(
                   dataStreaming,
                   this.tileId,
                   0,
-                  this.service.stateToArgs(state, match.sublemma)
+                  this.service.stateToArgs(state, queryValue)
               )
             : rxOf(null)
         )
