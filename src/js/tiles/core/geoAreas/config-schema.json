@@ -46,7 +46,8 @@
                     "enum": [
                         "directPos",
                         "pennTreebank",
-                        "ppTagset"
+                        "ppTagset",
+                        "ppTagsetSpk"
                     ],
                     "type": "string"
                 }

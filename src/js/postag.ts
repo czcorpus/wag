@@ -273,6 +273,7 @@ const pennTreebankLabels = {
 const directPos: PosQueryExport = (pos, specifier) => pos;
 
 const ppTagset: PosQueryExport = (pos, specifier) => {
+    // ppTagsetSpk has in total 15 characters
     const posPart =
         pos.length > 1 ? `[${pos.toUpperCase()}]` : pos.toUpperCase();
     if (!!specifier) {
@@ -281,6 +282,22 @@ const ppTagset: PosQueryExport = (pos, specifier) => {
                 return `${posPart}.${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
             case PoSValues.VERB:
                 return `${posPart}...........${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
+        }
+    }
+    return `${posPart}.+`;
+};
+
+const ppTagsetSpk: PosQueryExport = (pos, specifier) => {
+    // ppTagsetSpk has in total 16 characters
+    const posPart =
+        pos.length > 1 ? `[${pos.toUpperCase()}]` : pos.toUpperCase();
+    if (!!specifier) {
+        switch (posPart) {
+            case PoSValues.NOUN:
+                return `${posPart}.${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
+            case PoSValues.VERB:
+                // ppTagsetSpk does not support perfect/imperfect tense distinction
+                return `${posPart}.+`;
         }
     }
     return `${posPart}.+`;
@@ -312,6 +329,7 @@ export function posTagsEqual(
  *
  * Currently supported:
  *  - Prague positional tagset (ppTagset)
+ *  - Prague positional tagset for spoken languages (ppTagsetSpk)
  *  - Penn Treebank (pennTreebank)
  *  - direct (directPos)
  */
@@ -319,6 +337,8 @@ export function posQueryFactory(fnName: string | null): PosQueryExport {
     switch (fnName) {
         case 'ppTagset':
             return ppTagset;
+        case 'ppTagsetSpk':
+            return ppTagsetSpk;
         case 'pennTreebank':
             return pennTreebank;
         case 'directPos':
