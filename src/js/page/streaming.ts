@@ -214,9 +214,10 @@ interface DataStreamingArgs {
 
     /**
      * A response cache shared among all the DataStreaming instances
-     * of a session (clones, subgroups). If omitted, a new one is created.
+     * of a session (clones, subgroups). If omitted (or null), responses
+     * are not cached.
      */
-    cache?: DataStreamingCache;
+    cache?: DataStreamingCache | null;
 }
 
 /**
@@ -251,7 +252,7 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly apiReporting: APIReporting;
 
-    private readonly cache: DataStreamingCache;
+    private readonly cache: DataStreamingCache | null;
 
     private isCancelled = false;
 
@@ -266,7 +267,7 @@ export class DataStreaming implements IDataStreaming {
         apiReporting,
         cache,
     }: DataStreamingArgs) {
-        this.cache = cache ? cache : new DataStreamingCache();
+        this.cache = cache ? cache : null;
         this.id = id ? id : DataStreaming.ID_GLOBAL;
         this.origTileIds = tileIds;
         this.userSession = userSession;
@@ -479,7 +480,7 @@ export class DataStreaming implements IDataStreaming {
                 return req;
             }
             numRealRequests++;
-            const hit = this.cache.get(req);
+            const hit = this.cache ? this.cache.get(req) : undefined;
             if (hit) {
                 cached.set(tileKey(req), hit);
                 return { ...req, url: '', body: '' };
@@ -580,6 +581,7 @@ export class DataStreaming implements IDataStreaming {
                     return;
                 }
                 if (
+                    this.cache &&
                     !isOtherTileRequest(val) &&
                     DataStreamingCache.isCacheable(val)
                 ) {

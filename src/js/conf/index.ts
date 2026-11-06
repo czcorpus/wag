@@ -241,6 +241,15 @@ export interface ClientStaticConf {
      */
     dataStreamingUrl: string;
 
+    /**
+     * If true, the client caches responses of data streaming requests
+     * in the browser's sessionStorage, so repeated identical requests
+     * within a browser tab (e.g. when switching query matches) are not
+     * sent to the server again. The cache is cleared when the tab
+     * is closed or the page is reloaded. Default is false.
+     */
+    dataStreamingCache?: boolean;
+
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
     tiles: MultiSourceTileConf;
@@ -312,6 +321,7 @@ export interface ClientConf {
     };
     tiles: { [ident: string]: TileConf };
     dataStreamingUrl: string;
+    dataStreamingCache: boolean;
     supportsExactFormSearch: boolean;
     layouts: LayoutsConfig;
     queryTypes: Array<QueryType>;
@@ -406,6 +416,7 @@ export function emptyClientConf(
         colors: getAppliedThemeConf(conf, themeId),
         colorThemes: getThemeList(conf),
         dataStreamingUrl: undefined,
+        dataStreamingCache: false,
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {

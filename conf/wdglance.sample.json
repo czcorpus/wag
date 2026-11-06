@@ -5,6 +5,7 @@
 	"hostUrl": "http://portal.korpus.test/wag/",
 	"runtimeAssetsUrl": "http://portal.korpus.test/wag/runtime-assets/",
 	"dataStreamingUrl": "http://streaming.korpus.test/",
+	"dataStreamingCache": true,
 	"maxTileErrors": 10,
 	"apiHeaders": {
 		"http://kontext.korpus.test/kontext-api/": {

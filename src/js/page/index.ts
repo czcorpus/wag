@@ -188,7 +188,9 @@ export function initClient(
                       DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
                   userSession,
                   apiReporting: config.apiReporting,
-                  cache: DataStreamingCache.createSessionCache(),
+                  cache: config.dataStreamingCache
+                      ? DataStreamingCache.createSessionCache()
+                      : null,
               });
     const appServices = new AppServices({
         notifications,
