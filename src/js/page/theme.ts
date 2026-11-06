@@ -97,6 +97,8 @@ const fallbackTheme: ColorTheme = {
     geoAreaSpotFillColor: '#212F3C',
 
     formElementsBorderRadius: '6px',
+
+    queryFormInputWidth: '15rem',
 };
 
 /**
@@ -113,6 +115,8 @@ export class Theme<T = any> {
     public readonly queryFormBackgroundColor: string | undefined;
 
     public readonly queryFormBorderColor: string | undefined;
+
+    public readonly queryFormInputWidth: string;
 
     public readonly tileBackgroundColor: string | undefined;
 
@@ -240,6 +244,8 @@ export class Theme<T = any> {
             confSrc.queryFormBackgroundColor || this.pageBackgroundColor;
         this.queryFormBorderColor =
             confSrc.queryFormBorderColor || this.pageBackgroundColor;
+        this.queryFormInputWidth =
+            confSrc.queryFormInputWidth || fallbackTheme.queryFormInputWidth;
         this.tileBackgroundColor =
             confSrc.tileBackgroundColor || fallbackTheme.tileBackgroundColor;
         this.tileHeadingSeparColor = confSrc.tileHeadingSeparColor;
