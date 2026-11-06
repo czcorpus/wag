@@ -18,14 +18,14 @@
 
 export type PosQueryGeneratorType = [
     string,
-    'ppTagset' | 'pennTreebank' | 'directPos',
+    'ppTagset' | 'ppTagsetSpk' | 'pennTreebank' | 'directPos',
 ];
 
 export function validatePosQueryGenerator(
     posQueryGenerator: any
 ): string | null {
     const expected =
-        "expected schema [string, 'ppTagset'|'pennTreebank'|'directPos']";
+        "expected schema [string, 'ppTagset'|'ppTagsetSpk'|'pennTreebank'|'directPos']";
     if (!Array.isArray(posQueryGenerator) && posQueryGenerator.length !== 2) {
         return `should be array of length 2, ${expected}`;
     }
@@ -36,7 +36,7 @@ export function validatePosQueryGenerator(
         return `values has to of type string, ${expected}`;
     }
     if (
-        !['ppTagset', 'pennTreebank', 'directPos'].includes(
+        !['ppTagset', 'ppTagsetSpk', 'pennTreebank', 'directPos'].includes(
             posQueryGenerator[1]
         )
     ) {

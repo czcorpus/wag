@@ -43,8 +43,11 @@ services:
     hostname: wag-client
   
   apiguard:
-    build: ${APIGUARD_PATH}
-    command: bash -c "export PATH=$PATH:/usr/local/go/bin:/root/go/bin && curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b /usr/local/go/bin && air"
+    build:
+      context: ${APIGUARD_PATH}
+      args:
+        INSTALL_AIR: "true"
+    command: air
     volumes:
       - ${APIGUARD_PATH}:/opt/apiguard
       - ${APIGUARD_CONF}:/opt/apiguard/conf.docker.json
@@ -80,8 +83,11 @@ services:
       - data
   
   frodo:
-    build: ${FRODO_PATH}
-    command: bash -c "export PATH=$PATH:/usr/local/go/bin:/root/go/bin && curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b /usr/local/go/bin && air"
+    build:
+      context: ${FRODO_PATH}
+      args:
+        INSTALL_AIR: "true"
+    command: air
     ports:
       - "8083:8083"
     volumes:
