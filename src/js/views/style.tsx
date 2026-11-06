@@ -232,7 +232,7 @@ export const QueryFields = styled.div<{ theme: Theme }>`
 
 export const SubmitButton = styled.span<{ theme: Theme }>`
     && {
-        width: 100%;
+        flex-grow: 1;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -296,7 +296,7 @@ export const SingleQueryInput = styled.span<{
         flex-grow: 2;
 
         input {
-            flex-grow: 2;
+            width: 100%;
             border: ${(props) => props.theme.textInputBorderStyle};
             outline: none;
             border-radius: ${(props) => props.theme.formElementsBorderRadius};
