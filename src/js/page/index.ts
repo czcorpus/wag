@@ -56,6 +56,7 @@ import {
     IDataStreaming,
     DataStreamingPreview,
 } from './streaming.js';
+import { DataStreamingCache } from './streamingCache.js';
 import { callWithExtraVal } from '../api/util.js';
 import { DataApi, SystemMessageType } from '../types.js';
 import { init as errPageInit, ErrPageProps } from '../views/error.js';
@@ -187,6 +188,7 @@ export function initClient(
                       DATA_STREAMING_CLIENTS_READY_TIMEOUT_SECS * 1000,
                   userSession,
                   apiReporting: config.apiReporting,
+                  cache: DataStreamingCache.createSessionCache(),
               });
     const appServices = new AppServices({
         notifications,

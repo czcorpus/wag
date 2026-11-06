@@ -25,12 +25,12 @@ import {
     map,
     scan,
     share,
-    tap,
     timeout,
 } from 'rxjs/operators';
 import { ajax$, encodeArgs } from './ajax.js';
 import urlJoin from 'url-join';
 import { APIReporting, UserConf } from '../conf/index.js';
+import { DataStreamingCache } from './streamingCache.js';
 
 export class TileResponseError extends Error {
     status?: number;
@@ -42,7 +42,7 @@ export class TileResponseError extends Error {
     }
 }
 
-interface TileRequest {
+export interface TileRequest {
     tileId: number;
 
     /**
@@ -156,6 +156,54 @@ export class EmptyDataStreaming implements IDataStreaming {
     }
 }
 
+function tileKey(req: { tileId: number; queryIdx?: number }): string {
+    return `${req.tileId}.${req.queryIdx}`;
+}
+
+/**
+ * Converts a raw EventSource message data into an EventItem
+ * according to the request's content type.
+ */
+function decodeEvent(
+    req: TileRequest | OtherTileRequest,
+    rawData: unknown
+): EventItem {
+    if (req.contentType == 'application/json') {
+        try {
+            const tmp = JSON.parse(rawData as string);
+            return {
+                data: tmp,
+                error:
+                    !!tmp && tmp.hasOwnProperty('error')
+                        ? tmp.error
+                        : undefined,
+                status:
+                    !!tmp && tmp.hasOwnProperty('code') ? tmp.code : undefined,
+                tileId: req.tileId,
+                queryIdx: req.queryIdx,
+            };
+        } catch (e) {
+            return {
+                data: undefined,
+                error: `Failed to process response for tile ${req.tileId}: ${e}`,
+                tileId: req.tileId,
+                queryIdx: req.queryIdx,
+            };
+        }
+    } else if (req.base64EncodeResult && typeof rawData === 'string') {
+        return {
+            data: atob(rawData),
+            tileId: req.tileId,
+            queryIdx: req.queryIdx,
+        };
+    }
+    return {
+        data: rawData,
+        tileId: req.tileId,
+        queryIdx: req.queryIdx,
+    };
+}
+
 interface DataStreamingArgs {
     id: string | null;
     tileIds: Array<string | number>;
@@ -163,6 +211,12 @@ interface DataStreamingArgs {
     tilesReadyTimeoutSecs: number;
     userSession: UserConf | null;
     apiReporting: APIReporting | null;
+
+    /**
+     * A response cache shared among all the DataStreaming instances
+     * of a session (clones, subgroups). If omitted, a new one is created.
+     */
+    cache?: DataStreamingCache;
 }
 
 /**
@@ -197,6 +251,8 @@ export class DataStreaming implements IDataStreaming {
 
     private readonly apiReporting: APIReporting;
 
+    private readonly cache: DataStreamingCache;
+
     private isCancelled = false;
 
     static readonly ID_GLOBAL = '__global__';
@@ -208,7 +264,9 @@ export class DataStreaming implements IDataStreaming {
         tilesReadyTimeoutSecs,
         userSession,
         apiReporting,
+        cache,
     }: DataStreamingArgs) {
+        this.cache = cache ? cache : new DataStreamingCache();
         this.id = id ? id : DataStreaming.ID_GLOBAL;
         this.origTileIds = tileIds;
         this.userSession = userSession;
@@ -269,121 +327,7 @@ export class DataStreaming implements IDataStreaming {
                       }),
                       timeout(this.tilesReadyTimeoutSecs),
                       concatMap((tileReqMap) =>
-                          ajax$<{ id: string }>(
-                              HTTP.Method.PUT,
-                              this.rootUrl,
-                              {
-                                  requests: pipe(
-                                      Array.from(tileReqMap.entries()),
-                                      List.map(([k, tileReq]) => tileReq)
-                                  ),
-                              },
-                              {
-                                  contentType: 'application/json',
-                                  headers: this.apiReporting.headerName
-                                      ? {
-                                            [this.apiReporting.headerName]:
-                                                this.apiReporting.headerValue,
-                                        }
-                                      : undefined,
-                              }
-                          ).pipe(map((resp) => tuple(tileReqMap, resp)))
-                      ),
-                      concatMap(
-                          ([tileReqMap, resp]) =>
-                              new Observable<EventItem>((observer) => {
-                                  if (this.isCancelled) {
-                                      observer.complete();
-                                      return;
-                                  }
-                                  const evtSrc = new EventSource(
-                                      urlJoin(this.rootUrl, resp.id)
-                                  );
-                                  this.eventSources.add(evtSrc);
-                                  const closeEventSource = () => {
-                                      evtSrc.onerror = null;
-                                      evtSrc.close();
-                                      this.eventSources.delete(evtSrc);
-                                  };
-                                  const handleClose = () => {
-                                      observer.complete();
-                                      closeEventSource();
-                                  };
-                                  tileReqMap.forEach((val) => {
-                                      evtSrc.addEventListener(
-                                          `DataTile-${val.tileId}.${val.queryIdx}`,
-                                          (evt) => {
-                                              if (
-                                                  val.contentType ==
-                                                  'application/json'
-                                              ) {
-                                                  try {
-                                                      const tmp = JSON.parse(
-                                                          evt.data
-                                                      );
-                                                      observer.next({
-                                                          data: tmp,
-                                                          error:
-                                                              !!tmp &&
-                                                              tmp.hasOwnProperty(
-                                                                  'error'
-                                                              )
-                                                                  ? tmp.error
-                                                                  : undefined,
-                                                          status:
-                                                              !!tmp &&
-                                                              tmp.hasOwnProperty(
-                                                                  'code'
-                                                              )
-                                                                  ? tmp.code
-                                                                  : undefined,
-                                                          tileId: val.tileId,
-                                                          queryIdx:
-                                                              val.queryIdx,
-                                                      });
-                                                  } catch (e) {
-                                                      observer.next({
-                                                          data: undefined,
-                                                          error: `Failed to process response for tile ${val.tileId}: ${e}`,
-                                                          tileId: val.tileId,
-                                                          queryIdx:
-                                                              val.queryIdx,
-                                                      });
-                                                  }
-                                              } else if (
-                                                  val.base64EncodeResult &&
-                                                  typeof evt.data === 'string'
-                                              ) {
-                                                  const tmp = atob(evt.data);
-                                                  observer.next({
-                                                      data: tmp,
-                                                      tileId: val.tileId,
-                                                      queryIdx: val.queryIdx,
-                                                  });
-                                              } else {
-                                                  observer.next({
-                                                      data: evt.data,
-                                                      tileId: val.tileId,
-                                                      queryIdx: val.queryIdx,
-                                                  });
-                                              }
-                                          }
-                                      );
-                                  });
-                                  evtSrc.addEventListener('close', handleClose);
-                                  evtSrc.onerror = (v) => {
-                                      console.error(v);
-                                      if (
-                                          evtSrc.readyState ===
-                                          EventSource.CLOSED
-                                      ) {
-                                          handleClose();
-                                      }
-                                  };
-                                  return () => {
-                                      handleClose();
-                                  };
-                              })
+                          this.processRequests(Array.from(tileReqMap.values()))
                       ),
                       share()
                   )
@@ -433,6 +377,7 @@ export class DataStreaming implements IDataStreaming {
             tilesReadyTimeoutSecs: this.tilesReadyTimeoutSecs,
             userSession: this.userSession,
             apiReporting: this.apiReporting,
+            cache: this.cache,
         });
     }
 
@@ -471,6 +416,7 @@ export class DataStreaming implements IDataStreaming {
                 tilesReadyTimeoutSecs: this.tilesReadyTimeoutSecs,
                 userSession: this.userSession,
                 apiReporting: this.apiReporting,
+                cache: this.cache,
             })
         );
         return this.tilesDataStreams.get(groupId);
@@ -515,6 +461,160 @@ export class DataStreaming implements IDataStreaming {
             updEntry.body = '';
         }
         return updEntry;
+    }
+
+    /**
+     * Resolves a complete group of tile requests. Requests found in the cache
+     * are replaced by empty requests (the server resolves them immediately with
+     * an empty response) and their data are replayed from the cache instead.
+     * If all the requests are cached, the server is not contacted at all.
+     */
+    private processRequests(
+        requests: Array<TileRequest | OtherTileRequest>
+    ): Observable<EventItem> {
+        const cached = new Map<string, Array<unknown>>();
+        let numRealRequests = 0;
+        const serverRequests = List.map((req) => {
+            if (isOtherTileRequest(req)) {
+                return req;
+            }
+            numRealRequests++;
+            const hit = this.cache.get(req);
+            if (hit) {
+                cached.set(tileKey(req), hit);
+                return { ...req, url: '', body: '' };
+            }
+            return req;
+        }, requests);
+
+        if (cached.size > 0 && cached.size === numRealRequests) {
+            return this.replayCached(requests, cached);
+        }
+        return ajax$<{ id: string }>(
+            HTTP.Method.PUT,
+            this.rootUrl,
+            { requests: serverRequests },
+            {
+                contentType: 'application/json',
+                headers: this.apiReporting.headerName
+                    ? {
+                          [this.apiReporting.headerName]:
+                              this.apiReporting.headerValue,
+                      }
+                    : undefined,
+            }
+        ).pipe(
+            concatMap((resp) => this.openEventSource(requests, cached, resp.id))
+        );
+    }
+
+    private emitCached(
+        requests: Array<TileRequest | OtherTileRequest>,
+        cached: Map<string, Array<unknown>>,
+        emit: (item: EventItem) => void
+    ): void {
+        List.forEach((req) => {
+            if (!isOtherTileRequest(req)) {
+                List.forEach(
+                    (rawData) => emit(decodeEvent(req, rawData)),
+                    cached.get(tileKey(req)) || []
+                );
+            }
+        }, requests);
+    }
+
+    private replayCached(
+        requests: Array<TileRequest | OtherTileRequest>,
+        cached: Map<string, Array<unknown>>
+    ): Observable<EventItem> {
+        return new Observable<EventItem>((observer) => {
+            // We must emit asynchronously as the last tile which completed
+            // the request group has not subscribed for its data yet.
+            const timer = setTimeout(() => {
+                if (!this.isCancelled) {
+                    this.emitCached(requests, cached, (item) =>
+                        observer.next(item)
+                    );
+                }
+                observer.complete();
+            }, 0);
+            return () => {
+                clearTimeout(timer);
+            };
+        });
+    }
+
+    private openEventSource(
+        requests: Array<TileRequest | OtherTileRequest>,
+        cached: Map<string, Array<unknown>>,
+        streamId: string
+    ): Observable<EventItem> {
+        return new Observable<EventItem>((observer) => {
+            if (this.isCancelled) {
+                observer.complete();
+                return;
+            }
+            const evtSrc = new EventSource(urlJoin(this.rootUrl, streamId));
+            this.eventSources.add(evtSrc);
+            const closeEventSource = () => {
+                evtSrc.onerror = null;
+                evtSrc.close();
+                this.eventSources.delete(evtSrc);
+            };
+            const handleClose = () => {
+                observer.complete();
+                closeEventSource();
+            };
+            // raw data of fresh (non-cached) responses waiting to be cached
+            const collected = new Map<
+                string,
+                { req: TileRequest; events: Array<unknown>; failed: boolean }
+            >();
+
+            this.emitCached(requests, cached, (item) => observer.next(item));
+
+            List.forEach((val) => {
+                const key = tileKey(val);
+                if (cached.has(key)) {
+                    // the server responds with an empty response here
+                    return;
+                }
+                if (
+                    !isOtherTileRequest(val) &&
+                    DataStreamingCache.isCacheable(val)
+                ) {
+                    collected.set(key, { req: val, events: [], failed: false });
+                }
+                evtSrc.addEventListener(`DataTile-${key}`, (evt) => {
+                    const item = decodeEvent(val, evt.data);
+                    const coll = collected.get(key);
+                    if (coll) {
+                        coll.events.push(evt.data);
+                        coll.failed = coll.failed || !!item.error;
+                    }
+                    observer.next(item);
+                });
+            }, requests);
+
+            evtSrc.addEventListener('close', () => {
+                // the stream finished regularly so we can cache the responses
+                collected.forEach(({ req, events, failed }) => {
+                    if (!failed) {
+                        this.cache.set(req, events);
+                    }
+                });
+                handleClose();
+            });
+            evtSrc.onerror = (v) => {
+                console.error(v);
+                if (evtSrc.readyState === EventSource.CLOSED) {
+                    handleClose();
+                }
+            };
+            return () => {
+                handleClose();
+            };
+        });
     }
 
     registerTileRequest<T>(
