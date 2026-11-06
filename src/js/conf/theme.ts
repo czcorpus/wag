@@ -95,6 +95,11 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
 
     formElementsBorderRadius?: string;
 
+    /**
+     * Width of the main query input field (default: 15rem)
+     */
+    queryFormInputWidth?: string;
+
     extraTheme?: T;
 }
 

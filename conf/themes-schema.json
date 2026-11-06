@@ -138,6 +138,10 @@
                 "queryFormBorderColor": {
                     "type": "string"
                 },
+                "queryFormInputWidth": {
+                    "description": "Width of the main query input field (default: 15rem)",
+                    "type": "string"
+                },
                 "scale": {
                     "items": {
                         "type": "string"
