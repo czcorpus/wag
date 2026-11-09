@@ -215,6 +215,8 @@ export class Theme<T = any> {
 
     public readonly tileShadow: string;
 
+    public readonly tileFooterStyle: string;
+
     public readonly chartTextColor: string;
 
     public readonly chartGridColor: string;
@@ -257,6 +259,9 @@ export class Theme<T = any> {
             confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
         this.tileEmptyStyle = confSrc.tileEmptyStyle || '';
         this.tileShadow = confSrc.tileShadow || fallbackTheme.tileShadow;
+        this.tileFooterStyle = confSrc.tileFooterStyle
+            ? confSrc.tileFooterStyle
+            : '';
         this.textInputBorderStyle =
             confSrc.textInputBorderStyle || this.boxBorderStyle;
         this.colorLogoBlue =
