@@ -362,51 +362,57 @@ export function init(
 
         return (
             <div className="source">
-                {props.data ? ut.translate('global__source') + ':\u00a0' : null}
-                {props.data
-                    ? List.map(
-                          (item, i) => (
-                              <React.Fragment
-                                  key={`${item.corp}:${item.subcorp}`}
-                              >
-                                  {i > 0 ? <span> + </span> : null}
-                                  <SourceLink
-                                      data={item}
-                                      onClick={handleSourceClick}
-                                  />
-                              </React.Fragment>
-                          ),
-                          Array.isArray(props.data) ? props.data : [props.data]
-                      )
-                    : null}
-                {backlinkIsValid(props.backlink) ? (
-                    <>
-                        ,{'\u00a0'}
-                        {ut.translate('global__more_info')}:{'\u00a0'}
-                        {pipe(
-                            Array.isArray(props.backlink)
-                                ? props.backlink
-                                : [props.backlink],
-                            List.filter((v) => !!v),
-                            List.sortAlphaBy((v) =>
-                                typeof v.label === 'string'
-                                    ? v.label
-                                    : v.label['en-US']
-                            ),
-                            List.map((item, i) => (
-                                <React.Fragment key={`${item.label}:${i}`}>
-                                    {i > 0 ? <span>, </span> : null}
-                                    <BacklinkButton
-                                        backlink={item}
-                                        backlinkHandler={() =>
-                                            handleBacklinkClick(item)
-                                        }
-                                    />
-                                </React.Fragment>
-                            ))
-                        )}
-                    </>
-                ) : null}
+                <div className="footer-box">
+                    {props.data
+                        ? ut.translate('global__source') + ':\u00a0'
+                        : null}
+                    {props.data
+                        ? List.map(
+                              (item, i) => (
+                                  <React.Fragment
+                                      key={`${item.corp}:${item.subcorp}`}
+                                  >
+                                      {i > 0 ? <span> + </span> : null}
+                                      <SourceLink
+                                          data={item}
+                                          onClick={handleSourceClick}
+                                      />
+                                  </React.Fragment>
+                              ),
+                              Array.isArray(props.data)
+                                  ? props.data
+                                  : [props.data]
+                          )
+                        : null}
+                    {backlinkIsValid(props.backlink) ? (
+                        <>
+                            ,{'\u00a0'}
+                            {ut.translate('global__more_info')}:{'\u00a0'}
+                            {pipe(
+                                Array.isArray(props.backlink)
+                                    ? props.backlink
+                                    : [props.backlink],
+                                List.filter((v) => !!v),
+                                List.sortAlphaBy((v) =>
+                                    typeof v.label === 'string'
+                                        ? v.label
+                                        : v.label['en-US']
+                                ),
+                                List.map((item, i) => (
+                                    <React.Fragment key={`${item.label}:${i}`}>
+                                        {i > 0 ? <span>, </span> : null}
+                                        <BacklinkButton
+                                            backlink={item}
+                                            backlinkHandler={() =>
+                                                handleBacklinkClick(item)
+                                            }
+                                        />
+                                    </React.Fragment>
+                                ))
+                            )}
+                        </>
+                    ) : null}
+                </div>
             </div>
         );
     };

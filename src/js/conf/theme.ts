@@ -69,6 +69,7 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     tileBorderRadius?: string;
     tileEmptyStyle?: string;
     tileShadow?: string;
+    tileFooterStyle?: string;
 
     cssMobileScreen?: string;
 
@@ -94,6 +95,11 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     toggleButtonCircleColor?: string;
 
     formElementsBorderRadius?: string;
+
+    /**
+     * Width of the main query input field (default: 15rem)
+     */
+    queryFormInputWidth?: string;
 
     extraTheme?: T;
 }

@@ -75,6 +75,12 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
         a:hover {
             text-decoration: underline;
         }
+
+        .footer-box {
+            display: inline-block;
+            width: fit-content;
+            ${(props) => props.theme.tileFooterStyle};
+        }
     }
 
     .empty {
@@ -353,14 +359,10 @@ export const WdgTooltip = styled.div<{ $multiword?: boolean; theme: Theme }>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkButton = styled.button<{
+export const BacklinkButton = styled.a<{
     $createStaticUrl: (file: string) => string;
     theme: Theme;
 }>`
-    display: inline;
-    padding: 0;
-    border: none;
-    background-color: transparent;
     cursor: pointer;
     text-decoration: none;
     color: ${(props) => props.theme.colorDefaultLink};

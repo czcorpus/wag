@@ -382,7 +382,7 @@ export const MultiQueryField = styled.ul<{
     margin: 0;
     padding: ${(props) =>
         props.$isCollapsed ? '0.1rem 0.3rem' : '1.4rem 1.4rem 0 1.4rem'};
-    width: 15rem;
+    width: ${(props) => props.theme.queryFormInputWidth};
     ${(props) =>
         props.$isCollapsed ? collapsedQueryFieldProps : generalQueryFieldProps}
     list-style-type: none;
