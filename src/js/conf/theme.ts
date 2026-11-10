@@ -67,9 +67,9 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
 
     boxBorderStyle?: string;
     tileBorderRadius?: string;
-    tileEmptyStyle?: string;
+    tileEmptyStyle?: string | Array<string>;
     tileShadow?: string;
-    tileFooterStyle?: string;
+    tileFooterStyle?: string | Array<string>;
 
     cssMobileScreen?: string;
 

@@ -211,11 +211,11 @@ export class Theme<T = any> {
 
     public readonly tileBorderRadius: string;
 
-    public readonly tileEmptyStyle: string;
+    public readonly tileEmptyStyle: RuleSet;
 
     public readonly tileShadow: string;
 
-    public readonly tileFooterStyle: string;
+    public readonly tileFooterStyle: RuleSet;
 
     public readonly chartTextColor: string;
 
@@ -257,11 +257,12 @@ export class Theme<T = any> {
             confSrc.boxBorderStyle || fallbackTheme.boxBorderStyle;
         this.tileBorderRadius =
             confSrc.tileBorderRadius || fallbackTheme.tileBorderRadius;
-        this.tileEmptyStyle = confSrc.tileEmptyStyle || '';
+        this.tileEmptyStyle = this.prepareStyleSet(confSrc.tileEmptyStyle, '');
         this.tileShadow = confSrc.tileShadow || fallbackTheme.tileShadow;
-        this.tileFooterStyle = confSrc.tileFooterStyle
-            ? confSrc.tileFooterStyle
-            : '';
+        this.tileFooterStyle = this.prepareStyleSet(
+            confSrc.tileFooterStyle,
+            ''
+        );
         this.textInputBorderStyle =
             confSrc.textInputBorderStyle || this.boxBorderStyle;
         this.colorLogoBlue =
@@ -548,5 +549,14 @@ export class Theme<T = any> {
             Color.hsl2Rgb(),
             Color.color2str()
         );
+    }
+
+    private prepareStyleSet(
+        style: string | Array<string>,
+        defaultStyle: string
+    ): RuleSet {
+        return css`
+            ${Array.isArray(style) ? style.join('') : style || defaultStyle}
+        `;
     }
 }
