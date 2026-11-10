@@ -78,6 +78,8 @@ export interface GlobalComponents {
         errorSubtileContainerLabel?: string;
 
         children: React.ReactNode;
+
+        extraStyle?: string;
     }>;
 
     ErrorBoundary: React.ComponentClass;
@@ -668,7 +670,7 @@ export function init(
         };
         if (props.isBusy && !props.hasData) {
             return (
-                <S.TileWrapper>
+                <S.TileWrapper $extraStyle={props.extraStyle}>
                     <div
                         className={
                             'wag-tile-body' +
@@ -695,7 +697,7 @@ export function init(
             );
         } else if (props.error) {
             return (
-                <S.TileWrapper>
+                <S.TileWrapper $extraStyle={props.extraStyle}>
                     <div
                         className={
                             'wag-tile-body error' +
@@ -744,6 +746,7 @@ export function init(
             }
             return (
                 <S.TileWrapper
+                    $extraStyle={props.extraStyle}
                     className={htmlClasses.join(' ')}
                     onClick={handleAreaClick}
                 >

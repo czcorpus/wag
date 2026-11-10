@@ -32,7 +32,7 @@ export const AjaxLoader = styled.img`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TileWrapper = styled.div<{ theme: Theme }>`
+export const TileWrapper = styled.div<{ theme: Theme; $extraStyle?: string }>`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -131,6 +131,8 @@ export const TileWrapper = styled.div<{ theme: Theme }>`
             z-index: -1;
         }
     }
+
+    ${(props) => (props.$extraStyle ? props.$extraStyle : '')};
 `;
 
 // ---------------- <TileLoaderBar /> --------------------------------------
