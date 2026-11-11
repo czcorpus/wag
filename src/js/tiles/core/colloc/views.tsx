@@ -171,12 +171,6 @@ export function init(
                 ) : null}
                 <S.Boxes $isMobile={props.isMobile}>
                     {List.map((data, index) => {
-                        const availableInteractionIds = List.reduce(
-                            (acc, curr) =>
-                                !!curr.interactionId ? acc + 1 : acc,
-                            0,
-                            data
-                        );
                         const otherWords = List.flatMap(
                             (v, i) =>
                                 index === i ? [] : List.map((u) => u.str, v),
@@ -192,7 +186,7 @@ export function init(
                         ) : data ? (
                             <globalComponents.ResponsiveWrapper
                                 minWidth={props.isMobile ? undefined : 250}
-                                key={`${index}-${availableInteractionIds}`}
+                                key={`${index}-${state.isBusy ? 'loading' : 'ready'}`}
                                 widthFract={props.widthFract}
                                 render={(width: number, height: number) => (
                                     <S.CollocCloud>
