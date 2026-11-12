@@ -239,7 +239,7 @@ export class CouchFreqDB implements IFreqDB {
                 otherSublemmas: [],
                 pos: importQueryPosWithLabel(v.pos, 'pos', appServices),
                 upos: importQueryPosWithLabel(v.upos, 'upos', appServices),
-                specifier: [],
+                tagKey: [],
                 abs: v.count,
                 ipm: (v.count / this.corpusSize) * 1e6,
                 flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
@@ -331,7 +331,7 @@ export class CouchFreqDB implements IFreqDB {
                             'upos',
                             appServices
                         ),
-                        specifier: [],
+                        tagKey: [],
                         ipm: (v.count / this.corpusSize) * 1e6,
                         flevel: calcFreqBand((v.count / this.corpusSize) * 1e6),
                         word: lemma,
@@ -390,7 +390,7 @@ export class CouchFreqDB implements IFreqDB {
                             'upos',
                             appServices
                         ),
-                        specifier: [], // TODO
+                        tagKey: [], // TODO
                         ipm: (form.count / this.corpusSize) * 1e6,
                         flevel: calcFreqBand(
                             (form.count / this.corpusSize) * 1e6

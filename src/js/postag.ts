@@ -34,7 +34,7 @@ import { MainPosAttrValues } from './conf/index.js';
  * depends on actual tagset.
  */
 interface PosQueryExport {
-    (pos: string, specifier: string): string;
+    (pos: string, tagKey: string): string;
 }
 
 /**
@@ -270,41 +270,41 @@ const pennTreebankLabels = {
     //WRB	Wh-adverb
 };
 
-const directPos: PosQueryExport = (pos, specifier) => pos;
+const directPos: PosQueryExport = (pos, tagKey) => pos;
 
-const ppTagset: PosQueryExport = (pos, specifier) => {
+const ppTagset: PosQueryExport = (pos, tagKey) => {
     // ppTagsetSpk has in total 15 characters
     const posPart =
         pos.length > 1 ? `[${pos.toUpperCase()}]` : pos.toUpperCase();
-    if (!!specifier) {
-        switch (posPart) {
-            case PoSValues.NOUN:
-                return `${posPart}.${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
-            case PoSValues.VERB:
-                return `${posPart}...........${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
+    if (!!tagKey) {
+        const tagPattern = tagKey.replaceAll('-', '.');
+        if (tagKey.length == 16) {
+            // transform spk tagset to regular tagset
+            return `${posPart}${tagPattern.slice(1, 15)}`;
+        } else {
+            return `${posPart}${tagPattern.slice(1)}`;
         }
     }
     return `${posPart}.+`;
 };
 
-const ppTagsetSpk: PosQueryExport = (pos, specifier) => {
+const ppTagsetSpk: PosQueryExport = (pos, tagKey) => {
     // ppTagsetSpk has in total 16 characters
     const posPart =
         pos.length > 1 ? `[${pos.toUpperCase()}]` : pos.toUpperCase();
-    if (!!specifier) {
-        switch (posPart) {
-            case PoSValues.NOUN:
-                return `${posPart}.${specifier.length > 1 ? `[${specifier}]` : specifier}.+`;
-            case PoSValues.VERB:
-                // ppTagsetSpk does not support perfect/imperfect tense distinction
-                return `${posPart}.+`;
+    if (!!tagKey) {
+        const tagPattern = tagKey.replaceAll('-', '.');
+        if (tagKey.length == 16) {
+            return `${posPart}${tagPattern.slice(1)}`;
+        } else {
+            // transform regular tagset to spk tagset
+            return `${posPart}${tagPattern.slice(1, 12)}.${tagPattern.slice(13)}.*`;
         }
     }
     return `${posPart}.+`;
 };
 
-const pennTreebank: PosQueryExport = (pos, specifier) =>
-    pennTreebankLabels[pos];
+const pennTreebank: PosQueryExport = (pos, tagKey) => pennTreebankLabels[pos];
 
 /**
  * Test two multi-word PoS tags whether they are equal.

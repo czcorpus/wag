@@ -147,7 +147,7 @@ export interface QueryMatchCore {
     /**
      * Specifying some additional morphological information (gender, aspect, ...)
      */
-    specifier: Array<string>;
+    tagKey: Array<string>;
 
     /**
      * Relative frequency
@@ -200,7 +200,7 @@ export function findCurrQueryMatch(
               forms: [],
               pos: [],
               upos: [],
-              specifier: [],
+              tagKey: [],
               abs: -1,
               ipm: -1,
               arf: -1,
@@ -254,7 +254,7 @@ export function addWildcardMatches(qm: Array<QueryMatch>): Array<QueryMatch> {
                     otherSublemmas: matches[0].otherSublemmas,
                     pos: [],
                     upos: [],
-                    specifier: [],
+                    tagKey: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
                     flevel: calcFreqBand(
                         List.foldl((acc, m) => acc + m.ipm, 0, matches)

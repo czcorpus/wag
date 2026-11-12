@@ -732,7 +732,7 @@ export function queryAction({
                                     forms: [],
                                     pos: [],
                                     upos: [],
-                                    specifier: [],
+                                    tagKey: [],
                                     abs: 0,
                                     ipm: 0,
                                     arf: 0,
