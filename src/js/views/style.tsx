@@ -1111,7 +1111,7 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
 
             .triangle-wrapper {
                 display: inline-block;
-                width: 1em;
+                width: 1.4em;
 
                 > * {
                     vertical-align: center;
@@ -1121,8 +1121,8 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
                 }
 
                 .triangle-down {
-                    border-left: 0.3em solid transparent;
-                    border-right: 0.3em solid transparent;
+                    border-left: 0.5em solid transparent;
+                    border-right: 0.5em solid transparent;
                     border-top: 0.5em solid
                         ${(props) => props.theme.colorInvertText};
                 }
@@ -1130,8 +1130,8 @@ export const TileGroupButton = styled.section<{ theme: Theme }>`
                 .triangle-right {
                     border-left: 0.5em solid
                         ${(props) => props.theme.colorInvertText};
-                    border-top: 0.3em solid transparent;
-                    border-bottom: 0.3em solid transparent;
+                    border-top: 0.5em solid transparent;
+                    border-bottom: 0.5em solid transparent;
                 }
             }
 

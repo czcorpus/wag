@@ -185,6 +185,9 @@
                 "tileEmptyStyle": {
                     "type": "string"
                 },
+                "tileFooterStyle": {
+                    "type": "string"
+                },
                 "tileHeadingSeparColor": {
                     "type": "string"
                 },
