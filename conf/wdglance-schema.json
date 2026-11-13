@@ -177,6 +177,15 @@
                 "queryFormBorderColor": {
                     "type": "string"
                 },
+                "queryFormButtonBackgroundColor": {
+                    "type": "string"
+                },
+                "queryFormButtonIconColor": {
+                    "type": "string"
+                },
+                "queryFormButtonIconHoverColor": {
+                    "type": "string"
+                },
                 "queryFormInputWidth": {
                     "description": "Width of the main query input field (default: 15rem)",
                     "type": "string"
@@ -222,10 +231,30 @@
                     "type": "string"
                 },
                 "tileEmptyStyle": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 },
                 "tileFooterStyle": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 },
                 "tileHeadingSeparColor": {
                     "type": "string"

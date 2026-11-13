@@ -118,6 +118,12 @@ export class Theme<T = any> {
 
     public readonly queryFormInputWidth: string;
 
+    public readonly queryFormButtonBackgroundColor: string;
+
+    public readonly queryFormButtonIconColor: string;
+
+    public readonly queryFormButtonIconHoverColor: string;
+
     public readonly tileBackgroundColor: string | undefined;
 
     public readonly tileHeadingSeparColor: string;
@@ -288,6 +294,13 @@ export class Theme<T = any> {
             fallbackTheme.colorInvertedSecondaryText;
         this.colorDefaultLink =
             confSrc.colorDefaultLink || fallbackTheme.colorLogoBlue;
+
+        this.queryFormButtonBackgroundColor =
+            confSrc.queryFormButtonBackgroundColor || this.colorLogoBlue;
+        this.queryFormButtonIconColor =
+            confSrc.queryFormButtonIconColor || this.colorInvertText;
+        this.queryFormButtonIconHoverColor =
+            confSrc.queryFormButtonIconHoverColor || this.colorLogoBlueShining;
 
         this.oddDataLineBackgroundColor =
             confSrc.oddDataLineBackgroundColor ||
