@@ -72,7 +72,7 @@ export class SimilarFreqWordsAPI {
                         otherSublemmas: v.otherSublemmas,
                         pos: v.pos,
                         upos: v.upos,
-                        specifier: v.specifier,
+                        tagKey: v.tagKey,
                         ipm: v.ipm,
                         flevel: calcFreqBand(v.ipm),
                         initialCap: v.initialCap,

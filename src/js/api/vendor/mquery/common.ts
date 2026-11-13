@@ -85,7 +85,7 @@ export function mkLemmaMatchQuery(
             const expr = [`lemma=="${escapeDQuotes(lemma)}"`];
             if (lvar.pos[i] !== undefined && lvar.pos[i].value !== null) {
                 expr.push(
-                    `${generator[0]}="${fn(lvar.pos[i].value, lvar.specifier[i])}"`
+                    `${generator[0]}="${fn(lvar.pos[i].value, lvar.tagKey[i])}"`
                 );
             }
             if (sublemma && withSublemma) {
@@ -118,7 +118,7 @@ export function mkWordMatchQuery(
                 expr.push(`lemma=="${escapeDQuotes(lemmas[i])}"`);
                 if (lvar.pos[i] !== undefined && lvar.pos[i].value !== null) {
                     expr.push(
-                        `${generator[0]}="${fn(lvar.pos[i].value, lvar.specifier[i])}"`
+                        `${generator[0]}="${fn(lvar.pos[i].value, lvar.tagKey[i])}"`
                     );
                 }
             }

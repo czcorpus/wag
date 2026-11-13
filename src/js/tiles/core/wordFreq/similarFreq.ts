@@ -102,7 +102,7 @@ export class SimilarFreqWordsFrodoAPI {
                                     otherSublemmas: [],
                                     pos: [{ value: v.pos, label: v.pos }], // TODO what about label?
                                     upos: [], // TODO UD support?
-                                    specifier: [], // TODO
+                                    tagKey: [], // TODO
                                     ipm: v.ipm,
                                     flevel: calcFreqBand(v.ipm),
                                     initialCap: v.is_pname,

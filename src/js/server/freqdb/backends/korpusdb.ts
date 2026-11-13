@@ -336,7 +336,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 otherSublemmas: [],
                                 pos,
                                 upos: [], // TODO
-                                specifier: [],
+                                tagKey: [],
                                 ipm: 0,
                                 flevel: null,
                                 abs: 0,
@@ -434,7 +434,7 @@ export class KorpusFreqDB implements IFreqDB {
                                             sublemma: null, // TODO
                                             pos: pos,
                                             upos: [], // TODO
-                                            specifier: [], // TODO
+                                            tagKey: [], // TODO
                                             ipm: ipm,
                                             flevel: calcFreqBand(ipm),
                                             abs: curr[fcrit],
