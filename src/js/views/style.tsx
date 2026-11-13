@@ -245,7 +245,8 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
             justify-content: center;
             width: 5rem;
             border: none;
-            background-color: ${(props) => props.theme.colorLogoBlue};
+            background-color: ${(props) =>
+                props.theme.queryFormButtonBackgroundColor};
             padding: 0.3rem 0;
             //border: 1px solid rgba(0, 0, 0, 0.8);
             box-shadow:
@@ -254,7 +255,8 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
             border-radius: ${(props) => props.theme.formElementsBorderRadius};
 
             .icon {
-                background-color: ${(props) => props.theme.colorInvertText};
+                background-color: ${(props) =>
+                    props.theme.queryFormButtonIconColor};
                 width: 1rem;
                 height: 1rem;
             }
@@ -263,7 +265,7 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
         button:hover {
             .icon {
                 background-color: ${(props) =>
-                    props.theme.colorLogoBlueShining};
+                    props.theme.queryFormButtonIconHoverColor};
             }
         }
     }
@@ -276,7 +278,7 @@ export const SubmitButton = styled.span<{ theme: Theme }>`
         button:hover {
             .icon {
                 background-color: ${(props) =>
-                    props.theme.colorInvertText} !important;
+                    props.theme.queryFormButtonIconColor} !important;
             }
         }
     }
