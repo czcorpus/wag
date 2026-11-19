@@ -606,7 +606,8 @@ export const TweakBox = styled.div<{ theme: Theme }>`
 
 // ------------ <SVGMask /> ----------------------------
 
-export const SVGMaskIcon = styled.div<{ theme: Theme; src: string }>`
+export const SVGMaskIcon = styled.span<{ theme: Theme; src: string }>`
+    display: block;
     mask-image: url(${(props) => props.src});
     mask-repeat: no-repeat;
     mask-position: center;
