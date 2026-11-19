@@ -26,6 +26,7 @@ import { Backlink, backlinkIsValid } from '../../page/tile.js';
 import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
+import { useShrinkToText } from '../../page/hooks.js';
 import { SourceCitation } from '../../api/abstract/sourceInfo.js';
 import { Theme } from '../../page/theme.js';
 
@@ -338,6 +339,9 @@ export function init(
         data?: SourceInfo | Array<SourceInfo>;
         backlink?: Backlink | Array<Backlink>;
     }> = (props) => {
+        const footerBoxRef = React.useRef<HTMLDivElement>(null);
+        useShrinkToText(footerBoxRef);
+
         const handleSourceClick = (
             corp: string,
             subcorp: string | undefined
@@ -364,7 +368,7 @@ export function init(
 
         return (
             <div className="source">
-                <div className="footer-box">
+                <div className="footer-box" ref={footerBoxRef}>
                     {props.data
                         ? ut.translate('global__source') + ':\u00a0'
                         : null}

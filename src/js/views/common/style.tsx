@@ -78,7 +78,6 @@ export const TileWrapper = styled.div<{ theme: Theme; $extraStyle?: string }>`
 
         .footer-box {
             display: inline-block;
-            width: fit-content;
             ${(props) => props.theme.tileFooterStyle};
         }
     }
