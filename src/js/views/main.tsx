@@ -970,7 +970,7 @@ export function init(
                 <span>{ut.translate('global__suggestions')}: </span>
                 {List.map(
                     (w, i) => (
-                        <>
+                        <React.Fragment key={`${w}:${i}`}>
                             {i > 0 ? ', ' : null}
                             <a
                                 href={ut.createActionUrl(
@@ -979,7 +979,7 @@ export function init(
                             >
                                 {w}
                             </a>
-                        </>
+                        </React.Fragment>
                     ),
                     props.words
                 )}
