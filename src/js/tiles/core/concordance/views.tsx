@@ -411,15 +411,18 @@ export function init(
     const ConcordanceTileView: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
 
-        const scrollContainerRef = React.useRef(null);
+        const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
         React.useEffect(() => {
-            if (scrollContainerRef.current) {
-                setTimeout(() => {
-                    const box = scrollContainerRef.current;
+            // the element may get unmounted before the timeout fires,
+            // so the ref must be checked inside the callback
+            const timeout = setTimeout(() => {
+                const box = scrollContainerRef.current;
+                if (box) {
                     box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2;
-                }, 0);
-            }
+                }
+            }, 0);
+            return () => clearTimeout(timeout);
         }, [state.concordances]);
 
         const handleQueryVariantClick = (queryIdx: number) => () => {
