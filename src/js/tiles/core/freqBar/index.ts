@@ -57,6 +57,7 @@ export interface FreqBarTileConf extends TileConf {
     flimit: number;
     fpage: number;
     matchCase: boolean;
+    fixedChartHeight?: number;
     pixelsPerCategory?: number;
     hideCategories?: Array<string>;
 
@@ -156,6 +157,7 @@ export class FreqBarTile implements ITileProvider {
                 backlinks: List.map((_) => null, queryMatches),
                 subqSyncPalette: false,
                 isAltViewMode: false,
+                fixedChartHeight: conf.fixedChartHeight,
                 pixelsPerCategory: conf.pixelsPerCategory || 30,
                 hideCategories: conf.hideCategories || [],
             },

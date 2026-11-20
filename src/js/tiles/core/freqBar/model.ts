@@ -66,6 +66,7 @@ export interface FreqBarModelState {
     isAltViewMode: boolean;
     isBusy: boolean;
     error: string;
+    fixedChartHeight: number;
     pixelsPerCategory: number;
     hideCategories: Array<string>;
 }
