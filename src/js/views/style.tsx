@@ -312,6 +312,7 @@ export const SingleQueryInput = styled.span<{
             outline: none;
             background-color: ${(props) =>
                 props.theme.textInputBackgroundColor};
+            ${(props) => props.theme.textInputFocusStyle}
         }
 
         input::placeholder {
@@ -336,8 +337,14 @@ export const SingleQueryInput = styled.span<{
             box-shadow: none;
         }
 
+        input:focus {
+            clip-path: inset(-100vmax 0 -100vmax -100vmax);
+        }
+
         input:focus ~ ${SubmitButton} button {
             border-color: ${(props) => props.theme.colorLogoBlue};
+            clip-path: inset(-100vmax -100vmax -100vmax 0);
+            ${(props) => props.theme.textInputFocusStyle}
         }
     }
 

@@ -134,6 +134,8 @@ export class Theme<T = any> {
 
     public readonly textInputBorderStyle: string;
 
+    public readonly textInputFocusStyle: RuleSet | undefined;
+
     public readonly defaultFontFamily: string;
 
     public readonly condensedFontFamily: string;
@@ -405,6 +407,9 @@ export class Theme<T = any> {
             confSrc.tileFooterStyle,
             ''
         );
+        this.textInputFocusStyle = confSrc.textInputFocusStyle
+            ? this.prepareStyleSet(confSrc.textInputFocusStyle, '')
+            : undefined;
         this.speakerBoxStyle = confSrc.speakerBoxStyle
             ? this.prepareStyleSet(confSrc.speakerBoxStyle, '')
             : undefined;

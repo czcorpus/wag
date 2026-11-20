@@ -46,6 +46,7 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     tileHeadingSeparColor?: string;
     textInputBackgroundColor?: string;
     textInputBorderStyle?: string;
+    textInputFocusStyle?: string | Array<string>;
     colorLogoBlue?: string;
     colorLogoBlueHiContrast?: string;
     colorLogoBlueShining?: string;

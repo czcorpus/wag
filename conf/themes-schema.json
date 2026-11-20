@@ -185,6 +185,19 @@
                 "textInputBorderStyle": {
                     "type": "string"
                 },
+                "textInputFocusStyle": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
                 "themeId": {
                     "type": "string"
                 },
