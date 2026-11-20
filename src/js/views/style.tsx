@@ -297,6 +297,14 @@ export const SingleQueryInput = styled.span<{
         display: flex;
         flex-grow: 2;
 
+        .input-box {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            min-width: 0;
+            border-radius: ${(props) => props.theme.formElementsBorderRadius};
+        }
+
         input {
             width: 100%;
             border: ${(props) => props.theme.textInputBorderStyle};
@@ -312,7 +320,6 @@ export const SingleQueryInput = styled.span<{
             outline: none;
             background-color: ${(props) =>
                 props.theme.textInputBackgroundColor};
-            ${(props) => props.theme.textInputFocusStyle}
         }
 
         input::placeholder {
@@ -320,30 +327,43 @@ export const SingleQueryInput = styled.span<{
         }
     }
 
+    &&&:not(.integrated-submit) input:focus {
+        ${(props) => props.theme.textInputFocusStyle}
+    }
+
     &&&.integrated-submit {
-        input {
-            border-right: none;
-            border-radius: ${(props) =>
-                `${props.theme.formElementsBorderRadius} 0 0 ${props.theme.formElementsBorderRadius}`};
+        padding: 1.2rem 0;
+
+        .input-box {
+            align-items: stretch;
+            overflow: hidden;
+            border: ${(props) => props.theme.textInputBorderStyle};
+            background-color: ${(props) =>
+                props.theme.textInputBackgroundColor};
+        }
+
+        input,
+        input:focus {
+            border: none;
+            border-radius: 0;
+        }
+
+        ${SubmitButton} {
+            padding: 0;
+            align-self: stretch;
         }
 
         button {
             width: 2.5rem;
+            height: 100%;
             padding: 0.5rem 0;
-            border-radius: ${(props) =>
-                `0 ${props.theme.formElementsBorderRadius} ${props.theme.formElementsBorderRadius} 0`};
-            border: ${(props) => props.theme.textInputBorderStyle};
-            border-left: none;
+            border: none;
+            border-radius: 0;
             box-shadow: none;
         }
 
-        input:focus {
-            clip-path: inset(-100vmax 0 -100vmax -100vmax);
-        }
-
-        input:focus ~ ${SubmitButton} button {
+        .input-box:focus-within {
             border-color: ${(props) => props.theme.colorLogoBlue};
-            clip-path: inset(-100vmax -100vmax -100vmax 0);
             ${(props) => props.theme.textInputFocusStyle}
         }
     }
