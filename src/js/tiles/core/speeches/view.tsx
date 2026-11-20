@@ -99,6 +99,7 @@ export function init(
                     <strong
                         title={exportMetadata(props.speech.metadata)}
                         style={style}
+                        className={props.speech.speakerId ? '' : 'empty'}
                     >
                         {props.speech.speakerId
                             ? props.speech.speakerId

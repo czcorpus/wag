@@ -160,6 +160,19 @@
                     },
                     "type": "array"
                 },
+                "speakerBoxStyle": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
                 "svgIconsFilter": {
                     "type": "string"
                 },

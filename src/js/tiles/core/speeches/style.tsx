@@ -94,6 +94,7 @@ export const Speaker = styled.dt<{ theme: Theme }>`
         font-size: 0.8em;
         font-weight: normal;
         padding: 0.05em 0.7em;
+        ${(props) => props.theme.speakerBoxStyle}
     }
 
     &:not(:first-of-type) {

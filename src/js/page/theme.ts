@@ -225,6 +225,8 @@ export class Theme<T = any> {
 
     public readonly tileFooterStyle: RuleSet;
 
+    public readonly speakerBoxStyle: RuleSet | undefined;
+
     public readonly chartTextColor: string;
 
     public readonly chartGridColor: string;
@@ -403,6 +405,9 @@ export class Theme<T = any> {
             confSrc.tileFooterStyle,
             ''
         );
+        this.speakerBoxStyle = confSrc.speakerBoxStyle
+            ? this.prepareStyleSet(confSrc.speakerBoxStyle, '')
+            : undefined;
     }
 
     categoryPalette = (
