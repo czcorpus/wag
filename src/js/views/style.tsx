@@ -297,6 +297,14 @@ export const SingleQueryInput = styled.span<{
         display: flex;
         flex-grow: 2;
 
+        .input-box {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            min-width: 0;
+            border-radius: ${(props) => props.theme.formElementsBorderRadius};
+        }
+
         input {
             width: 100%;
             border: ${(props) => props.theme.textInputBorderStyle};
@@ -319,25 +327,44 @@ export const SingleQueryInput = styled.span<{
         }
     }
 
+    &&&:not(.integrated-submit) input:focus {
+        ${(props) => props.theme.textInputFocusStyle}
+    }
+
     &&&.integrated-submit {
-        input {
-            border-right: none;
-            border-radius: ${(props) =>
-                `${props.theme.formElementsBorderRadius} 0 0 ${props.theme.formElementsBorderRadius}`};
+        padding: 1.2rem 0;
+
+        .input-box {
+            align-items: stretch;
+            overflow: hidden;
+            border: ${(props) => props.theme.textInputBorderStyle};
+            background-color: ${(props) =>
+                props.theme.textInputBackgroundColor};
+        }
+
+        input,
+        input:focus {
+            border: none;
+            border-radius: 0;
+        }
+
+        ${SubmitButton} {
+            padding: 0;
+            align-self: stretch;
         }
 
         button {
             width: 2.5rem;
+            height: 100%;
             padding: 0.5rem 0;
-            border-radius: ${(props) =>
-                `0 ${props.theme.formElementsBorderRadius} ${props.theme.formElementsBorderRadius} 0`};
-            border: ${(props) => props.theme.textInputBorderStyle};
-            border-left: none;
+            border: none;
+            border-radius: 0;
             box-shadow: none;
         }
 
-        input:focus ~ ${SubmitButton} button {
+        .input-box:focus-within {
             border-color: ${(props) => props.theme.colorLogoBlue};
+            ${(props) => props.theme.textInputFocusStyle}
         }
     }
 
@@ -551,15 +578,14 @@ export const LemmaSelector = styled.div<{ theme: Theme }>`
 // -------------- <Suggestions /> --------------------------------------------
 
 export const Suggestions = styled.div<{ theme: Theme }>`
-    font-size: 80%;
+    font-size: 90%;
     padding: 0;
     color: ${(props) => props.theme.colorLightText};
     text-align: center;
-    font-style: italic;
 
     a {
         text-decoration: none;
-        color: ${(props) => props.theme.colorLogoBlueHiContrast};
+        color: ${(props) => props.theme.colorDefaultLink};
     }
 `;
 
@@ -1227,7 +1253,7 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     align-items: stretch;
     z-index: 1000;
     background-color: ${(props) => props.theme.tileBackgroundColor};
-    border: ${(props) => props.theme.textInputBorderStyle};
+    border: ${(props) => props.theme.indexBorderStyle};
     border-right: none;
     border-radius: ${(props) => props.theme.formElementsBorderRadius} 0 0
         ${(props) => props.theme.formElementsBorderRadius};

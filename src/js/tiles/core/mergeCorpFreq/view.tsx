@@ -391,10 +391,13 @@ export function init(
     const MergeCorpFreqBarTile: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
 
-        const numCats = Math.max(
-            0,
-            ...state.data.map((v) => (v ? v.length : 0))
-        );
+        // chart rows are merged by name across all queries (see transformData)
+        const numCats = new Set(
+            List.flatMap(
+                (v) => (v ? List.map((row) => row.name, v) : []),
+                state.data
+            )
+        ).size;
         const barCategoryGap = Math.max(10, 40 - state.pixelsPerCategory);
         const minHeight =
             70 + numCats * (state.pixelsPerCategory + barCategoryGap);
@@ -482,7 +485,7 @@ export function init(
                                         <Chart
                                             tileId={props.tileId}
                                             width={width * 0.9}
-                                            height={height}
+                                            height={Math.max(height, minHeight)}
                                             data={state.data}
                                             barCategoryGap={barCategoryGap}
                                             queryMatches={

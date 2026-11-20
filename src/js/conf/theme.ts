@@ -46,6 +46,7 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     tileHeadingSeparColor?: string;
     textInputBackgroundColor?: string;
     textInputBorderStyle?: string;
+    textInputFocusStyle?: string | Array<string>;
     colorLogoBlue?: string;
     colorLogoBlueHiContrast?: string;
     colorLogoBlueShining?: string;
@@ -70,6 +71,7 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     tileEmptyStyle?: string | Array<string>;
     tileShadow?: string;
     tileFooterStyle?: string | Array<string>;
+    speakerBoxStyle?: string | Array<string>;
 
     cssMobileScreen?: string;
 
@@ -104,6 +106,8 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
     queryFormButtonBackgroundColor?: string;
     queryFormButtonIconColor?: string;
     queryFormButtonIconHoverColor?: string;
+
+    indexBorderStyle?: string;
 
     extraTheme?: T;
 }

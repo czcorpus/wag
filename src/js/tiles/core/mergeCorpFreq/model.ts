@@ -148,14 +148,36 @@ export class MergeCorpFreqModel extends TileStatelessModel<MergeCorpFreqModelSta
                 state.data[action.payload.queryId] = pipe(
                     state.data[action.payload.queryId],
                     List.concat(action.payload.data),
-                    List.groupBy((v) => `${v.word}:${v.sourceIdx}`),
+                    // Group by source and text type (`name`), not by `word`.
+                    // The API may return the lemma in a different shape
+                    // (e.g. "vědět|být", "být|vědět"), which previously left
+                    // the zero placeholder and the real data as separate rows.
+                    List.groupBy((v) => `${v.sourceIdx}:${v.name}`),
                     List.map(([, items]) =>
-                        pipe(
-                            items,
-                            List.sortedBy((v) => v.freq),
-                            List.last()
+                        List.foldl(
+                            (acc, curr) => ({
+                                ...acc,
+                                freq: acc.freq + curr.freq,
+                                ipm: acc.ipm + curr.ipm,
+                                base: Math.max(acc.base, curr.base),
+                                viewInOtherWagUrl:
+                                    acc.viewInOtherWagUrl ||
+                                    curr.viewInOtherWagUrl,
+                            }),
+                            {
+                                ...items[0],
+                                word: state.currQueryMatches[
+                                    action.payload.queryId
+                                ].lemma,
+                                freq: 0,
+                                ipm: 0,
+                                base: 0,
+                                viewInOtherWagUrl: null,
+                            },
+                            items
                         )
-                    )
+                    ),
+                    List.sortedBy((v) => v.sourceIdx)
                 );
             }
         );

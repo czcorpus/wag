@@ -95,10 +95,11 @@ export function init(
         };
         return (
             <>
-                <S.Speaker>
+                <S.Speaker data-line={props.idx}>
                     <strong
                         title={exportMetadata(props.speech.metadata)}
                         style={style}
+                        className={props.speech.speakerId ? '' : 'empty'}
                     >
                         {props.speech.speakerId
                             ? props.speech.speakerId
@@ -114,7 +115,7 @@ export function init(
                         />
                     ) : null}
                 </S.Speaker>
-                <S.Speech>
+                <S.Speech data-line={props.idx}>
                     <div className="text">
                         <SpeechText
                             data={props.speech.text}
@@ -179,7 +180,7 @@ export function init(
 
         return (
             <>
-                <S.Speaker>
+                <S.Speaker data-line={props.idx}>
                     {renderOverlappingSpeakersLabel()}
                     {props.playbackEnabled ? (
                         <PlayerIcon
@@ -193,7 +194,7 @@ export function init(
                         />
                     ) : null}
                 </S.Speaker>
-                <S.Speech className="overlapping-block">
+                <S.Speech className="overlapping-block" data-line={props.idx}>
                     <div className="text">
                         {props.speeches.map((speech, i) => (
                             <SpeechText
@@ -341,7 +342,7 @@ export function init(
         };
 
         return (
-            <div>
+            <div className="speeches-stretcher">
                 {props.isTweakMode ? (
                     <globComponents.TweakBox>
                         <div className="next">
@@ -356,7 +357,18 @@ export function init(
                         </a>
                     </div>
                 ) : null}
-                <S.Speeches>{renderSpeechLines()}</S.Speeches>
+                <globComponents.Scroller
+                    className="speeches-scroller"
+                    resetKey={props.data}
+                    scrollTo=".coll"
+                    follow={
+                        props.playingLineIdx >= 0
+                            ? `[data-line="${props.playingLineIdx}"]`
+                            : undefined
+                    }
+                >
+                    <S.Speeches>{renderSpeechLines()}</S.Speeches>
+                </globComponents.Scroller>
             </div>
         );
     };

@@ -287,26 +287,28 @@ export function init(
                 className={props.integratedSubmit ? 'integrated-submit' : null}
                 $cmpContext={props.cmpContext}
             >
-                <input
-                    type="text"
-                    name="search-query"
-                    ref={ref}
-                    className={props.value.isValid ? null : 'invalid'}
-                    aria-label={ut.translate('global__aria_searched_word')}
-                    onChange={handleInput}
-                    value={props.value.value}
-                    onKeyDown={handleKeyDown}
-                    tabIndex={props.idx + 1}
-                    autoComplete="off"
-                    placeholder={
-                        props.lemmatizationLevel === 'form'
-                            ? ut.translate('global__exact_form_placeholder')
-                            : ut.translate('global__any_form_placeholder')
-                    }
-                />
-                {props.integratedSubmit ? (
-                    <SubmitButton onClick={props.onEnter} />
-                ) : null}
+                <span className="input-box">
+                    <input
+                        type="text"
+                        name="search-query"
+                        ref={ref}
+                        className={props.value.isValid ? null : 'invalid'}
+                        aria-label={ut.translate('global__aria_searched_word')}
+                        onChange={handleInput}
+                        value={props.value.value}
+                        onKeyDown={handleKeyDown}
+                        tabIndex={props.idx + 1}
+                        autoComplete="off"
+                        placeholder={
+                            props.lemmatizationLevel === 'form'
+                                ? ut.translate('global__exact_form_placeholder')
+                                : ut.translate('global__any_form_placeholder')
+                        }
+                    />
+                    {props.integratedSubmit ? (
+                        <SubmitButton onClick={props.onEnter} />
+                    ) : null}
+                </span>
                 {props.allowsRemove && !props.isCollapsed ? (
                     <span className="controls">
                         <CloseCmpInputButton onClick={props.onRmClick} />
@@ -970,7 +972,7 @@ export function init(
                 <span>{ut.translate('global__suggestions')}: </span>
                 {List.map(
                     (w, i) => (
-                        <>
+                        <React.Fragment key={`${w}:${i}`}>
                             {i > 0 ? ', ' : null}
                             <a
                                 href={ut.createActionUrl(
@@ -979,7 +981,7 @@ export function init(
                             >
                                 {w}
                             </a>
-                        </>
+                        </React.Fragment>
                     ),
                     props.words
                 )}

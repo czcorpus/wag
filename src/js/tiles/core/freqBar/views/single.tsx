@@ -165,8 +165,6 @@ export function init(
     const FreqBarTile: React.FC<CoreTileComponentProps> = (props) => {
         const state = useModel(model);
         const freqData = List.head(state.freqData);
-        const numCats = freqData ? freqData.rows.length : 0;
-        const barCategoryGap = Math.max(10, 40 - state.pixelsPerCategory);
 
         return (
             <globComponents.TileWrapper
@@ -201,10 +199,14 @@ export function init(
                                     <Chart
                                         tileId={props.tileId}
                                         data={freqData.rows}
-                                        barCategoryGap={barCategoryGap}
+                                        barCategoryGap={10}
                                         isMobile={props.isMobile}
                                         width={width * 0.9}
-                                        height={height}
+                                        height={
+                                            state.fixedChartHeight
+                                                ? state.fixedChartHeight
+                                                : height
+                                        }
                                     />
                                 </div>
                             )}

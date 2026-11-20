@@ -46,6 +46,9 @@
         "matchCase": {
             "type": "boolean"
         },
+        "fixedChartHeight": {
+            "type": "number"
+        },
         "pixelsPerCategory": {
             "type": "number"
         },
