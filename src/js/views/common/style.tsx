@@ -613,3 +613,78 @@ export const SVGMaskIcon = styled.span<{ theme: Theme; src: string }>`
     mask-position: center;
     mask-size: contain;
 `;
+
+// ---------------- <Scroller /> --------------------------------------
+
+export const ScrollerWrapper = styled.div<{ theme: Theme }>`
+    position: relative;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    .scrollbar-track {
+        position: absolute;
+        top: 0.25em;
+        bottom: 0.25em;
+        right: 0.15em;
+        width: 0.5em;
+        border-radius: 0.2em;
+        background-color: ${(props) =>
+            `color-mix(in srgb, ${props.theme.colorDefaultText} 6%, transparent)`};
+    }
+
+    .scrollbar-thumb {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-radius: 0.25em;
+        background-color: ${(props) => props.theme.colorDefaultText};
+        opacity: 0.5;
+        cursor: grab;
+        touch-action: none;
+
+        &:hover,
+        &.dragging {
+            opacity: 0.8;
+        }
+
+        &.dragging {
+            cursor: grabbing;
+        }
+    }
+`;
+
+export const Scroller = styled.div<{ theme: Theme }>`
+    padding: 0.5em;
+    overflow-y: auto;
+
+    /* Native scrollbar is hidden and a custom always-visible one is rendered
+       instead - Firefox overlay scrollbars cannot be forced visible via CSS. */
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* top/bottom faders - a mask keeps them independent of the background */
+    --fade-top: 0px;
+    --fade-bottom: 0px;
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black var(--fade-top),
+        black calc(100% - var(--fade-bottom)),
+        transparent 100%
+    );
+
+    &.fade-top {
+        --fade-top: 2.5em;
+    }
+
+    &.fade-bottom {
+        --fade-bottom: 2.5em;
+    }
+
+    &.scrollable {
+        padding-right: 1em;
+    }
+`;

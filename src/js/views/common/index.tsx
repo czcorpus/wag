@@ -26,7 +26,10 @@ import { Backlink, backlinkIsValid } from '../../page/tile.js';
 import { Actions } from '../../models/actions.js';
 
 import * as S from './style.js';
-import { useShrinkToText } from '../../page/hooks.js';
+import {
+    useIsomorphicLayoutEffect,
+    useShrinkToText,
+} from '../../page/hooks.js';
 import { SourceCitation } from '../../api/abstract/sourceInfo.js';
 import { Theme } from '../../page/theme.js';
 
@@ -195,6 +198,24 @@ export interface GlobalComponents {
         src: string;
         className?: string;
     }>;
+
+    /**
+     * A vertical scroll container with an always visible custom scrollbar
+     * and top/bottom faders. It should be placed in a flex column container
+     * with a limited height.
+     *
+     * @param resetKey when changed, the content is scrolled back to the top
+     * @param scrollTo a CSS selector of an element within the content; if set,
+     *                 instead of scrolling to the top (on resetKey change),
+     *                 the first matching element is scrolled to the center
+     */
+    Scroller: React.FC<
+        React.PropsWithChildren<{
+            resetKey?: unknown;
+            scrollTo?: string;
+            className?: string;
+        }>
+    >;
 }
 
 export function init(
@@ -1421,6 +1442,207 @@ export function init(
         return <S.TweakBox>{props.children}</S.TweakBox>;
     };
 
+    // -------------------- <Scroller /> -----------------------------------------------
+
+    const Scroller: GlobalComponents['Scroller'] = (props) => {
+        const MIN_THUMB_PX = 20;
+        const scrollerRef = React.useRef<HTMLDivElement>(null);
+        const contentRef = React.useRef<HTMLDivElement>(null);
+        const trackRef = React.useRef<HTMLDivElement>(null);
+        const thumbRef = React.useRef<HTMLDivElement>(null);
+        // current thumb geometry in px (relative to the track); it is written
+        // directly to the thumb element (see update()) so that it gets applied
+        // within the same frame as a resize - going through React state would
+        // render it one frame late and the thumb would visibly jump
+        const thumbGeomRef = React.useRef<{
+            top: number;
+            height: number;
+        } | null>(null);
+        const dragRef = React.useRef<{
+            startY: number;
+            startScrollTop: number;
+        } | null>(null);
+        const [isScrollable, setIsScrollable] = React.useState(false);
+        const [dragging, setDragging] = React.useState(false);
+        const [fadeTop, setFadeTop] = React.useState(false);
+        const [fadeBottom, setFadeBottom] = React.useState(false);
+
+        const update = React.useCallback(() => {
+            const scroller = scrollerRef.current;
+            if (
+                !scroller ||
+                scroller.scrollHeight <= scroller.clientHeight + 1
+            ) {
+                thumbGeomRef.current = null;
+                setIsScrollable(false);
+                setFadeTop(false);
+                setFadeBottom(false);
+                return;
+            }
+            const { scrollHeight, clientHeight, scrollTop } = scroller;
+            setIsScrollable(true);
+            setFadeTop(scrollTop > 1);
+            setFadeBottom(scrollTop + clientHeight < scrollHeight - 1);
+            const trackHeight = trackRef.current
+                ? trackRef.current.clientHeight
+                : clientHeight;
+            const height = Math.max(
+                MIN_THUMB_PX,
+                (trackHeight * clientHeight) / scrollHeight
+            );
+            const top =
+                (scrollTop / (scrollHeight - clientHeight)) *
+                (trackHeight - height);
+            thumbGeomRef.current = { top, height };
+            if (thumbRef.current) {
+                thumbRef.current.style.top = `${top}px`;
+                thumbRef.current.style.height = `${height}px`;
+            }
+        }, []);
+
+        // observe both the viewport and the content so that the scrollbar
+        // reacts to tile resizing and to expanding/collapsing items
+        // (ResizeObserver callbacks run after layout but before paint)
+        React.useEffect(() => {
+            if (typeof ResizeObserver === 'undefined') {
+                return;
+            }
+            const observer = new ResizeObserver(() => update());
+            if (scrollerRef.current) {
+                observer.observe(scrollerRef.current);
+            }
+            if (contentRef.current) {
+                observer.observe(contentRef.current);
+            }
+            return () => observer.disconnect();
+        }, [update]);
+
+        // new content - start from the top or from the requested element
+        useIsomorphicLayoutEffect(() => {
+            const scroller = scrollerRef.current;
+            if (scroller) {
+                const target = props.scrollTo
+                    ? scroller.querySelector<HTMLElement>(props.scrollTo)
+                    : null;
+                if (target) {
+                    // scroll only the container, not the whole page
+                    const offset =
+                        target.getBoundingClientRect().top -
+                        scroller.getBoundingClientRect().top +
+                        scroller.scrollTop;
+                    scroller.scrollTop =
+                        offset -
+                        (scroller.clientHeight - target.offsetHeight) / 2;
+                } else {
+                    scroller.scrollTop = 0;
+                }
+            }
+            update();
+        }, [props.resetKey, props.scrollTo, update]);
+
+        // the track is mounted only once content is known to be scrollable,
+        // so recompute with its real height (before it gets painted)
+        useIsomorphicLayoutEffect(() => {
+            if (isScrollable) {
+                update();
+            }
+        }, [isScrollable, update]);
+
+        const handleThumbPointerDown = (e: React.PointerEvent) => {
+            if (!scrollerRef.current) {
+                return;
+            }
+            e.preventDefault();
+            e.currentTarget.setPointerCapture(e.pointerId);
+            dragRef.current = {
+                startY: e.clientY,
+                startScrollTop: scrollerRef.current.scrollTop,
+            };
+            setDragging(true);
+        };
+
+        const handleThumbPointerMove = (e: React.PointerEvent) => {
+            const scroller = scrollerRef.current;
+            const track = trackRef.current;
+            const thumb = thumbGeomRef.current;
+            if (!dragRef.current || !scroller || !track || !thumb) {
+                return;
+            }
+            const scrollRange = scroller.scrollHeight - scroller.clientHeight;
+            const thumbRange = track.clientHeight - thumb.height;
+            if (thumbRange > 0) {
+                scroller.scrollTop =
+                    dragRef.current.startScrollTop +
+                    ((e.clientY - dragRef.current.startY) * scrollRange) /
+                        thumbRange;
+            }
+        };
+
+        const handleThumbPointerUp = (e: React.PointerEvent) => {
+            dragRef.current = null;
+            setDragging(false);
+            if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                e.currentTarget.releasePointerCapture(e.pointerId);
+            }
+        };
+
+        const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+            const scroller = scrollerRef.current;
+            const thumb = thumbGeomRef.current;
+            if (!scroller || !thumb || e.target !== e.currentTarget) {
+                return;
+            }
+            const offsetY =
+                e.clientY - e.currentTarget.getBoundingClientRect().top;
+            scroller.scrollBy({
+                top:
+                    (offsetY < thumb.top ? -1 : 1) *
+                    scroller.clientHeight *
+                    0.9,
+                behavior: 'smooth',
+            });
+        };
+
+        return (
+            <S.ScrollerWrapper className={props.className}>
+                <S.Scroller
+                    ref={scrollerRef}
+                    onScroll={update}
+                    className={
+                        [
+                            isScrollable ? 'scrollable' : '',
+                            fadeTop ? 'fade-top' : '',
+                            fadeBottom ? 'fade-bottom' : '',
+                        ]
+                            .filter(Boolean)
+                            .join(' ') || undefined
+                    }
+                >
+                    <div ref={contentRef}>{props.children}</div>
+                </S.Scroller>
+                {isScrollable ? (
+                    <div
+                        className="scrollbar-track"
+                        ref={trackRef}
+                        onClick={handleTrackClick}
+                    >
+                        <div
+                            ref={thumbRef}
+                            className={
+                                'scrollbar-thumb' +
+                                (dragging ? ' dragging' : '')
+                            }
+                            onPointerDown={handleThumbPointerDown}
+                            onPointerMove={handleThumbPointerMove}
+                            onPointerUp={handleThumbPointerUp}
+                            onPointerCancel={handleThumbPointerUp}
+                        />
+                    </div>
+                ) : null}
+            </S.ScrollerWrapper>
+        );
+    };
+
     // -------------------- <SVGMask /> -----------------------------
 
     const SVGMaskIcon: React.FC<{
@@ -1630,6 +1852,7 @@ export function init(
         Subtile,
         TweakBox,
         SVGMaskIcon,
+        Scroller,
         useMobileComponent,
     };
 }

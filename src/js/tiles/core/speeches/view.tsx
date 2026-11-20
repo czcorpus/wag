@@ -342,7 +342,7 @@ export function init(
         };
 
         return (
-            <div>
+            <div className="speeches-stretcher">
                 {props.isTweakMode ? (
                     <globComponents.TweakBox>
                         <div className="next">
@@ -357,7 +357,13 @@ export function init(
                         </a>
                     </div>
                 ) : null}
-                <S.Speeches>{renderSpeechLines()}</S.Speeches>
+                <globComponents.Scroller
+                    className="speeches-scroller"
+                    resetKey={props.data}
+                    scrollTo=".coll"
+                >
+                    <S.Speeches>{renderSpeechLines()}</S.Speeches>
+                </globComponents.Scroller>
             </div>
         );
     };
