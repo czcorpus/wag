@@ -208,11 +208,15 @@ export interface GlobalComponents {
      * @param scrollTo a CSS selector of an element within the content; if set,
      *                 instead of scrolling to the top (on resetKey change),
      *                 the first matching element is scrolled to the center
+     * @param follow a CSS selector of element(s) to be kept in view; whenever
+     *               it changes, the matching elements are smoothly scrolled
+     *               to the center (useful e.g. for following a playback)
      */
     Scroller: React.FC<
         React.PropsWithChildren<{
             resetKey?: unknown;
             scrollTo?: string;
+            follow?: string;
             className?: string;
         }>
     >;
@@ -1517,28 +1521,53 @@ export function init(
             return () => observer.disconnect();
         }, [update]);
 
+        /**
+         * Returns scrollTop value centering the box containing
+         * all the elements matching the selector (or null if none).
+         */
+        const findCenteredScrollTop = (
+            scroller: HTMLElement,
+            selector: string
+        ): number | null => {
+            const targets = scroller.querySelectorAll<HTMLElement>(selector);
+            if (targets.length === 0) {
+                return null;
+            }
+            let top = Infinity;
+            let bottom = -Infinity;
+            targets.forEach((t) => {
+                const rect = t.getBoundingClientRect();
+                top = Math.min(top, rect.top);
+                bottom = Math.max(bottom, rect.bottom);
+            });
+            // scroll only the container, not the whole page
+            const offset =
+                top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+            return offset - (scroller.clientHeight - (bottom - top)) / 2;
+        };
+
         // new content - start from the top or from the requested element
         useIsomorphicLayoutEffect(() => {
             const scroller = scrollerRef.current;
             if (scroller) {
-                const target = props.scrollTo
-                    ? scroller.querySelector<HTMLElement>(props.scrollTo)
+                const top = props.scrollTo
+                    ? findCenteredScrollTop(scroller, props.scrollTo)
                     : null;
-                if (target) {
-                    // scroll only the container, not the whole page
-                    const offset =
-                        target.getBoundingClientRect().top -
-                        scroller.getBoundingClientRect().top +
-                        scroller.scrollTop;
-                    scroller.scrollTop =
-                        offset -
-                        (scroller.clientHeight - target.offsetHeight) / 2;
-                } else {
-                    scroller.scrollTop = 0;
-                }
+                scroller.scrollTop = top ?? 0;
             }
             update();
         }, [props.resetKey, props.scrollTo, update]);
+
+        // keep the followed element(s) in view
+        React.useEffect(() => {
+            const scroller = scrollerRef.current;
+            if (scroller && props.follow) {
+                const top = findCenteredScrollTop(scroller, props.follow);
+                if (top !== null) {
+                    scroller.scrollTo({ top, behavior: 'smooth' });
+                }
+            }
+        }, [props.follow]);
 
         // the track is mounted only once content is known to be scrollable,
         // so recompute with its real height (before it gets painted)
