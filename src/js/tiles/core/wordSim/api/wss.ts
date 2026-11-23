@@ -28,14 +28,10 @@ import { IDataStreaming } from '../../../../page/streaming.js';
 import { DataApi, ResourceApi, SourceDetails } from '../../../../types.js';
 import {
     CNCWord2VecSimApiArgs,
-    HTTPResponse,
-    WordSimApiLegacyResponse,
     WordSimApiResponse,
     WSServerCorpusInfo,
 } from './standard.js';
 import { Backlink } from '../../../../page/tile.js';
-import { ajax$ } from '../../../../page/ajax.js';
-import { AjaxError } from 'rxjs/ajax';
 
 interface WSServerItem {
     word: string;
@@ -140,11 +136,9 @@ export class CNCWSServerApi
                 contentType: 'application/json',
             })
             .pipe(
-                map(
-                    resp => ({
-                        words: resp ? resp : [],
-                    })
-                )
+                map((resp) => ({
+                    words: resp ? resp : [],
+                }))
             );
     }
 }
