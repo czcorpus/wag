@@ -111,6 +111,9 @@
                 "geoAreaSpotTextColor": {
                     "type": "string"
                 },
+                "indexBorderStyle": {
+                    "type": "string"
+                },
                 "isDefault": {
                     "type": "boolean"
                 },
@@ -157,6 +160,19 @@
                     },
                     "type": "array"
                 },
+                "speakerBoxStyle": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
                 "svgIconsFilter": {
                     "type": "string"
                 },
@@ -168,6 +184,19 @@
                 },
                 "textInputBorderStyle": {
                     "type": "string"
+                },
+                "textInputFocusStyle": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 },
                 "themeId": {
                     "type": "string"

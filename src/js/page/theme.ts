@@ -124,6 +124,8 @@ export class Theme<T = any> {
 
     public readonly queryFormButtonIconHoverColor: string;
 
+    public readonly indexBorderStyle: string;
+
     public readonly tileBackgroundColor: string | undefined;
 
     public readonly tileHeadingSeparColor: string;
@@ -131,6 +133,8 @@ export class Theme<T = any> {
     public readonly textInputBackgroundColor: string;
 
     public readonly textInputBorderStyle: string;
+
+    public readonly textInputFocusStyle: RuleSet | undefined;
 
     public readonly defaultFontFamily: string;
 
@@ -223,6 +227,8 @@ export class Theme<T = any> {
 
     public readonly tileFooterStyle: RuleSet;
 
+    public readonly speakerBoxStyle: RuleSet | undefined;
+
     public readonly chartTextColor: string;
 
     public readonly chartGridColor: string;
@@ -301,6 +307,8 @@ export class Theme<T = any> {
             confSrc.queryFormButtonIconColor || this.colorInvertText;
         this.queryFormButtonIconHoverColor =
             confSrc.queryFormButtonIconHoverColor || this.colorLogoBlueShining;
+        this.indexBorderStyle =
+            confSrc.indexBorderStyle || this.textInputBorderStyle;
 
         this.oddDataLineBackgroundColor =
             confSrc.oddDataLineBackgroundColor ||
@@ -399,6 +407,12 @@ export class Theme<T = any> {
             confSrc.tileFooterStyle,
             ''
         );
+        this.textInputFocusStyle = confSrc.textInputFocusStyle
+            ? this.prepareStyleSet(confSrc.textInputFocusStyle, '')
+            : undefined;
+        this.speakerBoxStyle = confSrc.speakerBoxStyle
+            ? this.prepareStyleSet(confSrc.speakerBoxStyle, '')
+            : undefined;
     }
 
     categoryPalette = (

@@ -24,6 +24,30 @@ import { styled } from 'styled-components';
 // -------------- <SpeechesTile /> -----------------
 
 export const SpeechesTile = styled.div<{ theme: Theme }>`
+    position: relative;
+    height: 100%;
+    width: 100%;
+    min-height: 25em;
+
+    .speeches-stretcher {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        min-height: 0;
+
+        .speeches-stretcher {
+            position: static;
+            max-height: 75vh;
+        }
+    }
+
     tr.expand {
         th {
             text-align: right;
@@ -94,6 +118,7 @@ export const Speaker = styled.dt<{ theme: Theme }>`
         font-size: 0.8em;
         font-weight: normal;
         padding: 0.05em 0.7em;
+        ${(props) => props.theme.speakerBoxStyle}
     }
 
     &:not(:first-of-type) {
