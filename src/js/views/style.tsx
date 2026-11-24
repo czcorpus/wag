@@ -1302,6 +1302,10 @@ export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
         width: ${(props) =>
             props.$maxWidth ? `${0.7 * props.$maxWidth}em` : 'fit-content'};
     }
+
+    ${(props) => props.theme.cssMobileScreen} {
+        display: none;
+    }
 `;
 
 // ----------- <LemmaOnlySupportWarning /> ----------------------------
