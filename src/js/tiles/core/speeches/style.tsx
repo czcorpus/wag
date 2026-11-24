@@ -44,7 +44,7 @@ export const SpeechesTile = styled.div<{ theme: Theme }>`
 
         .speeches-stretcher {
             position: static;
-            max-height: 75vh;
+            max-height: 66vh;
         }
     }
 
