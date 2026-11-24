@@ -269,6 +269,7 @@ export function mkRuntimeClientConf({
                     getThemeList(conf)
                 ),
                 dataStreamingUrl: conf.dataStreamingUrl,
+                dataStreamingCache: !!conf.dataStreamingCache,
                 tiles,
                 layouts,
                 queryTypes:
