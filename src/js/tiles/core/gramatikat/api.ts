@@ -228,17 +228,17 @@ export interface LemmaProfileResponse {
     pos: GramatikatPoS;
 
     /**
-     * catMapping allows for restoring tile's native category order
+     * catComb allows for restoring tile's native category order
      * compared with Gramatikat API which requires splitting into
      * lexical and inflectional categories. This value is not provided
      * by Gramatikat API, it is created by the client.
      */
-    catMapping: Array<[GramatikatCatSet, number]>;
+    catComb: Array<[GramatikatCatSet, number]>;
 
     /**
      * See catMapping
      */
-    frameCatMapping: Array<[GramatikatCatSet, number]>;
+    frameCatComb: Array<[GramatikatCatSet, number]>;
 
     /**
      * HTTP status code (derived from both requests APIGuard
@@ -320,8 +320,8 @@ export class GramatikatAPI
                             },
                             pos: args?.pos,
                             isAmbiguousPos: !args?.pos,
-                            catMapping: args.catComb,
-                            frameCatMapping: args.frameCatComb,
+                            catComb: args?.catComb,
+                            frameCatComb: args?.frameCatComb,
                             code: HTTP.Status.InternalServerError,
                             error: resp?.error,
                         };
@@ -339,8 +339,8 @@ export class GramatikatAPI
                             posInfo: resp.posInfo,
                             pos: args.pos,
                             isAmbiguousPos: !args.pos,
-                            catMapping: args.catComb,
-                            frameCatMapping: args.frameCatComb,
+                            catComb: args.catComb,
+                            frameCatComb: args.frameCatComb,
                             code: resp.code,
                         };
                     }

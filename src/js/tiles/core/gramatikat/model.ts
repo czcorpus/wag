@@ -531,10 +531,10 @@ export class GramatikatModel extends TileStatefulModel<GramatikatState> {
                     List.size(lemmaInfo.frameInfos[frameIdx].frameValComb)
             );
             List.forEach((v, i) => {
-                restoredCats[resp.catMapping[i][1]] = v;
+                restoredCats[resp.catComb[i][1]] = v;
             }, item.valComb);
             List.forEach((v, i) => {
-                restoredCats[resp.frameCatMapping[i][1]] = v;
+                restoredCats[resp.frameCatComb[i][1]] = v;
             }, lemmaInfo.frameInfos[frameIdx].frameValComb);
             item.valComb = restoredCats;
         }, lemmaInfo.frameInfos[frameIdx].valCombInfos);
