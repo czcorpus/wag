@@ -54,6 +54,7 @@ export interface SpeechResponse {
     context: {
         text: Array<MarkupToken | SpeechToken>;
         ref: string;
+        errMsg?: string;
     };
     resultType: 'tokenContext';
     error?: string;
@@ -130,19 +131,23 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
                 contentType: 'application/json',
             })
             .pipe(
-                map((resp) =>
-                    resp
-                        ? {
-                              text: resp.context.text,
-                              kwicTokenIdx: parseInt(
-                                  resp.context.ref.substring(1)
-                              ),
-                          }
-                        : {
-                              text: [],
-                              kwicTokenIdx: -1,
-                          }
-                )
+                map((resp) => {
+                    if (!resp) {
+                        return {
+                            text: [],
+                            kwicTokenIdx: -1,
+                        };
+                    }
+                    if (resp.context.errMsg) {
+                        console.warn(
+                            `Speeches tile (${tileId}): ${resp.context.errMsg}`
+                        );
+                    }
+                    return {
+                        text: resp.context.text,
+                        kwicTokenIdx: parseInt(resp.context.ref.substring(1)),
+                    };
+                })
             );
     }
 
