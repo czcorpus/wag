@@ -16,7 +16,14 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { catchError, concatMap, map, tap } from 'rxjs/operators';
+import {
+    catchError,
+    concatMap,
+    filter,
+    map,
+    scan,
+    takeWhile,
+} from 'rxjs/operators';
 import { Dict, HTTP, List, pipe, tuple } from 'cnc-tskit';
 import urlJoin from 'url-join';
 
@@ -58,6 +65,15 @@ export interface ConcArgs {
     action: 'conc';
     corpusId: string;
     args: ConcApiArgs;
+}
+
+function isCollResponse(
+    resp: BasicHTTPResponse | ConcResponse | null | undefined
+): resp is BasicHTTPResponse {
+    return (
+        !!resp &&
+        (resp.resultType === 'coll' || resp.resultType === 'collWithExamples')
+    );
 }
 
 export class MQueryMultiCollAPI
@@ -132,10 +148,28 @@ export class MQueryMultiCollAPI
                 contentType: 'application/json',
             })
             .pipe(
-                map((resp) =>
-                    resp &&
-                    (resp.resultType == 'coll' ||
-                        resp.resultType == 'collWithExamples')
+                // The server returns only the first source with some data.
+                // For a coll source, collocations come first followed by
+                // concordance examples (for the concordance tile), for a conc
+                // source only the concordance comes. In both cases, the 'conc'
+                // response is the last one relevant to this tile, so we
+                // complete here instead of waiting for the whole stream to close.
+                takeWhile((resp) => !resp || resp.resultType !== 'conc', true),
+                scan(
+                    (acc, resp) => ({
+                        resp,
+                        hasColl: acc.hasColl || isCollResponse(resp),
+                        prevHasColl: acc.hasColl,
+                    }),
+                    { resp: null, hasColl: false, prevHasColl: false }
+                ),
+                // ignore conc examples following already received collocations
+                filter(
+                    ({ resp, prevHasColl }) =>
+                        isCollResponse(resp) || !prevHasColl
+                ),
+                map(({ resp }) =>
+                    isCollResponse(resp)
                         ? resp
                         : {
                               concSize: 0,
