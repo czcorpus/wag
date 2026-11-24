@@ -119,8 +119,17 @@ export class MQueryConcApi
                 contentType: 'application/json',
             })
             .pipe(
-                map<ConcResponse, ConcResponse>((resp) =>
-                    resp
+                map<ConcResponse, ConcResponse>((resp) => {
+                    if (resp) {
+                        List.forEach((line) => {
+                            if (line.errMsg) {
+                                console.warn(
+                                    `Concordance tile (${tileId}), line ${line.ref}: ${line.errMsg}`
+                                );
+                            }
+                        }, resp.lines);
+                    }
+                    return resp
                         ? resp
                         : {
                               concSize: 0,
@@ -129,8 +138,8 @@ export class MQueryConcApi
                               corpname: args ? args.corpusName : undefined,
                               alignedCorpname: undefined,
                               resultType: 'conc',
-                          }
-                ),
+                          };
+                }),
                 map((resp) => tuple(resp, queryIdx))
             );
     }
