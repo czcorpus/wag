@@ -1480,14 +1480,15 @@ export function init(
         const update = React.useCallback(() => {
             const scroller = scrollerRef.current;
             if (scroller && contentRef.current && onOverflowChangeRef.current) {
-                // measured from the content element (not scrollHeight) so that
-                // the free space is reported too when nothing overflows
                 const cs = window.getComputedStyle(scroller);
-                const overflow = Math.round(
-                    contentRef.current.offsetHeight +
-                        parseFloat(cs.paddingTop) +
-                        parseFloat(cs.paddingBottom) -
-                        scroller.clientHeight
+                const overflow = Math.max(
+                    Math.ceil(
+                        contentRef.current.getBoundingClientRect().height +
+                            parseFloat(cs.paddingTop) +
+                            parseFloat(cs.paddingBottom) -
+                            scroller.clientHeight
+                    ),
+                    scroller.scrollHeight - scroller.clientHeight
                 );
                 onOverflowChangeRef.current(overflow);
             }
@@ -1665,7 +1666,9 @@ export function init(
                             .join(' ') || undefined
                     }
                 >
-                    <div ref={contentRef}>{props.children}</div>
+                    <div ref={contentRef} style={{ display: 'flow-root' }}>
+                        {props.children}
+                    </div>
                 </S.Scroller>
                 {isScrollable ? (
                     <div
