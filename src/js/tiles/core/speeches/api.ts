@@ -117,7 +117,8 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         streaming: IDataStreaming,
         tileId: number,
         queryIdx: number,
-        args: SpeechReqArgs | null
+        args: SpeechReqArgs | null,
+        skipCache = false
     ): Observable<SpeechData> {
         return streaming
             .registerTileRequest<SpeechResponse>({
@@ -129,6 +130,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
                     : '',
                 body: {},
                 contentType: 'application/json',
+                skipCache,
             })
             .pipe(
                 map((resp) => {
