@@ -126,6 +126,8 @@ export class Theme<T = any> {
 
     public readonly indexBorderStyle: string;
 
+    public readonly indexPosition: string;
+
     public readonly tileBackgroundColor: string | undefined;
 
     public readonly tileHeadingSeparColor: string;
@@ -309,6 +311,7 @@ export class Theme<T = any> {
             confSrc.queryFormButtonIconHoverColor || this.colorLogoBlueShining;
         this.indexBorderStyle =
             confSrc.indexBorderStyle || this.textInputBorderStyle;
+        this.indexPosition = confSrc.indexPosition || '1em';
 
         this.oddDataLineBackgroundColor =
             confSrc.oddDataLineBackgroundColor ||

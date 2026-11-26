@@ -1247,7 +1247,7 @@ export const ErrPage = styled.div<{ theme: Theme }>`
 export const Index = styled.div<{ $maxWidth: number; theme: Theme }>`
     position: fixed;
     right: 0;
-    margin-top: 1em;
+    margin-top: ${(props) => props.theme.indexPosition};
     display: flex;
     flex-direction: row;
     align-items: stretch;
