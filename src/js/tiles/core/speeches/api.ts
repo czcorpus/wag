@@ -54,6 +54,7 @@ export interface SpeechResponse {
     context: {
         text: Array<MarkupToken | SpeechToken>;
         ref: string;
+        errMsg?: string;
     };
     resultType: 'tokenContext';
     error?: string;
@@ -116,7 +117,8 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
         streaming: IDataStreaming,
         tileId: number,
         queryIdx: number,
-        args: SpeechReqArgs | null
+        args: SpeechReqArgs | null,
+        skipCache = false
     ): Observable<SpeechData> {
         return streaming
             .registerTileRequest<SpeechResponse>({
@@ -128,21 +130,26 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechData> {
                     : '',
                 body: {},
                 contentType: 'application/json',
+                skipCache,
             })
             .pipe(
-                map((resp) =>
-                    resp
-                        ? {
-                              text: resp.context.text,
-                              kwicTokenIdx: parseInt(
-                                  resp.context.ref.substring(1)
-                              ),
-                          }
-                        : {
-                              text: [],
-                              kwicTokenIdx: -1,
-                          }
-                )
+                map((resp) => {
+                    if (!resp) {
+                        return {
+                            text: [],
+                            kwicTokenIdx: -1,
+                        };
+                    }
+                    if (resp.context.errMsg) {
+                        console.warn(
+                            `Speeches tile (${tileId}): ${resp.context.errMsg}`
+                        );
+                    }
+                    return {
+                        text: resp.context.text,
+                        kwicTokenIdx: parseInt(resp.context.ref.substring(1)),
+                    };
+                })
             );
     }
 

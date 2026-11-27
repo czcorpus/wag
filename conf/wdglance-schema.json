@@ -153,6 +153,10 @@
                 "indexBorderStyle": {
                     "type": "string"
                 },
+                "indexPosition": {
+                    "description": "Top margin (CSS length) of the floating tiles index. Default is '1em'.",
+                    "type": "string"
+                },
                 "isDefault": {
                     "type": "boolean"
                 },

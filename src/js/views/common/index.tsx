@@ -211,6 +211,9 @@ export interface GlobalComponents {
      * @param follow a CSS selector of element(s) to be kept in view; whenever
      *               it changes, the matching elements are smoothly scrolled
      *               to the center (useful e.g. for following a playback)
+     * @param onOverflowChange called (on content/viewport resize) with
+     *                 the number of px the content overflows the viewport;
+     *                 a negative value means the remaining free space
      */
     Scroller: React.FC<
         React.PropsWithChildren<{
@@ -218,6 +221,7 @@ export interface GlobalComponents {
             scrollTo?: string;
             follow?: string;
             className?: string;
+            onOverflowChange?: (overflowPx: number) => void;
         }>
     >;
 }
@@ -1470,9 +1474,24 @@ export function init(
         const [dragging, setDragging] = React.useState(false);
         const [fadeTop, setFadeTop] = React.useState(false);
         const [fadeBottom, setFadeBottom] = React.useState(false);
+        const onOverflowChangeRef = React.useRef(props.onOverflowChange);
+        onOverflowChangeRef.current = props.onOverflowChange;
 
         const update = React.useCallback(() => {
             const scroller = scrollerRef.current;
+            if (scroller && contentRef.current && onOverflowChangeRef.current) {
+                const cs = window.getComputedStyle(scroller);
+                const overflow = Math.max(
+                    Math.ceil(
+                        contentRef.current.getBoundingClientRect().height +
+                            parseFloat(cs.paddingTop) +
+                            parseFloat(cs.paddingBottom) -
+                            scroller.clientHeight
+                    ),
+                    scroller.scrollHeight - scroller.clientHeight
+                );
+                onOverflowChangeRef.current(overflow);
+            }
             if (
                 !scroller ||
                 scroller.scrollHeight <= scroller.clientHeight + 1
@@ -1647,7 +1666,9 @@ export function init(
                             .join(' ') || undefined
                     }
                 >
-                    <div ref={contentRef}>{props.children}</div>
+                    <div ref={contentRef} style={{ display: 'flow-root' }}>
+                        {props.children}
+                    </div>
                 </S.Scroller>
                 {isScrollable ? (
                     <div

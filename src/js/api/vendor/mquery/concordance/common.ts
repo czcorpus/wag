@@ -71,8 +71,7 @@ export function getKwicCtx(line: Line): Array<Token> {
     );
     if (srchIdx1 === -1 || srchIdx2 === -1) {
         if (line.errMsg) {
-            console.error(`Error in line ${line.ref}: ${line.errMsg}`);
-            return line.text;
+            return line.text; // the error itself is logged by the API client
         }
         throw new Error('cannot find kwic/coll ctx');
     }

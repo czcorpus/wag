@@ -109,6 +109,12 @@ export interface ColorTheme<T = any> extends ColorThemeIdent {
 
     indexBorderStyle?: string;
 
+    /**
+     * Top margin (CSS length) of the floating tiles index.
+     * Default is '1em'.
+     */
+    indexPosition?: string;
+
     extraTheme?: T;
 }
 

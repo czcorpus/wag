@@ -17,12 +17,10 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { Ident, HTTP, pipe, Dict, List } from 'cnc-tskit';
+import { HTTP, pipe, Dict, List } from 'cnc-tskit';
 
-import { ajax$ } from '../../../../page/ajax.js';
 import { DataApi, ResourceApi, SourceDetails } from '../../../../types.js';
-import { map, catchError } from 'rxjs/operators';
-import { AjaxError } from 'rxjs/ajax';
+import { map } from 'rxjs/operators';
 import { IApiServices } from '../../../../appServices.js';
 import { Backlink } from '../../../../page/tile.js';
 import urlJoin from 'url-join';

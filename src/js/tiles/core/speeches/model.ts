@@ -69,6 +69,7 @@ interface ReloadDataArgs {
     dispatch: SEDispatcher;
     streaming: IDataStreaming;
     range: [number, number];
+    skipCache?: boolean;
 }
 
 export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
@@ -205,6 +206,7 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
                         .startNewSubgroup(this.tileId),
                     range: tuple(state.leftRange, state.rightRange),
                     dispatch,
+                    skipCache: true,
                 });
             }
         );
@@ -398,9 +400,16 @@ export class SpeechesModel extends TileStatelessModel<SpeechesModelState> {
         streaming,
         range,
         dispatch,
+        skipCache,
     }: ReloadDataArgs): void {
         this.api
-            .call(streaming, this.tileId, 0, this.stateToArgs(state, range))
+            .call(
+                streaming,
+                this.tileId,
+                0,
+                this.stateToArgs(state, range),
+                skipCache
+            )
             .subscribe({
                 next: (resp) => {
                     dispatch<typeof Actions.TileDataLoaded>({

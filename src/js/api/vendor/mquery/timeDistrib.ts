@@ -258,13 +258,17 @@ export class MQueryTimeDistribStreamApi
         if (isTimeDistribArgs(queryArgs)) {
             return tuple(
                 HTTP.Method.GET,
-                `${this.apiURL}/freqs-by-year-streamed/${queryArgs.corpname}?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`,
+                urlJoin(
+                    this.apiURL,
+                    'freqs-by-year-streamed',
+                    queryArgs.corpname
+                ) + `?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`,
                 {}
             );
         }
         return tuple(
             HTTP.Method.POST,
-            `${this.apiURL}/merge-freqs-by-year-streamed?`,
+            urlJoin(this.apiURL, 'merge-freqs-by-year-streamed'),
             this.prepareMultiCorpArgs(tileId, queryIdx, queryArgs, true)
         );
     }
@@ -361,8 +365,9 @@ export class MQueryTimeDistribStreamApi
                     ? HTTP.Method.GET
                     : HTTP.Method.POST,
                 url: isTimeDistribArgs(queryArgs)
-                    ? `${this.apiURL}/time-dist-word?${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`
-                    : `${this.apiURL}/merge-time-dist-word`,
+                    ? urlJoin(this.apiURL, 'time-dist-word') +
+                      `?corpname=${encodeURIComponent(queryArgs.corpname)}&${this.prepareArgs(tileId, queryIdx, queryArgs, true)}`
+                    : urlJoin(this.apiURL, 'merge-time-dist-word'),
                 body: isTimeDistribArgs(queryArgs)
                     ? {}
                     : this.prepareMultiCorpArgs(

@@ -60,6 +60,12 @@ export interface TileRequest {
     // EventSource stream. In such case, we must integrate
     // this stream into the main one.
     isEventSource?: boolean;
+
+    // If true, the client-side cache is not used to resolve
+    // the request (but a fresh response still replaces the cached one).
+    // This is useful e.g. for APIs returning random data (a different
+    // result is expected for the same request).
+    skipCache?: boolean;
 }
 
 /**
@@ -480,7 +486,8 @@ export class DataStreaming implements IDataStreaming {
                 return req;
             }
             numRealRequests++;
-            const hit = this.cache ? this.cache.get(req) : undefined;
+            const hit =
+                this.cache && !req.skipCache ? this.cache.get(req) : undefined;
             if (hit) {
                 cached.set(tileKey(req), hit);
                 return { ...req, url: '', body: '' };
